@@ -1,3 +1,4 @@
+#include <GL/glew.h>
 #include <OpenGL/gl.h>
 #include <GLUT/glut.h>
 
@@ -17,6 +18,8 @@ int main(int argc, char** argv)
 	glutCreateWindow("ERM");
 	
 	glutDisplayFunc(Render);
+	
+	glewInit();
 	
 	glutMainLoop();
 	
