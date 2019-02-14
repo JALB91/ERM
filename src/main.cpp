@@ -4,6 +4,8 @@
 void Render()
 {
 	glClear(GL_COLOR_BUFFER_BIT);
+	
+	glutSwapBuffers();
 }
 
 int main(int argc, char** argv)
