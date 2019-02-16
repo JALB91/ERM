@@ -1,6 +1,6 @@
 #!/bin/sh
 
-cd build/ && cmake -G Xcode ..
+cd build/ && cmake -G Xcode .. && cp -r ../res Debug/
 
 for i in "$@"
 do
@@ -10,6 +10,6 @@ do
 	esac
 	case $i in
 		-f|--fastrun)
-			xcodebuild && Debug/erm
+			xcodebuild && Debug/ERM
 	esac
 done

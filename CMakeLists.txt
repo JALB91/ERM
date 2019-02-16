@@ -1,15 +1,26 @@
 cmake_minimum_required(VERSION 3.1)
-project(erm)
+
+set(PROJECT_NAME ERM)
+
+project(${PROJECT_NAME})
+
+message(${CMAKE_CURRENT_BINARY_DIR})
+
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
 set(CMAKE_CXX_STANDARD 14)
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS}")
+SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}")
 
 find_package(OpenGL)
-find_package(GLFW3)
 
 add_compile_definitions(GL_SILENCE_DEPRECATION)
 
+add_subdirectory(externals/glfw)
+
 include_directories(
-	/usr/local/Cellar/glfw/3.2.1/include/
 	include
 )
 
@@ -28,9 +39,9 @@ if (FALSE)
 	execute_process(COMMAND "${CMAKE_COMMAND}" "-E" "environment")
 endif()
 
-add_executable(erm ${SOURCES})
+add_executable(${PROJECT_NAME} ${SOURCES})
 target_link_libraries(
-	erm
+	${PROJECT_NAME}
 	${OPENGL_gl_LIBRARY}
-	/usr/local/Cellar/glfw/3.2.1/lib/libglfw.3.2.dylib
+	glfw
 )
