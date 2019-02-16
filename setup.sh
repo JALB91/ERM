@@ -1,6 +1,16 @@
 #!/bin/sh
 
-cd build/ && cmake -G Xcode .. && cp -r ../res Debug/
+OPT="-DPRINT_VARIABLES=FALSE"
+
+for i in "$@"
+do
+	case $i in
+		-v|--verbose)
+			OPT="-DPRINT_VARIABLES=TRUE"
+	esac
+done
+
+cd build/ && cmake $OPT -G Xcode ..
 
 for i in "$@"
 do

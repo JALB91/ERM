@@ -4,8 +4,6 @@ set(PROJECT_NAME ERM)
 
 project(${PROJECT_NAME})
 
-message(${CMAKE_CURRENT_BINARY_DIR})
-
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
@@ -24,12 +22,12 @@ include_directories(
 	include
 )
 
-file(GLOB SOURCES 
+file(GLOB_RECURSE SOURCES 
 	include/**.h 
 	src/**.cpp
 )
 
-if (FALSE)
+if (${PRINT_VARIABLES})
 	get_cmake_property(_variableNames VARIABLES)
 	list (SORT _variableNames)
 	foreach (_variableName ${_variableNames})
@@ -44,4 +42,14 @@ target_link_libraries(
 	${PROJECT_NAME}
 	${OPENGL_gl_LIBRARY}
 	glfw
+)
+
+set(res_source ${CMAKE_HOME_DIRECTORY}/res/)
+set(res_dest ${CMAKE_CURRENT_BINARY_DIR}/Debug/res)
+
+add_custom_command(
+ TARGET ${PROJECT_NAME} POST_BUILD
+ COMMAND ${CMAKE_COMMAND} -E copy_directory ${res_source} ${res_dest}
+ DEPENDS ${res_dest}
+ COMMENT "symbolic link resources folder from ${res_source} => ${res_dest}"
 )
