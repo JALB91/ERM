@@ -8,11 +8,12 @@ namespace erm {
 	{
 		ShaderProgram(const std::string& vertexPath, const std::string& fragmentPath);
 		
-		std::string vertexSource;
-		std::string fragmentSource;
+		unsigned int mId;
 		
 	private:
 		std::string ParseShader(const std::string& path) const;
+		unsigned int CompileShader(unsigned int type, const std::string& source) const;
+		unsigned int CreateShaderProgram(const std::string& vertexSource, const std::string& fragmentSource) const;
 		
 	};
 
