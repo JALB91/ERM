@@ -12,11 +12,12 @@ set(CMAKE_CXX_STANDARD 14)
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS}")
 SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}")
 
-find_package(OpenGL)
-
 add_compile_definitions(GL_SILENCE_DEPRECATION)
 
+find_package(OpenGL)
 add_subdirectory(externals/glfw)
+
+add_compile_definitions(GLFW_INCLUDE_GLCOREARB)
 
 include_directories(
 	include
