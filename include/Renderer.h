@@ -10,3 +10,20 @@
 
 void GLClearError();
 bool GLLogCall(const char* function, const char* file, int line);
+
+
+namespace erm {
+
+	class VertexArray;
+	class IndexBuffer;
+	class ShaderProgram;
+	
+	class Renderer
+	{
+	public:
+		void Clear() const;
+		void Draw(const VertexArray& va, const IndexBuffer& ib, const ShaderProgram& shader) const;
+		
+	};
+	
+}

@@ -41,10 +41,10 @@ int main(int argc, char** argv)
 	
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	
 #ifdef __APPLE__
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 	
 	window = glfwCreateWindow(640, 480, "ERM", nullptr, nullptr);
@@ -72,30 +72,30 @@ int main(int argc, char** argv)
 		
 		erm::IndexBuffer ib (kIndices, 6);
 
-		erm::ShaderProgram shaderProgram ("res/shaders/basic.vert", "res/shaders/basic.frag");
+		erm::ShaderProgram shader ("res/shaders/basic.vert", "res/shaders/basic.frag");
 		
 		va.Unbind();
 		vb.Unbind();
 		ib.Unbind();
-		shaderProgram.Unbind();
+		shader.Unbind();
+		
+		erm::Renderer renderer;
 		
 		while (!glfwWindowShouldClose(window))
 		{
-			GLCALL(glClear(GL_COLOR_BUFFER_BIT));
+			renderer.Clear();
 			
-			va.Bind();
-			ib.Bind();
-			shaderProgram.Bind();
-			shaderProgram.SetUniform4f("u_Color", r, 0.2f, 0.5f, 1.0f);
+			shader.Bind();
+			shader.SetUniform4f("u_Color", r, 0.2f, 0.5f, 1.0f);
 			
-			GLCALL(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
+			renderer.Draw(va, ib, shader);
 			
 			glfwSwapBuffers(window);
 			glfwPollEvents();
 			
 			if (r > 1.0f || r < 0.0f)
 			{
-				increment = - increment;
+				increment = -increment;
 			}
 			
 			r += increment;
