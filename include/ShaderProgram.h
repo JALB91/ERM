@@ -5,8 +5,9 @@
 
 namespace erm {
 	
-	struct ShaderProgram
+	class ShaderProgram
 	{
+	public:
 		ShaderProgram(const std::string& vertexPath, const std::string& fragmentPath);
 		~ShaderProgram();
 		
