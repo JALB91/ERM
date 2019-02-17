@@ -1,6 +1,20 @@
 #include "VertexBufferLayout.h"
 
+#include <GLFW/glfw3.h>
+
 namespace erm {
+	
+	unsigned int VertexBufferElement::GetSizeOfType(unsigned int type)
+	{
+		switch (type)
+		{
+			case GL_FLOAT: 			return 4;
+			case GL_UNSIGNED_INT: 	return 4;
+			case GL_UNSIGNED_BYTE: 	return 1;
+		}
+		ASSERT(false);
+		return 0;
+	}
 	
 	template<>
 	void VertexBufferLayout::Push<float>(unsigned int count)

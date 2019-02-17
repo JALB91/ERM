@@ -2,8 +2,6 @@
 
 #include "Renderer.h"
 
-#include <GLFW/glfw3.h>
-
 #include <vector>
 
 namespace erm {
@@ -14,17 +12,7 @@ namespace erm {
 		unsigned int mCount;
 		unsigned char mNormalized;
 		
-		static unsigned int GetSizeOfType(unsigned int type)
-		{
-			switch (type)
-			{
-				case GL_FLOAT: 			return 4;
-				case GL_UNSIGNED_INT: 	return 4;
-				case GL_UNSIGNED_BYTE: 	return 1;
-			}
-			ASSERT(false);
-			return 0;
-		}
+		static unsigned int GetSizeOfType(unsigned int type);
 	};
 	
 	class VertexBufferLayout

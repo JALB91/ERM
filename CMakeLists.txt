@@ -27,16 +27,23 @@ set(CMAKE_CXX_STANDARD 14)
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS}")
 SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}")
 
-add_compile_definitions(GL_SILENCE_DEPRECATION)
+add_compile_definitions(
+	GL_SILENCE_DEPRECATION 
+	GL_DO_NOT_WARN_IF_MULTI_GL_VERSION_HEADERS_INCLUDED 
+	IMGUI_IMPL_OPENGL_LOADER_GLEW
+)
 
-find_package(OpenGL)
+find_package(OpenGL REQUIRED)
+find_package(GLEW REQUIRED)
 add_subdirectory(externals/glm)
 add_subdirectory(externals/glfw)
+add_subdirectory(externals/imgui)
 add_subdirectory(externals/stb_image)
 
 add_compile_definitions(GLFW_INCLUDE_GLCOREARB)
 
 include_directories(
+	${GLEW_INCLUDE_DIR}
 	include
 )
 
@@ -59,8 +66,10 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 target_link_libraries(
 	${PROJECT_NAME}
 	${OPENGL_gl_LIBRARY}
+	${GLEW_LIBRARIES}
 	glfw
 	glm
+	imgui
 	stb_image
 )
 
