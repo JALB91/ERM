@@ -4,6 +4,7 @@
 #include "VertexArray.h"
 #include "VertexBufferLayout.h"
 #include "ShaderProgram.h"
+#include "Texture.h"
 
 #include <GLFW/glfw3.h>
 
@@ -12,20 +13,17 @@
 
 namespace {
 	
-	const float kPositions[12] = {
-		-0.5f, -0.5f, 0.0f,	// BOTTOM-LEFT
-		-0.5f, 0.5f, 0.0f,	// TOP-LEFT
-		0.5f, -0.5f, 0.0f,	// BOTTOM-RIGHT
-		0.5f, 0.5f, 0.0f	// TOP-RIGHT
+	const float kPositions[16] = {
+		-0.5f, -0.5f, 0.0f, 0.0f,	// BOTTOM-LEFT
+		-0.5f,  0.5f, 0.0f, 1.0f,	// TOP-LEFT
+		 0.5f, -0.5f, 1.0f, 0.0f,	// BOTTOM-RIGHT
+		 0.5f,  0.5f, 1.0f, 1.0f	// TOP-RIGHT
 	};
 	
 	const unsigned int kIndices[6] = {
 		0, 1, 2,
 		1, 2, 3
 	};
-	
-	float r = 0.0f;
-	float increment = 0.001f;
 	
 }
 
@@ -47,7 +45,7 @@ int main(int argc, char** argv)
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 	
-	window = glfwCreateWindow(640, 480, "ERM", nullptr, nullptr);
+	window = glfwCreateWindow(400, 400, "ERM", nullptr, nullptr);
 	
 	if (!window)
 	{
@@ -62,10 +60,14 @@ int main(int argc, char** argv)
 	std::cout << glGetString(GL_VERSION) << std::endl;
 	std::cout << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
 	
+	GLCALL(glEnable(GL_BLEND));
+	GLCALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+	
 	{
 		erm::VertexBuffer vb (kPositions, sizeof(kPositions));
 		erm::VertexBufferLayout vbl;
-		vbl.Push<float>(3);
+		vbl.Push<float>(2);
+		vbl.Push<float>(2);
 		
 		erm::VertexArray va;
 		va.AddBuffer(vb, vbl);
@@ -73,6 +75,12 @@ int main(int argc, char** argv)
 		erm::IndexBuffer ib (kIndices, 6);
 
 		erm::ShaderProgram shader ("res/shaders/basic.vert", "res/shaders/basic.frag");
+		shader.Bind();
+		
+		erm::Texture texture ("res/textures/smile.png");
+		texture.Bind();
+		
+		shader.SetUniform1i("u_Texture", 0);
 		
 		va.Unbind();
 		vb.Unbind();
@@ -85,20 +93,10 @@ int main(int argc, char** argv)
 		{
 			renderer.Clear();
 			
-			shader.Bind();
-			shader.SetUniform4f("u_Color", r, 0.2f, 0.5f, 1.0f);
-			
 			renderer.Draw(va, ib, shader);
 			
 			glfwSwapBuffers(window);
 			glfwPollEvents();
-			
-			if (r > 1.0f || r < 0.0f)
-			{
-				increment = -increment;
-			}
-			
-			r += increment;
 		}
 	}
 	

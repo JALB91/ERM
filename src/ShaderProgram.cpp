@@ -18,11 +18,6 @@ namespace erm {
 		GLCALL(glDeleteProgram(mRendererId));
 	}
 	
-	void ShaderProgram::SetUniform4f(const std::string& name, float v0, float v1, float v2, float v3)
-	{
-		GLCALL(glUniform4f(GetUniformLocation(name), v0, v1, v2, v3));
-	}
-	
 	void ShaderProgram::Bind() const
 	{
 		GLCALL(glUseProgram(mRendererId));
@@ -31,6 +26,16 @@ namespace erm {
 	void ShaderProgram::Unbind() const
 	{
 		GLCALL(glUseProgram(0));
+	}
+	
+	void ShaderProgram::SetUniform1i(const std::string &name, int value)
+	{
+		GLCALL(glUniform1i(GetUniformLocation(name), value));
+	}
+	
+	void ShaderProgram::SetUniform4f(const std::string& name, float v0, float v1, float v2, float v3)
+	{
+		GLCALL(glUniform4f(GetUniformLocation(name), v0, v1, v2, v3));
 	}
 	
 	std::string ShaderProgram::ParseShader(const std::string& path) const
