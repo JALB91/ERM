@@ -38,6 +38,11 @@ namespace erm {
 		GLCALL(glUniform4f(GetUniformLocation(name), v0, v1, v2, v3));
 	}
 	
+	void ShaderProgram::SetUniformMat4f(const std::string& name, const glm::mat4& matrix)
+	{
+		GLCALL(glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, &matrix[0][0]));
+	}
+	
 	std::string ShaderProgram::ParseShader(const std::string& path) const
 	{
 		std::ifstream stream (path);

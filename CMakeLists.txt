@@ -60,6 +60,7 @@ target_link_libraries(
 	${PROJECT_NAME}
 	${OPENGL_gl_LIBRARY}
 	glfw
+	glm
 	stb_image
 )
 

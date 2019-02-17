@@ -7,17 +7,22 @@
 #include "Texture.h"
 
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include <string>
 #include <iostream>
 
 namespace {
 	
+	const float kWidth = 640.0f;
+	const float kHeight = 480.0f;
+	
 	const float kPositions[16] = {
-		-0.5f, -0.5f, 0.0f, 0.0f,	// BOTTOM-LEFT
-		-0.5f,  0.5f, 0.0f, 1.0f,	// TOP-LEFT
-		 0.5f, -0.5f, 1.0f, 0.0f,	// BOTTOM-RIGHT
-		 0.5f,  0.5f, 1.0f, 1.0f	// TOP-RIGHT
+		kWidth * 0.25f, kHeight * 0.25f, 0.0f, 0.0f,	// BOTTOM-LEFT
+		kWidth * 0.25f, kHeight * 0.75f, 0.0f, 1.0f,	// TOP-LEFT
+		kWidth * 0.75f, kHeight * 0.25f, 1.0f, 0.0f,	// BOTTOM-RIGHT
+		kWidth * 0.75f, kHeight * 0.75f, 1.0f, 1.0f		// TOP-RIGHT
 	};
 	
 	const unsigned int kIndices[6] = {
@@ -45,7 +50,7 @@ int main(int argc, char** argv)
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 	
-	window = glfwCreateWindow(400, 400, "ERM", nullptr, nullptr);
+	window = glfwCreateWindow(kWidth, kHeight, "ERM", nullptr, nullptr);
 	
 	if (!window)
 	{
@@ -64,6 +69,12 @@ int main(int argc, char** argv)
 	GLCALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 	
 	{
+		glm::mat4 p = glm::ortho(0.0f, kWidth, 0.0f, kHeight, -1.0f, 1.0f);
+		glm::mat4 v = glm::translate(glm::mat4(1.0f), glm::vec3(100.0f, 0.0f, 0.0f));
+		glm::mat4 m = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+		
+		glm::mat4 mvp = p * v * m;
+		
 		erm::VertexBuffer vb (kPositions, sizeof(kPositions));
 		erm::VertexBufferLayout vbl;
 		vbl.Push<float>(2);
@@ -81,6 +92,7 @@ int main(int argc, char** argv)
 		texture.Bind();
 		
 		shader.SetUniform1i("u_Texture", 0);
+		shader.SetUniformMat4f("u_MVP", mvp);
 		
 		va.Unbind();
 		vb.Unbind();
