@@ -20,6 +20,6 @@ do
 	esac
 	case $i in
 		-f|--fastrun)
-			xcodebuild && Debug/ERM
+			xcodebuild -target ERM && cd Debug/ && ./ERM
 	esac
 done
