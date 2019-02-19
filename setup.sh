@@ -1,6 +1,7 @@
 #!/bin/sh
 
 OPT="-DPRINT_VARIABLES=FALSE"
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 for i in "$@"
 do
@@ -10,7 +11,7 @@ do
 	esac
 done
 
-cd build/ && cmake $OPT -G Xcode ..
+cd ${DIR}/build/ && cmake $OPT -G Xcode ..
 
 for i in "$@"
 do

@@ -24,12 +24,13 @@ namespace {
 	
 	const float kWidth = 640.0f;
 	const float kHeight = 480.0f;
+	const float kSize = 50.0f;
 	
 	const float kPositions[16] = {
-		kWidth * 0.25f, kHeight * 0.25f, 0.0f, 0.0f,	// BOTTOM-LEFT
-		kWidth * 0.25f, kHeight * 0.75f, 0.0f, 1.0f,	// TOP-LEFT
-		kWidth * 0.75f, kHeight * 0.25f, 1.0f, 0.0f,	// BOTTOM-RIGHT
-		kWidth * 0.75f, kHeight * 0.75f, 1.0f, 1.0f		// TOP-RIGHT
+		-kSize, -kSize, 0.0f, 0.0f,	// BOTTOM-LEFT
+		-kSize,  kSize, 0.0f, 1.0f,	// TOP-LEFT
+		 kSize, -kSize, 1.0f, 0.0f,	// BOTTOM-RIGHT
+		 kSize,  kSize, 1.0f, 1.0f	// TOP-RIGHT
 	};
 	
 	const unsigned int kIndices[6] = {
@@ -116,7 +117,7 @@ int main(int argc, char** argv)
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 		ImGui_ImplOpenGL3_Init(glsl_version);
 		
-		glm::vec3 translation (100.0f, 100.0f, 0.0f);
+		glm::vec3 translation (0.0f, 0.0f, 0.0f);
 		
 		while (!glfwWindowShouldClose(window))
 		{
@@ -127,8 +128,8 @@ int main(int argc, char** argv)
 			ImGui::NewFrame();
 			
 			ImGui::Begin("Hello, world!");
-			ImGui::SliderFloat("Translation.x", &translation.x, -kWidth * 0.5f, kWidth * 0.5f);
-			ImGui::SliderFloat("Translation.y", &translation.y, -kWidth * 0.5f, kHeight * 0.5f);
+			ImGui::SliderFloat("Translation.x", &translation.x, 0.0f, kWidth);
+			ImGui::SliderFloat("Translation.y", &translation.y, 0.0f, kHeight);
 			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 			ImGui::End();
 			
