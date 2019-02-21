@@ -1,6 +1,10 @@
 #pragma once
 
+#include <glm/glm.hpp>
+
 #include <assert.h>
+
+class GLFWwindow;
 
 #define ASSERT(x) assert(x)
 #define GLCALL(x) \
@@ -21,8 +25,14 @@ namespace erm {
 	class Renderer
 	{
 	public:
+		Renderer(int width, int height);
+		
 		void Clear() const;
-		void Draw(const VertexArray& va, const IndexBuffer& ib, const ShaderProgram& shader) const;
+		void Draw(const VertexArray& va, const IndexBuffer& ib, ShaderProgram& shader, const glm::mat4& model) const;
+		
+	private:
+		glm::mat4 mProjection;
+		glm::mat4 mView;
 		
 	};
 	

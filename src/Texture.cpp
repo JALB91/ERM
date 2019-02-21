@@ -15,7 +15,7 @@ namespace erm {
 		, mHeight(0)
 		, mBPP(0)
 	{
-		stbi_set_flip_vertically_on_load(1);
+//		stbi_set_flip_vertically_on_load(1);
 		mLocalBuffer = stbi_load(path.c_str(), &mWidth, &mHeight, &mBPP, 4);
 		
 		GLCALL(glGenTextures(1, &mRendererId));

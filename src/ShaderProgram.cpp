@@ -9,9 +9,8 @@
 namespace erm {
 	
 	ShaderProgram::ShaderProgram(const std::string& vertexPath, const std::string& fragmentPath)
-	{
-		mRendererId = CreateShaderProgram(ParseShader(vertexPath), ParseShader(fragmentPath));
-	}
+		: mRendererId(CreateShaderProgram(ParseShader(vertexPath), ParseShader(fragmentPath)))
+	{}
 	
 	ShaderProgram::~ShaderProgram()
 	{
@@ -46,6 +45,8 @@ namespace erm {
 	std::string ShaderProgram::ParseShader(const std::string& path) const
 	{
 		std::ifstream stream (path);
+		
+		ASSERT(stream.is_open());
 		
 		std::string result;
 		std::string line;

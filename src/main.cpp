@@ -1,10 +1,5 @@
 #include "Renderer.h"
-#include "VertexBuffer.h"
-#include "IndexBuffer.h"
-#include "VertexArray.h"
-#include "VertexBufferLayout.h"
-#include "ShaderProgram.h"
-#include "Texture.h"
+#include "Scene.h"
 
 #include <GL/glew.h>
 
@@ -26,16 +21,38 @@ namespace {
 	const float kHeight = 480.0f;
 	const float kSize = 50.0f;
 	
-	const float kPositions[16] = {
-		-kSize, -kSize, 0.0f, 0.0f,	// BOTTOM-LEFT
-		-kSize,  kSize, 0.0f, 1.0f,	// TOP-LEFT
-		 kSize, -kSize, 1.0f, 0.0f,	// BOTTOM-RIGHT
-		 kSize,  kSize, 1.0f, 1.0f	// TOP-RIGHT
+	const float kPositions[24] = {
+		// FRONT
+		-kSize, -kSize, -kSize,	// 0 -- BOTTOM-LEFT
+		-kSize,  kSize, -kSize,	// 1 -- TOP-LEFT
+		 kSize, -kSize, -kSize,	// 2 -- BOTTOM-RIGHT
+		 kSize,  kSize, -kSize,	// 3 -- TOP-RIGHT
+		// BACK
+		-kSize, -kSize,  kSize,	// 4 -- BOTTOM-LEFT
+		-kSize,  kSize,  kSize,	// 5 -- TOP-LEFT
+		 kSize, -kSize,  kSize,	// 6 -- BOTTOM-RIGHT
+		 kSize,  kSize,  kSize,	// 7 -- TOP-RIGHT
 	};
 	
-	const unsigned int kIndices[6] = {
+	const unsigned int kIndices[36] = {
+		// FRONT FACE
 		0, 1, 2,
-		1, 2, 3
+		1, 2, 3,
+		// BACK FACE
+		4, 5, 6,
+		5, 6, 7,
+		// LEFT FACE
+		0, 1, 4,
+		4, 5, 0,
+		// RIGHT FACE
+		2, 3, 6,
+		6, 7, 3,
+		// TOP FACE
+		1, 3, 5,
+		5, 7, 3,
+		// BOTTOM FACE
+		0, 2, 4,
+		4, 6, 0
 	};
 	
 }
@@ -82,45 +99,21 @@ int main(int argc, char** argv)
 	
 	GLCALL(glEnable(GL_BLEND));
 	GLCALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+	GLCALL(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
 	
 	{
-		glm::mat4 p = glm::ortho(0.0f, kWidth, 0.0f, kHeight, -1.0f, 1.0f);
-		glm::mat4 v = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-		
-		erm::VertexBuffer vb (kPositions, sizeof(kPositions));
-		erm::VertexBufferLayout vbl;
-		vbl.Push<float>(2);
-		vbl.Push<float>(2);
-		
-		erm::VertexArray va;
-		va.AddBuffer(vb, vbl);
-		
-		erm::IndexBuffer ib (kIndices, 6);
-
-		erm::ShaderProgram shader ("res/shaders/basic.vert", "res/shaders/basic.frag");
-		shader.Bind();
-		
-		erm::Texture texture ("res/textures/smile.png");
-		texture.Bind();
-		
-		shader.SetUniform1i("u_Texture", 0);
-		
-		va.Unbind();
-		vb.Unbind();
-		ib.Unbind();
-		shader.Unbind();
-		
-		erm::Renderer renderer;
+		erm::Renderer renderer (kWidth, kHeight);
+		erm::Scene scene (kPositions, 24, kIndices, 36);
 		
 		ImGui::CreateContext();
 		ImGui::StyleColorsDark();
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 		ImGui_ImplOpenGL3_Init(glsl_version);
 		
-		glm::vec3 translation (0.0f, 0.0f, 0.0f);
-		
 		while (!glfwWindowShouldClose(window))
 		{
+			scene.OnUpdate();
+			
 			renderer.Clear();
 			
 			ImGui_ImplOpenGL3_NewFrame();
@@ -128,18 +121,10 @@ int main(int argc, char** argv)
 			ImGui::NewFrame();
 			
 			ImGui::Begin("Hello, world!");
-			ImGui::SliderFloat("Translation.x", &translation.x, 0.0f, kWidth);
-			ImGui::SliderFloat("Translation.y", &translation.y, 0.0f, kHeight);
-			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+			scene.OnImGuiRender();
 			ImGui::End();
 			
-			glm::mat4 m = glm::translate(glm::mat4(1.0f), translation);
-			glm::mat4 mvp = p * v * m;
-			
-			shader.Bind();
-			shader.SetUniformMat4f("u_MVP", mvp);
-			
-			renderer.Draw(va, ib, shader);
+			scene.OnRender(renderer);
 			
 			ImGui::Render();
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
