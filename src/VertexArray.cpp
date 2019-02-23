@@ -21,15 +21,14 @@ namespace erm {
 	{
 		Bind();
 		vb.Bind();
-		const auto& elements = vbl.GetElements();
 		unsigned long offset = 0;
+		const auto& elements = vbl.GetElements();
 		
-		for (int i = 0; i < elements.size(); ++i)
+		for (unsigned int i = 0; i < elements.size(); ++i)
 		{
 			const auto& element = elements[i];
 			GLCALL(glEnableVertexAttribArray(i));
-			GLCALL(glVertexAttribPointer(i, element.mCount, element.mType,
-				element.mNormalized, vbl.GetStride(), (const void*)offset));
+			GLCALL(glVertexAttribPointer(i, element.mCount, element.mType, element.mNormalized, vbl.GetStride(), (const void*)offset));
 			offset += element.mCount * VertexBufferElement::GetSizeOfType(element.mType);
 		}
 	}

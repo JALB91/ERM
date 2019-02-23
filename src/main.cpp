@@ -1,5 +1,5 @@
 #include "Renderer.h"
-#include "Scene.h"
+#include "SceneObject.h"
 
 #include <GL/glew.h>
 
@@ -19,43 +19,12 @@ namespace {
 	
 	const float kWidth = 640.0f;
 	const float kHeight = 480.0f;
-	const float kSize = 50.0f;
 	
-	const float kPositions[24] = {
-		// FRONT
-		-kSize, -kSize, -kSize,	// 0 -- BOTTOM-LEFT
-		-kSize,  kSize, -kSize,	// 1 -- TOP-LEFT
-		 kSize, -kSize, -kSize,	// 2 -- BOTTOM-RIGHT
-		 kSize,  kSize, -kSize,	// 3 -- TOP-RIGHT
-		// BACK
-		-kSize, -kSize,  kSize,	// 4 -- BOTTOM-LEFT
-		-kSize,  kSize,  kSize,	// 5 -- TOP-LEFT
-		 kSize, -kSize,  kSize,	// 6 -- BOTTOM-RIGHT
-		 kSize,  kSize,  kSize,	// 7 -- TOP-RIGHT
-	};
-	
-	const unsigned int kIndices[36] = {
-		// FRONT FACE
-		0, 1, 2,
-		1, 2, 3,
-		// BACK FACE
-		4, 5, 6,
-		5, 6, 7,
-		// LEFT FACE
-		0, 1, 4,
-		4, 5, 0,
-		// RIGHT FACE
-		2, 3, 6,
-		6, 7, 3,
-		// TOP FACE
-		1, 3, 5,
-		5, 7, 3,
-		// BOTTOM FACE
-		0, 2, 4,
-		4, 6, 0
-	};
+	erm::Renderer renderer (kWidth, kHeight);
 	
 }
+
+void OnSizeChanged(GLFWwindow* window, int width, int height);
 
 int main(int argc, char** argv)
 {
@@ -97,13 +66,20 @@ int main(int argc, char** argv)
 	std::cout << glGetString(GL_VERSION) << std::endl;
 	std::cout << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
 	
+	GLCALL(glDepthFunc(GL_LESS));
+	GLCALL(glEnable(GL_DEPTH_TEST));
+	
 	GLCALL(glEnable(GL_BLEND));
 	GLCALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-	GLCALL(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
+	
+//	GLCALL(glPolygonMode(GL_FRONT_AND_BACK, GL_LINE));
+	
+	GLCALL(glClearColor(0.25f, 0.25f, 0.25f, 1.0f));
+	
+	glfwSetWindowSizeCallback(window, OnSizeChanged);
 	
 	{
-		erm::Renderer renderer (kWidth, kHeight);
-		erm::Scene scene (kPositions, 24, kIndices, 36);
+		erm::SceneObject sceneObject;
 		
 		ImGui::CreateContext();
 		ImGui::StyleColorsDark();
@@ -112,7 +88,7 @@ int main(int argc, char** argv)
 		
 		while (!glfwWindowShouldClose(window))
 		{
-			scene.OnUpdate();
+			sceneObject.OnUpdate();
 			
 			renderer.Clear();
 			
@@ -121,10 +97,10 @@ int main(int argc, char** argv)
 			ImGui::NewFrame();
 			
 			ImGui::Begin("Hello, world!");
-			scene.OnImGuiRender();
+			sceneObject.OnImGuiRender();
 			ImGui::End();
 			
-			scene.OnRender(renderer);
+			sceneObject.OnRender(renderer);
 			
 			ImGui::Render();
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -140,4 +116,9 @@ int main(int argc, char** argv)
 	glfwTerminate();
 	
 	return 0;
+}
+
+void OnSizeChanged(GLFWwindow* window, int width, int height)
+{
+	renderer.OnSizeChanged(width, height);
 }
