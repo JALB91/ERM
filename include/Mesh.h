@@ -1,7 +1,10 @@
 #pragma once
 
+#include "IndexData.h"
+
 #include <glm/glm.hpp>
 
+#include <string>
 #include <memory>
 
 namespace erm {
@@ -19,6 +22,7 @@ namespace erm {
 		static Mesh CreateSquare();
 		
 	public:
+		Mesh(const std::string& verticesStr, const std::string& indicesStr);
 		Mesh();
 		~Mesh();
 		
@@ -40,22 +44,16 @@ namespace erm {
 		inline const VertexArray& GetVA() const { return *mVA; }
 		
 	private:
-		static constexpr unsigned int kIndexVectorsLenght = 3;
-		
-		typedef unsigned int IndexType;
-		typedef glm::vec<kIndexVectorsLenght, IndexType> Index;
-		
-	private:
 		void Setup();
 		
 		glm::vec3 mTranslation;
 		glm::vec3 mRotation;
 		
-		VertexData* mVerticesData;
-		unsigned int mVerticesDataCount;
+		VertexData* mVerticesData = nullptr;
+		unsigned int mVerticesDataCount = 0;
 		
-		Index* mIndices;
-		unsigned int mIndicesCount;
+		IndexData* mIndicesData = nullptr;
+		unsigned int mIndicesDataCount = 0;
 		
 		std::shared_ptr<VertexBufferLayout> mVBL;
 		std::shared_ptr<VertexBuffer> mVB;

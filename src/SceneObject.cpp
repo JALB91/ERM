@@ -1,5 +1,5 @@
 #include "SceneObject.h"
-#include "Mesh.h"
+#include "Model.h"
 #include "ShaderProgram.h"
 #include "Texture.h"
 #include "Renderer.h"
@@ -11,7 +11,7 @@
 namespace erm {
 	
 	SceneObject::SceneObject()
-		: mMesh(std::make_unique<Mesh>(Mesh::CreateSquare()))
+		: mModel(std::make_unique<Model>("res/models/cube.mdl"))
 		, mTexture(std::make_unique<Texture>("res/textures/smile.png"))
 		, mShader(std::make_unique<ShaderProgram>("res/shaders/texture.vert", "res/shaders/texture.frag"))
 	{
@@ -28,19 +28,19 @@ namespace erm {
 	void SceneObject::OnImGuiRender()
 	{
 		bool reset = ImGui::Button("Reset");
-		ImGui::SliderFloat3("Translation", &mMesh->GetTranslation().x, -10.0f, 10.0f);
-		ImGui::SliderFloat3("Rotation", &mMesh->GetRotation().x, -M_PI, M_PI);
+		ImGui::SliderFloat3("Translation", &mModel->GetTranslation().x, -10.0f, 10.0f);
+		ImGui::SliderFloat3("Rotation", &mModel->GetRotation().x, -M_PI, M_PI);
 		
 		if (reset)
 		{
-			mMesh->SetTranslation(glm::vec3(0.0f));
-			mMesh->SetRotation(glm::vec3(0.0f));
+			mModel->SetTranslation(glm::vec3(0.0f));
+			mModel->SetRotation(glm::vec3(0.0f));
 		}
 	}
 	
 	void SceneObject::OnRender(const Renderer &renderer)
 	{
-		renderer.Draw(*mMesh, *mShader);
+		renderer.Draw(*mModel, *mShader);
 	}
 	
 }

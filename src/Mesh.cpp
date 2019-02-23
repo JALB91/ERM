@@ -6,6 +6,7 @@
 #include "VertexArray.h"
 
 #include <cstring>
+#include <algorithm>
 
 namespace erm {
 	
@@ -22,9 +23,9 @@ namespace erm {
 		mesh.mVerticesData[1].mTextureVertex = TextureVertex(0.0f, 1.0f);
 		mesh.mVerticesData[2].mTextureVertex = TextureVertex(1.0f, 0.0f);
 		
-		mesh.mIndicesCount = 1;
-		mesh.mIndices = static_cast<Index*>(malloc(sizeof(IndexType) * kIndexVectorsLenght * mesh.mIndicesCount));
-		mesh.mIndices[0] = Index(0, 1, 2);
+		mesh.mIndicesDataCount = 1;
+		mesh.mIndicesData = static_cast<IndexData*>(malloc(sizeof(IndexType) * kIndexVectorsLenght * mesh.mIndicesDataCount));
+		mesh.mIndicesData[0] = IndexData(0, 1, 2);
 		
 		mesh.Setup();
 		
@@ -46,14 +47,99 @@ namespace erm {
 		mesh.mVerticesData[2].mTextureVertex = TextureVertex(1.0f, 0.0f);
 		mesh.mVerticesData[3].mTextureVertex = TextureVertex(1.0f, 1.0f);
 		
-		mesh.mIndicesCount = 2;
-		mesh.mIndices = static_cast<Index*>(malloc(sizeof(IndexType) * kIndexVectorsLenght * mesh.mIndicesCount));
-		mesh.mIndices[0] = Index(0, 1, 2);
-		mesh.mIndices[1] = Index(1, 2, 3);
+		mesh.mIndicesDataCount = 2;
+		mesh.mIndicesData = static_cast<IndexData*>(malloc(sizeof(IndexType) * kIndexVectorsLenght * mesh.mIndicesDataCount));
+		mesh.mIndicesData[0] = IndexData(0, 1, 2);
+		mesh.mIndicesData[1] = IndexData(1, 2, 3);
 		
 		mesh.Setup();
 		
 		return mesh;
+	}
+	
+	std::vector<std::string> SplitString(const std::string& str, char ch)
+	{
+		std::vector<std::string> vec;
+		std::string res = "";
+		
+		for (auto iter = str.cbegin(); iter != str.cend(); ++iter)
+		{
+			if (*iter != ch)
+			{
+				res += *iter;
+			}
+			else
+			{
+				vec.push_back(res);
+				res = "";
+			}
+		}
+		
+		vec.push_back(res);
+		
+		return vec;
+	}
+	
+	Mesh::Mesh(const std::string& verticesStr, const std::string& indicesStr)
+		: Mesh()
+	{
+		std::vector<std::string> vertDataStr = SplitString(verticesStr, ';');
+		
+		mVerticesDataCount = vertDataStr.size();
+		
+		if (mVerticesDataCount > 0)
+		{
+			mVerticesData = static_cast<VertexData*>(malloc(sizeof(VertexData) * mVerticesDataCount));
+		}
+		
+		for (int i = 0; i < mVerticesDataCount; ++i)
+		{
+			VertexData& currentVertex = mVerticesData[i];
+			int coordReaded = 0;
+			
+			for (const std::string& value: SplitString(vertDataStr[i], ','))
+			{
+				int coord = std::atoi(value.c_str());
+				
+				switch (coordReaded)
+				{
+					case 0:
+					case 1:
+					case 2:
+						currentVertex.mVertex[coordReaded] = coord;
+						break;
+					case 3:
+					case 4:
+						currentVertex.mTextureVertex[coordReaded - 3] = coord;
+						break;
+				}
+				
+				coordReaded++;
+			}
+		}
+		
+		std::vector<std::string> indDataStr = SplitString(indicesStr, ';');
+		
+		mIndicesDataCount = indDataStr.size();
+		
+		if (mIndicesDataCount)
+		{
+			mIndicesData = static_cast<IndexData*>(malloc(sizeof(IndexData) * mIndicesDataCount));
+		}
+		
+		for (int i = 0; i < mIndicesDataCount; ++i)
+		{
+			IndexData& currentIndex = mIndicesData[i];
+			int indexReaded = 0;
+			
+			for (const std::string& value: SplitString(indDataStr[i], ','))
+			{
+				int index = std::atoi(value.c_str());
+				currentIndex[indexReaded++] = index;
+			}
+		}
+		
+		Setup();
 	}
 	
 	Mesh::Mesh()
@@ -61,8 +147,8 @@ namespace erm {
 		, mRotation(0.0f)
 		, mVerticesData(nullptr)
 		, mVerticesDataCount(0)
-		, mIndices(nullptr)
-		, mIndicesCount(0)
+		, mIndicesData(nullptr)
+		, mIndicesDataCount(0)
 		, mVBL(nullptr)
 		, mVB(nullptr)
 		, mIB(nullptr)
@@ -76,9 +162,9 @@ namespace erm {
 			delete[] mVerticesData;
 		}
 		
-		if (mIndices)
+		if (mIndicesData)
 		{
-			delete[] mIndices;
+			delete[] mIndicesData;
 		}
 	}
 	
@@ -87,16 +173,16 @@ namespace erm {
 		mTranslation = other.mTranslation;
 		mRotation = other.mRotation;
 		
-		if (mVerticesDataCount > 0)
+		if (mVerticesData)
 		{
 			delete[] mVerticesData;
 			mVerticesData = nullptr;
 		}
 		
-		if (mIndicesCount > 0)
+		if (mIndicesData)
 		{
-			delete[] mIndices;
-			mIndices = nullptr;
+			delete[] mIndicesData;
+			mIndicesData = nullptr;
 		}
 		
 		mVerticesDataCount = other.mVerticesDataCount;
@@ -107,12 +193,12 @@ namespace erm {
 			std::memcpy(mVerticesData, other.mVerticesData, mVerticesDataCount);
 		}
 		
-		mIndicesCount = other.mIndicesCount;
+		mIndicesDataCount = other.mIndicesDataCount;
 		
-		if (mIndicesCount > 0)
+		if (mIndicesDataCount > 0)
 		{
-			mIndices = static_cast<Index*>(malloc(sizeof(IndexType) * kIndexVectorsLenght * mIndicesCount));
-			std::memcpy(mIndices, other.mIndices, mIndicesCount);
+			mIndicesData = static_cast<IndexData*>(malloc(sizeof(IndexType) * kIndexVectorsLenght * mIndicesDataCount));
+			std::memcpy(mIndicesData, other.mIndicesData, mIndicesDataCount);
 		}
 		
 		mVBL = other.mVBL;
@@ -129,8 +215,8 @@ namespace erm {
 		mVerticesData = other.mVerticesData;
 		mVerticesDataCount = other.mVerticesDataCount;
 		
-		mIndices = other.mIndices;
-		mIndicesCount = other.mIndicesCount;
+		mIndicesData = other.mIndicesData;
+		mIndicesDataCount = other.mIndicesDataCount;
 		
 		mVBL = std::move(other.mVBL);
 		mVB = std::move(other.mVB);
@@ -143,8 +229,8 @@ namespace erm {
 		other.mVerticesData = nullptr;
 		other.mVerticesDataCount = 0;
 		
-		other.mIndices = nullptr;
-		other.mIndicesCount = 0;
+		other.mIndicesData = nullptr;
+		other.mIndicesDataCount = 0;
 		
 		other.mVBL = nullptr;
 		other.mVB = nullptr;
@@ -162,8 +248,17 @@ namespace erm {
 		mTranslation = other.mTranslation;
 		mRotation = other.mRotation;
 		
-		delete[] mVerticesData;
-		delete[] mIndices;
+		if (mVerticesData)
+		{
+			delete[] mVerticesData;
+			mVerticesData = nullptr;
+		}
+		
+		if (mIndicesData)
+		{
+			delete[] mIndicesData;
+			mIndicesData = nullptr;
+		}
 		
 		mVerticesDataCount = other.mVerticesDataCount;
 		
@@ -173,12 +268,12 @@ namespace erm {
 			std::memcpy(mVerticesData, other.mVerticesData, mVerticesDataCount);
 		}
 		
-		mIndicesCount = other.mIndicesCount;
+		mIndicesDataCount = other.mIndicesDataCount;
 		
-		if (mIndicesCount > 0)
+		if (mIndicesDataCount > 0)
 		{
-			mIndices = static_cast<Index*>(malloc(sizeof(IndexType) * kIndexVectorsLenght * mIndicesCount));
-			std::memcpy(mIndices, other.mIndices, mIndicesCount);
+			mIndicesData = static_cast<IndexData*>(malloc(sizeof(IndexType) * kIndexVectorsLenght * mIndicesDataCount));
+			std::memcpy(mIndicesData, other.mIndicesData, mIndicesDataCount);
 		}
 		
 		mVBL = other.mVBL;
@@ -199,14 +294,21 @@ namespace erm {
 		mTranslation = other.mTranslation;
 		mRotation = other.mRotation;
 		
-		delete[] mVerticesData;
-		delete[] mIndices;
+		if (mVerticesData)
+		{
+			delete[] mVerticesData;
+		}
+		
+		if (mIndicesData)
+		{
+			delete[] mIndicesData;
+		}
 		
 		mVerticesData = other.mVerticesData;
 		mVerticesDataCount = other.mVerticesDataCount;
 		
-		mIndices = other.mIndices;
-		mIndicesCount = other.mIndicesCount;
+		mIndicesData = other.mIndicesData;
+		mIndicesDataCount = other.mIndicesDataCount;
 		
 		mVBL = std::move(other.mVBL);
 		mVB = std::move(other.mVB);
@@ -219,8 +321,8 @@ namespace erm {
 		other.mVerticesData = nullptr;
 		other.mVerticesDataCount = 0;
 		
-		other.mIndices = nullptr;
-		other.mIndicesCount = 0;
+		other.mIndicesData = nullptr;
+		other.mIndicesDataCount = 0;
 		
 		other.mVBL = nullptr;
 		other.mVB = nullptr;
@@ -238,7 +340,7 @@ namespace erm {
 		mVBL->Push<VertexType>(kVectorsLenght);
 		mVBL->Push<TextureVertexType>(kTextureVectorsLenght);
 		
-		mIB = std::make_shared<IndexBuffer>(&mIndices[0][0], kIndexVectorsLenght * mIndicesCount);
+		mIB = std::make_shared<IndexBuffer>(&mIndicesData[0][0], kIndexVectorsLenght * mIndicesDataCount);
 		
 		mVA = std::make_shared<VertexArray>();
 		mVA->AddBuffer(*mVB, *mVBL);

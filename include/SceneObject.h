@@ -8,7 +8,7 @@
 
 namespace erm {
 
-	class Mesh;
+	class Model;
 	class Texture;
 	class ShaderProgram;
 	
@@ -24,7 +24,7 @@ namespace erm {
 		void OnRender(const Renderer& renderer) override;
 		
 	private:
-		std::unique_ptr<Mesh> mMesh;
+		std::unique_ptr<Model> mModel;
 		std::unique_ptr<Texture> mTexture;
 		std::unique_ptr<ShaderProgram> mShader;
 		

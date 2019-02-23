@@ -2,7 +2,6 @@
 
 #include <glm/glm.hpp>
 
-#include <memory>
 #include <assert.h>
 
 class GLFWwindow;

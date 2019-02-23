@@ -65,7 +65,15 @@ namespace erm {
 	
 	void Renderer::Draw(const Model& model, ShaderProgram& shader) const
 	{
+		glm::mat4 parent = glm::translate(glm::mat4(1.0f), model.GetTranslation());
+		parent = glm::rotate(parent, model.GetRotation().x, glm::vec3(1.0f, 0.0f, 0.0f));
+		parent = glm::rotate(parent, model.GetRotation().y, glm::vec3(0.0f, 1.0f, 0.0f));
+		parent = glm::rotate(parent, model.GetRotation().z, glm::vec3(0.0f, 0.0f, 1.0f));
 		
+		for (const Mesh& mesh: model.GetMeshes())
+		{
+			Draw(mesh, shader, parent);
+		}
 	}
 	
 }
