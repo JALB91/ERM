@@ -10,8 +10,8 @@
 
 namespace erm {
 	
-	SceneObject::SceneObject()
-		: mModel(std::make_unique<Model>("res/models/cube.mdl"))
+	SceneObject::SceneObject(Model model)
+		: mModel(std::make_unique<Model>(std::move(model)))
 		, mTexture(std::make_unique<Texture>("res/textures/smile.png"))
 		, mShader(std::make_unique<ShaderProgram>("res/shaders/texture.vert", "res/shaders/texture.frag"))
 	{

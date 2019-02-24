@@ -1,18 +1,17 @@
 #pragma once
 
+#include "Mesh.h"
+
 #include <glm/glm.hpp>
 
-#include <string>
 #include <vector>
 
 namespace erm {
 	
-	class Mesh;
-	
 	class Model
 	{
 	public:
-		Model(const std::string& path);
+		Model(std::vector<Mesh> meshes);
 		~Model();
 		
 		inline glm::vec3& GetTranslation() { return mTranslation; }

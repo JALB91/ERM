@@ -4,8 +4,6 @@
 
 #include <assert.h>
 
-class GLFWwindow;
-
 #define ASSERT(x) assert(x)
 #define GLCALL(x) \
 	GLClearError();\

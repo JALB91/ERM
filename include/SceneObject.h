@@ -15,7 +15,7 @@ namespace erm {
 	class SceneObject: public ISceneObject
 	{
 	public:
-		SceneObject();
+		SceneObject(Model model);
 		virtual ~SceneObject();
 		
 		// ISceneObject

@@ -1,5 +1,6 @@
 #include "Renderer.h"
-#include "SceneObject.h"
+#include "GameConfig.h"
+#include "Game.h"
 
 #include <GL/glew.h>
 
@@ -20,7 +21,8 @@ namespace {
 	const float kWidth = 640.0f;
 	const float kHeight = 480.0f;
 	
-	erm::Renderer renderer (kWidth, kHeight);
+	erm::GameConfig kGameConfig { static_cast<unsigned int>(kWidth), static_cast<unsigned int>(kHeight) };
+	erm::Game kGame { kGameConfig };
 	
 }
 
@@ -72,6 +74,10 @@ int main(int argc, char** argv)
 	GLCALL(glEnable(GL_BLEND));
 	GLCALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 	
+	GLCALL(glEnable(GL_CULL_FACE));
+	GLCALL(glCullFace(GL_FRONT));
+	GLCALL(glFrontFace(GL_CCW));
+	
 //	GLCALL(glPolygonMode(GL_FRONT_AND_BACK, GL_LINE));
 	
 	GLCALL(glClearColor(0.25f, 0.25f, 0.25f, 1.0f));
@@ -79,7 +85,7 @@ int main(int argc, char** argv)
 	glfwSetWindowSizeCallback(window, OnSizeChanged);
 	
 	{
-		erm::SceneObject sceneObject;
+		kGame.Init();
 		
 		ImGui::CreateContext();
 		ImGui::StyleColorsDark();
@@ -88,19 +94,17 @@ int main(int argc, char** argv)
 		
 		while (!glfwWindowShouldClose(window))
 		{
-			sceneObject.OnUpdate();
-			
-			renderer.Clear();
+			kGame.OnUpdate(0.0f);
 			
 			ImGui_ImplOpenGL3_NewFrame();
 			ImGui_ImplGlfw_NewFrame();
 			ImGui::NewFrame();
 			
 			ImGui::Begin("Hello, world!");
-			sceneObject.OnImGuiRender();
+			kGame.OnImGuiRender();
 			ImGui::End();
 			
-			sceneObject.OnRender(renderer);
+			kGame.OnRender();
 			
 			ImGui::Render();
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -120,5 +124,5 @@ int main(int argc, char** argv)
 
 void OnSizeChanged(GLFWwindow* window, int width, int height)
 {
-	renderer.OnSizeChanged(width, height);
+	kGame.OnSizeChanged(width, height);
 }

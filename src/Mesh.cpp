@@ -4,9 +4,9 @@
 #include "VertexBufferLayout.h"
 #include "IndexBuffer.h"
 #include "VertexArray.h"
+#include "Utils.h"
 
 #include <cstring>
-#include <algorithm>
 
 namespace erm {
 	
@@ -55,29 +55,6 @@ namespace erm {
 		mesh.Setup();
 		
 		return mesh;
-	}
-	
-	std::vector<std::string> SplitString(const std::string& str, char ch)
-	{
-		std::vector<std::string> vec;
-		std::string res = "";
-		
-		for (auto iter = str.cbegin(); iter != str.cend(); ++iter)
-		{
-			if (*iter != ch)
-			{
-				res += *iter;
-			}
-			else
-			{
-				vec.push_back(res);
-				res = "";
-			}
-		}
-		
-		vec.push_back(res);
-		
-		return vec;
 	}
 	
 	Mesh::Mesh(const std::string& verticesStr, const std::string& indicesStr)
