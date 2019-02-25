@@ -17,6 +17,10 @@ namespace erm {
 		
 		void Init();
 		
+		void OnMouseButtonPressed();
+		void OnMouseButtonReleased();
+		void OnMousePos(double xPos, double yPos);
+		
 		void OnSizeChanged(int width, int height);
 		void OnUpdate(float dt);
 		void OnImGuiRender();
@@ -31,6 +35,9 @@ namespace erm {
 		std::unique_ptr<IModelLoader> mModelLoader;
 		
 		std::unique_ptr<ISceneObject> mRoot;
+		
+		double mMousePosX, mMousePosY;
+		bool mIsDragging;
 		
 	};
 	

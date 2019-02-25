@@ -15,6 +15,7 @@ namespace erm {
 		: mModel(std::make_unique<Model>(std::forward<Model>(model)))
 		, mTexture(std::make_unique<Texture>("res/textures/smile.png"))
 		, mShader(std::make_unique<ShaderProgram>("res/shaders/texture"))
+		, mDragMode(0)
 	{
 		mShader->Bind();
 		mTexture->Bind();
@@ -30,6 +31,10 @@ namespace erm {
 		ImGui::SliderFloat3("Translation", &mModel->GetTranslation().x, -10.0f, 10.0f);
 		ImGui::SliderFloat3("Rotation", &mModel->GetRotation().x, -M_PI, M_PI);
 		
+		ImGui::Text("Drag Mode");
+		ImGui::RadioButton("Translate", &mDragMode, 0); ImGui::SameLine();
+		ImGui::RadioButton("Rotate", &mDragMode, 1);
+		
 		if (reset)
 		{
 			mModel->SetTranslation(glm::vec3(0.0f));
@@ -40,6 +45,19 @@ namespace erm {
 	void SceneObject::OnRender(const Renderer &renderer)
 	{
 		renderer.Draw(*mModel, *mShader);
+	}
+	
+	void SceneObject::OnMouseDrag(double deltaX, double deltaY)
+	{
+		switch (mDragMode)
+		{
+			case 0:
+				mModel->SetTranslation(mModel->GetTranslation() + glm::vec3(deltaX, -deltaY, 0.0f));
+				break;
+			case 1:
+				mModel->SetRotation(mModel->GetRotation() + glm::vec3(deltaY, deltaX, 0.0f));
+				break;
+		}
 	}
 	
 }

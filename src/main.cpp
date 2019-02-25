@@ -26,7 +26,10 @@ namespace {
 	
 }
 
-void OnSizeChanged(GLFWwindow* window, int width, int height);
+static void OnSizeChanged(GLFWwindow* window, int width, int height);
+static void OnMouseButton(GLFWwindow* window, int button, int action, int mods);
+static void OnMousePos(GLFWwindow* window, double xPos, double yPos);
+
 
 int main(int argc, char** argv)
 {
@@ -83,6 +86,9 @@ int main(int argc, char** argv)
 	GLCALL(glClearColor(0.25f, 0.25f, 0.25f, 1.0f));
 	
 	glfwSetWindowSizeCallback(window, OnSizeChanged);
+	glfwSetMouseButtonCallback(window, OnMouseButton);
+	glfwSetCursorPosCallback(window, OnMousePos);
+	
 	
 	{
 		kGame.Init();
@@ -125,4 +131,24 @@ int main(int argc, char** argv)
 void OnSizeChanged(GLFWwindow* window, int width, int height)
 {
 	kGame.OnSizeChanged(width, height);
+}
+
+void OnMouseButton(GLFWwindow* window, int button, int action, int mods)
+{
+	if (button == GLFW_MOUSE_BUTTON_LEFT)
+	{
+		if (GLFW_PRESS == action)
+		{
+			kGame.OnMouseButtonPressed();
+		}
+		else if (GLFW_RELEASE == action)
+		{
+			kGame.OnMouseButtonReleased();
+		}
+	}
+}
+
+void OnMousePos(GLFWwindow* window, double xPos, double yPos)
+{
+	kGame.OnMousePos(xPos, yPos);
 }

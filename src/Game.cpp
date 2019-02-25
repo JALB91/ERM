@@ -11,10 +11,34 @@ namespace erm {
 		, mRenderer(std::make_unique<Renderer>(mGameConfig.mWidth, mGameConfig.mHeight))
 		, mModelLoader(std::make_unique<ERMModelLoader>())
 		, mRoot(nullptr)
+		, mMousePosX(0.0)
+		, mMousePosY(0.0)
+		, mIsDragging(false)
 	{}
 	
 	Game::~Game()
 	{}
+	
+	void Game::OnMouseButtonPressed()
+	{
+		mIsDragging = true;
+	}
+	
+	void Game::OnMouseButtonReleased()
+	{
+		mIsDragging = false;
+	}
+	
+	void Game::OnMousePos(double xPos, double yPos)
+	{
+		const double deltaX = xPos - mMousePosX;
+		const double deltaY = yPos - mMousePosY;
+		
+		mMousePosX = xPos;
+		mMousePosY = yPos;
+		
+		if (mIsDragging && mRoot) mRoot->OnMouseDrag(deltaX * 0.015, deltaY * 0.015);
+	}
 	
 	void Game::Init()
 	{

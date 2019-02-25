@@ -23,10 +23,14 @@ namespace erm {
 		void OnImGuiRender() override;
 		void OnRender(const Renderer& renderer) override;
 		
+		void OnMouseDrag(double deltaX, double deltaY) override;
+		
 	private:
 		std::unique_ptr<Model> mModel;
 		std::unique_ptr<Texture> mTexture;
 		std::unique_ptr<ShaderProgram> mShader;
+		
+		int mDragMode;
 		
 	};
 	

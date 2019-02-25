@@ -13,6 +13,9 @@ namespace erm {
 		virtual void OnImGuiRender() = 0;
 		virtual void OnRender(const Renderer& renderer) = 0;
 		
+		virtual void OnMouseDrag(double deltaX, double deltaY) = 0;
+		
+		
 	};
 	
 }
