@@ -1,19 +1,19 @@
 #pragma once
 
-#include "ISceneObject.h"
-#include "IModelLoader.h"
-
 #include <memory>
 
 namespace erm {
 	
 	struct GameConfig;
 	class Renderer;
+	class IModelLoader;
+	class ISceneObject;
 	
 	class Game
 	{
 	public:
 		Game(GameConfig& gameConfig);
+		~Game();
 		
 		void Init();
 		

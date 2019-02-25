@@ -2,18 +2,6 @@
 
 #include <glm/glm.hpp>
 
-#include <assert.h>
-
-#define ASSERT(x) assert(x)
-#define GLCALL(x) \
-	GLClearError();\
-	x;\
-	ASSERT(GLLogCall(#x, __FILE__, __LINE__))
-
-void GLClearError();
-bool GLLogCall(const char* function, const char* file, int line);
-
-
 namespace erm {
 
 	class Mesh;
@@ -26,6 +14,7 @@ namespace erm {
 	{
 	public:
 		Renderer(int width, int height);
+		~Renderer() = default;
 		
 		void OnSizeChanged(int width, int height);
 		

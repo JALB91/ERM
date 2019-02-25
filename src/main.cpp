@@ -1,4 +1,4 @@
-#include "Renderer.h"
+#include "Utils.h"
 #include "GameConfig.h"
 #include "Game.h"
 
@@ -18,10 +18,10 @@
 
 namespace {
 	
-	const float kWidth = 640.0f;
-	const float kHeight = 480.0f;
+	const unsigned int kWidth = 640.0f;
+	const unsigned int kHeight = 480.0f;
 	
-	erm::GameConfig kGameConfig { static_cast<unsigned int>(kWidth), static_cast<unsigned int>(kHeight) };
+	erm::GameConfig kGameConfig { kWidth, kHeight };
 	erm::Game kGame { kGameConfig };
 	
 }

@@ -14,6 +14,10 @@ namespace erm {
 		std::string modelSrc = ParseModel(modelPath);
 		std::vector<std::string> lines = SplitString(modelSrc, '\n');
 		
+		if (lines.size() > 0) {
+			meshes.reserve(lines.size() / 4);
+		}
+		
 		for (int i = 0; i < lines.size(); ++i)
 		{
 			std::string verticesSrc;
@@ -30,7 +34,7 @@ namespace erm {
 			meshes.emplace_back(verticesSrc, indicesSrc);
 		}
 		
-		return Model(meshes);
+		return Model(std::move(meshes));
 	}
 	
 	std::string ERMModelLoader::ParseModel(const std::string &modelPath) const

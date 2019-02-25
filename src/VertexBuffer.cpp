@@ -1,5 +1,5 @@
 #include "VertexBuffer.h"
-#include "Renderer.h"
+#include "Utils.h"
 
 #include <GLFW/glfw3.h>
 

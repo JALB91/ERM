@@ -11,6 +11,7 @@ namespace erm {
 	{
 	public:
 		ShaderProgram(const std::string& vertexPath, const std::string& fragmentPath);
+		ShaderProgram(const std::string& shaderPath);
 		~ShaderProgram();
 		
 		void Bind() const;

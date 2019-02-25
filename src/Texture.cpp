@@ -1,5 +1,5 @@
 #include "Texture.h"
-#include "Renderer.h"
+#include "Utils.h"
 
 #include <stb_image.h>
 

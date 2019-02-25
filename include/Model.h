@@ -14,6 +14,12 @@ namespace erm {
 		Model(std::vector<Mesh> meshes);
 		~Model();
 		
+		Model(const Model& other) = delete;
+		Model(Model&& other);
+		
+		Model& operator=(const Model& other) = delete;
+		Model& operator=(Model&& other);
+		
 		inline glm::vec3& GetTranslation() { return mTranslation; }
 		inline const glm::vec3& GetTranslation() const { return mTranslation; }
 		inline void SetTranslation(const glm::vec3& translation) { mTranslation = translation; }

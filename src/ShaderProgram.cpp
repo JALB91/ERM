@@ -1,5 +1,5 @@
 #include "ShaderProgram.h"
-#include "Renderer.h"
+#include "Utils.h"
 
 #include <GLFW/glfw3.h>
 
@@ -10,6 +10,10 @@ namespace erm {
 	
 	ShaderProgram::ShaderProgram(const std::string& vertexPath, const std::string& fragmentPath)
 		: mRendererId(CreateShaderProgram(ParseShader(vertexPath), ParseShader(fragmentPath)))
+	{}
+	
+	ShaderProgram::ShaderProgram(const std::string& shaderPath)
+		: ShaderProgram(shaderPath + ".vert", shaderPath + ".frag")
 	{}
 	
 	ShaderProgram::~ShaderProgram()

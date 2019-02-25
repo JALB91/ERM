@@ -13,6 +13,9 @@ namespace erm {
 		, mRoot(nullptr)
 	{}
 	
+	Game::~Game()
+	{}
+	
 	void Game::Init()
 	{
 		mRoot = std::make_unique<SceneObject>(mModelLoader->LoadModel("res/models/cube.mdl"));

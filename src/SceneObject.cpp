@@ -11,7 +11,7 @@
 namespace erm {
 	
 	SceneObject::SceneObject(Model model)
-		: mModel(std::make_unique<Model>(std::move(model)))
+		: mModel(std::make_unique<Model>(std::forward<Model>(model)))
 		, mTexture(std::make_unique<Texture>("res/textures/smile.png"))
 		, mShader(std::make_unique<ShaderProgram>("res/shaders/texture.vert", "res/shaders/texture.frag"))
 	{
