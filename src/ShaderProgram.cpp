@@ -7,6 +7,16 @@
 #include <iostream>
 #include <fstream>
 
+namespace {
+	
+	static const std::unordered_map<erm::Uniform, const char* const> kUniforms
+	{
+		{ erm::Uniform::MVP, "u_MVP" },
+		{ erm::Uniform::TEXTURE_2D, "u_Texture" }
+	};
+	
+}
+
 namespace erm {
 	
 	ShaderProgram::ShaderProgram(const std::string& vertexPath, const std::string& fragmentPath)
@@ -34,19 +44,19 @@ namespace erm {
 		GLCALL(glUseProgram(0));
 	}
 	
-	void ShaderProgram::SetUniform1i(const std::string &name, int value) const
+	void ShaderProgram::SetUniform1i(const Uniform& uniform, int value) const
 	{
-		GLCALL(glUniform1i(GetUniformLocation(name), value));
+		GLCALL(glUniform1i(GetUniformLocation(kUniforms.at(uniform)), value));
 	}
 	
-	void ShaderProgram::SetUniform4f(const std::string& name, float v0, float v1, float v2, float v3) const
+	void ShaderProgram::SetUniform4f(const Uniform& uniform, float v0, float v1, float v2, float v3) const
 	{
-		GLCALL(glUniform4f(GetUniformLocation(name), v0, v1, v2, v3));
+		GLCALL(glUniform4f(GetUniformLocation(kUniforms.at(uniform)), v0, v1, v2, v3));
 	}
 	
-	void ShaderProgram::SetUniformMat4f(const std::string& name, const glm::mat4& matrix) const
+	void ShaderProgram::SetUniformMat4f(const Uniform& uniform, const glm::mat4& matrix) const
 	{
-		GLCALL(glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, &matrix[0][0]));
+		GLCALL(glUniformMatrix4fv(GetUniformLocation(kUniforms.at(uniform)), 1, GL_FALSE, &matrix[0][0]));
 	}
 	
 	std::string ShaderProgram::ParseShader(const std::string& path) const
@@ -113,11 +123,10 @@ namespace erm {
 	
 	void ShaderProgram::CacheUniformsLocations()
 	{
-		for (const Uniforms& uniform: kUniforms)
+		for (const auto& uniform: kUniforms)
 		{
-			std::string name = GetUniformName(uniform);
-			GLCALL(int location = glGetUniformLocation(mRendererId, name.c_str()));
-			mUniformLocationsCache[name] = location;
+			GLCALL(int location = glGetUniformLocation(mRendererId, uniform.second));
+			mUniformLocationsCache[uniform.second] = location;
 		}
 	}
 	

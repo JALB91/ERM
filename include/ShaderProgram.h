@@ -7,6 +7,8 @@
 
 namespace erm {
 	
+	enum class Uniform;
+	
 	class ShaderProgram
 	{
 	public:
@@ -17,9 +19,9 @@ namespace erm {
 		void Bind() const;
 		void Unbind() const;
 		
-		void SetUniform1i(const std::string& name, int value) const ;
-		void SetUniform4f(const std::string& name, float v0, float v1, float v2, float v3) const;
-		void SetUniformMat4f(const std::string& name, const glm::mat4& matrix) const;
+		void SetUniform1i(const Uniform& uniform, int value) const ;
+		void SetUniform4f(const Uniform& uniform, float v0, float v1, float v2, float v3) const;
+		void SetUniformMat4f(const Uniform& uniform, const glm::mat4& matrix) const;
 		
 	private:
 		std::string ParseShader(const std::string& path) const;

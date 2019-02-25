@@ -19,7 +19,7 @@ namespace erm {
 	{
 		mShader->Bind();
 		mTexture->Bind();
-		mShader->SetUniform1i(GetUniformName(Uniforms::TEXTURE_2D), 0);
+		mShader->SetUniform1i(Uniform::TEXTURE_2D, 0);
 	}
 	
 	SceneObject::~SceneObject()

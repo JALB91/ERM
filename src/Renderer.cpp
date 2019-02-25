@@ -37,7 +37,7 @@ namespace erm {
 		va.Bind();
 		ib.Bind();
 		shader.Bind();
-		shader.SetUniformMat4f(GetUniformName(Uniforms::MVP), vp * model);
+		shader.SetUniformMat4f(Uniform::MVP, vp * model);
 		GLCALL(glDrawElements(GL_TRIANGLES, ib.GetCount(), GL_UNSIGNED_INT, nullptr));
 	}
 	
