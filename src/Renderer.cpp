@@ -4,6 +4,7 @@
 #include "VertexArray.h"
 #include "IndexBuffer.h"
 #include "ShaderProgram.h"
+#include "Uniforms.h"
 #include "Utils.h"
 
 #include <glm/gtc/matrix_transform.hpp>
@@ -29,18 +30,18 @@ namespace erm {
 		GLCALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 	}
 	
-	void Renderer::Draw(const VertexArray& va, const IndexBuffer& ib, ShaderProgram& shader, const glm::mat4& model) const
+	void Renderer::Draw(const VertexArray& va, const IndexBuffer& ib, const ShaderProgram& shader, const glm::mat4& model) const
 	{
 		const glm::mat4 vp = mProjection * mView;
 		
 		va.Bind();
 		ib.Bind();
 		shader.Bind();
-		shader.SetUniformMat4f("u_MVP", vp * model);
+		shader.SetUniformMat4f(GetUniformName(Uniforms::MVP), vp * model);
 		GLCALL(glDrawElements(GL_TRIANGLES, ib.GetCount(), GL_UNSIGNED_INT, nullptr));
 	}
 	
-	void Renderer::Draw(const Mesh& mesh, ShaderProgram& shader, const glm::mat4& parent /* = glm::mat4(1.0f) */) const
+	void Renderer::Draw(const Mesh& mesh, const ShaderProgram& shader, const glm::mat4& parent /* = glm::mat4(1.0f) */) const
 	{
 		glm::mat4 model = glm::translate(parent, mesh.GetTranslation());
 		model = glm::rotate(model, mesh.GetRotation().x, glm::vec3(1.0f, 0.0f, 0.0f));
@@ -49,7 +50,7 @@ namespace erm {
 		Draw(mesh.GetVA(), mesh.GetIB(), shader, model);
 	}
 	
-	void Renderer::Draw(const Model& model, ShaderProgram& shader) const
+	void Renderer::Draw(const Model& model, const ShaderProgram& shader) const
 	{
 		glm::mat4 parent = glm::translate(glm::mat4(1.0f), model.GetTranslation());
 		parent = glm::rotate(parent, model.GetRotation().x, glm::vec3(1.0f, 0.0f, 0.0f));

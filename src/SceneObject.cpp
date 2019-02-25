@@ -3,6 +3,7 @@
 #include "ShaderProgram.h"
 #include "Texture.h"
 #include "Renderer.h"
+#include "Uniforms.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -13,17 +14,15 @@ namespace erm {
 	SceneObject::SceneObject(Model model)
 		: mModel(std::make_unique<Model>(std::forward<Model>(model)))
 		, mTexture(std::make_unique<Texture>("res/textures/smile.png"))
-		, mShader(std::make_unique<ShaderProgram>("res/shaders/texture.vert", "res/shaders/texture.frag"))
+		, mShader(std::make_unique<ShaderProgram>("res/shaders/texture"))
 	{
 		mShader->Bind();
 		mTexture->Bind();
-		mShader->SetUniform1i("u_Texture", 0);
+		mShader->SetUniform1i(GetUniformName(Uniforms::TEXTURE_2D), 0);
 	}
 	
 	SceneObject::~SceneObject()
-	{
-		
-	}
+	{}
 	
 	void SceneObject::OnImGuiRender()
 	{

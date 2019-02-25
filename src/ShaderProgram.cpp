@@ -1,4 +1,5 @@
 #include "ShaderProgram.h"
+#include "Uniforms.h"
 #include "Utils.h"
 
 #include <GLFW/glfw3.h>
@@ -10,7 +11,9 @@ namespace erm {
 	
 	ShaderProgram::ShaderProgram(const std::string& vertexPath, const std::string& fragmentPath)
 		: mRendererId(CreateShaderProgram(ParseShader(vertexPath), ParseShader(fragmentPath)))
-	{}
+	{
+		CacheUniformsLocations();
+	}
 	
 	ShaderProgram::ShaderProgram(const std::string& shaderPath)
 		: ShaderProgram(shaderPath + ".vert", shaderPath + ".frag")
@@ -31,17 +34,17 @@ namespace erm {
 		GLCALL(glUseProgram(0));
 	}
 	
-	void ShaderProgram::SetUniform1i(const std::string &name, int value)
+	void ShaderProgram::SetUniform1i(const std::string &name, int value) const
 	{
 		GLCALL(glUniform1i(GetUniformLocation(name), value));
 	}
 	
-	void ShaderProgram::SetUniform4f(const std::string& name, float v0, float v1, float v2, float v3)
+	void ShaderProgram::SetUniform4f(const std::string& name, float v0, float v1, float v2, float v3) const
 	{
 		GLCALL(glUniform4f(GetUniformLocation(name), v0, v1, v2, v3));
 	}
 	
-	void ShaderProgram::SetUniformMat4f(const std::string& name, const glm::mat4& matrix)
+	void ShaderProgram::SetUniformMat4f(const std::string& name, const glm::mat4& matrix) const
 	{
 		GLCALL(glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, &matrix[0][0]));
 	}
@@ -108,23 +111,26 @@ namespace erm {
 		return program;
 	}
 	
-	int ShaderProgram::GetUniformLocation(const std::string& name)
+	void ShaderProgram::CacheUniformsLocations()
+	{
+		for (const Uniforms& uniform: kUniforms)
+		{
+			std::string name = GetUniformName(uniform);
+			GLCALL(int location = glGetUniformLocation(mRendererId, name.c_str()));
+			mUniformLocationsCache[name] = location;
+		}
+	}
+	
+	int ShaderProgram::GetUniformLocation(const std::string& name) const
 	{
 		if (mUniformLocationsCache.find(name) != mUniformLocationsCache.end())
 		{
-			return mUniformLocationsCache[name];
+			return mUniformLocationsCache.at(name);
 		}
 		
-		GLCALL(int location = glGetUniformLocation(mRendererId, name.c_str()));
+		std::cout << "Uniform location not found" << std::endl;
 		
-		if (location == -1)
-		{
-			std::cout << "Uniform location not found" << std::endl;
-		}
-		
-		mUniformLocationsCache[name] = location;
-		
-		return location;
+		return -1;
 	}
 	
 }
