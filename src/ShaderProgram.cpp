@@ -9,7 +9,7 @@
 
 namespace {
 	
-	static const std::unordered_map<erm::Uniform, const char* const> kUniforms
+	const std::unordered_map<erm::Uniform, const char* const> kUniforms
 	{
 		{ erm::Uniform::MVP, "u_MVP" },
 		{ erm::Uniform::TEXTURE_2D, "u_Texture" }
@@ -125,8 +125,7 @@ namespace erm {
 	{
 		for (const auto& uniform: kUniforms)
 		{
-			GLCALL(int location = glGetUniformLocation(mRendererId, uniform.second));
-			mUniformLocationsCache[uniform.second] = location;
+			GLCALL(mUniformLocationsCache[uniform.second] = glGetUniformLocation(mRendererId, uniform.second));
 		}
 	}
 	
