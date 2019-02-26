@@ -3,6 +3,7 @@
 #include "Renderer.h"
 #include "ERMModelLoader.h"
 #include "SceneObject.h"
+#include "Model.h"
 
 namespace erm {
 	

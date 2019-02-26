@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Model.h"
-
 #include <string>
 
 namespace erm {
+	
+	class Model;
 	
 	class IModelLoader
 	{

@@ -1,12 +1,12 @@
 #pragma once
 
-#include "Mesh.h"
-
 #include <glm/glm.hpp>
 
 #include <vector>
 
 namespace erm {
+	
+	class Mesh;
 	
 	class Model
 	{

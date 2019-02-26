@@ -2,6 +2,7 @@
 #include "Renderer.h"
 #include "Utils.h"
 #include "Mesh.h"
+#include "Model.h"
 
 #include <iostream>
 #include <fstream>

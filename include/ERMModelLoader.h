@@ -2,6 +2,8 @@
 
 #include "IModelLoader.h"
 
+#include <string>
+
 namespace erm {
 	
 	class ERMModelLoader: public IModelLoader

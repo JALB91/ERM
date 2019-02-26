@@ -2,8 +2,6 @@
 
 #include "ISceneObject.h"
 
-#include <glm/glm.hpp>
-
 #include <memory>
 
 namespace erm {

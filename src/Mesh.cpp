@@ -58,7 +58,10 @@ namespace erm {
 	}
 	
 	Mesh::Mesh(const std::string& verticesStr, const std::string& indicesStr)
-		: Mesh()
+		: mTranslation(0.0f)
+		, mRotation(0.0f)
+		, mVerticesData(nullptr)
+		, mIndicesData(nullptr)
 	{
 		std::vector<std::string> vertDataStr = SplitString(verticesStr, ';');
 		

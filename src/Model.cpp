@@ -2,6 +2,7 @@
 #include "Renderer.h"
 #include "VertexData.h"
 #include "Utils.h"
+#include "Mesh.h"
 
 #include <iostream>
 

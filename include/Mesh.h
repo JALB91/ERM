@@ -49,11 +49,11 @@ namespace erm {
 		glm::vec3 mTranslation;
 		glm::vec3 mRotation;
 		
-		VertexData* mVerticesData = nullptr;
-		unsigned int mVerticesDataCount = 0;
+		VertexData* mVerticesData;
+		unsigned int mVerticesDataCount;
 		
-		IndexData* mIndicesData = nullptr;
-		unsigned int mIndicesDataCount = 0;
+		IndexData* mIndicesData;
+		unsigned int mIndicesDataCount;
 		
 		std::shared_ptr<VertexBufferLayout> mVBL;
 		std::shared_ptr<VertexBuffer> mVB;
