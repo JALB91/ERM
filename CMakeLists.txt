@@ -23,9 +23,14 @@ set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
+set(glew-cmake_BUILD_SHARED OFF)
+set(glew-cmake_BUILD_STATIC ON)
+set(glew-cmake_BUILD_SINGLE_CONTEXT ON)
+set(glew-cmake_BUILD_MULTI_CONTEXT OFF)
+
 set(CMAKE_CXX_STANDARD 14)
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS}")
-SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS}")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}")
 
 add_compile_definitions(
 	GL_SILENCE_DEPRECATION 
@@ -34,7 +39,7 @@ add_compile_definitions(
 )
 
 find_package(OpenGL REQUIRED)
-find_package(GLEW REQUIRED)
+add_subdirectory(externals/glew-cmake)
 add_subdirectory(externals/glm)
 add_subdirectory(externals/glfw)
 add_subdirectory(externals/imgui)
@@ -43,7 +48,6 @@ add_subdirectory(externals/stb_image)
 add_compile_definitions(GLFW_INCLUDE_GLCOREARB)
 
 include_directories(
-	${GLEW_INCLUDE_DIR}
 	include
 )
 
@@ -66,7 +70,7 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 target_link_libraries(
 	${PROJECT_NAME}
 	${OPENGL_gl_LIBRARY}
-	${GLEW_LIBRARIES}
+	libglew_static
 	glfw
 	glm
 	imgui
