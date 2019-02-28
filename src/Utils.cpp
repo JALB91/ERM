@@ -41,7 +41,7 @@ namespace erm {
 		
 		vec.push_back(res);
 		
-		return std::move(vec);
+		return vec;
 	}
 
 	std::string GetRelativePath(const char* absolutePath)
@@ -51,7 +51,7 @@ namespace erm {
 #elif defined(__APPLE__)
 		const std::string result = absolutePath;
 #endif
-		return std::move(result);
+		return result;
 	}
 	
 }

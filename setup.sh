@@ -17,7 +17,7 @@ _OS=""
 if [[ "$OSTYPE" == "linux-gnu" ]]; then
 	_OS="Linux"
 elif [[ "$OSTYPE" == "darwin"* ]]; then
-	GENERATOR="XCode"
+	GENERATOR="Xcode"
 	_OS="OSX"
 elif [[ "$OSTYPE" == "cygwin" || "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
 	GENERATOR="Visual Studio 15 2017"
