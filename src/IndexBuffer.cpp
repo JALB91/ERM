@@ -1,7 +1,7 @@
 #include "IndexBuffer.h"
 #include "Utils.h"
 
-#include <GLFW/glfw3.h>
+#include <GL/glew.h>
 
 namespace erm {
 	

@@ -2,7 +2,7 @@
 #include "Uniforms.h"
 #include "Utils.h"
 
-#include <GLFW/glfw3.h>
+#include <GL/glew.h>
 
 #include <iostream>
 #include <fstream>
@@ -91,7 +91,7 @@ namespace erm {
 		{
 			int lenght;
 			GLCALL(glGetShaderiv(id, GL_INFO_LOG_LENGTH, &lenght));
-			char infoLog[lenght];
+			char* infoLog = (char*)alloca(lenght * sizeof(char));
 			GLCALL(glGetShaderInfoLog(id, lenght, &lenght, infoLog));
 			
 			std::cout << infoLog << std::endl;

@@ -1,9 +1,6 @@
 project(imgui)
 
-find_package(GLEW REQUIRED)
-
 include_directories(
-	${GLEW_INCLUDE_DIRS}
 	include
 )
 
@@ -13,6 +10,6 @@ file(GLOB SOURCES
 )
 
 add_library(imgui ${SOURCES})
-target_link_libraries(imgui ${GLEW_LIBRARIES} glfw)
+target_link_libraries(imgui libglew_static glfw)
 
 target_include_directories(imgui PUBLIC include)

@@ -65,14 +65,14 @@ namespace erm {
 	{
 		std::vector<std::string> vertDataStr = SplitString(verticesStr, ';');
 		
-		mVerticesDataCount = vertDataStr.size();
+		mVerticesDataCount = static_cast<int>(vertDataStr.size());
 		
 		if (mVerticesDataCount > 0)
 		{
 			mVerticesData = static_cast<VertexData*>(malloc(sizeof(VertexData) * mVerticesDataCount));
 		}
 		
-		for (int i = 0; i < mVerticesDataCount; ++i)
+		for (unsigned int i = 0; i < mVerticesDataCount; ++i)
 		{
 			VertexData& currentVertex = mVerticesData[i];
 			int coordReaded = 0;
@@ -86,11 +86,11 @@ namespace erm {
 					case 0:
 					case 1:
 					case 2:
-						currentVertex.mVertex[coordReaded] = coord;
+						currentVertex.mVertex[coordReaded] = static_cast<float>(coord);
 						break;
 					case 3:
 					case 4:
-						currentVertex.mTextureVertex[coordReaded - 3] = coord;
+						currentVertex.mTextureVertex[coordReaded - 3] = static_cast<float>(coord);
 						break;
 				}
 				
@@ -100,14 +100,14 @@ namespace erm {
 		
 		std::vector<std::string> indDataStr = SplitString(indicesStr, ';');
 		
-		mIndicesDataCount = indDataStr.size();
+		mIndicesDataCount = static_cast<int>(indDataStr.size());
 		
 		if (mIndicesDataCount)
 		{
 			mIndicesData = static_cast<IndexData*>(malloc(sizeof(IndexData) * mIndicesDataCount));
 		}
 		
-		for (int i = 0; i < mIndicesDataCount; ++i)
+		for (unsigned int i = 0; i < mIndicesDataCount; ++i)
 		{
 			IndexData& currentIndex = mIndicesData[i];
 			int indexReaded = 0;

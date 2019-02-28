@@ -4,6 +4,7 @@
 #include "ERMModelLoader.h"
 #include "SceneObject.h"
 #include "Model.h"
+#include "Utils.h"
 
 namespace erm {
 	
@@ -43,7 +44,7 @@ namespace erm {
 	
 	void Game::Init()
 	{
-		mRoot = std::make_unique<SceneObject>(mModelLoader->LoadModel("res/models/cube.mdl"));
+		mRoot = std::make_unique<SceneObject>(mModelLoader->LoadModel(GetRelativePath("res/models/cube.mdl")));
 	}
 	
 	void Game::OnSizeChanged(int width, int height)

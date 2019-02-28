@@ -1,6 +1,6 @@
 #include "Utils.h"
 
-#include <GLFW/glfw3.h>
+#include <GL/glew.h>
 
 #include <iostream>
 
@@ -41,7 +41,17 @@ namespace erm {
 		
 		vec.push_back(res);
 		
-		return vec;
+		return std::move(vec);
+	}
+
+	std::string GetRelativePath(const char* absolutePath)
+	{
+#if defined(WIN32)
+		const std::string result = std::string("../") + absolutePath;
+#elif defined(__APPLE__)
+		const std::string result = absolutePath;
+#endif
+		return std::move(result);
 	}
 	
 }

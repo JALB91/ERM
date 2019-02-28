@@ -2,8 +2,9 @@
 #include "VertexBuffer.h"
 #include "VertexBufferLayout.h"
 #include "Renderer.h"
+#include "Utils.h"
 
-#include <GLFW/glfw3.h>
+#include <GL/glew.h>
 
 namespace erm {
 	

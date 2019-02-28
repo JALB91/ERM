@@ -19,7 +19,7 @@ namespace erm {
 			meshes.reserve(lines.size() / 4);
 		}
 		
-		for (int i = 0; i < lines.size(); ++i)
+		for (unsigned int i = 0; i < lines.size(); ++i)
 		{
 			std::string verticesSrc;
 			std::string indicesSrc;

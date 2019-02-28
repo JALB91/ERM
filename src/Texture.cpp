@@ -3,7 +3,7 @@
 
 #include <stb_image.h>
 
-#include <GLFW/glfw3.h>
+#include <GL/glew.h>
 
 namespace erm {
 	

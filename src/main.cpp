@@ -18,8 +18,8 @@
 
 namespace {
 	
-	const unsigned int kWidth = 640.0f;
-	const unsigned int kHeight = 480.0f;
+	const unsigned int kWidth = 640;
+	const unsigned int kHeight = 480;
 	
 	erm::GameConfig kGameConfig { kWidth, kHeight };
 	erm::Game kGame { kGameConfig };
@@ -29,7 +29,6 @@ namespace {
 static void OnSizeChanged(GLFWwindow* window, int width, int height);
 static void OnMouseButton(GLFWwindow* window, int button, int action, int mods);
 static void OnMousePos(GLFWwindow* window, double xPos, double yPos);
-
 
 int main(int argc, char** argv)
 {
@@ -45,9 +44,11 @@ int main(int argc, char** argv)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	
-#ifdef __APPLE__
+#if defined(__APPLE__)
 	const char* glsl_version = "#version 150";
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#else
+	const char* glsl_version = "#version 150";
 #endif
 	
 	window = glfwCreateWindow(kWidth, kHeight, "ERM", nullptr, nullptr);
@@ -88,7 +89,6 @@ int main(int argc, char** argv)
 	glfwSetWindowSizeCallback(window, OnSizeChanged);
 	glfwSetMouseButtonCallback(window, OnMouseButton);
 	glfwSetCursorPosCallback(window, OnMousePos);
-	
 	
 	{
 		kGame.Init();

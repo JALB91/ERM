@@ -4,17 +4,20 @@
 #include "Texture.h"
 #include "Renderer.h"
 #include "Uniforms.h"
+#include "Utils.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <imgui.h>
 
+#include <math.h>
+
 namespace erm {
 	
 	SceneObject::SceneObject(Model model)
 		: mModel(std::make_unique<Model>(std::forward<Model>(model)))
-		, mTexture(std::make_unique<Texture>("res/textures/smile.png"))
-		, mShader(std::make_unique<ShaderProgram>("res/shaders/texture"))
+		, mTexture(std::make_unique<Texture>(GetRelativePath("res/textures/smile.png")))
+		, mShader(std::make_unique<ShaderProgram>(GetRelativePath("res/shaders/texture")))
 		, mDragMode(0)
 	{
 		mShader->Bind();
@@ -29,7 +32,7 @@ namespace erm {
 	{
 		bool reset = ImGui::Button("Reset");
 		ImGui::SliderFloat3("Translation", &mModel->GetTranslation().x, -10.0f, 10.0f);
-		ImGui::SliderFloat3("Rotation", &mModel->GetRotation().x, -M_PI, M_PI);
+		ImGui::SliderFloat3("Rotation", &mModel->GetRotation().x, -static_cast<float>(M_PI), static_cast<float>(M_PI));
 		
 		ImGui::Text("Drag Mode");
 		ImGui::RadioButton("Translate", &mDragMode, 0); ImGui::SameLine();

@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Utils.h"
-
 #include <vector>
 
 namespace erm {
@@ -18,15 +16,10 @@ namespace erm {
 	class VertexBufferLayout
 	{
 	public:
-		VertexBufferLayout()
-			: mStride(0)
-		{}
+		VertexBufferLayout();
 		
 		template<typename T>
-		inline void Push(unsigned int count)
-		{
-			ASSERT(false);
-		}
+		void Push(unsigned int count);
 		
 		inline const std::vector<VertexBufferElement>& GetElements() const { return mElements; }
 		inline unsigned int GetStride() const { return mStride; }
