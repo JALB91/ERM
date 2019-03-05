@@ -47,6 +47,7 @@ endif()
 
 add_compile_definitions(
 	IMGUI_IMPL_OPENGL_LOADER_GLEW
+	GLM_FORCE_LEFT_HANDED
 	GLEW_STATIC
 )
 

@@ -35,8 +35,9 @@ namespace erm {
 		ImGui::SliderFloat3("Rotation", &mModel->GetRotation().x, -static_cast<float>(M_PI), static_cast<float>(M_PI));
 		
 		ImGui::Text("Drag Mode");
-		ImGui::RadioButton("Translate", &mDragMode, 0); ImGui::SameLine();
-		ImGui::RadioButton("Rotate", &mDragMode, 1);
+		ImGui::RadioButton("None", &mDragMode, 0); ImGui::SameLine();
+		ImGui::RadioButton("Translate", &mDragMode, 1); ImGui::SameLine();
+		ImGui::RadioButton("Rotate", &mDragMode, 2);
 		
 		if (reset)
 		{
@@ -54,11 +55,11 @@ namespace erm {
 	{
 		switch (mDragMode)
 		{
-			case 0:
+			case 1:
 				mModel->SetTranslation(mModel->GetTranslation() + glm::vec3(deltaX, -deltaY, 0.0f));
 				break;
-			case 1:
-				mModel->SetRotation(mModel->GetRotation() + glm::vec3(deltaY, deltaX, 0.0f));
+			case 2:
+				mModel->SetRotation(mModel->GetRotation() + glm::vec3(-deltaY, -deltaX, 0.0f));
 				break;
 		}
 	}

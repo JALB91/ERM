@@ -6,6 +6,7 @@
 #include "ShaderProgram.h"
 #include "Uniforms.h"
 #include "Utils.h"
+#include "IWindowSizeProvider.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -16,13 +17,23 @@
 namespace erm {
 	
 	Renderer::Renderer(int width, int height)
-		: mProjection(glm::perspective(glm::radians(45.0f), static_cast<float>(width)/static_cast<float>(height), 0.1f, 100.0f))
-		, mView(glm::translate(glm::identity<glm::mat4>(), glm::vec3(0.0f, 0.0f, -10.0f)))
-	{}
-	
-	void Renderer::OnSizeChanged(int width, int height)
+		: mView(glm::translate(glm::identity<glm::mat4>(), glm::vec3(0.0f, 0.0f, -10.0f)))
 	{
-		mProjection = glm::perspective(glm::radians(45.0f), static_cast<float>(width)/static_cast<float>(height), 0.1f, 100.0f);
+		UpdateViewport(width, height);
+	}
+	
+	void Renderer::UpdateViewport(int width, int height)
+	{
+		if (width > height)
+		{
+			const float ratio = static_cast<float>(width) / static_cast<float>(height);
+			mProjection = glm::perspective(glm::radians(45.0f), ratio, 0.1f, 100.0f);
+		}
+		else
+		{
+			const float ratio = static_cast<float>(width) / static_cast<float>(height);
+			mProjection = glm::perspective(glm::radians(45.0f), ratio, 0.1f, 100.0f);
+		}
 	}
 	
 	void Renderer::Clear() const
@@ -32,7 +43,7 @@ namespace erm {
 	
 	void Renderer::Draw(const VertexArray& va, const IndexBuffer& ib, const ShaderProgram& shader, const glm::mat4& model) const
 	{
-		const glm::mat4 vp = mProjection * mView;
+		const glm::mat4 vp = mProjection * glm::inverse(mView);
 		
 		va.Bind();
 		ib.Bind();
