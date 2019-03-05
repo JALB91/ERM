@@ -17,6 +17,7 @@
 
 #include <string>
 #include <iostream>
+#include <functional>
 
 namespace {
 	
@@ -68,7 +69,9 @@ namespace erm {
 		, mPrevMousePosY(0.0)
 		, mWindowWidth(width)
 		, mWindowHeight(height)
-	{}
+	{
+		UpdateAspectRatio();
+	}
 	
 	Window::~Window()
 	{
@@ -236,6 +239,8 @@ namespace erm {
 	{
 		mWindowWidth = width;
 		mWindowHeight = height;
+		UpdateAspectRatio();
+		glViewport(0, 0, width, height);
 		SafeForEach<IWindowSizeListener>(mWindowSizeListeners, [width, height] (IWindowSizeListener* listener) {
 			listener->OnSizeChanged(width, height);
 		});
@@ -293,6 +298,18 @@ namespace erm {
 		if (it != mWindowSizeListeners.end())
 		{
 			mWindowSizeListeners.erase(it);
+		}
+	}
+
+	void Window::UpdateAspectRatio()
+	{
+		if (mWindowWidth < mWindowHeight)
+		{
+			mAspectRatio = static_cast<float>(mWindowWidth) / static_cast<float>(mWindowHeight);
+		}
+		else
+		{
+			mAspectRatio = static_cast<float>(mWindowHeight) / static_cast<float>(mWindowWidth);
 		}
 	}
 	

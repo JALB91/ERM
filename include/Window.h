@@ -49,8 +49,11 @@ namespace erm {
 		void RemoveListener(IWindowSizeListener& listener) override;
 		inline int GetWindowWidth() const override { return mWindowWidth; }
 		inline int GetWindowHeight() const override { return mWindowHeight; }
+		inline float GetAspectRatio() const override { return mAspectRatio; }
 		
 	private:
+		void UpdateAspectRatio();
+
 		GLFWwindow* mWindow;
 		
 		std::set<IKeyListener*> mKeyListeners;
@@ -62,6 +65,7 @@ namespace erm {
 		double mMousePosY, mPrevMousePosY;
 		std::set<int> mPressedButtons;
 		int mWindowWidth, mWindowHeight;
+		float mAspectRatio;
 		
 	};
 	

@@ -14,6 +14,7 @@ namespace erm {
 		
 		virtual int GetWindowWidth() const = 0;
 		virtual int GetWindowHeight() const = 0;
+		virtual float GetAspectRatio() const = 0;
 		
 	};
 	
