@@ -47,4 +47,12 @@ do
 				echo "Not ready yet"
 			fi
 	esac
+	case $i in
+		-c|--compile)
+			if [[ "$_OS" == "OSX" ]]; then
+				xcodebuild -target ERM
+			elif [[ "$_OS" == "WIN32" ]]; then
+				echo "Not ready yet"
+			fi
+	esac
 done
