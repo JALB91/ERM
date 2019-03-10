@@ -116,7 +116,7 @@ namespace erm {
 	// IWindowSizeListener
 	void Game::OnSizeChanged(int width, int height)
 	{
-		if (mRenderer) mRenderer->UpdateViewport(width, height);
+		if (mRenderer) mRenderer->UpdateProjection(width, height);
 	}
 	
 }

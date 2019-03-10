@@ -15,7 +15,7 @@ namespace erm {
 	public:
 		Renderer(int width, int height);
 		
-		void UpdateViewport(int width, int height);
+		void UpdateProjection(int width, int height);
 		
 		void Clear() const;
 		void Draw(const VertexArray& va, const IndexBuffer& ib, const ShaderProgram& shader, const glm::mat4& model) const;

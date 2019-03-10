@@ -52,6 +52,7 @@ namespace erm {
 		inline float GetAspectRatio() const override { return mAspectRatio; }
 		
 	private:
+		void UpdateViewport();
 		void UpdateAspectRatio();
 
 		GLFWwindow* mWindow;

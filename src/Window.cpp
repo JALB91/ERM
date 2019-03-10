@@ -113,6 +113,8 @@ namespace erm {
 		glfwMakeContextCurrent(mWindow);
 		glfwSwapInterval(1);
 		
+		UpdateViewport();
+		
 		if (glewInit() != GLEW_OK)
 		{
 			std::cout << "GLEW initialization failed" << std::endl;
@@ -239,8 +241,8 @@ namespace erm {
 	{
 		mWindowWidth = width;
 		mWindowHeight = height;
+		UpdateViewport();
 		UpdateAspectRatio();
-		glViewport(0, 0, width, height);
 		SafeForEach<IWindowSizeListener>(mWindowSizeListeners, [width, height] (IWindowSizeListener* listener) {
 			listener->OnSizeChanged(width, height);
 		});
@@ -299,6 +301,15 @@ namespace erm {
 		{
 			mWindowSizeListeners.erase(it);
 		}
+	}
+	
+	void Window::UpdateViewport()
+	{
+		int width, height;
+		glfwGetFramebufferSize(mWindow, &width, &height);
+		const float fWidth = static_cast<float>(width);
+		const float fHeight = static_cast<float>(height);
+		GLCALL(glViewport(0, 0, fWidth, fHeight));
 	}
 
 	void Window::UpdateAspectRatio()

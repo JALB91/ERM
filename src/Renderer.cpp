@@ -19,10 +19,10 @@ namespace erm {
 	Renderer::Renderer(int width, int height)
 		: mView(glm::translate(glm::identity<glm::mat4>(), glm::vec3(0.0f, 0.0f, -10.0f)))
 	{
-		UpdateViewport(width, height);
+		UpdateProjection(width, height);
 	}
 	
-	void Renderer::UpdateViewport(int width, int height)
+	void Renderer::UpdateProjection(int width, int height)
 	{
 		if (width > height)
 		{
