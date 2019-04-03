@@ -4,8 +4,6 @@
 
 #include "rendering/Renderer.h"
 
-#include "model_loaders/ERMModelLoader.h"
-
 #include "rendering/Model.h"
 
 #include "utils/Utils.h"
@@ -23,7 +21,6 @@ namespace erm {
 	Game::Game(int width, int height)
 		: mWindow(std::make_unique<Window>(width, height))
 		, mRenderer(nullptr)
-		, mModelLoader(nullptr)
 		, mRoot(nullptr)
 	{
 		mWindow->AddListener(static_cast<IKeyListener&>(*this));
@@ -45,11 +42,10 @@ namespace erm {
 			return false;
 		}
 		
-		mModelLoader = std::make_unique<ERMModelLoader>();
 		mRenderer = std::make_unique<Renderer>(*this);
 		
 		mRoot = std::make_unique<Entity>(*this);
-		mRoot->RequireComponent<MeshComponent>(MeshUtils::CreateCube());
+		mRoot->RequireComponent<MeshComponent>(MeshUtils::CreateSphere());
 		mRoot->RequireComponent<DebugEntityComponent>();
 		
 		return true;

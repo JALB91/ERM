@@ -10,7 +10,6 @@ namespace erm {
 
 	class Window;
 	class Renderer;
-	class IModelLoader;
 	class Entity;
 	
 	class Game:
@@ -34,7 +33,6 @@ namespace erm {
 		
 		inline Window& GetWindow() const { return *mWindow.get(); }
 		inline Renderer& GetRenderer() const { return *mRenderer.get(); }
-		inline IModelLoader& GetModelLoader() const { return *mModelLoader.get(); }
 		
 	private:
 		// IKeyListener
@@ -51,7 +49,6 @@ namespace erm {
 		
 		std::unique_ptr<Window> mWindow;
 		std::unique_ptr<Renderer> mRenderer;
-		std::unique_ptr<IModelLoader> mModelLoader;
 		
 		std::unique_ptr<Entity> mRoot;
 		
