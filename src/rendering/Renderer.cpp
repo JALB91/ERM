@@ -92,13 +92,15 @@ namespace erm {
 				const BoundingBox3D& bBox =  meshComponent->GetLocalBounds();
 				const glm::vec3& size = bBox.GetSize();
 				mDebugMesh->SetScale(size*0.5f);
+				
+				glm::mat4 transform = glm::scale(transformComponent->GetWorldTransform(), mDebugMesh->GetScale());
+				
+				GLCALL(glDisable(GL_CULL_FACE));
+				GLCALL(glPolygonMode(GL_FRONT_AND_BACK, GL_LINE));
+				Draw(*mDebugMesh.get(), *mDebugShader.get(), transform);
+				GLCALL(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
+				GLCALL(glEnable(GL_CULL_FACE));
 			}
-
-			GLCALL(glDisable(GL_CULL_FACE));
-			GLCALL(glPolygonMode(GL_FRONT_AND_BACK, GL_LINE));
-			Draw(*mDebugMesh.get(), *mDebugShader.get(), transformComponent->GetWorldTransform());
-			GLCALL(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
-			GLCALL(glEnable(GL_CULL_FACE));
 		}
 	}
 	
