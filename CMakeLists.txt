@@ -65,9 +65,14 @@ include_directories(
 )
 
 file(GLOB_RECURSE SOURCES 
-	include/**.h 
-	src/**.cpp
+	include/*.h 
+	src/*.cpp
 )
+
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+include(macros)
+
+CREATE_GROUPS("${SOURCES}")
 
 if (${PRINT_VARIABLES})
 	get_cmake_property(_variableNames VARIABLES)
