@@ -26,12 +26,12 @@ namespace erm {
 	{
 		if (mVerticesData)
 		{
-			delete[] mVerticesData;
+			free(mVerticesData);
 		}
 		
 		if (mIndicesData)
 		{
-			delete[] mIndicesData;
+			free(mIndicesData);
 		}
 	}
 	
@@ -108,13 +108,13 @@ namespace erm {
 		
 		if (mVerticesData)
 		{
-			delete[] mVerticesData;
+			free(mVerticesData);
 			mVerticesData = nullptr;
 		}
 		
 		if (mIndicesData)
 		{
-			delete[] mIndicesData;
+			free(mIndicesData);
 			mIndicesData = nullptr;
 		}
 		
@@ -155,12 +155,12 @@ namespace erm {
 		
 		if (mVerticesData)
 		{
-			delete[] mVerticesData;
+			free(mVerticesData);
 		}
 		
 		if (mIndicesData)
 		{
-			delete[] mIndicesData;
+			free(mIndicesData);
 		}
 		
 		mVerticesData = other.mVerticesData;
