@@ -53,7 +53,7 @@ namespace erm {
 		
 		if (mIndicesDataCount > 0)
 		{
-			mIndicesData = static_cast<IndexData*>(malloc(sizeof(IndexType) * mIndicesDataCount));
+			mIndicesData = static_cast<IndexData*>(malloc(sizeof(IndexData) * mIndicesDataCount));
 			std::memcpy(mIndicesData, other.mIndicesData, mIndicesDataCount);
 		}
 		
@@ -130,7 +130,7 @@ namespace erm {
 		
 		if (mIndicesDataCount > 0)
 		{
-			mIndicesData = static_cast<IndexData*>(malloc(sizeof(IndexType) * mIndicesDataCount));
+			mIndicesData = static_cast<IndexData*>(malloc(sizeof(IndexData) * mIndicesDataCount));
 			std::memcpy(mIndicesData, other.mIndicesData, mIndicesDataCount);
 		}
 		

@@ -20,7 +20,7 @@ namespace erm {
 		mesh.mVerticesData[2].mTextureVertex = TextureVertex(1.0f, 0.0f);
 		
 		mesh.mIndicesDataCount = 3;
-		mesh.mIndicesData = static_cast<IndexData*>(malloc(sizeof(IndexType) * mesh.mIndicesDataCount));
+		mesh.mIndicesData = static_cast<IndexData*>(malloc(sizeof(IndexData) * mesh.mIndicesDataCount));
 		mesh.mIndicesData[0] = 0;
 		mesh.mIndicesData[1] = 1;
 		mesh.mIndicesData[2] = 2;
@@ -51,7 +51,7 @@ namespace erm {
 		mesh.mVerticesData[3].mTextureVertex = TextureVertex(1.0f, 1.0f);
 		
 		mesh.mIndicesDataCount = 6;
-		mesh.mIndicesData = static_cast<IndexData*>(malloc(sizeof(IndexType) * mesh.mIndicesDataCount));
+		mesh.mIndicesData = static_cast<IndexData*>(malloc(sizeof(IndexData) * mesh.mIndicesDataCount));
 		mesh.mIndicesData[0] = 0;
 		mesh.mIndicesData[1] = 1;
 		mesh.mIndicesData[2] = 2;
@@ -142,7 +142,7 @@ namespace erm {
 		
 		// Indices
 		mesh.mIndicesDataCount = 36;
-		mesh.mIndicesData = static_cast<IndexData*>(malloc(sizeof(IndexType) * mesh.mIndicesDataCount));
+		mesh.mIndicesData = static_cast<IndexData*>(malloc(sizeof(IndexData) * mesh.mIndicesDataCount));
 		
 		for (int i = 0; i < 6; ++i)
 		{
@@ -220,7 +220,7 @@ namespace erm {
 		
 		// Indices
 		mesh.mIndicesDataCount = 18;
-		mesh.mIndicesData = static_cast<IndexData*>(malloc(sizeof(IndexType) * mesh.mIndicesDataCount));
+		mesh.mIndicesData = static_cast<IndexData*>(malloc(sizeof(IndexData) * mesh.mIndicesDataCount));
 		
 		mesh.mIndicesData[0] = 0;
 		mesh.mIndicesData[1] = 1;
@@ -257,7 +257,7 @@ namespace erm {
 		mesh.mVerticesData = static_cast<VertexData*>(malloc(sizeof(VertexData) * mesh.mVerticesDataCount));
 		
 		mesh.mIndicesDataCount = sectors * rings * 6 - sectors * 6;
-		mesh.mIndicesData = static_cast<IndexData*>(malloc(sizeof(IndexType) * mesh.mIndicesDataCount));
+		mesh.mIndicesData = static_cast<IndexData*>(malloc(sizeof(IndexData) * mesh.mIndicesDataCount));
 		
 		float x, y, z, xy;
 		float s, t;
