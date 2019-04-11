@@ -310,9 +310,7 @@ namespace erm {
 	{
 		int width, height;
 		glfwGetFramebufferSize(mWindow, &width, &height);
-		const float fWidth = static_cast<float>(width);
-		const float fHeight = static_cast<float>(height);
-		GLCALL(glViewport(0, 0, fWidth, fHeight));
+		GLCALL(glViewport(0, 0, width, height));
 	}
 
 	void Window::UpdateAspectRatio()

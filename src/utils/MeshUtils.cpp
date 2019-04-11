@@ -262,14 +262,14 @@ namespace erm {
 		float x, y, z, xy;
 		float s, t;
 		
-		float sectorStep = 2 * M_PI / sectors;
-		float stackStep = M_PI / rings;
+		float sectorStep = static_cast<float>(2.0f * M_PI / sectors);
+		float stackStep = static_cast<float>(M_PI / rings);
 		float sectorAngle, stackAngle;
 		int index = 0;
 		
 		for (int i = 0; i <= rings; ++i)
 		{
-			stackAngle = M_PI / 2 - i * stackStep;
+			stackAngle = static_cast<float>(M_PI / 2.0f - i * stackStep);
 			xy = radius * cosf(stackAngle);
 			z = radius * sinf(stackAngle);
 			
