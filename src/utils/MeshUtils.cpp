@@ -253,7 +253,7 @@ namespace erm {
 	) {
 		Mesh mesh;
 		
-		mesh.mVerticesDataCount = (sectors + 1) * (rings + 1) - 1;
+		mesh.mVerticesDataCount = (sectors + 1) * (rings + 1);
 		mesh.mVerticesData = static_cast<VertexData*>(malloc(sizeof(VertexData) * mesh.mVerticesDataCount));
 		
 		mesh.mIndicesDataCount = sectors * rings * 6 - sectors * 6;
