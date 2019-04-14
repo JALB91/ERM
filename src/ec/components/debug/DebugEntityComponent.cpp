@@ -19,9 +19,9 @@ namespace erm {
 	void DebugEntityComponent::OnImGuiRender()
 	{
 		bool reset = ImGui::Button("Reset");
-		ImGui::SliderFloat3("Translation", &mTransformComponent.GetTranslation().x, -10.0f, 10.0f);
+		ImGui::SliderFloat3("Translation", &mTransformComponent.GetTranslation().x, -200.0f, 200.0f);
 		ImGui::SliderFloat3("Rotation", &mTransformComponent.GetRotation().x, -static_cast<float>(M_PI), static_cast<float>(M_PI));
-		ImGui::SliderFloat3("Scale", &mTransformComponent.GetScale().x, -2.0f, 2.0f);
+		ImGui::SliderFloat3("Scale", &mTransformComponent.GetScale().x, -1.0f, 3.0f);
 		
 //		ImGui::Text("Drag Mode");
 //		ImGui::RadioButton("None", &mDragMode, 0); ImGui::SameLine();

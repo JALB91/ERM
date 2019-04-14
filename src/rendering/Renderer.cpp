@@ -52,7 +52,7 @@ namespace erm {
 		const float width = static_cast<float>(mGame.GetWindow().GetWindowWidth());
 		const float height = static_cast<float>(mGame.GetWindow().GetWindowHeight());
 		const float ratio = width / height;
-		mProjection = glm::perspective(glm::radians(45.0f), ratio, 0.1f, 100.0f);
+		mProjection = glm::perspective(glm::radians(45.0f), ratio, 0.1f, 1000.0f);
 	}
 	
 	void Renderer::OnPreRender()

@@ -45,8 +45,10 @@ namespace erm {
 		mRenderer = std::make_unique<Renderer>(*this);
 		
 		mRoot = std::make_unique<Entity>(*this);
-		mRoot->RequireComponent<MeshComponent>(MeshUtils::CreateSphere());
+		mRoot->RequireComponent<MeshComponent>(MeshUtils::ParseModel("res/models/Lamborghini_Aventador.obj"));
+		//mRoot->RequireComponent<MeshComponent>(MeshUtils::CreateCube());
 		mRoot->RequireComponent<DebugEntityComponent>();
+		mRoot->RequireComponent<TransformComponent>().SetScale(glm::vec3(0.1f, 0.1f, 0.1f));
 		
 		return true;
 	}

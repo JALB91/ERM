@@ -6,7 +6,6 @@
 
 #include <glm/glm.hpp>
 
-#include <string>
 #include <memory>
 
 namespace erm {

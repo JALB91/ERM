@@ -33,6 +33,7 @@ namespace erm {
 			int stackCount = 10,
 			int sectorCount = 10
 		);
+		static Mesh ParseModel(const char* path);
 	};
 	
 }
