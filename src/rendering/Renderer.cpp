@@ -36,7 +36,7 @@ namespace erm {
 	
 	Renderer::Renderer(const Game& game)
 		: mGame(game)
-		, mView(glm::translate(glm::identity<glm::mat4>(), glm::vec3(0.0f, 0.0f, -5.0f)))
+		, mView(glm::translate(glm::identity<glm::mat4>(), glm::vec3(0.0f, 0.0f, 0.0f)))
 		, mViewProjection(glm::identity<glm::mat4>())
 		, mDebugMesh(std::make_unique<Mesh>(MeshUtils::CreateCube()))
 		, mDebugShader(std::make_unique<ShaderProgram>(kDebugShaderPath.c_str()))
@@ -95,11 +95,14 @@ namespace erm {
 				
 				glm::mat4 transform = glm::scale(transformComponent->GetWorldTransform(), mDebugMesh->GetScale());
 				
-				GLCALL(glDisable(GL_CULL_FACE));
-				GLCALL(glPolygonMode(GL_FRONT_AND_BACK, GL_LINE));
+				bool wasCullFaceEnabled = mGame.GetWindow().IsCullFaceEnabled();
+				int polygonMode = mGame.GetWindow().GetPolygonMode();
+				
+				mGame.GetWindow().SetCullFaceEnabled(false);
+				mGame.GetWindow().SetPolygonMode(GL_LINE);
 				Draw(*mDebugMesh.get(), *mDebugShader.get(), transform);
-				GLCALL(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
-				GLCALL(glEnable(GL_CULL_FACE));
+				mGame.GetWindow().SetPolygonMode(polygonMode);
+				mGame.GetWindow().SetCullFaceEnabled(wasCullFaceEnabled);
 			}
 		}
 	}

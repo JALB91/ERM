@@ -3,14 +3,19 @@
 #include "rendering/Renderer.h"
 #include "utils/Utils.h"
 
+namespace {
+	static erm::Entity::EntityID nextEntityID = 0;
+}
+
 namespace erm {
 	
 	Entity::Entity(Game& game)
 		: mGame(game)
+		, mEntityID(++nextEntityID)
 		, mComponents{nullptr}
 		, mComponentIDs{false}
 		, mParent(nullptr)
-		, mChildren{}
+		, mChildren()
 		, mIsDirty(false)
 	{
 		RequireComponent<TransformComponent>();

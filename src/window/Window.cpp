@@ -39,6 +39,16 @@ namespace {
 
 namespace internal {
 	
+	void OnFocus(GLFWwindow* window, int focus)
+	{
+		static_cast<erm::Window*>(glfwGetWindowUserPointer(window))->OnSizeChanged();
+	}
+	
+	void OnMaximized(GLFWwindow* window, int maximised)
+	{
+		static_cast<erm::Window*>(glfwGetWindowUserPointer(window))->OnSizeChanged();
+	}
+	
 	void OnSizeChanged(GLFWwindow* window, int width, int height)
 	{
 		static_cast<erm::Window*>(glfwGetWindowUserPointer(window))->OnSizeChanged(width, height);
@@ -95,6 +105,7 @@ namespace erm {
 			return false;
 		}
 		
+		glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -127,26 +138,26 @@ namespace erm {
 		std::cout << glGetString(GL_VERSION) << std::endl;
 		std::cout << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
 		
-		GLCALL(glDepthFunc(GL_LESS));
-		GLCALL(glEnable(GL_DEPTH_TEST));
+		SetDepthEnabled(true);
+		SetDepthFunction(GL_LESS);
 		
-		GLCALL(glEnable(GL_BLEND));
-		GLCALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+		SetBlendEnabled(true);
+		SetBlendFunction(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		
-		GLCALL(glEnable(GL_CULL_FACE));
-		GLCALL(glCullFace(GL_FRONT));
+		SetCullFaceEnabled(true);
+		SetCullFace(GL_FRONT);
 #if defined(GLM_FORCE_LEFT_HANDED)
-		GLCALL(glFrontFace(GL_CW));
+		SetFrontFace(GL_CW);
 #else
-		GLCALL(glFrontFace(GL_CCW));
+		SetFrontFace(GL_CCW);
 #endif
 		
-//		GLCALL(glPolygonMode(GL_FRONT_AND_BACK, GL_LINE));
-		
-		GLCALL(glClearColor(0.25f, 0.25f, 0.25f, 1.0f));
+		SetClearColor(glm::vec4(0.25f, 0.25f, 0.25f, 1.0f));
 		
 		glfwSetWindowUserPointer(mWindow, this);
 		
+		glfwSetWindowFocusCallback(mWindow, internal::OnFocus);
+		glfwSetWindowMaximizeCallback(mWindow, internal::OnMaximized);
 		glfwSetWindowSizeCallback(mWindow, internal::OnSizeChanged);
 		glfwSetMouseButtonCallback(mWindow, internal::OnMouseButton);
 		glfwSetCursorPosCallback(mWindow, internal::OnMousePos);
@@ -183,6 +194,115 @@ namespace erm {
 	void Window::PostRender()
 	{
 		glfwPollEvents();
+	}
+	
+	bool Window::IsDepthEnabled() const
+	{
+		GLCALL(return glIsEnabled(GL_DEPTH_TEST));
+	}
+	
+	int Window::GetDepthFunction() const
+	{
+		int result;
+		GLCALL(glGetIntegerv(GL_DEPTH_FUNC, &result));
+		return result;
+	}
+	
+	void Window::SetDepthEnabled(bool enabled) const
+	{
+		GLCALL(enabled ? glEnable(GL_DEPTH_TEST) : glDisable(GL_DEPTH_TEST));
+	}
+	
+	void Window::SetDepthFunction(int depthFunc) const
+	{
+		GLCALL(glDepthFunc(depthFunc));
+	}
+	
+	bool Window::IsBlendEnabled() const
+	{
+		GLCALL(return glIsEnabled(GL_BLEND));
+	}
+	
+	int Window::GetBlendSourceFactor() const
+	{
+		int result;
+		GLCALL(glGetIntegerv(GL_BLEND_SRC, &result));
+		return result;
+	}
+	
+	int Window::GetBlendDestinationFactor() const
+	{
+		int result;
+		GLCALL(glGetIntegerv(GL_BLEND_DST, &result));
+		return result;
+	}
+	
+	void Window::SetBlendEnabled(bool enabled) const
+	{
+		GLCALL(enabled ? glEnable(GL_BLEND) : glDisable(GL_BLEND));
+	}
+	
+	void Window::SetBlendFunction(int sFactor, int dFactor) const
+	{
+		GLCALL(glBlendFunc(sFactor, dFactor));
+	}
+	
+	bool Window::IsCullFaceEnabled() const
+	{
+		GLCALL(return glIsEnabled(GL_CULL_FACE));
+	}
+	
+	int Window::GetCullFace() const
+	{
+		int result;
+		GLCALL(glGetIntegerv(GL_CULL_FACE_MODE, &result));
+		return result;
+	}
+	
+	int Window::GetCullFrontFace() const
+	{
+		int result;
+		GLCALL(glGetIntegerv(GL_FRONT_FACE, &result));
+		return result;
+	}
+	
+	void Window::SetCullFaceEnabled(bool enabled) const
+	{
+		GLCALL(enabled ? glEnable(GL_CULL_FACE) : glDisable(GL_CULL_FACE));
+	}
+	
+	void Window::SetCullFace(int cullFace) const
+	{
+		GLCALL(glCullFace(cullFace));
+	}
+	
+	void Window::SetFrontFace(int frontFace) const
+	{
+		GLCALL(glFrontFace(frontFace));
+	}
+	
+	int Window::GetPolygonMode() const
+	{
+		int result;
+		GLCALL(glGetIntegerv(GL_POLYGON_MODE, &result));
+		return result;
+	}
+	
+	void Window::SetPolygonMode(int mode) const
+	{
+		GLCALL(glPolygonMode(GL_FRONT_AND_BACK, mode));
+	}
+	
+	glm::vec4 Window::GetClearColor() const
+	{
+		glm::vec4 result;
+		GLCALL(glGetFloatv(GL_COLOR_CLEAR_VALUE, &result.x));
+		return result;
+	}
+	
+	void Window::SetClearColor(const glm::vec4& clearColor) const
+	{
+		GLCALL(glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w));
 	}
 	
 	void Window::OnKey(int key, int scanCode, int action, int mods)
@@ -251,7 +371,12 @@ namespace erm {
 		});
 	}
 	
-	// IKeyInfoProvider
+	void Window::OnSizeChanged()
+	{
+		glfwGetWindowSize(mWindow, &mWindowWidth, &mWindowHeight);
+		OnSizeChanged(mWindowWidth, mWindowHeight);
+	}
+	
 	void Window::AddListener(IKeyListener& listener)
 	{
 		mKeyListeners.insert(&listener);
@@ -271,7 +396,6 @@ namespace erm {
 		return (mPressedKeys.find(keyCode) != mPressedKeys.end());
 	}
 	
-	// IMouseInfoProvider
 	void Window::AddListener(IMouseListener& listener)
 	{
 		mMouseListeners.insert(&listener);
@@ -291,7 +415,6 @@ namespace erm {
 		return (mPressedButtons.find(mouseButton) != mPressedButtons.end());
 	}
 	
-	// IWindowSizeProvider
 	void Window::AddListener(IWindowSizeListener& listener)
 	{
 		mWindowSizeListeners.insert(&listener);

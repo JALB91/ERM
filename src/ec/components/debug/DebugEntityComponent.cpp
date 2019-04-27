@@ -6,6 +6,8 @@
 
 #include <glm/glm.hpp>
 
+#include <string>
+
 namespace erm {
 	
 	DebugEntityComponent::DebugEntityComponent(Entity& entity)
@@ -18,10 +20,14 @@ namespace erm {
 	
 	void DebugEntityComponent::OnImGuiRender()
 	{
+		char buffer [64];
+		std::sprintf(buffer, "Entity %d", mEntity.GetEntityID());
+		ImGui::Begin(buffer);
+		
 		bool reset = ImGui::Button("Reset");
-		ImGui::SliderFloat3("Translation", &mTransformComponent.GetTranslation().x, -200.0f, 200.0f);
+		ImGui::InputFloat3("Translation", &mTransformComponent.GetTranslation().x, 1);
 		ImGui::SliderFloat3("Rotation", &mTransformComponent.GetRotation().x, -static_cast<float>(M_PI), static_cast<float>(M_PI));
-		ImGui::SliderFloat3("Scale", &mTransformComponent.GetScale().x, -1.0f, 3.0f);
+		ImGui::InputFloat3("Scale", &mTransformComponent.GetScale().x, 1);
 		
 //		ImGui::Text("Drag Mode");
 //		ImGui::RadioButton("None", &mDragMode, 0); ImGui::SameLine();
@@ -36,6 +42,8 @@ namespace erm {
 		}
 		
 		mEntity.SetDirty();
+		
+		ImGui::End();
 	}
 	
 }

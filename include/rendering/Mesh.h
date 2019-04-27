@@ -20,7 +20,6 @@ namespace erm {
 	{
 	public:
 		friend class MeshUtils;
-		friend class ModelUtils;
 		
 	public:
 		Mesh();

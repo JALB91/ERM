@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ec/IComponent.h"
+#include "game/Game.h"
 
 #include <array>
 #include <vector>
@@ -10,13 +11,15 @@
 namespace erm {
 	
 	class Game;
+	class Window;
 	class Renderer;
 	
 	class Entity
 	{
 	private:
+		static constexpr unsigned int kMaxComponentsNumber = 40;
+		
 		typedef unsigned int ComponentID;
-		static constexpr unsigned int kMaxComponentsNumber = 10;
 		typedef std::array<bool, kMaxComponentsNumber> ComponentIDs;
 		typedef std::array<std::unique_ptr<IComponent>, kMaxComponentsNumber> Components;
 		
@@ -34,6 +37,8 @@ namespace erm {
 		}
 		
 	public:
+		typedef unsigned int EntityID;
+		
 		Entity(Game& game);
 		~Entity();
 		
@@ -71,6 +76,11 @@ namespace erm {
 		inline Game& GetGame() { return mGame; }
 		inline const Game& GetGame() const { return mGame; }
 		
+		inline EntityID GetEntityID() const { return mEntityID; }
+		
+		inline Window& GetWindow() { return mGame.GetWindow(); }
+		inline const Window& GetWindow() const { return mGame.GetWindow(); }
+		
 		void RemoveFromParent();
 		void AddChild(Entity* child);
 		inline Entity* GetParent() const { return mParent; }
@@ -84,6 +94,7 @@ namespace erm {
 		void ForEachChild(const std::function<void(Entity&)>& function);
 		
 		Game& mGame;
+		EntityID mEntityID;
 		Components mComponents;
 		ComponentIDs mComponentIDs;
 		

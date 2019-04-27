@@ -12,7 +12,10 @@
 #include "ec/Entity.h"
 #include "ec/components/MeshComponent.h"
 #include "ec/components/TransformComponent.h"
+#include "ec/components/debug/DebugGameComponent.h"
 #include "ec/components/debug/DebugEntityComponent.h"
+
+#include <imgui.h>
 
 #include <GLFW/glfw3.h>
 
@@ -46,7 +49,7 @@ namespace erm {
 		
 		mRoot = std::make_unique<Entity>(*this);
 		mRoot->RequireComponent<MeshComponent>(MeshUtils::ParseModel("res/models/Lamborghini_Aventador.obj"));
-		//mRoot->RequireComponent<MeshComponent>(MeshUtils::CreateCube());
+		mRoot->RequireComponent<DebugGameComponent>();
 		mRoot->RequireComponent<DebugEntityComponent>();
 		mRoot->RequireComponent<TransformComponent>().SetScale(glm::vec3(0.1f, 0.1f, 0.1f));
 		
