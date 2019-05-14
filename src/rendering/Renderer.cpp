@@ -98,10 +98,10 @@ namespace erm {
 				
 				glm::mat4 transform = glm::identity<glm::mat4>();
 				transform = glm::translate(transform, transformComponent->GetTranslation());
-				transform = glm::translate(transform, (bBox.mMax + bBox.mMin) * scale * 0.5f);
 				transform = glm::rotate(transform, transformComponent->GetRotation().x, glm::vec3(1.0f, 0.0f, 0.0f));
 				transform = glm::rotate(transform, transformComponent->GetRotation().y, glm::vec3(0.0f, 1.0f, 0.0f));
 				transform = glm::rotate(transform, transformComponent->GetRotation().z, glm::vec3(0.0f, 0.0f, 1.0f));
+				transform = glm::translate(transform, (bBox.mMax + bBox.mMin) * scale * 0.5f);
 				transform = glm::scale(transform, size * scale);
 				
 				const bool wasCullFaceEnabled = mGame.GetWindow().IsCullFaceEnabled();
