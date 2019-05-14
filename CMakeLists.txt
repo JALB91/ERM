@@ -4,6 +4,8 @@ set(PROJECT_NAME ERM)
 
 project(${PROJECT_NAME})
 
+set (CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 set(GLM_TEST_ENABLE_CXX_98 OFF CACHE BOOL "" FORCE)
 set(GLM_TEST_ENABLE_CXX_11 OFF CACHE BOOL "" FORCE)
 set(GLM_TEST_ENABLE_CXX_14 OFF CACHE BOOL "" FORCE)
@@ -99,8 +101,8 @@ set(res_source ${CMAKE_HOME_DIRECTORY}/res/)
 set(res_dest ${CMAKE_CURRENT_BINARY_DIR}/Debug/res)
 
 add_custom_command(
- TARGET ${PROJECT_NAME} POST_BUILD
- COMMAND ${CMAKE_COMMAND} -E copy_directory ${res_source} ${res_dest}
- DEPENDS ${res_dest}
- COMMENT "symbolic link resources folder from ${res_source} => ${res_dest}"
+	TARGET ${PROJECT_NAME} POST_BUILD
+ 	COMMAND ${CMAKE_COMMAND} -E copy_directory ${res_source} ${res_dest}
+ 	DEPENDS ${res_dest}
+ 	COMMENT "symbolic link resources folder from ${res_source} => ${res_dest}"
 )
