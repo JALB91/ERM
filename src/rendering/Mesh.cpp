@@ -11,8 +11,7 @@
 namespace erm {
 	
 	Mesh::Mesh()
-		: ITransformable()
-		, mVerticesData(nullptr)
+		: mVerticesData(nullptr)
 		, mVerticesDataCount(0)
 		, mIndicesData(nullptr)
 		, mIndicesDataCount(0)
@@ -37,16 +36,12 @@ namespace erm {
 	
 	Mesh::Mesh(const Mesh& other)
 	{
-		mTranslation = other.mTranslation;
-		mRotation = other.mRotation;
-		mScale = other.mScale;
-		
 		mVerticesDataCount = other.mVerticesDataCount;
 		
 		if (mVerticesDataCount > 0)
 		{
 			mVerticesData = static_cast<VertexData*>(malloc(sizeof(VertexData) * mVerticesDataCount));
-			std::memcpy(mVerticesData, other.mVerticesData, mVerticesDataCount);
+			std::memcpy(mVerticesData, other.mVerticesData, sizeof(VertexData) * mVerticesDataCount);
 		}
 		
 		mIndicesDataCount = other.mIndicesDataCount;
@@ -54,7 +49,7 @@ namespace erm {
 		if (mIndicesDataCount > 0)
 		{
 			mIndicesData = static_cast<IndexData*>(malloc(sizeof(IndexData) * mIndicesDataCount));
-			std::memcpy(mIndicesData, other.mIndicesData, mIndicesDataCount);
+			std::memcpy(mIndicesData, other.mIndicesData, sizeof(IndexData) * mIndicesDataCount);
 		}
 		
 		mVBL = other.mVBL;
@@ -65,10 +60,6 @@ namespace erm {
 	
 	Mesh::Mesh(Mesh&& other)
 	{
-		mTranslation = other.mTranslation;
-		mRotation = other.mRotation;
-		mScale = other.mScale;
-		
 		mVerticesData = other.mVerticesData;
 		mVerticesDataCount = other.mVerticesDataCount;
 		
@@ -79,9 +70,6 @@ namespace erm {
 		mVB = std::move(other.mVB);
 		mIB = std::move(other.mIB);
 		mVA = std::move(other.mVA);
-		
-		other.mTranslation = glm::vec3(0.0f);
-		other.mRotation = glm::vec3(0.0f);
 		
 		other.mVerticesData = nullptr;
 		other.mVerticesDataCount = 0;
@@ -102,10 +90,6 @@ namespace erm {
 			return *this;
 		}
 		
-		mTranslation = other.mTranslation;
-		mRotation = other.mRotation;
-		mScale = other.mScale;
-		
 		if (mVerticesData)
 		{
 			free(mVerticesData);
@@ -123,7 +107,7 @@ namespace erm {
 		if (mVerticesDataCount > 0)
 		{
 			mVerticesData = static_cast<VertexData*>(malloc(sizeof(VertexData) * mVerticesDataCount));
-			std::memcpy(mVerticesData, other.mVerticesData, mVerticesDataCount);
+			std::memcpy(mVerticesData, other.mVerticesData, sizeof(VertexData) * mVerticesDataCount);
 		}
 		
 		mIndicesDataCount = other.mIndicesDataCount;
@@ -131,7 +115,7 @@ namespace erm {
 		if (mIndicesDataCount > 0)
 		{
 			mIndicesData = static_cast<IndexData*>(malloc(sizeof(IndexData) * mIndicesDataCount));
-			std::memcpy(mIndicesData, other.mIndicesData, mIndicesDataCount);
+			std::memcpy(mIndicesData, other.mIndicesData, sizeof(IndexData) * mIndicesDataCount);
 		}
 		
 		mVBL = other.mVBL;
@@ -148,10 +132,6 @@ namespace erm {
 		{
 			return *this;
 		}
-		
-		mTranslation = other.mTranslation;
-		mRotation = other.mRotation;
-		mScale = other.mScale;
 		
 		if (mVerticesData)
 		{
@@ -173,9 +153,6 @@ namespace erm {
 		mVB = std::move(other.mVB);
 		mIB = std::move(other.mIB);
 		mVA = std::move(other.mVA);
-		
-		other.mTranslation = glm::vec3(0.0f);
-		other.mRotation = glm::vec3(0.0f);
 		
 		other.mVerticesData = nullptr;
 		other.mVerticesDataCount = 0;

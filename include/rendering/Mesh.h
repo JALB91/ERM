@@ -2,8 +2,6 @@
 
 #include "rendering/IndexData.h"
 
-#include "interfaces/ITransformable.h"
-
 #include <glm/glm.hpp>
 
 #include <memory>
@@ -16,10 +14,11 @@ namespace erm {
 	class VertexArray;
 	class VertexBufferLayout;
 	
-	class Mesh: public ITransformable
+	class Mesh
 	{
 	public:
 		friend class MeshUtils;
+		friend class ModelUtils;
 		
 	public:
 		Mesh();

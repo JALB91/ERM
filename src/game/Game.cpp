@@ -8,9 +8,10 @@
 
 #include "utils/Utils.h"
 #include "utils/MeshUtils.h"
+#include "utils/ModelUtils.h"
 
 #include "ec/Entity.h"
-#include "ec/components/MeshComponent.h"
+#include "ec/components/ModelComponent.h"
 #include "ec/components/TransformComponent.h"
 #include "ec/components/debug/DebugGameComponent.h"
 #include "ec/components/debug/DebugEntityComponent.h"
@@ -18,6 +19,12 @@
 #include <imgui.h>
 
 #include <GLFW/glfw3.h>
+
+namespace {
+
+	const char* const kModelPath = "res/models/Lamborghini_Aventador.obj";
+
+}
 
 namespace erm {
 	
@@ -48,7 +55,7 @@ namespace erm {
 		mRenderer = std::make_unique<Renderer>(*this);
 		
 		mRoot = std::make_unique<Entity>(*this);
-		mRoot->RequireComponent<MeshComponent>(MeshUtils::ParseModel("res/models/Lamborghini_Aventador.obj"));
+		mRoot->RequireComponent<ModelComponent>(ModelUtils::ParseModel(kModelPath));
 		mRoot->RequireComponent<DebugGameComponent>();
 		mRoot->RequireComponent<DebugEntityComponent>();
 		mRoot->RequireComponent<TransformComponent>().SetScale(glm::vec3(0.1f, 0.1f, 0.1f));

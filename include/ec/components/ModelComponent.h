@@ -4,6 +4,7 @@
 
 #include "math/BoundingBox.h"
 
+#include "rendering/Model.h"
 #include "rendering/Mesh.h"
 
 namespace erm {
@@ -11,20 +12,21 @@ namespace erm {
 	class TransformComponent;
 	class SpriteComponent;
 	
-	class MeshComponent: public IComponent
+	class ModelComponent: public IComponent
 	{
 	public:
 		friend class SpriteComponent;
 		
 	public:
-		MeshComponent(Entity& entity, Mesh mesh);
+		ModelComponent(Entity& entity, Model model);
+		ModelComponent(Entity& entity, Mesh mesh);
 		
 		// IComponent
 		void OnPostUpdate() override;
 		
 		void UpdateWorldBounds();
 		
-		inline const Mesh& GetMesh() const { return mMesh; }
+		inline const Model& GetModel() const { return mModel; }
 		
 		inline BoundingBox3D GetLocalBounds() { return mLocalBounds; }
 		inline const BoundingBox3D& GetLocalBounds() const { return mLocalBounds; }
@@ -33,7 +35,7 @@ namespace erm {
 		inline const BoundingBox3D& GetWorldBounds() const { return mWorldBounds; }
 		
 	private:
-		Mesh mMesh;
+		Model mModel;
 		BoundingBox3D mLocalBounds;
 		BoundingBox3D mWorldBounds;
 		const TransformComponent& mTransformComponent;

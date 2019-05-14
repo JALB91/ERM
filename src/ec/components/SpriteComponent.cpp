@@ -1,6 +1,6 @@
 #include "ec/components/SpriteComponent.h"
 #include "ec/components/TransformComponent.h"
-#include "ec/components/MeshComponent.h"
+#include "ec/components/ModelComponent.h"
 #include "ec/Entity.h"
 
 #include "rendering/Mesh.h"
@@ -15,7 +15,7 @@ namespace erm {
 	SpriteComponent::SpriteComponent(Entity& entity, const char* filePath)
 		: IComponent(entity)
 		, mTransformComponent(entity.RequireComponent<TransformComponent>())
-		, mMeshComponent(entity.RequireComponent<MeshComponent>(MeshUtils::CreateSquare()))
+		, mModelComponent(entity.RequireComponent<ModelComponent>(MeshUtils::CreateSquare()))
 		, mTexture(std::make_unique<Texture>(filePath))
 		, mShader(std::make_unique<ShaderProgram>("res/shaders/texture"))
 	{

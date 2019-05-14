@@ -62,6 +62,8 @@ namespace erm {
 			return std::string("../") + absolutePath;
 #elif defined(__APPLE__)
 			return absolutePath;
+#else
+			return absolutePath;
 #endif
 		}
 		

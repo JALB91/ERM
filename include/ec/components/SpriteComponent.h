@@ -8,7 +8,7 @@ namespace erm {
 	
 	class Texture;
 	class ShaderProgram;
-	class MeshComponent;
+	class ModelComponent;
 	class TransformComponent;
 	
 	class SpriteComponent: public IComponent
@@ -19,7 +19,7 @@ namespace erm {
 		
 	private:
 		TransformComponent& mTransformComponent;
-		MeshComponent& mMeshComponent;
+		ModelComponent& mModelComponent;
 		std::unique_ptr<Texture> mTexture;
 		std::unique_ptr<ShaderProgram> mShader;
 		

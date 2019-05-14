@@ -1,7 +1,5 @@
 #pragma once
 
-#include "interfaces/ITransformable.h"
-
 #include <glm/glm.hpp>
 
 #include <vector>
@@ -10,12 +8,8 @@ namespace erm {
 	
 	class Mesh;
 	
-	class Model: public ITransformable
+	class Model
 	{
-	public:
-		friend class MeshUtils;
-		friend class ModelUtils;
-		
 	public:
 		Model(std::vector<Mesh> meshes);
 		~Model();

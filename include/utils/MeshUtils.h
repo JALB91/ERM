@@ -1,10 +1,10 @@
 #pragma once
 
-#include "rendering/Mesh.h"
-
 #include <glm/glm.hpp>
 
 namespace erm {
+	
+	class Mesh;
 	
 	class MeshUtils
 	{
@@ -33,7 +33,6 @@ namespace erm {
 			int stackCount = 10,
 			int sectorCount = 10
 		);
-		static Mesh ParseModel(const char* path);
 	};
 	
 }

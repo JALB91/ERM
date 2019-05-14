@@ -17,7 +17,7 @@
 #include "game/Game.h"
 
 #include "ec/Entity.h"
-#include "ec/components/MeshComponent.h"
+#include "ec/components/ModelComponent.h"
 #include "ec/components/TransformComponent.h"
 
 #include <glm/gtc/matrix_transform.hpp>
@@ -39,7 +39,7 @@ namespace erm {
 		, mView(glm::translate(glm::identity<glm::mat4>(), glm::vec3(0.0f, 0.0f, 0.0f)))
 		, mViewProjection(glm::identity<glm::mat4>())
 		, mDebugMesh(std::make_unique<Mesh>(MeshUtils::CreateCube()))
-		, mDebugShader(std::make_unique<ShaderProgram>(kDebugShaderPath.c_str()))
+		, mDebugShader(std::make_unique<ShaderProgram>(kDebugShaderPath))
 	{
 		UpdateProjection();
 	}
@@ -85,18 +85,27 @@ namespace erm {
 	{
 		if (const TransformComponent* transformComponent = entity.GetComponent<TransformComponent>())
 		{
-			if (const MeshComponent* meshComponent = entity.GetComponent<MeshComponent>())
+			if (const ModelComponent* modelComponent = entity.GetComponent<ModelComponent>())
 			{
-				Draw(meshComponent->GetMesh(), *mDebugShader.get(), transformComponent->GetWorldTransform());
+				for (const Mesh& mesh: modelComponent->GetModel().GetMeshes())
+				{
+					Draw(mesh, *mDebugShader.get(), transformComponent->GetWorldTransform());
+				}
 				
-				const BoundingBox3D& bBox =  meshComponent->GetLocalBounds();
-				const glm::vec3& size = bBox.GetSize();
-				mDebugMesh->SetScale(size*0.5f);
+				const BoundingBox3D bBox =  modelComponent->GetLocalBounds();
+				const glm::vec3 scale = transformComponent->GetScale();
+				const glm::vec3 size = bBox.GetSize() * 0.5f;
 				
-				glm::mat4 transform = glm::scale(transformComponent->GetWorldTransform(), mDebugMesh->GetScale());
+				glm::mat4 transform = glm::identity<glm::mat4>();
+				transform = glm::translate(transform, transformComponent->GetTranslation());
+				transform = glm::translate(transform, (bBox.mMax + bBox.mMin) * scale * 0.5f);
+				transform = glm::rotate(transform, transformComponent->GetRotation().x, glm::vec3(1.0f, 0.0f, 0.0f));
+				transform = glm::rotate(transform, transformComponent->GetRotation().y, glm::vec3(0.0f, 1.0f, 0.0f));
+				transform = glm::rotate(transform, transformComponent->GetRotation().z, glm::vec3(0.0f, 0.0f, 1.0f));
+				transform = glm::scale(transform, size * scale);
 				
-				bool wasCullFaceEnabled = mGame.GetWindow().IsCullFaceEnabled();
-				int polygonMode = mGame.GetWindow().GetPolygonMode();
+				const bool wasCullFaceEnabled = mGame.GetWindow().IsCullFaceEnabled();
+				const int polygonMode = mGame.GetWindow().GetPolygonMode();
 				
 				mGame.GetWindow().SetCullFaceEnabled(false);
 				mGame.GetWindow().SetPolygonMode(GL_LINE);
