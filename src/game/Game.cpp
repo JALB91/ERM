@@ -22,7 +22,8 @@
 
 namespace {
 
-	const char* const kModelPath = "res/models/Lamborghini_Aventador.obj";
+	const char* const kLamborghiniModelPath = "res/models/Lamborghini_Aventador.obj";
+	const char* const kChairModelPath = "res/models/chair.obj";
 
 }
 
@@ -55,7 +56,7 @@ namespace erm {
 		mRenderer = std::make_unique<Renderer>(*this);
 		
 		mRoot = std::make_unique<Entity>(*this);
-		mRoot->RequireComponent<ModelComponent>(ModelUtils::ParseModel(kModelPath));
+		mRoot->RequireComponent<ModelComponent>(ModelUtils::ParseModel(kLamborghiniModelPath));
 		mRoot->RequireComponent<DebugGameComponent>();
 		mRoot->RequireComponent<DebugEntityComponent>();
 		mRoot->RequireComponent<TransformComponent>().SetScale(glm::vec3(0.1f, 0.1f, 0.1f));
