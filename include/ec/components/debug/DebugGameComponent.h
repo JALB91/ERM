@@ -6,7 +6,7 @@
 
 namespace erm {
 	
-	class Window;
+	class Renderer;
 	
 	class DebugGameComponent : public IComponent
 	{
@@ -18,7 +18,7 @@ namespace erm {
 		void OnImGuiRender() override;
 		
 	private:
-		const Window& mWindow;
+		const Renderer& mRenderer;
 		
 	};
 	

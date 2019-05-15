@@ -27,30 +27,6 @@ namespace erm {
 		void Render();
 		void PostRender();
 		
-		bool IsDepthEnabled() const;
-		int GetDepthFunction() const;
-		void SetDepthEnabled(bool enabled) const;
-		void SetDepthFunction(int depthFunc) const;
-		
-		bool IsBlendEnabled() const;
-		int GetBlendSourceFactor() const;
-		int GetBlendDestinationFactor() const;
-		void SetBlendEnabled(bool enabled) const;
-		void SetBlendFunction(int sFactor, int dFactor) const;
-		
-		bool IsCullFaceEnabled() const;
-		int GetCullFace() const;
-		int GetCullFrontFace() const;
-		void SetCullFaceEnabled(bool enabled) const;
-		void SetCullFace(int cullFace) const;
-		void SetFrontFace(int frontFace) const;
-		
-		int GetPolygonMode() const;
-		void SetPolygonMode(int mode) const;
-		
-		glm::vec4 GetClearColor() const;
-		void SetClearColor(const glm::vec4& clearColor) const;
-		
 		void OnKey(int key, int scanCode, int action, int mods);
 		void OnMouseButton(int button, int action, int mods);
 		void OnMousePos(double xPos, double yPos);

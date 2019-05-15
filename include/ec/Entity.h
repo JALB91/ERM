@@ -80,6 +80,9 @@ namespace erm {
 		
 		inline Window& GetWindow() { return mGame.GetWindow(); }
 		inline const Window& GetWindow() const { return mGame.GetWindow(); }
+
+		inline Renderer& GetRenderer() { return mGame.GetRenderer(); }
+		inline const Renderer& GetRenderer() const { return mGame.GetRenderer(); }
 		
 		void RemoveFromParent();
 		void AddChild(Entity* child);
