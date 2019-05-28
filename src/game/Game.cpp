@@ -23,6 +23,7 @@
 namespace {
 
 	const char* const kLamborghiniModelPath = "res/models/Lamborghini_Aventador.obj";
+	const char* const kIphoneModelPath = "res/models/iphone.obj";
 	const char* const kChairModelPath = "res/models/chair.obj";
 
 }
