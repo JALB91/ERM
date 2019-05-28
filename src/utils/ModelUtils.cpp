@@ -19,6 +19,7 @@ namespace erm {
 		std::string name;
 		std::vector<Mesh> meshes;
 		std::vector<Vertex> positions;
+		std::vector<NormalVertex> nPositions;
 		std::vector<TextureVertex> tPositions;
 		std::vector<VertexData> vertices;
 		std::vector<IndexData> indices;
@@ -103,12 +104,16 @@ namespace erm {
 				}
 				else if (std::strcmp(splitted[0].c_str(), "vn") == 0)
 				{
-					// TODO
+					nPositions.emplace_back(
+						std::atof(splitted[1].c_str()),
+						std::atof(splitted[2].c_str()),
+						std::atof(splitted[3].c_str())
+					);
 				}
 				else if (std::strcmp(splitted[0].c_str(), "f") == 0)
 				{
 					std::vector<VertexData> vVertices;
-					ParseFace(vVertices, positions, tPositions, splitted);
+					ParseFace(vVertices, positions, nPositions, tPositions, splitted);
 					
 					for (unsigned int i = 0; i < vVertices.size(); ++i)
 					{
@@ -160,10 +165,15 @@ namespace erm {
 	void ModelUtils::ParseFace(
 		std::vector<VertexData>& oVertices,
 		const std::vector<Vertex>& positions,
+		const std::vector<NormalVertex>& nPositions,
 		const std::vector<TextureVertex>& tPositions,
 		const std::vector<std::string>& splitted
 	)
 	{
+		static constexpr unsigned int kVertexIndex = 0;
+		static constexpr unsigned int kNormalVertexIndex = 2;
+		static constexpr unsigned int kTextureVertexIndex = 1;
+		
 		for (const std::string& split: splitted)
 		{
 			if (std::strcmp(split.c_str(), "f") == 0)
@@ -172,8 +182,9 @@ namespace erm {
 			}
 			const std::vector<std::string> indices = Utils::SplitString(split, '/');
 			VertexData vertex {
-				positions[std::atoi(indices[0].c_str()) - 1],
-				tPositions[std::atoi(indices[1].c_str()) - 1]
+				positions[std::atoi(indices[kVertexIndex].c_str()) - 1],
+				nPositions[std::atoi(indices[kNormalVertexIndex].c_str()) - 1],
+				tPositions[std::atoi(indices[kTextureVertexIndex].c_str()) - 1]
 			};
 			oVertices.push_back(vertex);
 		}

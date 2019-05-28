@@ -170,10 +170,16 @@ namespace erm {
 	
 	void Mesh::Setup()
 	{
-		mVB = std::make_shared<VertexBuffer>(&mVerticesData[0].mVertex[0], sizeof(VertexType) * kVectorsLenght * mVerticesDataCount + sizeof(TextureVertexType) * kTextureVectorsLenght * mVerticesDataCount);
+		mVB = std::make_shared<VertexBuffer>(
+			&mVerticesData[0].mVertex[0],
+			sizeof(VertexType) * kVectorsLenght * mVerticesDataCount +
+			sizeof(NormalVertexType) * kNormalVectorsLenght * mVerticesDataCount +
+			sizeof(TextureVertexType) * kTextureVectorsLenght * mVerticesDataCount
+		);
 		
 		mVBL = std::make_shared<VertexBufferLayout>();
 		mVBL->Push<VertexType>(kVectorsLenght);
+		mVBL->Push<NormalVertexType>(kNormalVectorsLenght);
 		mVBL->Push<TextureVertexType>(kTextureVectorsLenght);
 		
 		mIB = std::make_shared<IndexBuffer>(mIndicesData, mIndicesDataCount);

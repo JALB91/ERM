@@ -12,6 +12,7 @@ namespace {
 	const std::unordered_map<erm::Uniform, const char* const> kUniforms
 	{
 		{ erm::Uniform::MVP, "u_MVP" },
+		{ erm::Uniform::NORMAL, "u_Normal" },
 		{ erm::Uniform::TEXTURE_2D, "u_Texture" }
 	};
 	
