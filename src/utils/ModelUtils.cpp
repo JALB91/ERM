@@ -115,13 +115,18 @@ namespace erm {
 					std::vector<VertexData> vVertices;
 					ParseFace(vVertices, positions, nPositions, tPositions, splitted);
 					
+					std::vector<IndexData> vIndices;
+					Triangulate(vIndices, vVertices);
+					
+					if (vIndices.empty())
+					{
+						continue;
+					}
+					
 					for (unsigned int i = 0; i < vVertices.size(); ++i)
 					{
 						vertices.push_back(vVertices[i]);
 					}
-					
-					std::vector<IndexData> vIndices;
-					Triangulate(vIndices, vVertices);
 					
 					for (unsigned int i = 0; i < vIndices.size(); ++i)
 					{
@@ -180,14 +185,109 @@ namespace erm {
 			{
 				continue;
 			}
+			
 			const std::vector<std::string> indices = Utils::SplitString(split, '/');
-			VertexData vertex {
-				positions[std::atoi(indices[kVertexIndex].c_str()) - 1],
-				nPositions[std::atoi(indices[kNormalVertexIndex].c_str()) - 1],
-				tPositions[std::atoi(indices[kTextureVertexIndex].c_str()) - 1]
-			};
-			oVertices.push_back(vertex);
+			VertexData vertex;
+			
+			const unsigned int positionIndex = std::atoi(indices[kVertexIndex].c_str()) - 1;
+			int nPositionIndex = -1;
+			int tPositionIndex = -1;
+			
+			if (indices.size() == 2)
+			{
+				tPositionIndex = std::atoi(indices[kTextureVertexIndex].c_str()) - 1;
+			}
+			else if (indices.size() == 3)
+			{
+				nPositionIndex = std::atoi(indices[kNormalVertexIndex].c_str()) - 1;
+				
+				if (!indices[kTextureVertexIndex].empty())
+				{
+					tPositionIndex = std::atoi(indices[kTextureVertexIndex].c_str()) - 1;
+				}
+			}
+			
+			vertex.mVertex = positions[positionIndex];
+			
+			if (nPositionIndex >= 0 && nPositionIndex < nPositions.size())
+			{
+				vertex.mNormalVertex = nPositions[nPositionIndex];
+			}
+			
+			if (tPositionIndex >= 0 && tPositionIndex < tPositions.size())
+			{
+				vertex.mTextureVertex = tPositions[tPositionIndex];
+			}
+			
+			oVertices.emplace_back(vertex);
 		}
+	}
+	
+	bool Intersection(
+		const Vertex& a,
+		const Vertex& b,
+		const Vertex& d1,
+		const Vertex& d2,
+		Vertex& intersection
+	)
+	{
+		glm::mat<2, 2, VertexType> m1;
+		m1[0][0] = a.x - b.x;
+		m1[0][1] = -d1.x;
+		m1[1][0] = a.y - b.y;
+		m1[1][1] = -d1.y;
+		
+		glm::mat<2, 2, VertexType> m2;
+		m2[0][0] = d2.x;
+		m2[0][1] = -d1.x;
+		m2[1][0] = d2.y;
+		m2[1][1] = -d1.y;
+		
+		VertexType det2 = glm::determinant(m2);
+		
+		if (det2 == 0.0f)
+		{
+			m2[0][0] = d2.y;
+			m2[0][1] = -d1.y;
+			m2[1][0] = d2.z;
+			m2[1][1] = -d1.z;
+			
+			det2 = glm::determinant(m2);
+			
+			if (det2 == 0.0f)
+			{
+				m2[0][0] = d2.x;
+				m2[0][1] = -d1.x;
+				m2[1][0] = d2.z;
+				m2[1][1] = -d1.z;
+				
+				det2 = glm::determinant(m2);
+				
+				if (det2 == 0.0f)
+				{
+					return false;
+				}
+				
+				m1[0][0] = a.x - b.x;
+				m1[0][1] = -d1.x;
+				m1[1][0] = a.z - b.z;
+				m1[1][1] = -d1.z;
+			}
+			else
+			{
+				m1[0][0] = a.y - b.y;
+				m1[0][1] = -d1.y;
+				m1[1][0] = a.z - b.z;
+				m1[1][1] = -d1.z;
+			}
+		}
+		
+		const VertexType det1 = glm::determinant(m1);
+		const VertexType t = det1/det2;
+		
+		intersection = b + t * d2;
+		
+		return true;
 	}
 	
 	void ModelUtils::Triangulate(
@@ -195,7 +295,7 @@ namespace erm {
 		const std::vector<VertexData>& vertices
 	)
 	{
-		if (vertices.size() < 3)
+		if (vertices.size() < 3 || vertices.size() > 4)
 		{
 			return;
 		}
@@ -207,173 +307,48 @@ namespace erm {
 			return;
 		}
 		
-		std::vector<VertexData> tVerts = vertices;
+		const Vertex& a = vertices[0].mVertex;
+		const Vertex& b = vertices[1].mVertex;
+		const Vertex& c = vertices[2].mVertex;
+		const Vertex& d = vertices[3].mVertex;
 		
-		while (true)
+		if ((a == b && d == c) ||
+			(a == d && b == c) ||
+			(a == c && d == b))
 		{
-			for (unsigned int i = 0; i < tVerts.size(); ++i)
-			{
-				VertexData pPrev;
-				
-				if (i == 0)
-				{
-					pPrev = tVerts[tVerts.size() - 1];
-				}
-				else
-				{
-					pPrev = tVerts[i - 1];
-				}
-				
-				VertexData pCur = tVerts[i];
-				VertexData pNext;
-				
-				if (i == tVerts.size() - 1)
-				{
-					pNext = tVerts[0];
-				}
-				else
-				{
-					pNext = tVerts[i + 1];
-				}
-				
-				if (tVerts.size() == 3)
-				{
-					for (unsigned int j = 0; j < tVerts.size(); ++j)
-					{
-						if (vertices[j].mVertex == pCur.mVertex)
-						{
-							oIndices.push_back(j);
-						}
-						if (vertices[j].mVertex == pPrev.mVertex)
-						{
-							oIndices.push_back(j);
-						}
-						if (vertices[j].mVertex == pNext.mVertex)
-						{
-							oIndices.push_back(j);
-						}
-					}
-					
-					tVerts.clear();
-					break;
-				}
-				
-				if (tVerts.size() == 4)
-				{
-					for (unsigned int j = 0; j < vertices.size(); ++j)
-					{
-						if (vertices[j].mVertex == pCur.mVertex)
-						{
-							oIndices.push_back(j);
-						}
-						if (vertices[j].mVertex == pPrev.mVertex)
-						{
-							oIndices.push_back(j);
-						}
-						if (vertices[j].mVertex == pNext.mVertex)
-						{
-							oIndices.push_back(j);
-						}
-					}
-					
-					glm::vec3 tempVec;
-					
-					for (unsigned int j = 0; j < tVerts.size(); ++j)
-					{
-						if (tVerts[j].mVertex != pCur.mVertex &&
-							tVerts[j].mVertex != pPrev.mVertex &&
-							tVerts[j].mVertex != pNext.mVertex)
-						{
-							tempVec = tVerts[j].mVertex;
-							break;
-						}
-					}
-					
-					for (unsigned int j = 0; j < vertices.size(); ++j)
-					{
-						if (vertices[j].mVertex == pPrev.mVertex)
-						{
-							oIndices.push_back(j);
-						}
-						if (vertices[j].mVertex == pNext.mVertex)
-						{
-							oIndices.push_back(j);
-						}
-						if (vertices[j].mVertex == tempVec)
-						{
-							oIndices.push_back(j);
-						}
-					}
-					
-					tVerts.clear();
-					break;
-				}
-				
-				const float angleBeetween = Utils::AngleBetweenV3(pPrev.mVertex - pCur.mVertex, pNext.mVertex - pCur.mVertex);
-				const float angle = angleBeetween * (180.0f / M_PI);
-				
-				if (angle <= 0.0f && angle >= 180.0f)
-				{
-					continue;
-				}
-				
-				bool inTri = false;
-				
-				for (unsigned int j = 0; j < vertices.size(); ++j)
-				{
-					if (Utils::IsInTriangle(vertices[j].mVertex, pPrev.mVertex, pCur.mVertex, pNext.mVertex) &&
-						vertices[j].mVertex!= pPrev.mVertex &&
-						vertices[j].mVertex != pCur.mVertex &&
-						vertices[j].mVertex != pNext.mVertex)
-					{
-						inTri = true;
-						break;
-					}
-				}
-				
-				if (inTri)
-				{
-					continue;
-				}
-				
-				for (unsigned int j = 0; j < vertices.size(); ++j)
-				{
-					if (vertices[j].mVertex == pCur.mVertex)
-					{
-						oIndices.push_back(j);
-					}
-					if (vertices[j].mVertex == pPrev.mVertex)
-					{
-						oIndices.push_back(j);
-					}
-					if (vertices[j].mVertex == pNext.mVertex)
-					{
-						oIndices.push_back(j);
-					}
-				}
-				
-				for (unsigned int j = 0; j < tVerts.size(); ++j)
-				{
-					if (tVerts[j].mVertex == pCur.mVertex)
-					{
-						tVerts.erase(tVerts.begin() + j);
-						break;
-					}
-				}
-				
-				i = -1;
-			}
-			
-			if (oIndices.size() == 0)
-			{
-				break;
-			}
-			
-			if (tVerts.size() == 0)
-			{
-				break;
-			}
+			return;
 		}
+		
+		oIndices.push_back(0);
+		oIndices.push_back(1);
+		oIndices.push_back(3);
+		
+		Vertex d1 = c - a;
+		Vertex d2 = d - b;
+		Vertex intersection;
+		
+		if (Intersection(a, b, d1, d2, intersection))
+		{
+			oIndices.push_back(1);
+			oIndices.push_back(2);
+			oIndices.push_back(3);
+			return;
+		}
+		
+		d1 = c - b;
+		d2 = d - a;
+		
+		if (Intersection(b, a, d1, d2, intersection))
+		{
+			oIndices.push_back(0);
+			oIndices.push_back(2);
+			oIndices.push_back(3);
+			return;
+		}
+		
+		oIndices.push_back(0);
+		oIndices.push_back(1);
+		oIndices.push_back(2);
 	}
 
 }

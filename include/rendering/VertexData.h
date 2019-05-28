@@ -9,13 +9,10 @@ namespace erm {
 	static constexpr unsigned int kTextureVectorsLenght = 2;
 	
 	typedef float VertexType;
+	
 	typedef glm::vec<kVectorsLenght, VertexType> Vertex;
-	
-	typedef float NormalVertexType;
-	typedef glm::vec<kNormalVectorsLenght, NormalVertexType> NormalVertex;
-	
-	typedef float TextureVertexType;
-	typedef glm::vec<kTextureVectorsLenght, TextureVertexType> TextureVertex;
+	typedef glm::vec<kNormalVectorsLenght, VertexType> NormalVertex;
+	typedef glm::vec<kTextureVectorsLenght, VertexType> TextureVertex;
 	
 	struct VertexData
 	{

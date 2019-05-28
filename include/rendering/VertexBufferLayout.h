@@ -8,9 +8,8 @@ namespace erm {
 	{
 		unsigned int mType;
 		unsigned int mCount;
+		unsigned int mOffset;
 		unsigned char mNormalized;
-		
-		static unsigned int GetSizeOfType(unsigned int type);
 	};
 	
 	class VertexBufferLayout

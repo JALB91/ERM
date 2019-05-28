@@ -11,7 +11,7 @@ namespace erm {
 		VertexArray();
 		~VertexArray();
 		
-		void AddBuffer(const VertexBuffer& vb, const VertexBufferLayout& vbl);
+		void AddBuffer(const VertexBuffer& vb, const VertexBufferLayout& vbl) const;
 		
 		void Bind() const;
 		void Unbind() const;

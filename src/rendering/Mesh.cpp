@@ -15,7 +15,6 @@ namespace erm {
 		, mVerticesDataCount(0)
 		, mIndicesData(nullptr)
 		, mIndicesDataCount(0)
-		, mVBL(nullptr)
 		, mVB(nullptr)
 		, mIB(nullptr)
 		, mVA(nullptr)
@@ -52,7 +51,6 @@ namespace erm {
 			std::memcpy(mIndicesData, other.mIndicesData, sizeof(IndexData) * mIndicesDataCount);
 		}
 		
-		mVBL = other.mVBL;
 		mVB = other.mVB;
 		mIB = other.mIB;
 		mVA = other.mVA;
@@ -66,7 +64,6 @@ namespace erm {
 		mIndicesData = other.mIndicesData;
 		mIndicesDataCount = other.mIndicesDataCount;
 		
-		mVBL = std::move(other.mVBL);
 		mVB = std::move(other.mVB);
 		mIB = std::move(other.mIB);
 		mVA = std::move(other.mVA);
@@ -77,7 +74,6 @@ namespace erm {
 		other.mIndicesData = nullptr;
 		other.mIndicesDataCount = 0;
 		
-		other.mVBL = nullptr;
 		other.mVB = nullptr;
 		other.mIB = nullptr;
 		other.mVA = nullptr;
@@ -118,7 +114,6 @@ namespace erm {
 			std::memcpy(mIndicesData, other.mIndicesData, sizeof(IndexData) * mIndicesDataCount);
 		}
 		
-		mVBL = other.mVBL;
 		mVB = other.mVB;
 		mIB = other.mIB;
 		mVA = other.mVA;
@@ -149,7 +144,6 @@ namespace erm {
 		mIndicesData = other.mIndicesData;
 		mIndicesDataCount = other.mIndicesDataCount;
 		
-		mVBL = std::move(other.mVBL);
 		mVB = std::move(other.mVB);
 		mIB = std::move(other.mIB);
 		mVA = std::move(other.mVA);
@@ -160,7 +154,6 @@ namespace erm {
 		other.mIndicesData = nullptr;
 		other.mIndicesDataCount = 0;
 		
-		other.mVBL = nullptr;
 		other.mVB = nullptr;
 		other.mIB = nullptr;
 		other.mVA = nullptr;
@@ -173,19 +166,19 @@ namespace erm {
 		mVB = std::make_shared<VertexBuffer>(
 			&mVerticesData[0].mVertex[0],
 			sizeof(VertexType) * kVectorsLenght * mVerticesDataCount +
-			sizeof(NormalVertexType) * kNormalVectorsLenght * mVerticesDataCount +
-			sizeof(TextureVertexType) * kTextureVectorsLenght * mVerticesDataCount
+			sizeof(VertexType) * kNormalVectorsLenght * mVerticesDataCount +
+			sizeof(VertexType) * kTextureVectorsLenght * mVerticesDataCount
 		);
 		
-		mVBL = std::make_shared<VertexBufferLayout>();
-		mVBL->Push<VertexType>(kVectorsLenght);
-		mVBL->Push<NormalVertexType>(kNormalVectorsLenght);
-		mVBL->Push<TextureVertexType>(kTextureVectorsLenght);
+		VertexBufferLayout vbl;
+		vbl.Push<VertexType>(kVectorsLenght);
+		vbl.Push<VertexType>(kNormalVectorsLenght);
+		vbl.Push<VertexType>(kTextureVectorsLenght);
 		
 		mIB = std::make_shared<IndexBuffer>(mIndicesData, mIndicesDataCount);
 		
 		mVA = std::make_shared<VertexArray>();
-		mVA->AddBuffer(*mVB, *mVBL);
+		mVA->AddBuffer(*mVB, vbl);
 	}
 	
 }

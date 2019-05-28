@@ -18,19 +18,31 @@ namespace erm {
 		GLCALL(glDeleteVertexArrays(1, &mRendererId));
 	}
 	
-	void VertexArray::AddBuffer(const VertexBuffer& vb, const VertexBufferLayout& vbl)
+	void VertexArray::AddBuffer(const VertexBuffer& vb, const VertexBufferLayout& vbl) const
 	{
 		Bind();
 		vb.Bind();
 		unsigned long offset = 0;
-		const auto& elements = vbl.GetElements();
+		const std::vector<VertexBufferElement>& elements = vbl.GetElements();
 		
 		for (unsigned int i = 0; i < elements.size(); ++i)
 		{
-			const auto& element = elements[i];
+			const VertexBufferElement& element = elements[i];
 			GLCALL(glEnableVertexAttribArray(i));
-			GLCALL(glVertexAttribPointer(i, element.mCount, element.mType, element.mNormalized, vbl.GetStride(), (const void*)offset));
-			offset += element.mCount * VertexBufferElement::GetSizeOfType(element.mType);
+			switch (element.mType)
+			{
+				case GL_FLOAT:
+				case GL_DOUBLE:
+				case GL_UNSIGNED_INT:
+				case GL_UNSIGNED_BYTE:
+					GLCALL(glVertexAttribPointer(i, element.mCount, element.mType, element.mNormalized, vbl.GetStride(), (const void*)offset));
+					break;
+				default:
+					ASSERT(false);
+					break;
+			}
+			
+			offset += element.mCount * element.mOffset;
 		}
 	}
 	

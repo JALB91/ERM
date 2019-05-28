@@ -38,7 +38,7 @@ namespace erm {
 		: mGame(game)
 		, mView(glm::translate(glm::identity<glm::mat4>(), glm::vec3(0.0f, 0.0f, 0.0f)))
 		, mViewProjection(glm::identity<glm::mat4>())
-		, mDebugMesh(std::make_unique<Mesh>(MeshUtils::CreateCube()))
+		, mDebugMesh(std::make_unique<Mesh>(std::move(MeshUtils::CreateCube())))
 		, mDebugShader(std::make_unique<ShaderProgram>(kDebugShaderPath))
 	{
 		std::cout << glGetString(GL_VERSION) << std::endl;

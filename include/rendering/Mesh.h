@@ -12,7 +12,6 @@ namespace erm {
 	class VertexBuffer;
 	class IndexBuffer;
 	class VertexArray;
-	class VertexBufferLayout;
 	
 	class Mesh
 	{
@@ -48,7 +47,6 @@ namespace erm {
 		IndexData* mIndicesData;
 		unsigned int mIndicesDataCount;
 		
-		std::shared_ptr<VertexBufferLayout> mVBL;
 		std::shared_ptr<VertexBuffer> mVB;
 		std::shared_ptr<IndexBuffer> mIB;
 		std::shared_ptr<VertexArray> mVA;
