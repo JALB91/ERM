@@ -2,7 +2,7 @@
 
 int main(int argc, char** argv)
 {
-	erm::Game game (640, 480);
+	erm::Game game;
 	
 	if (game.Init())
 	{

@@ -9,6 +9,7 @@
 namespace erm {
 
 	class Window;
+	class RenderContext;
 	class Renderer;
 	class Entity;
 	
@@ -18,7 +19,7 @@ namespace erm {
 		private IWindowSizeListener
 	{
 	public:
-		Game(int width, int height);
+		Game();
 		~Game();
 		
 		bool Init();
@@ -32,6 +33,7 @@ namespace erm {
 		void OnPostRender();
 		
 		inline Window& GetWindow() const { return *mWindow.get(); }
+		inline RenderContext& GetRenderContext() const { return *mRenderContext.get(); }
 		inline Renderer& GetRenderer() const { return *mRenderer.get(); }
 		
 	private:
@@ -48,6 +50,7 @@ namespace erm {
 		void OnSizeChanged(int width, int height) override;
 		
 		std::unique_ptr<Window> mWindow;
+		std::unique_ptr<RenderContext> mRenderContext;
 		std::unique_ptr<Renderer> mRenderer;
 		
 		std::unique_ptr<Entity> mRoot;

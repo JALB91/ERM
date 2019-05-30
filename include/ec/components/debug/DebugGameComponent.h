@@ -6,19 +6,22 @@
 
 namespace erm {
 	
-	class Renderer;
+	class RenderContext;
 	
 	class DebugGameComponent : public IComponent
 	{
 	public:
-		DebugGameComponent(Entity& entity);
+		DebugGameComponent(
+			Entity& entity,
+			const RenderContext& renderContext
+		);
 		~DebugGameComponent();
 		
 		// IComponent
 		void OnImGuiRender() override;
 		
 	private:
-		const Renderer& mRenderer;
+		const RenderContext& mRenderContext;
 		
 	};
 	

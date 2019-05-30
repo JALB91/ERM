@@ -3,7 +3,7 @@
 
 #include "game/Game.h"
 
-#include "rendering/Renderer.h"
+#include "rendering/RenderContext.h"
 
 #include "utils/Utils.h"
 
@@ -15,9 +15,12 @@
 
 namespace erm {
 	
-	DebugGameComponent::DebugGameComponent(Entity& entity)
+	DebugGameComponent::DebugGameComponent(
+		Entity& entity,
+		const RenderContext& renderContext
+		)
 		: IComponent(entity)
-		, mRenderer(mEntity.GetRenderer())
+		, mRenderContext(renderContext)
 	{}
 	
 	DebugGameComponent::~DebugGameComponent()
@@ -27,49 +30,49 @@ namespace erm {
 	{
 		ImGui::Begin("Game Debug");
 		
-		bool isDepthEnabled = mRenderer.IsDepthEnabled();
-		int depthFunction = mRenderer.GetDepthFunction();
+		bool isDepthEnabled = mRenderContext.IsDepthEnabled();
+		int depthFunction = mRenderContext.GetDepthFunction();
 		ImGui::Checkbox("Depth test enabled", &isDepthEnabled);
 		ImGui::SameLine();
 		ImGui::InputInt("Depth function", &depthFunction);
 		
-		bool isBlendEnabled = mRenderer.IsBlendEnabled();
-		int blendSrc = mRenderer.GetBlendSourceFactor();
-		int blendDst = mRenderer.GetBlendDestinationFactor();
+		bool isBlendEnabled = mRenderContext.IsBlendEnabled();
+		int blendSrc = mRenderContext.GetBlendSourceFactor();
+		int blendDst = mRenderContext.GetBlendDestinationFactor();
 		ImGui::Checkbox("Blend enabled", &isBlendEnabled);
 		ImGui::SameLine();
 		ImGui::InputInt("Blend source", &blendSrc);
 		ImGui::SameLine();
 		ImGui::InputInt("Blend destination", &blendDst);
 		
-		bool isCullFaceEnabled = mRenderer.IsCullFaceEnabled();
-		int cullFace = mRenderer.GetCullFace();
-		int cullFrontFace = mRenderer.GetCullFrontFace();
+		bool isCullFaceEnabled = mRenderContext.IsCullFaceEnabled();
+		int cullFace = mRenderContext.GetCullFace();
+		int cullFrontFace = mRenderContext.GetCullFrontFace();
 		ImGui::Checkbox("Cull face enabled", &isCullFaceEnabled);
 		ImGui::SameLine();
 		ImGui::InputInt("Cull face", &cullFace);
 		ImGui::SameLine();
 		ImGui::InputInt("Front face", &cullFrontFace);
 		
-		int polygonMode = mRenderer.GetPolygonMode();
+		int polygonMode = mRenderContext.GetPolygonMode();
 		ImGui::InputInt("Polygon mode", &polygonMode);
 		
-		glm::vec4 clearColor = mRenderer.GetClearColor();
+		glm::vec4 clearColor = mRenderContext.GetClearColor();
 		ImGui::ColorPicker4("Clear color", &clearColor.x);
 		
-		mRenderer.SetDepthEnabled(isDepthEnabled);
-		mRenderer.SetDepthFunction(depthFunction);
+		mRenderContext.SetDepthEnabled(isDepthEnabled);
+		mRenderContext.SetDepthFunction(depthFunction);
 		
-		mRenderer.SetBlendEnabled(isBlendEnabled);
-		mRenderer.SetBlendFunction(blendSrc, blendDst);
+		mRenderContext.SetBlendEnabled(isBlendEnabled);
+		mRenderContext.SetBlendFunction(blendSrc, blendDst);
 		
-		mRenderer.SetCullFaceEnabled(isCullFaceEnabled);
-		mRenderer.SetCullFace(cullFace);
-		mRenderer.SetFrontFace(cullFrontFace);
+		mRenderContext.SetCullFaceEnabled(isCullFaceEnabled);
+		mRenderContext.SetCullFace(cullFace);
+		mRenderContext.SetFrontFace(cullFrontFace);
 		
-		mRenderer.SetPolygonMode(polygonMode);
+		mRenderContext.SetPolygonMode(polygonMode);
 		
-		mRenderer.SetClearColor(clearColor);
+		mRenderContext.SetClearColor(clearColor);
 		
 		ImGui::End();
 	}

@@ -2,8 +2,8 @@
 
 #include "window/Window.h"
 
+#include "rendering/RenderContext.h"
 #include "rendering/Renderer.h"
-
 #include "rendering/Model.h"
 
 #include "utils/Utils.h"
@@ -30,8 +30,9 @@ namespace {
 
 namespace erm {
 	
-	Game::Game(int width, int height)
-		: mWindow(std::make_unique<Window>(width, height))
+	Game::Game()
+		: mWindow(std::make_unique<Window>())
+		, mRenderContext(nullptr)
 		, mRenderer(nullptr)
 		, mRoot(nullptr)
 	{
@@ -54,11 +55,12 @@ namespace erm {
 			return false;
 		}
 		
-		mRenderer = std::make_unique<Renderer>(*this);
+		mRenderContext = std::make_unique<RenderContext>();
+		mRenderer = std::make_unique<Renderer>(*mRenderContext.get(), *mWindow.get());
 		
 		mRoot = std::make_unique<Entity>(*this);
 		mRoot->RequireComponent<ModelComponent>(ModelUtils::ParseModel(kLamborghiniModelPath));
-		mRoot->RequireComponent<DebugGameComponent>();
+		mRoot->RequireComponent<DebugGameComponent>(*mRenderContext.get());
 		mRoot->RequireComponent<DebugEntityComponent>();
 		mRoot->RequireComponent<TransformComponent>().SetScale(glm::vec3(0.1f, 0.1f, 0.1f));
 		
@@ -84,7 +86,7 @@ namespace erm {
 	{
 		if (mRoot) mRoot->OnUpdate(dt);
 		mWindow->NewFrame();
-		mRenderer->Clear();
+		mRenderContext->Clear();
 	}
 	
 	void Game::OnPostUpdate()
@@ -133,8 +135,6 @@ namespace erm {
 	
 	// IWindowSizeListener
 	void Game::OnSizeChanged(int /*width*/, int /*height*/)
-	{
-		mRenderer->UpdateProjection();
-	}
+	{}
 	
 }

@@ -18,7 +18,7 @@ namespace erm {
 		public IWindowSizeProvider
 	{
 	public:
-		Window(int width, int height);
+		Window();
 		~Window();
 		
 		bool Init();
