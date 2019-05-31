@@ -57,16 +57,16 @@ namespace erm {
 		});
 	}
 	
-	void Entity::OnRender(const Renderer& renderer)
+	void Entity::OnRender()
 	{
-		ForEachComponent([&renderer](IComponent& component) {
-			component.OnRender(renderer);
+		ForEachComponent([](IComponent& component) {
+			component.OnRender();
 		});
-		ForEachChild([&renderer](Entity& child) {
-			child.OnRender(renderer);
+		ForEachChild([](Entity& child) {
+			child.OnRender();
 		});
 		
-		renderer.Draw(*this);
+		mGame.GetRenderer().AddToQueue(*this);
 	}
 	
 	void Entity::AddChild(Entity* child)
@@ -117,7 +117,7 @@ namespace erm {
 		{
 			if (mComponentIDs.at(i))
 			{
-				function(*mComponents.at(i).get());
+				function(*mComponents.at(i));
 			}
 		}
 	}

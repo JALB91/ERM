@@ -21,8 +21,8 @@ namespace erm {
 			const char* texturePath
 		);
 		
-		inline const ShaderProgram& GetShader() const { return *mShader.get(); }
-		inline const Texture& GetTexture() const { return *mTexture.get(); }
+		inline const ShaderProgram& GetShader() const { return *mShader; }
+		inline const Texture& GetTexture() const { return *mTexture; }
 		
 	private:
 		std::unique_ptr<ShaderProgram> mShader;

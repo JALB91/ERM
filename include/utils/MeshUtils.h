@@ -15,18 +15,18 @@ namespace erm {
 			const glm::vec3& c = glm::vec3(-1.0f, 1.0f, 0.0f)
 		);
 		static Mesh CreateSquare(
-			float width = 2.0f,
-			float height = 2.0f
+			float width = 1.0f,
+			float height = 1.0f
 		);
 		static Mesh CreateCube(
-			float sizeX = 2.0f,
-			float sizeY = 2.0f,
-			float sizeZ = 2.0f
+			float sizeX = 1.0f,
+			float sizeY = 1.0f,
+			float sizeZ = 1.0f
 		);
 		static Mesh CreateSpike(
-			float sizeX = 2.0f,
-			float sizeY = 2.0f,
-			float sizeZ = 2.0f
+			float sizeX = 1.0f,
+			float sizeY = 1.0f,
+			float sizeZ = 1.0f
 		);
 		static Mesh CreateSphere(
 			float radius = 1.0f,

@@ -21,7 +21,7 @@ namespace erm {
 		virtual inline void OnUpdate(float dt) {}
 		virtual inline void OnPostUpdate() {}
 		virtual inline void OnImGuiRender() {}
-		virtual inline void OnRender(const Renderer& renderer) {}
+		virtual inline void OnRender() {}
 		
 		inline Entity& GetEntity() { return mEntity; }
 		inline const Entity& GetEntity() const { return mEntity; }

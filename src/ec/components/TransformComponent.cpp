@@ -1,4 +1,5 @@
 #include "ec/components/TransformComponent.h"
+#include "ec/Entity.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -10,22 +11,25 @@ namespace erm {
 		, mWorldTransform(1.0f)
 	{}
 	
-	void TransformComponent::OnUpdate(float dt)
+	void TransformComponent::OnPostUpdate()
 	{
 		if (mIsDirty)
 		{
-			mWorldTransform = glm::mat4(1.0f);
+			mWorldTransform = glm::identity<glm::mat4>();
+			
+			if (Entity* parent = mEntity.GetParent())
+			{
+				mWorldTransform = parent->GetComponent<TransformComponent>()->GetWorldTransform();
+			}
+			
 			mWorldTransform = glm::translate(mWorldTransform, mTranslation);
-			mWorldTransform = glm::rotate(mWorldTransform, mRotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
-			mWorldTransform = glm::rotate(mWorldTransform, mRotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
 			mWorldTransform = glm::rotate(mWorldTransform, mRotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
+			mWorldTransform = glm::rotate(mWorldTransform, mRotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
+			mWorldTransform = glm::rotate(mWorldTransform, mRotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
 			mWorldTransform = glm::scale(mWorldTransform, mScale);
+			
+			mIsDirty = false;
 		}
-	}
-	
-	void TransformComponent::OnPostUpdate()
-	{
-		mIsDirty = false;
 	}
 	
 	void TransformComponent::SetTranslation(const glm::vec3& translation)

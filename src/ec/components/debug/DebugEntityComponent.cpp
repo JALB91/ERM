@@ -24,10 +24,14 @@ namespace erm {
 		std::sprintf(buffer, "Entity %d", mEntity.GetEntityID());
 		ImGui::Begin(buffer);
 		
+		glm::vec3 translation = mTransformComponent.GetTranslation();
+		glm::vec3 rotation = mTransformComponent.GetRotation();
+		glm::vec3 scale = mTransformComponent.GetScale();
+		
 		bool reset = ImGui::Button("Reset");
-		ImGui::InputFloat3("Translation", &mTransformComponent.GetTranslation().x, 1);
-		ImGui::SliderFloat3("Rotation", &mTransformComponent.GetRotation().x, -static_cast<float>(M_PI), static_cast<float>(M_PI));
-		ImGui::InputFloat3("Scale", &mTransformComponent.GetScale().x, 1);
+		ImGui::InputFloat3("Translation", &translation.x, 1);
+		ImGui::SliderFloat3("Rotation", &rotation.x, -static_cast<float>(M_PI), static_cast<float>(M_PI));
+		ImGui::InputFloat3("Scale", &scale.x, 1);
 		
 //		ImGui::Text("Drag Mode");
 //		ImGui::RadioButton("None", &mDragMode, 0); ImGui::SameLine();
@@ -40,8 +44,12 @@ namespace erm {
 			mTransformComponent.SetRotation(glm::vec3(0.0f));
 			mTransformComponent.SetScale(glm::vec3(1.0f));
 		}
-		
-		mEntity.SetDirty();
+		else
+		{
+			mTransformComponent.SetTranslation(translation);
+			mTransformComponent.SetRotation(rotation);
+			mTransformComponent.SetScale(scale);
+		}
 		
 		ImGui::End();
 	}

@@ -81,9 +81,8 @@ namespace erm {
 		, mPrevMousePosY(0.0)
 		, mWindowWidth(0)
 		, mWindowHeight(0)
-	{
-		UpdateAspectRatio();
-	}
+		, mAspectRatio(0.0f)
+	{}
 	
 	Window::~Window()
 	{
@@ -116,7 +115,7 @@ namespace erm {
 		glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
 		glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
 		
-		glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
+		glfwWindowHint(GLFW_MAXIMIZED, GLFW_FALSE);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -162,11 +161,15 @@ namespace erm {
 	
 	bool Window::ShouldClose()
 	{
-		return glfwWindowShouldClose(mWindow);
+		return glfwWindowShouldClose(mWindow) || mPressedKeys.find(GLFW_KEY_ESCAPE) != mPressedKeys.end();
 	}
 	
 	void Window::NewFrame()
 	{
+		mPrevMousePosX = mMousePosX;
+		mPrevMousePosY = mMousePosY;
+		glfwGetCursorPos(mWindow, &mMousePosX, &mMousePosY);
+		
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
@@ -231,10 +234,6 @@ namespace erm {
 	
 	void Window::OnMousePos(double xPos, double yPos)
 	{
-		mPrevMousePosX = mMousePosX;
-		mPrevMousePosY = mMousePosY;
-		mMousePosX = xPos;
-		mMousePosY = yPos;
 		SafeForEach<IMouseListener>(mMouseListeners, [xPos, yPos] (IMouseListener* listener) {
 			listener->OnMouseMoved(xPos, yPos);
 		});

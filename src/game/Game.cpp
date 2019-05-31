@@ -11,6 +11,7 @@
 #include "utils/ModelUtils.h"
 
 #include "ec/Entity.h"
+#include "ec/components/CameraComponent.h"
 #include "ec/components/ModelComponent.h"
 #include "ec/components/TransformComponent.h"
 #include "ec/components/debug/DebugGameComponent.h"
@@ -35,6 +36,8 @@ namespace erm {
 		, mRenderContext(nullptr)
 		, mRenderer(nullptr)
 		, mRoot(nullptr)
+		, mCamera(nullptr)
+		, mObject(nullptr)
 	{
 		mWindow->AddListener(static_cast<IKeyListener&>(*this));
 		mWindow->AddListener(static_cast<IMouseListener&>(*this));
@@ -56,13 +59,26 @@ namespace erm {
 		}
 		
 		mRenderContext = std::make_unique<RenderContext>();
-		mRenderer = std::make_unique<Renderer>(*mRenderContext.get(), *mWindow.get());
+		mRenderer = std::make_unique<Renderer>(*mRenderContext);
 		
 		mRoot = std::make_unique<Entity>(*this);
-		mRoot->RequireComponent<ModelComponent>(ModelUtils::ParseModel(kLamborghiniModelPath));
-		mRoot->RequireComponent<DebugGameComponent>(*mRenderContext.get());
-		mRoot->RequireComponent<DebugEntityComponent>();
-		mRoot->RequireComponent<TransformComponent>().SetScale(glm::vec3(0.1f, 0.1f, 0.1f));
+		mRoot->RequireComponent<DebugGameComponent>(*mRenderContext);
+		
+		mCamera = std::make_unique<Entity>(*this);
+		mCamera->RequireComponent<CameraComponent>(
+			*mWindow,
+			*mWindow,
+			*mWindow
+		);
+		mCamera->RequireComponent<TransformComponent>().SetRotation(glm::vec3(0.0f, static_cast<float>(M_PI), 0.0f));
+		
+		mObject = std::make_unique<Entity>(*this);
+		mObject->RequireComponent<DebugEntityComponent>();
+		mObject->RequireComponent<ModelComponent>(ModelUtils::ParseModel(kLamborghiniModelPath));
+		mObject->RequireComponent<TransformComponent>().SetScale(glm::vec3(0.1f));
+		
+		mRoot->AddChild(mCamera.get());
+		mRoot->AddChild(mObject.get());
 		
 		return true;
 	}
@@ -95,9 +111,7 @@ namespace erm {
 	}
 	
 	void Game::OnPreRender()
-	{
-		mRenderer->OnPreRender();
-	}
+	{}
 	
 	void Game::OnImGuiRender()
 	{
@@ -106,8 +120,9 @@ namespace erm {
 	
 	void Game::OnRender()
 	{
-		if (mRoot) mRoot->OnRender(*mRenderer);
+		if (mRoot) mRoot->OnRender();
 		
+		mRenderer->OnRender(mCamera->GetComponent<CameraComponent>()->GetViewMatrix());
 		mWindow->Render();
 	}
 	

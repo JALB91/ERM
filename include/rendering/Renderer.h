@@ -1,10 +1,12 @@
 #pragma once
 
-#include "interfaces/IWindowSizeListener.h"
+#include "ec/Entity.h"
 
 #include <glm/glm.hpp>
 
+#include <queue>
 #include <memory>
+#include <functional>
 
 namespace erm {
 
@@ -14,35 +16,39 @@ namespace erm {
 	class IndexBuffer;
 	class ShaderProgram;
 	class RenderContext;
-	class IWindowSizeProvider;
 	
-	class Renderer : private IWindowSizeListener
+	class Renderer
 	{
 	public:
-		Renderer(
-			const RenderContext& renderContext,
-			IWindowSizeProvider& windowSizeProvider
-		);
+		Renderer(const RenderContext& renderContext);
 		~Renderer();
 		
-		void UpdateProjection();
-		void OnPreRender();
+		void OnRender(const glm::mat4& viewProjectionMatrix);
 		
-		void Draw(const VertexArray& va, const IndexBuffer& ib, const ShaderProgram& shader, const glm::mat4& model) const;
-		void Draw(const Mesh& mesh, const ShaderProgram& shader, const glm::mat4& transform = glm::mat4(1.0f)) const;
-		void Draw(const Entity& entity) const;
+		void AddToQueue(const Entity& entity);
 		
 	private:
-		// IWindowSizeListener
-		void OnSizeChanged(int width, int height) override;
+		void Draw(
+			const VertexArray& va,
+			const IndexBuffer& ib,
+			const ShaderProgram& shader,
+			const glm::mat4& viewProjectionMatrix,
+			const glm::mat4& model
+		) const;
+		void Draw(
+			const Mesh& mesh,
+			const ShaderProgram& shader,
+			const glm::mat4& viewProjectionMatrix,
+			const glm::mat4& transform = glm::mat4(1.0f)
+		) const;
+		void Draw(
+			const Entity& entity,
+			const glm::mat4& viewProjectionMatrix
+		) const;
 		
 		const RenderContext& mRenderContext;
-		IWindowSizeProvider& mWindowSizeProvider;
 		
-		glm::mat4 mProjection;
-		glm::mat4 mView;
-		glm::mat4 mViewProjection;
-		
+		std::queue<std::reference_wrapper<const Entity>> mRenderQueue;
 		std::unique_ptr<Mesh> mDebugMesh;
 		std::unique_ptr<ShaderProgram> mDebugShader;
 		

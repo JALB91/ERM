@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 namespace erm {
 	
@@ -25,17 +26,17 @@ namespace erm {
 		{}
 		virtual ~ITransformable() = default;
 		
-		inline glm::vec3& GetTranslation() { return mTranslation; }
+		inline glm::vec3 GetTranslation() { return mTranslation; }
 		inline const glm::vec3& GetTranslation() const { return mTranslation; }
 		virtual inline void SetTranslation(const glm::vec3& translation) { mTranslation = translation; }
 		virtual inline void Translate(const glm::vec3& translation) { mTranslation += translation; }
 		
-		inline glm::vec3& GetRotation() { return mRotation; }
+		inline glm::vec3 GetRotation() { return mRotation; }
 		inline const glm::vec3& GetRotation() const { return mRotation; }
 		virtual inline void SetRotation(const glm::vec3& rotation) { mRotation = rotation; }
 		virtual inline void Rotate(const glm::vec3& rotation) { mRotation += rotation; }
 		
-		inline glm::vec3& GetScale() { return mScale; }
+		inline glm::vec3 GetScale() { return mScale; }
 		inline const glm::vec3& GetScale() const { return mScale; }
 		virtual inline void SetScale(const glm::vec3& scale) { mScale = scale; }
 		virtual inline void Scale(const glm::vec3& scale) { mScale += scale; }

@@ -6,8 +6,6 @@
 #include "rendering/Uniforms.h"
 #include "rendering/RenderContext.h"
 
-#include "interfaces/IWindowSizeProvider.h"
-
 #include "utils/Utils.h"
 #include "utils/MeshUtils.h"
 
@@ -17,7 +15,6 @@
 
 #include "game/Game.h"
 
-#include "ec/Entity.h"
 #include "ec/components/ModelComponent.h"
 #include "ec/components/TransformComponent.h"
 
@@ -35,14 +32,8 @@ namespace {
 
 namespace erm {
 	
-	Renderer::Renderer(
-		const RenderContext& renderContext,
-		IWindowSizeProvider& windowSizeProvider
-		)
+	Renderer::Renderer(const RenderContext& renderContext)
 		: mRenderContext(renderContext)
-		, mWindowSizeProvider(windowSizeProvider)
-		, mView(glm::translate(glm::identity<glm::mat4>(), glm::vec3(0.0f, 0.0f, 0.0f)))
-		, mViewProjection(glm::identity<glm::mat4>())
 		, mDebugMesh(std::make_unique<Mesh>(MeshUtils::CreateCube()))
 		, mDebugShader(std::make_unique<ShaderProgram>(kDebugShaderPath))
 	{
@@ -61,28 +52,29 @@ namespace erm {
 #endif
 
 		mRenderContext.SetClearColor(glm::vec4(0.25f, 0.25f, 0.25f, 1.0f));
-		
-		mWindowSizeProvider.AddListener(*this);
 	}
 	
 	Renderer::~Renderer()
+	{}
+	
+	void Renderer::OnRender(const glm::mat4& viewProjectionMatrix)
 	{
-		mWindowSizeProvider.RemoveListener(*this);
+		while (mRenderQueue.size() > 0)
+		{
+			Draw(mRenderQueue.front(), viewProjectionMatrix);
+			mRenderQueue.pop();
+		}
 	}
 	
-	void Renderer::UpdateProjection()
+	void Renderer::Draw(
+		const VertexArray& va,
+		const IndexBuffer& ib,
+		const ShaderProgram& shader,
+		const glm::mat4& viewProjectionMatrix,
+		const glm::mat4& model
+	) const
 	{
-		mProjection = glm::perspective(glm::radians(45.0f), mWindowSizeProvider.GetAspectRatio(), 0.1f, 1000.0f);
-	}
-	
-	void Renderer::OnPreRender()
-	{
-		mViewProjection = mProjection * glm::inverse(mView);
-	}
-	
-	void Renderer::Draw(const VertexArray& va, const IndexBuffer& ib, const ShaderProgram& shader, const glm::mat4& model) const
-	{
-		const glm::mat4 mvp = mViewProjection * model;
+		const glm::mat4 mvp = viewProjectionMatrix * model;
 		
 		va.Bind();
 		ib.Bind();
@@ -91,12 +83,20 @@ namespace erm {
 		mRenderContext.Draw(ib.GetCount());
 	}
 	
-	void Renderer::Draw(const Mesh& mesh, const ShaderProgram& shader, const glm::mat4& transform /* = glm::mat4(1.0f) */) const
+	void Renderer::Draw(
+		const Mesh& mesh,
+		const ShaderProgram& shader,
+		const glm::mat4& viewProjectionMatrix,
+		const glm::mat4& transform /* = glm::mat4(1.0f) */
+	) const
 	{
-		Draw(mesh.GetVA(), mesh.GetIB(), shader, transform);
+		Draw(mesh.GetVA(), mesh.GetIB(), shader, viewProjectionMatrix, transform);
 	}
 	
-	void Renderer::Draw(const Entity& entity) const
+	void Renderer::Draw(
+		const Entity& entity,
+		const glm::mat4& viewProjectionMatrix
+	) const
 	{
 		if (const TransformComponent* transformComponent = entity.GetComponent<TransformComponent>())
 		{
@@ -104,36 +104,30 @@ namespace erm {
 			{
 				for (const Mesh& mesh: modelComponent->GetModel().GetMeshes())
 				{
-					Draw(mesh, *mDebugShader.get(), transformComponent->GetWorldTransform());
+					Draw(mesh, *mDebugShader, viewProjectionMatrix, transformComponent->GetWorldTransform());
 				}
 				
-				const BoundingBox3D bBox =  modelComponent->GetLocalBounds();
-				const glm::vec3 scale = transformComponent->GetScale();
-				const glm::vec3 size = bBox.GetSize() * 0.5f;
+				const BoundingBox3D objBBox = modelComponent->GetLocalBounds();
 				
-				glm::mat4 transform = glm::identity<glm::mat4>();
-				transform = glm::translate(transform, transformComponent->GetTranslation());
-				transform = glm::rotate(transform, transformComponent->GetRotation().x, glm::vec3(1.0f, 0.0f, 0.0f));
-				transform = glm::rotate(transform, transformComponent->GetRotation().y, glm::vec3(0.0f, 1.0f, 0.0f));
-				transform = glm::rotate(transform, transformComponent->GetRotation().z, glm::vec3(0.0f, 0.0f, 1.0f));
-				transform = glm::translate(transform, (bBox.mMax + bBox.mMin) * scale * 0.5f);
-				transform = glm::scale(transform, size * scale);
+				glm::mat4 transform = transformComponent->GetWorldTransform();
+				transform = glm::translate(transform, (objBBox.mMax + objBBox.mMin) * 0.5f);
+				transform = glm::scale(transform, objBBox.GetSize());
 				
 				const bool wasCullFaceEnabled = mRenderContext.IsCullFaceEnabled();
 				const int polygonMode = mRenderContext.GetPolygonMode();
 				
 				mRenderContext.SetCullFaceEnabled(false);
 				mRenderContext.SetPolygonMode(GL_LINE);
-				Draw(*mDebugMesh.get(), *mDebugShader.get(), transform);
+				Draw(*mDebugMesh, *mDebugShader, viewProjectionMatrix, transform);
 				mRenderContext.SetPolygonMode(polygonMode);
 				mRenderContext.SetCullFaceEnabled(wasCullFaceEnabled);
 			}
 		}
 	}
 	
-	void Renderer::OnSizeChanged(int width, int height)
+	void Renderer::AddToQueue(const Entity &entity)
 	{
-		UpdateProjection();
+		mRenderQueue.push(std::reference_wrapper<const Entity>(entity));
 	}
 	
 }

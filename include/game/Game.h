@@ -32,9 +32,9 @@ namespace erm {
 		void OnRender();
 		void OnPostRender();
 		
-		inline Window& GetWindow() const { return *mWindow.get(); }
-		inline RenderContext& GetRenderContext() const { return *mRenderContext.get(); }
-		inline Renderer& GetRenderer() const { return *mRenderer.get(); }
+		inline Window& GetWindow() const { return *mWindow; }
+		inline RenderContext& GetRenderContext() const { return *mRenderContext; }
+		inline Renderer& GetRenderer() const { return *mRenderer; }
 		
 	private:
 		// IKeyListener
@@ -54,7 +54,8 @@ namespace erm {
 		std::unique_ptr<Renderer> mRenderer;
 		
 		std::unique_ptr<Entity> mRoot;
-		
+		std::unique_ptr<Entity> mCamera;
+		std::unique_ptr<Entity> mObject;
 	};
 	
 }

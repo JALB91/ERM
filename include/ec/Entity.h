@@ -42,6 +42,12 @@ namespace erm {
 		Entity(Game& game);
 		~Entity();
 		
+		Entity(const Entity& other) = delete;
+		Entity(Entity&& other) = delete;
+		
+		Entity& operator=(const Entity& other) = delete;
+		Entity& operator=(Entity&& other) = delete;
+		
 		template<typename T>
 		inline bool HasComponent() const
 		{
@@ -56,33 +62,27 @@ namespace erm {
 		}
 		
 		template<typename T, typename... Args>
-		inline T& RequireComponent(Args... args)
+		inline T& RequireComponent(Args&&... args)
 		{
-			if (HasComponent<T>()) return static_cast<T&>(*mComponents.at(GetComponentID<T>()).get());
+			if (HasComponent<T>()) return static_cast<T&>(*mComponents.at(GetComponentID<T>()));
 			
 			const ComponentID componentID = GetComponentID<T>();
 			
 			mComponents[componentID] = std::make_unique<T>(*this, std::forward<Args>(args)...);
 			mComponentIDs[componentID] = true;
 			
-			return static_cast<T&>(*mComponents.at(componentID).get());
+			return static_cast<T&>(*mComponents.at(componentID));
 		}
 		
 		void OnUpdate(float dt);
 		void OnPostUpdate();
 		void OnImGuiRender();
-		void OnRender(const Renderer& renderer);
+		void OnRender();
 		
 		inline Game& GetGame() { return mGame; }
 		inline const Game& GetGame() const { return mGame; }
 		
 		inline EntityID GetEntityID() const { return mEntityID; }
-		
-		inline Window& GetWindow() { return mGame.GetWindow(); }
-		inline const Window& GetWindow() const { return mGame.GetWindow(); }
-
-		inline Renderer& GetRenderer() { return mGame.GetRenderer(); }
-		inline const Renderer& GetRenderer() const { return mGame.GetRenderer(); }
 		
 		void RemoveFromParent();
 		void AddChild(Entity* child);

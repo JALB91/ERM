@@ -15,10 +15,13 @@ namespace erm {
 		mesh.mVerticesDataCount = 3;
 		mesh.mVerticesData = static_cast<VertexData*>(malloc(sizeof(VertexData) * mesh.mVerticesDataCount));
 		mesh.mVerticesData[0].mVertex = a;
+		mesh.mVerticesData[0].mNormalVertex = NormalVertex(0.0f);
 		mesh.mVerticesData[0].mTextureVertex = TextureVertex(0.0f, 0.0f);
 		mesh.mVerticesData[1].mVertex = b;
+		mesh.mVerticesData[1].mNormalVertex = NormalVertex(0.0f);
 		mesh.mVerticesData[1].mTextureVertex = TextureVertex(0.0f, 1.0f);
 		mesh.mVerticesData[2].mVertex = c;
+		mesh.mVerticesData[2].mNormalVertex = NormalVertex(0.0f);
 		mesh.mVerticesData[2].mTextureVertex = TextureVertex(1.0f, 0.0f);
 		
 		mesh.mIndicesDataCount = 3;
@@ -33,8 +36,8 @@ namespace erm {
 	}
 	
 	Mesh MeshUtils::CreateSquare(
-		float width /* = 2.0f */,
-		float height /* = 2.0f */
+		float width /* = 1.0f */,
+		float height /* = 1.0f */
 	) {
 		Mesh mesh;
 		
@@ -44,12 +47,16 @@ namespace erm {
 		mesh.mVerticesDataCount = 4;
 		mesh.mVerticesData = static_cast<VertexData*>(malloc(sizeof(VertexData) * mesh.mVerticesDataCount));
 		mesh.mVerticesData[0].mVertex = Vertex(-halfWidth, -halfHeight, 0.0f);
+		mesh.mVerticesData[0].mNormalVertex = NormalVertex(0.0f);
 		mesh.mVerticesData[0].mTextureVertex = TextureVertex(0.0f, 0.0f);
 		mesh.mVerticesData[1].mVertex = Vertex(halfWidth, -halfHeight, 0.0f);
+		mesh.mVerticesData[1].mNormalVertex = NormalVertex(0.0f);
 		mesh.mVerticesData[1].mTextureVertex = TextureVertex(1.0f, 0.0f);
 		mesh.mVerticesData[2].mVertex = Vertex(-halfWidth, halfHeight, 0.0f);
+		mesh.mVerticesData[2].mNormalVertex = NormalVertex(0.0f);
 		mesh.mVerticesData[2].mTextureVertex = TextureVertex(0.0f, 1.0f);
 		mesh.mVerticesData[3].mVertex = Vertex(halfWidth, halfHeight, 0.0f);
+		mesh.mVerticesData[3].mNormalVertex = NormalVertex(0.0f);
 		mesh.mVerticesData[3].mTextureVertex = TextureVertex(1.0f, 1.0f);
 		
 		mesh.mIndicesDataCount = 6;
@@ -67,9 +74,9 @@ namespace erm {
 	}
 	
 	Mesh MeshUtils::CreateCube(
-		float sizeX /* = 2.0f */,
-		float sizeY /* = 2.0f */,
-		float sizeZ /* = 2.0f */
+		float sizeX /* = 1.0f */,
+		float sizeY /* = 1.0f */,
+		float sizeZ /* = 1.0f */
 	) {
 		const float halfX = sizeX*0.5f;
 		const float halfY = sizeY*0.5f;
@@ -84,62 +91,86 @@ namespace erm {
 		
 		// Front
 		mesh.mVerticesData[vertIndex].mVertex = Vertex(-halfX, -halfY, -halfZ);
+		mesh.mVerticesData[vertIndex].mNormalVertex = NormalVertex(0.0f);
 		mesh.mVerticesData[vertIndex++].mTextureVertex = TextureVertex(0.0f, 0.0f);
 		mesh.mVerticesData[vertIndex].mVertex = Vertex(halfX, -halfY, -halfZ);
+		mesh.mVerticesData[vertIndex].mNormalVertex = NormalVertex(0.0f);
 		mesh.mVerticesData[vertIndex++].mTextureVertex = TextureVertex(1.0f, 0.0f);
 		mesh.mVerticesData[vertIndex].mVertex = Vertex(-halfX, halfY, -halfZ);
+		mesh.mVerticesData[vertIndex].mNormalVertex = NormalVertex(0.0f);
 		mesh.mVerticesData[vertIndex++].mTextureVertex = TextureVertex(0.0f, 1.0f);
 		mesh.mVerticesData[vertIndex].mVertex = Vertex(halfX, halfY, -halfZ);
+		mesh.mVerticesData[vertIndex].mNormalVertex = NormalVertex(0.0f);
 		mesh.mVerticesData[vertIndex++].mTextureVertex = TextureVertex(1.0f, 1.0f);
 		
 		// Back
 		mesh.mVerticesData[vertIndex].mVertex = Vertex(halfX, -halfY, halfZ);
+		mesh.mVerticesData[vertIndex].mNormalVertex = NormalVertex(0.0f);
 		mesh.mVerticesData[vertIndex++].mTextureVertex = TextureVertex(0.0f, 0.0f);
 		mesh.mVerticesData[vertIndex].mVertex = Vertex(-halfX, -halfY, halfZ);
+		mesh.mVerticesData[vertIndex].mNormalVertex = NormalVertex(0.0f);
 		mesh.mVerticesData[vertIndex++].mTextureVertex = TextureVertex(1.0f, 0.0f);
 		mesh.mVerticesData[vertIndex].mVertex = Vertex(halfX, halfY, halfZ);
+		mesh.mVerticesData[vertIndex].mNormalVertex = NormalVertex(0.0f);
 		mesh.mVerticesData[vertIndex++].mTextureVertex = TextureVertex(0.0f, 1.0f);
 		mesh.mVerticesData[vertIndex].mVertex = Vertex(-halfX, halfY, halfZ);
+		mesh.mVerticesData[vertIndex].mNormalVertex = NormalVertex(0.0f);
 		mesh.mVerticesData[vertIndex++].mTextureVertex = TextureVertex(1.0f, 1.0f);
 		
 		// Top
 		mesh.mVerticesData[vertIndex].mVertex = Vertex(-halfX, halfY, -halfZ);
+		mesh.mVerticesData[vertIndex].mNormalVertex = NormalVertex(0.0f);
 		mesh.mVerticesData[vertIndex++].mTextureVertex = TextureVertex(0.0f, 0.0f);
 		mesh.mVerticesData[vertIndex].mVertex = Vertex(halfX, halfY, -halfZ);
+		mesh.mVerticesData[vertIndex].mNormalVertex = NormalVertex(0.0f);
 		mesh.mVerticesData[vertIndex++].mTextureVertex = TextureVertex(1.0f, 0.0f);
 		mesh.mVerticesData[vertIndex].mVertex = Vertex(-halfX, halfY, halfZ);
+		mesh.mVerticesData[vertIndex].mNormalVertex = NormalVertex(0.0f);
 		mesh.mVerticesData[vertIndex++].mTextureVertex = TextureVertex(0.0f, 1.0f);
 		mesh.mVerticesData[vertIndex].mVertex = Vertex(halfX, halfY, halfZ);
+		mesh.mVerticesData[vertIndex].mNormalVertex = NormalVertex(0.0f);
 		mesh.mVerticesData[vertIndex++].mTextureVertex = TextureVertex(1.0f, 1.0f);
 		
 		// Bottom
 		mesh.mVerticesData[vertIndex].mVertex = Vertex(-halfX, -halfY, halfZ);
+		mesh.mVerticesData[vertIndex].mNormalVertex = NormalVertex(0.0f);
 		mesh.mVerticesData[vertIndex++].mTextureVertex = TextureVertex(0.0f, 0.0f);
 		mesh.mVerticesData[vertIndex].mVertex = Vertex(halfX, -halfY, halfZ);
+		mesh.mVerticesData[vertIndex].mNormalVertex = NormalVertex(0.0f);
 		mesh.mVerticesData[vertIndex++].mTextureVertex = TextureVertex(1.0f, 0.0f);
 		mesh.mVerticesData[vertIndex].mVertex = Vertex(-halfX, -halfY, -halfZ);
+		mesh.mVerticesData[vertIndex].mNormalVertex = NormalVertex(0.0f);
 		mesh.mVerticesData[vertIndex++].mTextureVertex = TextureVertex(0.0f, 1.0f);
 		mesh.mVerticesData[vertIndex].mVertex = Vertex(halfX, -halfY, -halfZ);
+		mesh.mVerticesData[vertIndex].mNormalVertex = NormalVertex(0.0f);
 		mesh.mVerticesData[vertIndex++].mTextureVertex = TextureVertex(1.0f, 1.0f);
 		
 		// Right
 		mesh.mVerticesData[vertIndex].mVertex = Vertex(halfX, -halfY, -halfZ);
+		mesh.mVerticesData[vertIndex].mNormalVertex = NormalVertex(0.0f);
 		mesh.mVerticesData[vertIndex++].mTextureVertex = TextureVertex(0.0f, 0.0f);
 		mesh.mVerticesData[vertIndex].mVertex = Vertex(halfX, -halfY, halfZ);
+		mesh.mVerticesData[vertIndex].mNormalVertex = NormalVertex(0.0f);
 		mesh.mVerticesData[vertIndex++].mTextureVertex = TextureVertex(1.0f, 0.0f);
 		mesh.mVerticesData[vertIndex].mVertex = Vertex(halfX, halfY, -halfZ);
+		mesh.mVerticesData[vertIndex].mNormalVertex = NormalVertex(0.0f);
 		mesh.mVerticesData[vertIndex++].mTextureVertex = TextureVertex(0.0f, 1.0f);
 		mesh.mVerticesData[vertIndex].mVertex = Vertex(halfX, halfY, halfZ);
+		mesh.mVerticesData[vertIndex].mNormalVertex = NormalVertex(0.0f);
 		mesh.mVerticesData[vertIndex++].mTextureVertex = TextureVertex(1.0f, 1.0f);
 		
 		// Left
 		mesh.mVerticesData[vertIndex].mVertex = Vertex(-halfX, -halfY, halfZ);
+		mesh.mVerticesData[vertIndex].mNormalVertex = NormalVertex(0.0f);
 		mesh.mVerticesData[vertIndex++].mTextureVertex = TextureVertex(0.0f, 0.0f);
 		mesh.mVerticesData[vertIndex].mVertex = Vertex(-halfX, -halfY, -halfZ);
+		mesh.mVerticesData[vertIndex].mNormalVertex = NormalVertex(0.0f);
 		mesh.mVerticesData[vertIndex++].mTextureVertex = TextureVertex(1.0f, 0.0f);
 		mesh.mVerticesData[vertIndex].mVertex = Vertex(-halfX, halfY, halfZ);
+		mesh.mVerticesData[vertIndex].mNormalVertex = NormalVertex(0.0f);
 		mesh.mVerticesData[vertIndex++].mTextureVertex = TextureVertex(0.0f, 1.0f);
 		mesh.mVerticesData[vertIndex].mVertex = Vertex(-halfX, halfY, -halfZ);
+		mesh.mVerticesData[vertIndex].mNormalVertex = NormalVertex(0.0f);
 		mesh.mVerticesData[vertIndex++].mTextureVertex = TextureVertex(1.0f, 1.0f);
 		
 		// Indices
@@ -163,9 +194,9 @@ namespace erm {
 	}
 	
 	Mesh MeshUtils::CreateSpike(
-		float sizeX /* = 2.0f */,
-		float sizeY /* = 2.0f */,
-		float sizeZ /* = 2.0f */
+		float sizeX /* = 1.0f */,
+		float sizeY /* = 1.0f */,
+		float sizeZ /* = 1.0f */
 	) {
 		const float halfX = sizeX*0.5f;
 		const float halfY = sizeY*0.5f;
@@ -180,44 +211,60 @@ namespace erm {
 		
 		// Bottom
 		mesh.mVerticesData[vertIndex].mVertex = Vertex(-halfX, -halfY, halfZ);
+		mesh.mVerticesData[vertIndex].mNormalVertex = NormalVertex(0.0f);
 		mesh.mVerticesData[vertIndex++].mTextureVertex = TextureVertex(0.0f, 0.0f);
 		mesh.mVerticesData[vertIndex].mVertex = Vertex(halfX, -halfY, halfZ);
+		mesh.mVerticesData[vertIndex].mNormalVertex = NormalVertex(0.0f);
 		mesh.mVerticesData[vertIndex++].mTextureVertex = TextureVertex(1.0f, 0.0f);
 		mesh.mVerticesData[vertIndex].mVertex = Vertex(-halfX, -halfY, -halfZ);
+		mesh.mVerticesData[vertIndex].mNormalVertex = NormalVertex(0.0f);
 		mesh.mVerticesData[vertIndex++].mTextureVertex = TextureVertex(0.0f, 1.0f);
 		mesh.mVerticesData[vertIndex].mVertex = Vertex(halfX, -halfY, -halfZ);
+		mesh.mVerticesData[vertIndex].mNormalVertex = NormalVertex(0.0f);
 		mesh.mVerticesData[vertIndex++].mTextureVertex = TextureVertex(1.0f, 1.0f);
 		
 		// Front
 		mesh.mVerticesData[vertIndex].mVertex = Vertex(-halfX, -halfY, -halfZ);
+		mesh.mVerticesData[vertIndex].mNormalVertex = NormalVertex(0.0f);
 		mesh.mVerticesData[vertIndex++].mTextureVertex = TextureVertex(0.0f, 0.0f);
 		mesh.mVerticesData[vertIndex].mVertex = Vertex(halfX, -halfY, -halfZ);
+		mesh.mVerticesData[vertIndex].mNormalVertex = NormalVertex(0.0f);
 		mesh.mVerticesData[vertIndex++].mTextureVertex = TextureVertex(0.5f, 0.0f);
 		mesh.mVerticesData[vertIndex].mVertex = Vertex(0.0f, halfY, 0.0f);
+		mesh.mVerticesData[vertIndex].mNormalVertex = NormalVertex(0.0f);
 		mesh.mVerticesData[vertIndex++].mTextureVertex = TextureVertex(0.0f, 1.0f);
 		
 		// Right
 		mesh.mVerticesData[vertIndex].mVertex = Vertex(halfX, -halfY, -halfZ);
+		mesh.mVerticesData[vertIndex].mNormalVertex = NormalVertex(0.0f);
 		mesh.mVerticesData[vertIndex++].mTextureVertex = TextureVertex(0.0f, 0.0f);
 		mesh.mVerticesData[vertIndex].mVertex = Vertex(halfX, -halfY, halfZ);
+		mesh.mVerticesData[vertIndex].mNormalVertex = NormalVertex(0.0f);
 		mesh.mVerticesData[vertIndex++].mTextureVertex = TextureVertex(1.0f, 0.0f);
 		mesh.mVerticesData[vertIndex].mVertex = Vertex(0.0f, halfY, 0.0f);
+		mesh.mVerticesData[vertIndex].mNormalVertex = NormalVertex(0.0f);
 		mesh.mVerticesData[vertIndex++].mTextureVertex = TextureVertex(1.0f, 1.0f);
 		
 		// Back
 		mesh.mVerticesData[vertIndex].mVertex = Vertex(halfX, -halfY, halfZ);
+		mesh.mVerticesData[vertIndex].mNormalVertex = NormalVertex(0.0f);
 		mesh.mVerticesData[vertIndex++].mTextureVertex = TextureVertex(0.0f, 0.0f);
 		mesh.mVerticesData[vertIndex].mVertex = Vertex(-halfX, -halfY, halfZ);
+		mesh.mVerticesData[vertIndex].mNormalVertex = NormalVertex(0.0f);
 		mesh.mVerticesData[vertIndex++].mTextureVertex = TextureVertex(1.0f, 0.0f);
 		mesh.mVerticesData[vertIndex].mVertex = Vertex(0.0f, halfY, 0.0f);
+		mesh.mVerticesData[vertIndex].mNormalVertex = NormalVertex(0.0f);
 		mesh.mVerticesData[vertIndex++].mTextureVertex = TextureVertex(0.0f, 1.0f);
 		
 		// Left
 		mesh.mVerticesData[vertIndex].mVertex = Vertex(-halfX, -halfY, halfZ);
+		mesh.mVerticesData[vertIndex].mNormalVertex = NormalVertex(0.0f);
 		mesh.mVerticesData[vertIndex++].mTextureVertex = TextureVertex(0.0f, 0.0f);
 		mesh.mVerticesData[vertIndex].mVertex = Vertex(-halfX, -halfY, -halfZ);
+		mesh.mVerticesData[vertIndex].mNormalVertex = NormalVertex(0.0f);
 		mesh.mVerticesData[vertIndex++].mTextureVertex = TextureVertex(1.0f, 0.0f);
 		mesh.mVerticesData[vertIndex].mVertex = Vertex(0.0f, halfY, 0.0f);
+		mesh.mVerticesData[vertIndex].mNormalVertex = NormalVertex(0.0f);
 		mesh.mVerticesData[vertIndex++].mTextureVertex = TextureVertex(1.0f, 1.0f);
 		
 		// Indices
@@ -282,6 +329,8 @@ namespace erm {
 				x = xy * cosf(sectorAngle);
 				y = xy * sinf(sectorAngle);
 				mesh.mVerticesData[index].mVertex = Vertex(x, y, z);
+				
+				mesh.mVerticesData[index].mNormalVertex = NormalVertex(0.0f);
 				
 				s = (float)j / sectors;
 				t = (float)i / rings;

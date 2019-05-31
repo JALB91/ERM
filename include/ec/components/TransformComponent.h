@@ -16,7 +16,6 @@ namespace erm {
 		TransformComponent(Entity& entity);
 		
 		// IComponent
-		void OnUpdate(float dt) override;
 		void OnPostUpdate() override;
 		
 		// ITransformable
