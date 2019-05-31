@@ -70,12 +70,10 @@ namespace erm {
 			*mWindow,
 			*mWindow
 		);
-		mCamera->RequireComponent<TransformComponent>().SetRotation(glm::vec3(0.0f, static_cast<float>(M_PI), 0.0f));
 		
 		mObject = std::make_unique<Entity>(*this);
 		mObject->RequireComponent<DebugEntityComponent>();
 		mObject->RequireComponent<ModelComponent>(ModelUtils::ParseModel(kLamborghiniModelPath));
-		mObject->RequireComponent<TransformComponent>().SetScale(glm::vec3(0.1f));
 		
 		mRoot->AddChild(mCamera.get());
 		mRoot->AddChild(mObject.get());
@@ -122,7 +120,7 @@ namespace erm {
 	{
 		if (mRoot) mRoot->OnRender();
 		
-		mRenderer->OnRender(mCamera->GetComponent<CameraComponent>()->GetViewMatrix());
+		mRenderer->ProcessQueue(mCamera->GetComponent<CameraComponent>()->GetViewMatrix());
 		mWindow->Render();
 	}
 	

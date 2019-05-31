@@ -17,6 +17,8 @@
 namespace {
 	
 	const float kMovementSpeed = 5.0f;
+	const float kMouseSensibility = 0.5f;
+	const float kXAngleLimit = static_cast<float>(M_PI) * 0.25f;
 	
 }
 
@@ -40,22 +42,36 @@ namespace erm {
 	{
 		glm::vec4 translation (0.0f);
 		
-		if (mMouseInfoProvider.IsMouseButtonDown(GLFW_MOUSE_BUTTON_1))
+		if (!ImGui::IsAnyWindowHovered())
 		{
-			glm::vec3 rotation (
-				(mMouseInfoProvider.GetMousePosY() - mMouseInfoProvider.GetPreviousMousePosY()),
-				(mMouseInfoProvider.GetMousePosX() - mMouseInfoProvider.GetPreviousMousePosX()),
-				0.0f
-			);
-			mTransform.Rotate(glm::radians(rotation));
-		}
-		else if (mMouseInfoProvider.IsMouseButtonDown(GLFW_MOUSE_BUTTON_2))
-		{
-			
-		}
-		else if (mMouseInfoProvider.IsMouseButtonDown(GLFW_MOUSE_BUTTON_3))
-		{
-			
+			if (mMouseInfoProvider.IsMouseButtonDown(GLFW_MOUSE_BUTTON_1))
+			{
+				glm::vec3 rotation (
+					(mMouseInfoProvider.GetMousePosY() - mMouseInfoProvider.GetPreviousMousePosY()),
+					(mMouseInfoProvider.GetMousePosX() - mMouseInfoProvider.GetPreviousMousePosX()),
+					0.0f
+				);
+				rotation = glm::radians(rotation * kMouseSensibility) + mTransform.GetRotation();
+				
+				if (rotation.x > kXAngleLimit)
+				{
+					rotation.x = kXAngleLimit;
+				}
+				else if (rotation.x < -kXAngleLimit)
+				{
+					rotation.x = -kXAngleLimit;
+				}
+				
+				mTransform.SetRotation(rotation);
+			}
+			else if (mMouseInfoProvider.IsMouseButtonDown(GLFW_MOUSE_BUTTON_2))
+			{
+				
+			}
+			else if (mMouseInfoProvider.IsMouseButtonDown(GLFW_MOUSE_BUTTON_3))
+			{
+				
+			}
 		}
 		
 		if (mKeyInfoProvider.IsKeyDown(GLFW_KEY_W))
@@ -88,7 +104,7 @@ namespace erm {
 	
 	void CameraComponent::OnPostUpdate()
 	{
-		mProjectionMatrix = glm::perspective(glm::radians(45.0f), mWindowSizeProvider.GetAspectRatio(), 0.1f, 1000.0f);
+		mProjectionMatrix = glm::perspective(glm::radians(45.0f), mWindowSizeProvider.GetAspectRatio(), 0.1f, 10000.0f);
 	}
 	
 	glm::mat4 CameraComponent::GetViewMatrix() const

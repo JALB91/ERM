@@ -57,7 +57,7 @@ namespace erm {
 	Renderer::~Renderer()
 	{}
 	
-	void Renderer::OnRender(const glm::mat4& viewProjectionMatrix)
+	void Renderer::ProcessQueue(const glm::mat4& viewProjectionMatrix)
 	{
 		while (mRenderQueue.size() > 0)
 		{
@@ -70,12 +70,9 @@ namespace erm {
 		const VertexArray& va,
 		const IndexBuffer& ib,
 		const ShaderProgram& shader,
-		const glm::mat4& viewProjectionMatrix,
-		const glm::mat4& model
+		const glm::mat4& mvp
 	) const
 	{
-		const glm::mat4 mvp = viewProjectionMatrix * model;
-		
 		va.Bind();
 		ib.Bind();
 		shader.Bind();
@@ -86,11 +83,10 @@ namespace erm {
 	void Renderer::Draw(
 		const Mesh& mesh,
 		const ShaderProgram& shader,
-		const glm::mat4& viewProjectionMatrix,
-		const glm::mat4& transform /* = glm::mat4(1.0f) */
+		const glm::mat4& mvp
 	) const
 	{
-		Draw(mesh.GetVA(), mesh.GetIB(), shader, viewProjectionMatrix, transform);
+		Draw(mesh.GetVA(), mesh.GetIB(), shader, mvp);
 	}
 	
 	void Renderer::Draw(
@@ -102,14 +98,16 @@ namespace erm {
 		{
 			if (const ModelComponent* modelComponent = entity.GetComponent<ModelComponent>())
 			{
+				glm::mat4 transform = transformComponent->GetWorldTransform();
+				const glm::mat4 mvp = viewProjectionMatrix * transform;
+				
 				for (const Mesh& mesh: modelComponent->GetModel().GetMeshes())
 				{
-					Draw(mesh, *mDebugShader, viewProjectionMatrix, transformComponent->GetWorldTransform());
+					Draw(mesh, *mDebugShader, mvp);
 				}
 				
 				const BoundingBox3D objBBox = modelComponent->GetLocalBounds();
 				
-				glm::mat4 transform = transformComponent->GetWorldTransform();
 				transform = glm::translate(transform, (objBBox.mMax + objBBox.mMin) * 0.5f);
 				transform = glm::scale(transform, objBBox.GetSize());
 				
@@ -118,7 +116,7 @@ namespace erm {
 				
 				mRenderContext.SetCullFaceEnabled(false);
 				mRenderContext.SetPolygonMode(GL_LINE);
-				Draw(*mDebugMesh, *mDebugShader, viewProjectionMatrix, transform);
+				Draw(*mDebugMesh, *mDebugShader, viewProjectionMatrix * transform);
 				mRenderContext.SetPolygonMode(polygonMode);
 				mRenderContext.SetCullFaceEnabled(wasCullFaceEnabled);
 			}

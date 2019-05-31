@@ -23,7 +23,7 @@ namespace erm {
 		Renderer(const RenderContext& renderContext);
 		~Renderer();
 		
-		void OnRender(const glm::mat4& viewProjectionMatrix);
+		void ProcessQueue(const glm::mat4& viewProjectionMatrix);
 		
 		void AddToQueue(const Entity& entity);
 		
@@ -32,14 +32,12 @@ namespace erm {
 			const VertexArray& va,
 			const IndexBuffer& ib,
 			const ShaderProgram& shader,
-			const glm::mat4& viewProjectionMatrix,
-			const glm::mat4& model
+			const glm::mat4& mvp
 		) const;
 		void Draw(
 			const Mesh& mesh,
 			const ShaderProgram& shader,
-			const glm::mat4& viewProjectionMatrix,
-			const glm::mat4& transform = glm::mat4(1.0f)
+			const glm::mat4& mvp
 		) const;
 		void Draw(
 			const Entity& entity,
