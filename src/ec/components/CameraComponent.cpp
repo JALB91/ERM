@@ -7,12 +7,13 @@
 #include "interfaces/IMouseInfoProvider.h"
 #include "interfaces/IKeyInfoProvider.h"
 
+#include "input/Keys.h"
+#include "input/Mouse.h"
+
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 
 #include <imgui.h>
-
-#include <GLFW/glfw3.h>
 
 namespace {
 	
@@ -44,7 +45,7 @@ namespace erm {
 		
 		if (!ImGui::IsAnyWindowHovered())
 		{
-			if (mMouseInfoProvider.IsMouseButtonDown(GLFW_MOUSE_BUTTON_1))
+			if (mMouseInfoProvider.IsMouseButtonDown(MOUSE_BUTTON_1))
 			{
 				glm::vec3 rotation (
 					(mMouseInfoProvider.GetMousePosY() - mMouseInfoProvider.GetPreviousMousePosY()),
@@ -64,29 +65,29 @@ namespace erm {
 				
 				mTransform.SetRotation(rotation);
 			}
-			else if (mMouseInfoProvider.IsMouseButtonDown(GLFW_MOUSE_BUTTON_2))
+			else if (mMouseInfoProvider.IsMouseButtonDown(MOUSE_BUTTON_2))
 			{
 				
 			}
-			else if (mMouseInfoProvider.IsMouseButtonDown(GLFW_MOUSE_BUTTON_3))
+			else if (mMouseInfoProvider.IsMouseButtonDown(MOUSE_BUTTON_3))
 			{
 				
 			}
 		}
 		
-		if (mKeyInfoProvider.IsKeyDown(GLFW_KEY_W))
+		if (mKeyInfoProvider.IsKeyDown(KEY_W))
 		{
 			translation.z += kMovementSpeed;
 		}
-		if (mKeyInfoProvider.IsKeyDown(GLFW_KEY_D))
+		if (mKeyInfoProvider.IsKeyDown(KEY_D))
 		{
 			translation.x += kMovementSpeed;
 		}
-		if (mKeyInfoProvider.IsKeyDown(GLFW_KEY_S))
+		if (mKeyInfoProvider.IsKeyDown(KEY_S))
 		{
 			translation.z -= kMovementSpeed;
 		}
-		if (mKeyInfoProvider.IsKeyDown(GLFW_KEY_A))
+		if (mKeyInfoProvider.IsKeyDown(KEY_A))
 		{
 			translation.x -= kMovementSpeed;
 		}

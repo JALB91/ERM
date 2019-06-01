@@ -6,7 +6,6 @@
 #include "rendering/Uniforms.h"
 #include "rendering/RenderContext.h"
 
-#include "utils/Utils.h"
 #include "utils/MeshUtils.h"
 
 #include "model_loaders/IModelLoader.h"
@@ -26,7 +25,7 @@
 
 namespace {
 	
-	const std::string kDebugShaderPath = erm::Utils::GetRelativePath("res/shaders/basic");
+	const std::string kDebugShaderPath = "res/shaders/basic";
 	
 }
 
@@ -111,8 +110,8 @@ namespace erm {
 				transform = glm::translate(transform, (objBBox.mMax + objBBox.mMin) * 0.5f);
 				transform = glm::scale(transform, objBBox.GetSize());
 				
-				const bool wasCullFaceEnabled = mRenderContext.IsCullFaceEnabled();
 				const int polygonMode = mRenderContext.GetPolygonMode();
+				const bool wasCullFaceEnabled = mRenderContext.IsCullFaceEnabled();
 				
 				mRenderContext.SetCullFaceEnabled(false);
 				mRenderContext.SetPolygonMode(GL_LINE);

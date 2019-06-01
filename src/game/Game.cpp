@@ -14,7 +14,6 @@
 #include "ec/components/CameraComponent.h"
 #include "ec/components/ModelComponent.h"
 #include "ec/components/TransformComponent.h"
-#include "ec/components/debug/DebugGameComponent.h"
 #include "ec/components/debug/DebugEntityComponent.h"
 
 #include <imgui.h>

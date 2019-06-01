@@ -1,5 +1,6 @@
 #include "rendering/ShaderProgram.h"
 #include "rendering/Uniforms.h"
+
 #include "utils/Utils.h"
 
 #include <GL/glew.h>
@@ -21,7 +22,12 @@ namespace {
 namespace erm {
 	
 	ShaderProgram::ShaderProgram(const std::string& vertexPath, const std::string& fragmentPath)
-		: mRendererId(CreateShaderProgram(ParseShader(vertexPath), ParseShader(fragmentPath)))
+		: mRendererId(
+			CreateShaderProgram(
+				ParseShader(Utils::GetRelativePath(vertexPath.c_str())),
+				ParseShader(Utils::GetRelativePath(fragmentPath.c_str()))
+			)
+		)
 	{
 		CacheUniformsLocations();
 	}

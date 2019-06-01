@@ -161,7 +161,7 @@ namespace erm {
 	
 	bool Window::ShouldClose()
 	{
-		return glfwWindowShouldClose(mWindow) || mPressedKeys.find(GLFW_KEY_ESCAPE) != mPressedKeys.end();
+		return glfwWindowShouldClose(mWindow) || IsKeyDown(KEY_ESCAPE);
 	}
 	
 	void Window::NewFrame()
@@ -270,7 +270,7 @@ namespace erm {
 		}
 	}
 	
-	bool Window::IsKeyDown(int keyCode) const
+	bool Window::IsKeyDown(Key keyCode) const
 	{
 		return (mPressedKeys.find(keyCode) != mPressedKeys.end());
 	}
@@ -289,7 +289,7 @@ namespace erm {
 		}
 	}
 	
-	bool Window::IsMouseButtonDown(int mouseButton) const
+	bool Window::IsMouseButtonDown(MouseButton mouseButton) const
 	{
 		return (mPressedButtons.find(mouseButton) != mPressedButtons.end());
 	}

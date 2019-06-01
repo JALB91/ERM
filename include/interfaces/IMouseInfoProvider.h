@@ -1,5 +1,7 @@
 #pragma once
 
+#include "input/Mouse.h"
+
 namespace erm {
 	
 	class IMouseListener;
@@ -16,7 +18,7 @@ namespace erm {
 		virtual double GetMousePosY() const = 0;
 		virtual double GetPreviousMousePosX() const = 0;
 		virtual double GetPreviousMousePosY() const = 0;
-		virtual bool IsMouseButtonDown(int mouseButton) const = 0;
+		virtual bool IsMouseButtonDown(MouseButton mouseButton) const = 0;
 		
 	};
 	

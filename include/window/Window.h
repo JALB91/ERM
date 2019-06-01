@@ -42,7 +42,7 @@ namespace erm {
 		// IKeyInfoProvider
 		void AddListener(IKeyListener& listener) override;
 		void RemoveListener(IKeyListener& listener) override;
-		bool IsKeyDown(int keyCode) const override;
+		bool IsKeyDown(Key keyCode) const override;
 		
 		// IMouseInfoProvider
 		void AddListener(IMouseListener& listener) override;
@@ -51,7 +51,7 @@ namespace erm {
 		inline double GetMousePosY() const override { return mMousePosY; }
 		inline double GetPreviousMousePosX() const override { return mPrevMousePosX; }
 		inline double GetPreviousMousePosY() const override { return mPrevMousePosY; }
-		bool IsMouseButtonDown(int mouseButton) const override;
+		bool IsMouseButtonDown(MouseButton mouseButton) const override;
 		
 		// IWindowSizeProvider
 		void AddListener(IWindowSizeListener& listener) override;
@@ -70,10 +70,10 @@ namespace erm {
 		std::set<IMouseListener*> mMouseListeners;
 		std::set<IWindowSizeListener*> mWindowSizeListeners;
 		
-		std::set<int> mPressedKeys;
+		std::set<Key> mPressedKeys;
 		double mMousePosX, mPrevMousePosX;
 		double mMousePosY, mPrevMousePosY;
-		std::set<int> mPressedButtons;
+		std::set<MouseButton> mPressedButtons;
 		int mWindowWidth, mWindowHeight;
 		float mAspectRatio;
 		
