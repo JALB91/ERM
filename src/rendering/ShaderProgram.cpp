@@ -61,7 +61,7 @@ namespace erm {
 		GLCALL(glUniform4f(GetUniformLocation(kUniforms.at(uniform)), v0, v1, v2, v3));
 	}
 	
-	void ShaderProgram::SetUniformMat4f(const Uniform& uniform, const glm::mat4& matrix) const
+	void ShaderProgram::SetUniformMat4f(const Uniform& uniform, const math::mat4& matrix) const
 	{
 		GLCALL(glUniformMatrix4fv(GetUniformLocation(kUniforms.at(uniform)), 1, GL_FALSE, &matrix[0][0]));
 	}

@@ -4,7 +4,8 @@
 
 #include "interfaces/ITransformable.h"
 
-#include <glm/glm.hpp>
+#include "math/vec.h"
+#include "math/mat.h"
 
 namespace erm {
 	
@@ -19,19 +20,19 @@ namespace erm {
 		void OnPostUpdate() override;
 		
 		// ITransformable
-		void SetTranslation(const glm::vec3& translation) override;
-		void Translate(const glm::vec3& translation) override;
+		void SetTranslation(const math::vec3& translation) override;
+		void Translate(const math::vec3& translation) override;
 		
-		void SetRotation(const glm::vec3& rotation) override;
-		void Rotate(const glm::vec3& rotation) override;
+		void SetRotation(const math::vec3& rotation) override;
+		void Rotate(const math::vec3& rotation) override;
 		
-		void SetScale(const glm::vec3& scale) override;
-		void Scale(const glm::vec3& scale) override;
+		void SetScale(const math::vec3& scale) override;
+		void Scale(const math::vec3& scale) override;
 		
-		inline const glm::mat4& GetWorldTransform() const { return mWorldTransform; }
+		inline const math::mat4& GetWorldTransform() const { return mWorldTransform; }
 		
 	private:
-		glm::mat4 mWorldTransform;
+		math::mat4 mWorldTransform;
 		
 	};
 	

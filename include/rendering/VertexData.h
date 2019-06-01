@@ -1,5 +1,7 @@
 #pragma once
 
+#include "math/vec.h"
+
 #include <glm/glm.hpp>
 
 namespace erm {
@@ -10,9 +12,9 @@ namespace erm {
 	
 	typedef float VertexType;
 	
-	typedef glm::vec<kVectorsLenght, VertexType> Vertex;
-	typedef glm::vec<kUVVectorsLenght, VertexType> UVVertex;
-	typedef glm::vec<kNormalVectorsLenght, VertexType> NormalVertex;
+	typedef math::vec<kVectorsLenght, VertexType> Vertex;
+	typedef math::vec<kUVVectorsLenght, VertexType> UVVertex;
+	typedef math::vec<kNormalVectorsLenght, VertexType> NormalVertex;
 	
 	struct VertexData
 	{

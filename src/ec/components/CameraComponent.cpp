@@ -10,8 +10,10 @@
 #include "input/Keys.h"
 #include "input/Mouse.h"
 
+#include "math/vec.h"
+#include "math/quat.h"
+
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/quaternion.hpp>
 
 #include <imgui.h>
 
@@ -41,13 +43,13 @@ namespace erm {
 	
 	void CameraComponent::OnUpdate(float dt)
 	{
-		glm::vec4 translation (0.0f);
+		math::vec4 translation (0.0f);
 		
 		if (!ImGui::IsAnyWindowHovered())
 		{
 			if (mMouseInfoProvider.IsMouseButtonDown(MOUSE_BUTTON_1))
 			{
-				glm::vec3 rotation (
+				math::vec3 rotation (
 					(mMouseInfoProvider.GetMousePosY() - mMouseInfoProvider.GetPreviousMousePosY()),
 					(mMouseInfoProvider.GetMousePosX() - mMouseInfoProvider.GetPreviousMousePosX()),
 					0.0f
@@ -94,10 +96,10 @@ namespace erm {
 		
 		if (translation.x != 0.0f || translation.z != 0.0f)
 		{
-			glm::mat4 rotationMatrix (glm::identity<glm::mat4>());
-			rotationMatrix = glm::rotate(rotationMatrix, mTransform.GetRotation().z, glm::vec3(0.0f, 0.0f, 1.0f));
-			rotationMatrix = glm::rotate(rotationMatrix, mTransform.GetRotation().y, glm::vec3(0.0f, 1.0f, 0.0f));
-			rotationMatrix = glm::rotate(rotationMatrix, mTransform.GetRotation().x, glm::vec3(1.0f, 0.0f, 0.0f));
+			math::mat4 rotationMatrix (glm::identity<math::mat4>());
+			rotationMatrix = glm::rotate(rotationMatrix, mTransform.GetRotation().z, math::vec3(0.0f, 0.0f, 1.0f));
+			rotationMatrix = glm::rotate(rotationMatrix, mTransform.GetRotation().y, math::vec3(0.0f, 1.0f, 0.0f));
+			rotationMatrix = glm::rotate(rotationMatrix, mTransform.GetRotation().x, math::vec3(1.0f, 0.0f, 0.0f));
 			
 			mTransform.Translate(rotationMatrix * translation);
 		}
@@ -108,7 +110,7 @@ namespace erm {
 		mProjectionMatrix = glm::perspective(glm::radians(45.0f), mWindowSizeProvider.GetAspectRatio(), 0.1f, 10000.0f);
 	}
 	
-	glm::mat4 CameraComponent::GetViewMatrix() const
+	math::mat4 CameraComponent::GetViewMatrix() const
 	{
 		return mProjectionMatrix * glm::inverse(mTransform.GetWorldTransform());
 	}

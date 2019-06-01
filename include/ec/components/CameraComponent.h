@@ -2,7 +2,7 @@
 
 #include "ec/IComponent.h"
 
-#include <glm/glm.hpp>
+#include "math/mat.h"
 
 namespace erm {
 	
@@ -25,7 +25,7 @@ namespace erm {
 		void OnUpdate(float dt) override;
 		void OnPostUpdate() override;
 		
-		glm::mat4 GetViewMatrix() const;
+		math::mat4 GetViewMatrix() const;
 		
 		void LookAt(const Entity& other);
 		
@@ -34,7 +34,7 @@ namespace erm {
 		const IMouseInfoProvider& mMouseInfoProvider;
 		const IKeyInfoProvider& mKeyInfoProvider;
 		TransformComponent& mTransform;
-		glm::mat4 mProjectionMatrix;
+		math::mat4 mProjectionMatrix;
 		
 	};
 	

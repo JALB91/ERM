@@ -16,6 +16,8 @@
 #include "ec/components/TransformComponent.h"
 #include "ec/components/debug/DebugEntityComponent.h"
 
+#include "math/vec.h"
+
 #include <imgui.h>
 
 #include <GLFW/glfw3.h>
@@ -203,7 +205,7 @@ namespace erm {
 			
 			ImGui::Separator();
 			
-			glm::vec4 clearColor = mRenderContext->GetClearColor();
+			math::vec4 clearColor = mRenderContext->GetClearColor();
 			ImGui::ColorEdit4("Clear color", &clearColor.x);
 			
 			mRenderContext->SetDepthEnabled(isDepthEnabled);

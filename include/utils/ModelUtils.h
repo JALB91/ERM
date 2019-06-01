@@ -3,8 +3,6 @@
 #include "rendering/VertexData.h"
 #include "rendering/IndexData.h"
 
-#include <glm/glm.hpp>
-
 #include <string>
 #include <vector>
 

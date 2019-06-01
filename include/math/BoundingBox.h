@@ -1,6 +1,7 @@
 #pragma once
 
-#include <glm/glm.hpp>
+#include "math/vec.h"
+#include "math/mat.h"
 
 namespace erm {
 	
@@ -47,8 +48,8 @@ namespace erm {
 		template<typename S>
 		BoundingBox Intersect(const BoundingBox<S>& other) const;
 		
-		BoundingBox Expand(const glm::mat4& mat) const;
-		BoundingBox Expand(const glm::vec3& vec) const;
+		BoundingBox Expand(const math::mat4& mat) const;
+		BoundingBox Expand(const math::vec3& vec) const;
 		
 	public:
 		T mMin;
@@ -56,7 +57,7 @@ namespace erm {
 		
 	};
 	
-	typedef BoundingBox<glm::vec3> BoundingBox3D;
-	typedef BoundingBox<glm::vec2> BoundingBox2D;
+	typedef BoundingBox<math::vec3> BoundingBox3D;
+	typedef BoundingBox<math::vec2> BoundingBox2D;
 	
 }

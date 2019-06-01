@@ -7,20 +7,20 @@ namespace erm {
 	template<>
 	void BoundingBox3D::Empty()
 	{
-		mMin = glm::vec3(INFINITY);
-		mMax = glm::vec3(-INFINITY);
+		mMin = math::vec3(INFINITY);
+		mMax = math::vec3(-INFINITY);
 	}
 	
 	template<>
 	void BoundingBox2D::Empty()
 	{
-		mMin = glm::vec2(INFINITY);
-		mMax = glm::vec2(-INFINITY);
+		mMin = math::vec2(INFINITY);
+		mMax = math::vec2(-INFINITY);
 	}
 	
 	template<>
 	template<>
-	bool BoundingBox3D::IsInside(const glm::vec3& point) const
+	bool BoundingBox3D::IsInside(const math::vec3& point) const
 	{
 		return
 			mMin.x <= point.x &&
@@ -33,7 +33,7 @@ namespace erm {
 	
 	template<>
 	template<>
-	bool BoundingBox3D::IsInside(const glm::vec2& point) const
+	bool BoundingBox3D::IsInside(const math::vec2& point) const
 	{
 		return
 			mMin.x <= point.x &&
@@ -164,7 +164,7 @@ namespace erm {
 	}
 	
 	template<>
-	BoundingBox2D BoundingBox2D::Expand(const glm::mat4& mat) const
+	BoundingBox2D BoundingBox2D::Expand(const math::mat4& mat) const
 	{
 		BoundingBox2D result;
 		
@@ -241,7 +241,7 @@ namespace erm {
 	}
 	
 	template<>
-	BoundingBox3D BoundingBox3D::Expand(const glm::mat4& mat) const
+	BoundingBox3D BoundingBox3D::Expand(const math::mat4& mat) const
 	{
 		BoundingBox3D result;
 		
@@ -352,7 +352,7 @@ namespace erm {
 	}
 	
 	template<>
-	BoundingBox2D BoundingBox2D::Expand(const glm::vec3& vec) const
+	BoundingBox2D BoundingBox2D::Expand(const math::vec3& vec) const
 	{
 		BoundingBox2D result;
 		result.Empty();
@@ -367,7 +367,7 @@ namespace erm {
 	}
 	
 	template<>
-	BoundingBox3D BoundingBox3D::Expand(const glm::vec3& vec) const
+	BoundingBox3D BoundingBox3D::Expand(const math::vec3& vec) const
 	{
 		BoundingBox3D result;
 		result.Empty();

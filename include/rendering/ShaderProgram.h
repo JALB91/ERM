@@ -1,6 +1,6 @@
 #pragma once
 
-#include <glm/glm.hpp>
+#include "math/mat.h"
 
 #include <string>
 #include <unordered_map>
@@ -21,7 +21,7 @@ namespace erm {
 		
 		void SetUniform1i(const Uniform& uniform, int value) const ;
 		void SetUniform4f(const Uniform& uniform, float v0, float v1, float v2, float v3) const;
-		void SetUniformMat4f(const Uniform& uniform, const glm::mat4& matrix) const;
+		void SetUniformMat4f(const Uniform& uniform, const math::mat4& matrix) const;
 		
 	private:
 		std::string ParseShader(const std::string& path) const;

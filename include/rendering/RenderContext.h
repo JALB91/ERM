@@ -1,6 +1,6 @@
 #pragma once
 
-#include <glm/glm.hpp>
+#include "math/vec.h"
 
 namespace erm {
 	
@@ -34,8 +34,8 @@ namespace erm {
 		int GetPolygonMode() const;
 		void SetPolygonMode(int mode) const;
 		
-		glm::vec4 GetClearColor() const;
-		void SetClearColor(const glm::vec4& clearColor) const;
+		math::vec4 GetClearColor() const;
+		void SetClearColor(const math::vec4& clearColor) const;
 		
 	};
 	

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <glm/glm.hpp>
+#include "math/vec.h"
 
 namespace erm {
 	
@@ -10,9 +10,9 @@ namespace erm {
 	{
 	public:
 		static Mesh CreateTriangle(
-			const glm::vec3& a = glm::vec3(-1.0f, -1.0f, 0.0f),
-			const glm::vec3& b = glm::vec3(1.0f, -1.0f, 0.0f),
-			const glm::vec3& c = glm::vec3(-1.0f, 1.0f, 0.0f)
+			const math::vec3& a = math::vec3(-1.0f, -1.0f, 0.0f),
+			const math::vec3& b = math::vec3(1.0f, -1.0f, 0.0f),
+			const math::vec3& c = math::vec3(-1.0f, 1.0f, 0.0f)
 		);
 		static Mesh CreateSquare(
 			float width = 1.0f,

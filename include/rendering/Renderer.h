@@ -2,7 +2,7 @@
 
 #include "ec/Entity.h"
 
-#include <glm/glm.hpp>
+#include "math/mat.h"
 
 #include <queue>
 #include <memory>
@@ -23,7 +23,7 @@ namespace erm {
 		Renderer(const RenderContext& renderContext);
 		~Renderer();
 		
-		void ProcessQueue(const glm::mat4& viewProjectionMatrix);
+		void ProcessQueue(const math::mat4& viewProjectionMatrix);
 		
 		void AddToQueue(const Entity& entity);
 		
@@ -32,16 +32,16 @@ namespace erm {
 			const VertexArray& va,
 			const IndexBuffer& ib,
 			const ShaderProgram& shader,
-			const glm::mat4& mvp
+			const math::mat4& mvp
 		) const;
 		void Draw(
 			const Mesh& mesh,
 			const ShaderProgram& shader,
-			const glm::mat4& mvp
+			const math::mat4& mvp
 		) const;
 		void Draw(
 			const Entity& entity,
-			const glm::mat4& viewProjectionMatrix
+			const math::mat4& viewProjectionMatrix
 		) const;
 		
 		const RenderContext& mRenderContext;

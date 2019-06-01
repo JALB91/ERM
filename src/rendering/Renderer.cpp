@@ -17,6 +17,8 @@
 #include "ec/components/ModelComponent.h"
 #include "ec/components/TransformComponent.h"
 
+#include "math/vec.h"
+
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <GL/glew.h>
@@ -50,13 +52,13 @@ namespace erm {
 		mRenderContext.SetFrontFace(GL_CCW);
 #endif
 
-		mRenderContext.SetClearColor(glm::vec4(0.25f, 0.25f, 0.25f, 1.0f));
+		mRenderContext.SetClearColor(math::vec4(0.25f, 0.25f, 0.25f, 1.0f));
 	}
 	
 	Renderer::~Renderer()
 	{}
 	
-	void Renderer::ProcessQueue(const glm::mat4& viewProjectionMatrix)
+	void Renderer::ProcessQueue(const math::mat4& viewProjectionMatrix)
 	{
 		while (mRenderQueue.size() > 0)
 		{
@@ -69,7 +71,7 @@ namespace erm {
 		const VertexArray& va,
 		const IndexBuffer& ib,
 		const ShaderProgram& shader,
-		const glm::mat4& mvp
+		const math::mat4& mvp
 	) const
 	{
 		va.Bind();
@@ -82,7 +84,7 @@ namespace erm {
 	void Renderer::Draw(
 		const Mesh& mesh,
 		const ShaderProgram& shader,
-		const glm::mat4& mvp
+		const math::mat4& mvp
 	) const
 	{
 		Draw(mesh.GetVA(), mesh.GetIB(), shader, mvp);
@@ -90,15 +92,15 @@ namespace erm {
 	
 	void Renderer::Draw(
 		const Entity& entity,
-		const glm::mat4& viewProjectionMatrix
+		const math::mat4& viewProjectionMatrix
 	) const
 	{
 		if (const TransformComponent* transformComponent = entity.GetComponent<TransformComponent>())
 		{
 			if (const ModelComponent* modelComponent = entity.GetComponent<ModelComponent>())
 			{
-				glm::mat4 transform = transformComponent->GetWorldTransform();
-				const glm::mat4 mvp = viewProjectionMatrix * transform;
+				math::mat4 transform = transformComponent->GetWorldTransform();
+				const math::mat4 mvp = viewProjectionMatrix * transform;
 				
 				for (const Mesh& mesh: modelComponent->GetModel().GetMeshes())
 				{

@@ -2,9 +2,9 @@
 #include "ec/components/TransformComponent.h"
 #include "ec/Entity.h"
 
-#include <imgui.h>
+#include "math/vec.h"
 
-#include <glm/glm.hpp>
+#include <imgui.h>
 
 #include <cstdio>
 
@@ -25,9 +25,9 @@ namespace erm {
 		
 		if (ImGui::Begin(buffer))
 		{
-			glm::vec3 translation = mTransform.GetTranslation();
-			glm::vec3 rotation = mTransform.GetRotation();
-			glm::vec3 scale = mTransform.GetScale();
+			math::vec3 translation = mTransform.GetTranslation();
+			math::vec3 rotation = mTransform.GetRotation();
+			math::vec3 scale = mTransform.GetScale();
 			
 			bool reset = ImGui::Button("Reset");
 			ImGui::InputFloat3("Translation", &translation.x, 1);
@@ -41,9 +41,9 @@ namespace erm {
 			
 			if (reset)
 			{
-				mTransform.SetTranslation(glm::vec3(0.0f));
-				mTransform.SetRotation(glm::vec3(0.0f));
-				mTransform.SetScale(glm::vec3(1.0f));
+				mTransform.SetTranslation(math::vec3(0.0f));
+				mTransform.SetRotation(math::vec3(0.0f));
+				mTransform.SetScale(math::vec3(1.0f));
 			}
 			else
 			{

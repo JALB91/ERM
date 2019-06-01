@@ -24,7 +24,7 @@ namespace erm {
 			
 			for (int i = 0; i < mesh.GetVerticesDataCount(); ++i)
 			{
-				const glm::vec3& vertex = verticesData[i].mVertex;
+				const Vertex& vertex = verticesData[i].mVertex;
 				mLocalBounds = mLocalBounds.Expand(vertex);
 			}
 		}

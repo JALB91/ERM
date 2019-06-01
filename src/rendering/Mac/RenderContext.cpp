@@ -120,14 +120,14 @@ namespace erm {
 		GLCALL(glPolygonMode(GL_FRONT_AND_BACK, mode));
 	}
 	
-	glm::vec4 RenderContext::GetClearColor() const
+	math::vec4 RenderContext::GetClearColor() const
 	{
-		glm::vec4 result;
+		math::vec4 result;
 		GLCALL(glGetFloatv(GL_COLOR_CLEAR_VALUE, &result.x));
 		return result;
 	}
 	
-	void RenderContext::SetClearColor(const glm::vec4& clearColor) const
+	void RenderContext::SetClearColor(const math::vec4& clearColor) const
 	{
 		GLCALL(glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w));
 	}
