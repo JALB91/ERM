@@ -49,6 +49,9 @@ namespace erm {
 		// IWindowSizeListener
 		void OnSizeChanged(int width, int height) override;
 		
+		void ShowMainMenuBar();
+		void ShowGameDebugWindow();
+		
 		std::unique_ptr<Window> mWindow;
 		std::unique_ptr<RenderContext> mRenderContext;
 		std::unique_ptr<Renderer> mRenderer;

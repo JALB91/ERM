@@ -15,7 +15,7 @@ namespace erm {
 		void OnImGuiRender() override;
 		
 	private:
-		TransformComponent& mTransformComponent;
+		TransformComponent& mTransform;
 		
 	};
 	
