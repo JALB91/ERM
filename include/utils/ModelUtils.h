@@ -19,8 +19,8 @@ namespace erm {
 		static void ParseFace(
 			std::vector<VertexData>& oVertices,
 			const std::vector<Vertex>& positions,
+			const std::vector<UVVertex>& tPositions,
 			const std::vector<NormalVertex>& nPositions,
-			const std::vector<TextureVertex>& tPositions,
 			const std::vector<std::string>& splitted
 		);
 		static void Triangulate(

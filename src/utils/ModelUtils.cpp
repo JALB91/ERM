@@ -19,8 +19,8 @@ namespace erm {
 		std::string name;
 		std::vector<Mesh> meshes;
 		std::vector<Vertex> positions;
+		std::vector<UVVertex> tPositions;
 		std::vector<NormalVertex> nPositions;
-		std::vector<TextureVertex> tPositions;
 		std::vector<VertexData> vertices;
 		std::vector<IndexData> indices;
 		
@@ -113,7 +113,7 @@ namespace erm {
 				else if (std::strcmp(splitted[0].c_str(), "f") == 0)
 				{
 					std::vector<VertexData> vVertices;
-					ParseFace(vVertices, positions, nPositions, tPositions, splitted);
+					ParseFace(vVertices, positions, tPositions, nPositions, splitted);
 					
 					std::vector<IndexData> vIndices;
 					Triangulate(vIndices, vVertices);
@@ -170,14 +170,14 @@ namespace erm {
 	void ModelUtils::ParseFace(
 		std::vector<VertexData>& oVertices,
 		const std::vector<Vertex>& positions,
+		const std::vector<UVVertex>& tPositions,
 		const std::vector<NormalVertex>& nPositions,
-		const std::vector<TextureVertex>& tPositions,
 		const std::vector<std::string>& splitted
 	)
 	{
 		static constexpr unsigned int kVertexIndex = 0;
+		static constexpr unsigned int kUVVertexIndex = 1;
 		static constexpr unsigned int kNormalVertexIndex = 2;
-		static constexpr unsigned int kTextureVertexIndex = 1;
 		
 		for (const std::string& split: splitted)
 		{
@@ -190,33 +190,33 @@ namespace erm {
 			VertexData vertex;
 			
 			const unsigned int positionIndex = std::atoi(indices[kVertexIndex].c_str()) - 1;
-			int nPositionIndex = -1;
 			int tPositionIndex = -1;
+			int nPositionIndex = -1;
 			
 			if (indices.size() == 2)
 			{
-				tPositionIndex = std::atoi(indices[kTextureVertexIndex].c_str()) - 1;
+				tPositionIndex = std::atoi(indices[kUVVertexIndex].c_str()) - 1;
 			}
 			else if (indices.size() == 3)
 			{
 				nPositionIndex = std::atoi(indices[kNormalVertexIndex].c_str()) - 1;
 				
-				if (!indices[kTextureVertexIndex].empty())
+				if (!indices[kUVVertexIndex].empty())
 				{
-					tPositionIndex = std::atoi(indices[kTextureVertexIndex].c_str()) - 1;
+					tPositionIndex = std::atoi(indices[kUVVertexIndex].c_str()) - 1;
 				}
 			}
 			
 			vertex.mVertex = positions[positionIndex];
 			
+			if (tPositionIndex >= 0 && tPositionIndex < tPositions.size())
+			{
+				vertex.mUVVertex = tPositions[tPositionIndex];
+			}
+			
 			if (nPositionIndex >= 0 && nPositionIndex < nPositions.size())
 			{
 				vertex.mNormalVertex = nPositions[nPositionIndex];
-			}
-			
-			if (tPositionIndex >= 0 && tPositionIndex < tPositions.size())
-			{
-				vertex.mTextureVertex = tPositions[tPositionIndex];
 			}
 			
 			oVertices.emplace_back(vertex);

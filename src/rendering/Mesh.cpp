@@ -166,14 +166,14 @@ namespace erm {
 		mVB = std::make_shared<VertexBuffer>(
 			&mVerticesData[0].mVertex[0],
 			sizeof(VertexType) * kVectorsLenght * mVerticesDataCount +
-			sizeof(VertexType) * kNormalVectorsLenght * mVerticesDataCount +
-			sizeof(VertexType) * kTextureVectorsLenght * mVerticesDataCount
+			sizeof(VertexType) * kUVVectorsLenght * mVerticesDataCount +
+			sizeof(VertexType) * kNormalVectorsLenght * mVerticesDataCount
 		);
 		
 		VertexBufferLayout vbl;
 		vbl.Push<VertexType>(kVectorsLenght);
+		vbl.Push<VertexType>(kUVVectorsLenght);
 		vbl.Push<VertexType>(kNormalVectorsLenght);
-		vbl.Push<VertexType>(kTextureVectorsLenght);
 		
 		mIB = std::make_shared<IndexBuffer>(mIndicesData, mIndicesDataCount);
 		
