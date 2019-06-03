@@ -25,8 +25,13 @@
 namespace {
 
 	const char* const kLamborghiniModelPath = "res/models/Lamborghini_Aventador.obj";
+	const char* const kSpaceshipModelPath = "res/models/spaceship.obj";
+	const char* const kIronManModelPath = "res/models/IronMan.obj";
 	const char* const kIphoneModelPath = "res/models/iphone.obj";
+	const char* const kCrateModelPath = "res/models/Crate1.obj";
 	const char* const kChairModelPath = "res/models/chair.obj";
+	const char* const kAventModelPath = "res/models/Avent.obj";
+	const char* const kCubeModelPath = "res/models/cube.obj";
 	
 	bool showGameDebug = true;
 	bool showDemo = false;
@@ -76,7 +81,7 @@ namespace erm {
 
 		mObject = std::make_unique<Entity>(*this);
 		mObject->RequireComponent<DebugEntityComponent>();
-		mObject->RequireComponent<ModelComponent>(ModelUtils::ParseModel(kLamborghiniModelPath));
+		mObject->RequireComponent<ModelComponent>(ModelUtils::ParseModel(kIronManModelPath));
 
 		mRoot->AddChild(mCamera.get());
 		mRoot->AddChild(mObject.get());
