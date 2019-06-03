@@ -19,15 +19,26 @@ namespace erm {
 		{}
 		
 		BoundingBox()
-			: BoundingBox(T(0.0f))
-		{}
+		{
+			Empty();
+		}
+		
+		BoundingBox(BoundingBox&&) = default;
+		BoundingBox(const BoundingBox&) = default;
+		
+		BoundingBox& operator=(BoundingBox&&) = default;
+		BoundingBox& operator=(const BoundingBox&) = default;
 		
 		T GetSize() const
 		{
 			return mMax - mMin;
 		}
 		
-		void Empty();
+		void Empty()
+		{
+			mMin = T(INFINITY);
+			mMax = T(-INFINITY);
+		}
 		
 		template<typename S>
 		inline bool IsIntersecting(const BoundingBox<S>& other) const

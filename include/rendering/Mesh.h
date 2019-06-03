@@ -5,10 +5,13 @@
 #include <glm/glm.hpp>
 
 #include <memory>
+#include <optional>
+#include <functional>
 
 namespace erm {
 	
 	struct VertexData;
+	struct Material;
 	class VertexBuffer;
 	class IndexBuffer;
 	class VertexArray;
@@ -23,19 +26,21 @@ namespace erm {
 		Mesh();
 		~Mesh();
 		
-		Mesh(const Mesh& other);
 		Mesh(Mesh&& other);
+		Mesh(const Mesh&) = delete;
 		
-		Mesh& operator=(const Mesh& other);
-		Mesh& operator=(Mesh&& other);
+		Mesh& operator=(Mesh&&) = delete;
+		Mesh& operator=(const Mesh&) = delete;
+		
+		inline const std::optional<std::reference_wrapper<Material>>& GetMaterial() const { return mMaterial; }
 		
 		inline const IndexBuffer& GetIB() const { return *mIB; }
 		inline const VertexArray& GetVA() const { return *mVA; }
 		
-		inline const VertexData* GetVerticesData() const { return mVerticesData; }
+		inline const VertexData* const GetVerticesData() const { return mVerticesData; }
 		inline int GetVerticesDataCount() const { return mVerticesDataCount; }
 		
-		inline const IndexData* GetIndicesData() const { return mIndicesData; }
+		inline const IndexData* const GetIndicesData() const { return mIndicesData; }
 		inline int GetIndicesCount() const { return mIndicesDataCount; }
 		
 	private:
@@ -47,9 +52,11 @@ namespace erm {
 		IndexData* mIndicesData;
 		unsigned int mIndicesDataCount;
 		
-		std::shared_ptr<VertexBuffer> mVB;
-		std::shared_ptr<IndexBuffer> mIB;
-		std::shared_ptr<VertexArray> mVA;
+		std::optional<std::reference_wrapper<Material>> mMaterial;
+		
+		std::unique_ptr<VertexBuffer> mVB;
+		std::unique_ptr<IndexBuffer> mIB;
+		std::unique_ptr<VertexArray> mVA;
 		
 	};
 	

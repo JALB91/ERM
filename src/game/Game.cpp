@@ -131,7 +131,7 @@ namespace erm {
 	void Game::OnRender()
 	{
 		if (mRoot) mRoot->OnRender();
-		if (mCamera) mRenderer->ProcessQueue(mCamera->GetComponent<CameraComponent>()->GetViewMatrix());
+		if (mCamera) mRenderer->ProcessQueue(*mCamera);
 		
 		mWindow->Render();
 	}

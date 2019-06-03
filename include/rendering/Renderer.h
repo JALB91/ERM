@@ -23,32 +23,19 @@ namespace erm {
 		Renderer(const RenderContext& renderContext);
 		~Renderer();
 		
-		void ProcessQueue(const math::mat4& viewProjectionMatrix);
-		
 		void AddToQueue(const Entity& entity);
+		void ProcessQueue(const Entity& camera);
 		
 	private:
-		void Draw(
-			const VertexArray& va,
-			const IndexBuffer& ib,
-			const ShaderProgram& shader,
-			const math::mat4& mvp
-		) const;
-		void Draw(
-			const Mesh& mesh,
-			const ShaderProgram& shader,
-			const math::mat4& mvp
-		) const;
-		void Draw(
-			const Entity& entity,
-			const math::mat4& viewProjectionMatrix
-		) const;
+		void Draw(const Entity& entity, const Entity& camera) const;
+		void Draw(const VertexArray& va,const IndexBuffer& ib) const;
 		
 		const RenderContext& mRenderContext;
 		
 		std::queue<std::reference_wrapper<const Entity>> mRenderQueue;
 		std::unique_ptr<Mesh> mDebugMesh;
 		std::unique_ptr<ShaderProgram> mDebugShader;
+		std::unique_ptr<ShaderProgram> mModelShader;
 		
 	};
 	

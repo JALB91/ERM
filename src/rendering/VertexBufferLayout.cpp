@@ -5,10 +5,6 @@
 
 namespace erm {
 	
-	VertexBufferLayout::VertexBufferLayout()
-		: mStride(0)
-	{}
-
 	template<typename T>
 	void VertexBufferLayout::Push(unsigned int /*count*/)
 	{

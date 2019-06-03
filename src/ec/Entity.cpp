@@ -1,10 +1,14 @@
 #include "ec/Entity.h"
 #include "ec/components/TransformComponent.h"
+
 #include "rendering/Renderer.h"
+
 #include "utils/Utils.h"
 
 namespace {
+	
 	static erm::Entity::EntityID nextEntityID = 0;
+	
 }
 
 namespace erm {
@@ -90,7 +94,7 @@ namespace erm {
 	{
 		if (mParent)
 		{
-			std::vector<Entity*>& children = mParent->mChildren;
+			std::deque<Entity*>& children = mParent->mChildren;
 			auto it = std::find(children.begin(), children.end(), this);
 			if (it != children.end())
 			{

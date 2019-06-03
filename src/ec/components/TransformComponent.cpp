@@ -8,7 +8,8 @@ namespace erm {
 	TransformComponent::TransformComponent(Entity& entity)
 		: IComponent(entity)
 		, ITransformable()
-		, mWorldTransform(1.0f)
+		, mWorldTransform(glm::identity<math::mat4>())
+		, mLocalTransform(glm::identity<math::mat4>())
 	{}
 	
 	void TransformComponent::OnPostUpdate()
@@ -16,17 +17,20 @@ namespace erm {
 		if (mIsDirty)
 		{
 			mWorldTransform = glm::identity<math::mat4>();
+			mLocalTransform = glm::identity<math::mat4>();
 			
 			if (Entity* parent = mEntity.GetParent())
 			{
 				mWorldTransform = parent->GetComponent<TransformComponent>()->GetWorldTransform();
 			}
 			
-			mWorldTransform = glm::translate(mWorldTransform, mTranslation);
-			mWorldTransform = glm::rotate(mWorldTransform, mRotation.z, math::vec3(0.0f, 0.0f, 1.0f));
-			mWorldTransform = glm::rotate(mWorldTransform, mRotation.y, math::vec3(0.0f, 1.0f, 0.0f));
-			mWorldTransform = glm::rotate(mWorldTransform, mRotation.x, math::vec3(1.0f, 0.0f, 0.0f));
-			mWorldTransform = glm::scale(mWorldTransform, mScale);
+			mLocalTransform = glm::translate(mLocalTransform, mTranslation);
+			mLocalTransform = glm::rotate(mLocalTransform, mRotation.z, math::vec3(0.0f, 0.0f, 1.0f));
+			mLocalTransform = glm::rotate(mLocalTransform, mRotation.y, math::vec3(0.0f, 1.0f, 0.0f));
+			mLocalTransform = glm::rotate(mLocalTransform, mRotation.x, math::vec3(1.0f, 0.0f, 0.0f));
+			mLocalTransform = glm::scale(mLocalTransform, mScale);
+			
+			mWorldTransform *= mLocalTransform;
 			
 			mIsDirty = false;
 		}

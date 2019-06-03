@@ -15,7 +15,9 @@ namespace erm {
 	class VertexBufferLayout
 	{
 	public:
-		VertexBufferLayout();
+		VertexBufferLayout()
+			: mStride(0)
+		{}
 		
 		template<typename T>
 		void Push(unsigned int count);

@@ -19,7 +19,9 @@ namespace erm {
 		void Bind() const;
 		void Unbind() const;
 		
-		void SetUniform1i(const Uniform& uniform, int value) const ;
+		void SetUniform1i(const Uniform& uniform, int value) const;
+		void SetUniform1f(const Uniform& uniform, float value) const;
+		void SetUniform3f(const Uniform& uniform, float v0, float v1, float v2) const;
 		void SetUniform4f(const Uniform& uniform, float v0, float v1, float v2, float v3) const;
 		void SetUniformMat4f(const Uniform& uniform, const math::mat4& matrix) const;
 		

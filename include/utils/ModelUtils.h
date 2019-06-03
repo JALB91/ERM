@@ -5,26 +5,45 @@
 
 #include <string>
 #include <vector>
+#include <deque>
 
 namespace erm {
 	
 	class Model;
+	struct Material;
 	
 	class ModelUtils
 	{
 	public:
-		static Model ParseModel(const char* path);
+		static const Model& ParseModel(const char* path);
 		static void ParseFace(
-			std::vector<VertexData>& oVertices,
-			const std::vector<Vertex>& positions,
-			const std::vector<UVVertex>& tPositions,
-			const std::vector<NormalVertex>& nPositions,
+			std::deque<VertexData>& oVertices,
+			const std::deque<Vertex>& positions,
+			const std::deque<UVVertex>& tPositions,
+			const std::deque<NormalVertex>& nPositions,
 			const std::vector<std::string>& splitted
 		);
 		static void Triangulate(
-			std::vector<IndexData>& oIndices,
-			const std::vector<VertexData>& vertices
+			std::deque<IndexData>& oIndices,
+			const std::deque<VertexData>& vertices
 		);
+		
+		static void ParseMaterialsLib(const char* path);
+		
+		static inline const std::deque<Model>& GetModels()
+		{
+			return mLoadedModels;
+		}
+		
+		static inline const std::deque<Material>& GetMaterials()
+		{
+			return mLoadedMaterials;
+		}
+		
+	private:
+		static std::deque<Model> mLoadedModels;
+		static std::deque<Material> mLoadedMaterials;
+		
 	};
 	
 }

@@ -4,7 +4,7 @@
 #include "game/Game.h"
 
 #include <array>
-#include <vector>
+#include <deque>
 #include <memory>
 #include <functional>
 
@@ -68,7 +68,7 @@ namespace erm {
 			
 			const ComponentID componentID = GetComponentID<T>();
 			
-			mComponents[componentID] = std::make_unique<T>(*this, std::forward<Args>(args)...);
+			mComponents[componentID] = std::make_unique<T>(*this, std::move(args)...);
 			mComponentIDs[componentID] = true;
 			
 			return static_cast<T&>(*mComponents.at(componentID));
@@ -87,7 +87,7 @@ namespace erm {
 		void RemoveFromParent();
 		void AddChild(Entity* child);
 		inline Entity* GetParent() const { return mParent; }
-		inline const std::vector<Entity*>& GetChildren() const { return mChildren; }
+		inline const std::deque<Entity*>& GetChildren() const { return mChildren; }
 		
 		void SetDirty();
 		inline bool IsDirty() const { return mIsDirty; }
@@ -102,7 +102,7 @@ namespace erm {
 		ComponentIDs mComponentIDs;
 		
 		Entity* mParent;
-		std::vector<Entity*> mChildren;
+		std::deque<Entity*> mChildren;
 		
 		bool mIsDirty;
 		

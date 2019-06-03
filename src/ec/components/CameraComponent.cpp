@@ -19,9 +19,9 @@
 
 namespace {
 	
-	const float kMovementSpeed = 5.0f;
-	const float kMouseSensibility = 0.5f;
-	const float kXAngleLimit = static_cast<float>(M_PI) * 0.25f;
+	const float kMovementSpeed = 1.0f;
+	const float kMouseSensibility = -0.25f;
+	const float kXAngleLimit = static_cast<float>(M_PI) * 0.35f;
 	
 }
 
@@ -45,7 +45,7 @@ namespace erm {
 	{
 		math::vec4 translation (0.0f);
 		
-		if (!ImGui::IsAnyWindowHovered())
+		if (!ImGui::IsAnyWindowHovered() && !ImGui::IsAnyItemHovered())
 		{
 			if (mMouseInfoProvider.IsMouseButtonDown(MOUSE_BUTTON_1))
 			{
@@ -79,7 +79,7 @@ namespace erm {
 		
 		if (mKeyInfoProvider.IsKeyDown(KEY_W))
 		{
-			translation.z += kMovementSpeed;
+			translation.z -= kMovementSpeed;
 		}
 		if (mKeyInfoProvider.IsKeyDown(KEY_D))
 		{
@@ -87,14 +87,22 @@ namespace erm {
 		}
 		if (mKeyInfoProvider.IsKeyDown(KEY_S))
 		{
-			translation.z -= kMovementSpeed;
+			translation.z += kMovementSpeed;
 		}
 		if (mKeyInfoProvider.IsKeyDown(KEY_A))
 		{
 			translation.x -= kMovementSpeed;
 		}
+		if (mKeyInfoProvider.IsKeyDown(KEY_SPACE))
+		{
+			translation.y += kMovementSpeed;
+		}
+		if (mKeyInfoProvider.IsKeyDown(KEY_LEFT_SHIFT))
+		{
+			translation.y -= kMovementSpeed;
+		}
 		
-		if (translation.x != 0.0f || translation.z != 0.0f)
+		if (translation.x != 0.0f || translation.z != 0.0f || translation.y != 0.0f)
 		{
 			math::mat4 rotationMatrix (glm::identity<math::mat4>());
 			rotationMatrix = glm::rotate(rotationMatrix, mTransform.GetRotation().z, math::vec3(0.0f, 0.0f, 1.0f));
@@ -108,11 +116,6 @@ namespace erm {
 	void CameraComponent::OnPostUpdate()
 	{
 		mProjectionMatrix = glm::perspective(glm::radians(45.0f), mWindowSizeProvider.GetAspectRatio(), 0.1f, 10000.0f);
-	}
-	
-	math::mat4 CameraComponent::GetViewMatrix() const
-	{
-		return mProjectionMatrix * glm::inverse(mTransform.GetWorldTransform());
 	}
 	
 	void CameraComponent::LookAt(const Entity& other)

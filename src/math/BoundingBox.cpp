@@ -1,22 +1,6 @@
 #include "math/BoundingBox.h"
 
-#include <cmath>
-
 namespace erm {
-	
-	template<>
-	void BoundingBox3D::Empty()
-	{
-		mMin = math::vec3(INFINITY);
-		mMax = math::vec3(-INFINITY);
-	}
-	
-	template<>
-	void BoundingBox2D::Empty()
-	{
-		mMin = math::vec2(INFINITY);
-		mMax = math::vec2(-INFINITY);
-	}
 	
 	template<>
 	template<>
@@ -58,7 +42,6 @@ namespace erm {
 	BoundingBox3D BoundingBox3D::Expand(const BoundingBox3D& other) const
 	{
 		BoundingBox3D result;
-		result.Empty();
 		
 		result.mMin.x = std::fmin(mMin.x, other.mMin.x);
 		result.mMin.y = std::fmin(mMin.y, other.mMin.y);
@@ -76,7 +59,6 @@ namespace erm {
 	BoundingBox3D BoundingBox3D::Expand(const BoundingBox2D& other) const
 	{
 		BoundingBox3D result;
-		result.Empty();
 		
 		result.mMin.x = std::fmin(mMin.x, other.mMin.x);
 		result.mMin.y = std::fmin(mMin.y, other.mMin.y);
@@ -94,7 +76,6 @@ namespace erm {
 	BoundingBox2D BoundingBox2D::Expand(const BoundingBox<S>& other) const
 	{
 		BoundingBox2D result;
-		result.Empty();
 		
 		result.mMin.x = std::fmin(mMin.x, other.mMin.x);
 		result.mMin.y = std::fmin(mMin.y, other.mMin.y);
@@ -112,7 +93,6 @@ namespace erm {
 		if (!IsIntersecting(other)) return BoundingBox3D();
 		
 		BoundingBox3D result;
-		result.Empty();
 		
 		result.mMin.x = std::fmax(mMin.x, other.mMin.x);
 		result.mMin.y = std::fmax(mMin.y, other.mMin.y);
@@ -132,7 +112,6 @@ namespace erm {
 		if (!IsIntersecting(other)) return BoundingBox3D();
 		
 		BoundingBox3D result;
-		result.Empty();
 		
 		result.mMin.x = std::fmax(mMin.x, other.mMin.x);
 		result.mMin.y = std::fmax(mMin.y, other.mMin.y);
@@ -152,7 +131,6 @@ namespace erm {
 		if (!IsIntersecting(other)) return BoundingBox2D();
 		
 		BoundingBox2D result;
-		result.Empty();
 		
 		result.mMin.x = std::fmax(mMin.x, other.mMin.x);
 		result.mMin.y = std::fmax(mMin.y, other.mMin.y);
@@ -355,7 +333,6 @@ namespace erm {
 	BoundingBox2D BoundingBox2D::Expand(const math::vec3& vec) const
 	{
 		BoundingBox2D result;
-		result.Empty();
 		
 		result.mMin.x = std::fmin(vec.x, mMin.x);
 		result.mMin.y = std::fmin(vec.y, mMin.y);
@@ -370,7 +347,6 @@ namespace erm {
 	BoundingBox3D BoundingBox3D::Expand(const math::vec3& vec) const
 	{
 		BoundingBox3D result;
-		result.Empty();
 		
 		result.mMin.x = std::fmin(vec.x, mMin.x);
 		result.mMin.y = std::fmin(vec.y, mMin.y);

@@ -3,38 +3,22 @@
 #include "ec/Entity.h"
 
 #include "rendering/VertexData.h"
+#include "rendering/Model.h"
+
+#include "utils/ModelUtils.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace erm {
 	
-	ModelComponent::ModelComponent(Entity& entity, Model model)
+	ModelComponent::ModelComponent(Entity& entity, const Model& model)
 		: IComponent(entity)
-		, mModel(std::forward<Model>(model))
-		, mLocalBounds()
+		, mModel(model)
 		, mWorldBounds()
 		, mTransformComponent(entity.RequireComponent<TransformComponent>())
 	{
-		mLocalBounds.Empty();
-		mWorldBounds.Empty();
-		
-		for (const Mesh& mesh: mModel.GetMeshes())
-		{
-			const VertexData* verticesData = mesh.GetVerticesData();
-			
-			for (int i = 0; i < mesh.GetVerticesDataCount(); ++i)
-			{
-				const Vertex& vertex = verticesData[i].mVertex;
-				mLocalBounds = mLocalBounds.Expand(vertex);
-			}
-		}
-		
 		UpdateWorldBounds();
 	}
-	
-	ModelComponent::ModelComponent(Entity& entity, Mesh mesh)
-		: ModelComponent(entity, Model({ std::forward<Mesh>(mesh) }))
-	{}
 	
 	void ModelComponent::OnPostUpdate()
 	{
@@ -43,7 +27,7 @@ namespace erm {
 	
 	void ModelComponent::UpdateWorldBounds()
 	{
-		mWorldBounds = mLocalBounds.Expand(mTransformComponent.GetWorldTransform());
+		mWorldBounds = mModel.GetLocalBounds().Expand(mTransformComponent.GetWorldTransform());
 		mIsDirty = false;
 	}
 	

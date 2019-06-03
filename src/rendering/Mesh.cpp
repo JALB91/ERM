@@ -4,6 +4,7 @@
 #include "rendering/VertexBufferLayout.h"
 #include "rendering/IndexBuffer.h"
 #include "rendering/VertexArray.h"
+
 #include "utils/Utils.h"
 
 #include <cstring>
@@ -15,6 +16,7 @@ namespace erm {
 		, mVerticesDataCount(0)
 		, mIndicesData(nullptr)
 		, mIndicesDataCount(0)
+		, mMaterial()
 		, mVB(nullptr)
 		, mIB(nullptr)
 		, mVA(nullptr)
@@ -33,151 +35,46 @@ namespace erm {
 		}
 	}
 	
-	Mesh::Mesh(const Mesh& other)
-	{
-		mVerticesDataCount = other.mVerticesDataCount;
-		
-		if (mVerticesDataCount > 0)
-		{
-			mVerticesData = static_cast<VertexData*>(malloc(sizeof(VertexData) * mVerticesDataCount));
-			std::memcpy(mVerticesData, other.mVerticesData, sizeof(VertexData) * mVerticesDataCount);
-		}
-		
-		mIndicesDataCount = other.mIndicesDataCount;
-		
-		if (mIndicesDataCount > 0)
-		{
-			mIndicesData = static_cast<IndexData*>(malloc(sizeof(IndexData) * mIndicesDataCount));
-			std::memcpy(mIndicesData, other.mIndicesData, sizeof(IndexData) * mIndicesDataCount);
-		}
-		
-		mVB = other.mVB;
-		mIB = other.mIB;
-		mVA = other.mVA;
-	}
-	
 	Mesh::Mesh(Mesh&& other)
+		: mVerticesData(other.mVerticesData)
+		, mVerticesDataCount(other.mVerticesDataCount)
+		, mIndicesData(other.mIndicesData)
+		, mIndicesDataCount(other.mIndicesDataCount)
+		, mMaterial(std::move(other.mMaterial))
+		, mVB(std::move(other.mVB))
+		, mIB(std::move(other.mIB))
+		, mVA(std::move(other.mVA))
 	{
-		mVerticesData = other.mVerticesData;
-		mVerticesDataCount = other.mVerticesDataCount;
-		
-		mIndicesData = other.mIndicesData;
-		mIndicesDataCount = other.mIndicesDataCount;
-		
-		mVB = std::move(other.mVB);
-		mIB = std::move(other.mIB);
-		mVA = std::move(other.mVA);
-		
 		other.mVerticesData = nullptr;
 		other.mVerticesDataCount = 0;
 		
 		other.mIndicesData = nullptr;
 		other.mIndicesDataCount = 0;
 		
-		other.mVB = nullptr;
-		other.mIB = nullptr;
-		other.mVA = nullptr;
+		other.mMaterial.reset();
+		
+		other.mVB.reset();
+		other.mIB.reset();
+		other.mVA.reset();
 	}
-	
-	Mesh& Mesh::operator=(const Mesh& other)
-	{
-		if (&other == this)
-		{
-			return *this;
-		}
 		
-		if (mVerticesData)
-		{
-			free(mVerticesData);
-			mVerticesData = nullptr;
-		}
-		
-		if (mIndicesData)
-		{
-			free(mIndicesData);
-			mIndicesData = nullptr;
-		}
-		
-		mVerticesDataCount = other.mVerticesDataCount;
-		
-		if (mVerticesDataCount > 0)
-		{
-			mVerticesData = static_cast<VertexData*>(malloc(sizeof(VertexData) * mVerticesDataCount));
-			std::memcpy(mVerticesData, other.mVerticesData, sizeof(VertexData) * mVerticesDataCount);
-		}
-		
-		mIndicesDataCount = other.mIndicesDataCount;
-		
-		if (mIndicesDataCount > 0)
-		{
-			mIndicesData = static_cast<IndexData*>(malloc(sizeof(IndexData) * mIndicesDataCount));
-			std::memcpy(mIndicesData, other.mIndicesData, sizeof(IndexData) * mIndicesDataCount);
-		}
-		
-		mVB = other.mVB;
-		mIB = other.mIB;
-		mVA = other.mVA;
-		
-		return *this;
-	}
-	
-	Mesh& Mesh::operator=(Mesh&& other)
-	{
-		if (&other == this)
-		{
-			return *this;
-		}
-		
-		if (mVerticesData)
-		{
-			free(mVerticesData);
-		}
-		
-		if (mIndicesData)
-		{
-			free(mIndicesData);
-		}
-		
-		mVerticesData = other.mVerticesData;
-		mVerticesDataCount = other.mVerticesDataCount;
-		
-		mIndicesData = other.mIndicesData;
-		mIndicesDataCount = other.mIndicesDataCount;
-		
-		mVB = std::move(other.mVB);
-		mIB = std::move(other.mIB);
-		mVA = std::move(other.mVA);
-		
-		other.mVerticesData = nullptr;
-		other.mVerticesDataCount = 0;
-		
-		other.mIndicesData = nullptr;
-		other.mIndicesDataCount = 0;
-		
-		other.mVB = nullptr;
-		other.mIB = nullptr;
-		other.mVA = nullptr;
-		
-		return *this;
-	}
-	
 	void Mesh::Setup()
 	{
-		mVB = std::make_shared<VertexBuffer>(
+		mVB = std::make_unique<VertexBuffer>(
 			&mVerticesData[0].mVertex[0],
 			sizeof(VertexType) * kVectorsLenght * mVerticesDataCount +
 			sizeof(VertexType) * kUVVectorsLenght * mVerticesDataCount +
 			sizeof(VertexType) * kNormalVectorsLenght * mVerticesDataCount
 		);
 		
+		mIB = std::make_unique<IndexBuffer>(mIndicesData, mIndicesDataCount);
+		
 		VertexBufferLayout vbl;
 		vbl.Push<VertexType>(kVectorsLenght);
 		vbl.Push<VertexType>(kUVVectorsLenght);
 		vbl.Push<VertexType>(kNormalVectorsLenght);
 		
-		mIB = std::make_shared<IndexBuffer>(mIndicesData, mIndicesDataCount);
-		
-		mVA = std::make_shared<VertexArray>();
+		mVA = std::make_unique<VertexArray>();
 		mVA->AddBuffer(*mVB, vbl);
 	}
 	

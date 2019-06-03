@@ -25,7 +25,7 @@ namespace erm {
 		void OnUpdate(float dt) override;
 		void OnPostUpdate() override;
 		
-		math::mat4 GetViewMatrix() const;
+		inline const math::mat4& GetProjectionMatrix() const { return mProjectionMatrix; }
 		
 		void LookAt(const Entity& other);
 		

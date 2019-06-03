@@ -2,7 +2,7 @@
 
 #include "rendering/Mesh.h"
 #include "rendering/Model.h"
-#include "rendering/IndexData.h"
+#include "rendering/Material.h"
 
 #include "utils/Utils.h"
 
@@ -13,18 +13,37 @@
 
 namespace erm {
 	
-	Model ModelUtils::ParseModel(const char* path)
+	std::deque<Model> ModelUtils::mLoadedModels {};
+	std::deque<Material> ModelUtils::mLoadedMaterials {};
+	
+	const Model& ModelUtils::ParseModel(const char* path)
 	{
+		{
+			auto it = std::find_if(
+				mLoadedModels.begin(),
+				mLoadedModels.end(),
+				[path](const Model& model) {
+					return (model.GetPath().compare(path) == 0);
+				}
+			);
+			
+			if (it != mLoadedModels.end())
+			{
+				return *it;
+			}
+		}
+		
 		std::ifstream stream (Utils::GetRelativePath(path));
 		EXPECT(stream.is_open(), (std::string("No such file: ") + path).c_str());
 		std::string line;
 		std::string name;
-		std::vector<Mesh> meshes;
-		std::vector<Vertex> positions;
-		std::vector<UVVertex> tPositions;
-		std::vector<NormalVertex> nPositions;
-		std::vector<VertexData> vertices;
-		std::vector<IndexData> indices;
+		std::deque<Mesh> meshes;
+		std::deque<Vertex> positions;
+		std::deque<UVVertex> tPositions;
+		std::deque<NormalVertex> nPositions;
+		std::deque<VertexData> vertices;
+		std::deque<IndexData> indices;
+		auto materialIt = mLoadedMaterials.end();
 		
 		bool looping = false;
 		bool skip = false;
@@ -35,16 +54,17 @@ namespace erm {
 
 			if (splitted.size() > 0)
 			{
-				if (std::strcmp(splitted[0].c_str(), "g") == 0 ||
-					std::strcmp(splitted[0].c_str(), "o") == 0)
+				if (splitted[0].compare("g") == 0 ||
+					splitted[0].compare("o") == 0)
 				{
 					if (skip)
 					{
 						skip = false;
 					}
 					
-					if (splitted[1].find("Collider") != std::string::npos ||
-						splitted[1].find("collider") != std::string::npos)
+					if (splitted.size() > 1 &&
+						(splitted[1].find("Collider") != std::string::npos ||
+						 splitted[1].find("collider") != std::string::npos))
 					{
 						skip = true;
 						continue;
@@ -77,9 +97,15 @@ namespace erm {
 								mesh.mIndicesData[i] = indices[i];
 							}
 							
+							if (materialIt != mLoadedMaterials.end())
+							{
+								mesh.mMaterial = *materialIt;
+							}
+							
 							mesh.Setup();
 							meshes.emplace_back(std::move(mesh));
 							
+							materialIt = mLoadedMaterials.end();
 							vertices.clear();
 							indices.clear();
 						}
@@ -89,35 +115,54 @@ namespace erm {
 				{
 					continue;
 				}
-				else if (std::strcmp(splitted[0].c_str(), "v") == 0)
+				else if (splitted[0].compare("mtllib") == 0)
 				{
+					std::string pathStr (path);
+					pathStr = pathStr.substr(0, pathStr.rfind("/"));
+					pathStr.append("/");
+					pathStr.append(splitted[1]);
+					ParseMaterialsLib(pathStr.c_str());
+				}
+				else if (splitted[0].compare("v") == 0)
+				{
+					ASSERT(splitted.size() >= 4);
 					positions.emplace_back(
-						std::atof(splitted[1].c_str()),
-						std::atof(splitted[2].c_str()),
-						std::atof(splitted[3].c_str())
+						std::atof(splitted[splitted.size() - 3].c_str()),
+						std::atof(splitted[splitted.size() - 2].c_str()),
+						std::atof(splitted[splitted.size() - 1].c_str())
 					);
 				}
-				else if (std::strcmp(splitted[0].c_str(), "vt") == 0)
+				else if (splitted[0].compare("vt") == 0)
 				{
+					ASSERT(splitted.size() >= 3);
 					tPositions.emplace_back(
-						std::atof(splitted[1].c_str()),
-						std::atof(splitted[2].c_str())
+						std::atof(splitted[splitted.size() - 2].c_str()),
+						std::atof(splitted[splitted.size() - 1].c_str())
 					);
 				}
-				else if (std::strcmp(splitted[0].c_str(), "vn") == 0)
+				else if (splitted[0].compare("vn") == 0)
 				{
+					ASSERT(splitted.size() >= 4);
 					nPositions.emplace_back(
-						std::atof(splitted[1].c_str()),
-						std::atof(splitted[2].c_str()),
-						std::atof(splitted[3].c_str())
+						std::atof(splitted[splitted.size() - 3].c_str()),
+						std::atof(splitted[splitted.size() - 2].c_str()),
+						std::atof(splitted[splitted.size() - 1].c_str())
 					);
 				}
-				else if (std::strcmp(splitted[0].c_str(), "f") == 0)
+				else if (splitted[0].compare("usemtl") == 0)
 				{
-					std::vector<VertexData> vVertices;
+					ASSERT(splitted.size() >= 2);
+					std::string name = splitted[splitted.size() - 1];
+					materialIt = std::find_if(mLoadedMaterials.begin(), mLoadedMaterials.end(), [name](const Material& material) {
+						return material.mName.compare(name) == 0;
+					});
+				}
+				else if (splitted[0].compare("f") == 0)
+				{
+					std::deque<VertexData> vVertices;
 					ParseFace(vVertices, positions, tPositions, nPositions, splitted);
 					
-					std::vector<IndexData> vIndices;
+					std::deque<IndexData> vIndices;
 					Triangulate(vIndices, vVertices);
 					
 					if (vIndices.empty())
@@ -157,6 +202,11 @@ namespace erm {
 				mesh.mIndicesData[i] = indices[i];
 			}
 			
+			if (materialIt != mLoadedMaterials.end())
+			{
+				mesh.mMaterial = *materialIt;
+			}
+			
 			mesh.Setup();
 			meshes.emplace_back(std::move(mesh));
 			
@@ -166,14 +216,20 @@ namespace erm {
 
 		stream.close();
 		
-		return Model(std::move(meshes));
+		mLoadedModels.emplace_back(Model(
+			path,
+			name.c_str(),
+			std::move(meshes)
+		));
+		
+		return mLoadedModels.back();
 	}
 	
 	void ModelUtils::ParseFace(
-		std::vector<VertexData>& oVertices,
-		const std::vector<Vertex>& positions,
-		const std::vector<UVVertex>& tPositions,
-		const std::vector<NormalVertex>& nPositions,
+		std::deque<VertexData>& oVertices,
+		const std::deque<Vertex>& positions,
+		const std::deque<UVVertex>& tPositions,
+		const std::deque<NormalVertex>& nPositions,
 		const std::vector<std::string>& splitted
 	)
 	{
@@ -183,12 +239,13 @@ namespace erm {
 		
 		for (const std::string& split: splitted)
 		{
-			if (std::strcmp(split.c_str(), "f") == 0)
+			if (split.empty() || split.compare("f") == 0)
 			{
 				continue;
 			}
 			
 			const std::vector<std::string> indices = Utils::SplitString(split, '/');
+			ASSERT(indices.size() <= 3);
 			VertexData vertex;
 			
 			const unsigned int positionIndex = std::atoi(indices[kVertexIndex].c_str()) - 1;
@@ -215,10 +272,18 @@ namespace erm {
 			{
 				vertex.mUVVertex = tPositions[tPositionIndex];
 			}
+			else
+			{
+				vertex.mUVVertex = math::vec3(0.0f);
+			}
 			
 			if (nPositionIndex >= 0 && nPositionIndex < nPositions.size())
 			{
 				vertex.mNormalVertex = nPositions[nPositionIndex];
+			}
+			else
+			{
+				vertex.mNormalVertex = math::vec3(0.0f);
 			}
 			
 			oVertices.emplace_back(vertex);
@@ -226,8 +291,8 @@ namespace erm {
 	}
 	
 	void ModelUtils::Triangulate(
-		std::vector<IndexData>& oIndices,
-		const std::vector<VertexData>& vertices
+		std::deque<IndexData>& oIndices,
+		const std::deque<VertexData>& vertices
 	)
 	{
 		if (vertices.size() < 3 || vertices.size() > 4)
@@ -284,6 +349,107 @@ namespace erm {
 		oIndices.push_back(0);
 		oIndices.push_back(1);
 		oIndices.push_back(2);
+	}
+	
+	void ModelUtils::ParseMaterialsLib(const char* path)
+	{
+		std::ifstream stream (Utils::GetRelativePath(path));
+		EXPECT(stream.is_open(), (std::string("No such file: ") + path).c_str());
+		std::string line;
+		
+		std::optional<Material> mat;
+		mat.reset();
+		bool skip = false;
+		
+		while (std::getline(stream, line))
+		{
+			std::vector<std::string> splitted = Utils::SplitString(line, ' ');
+			
+			if (splitted.size() > 0)
+			{
+				if (splitted[0].compare("newmtl") == 0)
+				{
+					if (!skip && mat)
+					{
+						mLoadedMaterials.emplace_back(std::move(mat.value()));
+					}
+					
+					mat.reset();
+					skip = false;
+					
+					ASSERT(splitted.size() >= 2);
+					std::string name = splitted[splitted.size() - 1];
+					const auto& it = std::find_if(mLoadedMaterials.begin(), mLoadedMaterials.end(), [name](const Material& mat) {
+						return mat.mName.compare(name) == 0;
+					});
+					if (it != mLoadedMaterials.end())
+					{
+						skip = true;
+						continue;
+					}
+					
+					mat = Material();
+					mat->mName = name;
+				}
+				else if (skip)
+				{
+					continue;
+				}
+				else if (splitted[0].compare("Ka") == 0)
+				{
+					ASSERT(splitted.size() >= 4);
+					mat->mAmbient = math::vec3(
+						std::atof(splitted[splitted.size() - 3].c_str()),
+						std::atof(splitted[splitted.size() - 2].c_str()),
+						std::atof(splitted[splitted.size() - 1].c_str())
+					);
+				}
+				else if (splitted[0].compare("Kd") == 0)
+				{
+					ASSERT(splitted.size() >= 4);
+					mat->mDiffuse = math::vec3(
+						std::atof(splitted[splitted.size() - 3].c_str()),
+						std::atof(splitted[splitted.size() - 2].c_str()),
+						std::atof(splitted[splitted.size() - 1].c_str())
+					);
+				}
+				else if (splitted[0].compare("Ks") == 0)
+				{
+					ASSERT(splitted.size() >= 4);
+					mat->mSpecular = math::vec3(
+						std::atof(splitted[splitted.size() - 3].c_str()),
+						std::atof(splitted[splitted.size() - 2].c_str()),
+						std::atof(splitted[splitted.size() - 1].c_str())
+					);
+				}
+				else if (splitted[0].compare("Ns") == 0)
+				{
+					ASSERT(splitted.size() >= 2);
+					mat->mShininess = std::atof(splitted[splitted.size() - 1].c_str());
+				}
+				else if (splitted[0].compare("") == 0)
+				{
+					
+				}
+				else if (splitted[0].compare("") == 0)
+				{
+					
+				}
+				else if (splitted[0].compare("") == 0)
+				{
+					
+				}
+				else if (splitted[0].compare("") == 0)
+				{
+					
+				}
+			}
+		}
+		
+		if (!skip && mat)
+		{
+			mLoadedMaterials.emplace_back(std::move(mat.value()));
+		}
 	}
 
 }

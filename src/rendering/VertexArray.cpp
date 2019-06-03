@@ -2,6 +2,7 @@
 #include "rendering/VertexBuffer.h"
 #include "rendering/VertexBufferLayout.h"
 #include "rendering/Renderer.h"
+
 #include "utils/Utils.h"
 
 #include <GL/glew.h>

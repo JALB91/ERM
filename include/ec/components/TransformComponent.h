@@ -30,9 +30,11 @@ namespace erm {
 		void Scale(const math::vec3& scale) override;
 		
 		inline const math::mat4& GetWorldTransform() const { return mWorldTransform; }
+		inline const math::mat4& GetLocalTransform() const { return mLocalTransform; }
 		
 	private:
 		math::mat4 mWorldTransform;
+		math::mat4 mLocalTransform;
 		
 	};
 	
