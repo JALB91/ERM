@@ -49,12 +49,12 @@ namespace erm {
 		mRenderContext.SetBlendEnabled(true);
 		mRenderContext.SetBlendFunction(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		mRenderContext.SetCullFaceEnabled(false);
+		mRenderContext.SetCullFaceEnabled(true);
 		mRenderContext.SetCullFace(GL_FRONT);
 #if defined(GLM_FORCE_LEFT_HANDED)
-		mRenderContext.SetFrontFace(GL_CW);
-#else
 		mRenderContext.SetFrontFace(GL_CCW);
+#else
+		mRenderContext.SetFrontFace(GL_CW);
 #endif
 
 		mRenderContext.SetClearColor(math::vec4(0.25f, 0.25f, 0.25f, 1.0f));
@@ -103,14 +103,12 @@ namespace erm {
 				
 				for (const Mesh& mesh: modelComponent->GetModel().GetMeshes())
 				{
-					if (const std::optional<std::reference_wrapper<Material>>& material = mesh.GetMaterial())
-					{
-						const Material& mat = material.value();
-						mModelShader->SetUniform3f(Uniform::MATERIAL_AMBIENT, mat.mAmbient.x, mat.mAmbient.y, mat.mAmbient.z);
-						mModelShader->SetUniform3f(Uniform::MATERIAL_DIFFUSE, mat.mDiffuse.x, mat.mDiffuse.y, mat.mDiffuse.z);
-						mModelShader->SetUniform3f(Uniform::MATERIAL_SPECULAR, mat.mSpecular.x, mat.mSpecular.y, mat.mSpecular.z);
-						mModelShader->SetUniform1f(Uniform::MATERIAL_SHININESS, mat.mShininess);
-					}
+					const Material& material = mesh.GetMaterial();
+					
+					mModelShader->SetUniform3f(Uniform::MATERIAL_AMBIENT, material.mAmbient.x, material.mAmbient.y, material.mAmbient.z);
+					mModelShader->SetUniform3f(Uniform::MATERIAL_DIFFUSE, material.mDiffuse.x, material.mDiffuse.y, material.mDiffuse.z);
+					mModelShader->SetUniform3f(Uniform::MATERIAL_SPECULAR, material.mSpecular.x, material.mSpecular.y, material.mSpecular.z);
+					mModelShader->SetUniform1f(Uniform::MATERIAL_SHININESS, material.mShininess);
 					
 					Draw(mesh.GetVA(), mesh.GetIB());
 				}

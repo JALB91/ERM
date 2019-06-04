@@ -10,6 +10,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <optional>
 
 namespace erm {
 	
@@ -43,10 +44,9 @@ namespace erm {
 		std::deque<NormalVertex> nPositions;
 		std::deque<VertexData> vertices;
 		std::deque<IndexData> indices;
-		auto materialIt = mLoadedMaterials.end();
+		Material* material = nullptr;
 		
-		bool looping = false;
-		bool skip = false;
+		bool wasLooping = false;
 
 		while (std::getline(stream, line))
 		{
@@ -54,64 +54,20 @@ namespace erm {
 
 			if (splitted.size() > 0)
 			{
-				if (splitted[0].compare("g") == 0 ||
-					splitted[0].compare("o") == 0)
+				if (splitted[0].compare("o") == 0)
 				{
-					if (skip)
-					{
-						skip = false;
-					}
+					ASSERT(splitted.size() >= 2);
+					name = splitted[splitted.size() - 1];
 					
-					if (splitted.size() > 1 &&
-						(splitted[1].find("Collider") != std::string::npos ||
-						 splitted[1].find("collider") != std::string::npos))
+					if (!vertices.empty() && !indices.empty())
 					{
-						skip = true;
-						continue;
-					}
-					
-					if (!looping)
-					{
-						looping = true;
-						// TODO
-					}
-					else
-					{
-						if (!vertices.empty() && !indices.empty())
-						{
-							Mesh mesh;
-							
-							mesh.mVerticesDataCount = vertices.size();
-							mesh.mVerticesData = static_cast<VertexData*>(malloc(sizeof(VertexData) * mesh.mVerticesDataCount));
-							
-							for (unsigned int i = 0; i < mesh.mVerticesDataCount; ++i)
-							{
-								mesh.mVerticesData[i] = vertices[i];
-							}
-							
-							mesh.mIndicesDataCount = indices.size();
-							mesh.mIndicesData = static_cast<IndexData*>(malloc(sizeof(IndexData) * mesh.mIndicesDataCount));
-							
-							for (unsigned int i = 0; i < mesh.mIndicesDataCount; ++i)
-							{
-								mesh.mIndicesData[i] = indices[i];
-							}
-							
-							if (materialIt != mLoadedMaterials.end())
-							{
-								mesh.mMaterial = *materialIt;
-							}
-							
-							mesh.Setup();
-							meshes.emplace_back(std::move(mesh));
-							
-							materialIt = mLoadedMaterials.end();
-							vertices.clear();
-							indices.clear();
-						}
+						meshes.emplace_back(CreateMesh(vertices, indices, material ? *material : Material::DEFAULT));
+						material = nullptr;
+						vertices.clear();
+						indices.clear();
 					}
 				}
-				else if (skip)
+				else if (splitted[0].compare("g") == 0)
 				{
 					continue;
 				}
@@ -125,6 +81,22 @@ namespace erm {
 				}
 				else if (splitted[0].compare("v") == 0)
 				{
+					if (!vertices.empty() && !indices.empty() && material)
+					{
+						meshes.emplace_back(CreateMesh(vertices, indices, material ? *material : Material::DEFAULT));
+						material = nullptr;
+						vertices.clear();
+						indices.clear();
+					}
+					
+					if (wasLooping)
+					{
+						wasLooping = false;
+						material = nullptr;
+						vertices.clear();
+						indices.clear();
+					}
+					
 					ASSERT(splitted.size() >= 4);
 					positions.emplace_back(
 						std::atof(splitted[splitted.size() - 3].c_str()),
@@ -151,14 +123,21 @@ namespace erm {
 				}
 				else if (splitted[0].compare("usemtl") == 0)
 				{
+					if (!vertices.empty() && !indices.empty())
+					{
+						meshes.emplace_back(CreateMesh(vertices, indices, material ? *material : Material::DEFAULT));
+					}
 					ASSERT(splitted.size() >= 2);
 					std::string name = splitted[splitted.size() - 1];
-					materialIt = std::find_if(mLoadedMaterials.begin(), mLoadedMaterials.end(), [name](const Material& material) {
+					auto it = std::find_if(mLoadedMaterials.begin(), mLoadedMaterials.end(), [name](const Material& material) {
 						return material.mName.compare(name) == 0;
 					});
+					material = it != mLoadedMaterials.end() ? &*it : nullptr;
 				}
 				else if (splitted[0].compare("f") == 0)
 				{
+					wasLooping = true;
+					
 					std::deque<VertexData> vVertices;
 					ParseFace(vVertices, positions, tPositions, nPositions, splitted);
 					
@@ -170,57 +149,31 @@ namespace erm {
 						continue;
 					}
 					
-					for (unsigned int i = 0; i < vVertices.size(); ++i)
-					{
-						vertices.push_back(vVertices[i]);
-					}
-					
 					for (unsigned int i = 0; i < vIndices.size(); ++i)
 					{
-						IndexData index = (vertices.size() - vVertices.size()) + vIndices[i];
-						indices.push_back(index);
+						indices.emplace_back(vertices.size() + vIndices[i]);
+					}
+					
+					for (unsigned int i = 0; i < vVertices.size(); ++i)
+					{
+						vertices.emplace_back(vVertices[i]);
 					}
 				}
 			}
 		}
 		
-		if (!skip && !vertices.empty() && !indices.empty())
+		if (!vertices.empty() && !indices.empty())
 		{
-			Mesh mesh;
-			
-			mesh.mVerticesDataCount = vertices.size();
-			mesh.mVerticesData = static_cast<VertexData*>(malloc(sizeof(VertexData) * mesh.mVerticesDataCount));
-			for (unsigned int i = 0; i < mesh.mVerticesDataCount; ++i)
-			{
-				mesh.mVerticesData[i] = vertices[i];
-			}
-			
-			mesh.mIndicesDataCount = indices.size();
-			mesh.mIndicesData = static_cast<IndexData*>(malloc(sizeof(IndexData) * mesh.mIndicesDataCount));
-			for (unsigned int i = 0; i < mesh.mIndicesDataCount; ++i)
-			{
-				mesh.mIndicesData[i] = indices[i];
-			}
-			
-			if (materialIt != mLoadedMaterials.end())
-			{
-				mesh.mMaterial = *materialIt;
-			}
-			
-			mesh.Setup();
-			meshes.emplace_back(std::move(mesh));
-			
-			vertices.clear();
-			indices.clear();
+			meshes.emplace_back(CreateMesh(vertices, indices, material ? *material : Material::DEFAULT));
 		}
-
+		
 		stream.close();
 		
-		mLoadedModels.emplace_back(Model(
+		mLoadedModels.emplace_back(
 			path,
 			name.c_str(),
 			std::move(meshes)
-		));
+		);
 		
 		return mLoadedModels.back();
 	}
@@ -266,10 +219,12 @@ namespace erm {
 				}
 			}
 			
+			ASSERT(positionIndex < positions.size());
 			vertex.mVertex = positions[positionIndex];
 			
 			if (tPositionIndex >= 0 && tPositionIndex < tPositions.size())
 			{
+				ASSERT(tPositionIndex < tPositions.size());
 				vertex.mUVVertex = tPositions[tPositionIndex];
 			}
 			else
@@ -279,6 +234,7 @@ namespace erm {
 			
 			if (nPositionIndex >= 0 && nPositionIndex < nPositions.size())
 			{
+				ASSERT(nPositionIndex < nPositions.size());
 				vertex.mNormalVertex = nPositions[nPositionIndex];
 			}
 			else
@@ -349,6 +305,33 @@ namespace erm {
 		oIndices.push_back(0);
 		oIndices.push_back(1);
 		oIndices.push_back(2);
+	}
+	
+	Mesh ModelUtils::CreateMesh(
+		const std::deque<VertexData>& vertices,
+		const std::deque<IndexData>& indices,
+		const Material& material
+	)
+	{
+		Mesh mesh (material);
+		
+		mesh.mVerticesDataCount = vertices.size();
+		mesh.mVerticesData = static_cast<VertexData*>(malloc(sizeof(VertexData) * mesh.mVerticesDataCount));
+		for (unsigned int i = 0; i < mesh.mVerticesDataCount; ++i)
+		{
+			mesh.mVerticesData[i] = vertices[i];
+		}
+		
+		mesh.mIndicesDataCount = indices.size();
+		mesh.mIndicesData = static_cast<IndexData*>(malloc(sizeof(IndexData) * mesh.mIndicesDataCount));
+		for (unsigned int i = 0; i < mesh.mIndicesDataCount; ++i)
+		{
+			mesh.mIndicesData[i] = indices[i];
+		}
+		
+		mesh.Setup();
+		
+		return mesh;
 	}
 	
 	void ModelUtils::ParseMaterialsLib(const char* path)

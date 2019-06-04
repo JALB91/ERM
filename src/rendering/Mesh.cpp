@@ -5,18 +5,14 @@
 #include "rendering/IndexBuffer.h"
 #include "rendering/VertexArray.h"
 
-#include "utils/Utils.h"
-
-#include <cstring>
-
 namespace erm {
 	
-	Mesh::Mesh()
+	Mesh::Mesh(const Material& material /* = Material::DEFAULT */)
 		: mVerticesData(nullptr)
 		, mVerticesDataCount(0)
 		, mIndicesData(nullptr)
 		, mIndicesDataCount(0)
-		, mMaterial()
+		, mMaterial(material)
 		, mVB(nullptr)
 		, mIB(nullptr)
 		, mVA(nullptr)
@@ -40,7 +36,7 @@ namespace erm {
 		, mVerticesDataCount(other.mVerticesDataCount)
 		, mIndicesData(other.mIndicesData)
 		, mIndicesDataCount(other.mIndicesDataCount)
-		, mMaterial(std::move(other.mMaterial))
+		, mMaterial(other.mMaterial)
 		, mVB(std::move(other.mVB))
 		, mIB(std::move(other.mIB))
 		, mVA(std::move(other.mVA))
@@ -50,8 +46,6 @@ namespace erm {
 		
 		other.mIndicesData = nullptr;
 		other.mIndicesDataCount = 0;
-		
-		other.mMaterial.reset();
 		
 		other.mVB.reset();
 		other.mIB.reset();

@@ -1,11 +1,11 @@
 #pragma once
 
 #include "rendering/IndexData.h"
+#include "rendering/Material.h"
 
 #include <glm/glm.hpp>
 
 #include <memory>
-#include <optional>
 #include <functional>
 
 namespace erm {
@@ -23,7 +23,7 @@ namespace erm {
 		friend class ModelUtils;
 		
 	public:
-		Mesh();
+		Mesh(const Material& material = Material::DEFAULT);
 		~Mesh();
 		
 		Mesh(Mesh&& other);
@@ -32,7 +32,8 @@ namespace erm {
 		Mesh& operator=(Mesh&&) = delete;
 		Mesh& operator=(const Mesh&) = delete;
 		
-		inline const std::optional<std::reference_wrapper<Material>>& GetMaterial() const { return mMaterial; }
+		inline void SetMaterial(const Material& material) { mMaterial = material; }
+		inline const Material& GetMaterial() const { return mMaterial.get(); }
 		
 		inline const IndexBuffer& GetIB() const { return *mIB; }
 		inline const VertexArray& GetVA() const { return *mVA; }
@@ -52,7 +53,7 @@ namespace erm {
 		IndexData* mIndicesData;
 		unsigned int mIndicesDataCount;
 		
-		std::optional<std::reference_wrapper<Material>> mMaterial;
+		std::reference_wrapper<const Material> mMaterial;
 		
 		std::unique_ptr<VertexBuffer> mVB;
 		std::unique_ptr<IndexBuffer> mIB;

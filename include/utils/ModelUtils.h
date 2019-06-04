@@ -9,6 +9,7 @@
 
 namespace erm {
 	
+	class Mesh;
 	class Model;
 	struct Material;
 	
@@ -16,6 +17,8 @@ namespace erm {
 	{
 	public:
 		static const Model& ParseModel(const char* path);
+		
+	private:
 		static void ParseFace(
 			std::deque<VertexData>& oVertices,
 			const std::deque<Vertex>& positions,
@@ -27,20 +30,14 @@ namespace erm {
 			std::deque<IndexData>& oIndices,
 			const std::deque<VertexData>& vertices
 		);
+		static Mesh CreateMesh(
+			const std::deque<VertexData>& vertices,
+			const std::deque<IndexData>& indices,
+			const Material& material
+		);
 		
 		static void ParseMaterialsLib(const char* path);
 		
-		static inline const std::deque<Model>& GetModels()
-		{
-			return mLoadedModels;
-		}
-		
-		static inline const std::deque<Material>& GetMaterials()
-		{
-			return mLoadedMaterials;
-		}
-		
-	private:
 		static std::deque<Model> mLoadedModels;
 		static std::deque<Material> mLoadedMaterials;
 		
