@@ -178,7 +178,7 @@ namespace erm {
 	
 	void Game::ShowGameDebugWindow()
 	{
-		if (ImGui::Begin("Game Debug"))
+		if (mRenderContext && ImGui::Begin("Game Debug"))
 		{
 			bool isDepthEnabled = mRenderContext->IsDepthEnabled();
 			int depthFunction = mRenderContext->GetDepthFunction();

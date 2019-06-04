@@ -16,6 +16,12 @@ namespace erm {
 		ShaderProgram(const std::string& shaderPath);
 		~ShaderProgram();
 		
+		ShaderProgram(ShaderProgram&&) = delete;
+		ShaderProgram(const ShaderProgram&) = delete;
+		
+		ShaderProgram& operator=(ShaderProgram&&) = delete;
+		ShaderProgram& operator=(const ShaderProgram&) = delete;
+		
 		void Bind() const;
 		void Unbind() const;
 		

@@ -11,6 +11,12 @@ namespace erm {
 		VertexArray();
 		~VertexArray();
 		
+		VertexArray(VertexArray&&) = delete;
+		VertexArray(const VertexArray&) = delete;
+		
+		VertexArray& operator=(VertexArray&&) = delete;
+		VertexArray& operator=(const VertexArray&) = delete;
+		
 		void AddBuffer(const VertexBuffer& vb, const VertexBufferLayout& vbl) const;
 		
 		void Bind() const;
