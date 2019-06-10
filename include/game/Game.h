@@ -1,8 +1,6 @@
 #pragma once
 
-#include "interfaces/IKeyListener.h"
-#include "interfaces/IMouseListener.h"
-#include "interfaces/IWindowSizeListener.h"
+#include "window/IWindowListener.h"
 
 #include <memory>
 
@@ -13,10 +11,7 @@ namespace erm {
 	class Renderer;
 	class Entity;
 	
-	class Game:
-		private IKeyListener,
-		private IMouseListener,
-		private IWindowSizeListener
+	class Game : private IWindowListener
 	{
 	public:
 		Game();
@@ -38,16 +33,12 @@ namespace erm {
 		inline Entity& GetRoot() const { return *mRoot; }
 		
 	private:
-		// IKeyListener
-		void OnKeyPressed(int keyCode) override;
-		void OnKeyReleased(int keyCode) override;
-		
-		// IMouseListener
-		void OnMouseButtonPressed(int mouseButton) override;
-		void OnMouseButtonReleased(int mouseButton) override;
+		// IWindowListener
+		void OnKeyPressed(Key keyCode) override;
+		void OnKeyReleased(Key keyCode) override;
+		void OnMouseButtonPressed(MouseButton mouseButton) override;
+		void OnMouseButtonReleased(MouseButton mouseButton) override;
 		void OnMouseMoved(double xPos, double yPos) override;
-		
-		// IWindowSizeListener
 		void OnSizeChanged(int width, int height) override;
 		
 		std::unique_ptr<Window> mWindow;

@@ -7,19 +7,12 @@
 namespace erm {
 	
 	class TransformComponent;
-	class IWindowSizeProvider;
-	class IMouseInfoProvider;
-	class IKeyInfoProvider;
+	class IWindow;
 	
 	class CameraComponent : public IComponent
 	{
 	public:
-		CameraComponent(
-			Entity& entity,
-			const IWindowSizeProvider& windowSizeProvider,
-			const IMouseInfoProvider& mMouseInfoProvider,
-			const IKeyInfoProvider& mKeyInfoProvider
-		);
+		CameraComponent(Entity& entity, const IWindow& window);
 		
 		// IComponent
 		void OnUpdate(float dt) override;
@@ -48,9 +41,7 @@ namespace erm {
 		void LookAt(const Entity& other);
 		
 	private:
-		const IWindowSizeProvider& mWindowSizeProvider;
-		const IMouseInfoProvider& mMouseInfoProvider;
-		const IKeyInfoProvider& mKeyInfoProvider;
+		const IWindow& mWindow;
 		TransformComponent& mTransform;
 		math::mat4 mProjectionMatrix;
 		float mMovementSpeed;

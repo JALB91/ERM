@@ -2,9 +2,7 @@
 
 #include "utils/Utils.h"
 
-#include "interfaces/IKeyListener.h"
-#include "interfaces/IMouseListener.h"
-#include "interfaces/IWindowSizeListener.h"
+#include "window/IWindowListener.h"
 
 #include <GL/glew.h>
 
@@ -79,22 +77,13 @@ namespace internal {
 namespace erm {
 	
 	Window::Window()
-		: mWindow(nullptr)
-		, mMousePosX(0.0)
-		, mPrevMousePosX(0.0)
-		, mMousePosY(0.0)
-		, mPrevMousePosY(0.0)
-		, mWindowWidth(0)
-		, mWindowHeight(0)
-		, mViewport(0.0f)
-		, mAspectRatio(0.0f)
+		: IWindow()
+		, mWindow(nullptr)
 	{}
 	
 	Window::~Window()
 	{
-		mKeyListeners.clear();
-		mMouseListeners.clear();
-		mWindowSizeListeners.clear();
+		mWindowListeners.clear();
 		
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
@@ -200,7 +189,7 @@ namespace erm {
 		if (action == GLFW_PRESS)
 		{
 			mPressedKeys.insert(key);
-			SafeForEach<IKeyListener>(mKeyListeners, [key] (IKeyListener* listener) {
+			SafeForEach<IWindowListener>(mWindowListeners, [key] (IWindowListener* listener) {
 				listener->OnKeyPressed(key);
 			});
 		}
@@ -210,7 +199,7 @@ namespace erm {
 			if (it != mPressedKeys.end())
 			{
 				mPressedKeys.erase(it);
-				SafeForEach<IKeyListener>(mKeyListeners, [key] (IKeyListener* listener) {
+				SafeForEach<IWindowListener>(mWindowListeners, [key] (IWindowListener* listener) {
 					listener->OnKeyReleased(key);
 				});
 			}
@@ -222,7 +211,7 @@ namespace erm {
 		if (action == GLFW_PRESS)
 		{
 			mPressedButtons.insert(button);
-			SafeForEach<IMouseListener>(mMouseListeners, [button] (IMouseListener* listener) {
+			SafeForEach<IWindowListener>(mWindowListeners, [button] (IWindowListener* listener) {
 				listener->OnMouseButtonPressed(button);
 			});
 		}
@@ -232,7 +221,7 @@ namespace erm {
 			if (it != mPressedButtons.end())
 			{
 				mPressedButtons.erase(it);
-				SafeForEach<IMouseListener>(mMouseListeners, [button] (IMouseListener* listener) {
+				SafeForEach<IWindowListener>(mWindowListeners, [button] (IWindowListener* listener) {
 					listener->OnMouseButtonReleased(button);
 				});
 			}
@@ -241,7 +230,7 @@ namespace erm {
 	
 	void Window::OnMousePos(double xPos, double yPos)
 	{
-		SafeForEach<IMouseListener>(mMouseListeners, [xPos, yPos] (IMouseListener* listener) {
+		SafeForEach<IWindowListener>(mWindowListeners, [xPos, yPos] (IWindowListener* listener) {
 			listener->OnMouseMoved(xPos, yPos);
 		});
 	}
@@ -252,7 +241,7 @@ namespace erm {
 		mWindowHeight = height;
 		UpdateViewport();
 		UpdateAspectRatio();
-		SafeForEach<IWindowSizeListener>(mWindowSizeListeners, [width, height] (IWindowSizeListener* listener) {
+		SafeForEach<IWindowListener>(mWindowListeners, [width, height] (IWindowListener* listener) {
 			listener->OnSizeChanged(width, height);
 		});
 	}
@@ -261,58 +250,6 @@ namespace erm {
 	{
 		glfwGetWindowSize(mWindow, &mWindowWidth, &mWindowHeight);
 		OnSizeChanged(mWindowWidth, mWindowHeight);
-	}
-	
-	void Window::AddListener(IKeyListener& listener)
-	{
-		mKeyListeners.insert(&listener);
-	}
-	
-	void Window::RemoveListener(IKeyListener& listener)
-	{
-		auto it = mKeyListeners.find(&listener);
-		if (it != mKeyListeners.end())
-		{
-			mKeyListeners.erase(it);
-		}
-	}
-	
-	bool Window::IsKeyDown(Key keyCode) const
-	{
-		return (mPressedKeys.find(keyCode) != mPressedKeys.end());
-	}
-	
-	void Window::AddListener(IMouseListener& listener)
-	{
-		mMouseListeners.insert(&listener);
-	}
-	
-	void Window::RemoveListener(IMouseListener& listener)
-	{
-		auto it = mMouseListeners.find(&listener);
-		if (it != mMouseListeners.end())
-		{
-			mMouseListeners.erase(it);
-		}
-	}
-	
-	bool Window::IsMouseButtonDown(MouseButton mouseButton) const
-	{
-		return (mPressedButtons.find(mouseButton) != mPressedButtons.end());
-	}
-	
-	void Window::AddListener(IWindowSizeListener& listener)
-	{
-		mWindowSizeListeners.insert(&listener);
-	}
-	
-	void Window::RemoveListener(IWindowSizeListener& listener)
-	{
-		auto it = mWindowSizeListeners.find(&listener);
-		if (it != mWindowSizeListeners.end())
-		{
-			mWindowSizeListeners.erase(it);
-		}
 	}
 	
 	void Window::UpdateViewport()

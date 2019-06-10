@@ -1,8 +1,6 @@
 #pragma once
 
-#include "interfaces/IKeyInfoProvider.h"
-#include "interfaces/IMouseInfoProvider.h"
-#include "interfaces/IWindowSizeProvider.h"
+#include "window/IWindow.h"
 
 #include "math/vec.h"
 
@@ -12,10 +10,7 @@ struct GLFWwindow;
 
 namespace erm {
 	
-	class Window:
-		public IKeyInfoProvider,
-		public IMouseInfoProvider,
-		public IWindowSizeProvider
+	class Window : public IWindow
 	{
 	public:
 		Window();
@@ -33,53 +28,17 @@ namespace erm {
 		void Render();
 		void PostRender();
 		
-		inline const math::vec2& GetViewport() const { return mViewport; }
-		inline math::vec2 GetViewport() { return mViewport; }
-		
-		void OnKey(int key, int scanCode, int action, int mods);
-		void OnMouseButton(int button, int action, int mods);
-		void OnMousePos(double xPos, double yPos);
-		void OnSizeChanged(int width, int height);
+		void OnKey(int key, int scanCode, int action, int mods) override;
+		void OnMouseButton(int button, int action, int mods) override;
+		void OnMousePos(double xPos, double yPos) override;
+		void OnSizeChanged(int width, int height) override;
 		void OnSizeChanged();
-		
-		// IKeyInfoProvider
-		void AddListener(IKeyListener& listener) override;
-		void RemoveListener(IKeyListener& listener) override;
-		bool IsKeyDown(Key keyCode) const override;
-		
-		// IMouseInfoProvider
-		void AddListener(IMouseListener& listener) override;
-		void RemoveListener(IMouseListener& listener) override;
-		inline double GetMousePosX() const override { return mMousePosX; }
-		inline double GetMousePosY() const override { return mMousePosY; }
-		inline double GetPreviousMousePosX() const override { return mPrevMousePosX; }
-		inline double GetPreviousMousePosY() const override { return mPrevMousePosY; }
-		bool IsMouseButtonDown(MouseButton mouseButton) const override;
-		
-		// IWindowSizeProvider
-		void AddListener(IWindowSizeListener& listener) override;
-		void RemoveListener(IWindowSizeListener& listener) override;
-		inline int GetWindowWidth() const override { return mWindowWidth; }
-		inline int GetWindowHeight() const override { return mWindowHeight; }
-		inline float GetAspectRatio() const override { return mAspectRatio; }
 		
 	private:
 		void UpdateViewport();
 		void UpdateAspectRatio();
 
 		GLFWwindow* mWindow;
-		
-		std::set<IKeyListener*> mKeyListeners;
-		std::set<IMouseListener*> mMouseListeners;
-		std::set<IWindowSizeListener*> mWindowSizeListeners;
-		
-		std::set<Key> mPressedKeys;
-		double mMousePosX, mPrevMousePosX;
-		double mMousePosY, mPrevMousePosY;
-		std::set<MouseButton> mPressedButtons;
-		int mWindowWidth, mWindowHeight;
-		math::vec2 mViewport;
-		float mAspectRatio;
 		
 	};
 	

@@ -46,16 +46,12 @@ namespace erm {
 		, mCamera(nullptr)
 		, mObject(nullptr)
 	{
-		mWindow->AddListener(static_cast<IKeyListener&>(*this));
-		mWindow->AddListener(static_cast<IMouseListener&>(*this));
-		mWindow->AddListener(static_cast<IWindowSizeListener&>(*this));
+		mWindow->AddListener(static_cast<IWindowListener&>(*this));
 	}
 	
 	Game::~Game()
 	{
-		mWindow->RemoveListener(static_cast<IKeyListener&>(*this));
-		mWindow->RemoveListener(static_cast<IMouseListener&>(*this));
-		mWindow->RemoveListener(static_cast<IWindowSizeListener&>(*this));
+		mWindow->RemoveListener(static_cast<IWindowListener&>(*this));
 	}
 	
 	bool Game::Init()
@@ -71,11 +67,7 @@ namespace erm {
 		mRoot = std::make_unique<Entity>(*this, "Root");
 
 		mCamera = std::make_unique<Entity>(*this, "Camera");
-		mCamera->RequireComponent<CameraComponent>(
-			*mWindow,
-			*mWindow,
-			*mWindow
-		);
+		mCamera->RequireComponent<CameraComponent>(*mWindow);
 
 		mObject = std::make_unique<Entity>(*this, "IronMan");
 		mObject->RequireComponent<ModelComponent>(ModelUtils::ParseModel(kIronManModelPath));
@@ -134,24 +126,21 @@ namespace erm {
 		mWindow->PostRender();
 	}
 	
-	// IKeyListener
-	void Game::OnKeyPressed(int /*keyCode*/)
+	void Game::OnKeyPressed(Key /*keyCode*/)
 	{}
 	
-	void Game::OnKeyReleased(int /*keyCode*/)
+	void Game::OnKeyReleased(Key /*keyCode*/)
 	{}
 	
-	// IMouseListener
-	void Game::OnMouseButtonPressed(int mouseButton)
+	void Game::OnMouseButtonPressed(MouseButton mouseButton)
 	{}
 	
-	void Game::OnMouseButtonReleased(int mouseButton)
+	void Game::OnMouseButtonReleased(MouseButton mouseButton)
 	{}
 	
 	void Game::OnMouseMoved(double xPos, double yPos)
 	{}
 	
-	// IWindowSizeListener
 	void Game::OnSizeChanged(int width, int height)
 	{}
 	
