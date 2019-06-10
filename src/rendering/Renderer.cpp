@@ -113,21 +113,24 @@ namespace erm {
 					Draw(mesh.GetVA(), mesh.GetIB());
 				}
 				
-				const BoundingBox3D& objBBox = modelComponent->GetModel().GetLocalBounds();
-				math::mat4 bBTransform (model);
-				bBTransform = glm::translate(bBTransform, (objBBox.mMax + objBBox.mMin) * 0.5f);
-				bBTransform = glm::scale(bBTransform, objBBox.GetSize());
-
-				const int polygonMode = mRenderContext.GetPolygonMode();
-				const bool wasCullFaceEnabled = mRenderContext.IsCullFaceEnabled();
-
-				mRenderContext.SetCullFaceEnabled(false);
-				mRenderContext.SetPolygonMode(GL_LINE);
-				mDebugShader->Bind();
-				mDebugShader->SetUniformMat4f(Uniform::MVP, projection * glm::inverse(view) * bBTransform);
-				Draw(mDebugMesh->GetVA(), mDebugMesh->GetIB());
-				mRenderContext.SetPolygonMode(polygonMode);
-				mRenderContext.SetCullFaceEnabled(wasCullFaceEnabled);
+				if (modelComponent->ShouldShowBoundingBox())
+				{
+					const BoundingBox3D& objBBox = modelComponent->GetModel().GetLocalBounds();
+					math::mat4 bBTransform (model);
+					bBTransform = glm::translate(bBTransform, (objBBox.mMax + objBBox.mMin) * 0.5f);
+					bBTransform = glm::scale(bBTransform, objBBox.GetSize());
+					
+					const int polygonMode = mRenderContext.GetPolygonMode();
+					const bool wasCullFaceEnabled = mRenderContext.IsCullFaceEnabled();
+					
+					mRenderContext.SetCullFaceEnabled(false);
+					mRenderContext.SetPolygonMode(GL_LINE);
+					mDebugShader->Bind();
+					mDebugShader->SetUniformMat4f(Uniform::MVP, projection * glm::inverse(view) * bBTransform);
+					Draw(mDebugMesh->GetVA(), mDebugMesh->GetIB());
+					mRenderContext.SetPolygonMode(polygonMode);
+					mRenderContext.SetCullFaceEnabled(wasCullFaceEnabled);
+				}
 			}
 		}
 	}

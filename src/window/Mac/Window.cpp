@@ -33,7 +33,12 @@ namespace {
 		}
 	}
 	
-	const char* const kGlslVersion = "#version 150";
+	const char* const kGlslVersion = "#version 330";
+	
+	const float kImGuiSpaceUp = 0.0f;
+	const float kImGuiSpaceDown = 0.2f;
+	const float kImGuiSpaceLeft = 0.2f;
+	const float kImGuiSpaceRight = 0.2f;
 	
 }
 
@@ -81,6 +86,7 @@ namespace erm {
 		, mPrevMousePosY(0.0)
 		, mWindowWidth(0)
 		, mWindowHeight(0)
+		, mViewport(0.0f)
 		, mAspectRatio(0.0f)
 	{}
 	
@@ -134,6 +140,7 @@ namespace erm {
 		glfwSwapInterval(1);
 		
 		UpdateViewport();
+		UpdateAspectRatio();
 		
 		if (glewInit() != GLEW_OK)
 		{
@@ -312,12 +319,14 @@ namespace erm {
 	{
 		int width, height;
 		glfwGetFramebufferSize(mWindow, &width, &height);
-		GLCALL(glViewport(0, 0, width, height));
+		mViewport.y = std::max(height * 0.1f, height - (height * kImGuiSpaceUp + height * kImGuiSpaceDown));
+		mViewport.x = std::max(width * 0.1f, width - (width * kImGuiSpaceRight + width * kImGuiSpaceLeft));
+		GLCALL(glViewport(width * kImGuiSpaceLeft, height * kImGuiSpaceDown, mViewport.x, mViewport.y));
 	}
 
 	void Window::UpdateAspectRatio()
 	{
-		mAspectRatio = static_cast<float>(mWindowWidth) / static_cast<float>(mWindowHeight);
+		mAspectRatio = mViewport.x / mViewport.y;
 	}
 	
 }

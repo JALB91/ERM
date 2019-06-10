@@ -20,8 +20,11 @@
 namespace {
 	
 	const float kMovementSpeed = 1.0f;
-	const float kMouseSensibility = -0.25f;
-	const float kXAngleLimit = static_cast<float>(M_PI) * 0.35f;
+	const float kMouseSensibility = 0.25f;
+	const float kAngleLimit = static_cast<float>(M_PI) * 0.35f;
+	const float kFOV = 45.0f;
+	const float kZNear = 0.1f;
+	const float kZFar = 10000.0f;
 	
 }
 
@@ -39,6 +42,12 @@ namespace erm {
 		, mKeyInfoProvider(keyInfoProvider)
 		, mTransform(*entity.GetComponent<TransformComponent>())
 		, mProjectionMatrix()
+		, mMovementSpeed(kMovementSpeed)
+		, mMouseSensibility(kMouseSensibility)
+		, mAngleLimit(kAngleLimit)
+		, mFOV(kFOV)
+		, mZNear(kZNear)
+		, mZFar(kZFar)
 	{}
 	
 	void CameraComponent::OnUpdate(float dt)
@@ -50,19 +59,19 @@ namespace erm {
 			if (mMouseInfoProvider.IsMouseButtonDown(MOUSE_BUTTON_1))
 			{
 				math::vec3 rotation (
-					(mMouseInfoProvider.GetMousePosY() - mMouseInfoProvider.GetPreviousMousePosY()),
-					(mMouseInfoProvider.GetMousePosX() - mMouseInfoProvider.GetPreviousMousePosX()),
+					(mMouseInfoProvider.GetPreviousMousePosY() - mMouseInfoProvider.GetMousePosY()),
+					(mMouseInfoProvider.GetPreviousMousePosX() - mMouseInfoProvider.GetMousePosX()),
 					0.0f
 				);
 				rotation = glm::radians(rotation * kMouseSensibility) + mTransform.GetRotation();
 				
-				if (rotation.x > kXAngleLimit)
+				if (rotation.x > kAngleLimit)
 				{
-					rotation.x = kXAngleLimit;
+					rotation.x = kAngleLimit;
 				}
-				else if (rotation.x < -kXAngleLimit)
+				else if (rotation.x < -kAngleLimit)
 				{
-					rotation.x = -kXAngleLimit;
+					rotation.x = -kAngleLimit;
 				}
 				
 				mTransform.SetRotation(rotation);
@@ -115,7 +124,7 @@ namespace erm {
 	
 	void CameraComponent::OnPostUpdate()
 	{
-		mProjectionMatrix = glm::perspective(glm::radians(45.0f), mWindowSizeProvider.GetAspectRatio(), 0.1f, 10000.0f);
+		mProjectionMatrix = glm::perspective(glm::radians(mFOV), mWindowSizeProvider.GetAspectRatio(), mZNear, mZFar);
 	}
 	
 	void CameraComponent::LookAt(const Entity& other)

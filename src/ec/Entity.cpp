@@ -5,6 +5,8 @@
 
 #include "utils/Utils.h"
 
+#include <imgui.h>
+
 namespace {
 	
 	static erm::Entity::EntityID nextEntityID = 0;
@@ -13,15 +15,20 @@ namespace {
 
 namespace erm {
 	
-	Entity::Entity(Game& game)
+	Entity::Entity(Game& game, const std::string& name /* = "" */)
 		: mGame(game)
-		, mEntityID(++nextEntityID)
+		, mName(name)
+		, mEntityID(nextEntityID++)
 		, mComponents{nullptr}
 		, mComponentIDs{false}
 		, mParent(nullptr)
 		, mChildren()
 		, mIsDirty(false)
 	{
+		if (mName.empty())
+		{
+			mName.append("Entity").append(std::to_string(mEntityID));
+		}
 		RequireComponent<TransformComponent>();
 	}
 	
@@ -49,16 +56,6 @@ namespace erm {
 			child.OnPostUpdate();
 		});
 		mIsDirty = false;
-	}
-	
-	void Entity::OnImGuiRender()
-	{
-		ForEachComponent([](IComponent& component) {
-			component.OnImGuiRender();
-		});
-		ForEachChild([](Entity& child) {
-			child.OnImGuiRender();
-		});
 	}
 	
 	void Entity::OnRender()

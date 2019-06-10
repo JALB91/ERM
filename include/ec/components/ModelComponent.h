@@ -24,10 +24,14 @@ namespace erm {
 		inline BoundingBox3D GetWorldBounds() { return mWorldBounds; }
 		inline const BoundingBox3D& GetWorldBounds() const { return mWorldBounds; }
 		
+		inline bool ShouldShowBoundingBox() const { return mShouldShowBoundingBox; }
+		inline void SetShouldShowBoundingBox(bool shouldShowBoundingBox) { mShouldShowBoundingBox = shouldShowBoundingBox; }
+		
 	private:
 		const Model& mModel;
 		BoundingBox3D mWorldBounds;
 		const TransformComponent& mTransformComponent;
+		bool mShouldShowBoundingBox;
 		
 	};
 	

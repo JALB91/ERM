@@ -35,6 +35,7 @@ namespace erm {
 		inline Window& GetWindow() const { return *mWindow; }
 		inline RenderContext& GetRenderContext() const { return *mRenderContext; }
 		inline Renderer& GetRenderer() const { return *mRenderer; }
+		inline Entity& GetRoot() const { return *mRoot; }
 		
 	private:
 		// IKeyListener
@@ -48,9 +49,6 @@ namespace erm {
 		
 		// IWindowSizeListener
 		void OnSizeChanged(int width, int height) override;
-		
-		void ShowMainMenuBar();
-		void ShowGameDebugWindow();
 		
 		std::unique_ptr<Window> mWindow;
 		std::unique_ptr<RenderContext> mRenderContext;

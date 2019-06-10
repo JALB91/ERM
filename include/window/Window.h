@@ -4,7 +4,7 @@
 #include "interfaces/IMouseInfoProvider.h"
 #include "interfaces/IWindowSizeProvider.h"
 
-#include <glm/glm.hpp>
+#include "math/vec.h"
 
 #include <set>
 
@@ -32,6 +32,9 @@ namespace erm {
 		void NewFrame();
 		void Render();
 		void PostRender();
+		
+		inline const math::vec2& GetViewport() const { return mViewport; }
+		inline math::vec2 GetViewport() { return mViewport; }
 		
 		void OnKey(int key, int scanCode, int action, int mods);
 		void OnMouseButton(int button, int action, int mods);
@@ -75,6 +78,7 @@ namespace erm {
 		double mMousePosY, mPrevMousePosY;
 		std::set<MouseButton> mPressedButtons;
 		int mWindowWidth, mWindowHeight;
+		math::vec2 mViewport;
 		float mAspectRatio;
 		
 	};

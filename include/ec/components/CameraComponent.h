@@ -27,6 +27,24 @@ namespace erm {
 		
 		inline const math::mat4& GetProjectionMatrix() const { return mProjectionMatrix; }
 		
+		inline float GetMovementSpeed() const { return mMovementSpeed; }
+		inline void SetMovementSpeed(float movementSpeed) { mMovementSpeed = movementSpeed; }
+		
+		inline float GetMouseSensibility() const { return mMouseSensibility; }
+		inline void SetMouseSensibility(float mouseSensibility) { mMouseSensibility = mouseSensibility; }
+		
+		inline float GetAngleLimit() const { return mAngleLimit; }
+		inline void SetAngleLimit(float angleLimit) { mAngleLimit = angleLimit; }
+		
+		inline float GetFOV() const { return mFOV; }
+		inline void SetFOV(float fov) { mFOV = fov; }
+		
+		inline float GetZNear() const { return mZNear; }
+		inline void SetZNear(float zNear) { mZNear = zNear; }
+		
+		inline float GetZFar() const { return mZFar; }
+		inline void SetZFar(float zFar) { mZFar = zFar; }
+		
 		void LookAt(const Entity& other);
 		
 	private:
@@ -35,6 +53,12 @@ namespace erm {
 		const IKeyInfoProvider& mKeyInfoProvider;
 		TransformComponent& mTransform;
 		math::mat4 mProjectionMatrix;
+		float mMovementSpeed;
+		float mMouseSensibility;
+		float mAngleLimit;
+		float mFOV;
+		float mZNear;
+		float mZFar;
 		
 	};
 	

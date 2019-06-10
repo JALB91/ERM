@@ -6,6 +6,7 @@
 #include <array>
 #include <deque>
 #include <memory>
+#include <string>
 #include <functional>
 
 namespace erm {
@@ -39,14 +40,14 @@ namespace erm {
 	public:
 		typedef unsigned int EntityID;
 		
-		Entity(Game& game);
+		Entity(Game& game, const std::string& name = "");
 		~Entity();
 		
-		Entity(const Entity& other) = delete;
-		Entity(Entity&& other) = delete;
+		Entity(Entity&&) = delete;
+		Entity(const Entity&) = delete;
 		
-		Entity& operator=(const Entity& other) = delete;
-		Entity& operator=(Entity&& other) = delete;
+		Entity& operator=(Entity&&) = delete;
+		Entity& operator=(const Entity&) = delete;
 		
 		template<typename T>
 		inline bool HasComponent() const
@@ -76,11 +77,13 @@ namespace erm {
 		
 		void OnUpdate(float dt);
 		void OnPostUpdate();
-		void OnImGuiRender();
 		void OnRender();
 		
 		inline Game& GetGame() { return mGame; }
 		inline const Game& GetGame() const { return mGame; }
+		
+		inline const std::string& GetName() const { return mName; }
+		inline void SetName(const std::string& name) { mName = name; }
 		
 		inline EntityID GetEntityID() const { return mEntityID; }
 		
@@ -92,11 +95,12 @@ namespace erm {
 		void SetDirty();
 		inline bool IsDirty() const { return mIsDirty; }
 		
-	private:
 		void ForEachComponent(const std::function<void(IComponent&)>& function);
 		void ForEachChild(const std::function<void(Entity&)>& function);
 		
+	private:
 		Game& mGame;
+		std::string mName;
 		EntityID mEntityID;
 		Components mComponents;
 		ComponentIDs mComponentIDs;

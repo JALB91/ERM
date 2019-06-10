@@ -3,6 +3,8 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <imgui.h>
+
 namespace erm {
 	
 	TransformComponent::TransformComponent(Entity& entity)

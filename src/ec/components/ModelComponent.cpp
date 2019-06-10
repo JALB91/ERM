@@ -16,6 +16,7 @@ namespace erm {
 		, mModel(model)
 		, mWorldBounds()
 		, mTransformComponent(entity.RequireComponent<TransformComponent>())
+		, mShouldShowBoundingBox(true)
 	{
 		UpdateWorldBounds();
 	}
