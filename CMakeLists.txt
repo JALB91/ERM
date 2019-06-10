@@ -70,12 +70,6 @@ file(GLOB_RECURSE SOURCES
 	src/*.cpp
 )
 
-if (APPLE)
-	list(FILTER SOURCES EXCLUDE REGEX ".*\/Win\/.*")
-elseif (WIN32)
-	list(FILTER SOURCES EXCLUDE REGEX ".*\/Mac\/.*")
-endif()
-
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(macros)
 

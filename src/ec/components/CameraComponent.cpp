@@ -63,15 +63,15 @@ namespace erm {
 					(mMouseInfoProvider.GetPreviousMousePosX() - mMouseInfoProvider.GetMousePosX()),
 					0.0f
 				);
-				rotation = glm::radians(rotation * kMouseSensibility) + mTransform.GetRotation();
+				rotation = glm::radians(rotation * mMouseSensibility) + mTransform.GetRotation();
 				
-				if (rotation.x > kAngleLimit)
+				if (rotation.x > mAngleLimit)
 				{
-					rotation.x = kAngleLimit;
+					rotation.x = mAngleLimit;
 				}
-				else if (rotation.x < -kAngleLimit)
+				else if (rotation.x < -mAngleLimit)
 				{
-					rotation.x = -kAngleLimit;
+					rotation.x = -mAngleLimit;
 				}
 				
 				mTransform.SetRotation(rotation);
@@ -88,27 +88,27 @@ namespace erm {
 		
 		if (mKeyInfoProvider.IsKeyDown(KEY_W))
 		{
-			translation.z -= kMovementSpeed;
+			translation.z -= mMovementSpeed;
 		}
 		if (mKeyInfoProvider.IsKeyDown(KEY_D))
 		{
-			translation.x += kMovementSpeed;
+			translation.x += mMovementSpeed;
 		}
 		if (mKeyInfoProvider.IsKeyDown(KEY_S))
 		{
-			translation.z += kMovementSpeed;
+			translation.z += mMovementSpeed;
 		}
 		if (mKeyInfoProvider.IsKeyDown(KEY_A))
 		{
-			translation.x -= kMovementSpeed;
+			translation.x -= mMovementSpeed;
 		}
 		if (mKeyInfoProvider.IsKeyDown(KEY_SPACE))
 		{
-			translation.y += kMovementSpeed;
+			translation.y += mMovementSpeed;
 		}
 		if (mKeyInfoProvider.IsKeyDown(KEY_LEFT_SHIFT))
 		{
-			translation.y -= kMovementSpeed;
+			translation.y -= mMovementSpeed;
 		}
 		
 		if (translation.x != 0.0f || translation.z != 0.0f || translation.y != 0.0f)
