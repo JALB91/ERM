@@ -24,6 +24,8 @@ namespace erm {
 		virtual void OnMouseButton(int button, int action, int mods) = 0;
 		virtual void OnMousePos(double xPos, double yPos) = 0;
 		virtual void OnSizeChanged(int width, int height) = 0;
+		virtual void OnMaximised(bool wasMaximised) = 0;
+		virtual void OnFocus() = 0;
 		
 		inline bool IsKeyDown(Key keyCode) const { return mPressedKeys.find(keyCode) != mPressedKeys.end(); }
 		

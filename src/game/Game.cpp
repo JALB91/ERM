@@ -126,10 +126,10 @@ namespace erm {
 		mWindow->PostRender();
 	}
 	
-	void Game::OnKeyPressed(Key /*keyCode*/)
+	void Game::OnKeyPressed(Key keyCode)
 	{}
 	
-	void Game::OnKeyReleased(Key /*keyCode*/)
+	void Game::OnKeyReleased(Key keyCode)
 	{}
 	
 	void Game::OnMouseButtonPressed(MouseButton mouseButton)

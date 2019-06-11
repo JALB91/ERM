@@ -44,12 +44,12 @@ namespace internal {
 	
 	void OnFocus(GLFWwindow* window, int focus)
 	{
-		static_cast<erm::Window*>(glfwGetWindowUserPointer(window))->OnSizeChanged();
+		static_cast<erm::Window*>(glfwGetWindowUserPointer(window))->OnFocus();
 	}
 	
 	void OnMaximized(GLFWwindow* window, int maximised)
 	{
-		static_cast<erm::Window*>(glfwGetWindowUserPointer(window))->OnSizeChanged();
+		static_cast<erm::Window*>(glfwGetWindowUserPointer(window))->OnMaximised(maximised == GLFW_TRUE);
 	}
 	
 	void OnSizeChanged(GLFWwindow* window, int width, int height)
@@ -79,6 +79,7 @@ namespace erm {
 	Window::Window()
 		: IWindow()
 		, mWindow(nullptr)
+		, mFirstFocus(true)
 	{}
 	
 	Window::~Window()
@@ -102,9 +103,6 @@ namespace erm {
 		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
 		const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 		
-		mWindowWidth = mode->width;
-		mWindowHeight = mode->height;
-		
 		glfwWindowHint(GLFW_RED_BITS, mode->redBits);
 		glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
 		glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
@@ -127,9 +125,6 @@ namespace erm {
 		
 		glfwMakeContextCurrent(mWindow);
 		glfwSwapInterval(1);
-		
-		UpdateViewport();
-		UpdateAspectRatio();
 		
 		if (glewInit() != GLEW_OK)
 		{
@@ -241,24 +236,39 @@ namespace erm {
 		mWindowHeight = height;
 		UpdateViewport();
 		UpdateAspectRatio();
-		SafeForEach<IWindowListener>(mWindowListeners, [width, height] (IWindowListener* listener) {
-			listener->OnSizeChanged(width, height);
+		SafeForEach<IWindowListener>(mWindowListeners, [this] (IWindowListener* listener) {
+			listener->OnSizeChanged(mWindowWidth, mWindowHeight);
 		});
 	}
 	
-	void Window::OnSizeChanged()
+	void Window::OnMaximised(bool wasMaximised)
+	{}
+	
+	void Window::OnFocus()
 	{
-		glfwGetWindowSize(mWindow, &mWindowWidth, &mWindowHeight);
-		OnSizeChanged(mWindowWidth, mWindowHeight);
+		if (mFirstFocus)
+		{
+			mFirstFocus = false;
+			int width, height;
+			glfwGetWindowSize(mWindow, &width, &height);
+			OnSizeChanged(width, height);
+		}
 	}
 	
 	void Window::UpdateViewport()
 	{
-		int width, height;
-		glfwGetFramebufferSize(mWindow, &width, &height);
-		mViewport.y = std::max(height * 0.1f, height - (height * kImGuiSpaceUp + height * kImGuiSpaceDown));
-		mViewport.x = std::max(width * 0.1f, width - (width * kImGuiSpaceRight + width * kImGuiSpaceLeft));
-		GLCALL(glViewport(width * kImGuiSpaceLeft, height * kImGuiSpaceDown, mViewport.x, mViewport.y));
+		mViewport.y = std::max(mWindowHeight * 0.1f, mWindowHeight - (mWindowHeight * kImGuiSpaceUp + mWindowHeight * kImGuiSpaceDown));
+		mViewport.x = std::max(mWindowWidth * 0.1f, mWindowWidth - (mWindowWidth * kImGuiSpaceRight + mWindowWidth * kImGuiSpaceLeft));
+		
+		float scaleX, scaleY;
+		glfwGetWindowContentScale(mWindow, &scaleX, &scaleY);
+		
+		GLCALL(glViewport(
+			mWindowWidth * kImGuiSpaceLeft * scaleX,
+			mWindowHeight * kImGuiSpaceDown * scaleY,
+			mViewport.x * scaleX,
+			mViewport.y * scaleY
+		));
 	}
 
 	void Window::UpdateAspectRatio()

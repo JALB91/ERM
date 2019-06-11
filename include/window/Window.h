@@ -32,13 +32,16 @@ namespace erm {
 		void OnMouseButton(int button, int action, int mods) override;
 		void OnMousePos(double xPos, double yPos) override;
 		void OnSizeChanged(int width, int height) override;
-		void OnSizeChanged();
+		void OnMaximised(bool wasMaximised) override;
+		void OnFocus() override;
 		
 	private:
 		void UpdateViewport();
 		void UpdateAspectRatio();
 
 		GLFWwindow* mWindow;
+		
+		bool mFirstFocus;
 		
 	};
 	
