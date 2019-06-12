@@ -23,7 +23,7 @@ namespace erm {
 		friend class ModelUtils;
 		
 	public:
-		Mesh(const Material& material = Material::DEFAULT);
+		Mesh();
 		~Mesh();
 		
 		Mesh(Mesh&& other);
@@ -32,8 +32,8 @@ namespace erm {
 		Mesh& operator=(Mesh&&) = delete;
 		Mesh& operator=(const Mesh&) = delete;
 		
-		inline void SetMaterial(const Material& material) { mMaterial = material; }
-		inline const Material& GetMaterial() const { return mMaterial.get(); }
+		inline Material* GetMaterial() const { return mMaterial; }
+		inline void SetMaterial(Material* material) { mMaterial = material; }
 		
 		inline const IndexBuffer& GetIB() const { return *mIB; }
 		inline const VertexArray& GetVA() const { return *mVA; }
@@ -44,6 +44,9 @@ namespace erm {
 		inline const IndexData* const GetIndicesData() const { return mIndicesData; }
 		inline int GetIndicesCount() const { return mIndicesDataCount; }
 		
+		inline const std::string& GetName() const { return mName; }
+		inline void SetName(const std::string& name) { mName = name; }
+		
 	private:
 		void Setup();
 		
@@ -53,7 +56,9 @@ namespace erm {
 		IndexData* mIndicesData;
 		unsigned int mIndicesDataCount;
 		
-		std::reference_wrapper<const Material> mMaterial;
+		Material* mMaterial;
+		
+		std::string mName;
 		
 		std::unique_ptr<VertexBuffer> mVB;
 		std::unique_ptr<IndexBuffer> mIB;

@@ -2,11 +2,12 @@
 
 namespace erm {
 	
-	const Material Material::DEFAULT {
+	Material Material::DEFAULT {
 		"default",
-		math::vec3(1.0f),
-		math::vec3(1.0f),
-		math::vec3(1.0f),
+		"default",
+		math::vec3(0.2f),
+		math::vec3(0.2f),
+		math::vec3(0.2f),
 		50.0f
 	};
 	

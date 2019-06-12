@@ -34,11 +34,4 @@ namespace erm {
 	Model::~Model()
 	{}
 	
-	Model::Model(Model&& other)
-		: mPath(std::move(other.mPath))
-		, mName(std::move(other.mName))
-		, mMeshes(std::move(other.mMeshes))
-		, mLocalBounds(std::move(other.mLocalBounds))
-	{}
-	
 }

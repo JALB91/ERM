@@ -15,6 +15,8 @@
 #include "ec/components/ModelComponent.h"
 #include "ec/components/TransformComponent.h"
 
+#include "managers/ResourcesManager.h"
+
 #include "math/vec.h"
 
 #include "debug/ImGuiWrapper.h"
@@ -64,13 +66,22 @@ namespace erm {
 		mRenderContext = std::make_unique<RenderContext>();
 		mRenderer = std::make_unique<Renderer>(*mRenderContext);
 		
+		ResourcesManager::GetOrCreateModel(kLamborghiniModelPath);
+		ResourcesManager::GetOrCreateModel(kSpaceshipModelPath);
+		ResourcesManager::GetOrCreateModel(kIronManModelPath);
+		ResourcesManager::GetOrCreateModel(kIphoneModelPath);
+		ResourcesManager::GetOrCreateModel(kAventModelPath);
+		ResourcesManager::GetOrCreateModel(kCrateModelPath);
+		ResourcesManager::GetOrCreateModel(kChairModelPath);
+		ResourcesManager::GetOrCreateModel(kCubeModelPath);
+		
 		mRoot = std::make_unique<Entity>(*this, "Root");
 
 		mCamera = std::make_unique<Entity>(*this, "Camera");
 		mCamera->RequireComponent<CameraComponent>(*mWindow);
 
-		mObject = std::make_unique<Entity>(*this, "IronMan");
-		mObject->RequireComponent<ModelComponent>(ModelUtils::ParseModel(kIronManModelPath));
+		mObject = std::make_unique<Entity>(*this, "Model");
+		mObject->RequireComponent<ModelComponent>(ResourcesManager::GetOrCreateModel(kIronManModelPath));
 
 		mRoot->AddChild(mCamera.get());
 		mRoot->AddChild(mObject.get());

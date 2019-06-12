@@ -2,8 +2,9 @@
 
 #include "math/mat.h"
 
-#include <string>
 #include <unordered_map>
+#include <string>
+#include <deque>
 
 namespace erm {
 	
@@ -12,7 +13,11 @@ namespace erm {
 	class ShaderProgram
 	{
 	public:
-		ShaderProgram(const std::string& vertexPath, const std::string& fragmentPath);
+		static bool Create(
+			const std::string& path,
+			std::deque<ShaderProgram>& shaderProgramsContainer
+		);
+		
 		ShaderProgram(const std::string& shaderPath);
 		~ShaderProgram();
 		
@@ -21,6 +26,8 @@ namespace erm {
 		
 		ShaderProgram& operator=(ShaderProgram&&) = delete;
 		ShaderProgram& operator=(const ShaderProgram&) = delete;
+		
+		const std::string& GetPath() const { return mPath; }
 		
 		void Bind() const;
 		void Unbind() const;
@@ -32,6 +39,8 @@ namespace erm {
 		void SetUniformMat4f(const Uniform& uniform, const math::mat4& matrix) const;
 		
 	private:
+		ShaderProgram(const char* vertexPath, const char* fragmentPath);
+		
 		std::string ParseShader(const std::string& path) const;
 		unsigned int CompileShader(unsigned int type, const std::string& source) const;
 		unsigned int CreateShaderProgram(const std::string& vertexSource, const std::string& fragmentSource) const;
@@ -39,6 +48,7 @@ namespace erm {
 		void CacheUniformsLocations();
 		int GetUniformLocation(const std::string& name) const;
 		
+		std::string mPath;
 		unsigned int mRendererId;
 		std::unordered_map<std::string, int> mUniformLocationsCache;
 		

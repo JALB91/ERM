@@ -9,8 +9,8 @@ namespace erm {
 	
 	RenderContext::RenderContext()
 	{
-		std::cout << glGetString(GL_VERSION) << std::endl;
-		std::cout << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
+		std::cout << "OpenGL " << glGetString(GL_VERSION) << std::endl;
+		std::cout << "GLSL " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
 	}
 	
 	void RenderContext::Draw(int count) const

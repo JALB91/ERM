@@ -33,20 +33,48 @@ namespace {
 
 namespace erm {
 	
-	ShaderProgram::ShaderProgram(const std::string& vertexPath, const std::string& fragmentPath)
+	bool ShaderProgram::Create(
+		const std::string& path,
+		std::deque<ShaderProgram>& shaderProgramsContainer
+	)
+	{
+		std::ifstream stream (Utils::GetRelativePath((path + ".vert").c_str()));
+		if (!stream.is_open())
+		{
+			std::cout << "No such file: " << path << std::endl;
+			return false;
+		}
+		stream = std::ifstream(Utils::GetRelativePath((path + ".frag").c_str()));
+		if (!stream.is_open())
+		{
+			std::cout << "No such file: " << path << std::endl;
+			return false;
+		}
+		
+		shaderProgramsContainer.emplace_back(path);
+		
+		return true;
+	}
+	
+	ShaderProgram::ShaderProgram(const std::string& shaderPath)
+		: ShaderProgram(
+			(shaderPath + ".vert").c_str(),
+			(shaderPath + ".frag").c_str()
+		)
+	{
+		mPath = shaderPath;
+	}
+	
+	ShaderProgram::ShaderProgram(const char* vertexPath, const char* fragmentPath)
 		: mRendererId(
 			CreateShaderProgram(
-				ParseShader(Utils::GetRelativePath(vertexPath.c_str())),
-				ParseShader(Utils::GetRelativePath(fragmentPath.c_str()))
+				ParseShader(Utils::GetRelativePath(vertexPath)),
+				ParseShader(Utils::GetRelativePath(fragmentPath))
 			)
 		)
 	{
 		CacheUniformsLocations();
 	}
-	
-	ShaderProgram::ShaderProgram(const std::string& shaderPath)
-		: ShaderProgram(shaderPath + ".vert", shaderPath + ".frag")
-	{}
 	
 	ShaderProgram::~ShaderProgram()
 	{

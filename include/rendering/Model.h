@@ -19,7 +19,7 @@ namespace erm {
 		);
 		~Model();
 		
-		Model(Model&& other);
+		Model(Model&&) = delete;
 		Model(const Model&) = delete;
 		
 		Model& operator=(Model&&) = delete;
@@ -29,6 +29,7 @@ namespace erm {
 		inline const std::string& GetName() const { return mName; }
 		
 		inline const std::deque<Mesh>& GetMeshes() const { return mMeshes; }
+		inline std::deque<Mesh>& GetMeshes() { return mMeshes; }
 		
 		inline BoundingBox3D GetLocalBounds() { return mLocalBounds; }
 		inline const BoundingBox3D& GetLocalBounds() const { return mLocalBounds; }

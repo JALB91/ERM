@@ -11,7 +11,7 @@
 
 namespace erm {
 	
-	ModelComponent::ModelComponent(Entity& entity, const Model& model)
+	ModelComponent::ModelComponent(Entity& entity, Model* model)
 		: IComponent(entity)
 		, mModel(model)
 		, mWorldBounds()
@@ -28,8 +28,24 @@ namespace erm {
 	
 	void ModelComponent::UpdateWorldBounds()
 	{
-		mWorldBounds = mModel.GetLocalBounds().Expand(mTransformComponent.GetWorldTransform());
+		if (mModel)
+		{
+			mWorldBounds = mModel->GetLocalBounds().Expand(mTransformComponent.GetWorldTransform());
+		}
+		else
+		{
+			mWorldBounds.Empty();
+		}
+		
 		mIsDirty = false;
+	}
+	
+	void ModelComponent::SetModel(Model* model)
+	{
+		if (model == mModel) return;
+		
+		mModel = model;
+		SetDirty();
 	}
 	
 }

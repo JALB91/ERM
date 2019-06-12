@@ -16,7 +16,16 @@ namespace erm {
 	class ModelUtils
 	{
 	public:
-		static const Model& ParseModel(const char* path);
+		static bool ParseModel(
+			const char* path,
+			std::deque<Model>& modelsContainer,
+			std::deque<Material>& materialsContainer
+		);
+		
+		static bool ParseMaterialsLib(
+			const char* path,
+			std::deque<Material>& materialsContainer
+		);
 		
 	private:
 		static void ParseFace(
@@ -33,13 +42,9 @@ namespace erm {
 		static Mesh CreateMesh(
 			const std::deque<VertexData>& vertices,
 			const std::deque<IndexData>& indices,
-			const Material& material
+			Material* material,
+			const std::string& name
 		);
-		
-		static void ParseMaterialsLib(const char* path);
-		
-		static std::deque<Model> mLoadedModels;
-		static std::deque<Material> mLoadedMaterials;
 		
 	};
 	

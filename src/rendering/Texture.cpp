@@ -1,22 +1,44 @@
 #include "rendering/Texture.h"
+
 #include "utils/Utils.h"
 
 #include <stb_image.h>
 
 #include <GL/glew.h>
 
+#include <iostream>
+#include <fstream>
+
 namespace erm {
 	
-	Texture::Texture(const char* filePath)
+	bool Texture::Create(
+		const char* path,
+		std::deque<Texture>& texturesContainer
+	)
+	{
+		std::ifstream stream (Utils::GetRelativePath(path));
+		
+		if (!stream.is_open())
+		{
+			std::cout << "No such file: " << path << std::endl;
+			return false;
+		}
+		
+		texturesContainer.emplace_back(path);
+		
+		return true;
+	}
+	
+	Texture::Texture(const char* path)
 		: mRendererId(0)
 		, mLocalBuffer(nullptr)
-		, mFilePath(filePath)
+		, mPath(path)
 		, mWidth(0)
 		, mHeight(0)
 		, mBPP(0)
 	{
 		stbi_set_flip_vertically_on_load(1);
-		mLocalBuffer = stbi_load(filePath, &mWidth, &mHeight, &mBPP, 4);
+		mLocalBuffer = stbi_load(path, &mWidth, &mHeight, &mBPP, 4);
 		
 		GLCALL(glGenTextures(1, &mRendererId));
 		GLCALL(glBindTexture(GL_TEXTURE_2D, mRendererId));

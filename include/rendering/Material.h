@@ -8,8 +8,9 @@ namespace erm {
 	
 	struct Material
 	{
-		static const Material DEFAULT;
+		static Material DEFAULT;
 		
+		std::string mPath;
 		std::string mName;
 		math::vec3 mAmbient;
 		math::vec3 mDiffuse;

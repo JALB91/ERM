@@ -14,39 +14,33 @@
 
 namespace erm {
 	
-	std::deque<Model> ModelUtils::mLoadedModels {};
-	std::deque<Material> ModelUtils::mLoadedMaterials {};
-	
-	const Model& ModelUtils::ParseModel(const char* path)
+	bool ModelUtils::ParseModel(
+		const char* path,
+		std::deque<Model>& modelContainer,
+		std::deque<Material>& materialContainer
+	)
 	{
+		std::ifstream stream (Utils::GetRelativePath(path));
+		
+		if (!stream.is_open())
 		{
-			auto it = std::find_if(
-				mLoadedModels.begin(),
-				mLoadedModels.end(),
-				[path](const Model& model) {
-					return (model.GetPath().compare(path) == 0);
-				}
-			);
-			
-			if (it != mLoadedModels.end())
-			{
-				return *it;
-			}
+			std::cout << "No such file: " << path << std::endl;
+			return false;
 		}
 		
-		std::ifstream stream (Utils::GetRelativePath(path));
-		EXPECT(stream.is_open(), (std::string("No such file: ") + path).c_str());
 		std::string line;
 		std::string name;
+		std::string meshName;
 		std::deque<Mesh> meshes;
 		std::deque<Vertex> positions;
 		std::deque<UVVertex> tPositions;
 		std::deque<NormalVertex> nPositions;
 		std::deque<VertexData> vertices;
 		std::deque<IndexData> indices;
-		Material* material = nullptr;
+		Material* material;
 		
 		bool wasLooping = false;
+		bool noMat = false;
 
 		while (std::getline(stream, line))
 		{
@@ -61,15 +55,19 @@ namespace erm {
 					
 					if (!vertices.empty() && !indices.empty())
 					{
-						meshes.emplace_back(CreateMesh(vertices, indices, material ? *material : Material::DEFAULT));
+						meshes.emplace_back(CreateMesh(vertices, indices, material, meshName));
 						material = nullptr;
 						vertices.clear();
 						indices.clear();
+						meshName.clear();
 					}
 				}
 				else if (splitted[0].compare("g") == 0)
 				{
-					continue;
+					if (splitted.size() >= 2)
+					{
+						meshName = splitted[splitted.size() - 1];
+					}
 				}
 				else if (splitted[0].compare("mtllib") == 0)
 				{
@@ -77,13 +75,13 @@ namespace erm {
 					pathStr = pathStr.substr(0, pathStr.rfind("/"));
 					pathStr.append("/");
 					pathStr.append(splitted[1]);
-					ParseMaterialsLib(pathStr.c_str());
+					noMat = !ParseMaterialsLib(pathStr.c_str(), materialContainer);
 				}
 				else if (splitted[0].compare("v") == 0)
 				{
 					if (!vertices.empty() && !indices.empty() && material)
 					{
-						meshes.emplace_back(CreateMesh(vertices, indices, material ? *material : Material::DEFAULT));
+						meshes.emplace_back(CreateMesh(vertices, indices, material, meshName));
 						material = nullptr;
 						vertices.clear();
 						indices.clear();
@@ -125,14 +123,19 @@ namespace erm {
 				{
 					if (!vertices.empty() && !indices.empty())
 					{
-						meshes.emplace_back(CreateMesh(vertices, indices, material ? *material : Material::DEFAULT));
+						meshes.emplace_back(CreateMesh(vertices, indices, material, meshName));
+					}
+					if (noMat)
+					{
+						material = &Material::DEFAULT;
+						continue;
 					}
 					ASSERT(splitted.size() >= 2);
 					std::string name = splitted[splitted.size() - 1];
-					auto it = std::find_if(mLoadedMaterials.begin(), mLoadedMaterials.end(), [name](const Material& material) {
+					auto it = std::find_if(materialContainer.begin(), materialContainer.end(), [name](const Material& material) {
 						return material.mName.compare(name) == 0;
 					});
-					material = it != mLoadedMaterials.end() ? &*it : nullptr;
+					material = it != materialContainer.end() ? &(*it) : nullptr;
 				}
 				else if (splitted[0].compare("f") == 0)
 				{
@@ -162,20 +165,25 @@ namespace erm {
 			}
 		}
 		
-		if (!vertices.empty() && !indices.empty())
+		if (meshName.find("Collider") == std::string::npos && !vertices.empty() && !indices.empty())
 		{
-			meshes.emplace_back(CreateMesh(vertices, indices, material ? *material : Material::DEFAULT));
+			meshes.emplace_back(CreateMesh(vertices, indices, material, meshName));
 		}
 		
 		stream.close();
 		
-		mLoadedModels.emplace_back(
+		if (name.empty())
+		{
+			name = "unknown";
+		}
+		
+		modelContainer.emplace_back(
 			path,
 			name.c_str(),
 			std::move(meshes)
 		);
 		
-		return mLoadedModels.back();
+		return true;
 	}
 	
 	void ModelUtils::ParseFace(
@@ -310,10 +318,11 @@ namespace erm {
 	Mesh ModelUtils::CreateMesh(
 		const std::deque<VertexData>& vertices,
 		const std::deque<IndexData>& indices,
-		const Material& material
+		Material* material,
+		const std::string& name
 	)
 	{
-		Mesh mesh (material);
+		Mesh mesh;
 		
 		mesh.mVerticesDataCount = vertices.size();
 		mesh.mVerticesData = static_cast<VertexData*>(malloc(sizeof(VertexData) * mesh.mVerticesDataCount));
@@ -329,15 +338,27 @@ namespace erm {
 			mesh.mIndicesData[i] = indices[i];
 		}
 		
+		mesh.mMaterial = material;
+		mesh.mName = name;
+		
 		mesh.Setup();
 		
 		return mesh;
 	}
 	
-	void ModelUtils::ParseMaterialsLib(const char* path)
+	bool ModelUtils::ParseMaterialsLib(
+		const char* path,
+		std::deque<Material>& materialsContainer
+	)
 	{
 		std::ifstream stream (Utils::GetRelativePath(path));
-		EXPECT(stream.is_open(), (std::string("No such file: ") + path).c_str());
+		
+		if (!stream.is_open())
+		{
+			std::cout << "No such file: " << path << std::endl;
+			return false;
+		}
+		
 		std::string line;
 		
 		std::optional<Material> mat;
@@ -354,7 +375,7 @@ namespace erm {
 				{
 					if (!skip && mat)
 					{
-						mLoadedMaterials.emplace_back(std::move(mat.value()));
+						materialsContainer.emplace_back(std::move(mat.value()));
 					}
 					
 					mat.reset();
@@ -362,16 +383,17 @@ namespace erm {
 					
 					ASSERT(splitted.size() >= 2);
 					std::string name = splitted[splitted.size() - 1];
-					const auto& it = std::find_if(mLoadedMaterials.begin(), mLoadedMaterials.end(), [name](const Material& mat) {
+					const auto& it = std::find_if(materialsContainer.begin(), materialsContainer.end(), [name](const Material& mat) {
 						return mat.mName.compare(name) == 0;
 					});
-					if (it != mLoadedMaterials.end())
+					if (it != materialsContainer.end())
 					{
 						skip = true;
 						continue;
 					}
 					
 					mat = Material();
+					mat->mPath = path;
 					mat->mName = name;
 				}
 				else if (skip)
@@ -431,8 +453,10 @@ namespace erm {
 		
 		if (!skip && mat)
 		{
-			mLoadedMaterials.emplace_back(std::move(mat.value()));
+			materialsContainer.emplace_back(std::move(mat.value()));
 		}
+		
+		return true;
 	}
 
 }

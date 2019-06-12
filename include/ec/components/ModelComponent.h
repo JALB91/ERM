@@ -12,14 +12,15 @@ namespace erm {
 	class ModelComponent : public IComponent
 	{
 	public:
-		ModelComponent(Entity& entity, const Model& model);
+		ModelComponent(Entity& entity, Model* model);
 		
 		// IComponent
 		void OnPostUpdate() override;
 		
 		void UpdateWorldBounds();
 		
-		inline const Model& GetModel() const { return mModel; }
+		inline Model* GetModel() const { return mModel; }
+		void SetModel(Model* model);
 		
 		inline BoundingBox3D GetWorldBounds() { return mWorldBounds; }
 		inline const BoundingBox3D& GetWorldBounds() const { return mWorldBounds; }
@@ -28,7 +29,7 @@ namespace erm {
 		inline void SetShouldShowBoundingBox(bool shouldShowBoundingBox) { mShouldShowBoundingBox = shouldShowBoundingBox; }
 		
 	private:
-		const Model& mModel;
+		Model* mModel;
 		BoundingBox3D mWorldBounds;
 		const TransformComponent& mTransformComponent;
 		bool mShouldShowBoundingBox;

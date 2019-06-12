@@ -34,8 +34,8 @@ namespace erm {
 		
 		std::queue<std::reference_wrapper<const Entity>> mRenderQueue;
 		std::unique_ptr<Mesh> mDebugMesh;
-		std::unique_ptr<ShaderProgram> mDebugShader;
-		std::unique_ptr<ShaderProgram> mModelShader;
+		ShaderProgram* mDebugShader;
+		ShaderProgram* mModelShader;
 		
 	};
 	
