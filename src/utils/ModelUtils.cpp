@@ -45,12 +45,6 @@ namespace erm {
 		{
 			std::future<void>& future = futures[i];
 
-			if (!future.valid())
-			{
-				int i = 0;
-				i += 1;
-			}
-
 			if (future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
 			{
 				futures.erase(futures.begin() + i);
