@@ -1,13 +1,13 @@
 #pragma once
 
+#include "rendering/ShaderProgram.h"
+#include "rendering/Material.h"
+#include "rendering/Texture.h"
+#include "rendering/Model.h"
+
 #include <deque>
 
 namespace erm {
-	
-	class ShaderProgram;
-	struct Material;
-	class Texture;
-	class Model;
 	
 	class ResourcesManager
 	{

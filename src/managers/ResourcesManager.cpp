@@ -1,12 +1,9 @@
 #include "managers/ResourcesManager.h"
 
-#include "rendering/ShaderProgram.h"
-#include "rendering/Material.h"
-#include "rendering/Texture.h"
-#include "rendering/Model.h"
-
 #include "utils/ModelUtils.h"
 #include "utils/Utils.h"
+
+#include <algorithm>
 
 namespace erm {
 	
