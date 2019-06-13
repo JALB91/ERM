@@ -8,17 +8,24 @@
 
 namespace erm {
 	
-	Model::Model(
-		const char* path,
-		const char* name,
-		std::deque<Mesh>&& meshes
-		)
+	Model::Model(const char* path, const char* name)
 		: mPath(path)
 		, mName(name)
-		, mMeshes(std::move(meshes))
-		, mLocalBounds()
+	{}
+	
+	Model::~Model()
+	{}
+
+	void Model::AddMesh(Mesh&& mesh)
 	{
-		for (const Mesh& mesh: mMeshes)
+		mMeshes.emplace_back(std::move(mesh));
+		UpdateLocalBound();
+	}
+
+	void Model::UpdateLocalBound()
+	{
+		mLocalBounds.Empty();
+		for (const Mesh& mesh : mMeshes)
 		{
 			if (const VertexData* verticesData = mesh.GetVerticesData())
 			{
@@ -30,8 +37,5 @@ namespace erm {
 			}
 		}
 	}
-	
-	Model::~Model()
-	{}
 	
 }

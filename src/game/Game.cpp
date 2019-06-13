@@ -53,7 +53,18 @@ namespace erm {
 	
 	Game::~Game()
 	{
-		mWindow->RemoveListener(static_cast<IWindowListener&>(*this));
+		ModelUtils::Destroy();
+		ResourcesManager::GetLoadedShaderPrograms().clear();
+		ResourcesManager::GetLoadedMaterials().clear();
+		ResourcesManager::GetLoadedTextures().clear();
+		ResourcesManager::GetLoadedModels().clear();
+
+		mObject.reset();
+		mCamera.reset();
+		mRoot.reset();
+		mRenderer.reset();
+		mRenderContext.reset();
+		mWindow.reset();
 	}
 	
 	bool Game::Init()
@@ -65,16 +76,7 @@ namespace erm {
 		
 		mRenderContext = std::make_unique<RenderContext>();
 		mRenderer = std::make_unique<Renderer>(*mRenderContext);
-		
-		ResourcesManager::GetOrCreateModel(kLamborghiniModelPath);
-		ResourcesManager::GetOrCreateModel(kSpaceshipModelPath);
-		ResourcesManager::GetOrCreateModel(kIronManModelPath);
-		ResourcesManager::GetOrCreateModel(kIphoneModelPath);
-		ResourcesManager::GetOrCreateModel(kAventModelPath);
-		ResourcesManager::GetOrCreateModel(kCrateModelPath);
-		ResourcesManager::GetOrCreateModel(kChairModelPath);
-		ResourcesManager::GetOrCreateModel(kCubeModelPath);
-		
+
 		mRoot = std::make_unique<Entity>(*this, "Root");
 
 		mCamera = std::make_unique<Entity>(*this, "Camera");
@@ -85,6 +87,15 @@ namespace erm {
 
 		mRoot->AddChild(mCamera.get());
 		mRoot->AddChild(mObject.get());
+		
+		ResourcesManager::GetOrCreateModel(kLamborghiniModelPath);
+		ResourcesManager::GetOrCreateModel(kSpaceshipModelPath);
+		ResourcesManager::GetOrCreateModel(kIronManModelPath);
+		ResourcesManager::GetOrCreateModel(kIphoneModelPath);
+		ResourcesManager::GetOrCreateModel(kAventModelPath);
+		ResourcesManager::GetOrCreateModel(kCrateModelPath);
+		ResourcesManager::GetOrCreateModel(kChairModelPath);
+		ResourcesManager::GetOrCreateModel(kCubeModelPath);
 		
 		return true;
 	}
@@ -109,6 +120,7 @@ namespace erm {
 		if (mRoot) mRoot->OnUpdate(dt);
 		mWindow->NewFrame();
 		if (mRenderContext) mRenderContext->Clear();
+		ModelUtils::Update();
 	}
 	
 	void Game::OnPostUpdate()
