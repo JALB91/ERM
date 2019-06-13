@@ -23,6 +23,8 @@ namespace erm {
 			std::cout << "No such file: " << path << std::endl;
 			return false;
 		}
+
+		stream.close();
 		
 		texturesContainer.emplace_back(path);
 		

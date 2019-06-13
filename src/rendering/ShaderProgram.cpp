@@ -44,12 +44,15 @@ namespace erm {
 			std::cout << "No such file: " << path << std::endl;
 			return false;
 		}
+		stream.close();
+
 		stream = std::ifstream(Utils::GetRelativePath((path + ".frag").c_str()));
 		if (!stream.is_open())
 		{
 			std::cout << "No such file: " << path << std::endl;
 			return false;
 		}
+		stream.close();
 		
 		shaderProgramsContainer.emplace_back(path);
 		
