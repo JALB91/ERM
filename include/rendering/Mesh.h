@@ -46,6 +46,8 @@ namespace erm {
 		
 		inline const std::string& GetName() const { return mName; }
 		inline void SetName(const std::string& name) { mName = name; }
+
+		inline bool IsReady() const { return mVerticesData && mIndicesData && mVerticesDataCount > 0 && mIndicesDataCount > 0 && mIB && mVA && mVB; }
 		
 	private:
 		void Setup();

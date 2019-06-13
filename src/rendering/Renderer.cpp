@@ -111,6 +111,8 @@ namespace erm {
 		
 		for (const Mesh& mesh: modelPtr->GetMeshes())
 		{
+			if (!mesh.IsReady()) continue;
+
 			const Material& material = mesh.GetMaterial() ? *mesh.GetMaterial() : Material::DEFAULT;
 			
 			mModelShader->SetUniform3f(Uniform::MATERIAL_AMBIENT, material.mAmbient.x, material.mAmbient.y, material.mAmbient.z);
