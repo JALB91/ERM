@@ -20,7 +20,7 @@ namespace erm {
 		bool GLLogCall(const char* function, const char* file, int line);
 		void GLClearError();
 		
-		std::deque<std::string> SplitString(const std::string& str, const char& ch);
+		std::deque<std::string> SplitString(const std::string& str, char ch);
 		std::string GetRelativePath(const char* absolutePath);
 		
 	}

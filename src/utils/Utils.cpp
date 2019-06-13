@@ -35,7 +35,7 @@ namespace erm {
 			while (glGetError() != GL_NO_ERROR);
 		}
 
-		std::deque<std::string> Utils::SplitString(const std::string& str, const char& ch)
+		std::deque<std::string> SplitString(const std::string& str, char ch)
 		{
 			std::deque<std::string> res;
 			std::stringstream ss (str);
