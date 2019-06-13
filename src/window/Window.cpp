@@ -17,6 +17,7 @@
 
 #include <string>
 #include <iostream>
+#include <algorithm>
 #include <functional>
 
 namespace {
@@ -37,6 +38,8 @@ namespace {
 	const float kImGuiSpaceDown = 0.2f;
 	const float kImGuiSpaceLeft = 0.2f;
 	const float kImGuiSpaceRight = 0.2f;
+
+	bool firstRefresh = true;
 	
 }
 
@@ -71,6 +74,17 @@ namespace internal {
 	{
 		static_cast<erm::Window*>(glfwGetWindowUserPointer(window))->OnKey(key, scanCode, action, mods);
 	}
+
+	void OnRefresh(GLFWwindow* window)
+	{
+		if (firstRefresh)
+		{
+			firstRefresh = false;
+			int width, height;
+			glfwGetWindowSize(window, &width, &height);
+			static_cast<erm::Window*>(glfwGetWindowUserPointer(window))->OnSizeChanged(width, height);
+		}
+	}
 	
 }
 
@@ -79,7 +93,6 @@ namespace erm {
 	Window::Window()
 		: IWindow()
 		, mWindow(nullptr)
-		, mFirstFocus(true)
 	{}
 	
 	Window::~Window()
@@ -137,10 +150,12 @@ namespace erm {
 		
 		glfwSetWindowFocusCallback(mWindow, internal::OnFocus);
 		glfwSetWindowMaximizeCallback(mWindow, internal::OnMaximized);
+		glfwSetFramebufferSizeCallback(mWindow, internal::OnSizeChanged);
 		glfwSetWindowSizeCallback(mWindow, internal::OnSizeChanged);
 		glfwSetMouseButtonCallback(mWindow, internal::OnMouseButton);
 		glfwSetCursorPosCallback(mWindow, internal::OnMousePos);
 		glfwSetKeyCallback(mWindow, internal::OnKey);
+		glfwSetWindowRefreshCallback(mWindow, internal::OnRefresh);
 		
 		ImGui::CreateContext();
 		ImGui::StyleColorsDark();
@@ -242,33 +257,36 @@ namespace erm {
 	}
 	
 	void Window::OnMaximised(bool wasMaximised)
-	{}
+	{
+		int width, height;
+		glfwGetWindowSize(mWindow, &width, &height);
+		OnSizeChanged(width, height);
+	}
 	
 	void Window::OnFocus()
 	{
-		if (mFirstFocus)
-		{
-			mFirstFocus = false;
-			int width, height;
-			glfwGetWindowSize(mWindow, &width, &height);
-			OnSizeChanged(width, height);
-		}
+		int width, height;
+		glfwGetWindowSize(mWindow, &width, &height);
+		OnSizeChanged(width, height);
 	}
 	
 	void Window::UpdateViewport()
 	{
-		mViewport.y = std::max(mWindowHeight * 0.1f, mWindowHeight - (mWindowHeight * kImGuiSpaceUp + mWindowHeight * kImGuiSpaceDown));
-		mViewport.x = std::max(mWindowWidth * 0.1f, mWindowWidth - (mWindowWidth * kImGuiSpaceRight + mWindowWidth * kImGuiSpaceLeft));
-		
-		float scaleX, scaleY;
-		glfwGetWindowContentScale(mWindow, &scaleX, &scaleY);
+		int width, height;
+		glfwGetFramebufferSize(mWindow, &width, &height);
+
+		const float viewPortX = std::max(width * 0.1f, width - (width * kImGuiSpaceRight + width * kImGuiSpaceLeft));
+		const float viewPortY = std::max(height * 0.1f, height - (height * kImGuiSpaceUp + height * kImGuiSpaceDown));
 		
 		GLCALL(glViewport(
-			mWindowWidth * kImGuiSpaceLeft * scaleX,
-			mWindowHeight * kImGuiSpaceDown * scaleY,
-			mViewport.x * scaleX,
-			mViewport.y * scaleY
+			static_cast<int>(width * kImGuiSpaceLeft),
+			static_cast<int>(height * kImGuiSpaceDown),
+			static_cast<int>(viewPortX),
+			static_cast<int>(viewPortY)
 		));
+
+		mViewport.x = std::max(mWindowWidth * 0.1f, mWindowWidth - (mWindowWidth * kImGuiSpaceRight + mWindowWidth * kImGuiSpaceLeft));
+		mViewport.y = std::max(mWindowHeight * 0.1f, mWindowHeight - (mWindowHeight * kImGuiSpaceUp + mWindowHeight * kImGuiSpaceDown));
 	}
 
 	void Window::UpdateAspectRatio()

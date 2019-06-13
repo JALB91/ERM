@@ -41,8 +41,6 @@ namespace erm {
 
 		GLFWwindow* mWindow;
 		
-		bool mFirstFocus;
-		
 	};
 	
 }
