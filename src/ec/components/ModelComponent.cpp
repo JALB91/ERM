@@ -15,15 +15,15 @@ namespace erm {
 		: IComponent(entity)
 		, mModel(model)
 		, mWorldBounds()
-		, mTransformComponent(entity.RequireComponent<TransformComponent>())
 		, mShouldShowBoundingBox(true)
+		, mTransformComponent(entity.RequireComponent<TransformComponent>())
 	{
 		UpdateWorldBounds();
 	}
 	
 	void ModelComponent::OnPostUpdate()
 	{
-		if (mIsDirty) UpdateWorldBounds();
+		if (mIsDirty || (mModel && mModel->IsDirty())) UpdateWorldBounds();
 	}
 	
 	void ModelComponent::UpdateWorldBounds()

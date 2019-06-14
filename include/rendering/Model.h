@@ -31,6 +31,9 @@ namespace erm {
 		
 		inline BoundingBox3D GetLocalBounds() { return mLocalBounds; }
 		inline const BoundingBox3D& GetLocalBounds() const { return mLocalBounds; }
+		
+		inline bool IsDirty() const { return mIsDirty; }
+		inline void SetDirty(bool isDirty) { mIsDirty = isDirty; }
 
 		void AddMesh(Mesh&& mesh);
 		void UpdateLocalBound();
@@ -40,6 +43,7 @@ namespace erm {
 		std::string mName;
 		std::deque<Mesh> mMeshes;
 		BoundingBox3D mLocalBounds;
+		bool mIsDirty;
 		
 	};
 	

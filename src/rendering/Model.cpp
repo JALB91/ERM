@@ -11,6 +11,7 @@ namespace erm {
 	Model::Model(const char* path, const char* name)
 		: mPath(path)
 		, mName(name)
+		, mIsDirty(false)
 	{}
 	
 	Model::~Model()
@@ -36,6 +37,7 @@ namespace erm {
 				}
 			}
 		}
+		mIsDirty = true;
 	}
 	
 }

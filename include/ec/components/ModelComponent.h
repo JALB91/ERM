@@ -31,8 +31,8 @@ namespace erm {
 	private:
 		Model* mModel;
 		BoundingBox3D mWorldBounds;
-		const TransformComponent& mTransformComponent;
 		bool mShouldShowBoundingBox;
+		const TransformComponent& mTransformComponent;
 		
 	};
 	

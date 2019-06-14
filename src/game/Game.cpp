@@ -81,6 +81,7 @@ namespace erm {
 
 		mCamera = std::make_unique<Entity>(*this, "Camera");
 		mCamera->RequireComponent<CameraComponent>(*mWindow);
+		mCamera->GetComponent<TransformComponent>()->SetTranslation(math::vec3(0.0f, 145.0f, 400.0f));
 
 		mObject = std::make_unique<Entity>(*this, "Model");
 		mObject->RequireComponent<ModelComponent>(ResourcesManager::GetOrCreateModel(kIronManModelPath));
@@ -126,6 +127,7 @@ namespace erm {
 	void Game::OnPostUpdate()
 	{
 		if (mRoot) mRoot->OnPostUpdate();
+		ResourcesManager::OnPostUpdate();
 	}
 	
 	void Game::OnPreRender()

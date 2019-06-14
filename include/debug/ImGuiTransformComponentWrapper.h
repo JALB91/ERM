@@ -33,8 +33,6 @@ namespace ImGui {
 				transformComponent.SetRotation(rotation);
 				transformComponent.SetScale(scale);
 			}
-			
-			transformComponent.SetDirty();
 		}
 	}
 	
