@@ -20,14 +20,14 @@ namespace erm {
 	
 	Mesh::~Mesh()
 	{
-		if (mVerticesData)
+		if (mVerticesData && mVerticesDataCount > 0)
 		{
-			free(mVerticesData);
+			delete[] mVerticesData;
 		}
 		
-		if (mIndicesData)
+		if (mIndicesData && mIndicesDataCount > 0)
 		{
-			free(mIndicesData);
+			delete[] mIndicesData;
 		}
 	}
 	
@@ -58,6 +58,12 @@ namespace erm {
 		
 	void Mesh::Setup()
 	{
+		if (!mVerticesData || mVerticesDataCount <= 0 ||
+			!mIndicesData || mIndicesDataCount <= 0)
+		{
+			return;
+		}
+		
 		mVB = std::make_unique<VertexBuffer>(
 			&mVerticesData[0].mVertex[0],
 			sizeof(VertexType) * kVectorsLenght * mVerticesDataCount +

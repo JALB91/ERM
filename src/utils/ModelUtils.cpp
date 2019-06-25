@@ -395,14 +395,14 @@ namespace erm {
 		Mesh mesh;
 		
 		mesh.mVerticesDataCount = vertices.size();
-		mesh.mVerticesData = static_cast<VertexData*>(malloc(sizeof(VertexData) * mesh.mVerticesDataCount));
+		mesh.mVerticesData = new VertexData[mesh.mVerticesDataCount];
 		for (unsigned int i = 0; i < mesh.mVerticesDataCount; ++i)
 		{
 			mesh.mVerticesData[i] = vertices[i];
 		}
 		
 		mesh.mIndicesDataCount = indices.size();
-		mesh.mIndicesData = static_cast<IndexData*>(malloc(sizeof(IndexData) * mesh.mIndicesDataCount));
+		mesh.mIndicesData = new IndexData[mesh.mIndicesDataCount];
 		for (unsigned int i = 0; i < mesh.mIndicesDataCount; ++i)
 		{
 			mesh.mIndicesData[i] = indices[i];

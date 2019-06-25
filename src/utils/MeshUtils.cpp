@@ -13,7 +13,7 @@ namespace erm {
 		Mesh mesh;
 		
 		mesh.mVerticesDataCount = 3;
-		mesh.mVerticesData = static_cast<VertexData*>(malloc(sizeof(VertexData) * mesh.mVerticesDataCount));
+		mesh.mVerticesData = new VertexData[mesh.mVerticesDataCount];
 		mesh.mVerticesData[0].mVertex = a;
 		mesh.mVerticesData[0].mUVVertex = UVVertex(0.0f, 0.0f);
 		mesh.mVerticesData[0].mNormalVertex = NormalVertex(0.0f);
@@ -25,7 +25,7 @@ namespace erm {
 		mesh.mVerticesData[2].mNormalVertex = NormalVertex(0.0f);
 		
 		mesh.mIndicesDataCount = 3;
-		mesh.mIndicesData = static_cast<IndexData*>(malloc(sizeof(IndexData) * mesh.mIndicesDataCount));
+		mesh.mIndicesData = new IndexData[mesh.mIndicesDataCount];
 		mesh.mIndicesData[0] = 0;
 		mesh.mIndicesData[1] = 1;
 		mesh.mIndicesData[2] = 2;
@@ -45,7 +45,7 @@ namespace erm {
 		const float halfHeight = height*0.5f;
 		
 		mesh.mVerticesDataCount = 4;
-		mesh.mVerticesData = static_cast<VertexData*>(malloc(sizeof(VertexData) * mesh.mVerticesDataCount));
+		mesh.mVerticesData = new VertexData[mesh.mVerticesDataCount];
 		mesh.mVerticesData[0].mVertex = Vertex(-halfWidth, -halfHeight, 0.0f);
 		mesh.mVerticesData[0].mUVVertex = UVVertex(0.0f, 0.0f);
 		mesh.mVerticesData[0].mNormalVertex = NormalVertex(0.0f);
@@ -60,7 +60,7 @@ namespace erm {
 		mesh.mVerticesData[3].mNormalVertex = NormalVertex(0.0f);
 		
 		mesh.mIndicesDataCount = 6;
-		mesh.mIndicesData = static_cast<IndexData*>(malloc(sizeof(IndexData) * mesh.mIndicesDataCount));
+		mesh.mIndicesData = new IndexData[mesh.mIndicesDataCount];
 		mesh.mIndicesData[0] = 0;
 		mesh.mIndicesData[1] = 1;
 		mesh.mIndicesData[2] = 2;
@@ -85,7 +85,7 @@ namespace erm {
 		Mesh mesh;
 		
 		mesh.mVerticesDataCount = 6 * 4;
-		mesh.mVerticesData = static_cast<VertexData*>(malloc(sizeof(VertexData) * mesh.mVerticesDataCount));
+		mesh.mVerticesData = new VertexData[mesh.mVerticesDataCount];
 		
 		int vertIndex = 0;
 		
@@ -175,7 +175,7 @@ namespace erm {
 		
 		// Indices
 		mesh.mIndicesDataCount = 36;
-		mesh.mIndicesData = static_cast<IndexData*>(malloc(sizeof(IndexData) * mesh.mIndicesDataCount));
+		mesh.mIndicesData = new IndexData[mesh.mIndicesDataCount];
 		
 		for (int i = 0; i < 6; ++i)
 		{
@@ -205,7 +205,7 @@ namespace erm {
 		Mesh mesh;
 		
 		mesh.mVerticesDataCount = 4 + 4 * 3;
-		mesh.mVerticesData = static_cast<VertexData*>(malloc(sizeof(VertexData) * mesh.mVerticesDataCount));
+		mesh.mVerticesData = new VertexData[mesh.mVerticesDataCount];
 		
 		int vertIndex = 0;
 		
@@ -269,7 +269,7 @@ namespace erm {
 		
 		// Indices
 		mesh.mIndicesDataCount = 18;
-		mesh.mIndicesData = static_cast<IndexData*>(malloc(sizeof(IndexData) * mesh.mIndicesDataCount));
+		mesh.mIndicesData = new IndexData[mesh.mIndicesDataCount];
 		
 		mesh.mIndicesData[0] = 0;
 		mesh.mIndicesData[1] = 1;
@@ -303,10 +303,10 @@ namespace erm {
 		Mesh mesh;
 		
 		mesh.mVerticesDataCount = (sectors + 1) * (rings + 1);
-		mesh.mVerticesData = static_cast<VertexData*>(malloc(sizeof(VertexData) * mesh.mVerticesDataCount));
+		mesh.mVerticesData = new VertexData[mesh.mVerticesDataCount];
 		
 		mesh.mIndicesDataCount = sectors * rings * 6 - sectors * 6;
-		mesh.mIndicesData = static_cast<IndexData*>(malloc(sizeof(IndexData) * mesh.mIndicesDataCount));
+		mesh.mIndicesData = new IndexData[mesh.mIndicesDataCount];
 		
 		float x, y, z, xy;
 		float s, t;
