@@ -1,7 +1,8 @@
 #!/bin/sh
 
 OPT="-DPRINT_VARIABLES=FALSE"
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+CMAKE=false
+DIR=`dirname $0`
 
 for i in "$@"
 do
@@ -9,25 +10,37 @@ do
 		-v|--verbose)
 			OPT="-DPRINT_VARIABLES=TRUE"
 	esac
+	case $i in
+		--cmake)
+			CMAKE=true
+	esac
 done
 
-GENERATOR=""
+_GENERATOR=""
 _OS=""
 
 if [[ "$OSTYPE" == "linux-gnu" ]]; then
 	_OS="Linux"
 elif [[ "$OSTYPE" == "darwin"* ]]; then
-	GENERATOR="Xcode"
+	_GENERATOR="Xcode"
 	_OS="OSX"
 elif [[ "$OSTYPE" == "cygwin" || "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
-	GENERATOR="Visual Studio 15 2017"
+	_GENERATOR="Visual Studio 15 2017"
 	_OS="WIN32"
 else
 	echo "Unknown OS"
-	return
+	exit
 fi
 
-cd ${DIR}/build/ && cmake "$OPT" -G "$GENERATOR" ..
+if $CMAKE; then
+	_GENERATOR="Unix Makefiles"
+fi
+
+cd ${DIR}/build/ && cmake "$OPT" -G "$_GENERATOR" ..
+
+if $CMAKE; then
+	exit
+fi
 
 for i in "$@"
 do
