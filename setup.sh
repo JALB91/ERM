@@ -1,7 +1,6 @@
 #!/bin/sh
 
 OPT="-DPRINT_VARIABLES=FALSE"
-CMAKE=false
 DIR=`dirname $0`
 
 for i in "$@"
@@ -32,38 +31,41 @@ else
 	exit
 fi
 
-if $CMAKE; then
+if [[ $CMAKE ]]; then
 	_GENERATOR="Unix Makefiles"
 fi
 
 cd ${DIR}/build/ && cmake "$OPT" -G "$_GENERATOR" ..
 
-if $CMAKE; then
-	exit
-fi
-
 for i in "$@"
 do
 	case $i in
 		-o|--open)
-			if [[ "$_OS" == "OSX" ]]; then
+			if [[ $CMAKE ]]; then
+				"Not Ready Yet"
+				exit
+			elif [[ "$_OS" == "OSX" ]]; then
 				open ERM.xcodeproj
 			elif [[ "$_OS" == "WIN32" ]]; then
 				start ERM.sln
 			fi
 	esac
 	case $i in
-		-f|--fastrun)
-			if [[ "$_OS" == "OSX" ]]; then
-				xcodebuild -target ERM && cd Debug/ && ./ERM
+		-c|--compile)
+			if [[ $CMAKE ]]; then
+				make
+			elif [[ "$_OS" == "OSX" ]]; then
+				xcodebuild -target ERM
 			elif [[ "$_OS" == "WIN32" ]]; then
 				echo "Not ready yet"
 			fi
 	esac
 	case $i in
-		-c|--compile)
-			if [[ "$_OS" == "OSX" ]]; then
-				xcodebuild -target ERM
+		-f|--fastrun)
+			if [[ $CMAKE ]]; then
+				cd .. && ./build/ERM
+			elif [[ "$_OS" == "OSX" ]]; then
+				xcodebuild -target ERM && cd Debug/ && ./ERM
 			elif [[ "$_OS" == "WIN32" ]]; then
 				echo "Not ready yet"
 			fi
