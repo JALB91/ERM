@@ -38,10 +38,10 @@ namespace erm {
 		inline const IndexBuffer& GetIB() const { return *mIB; }
 		inline const VertexArray& GetVA() const { return *mVA; }
 		
-		inline const VertexData* const GetVerticesData() const { return mVerticesData; }
+		inline const VertexData* GetVerticesData() const { return mVerticesData; }
 		inline int GetVerticesDataCount() const { return mVerticesDataCount; }
 		
-		inline const IndexData* const GetIndicesData() const { return mIndicesData; }
+		inline const IndexData* GetIndicesData() const { return mIndicesData; }
 		inline int GetIndicesCount() const { return mIndicesDataCount; }
 		
 		inline const std::string& GetName() const { return mName; }

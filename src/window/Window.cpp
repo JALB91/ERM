@@ -45,7 +45,7 @@ namespace {
 
 namespace internal {
 	
-	void OnFocus(GLFWwindow* window, int focus)
+	void OnFocus(GLFWwindow* window, int /*focus*/)
 	{
 		static_cast<erm::Window*>(glfwGetWindowUserPointer(window))->OnFocus();
 	}
@@ -194,7 +194,7 @@ namespace erm {
 		glfwPollEvents();
 	}
 	
-	void Window::OnKey(int key, int scanCode, int action, int mods)
+	void Window::OnKey(int key, int /*scanCode*/, int action, int /*mods*/)
 	{
 		if (action == GLFW_PRESS)
 		{
@@ -216,7 +216,7 @@ namespace erm {
 		}
 	}
 	
-	void Window::OnMouseButton(int button, int action, int mods)
+	void Window::OnMouseButton(int button, int action, int /*mods*/)
 	{
 		if (action == GLFW_PRESS)
 		{
@@ -256,7 +256,7 @@ namespace erm {
 		});
 	}
 	
-	void Window::OnMaximised(bool wasMaximised)
+	void Window::OnMaximised(bool /*wasMaximised*/)
 	{
 		int width, height;
 		glfwGetWindowSize(mWindow, &width, &height);

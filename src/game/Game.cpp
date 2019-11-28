@@ -151,22 +151,22 @@ namespace erm {
 		mWindow->PostRender();
 	}
 	
-	void Game::OnKeyPressed(Key keyCode)
+	void Game::OnKeyPressed(Key /*keyCode*/)
 	{}
 	
-	void Game::OnKeyReleased(Key keyCode)
+	void Game::OnKeyReleased(Key /*keyCode*/)
 	{}
 	
-	void Game::OnMouseButtonPressed(MouseButton mouseButton)
+	void Game::OnMouseButtonPressed(MouseButton /*mouseButton*/)
 	{}
 	
-	void Game::OnMouseButtonReleased(MouseButton mouseButton)
+	void Game::OnMouseButtonReleased(MouseButton /*mouseButton*/)
 	{}
 	
-	void Game::OnMouseMoved(double xPos, double yPos)
+	void Game::OnMouseMoved(double /*xPos*/, double /*yPos*/)
 	{}
 	
-	void Game::OnSizeChanged(int width, int height)
+	void Game::OnSizeChanged(int /*width*/, int /*height*/)
 	{}
 	
 }

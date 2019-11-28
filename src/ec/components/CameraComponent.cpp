@@ -41,7 +41,7 @@ namespace erm {
 		, mZFar(kZFar)
 	{}
 	
-	void CameraComponent::OnUpdate(float dt)
+	void CameraComponent::OnUpdate(float /*dt*/)
 	{
 		math::vec4 translation (0.0f);
 		
@@ -118,7 +118,7 @@ namespace erm {
 		mProjectionMatrix = glm::perspective(glm::radians(mFOV), mWindow.GetAspectRatio(), mZNear, mZFar);
 	}
 	
-	void CameraComponent::LookAt(const Entity& other)
+	void CameraComponent::LookAt(const Entity& /*other*/)
 	{
 		
 	}

@@ -18,7 +18,7 @@ namespace erm {
 		
 		virtual ~IComponent() = default;
 		
-		virtual inline void OnUpdate(float dt) {}
+		virtual inline void OnUpdate(float /*dt*/) {}
 		virtual inline void OnPostUpdate() {}
 		virtual inline void OnRender() {}
 		
