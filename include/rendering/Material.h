@@ -10,6 +10,8 @@ namespace erm {
 	{
 		static Material DEFAULT;
 		
+		Material() = delete;
+		
 		std::string mPath;
 		std::string mName;
 		math::vec3 mAmbient;

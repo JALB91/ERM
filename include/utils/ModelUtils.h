@@ -24,6 +24,7 @@ namespace erm {
 			std::deque<Material>& materialsContainer
 		);
 		
+	private:
 		static bool ParseMaterialsLib(
 			const char* path,
 			std::deque<Material>& materialsContainer

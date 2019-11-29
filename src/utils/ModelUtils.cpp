@@ -430,7 +430,6 @@ namespace erm {
 		std::string line;
 		
 		std::optional<Material> mat;
-		mat.reset();
 		bool skip = false;
 		
 		while (std::getline(stream, line))
@@ -471,7 +470,7 @@ namespace erm {
 					}
 					mut.unlock();
 					
-					mat = Material();
+					mat = Material::DEFAULT;
 					mat->mPath = path;
 					mat->mName = name;
 				}
@@ -510,22 +509,6 @@ namespace erm {
 				{
 					ASSERT(splitted.size() >= 2);
 					mat->mShininess = static_cast<float>(std::atof(splitted[splitted.size() - 1].c_str()));
-				}
-				else if (splitted[0].compare("") == 0)
-				{
-					
-				}
-				else if (splitted[0].compare("") == 0)
-				{
-					
-				}
-				else if (splitted[0].compare("") == 0)
-				{
-					
-				}
-				else if (splitted[0].compare("") == 0)
-				{
-					
 				}
 			}
 		}
