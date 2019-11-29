@@ -35,7 +35,7 @@ namespace {
 	const char* const kGlslVersion = "#version 330";
 	
 	const float kImGuiSpaceUp = 0.0f;
-	const float kImGuiSpaceDown = 0.2f;
+	const float kImGuiSpaceDown = 0.3f;
 	const float kImGuiSpaceLeft = 0.2f;
 	const float kImGuiSpaceRight = 0.2f;
 
