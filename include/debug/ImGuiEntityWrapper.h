@@ -8,7 +8,12 @@ namespace ImGui {
 	
 	void ShowEntityDebugWindow(erm::Entity** active, erm::Entity& entity)
 	{
-		int flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
+		int flags = ImGuiTreeNodeFlags_FramePadding;
+		
+		if (entity.GetChildren().empty())
+		{
+			flags |= ImGuiTreeNodeFlags_Leaf;
+		}
 		
 		if (&entity == *active)
 		{

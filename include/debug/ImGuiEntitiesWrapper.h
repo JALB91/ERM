@@ -20,7 +20,7 @@ namespace ImGui {
 		
 		static erm::Entity* active = nullptr;
 		
-		if (ImGui::Begin("Scene", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse))
+		if (ImGui::Begin("Scene", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_HorizontalScrollbar))
 		{
 			ImGui::ShowEntityDebugWindow(&active, game.GetRoot());
 		}
@@ -28,15 +28,15 @@ namespace ImGui {
 		ImGui::SetWindowPos(ImVec2(0.0f, ImGui::GetFrameHeight()));
 		ImGui::End();
 		
-		if (ImGui::Begin("Entity", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse) && active)
+		if (ImGui::Begin("Entity", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_HorizontalScrollbar) && active)
 		{
 			ImGui::PushID(active->GetEntityID());
-			ImGui::LabelText("Components", "");
-			ImGui::Indent();
+			ImGui::Separator();
+			ImGui::Text("Components");
 			active->ForEachComponent([](erm::IComponent& component) {
 				ImGui::ShowComponentDebugWindow(&component);
 			});
-			ImGui::Unindent();
+			ImGui::Separator();
 			ImGui::PopID();
 		}
 		ImGui::SetWindowSize(ImVec2((winSize.x - viewport.x) * 0.5f, winSize.y - ImGui::GetFrameHeight()));
