@@ -26,7 +26,7 @@ namespace erm {
 		
 		bool IsCullFaceEnabled() const;
 		int GetCullFace() const;
-		int GetCullFrontFace() const;
+		int GetFrontFace() const;
 		void SetCullFaceEnabled(bool enabled) const;
 		void SetCullFace(int cullFace) const;
 		void SetFrontFace(int frontFace) const;

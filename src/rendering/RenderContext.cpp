@@ -86,7 +86,7 @@ namespace erm {
 		return result;
 	}
 	
-	int RenderContext::GetCullFrontFace() const
+	int RenderContext::GetFrontFace() const
 	{
 		int result;
 		GLCALL(glGetIntegerv(GL_FRONT_FACE, &result));
