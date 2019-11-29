@@ -1,5 +1,4 @@
 #include "debug/ImGuiWrapper.h"
-#include "debug/ImGuiEntityWrapper.h"
 #include "debug/ImGuiEntitiesWrapper.h"
 #include "debug/ImGuiRenderingWrapper.h"
 #include "debug/ImGuiMainMenuBarWrapper.h"
