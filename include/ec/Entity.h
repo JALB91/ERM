@@ -4,7 +4,7 @@
 #include "game/Game.h"
 
 #include <array>
-#include <deque>
+#include <vector>
 #include <memory>
 #include <string>
 #include <functional>
@@ -90,7 +90,7 @@ namespace erm {
 		void RemoveFromParent();
 		void AddChild(Entity* child);
 		inline Entity* GetParent() const { return mParent; }
-		inline const std::deque<Entity*>& GetChildren() const { return mChildren; }
+		inline const std::vector<Entity*>& GetChildren() const { return mChildren; }
 		
 		void SetDirty(bool isDirty);
 		inline bool IsDirty() const { return mIsDirty; }
@@ -106,7 +106,7 @@ namespace erm {
 		ComponentIDs mComponentIDs;
 		
 		Entity* mParent;
-		std::deque<Entity*> mChildren;
+		std::vector<Entity*> mChildren;
 		
 		bool mIsDirty;
 		

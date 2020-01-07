@@ -11,26 +11,6 @@
 
 namespace erm {
 	
-	bool Texture::Create(
-		const char* path,
-		std::deque<Texture>& texturesContainer
-	)
-	{
-		std::ifstream stream (Utils::GetRelativePath(path));
-		
-		if (!stream.is_open())
-		{
-			std::cout << "No such file: " << path << std::endl;
-			return false;
-		}
-
-		stream.close();
-		
-		texturesContainer.emplace_back(path);
-		
-		return true;
-	}
-	
 	Texture::Texture(const char* path)
 		: mRendererId(0)
 		, mLocalBuffer(nullptr)

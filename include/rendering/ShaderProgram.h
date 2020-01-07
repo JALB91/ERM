@@ -4,7 +4,7 @@
 
 #include <unordered_map>
 #include <string>
-#include <deque>
+#include <vector>
 
 namespace erm {
 	
@@ -13,11 +13,6 @@ namespace erm {
 	class ShaderProgram
 	{
 	public:
-		static bool Create(
-			const std::string& path,
-			std::deque<ShaderProgram>& shaderProgramsContainer
-		);
-		
 		ShaderProgram(const std::string& shaderPath);
 		~ShaderProgram();
 		

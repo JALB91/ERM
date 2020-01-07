@@ -91,7 +91,7 @@ namespace erm {
 	{
 		if (mParent)
 		{
-			std::deque<Entity*>& children = mParent->mChildren;
+			std::vector<Entity*>& children = mParent->mChildren;
 			auto it = std::find(children.begin(), children.end(), this);
 			if (it != children.end())
 			{

@@ -4,34 +4,57 @@
 #include "utils/Utils.h"
 
 #include <algorithm>
+#include <iostream>
+#include <fstream>
 
 namespace erm {
 	
-	std::deque<ShaderProgram> ResourcesManager::mLoadedShaderPrograms {};
-	std::deque<Material> ResourcesManager::mLoadedMaterials {};
-	std::deque<Texture> ResourcesManager::mLoadedTextures {};
-	std::deque<Model> ResourcesManager::mLoadedModels {};
+	ResourcesManager::Shaders ResourcesManager::mLoadedShaderPrograms {};
+	ResourcesManager::Materials ResourcesManager::mLoadedMaterials {};
+	ResourcesManager::Textures ResourcesManager::mLoadedTextures {};
+	ResourcesManager::Models ResourcesManager::mLoadedModels {};
 	
 	ShaderProgram* ResourcesManager::GetOrCreateShaderProgram(const char* shaderProgramPath)
 	{
 		auto it = std::find_if(
 			mLoadedShaderPrograms.begin(),
 			mLoadedShaderPrograms.end(),
-			[shaderProgramPath](ShaderProgram& program) {
-				return program.GetPath().compare(shaderProgramPath) == 0;
+			[shaderProgramPath](Handle<ShaderProgram>& program) {
+				return program->GetPath().compare(shaderProgramPath) == 0;
 			}
 		);
 		if (it != mLoadedShaderPrograms.end())
 		{
-			return &(*it);
+			return (*it).get();
 		}
 		
-		if (ShaderProgram::Create(shaderProgramPath, mLoadedShaderPrograms))
+		char buffer[256] {0};
+		std::strcat(buffer, shaderProgramPath);
+		std::strcat(buffer, ".vert");
+		
+		std::ifstream stream (Utils::GetRelativePath(buffer));
+		if (!stream.is_open())
 		{
-			return &mLoadedShaderPrograms.back();
+			std::cout << "No such file: " << shaderProgramPath << std::endl;
+			return nullptr;
 		}
+		stream.close();
 		
-		return nullptr;
+		std::memset(buffer, 0, sizeof(buffer));
+		std::strcat(buffer, shaderProgramPath);
+		std::strcat(buffer, ".frag");
+
+		stream = std::ifstream(Utils::GetRelativePath(buffer));
+		if (!stream.is_open())
+		{
+			std::cout << "No such file: " << shaderProgramPath << std::endl;
+			return nullptr;
+		}
+		stream.close();
+		
+		return mLoadedShaderPrograms.emplace_back(
+			std::make_unique<ShaderProgram>(shaderProgramPath)
+		).get();
 	}
 	
 	Material* ResourcesManager::GetOrCreateMaterial(const char* materialPath, const char* materialName)
@@ -39,13 +62,13 @@ namespace erm {
 		auto it = std::find_if(
 			mLoadedMaterials.begin(),
 			mLoadedMaterials.end(),
-			[materialPath, materialName](Material& material) {
-				return (material.mPath.compare(materialPath) == 0 && material.mName.compare(materialName) == 0);
+			[materialPath, materialName](Handle<Material>& material) {
+				return (material->mPath.compare(materialPath) == 0 && material->mName.compare(materialName) == 0);
 			}
 		);
 		if (it != mLoadedMaterials.end())
 		{
-			return &(*it);
+			return (*it).get();
 		}
 		
 		return nullptr;
@@ -56,21 +79,28 @@ namespace erm {
 		auto it = std::find_if(
 			mLoadedTextures.begin(),
 			mLoadedTextures.end(),
-			[texturePath](Texture& texture) {
-				return texture.GetPath().compare(texturePath) == 0;
+			[texturePath](Handle<Texture>& texture) {
+				return texture->GetPath().compare(texturePath) == 0;
 			}
 		);
 		if (it != mLoadedTextures.end())
 		{
-			return &(*it);
+			return (*it).get();
 		}
 		
-		if (Texture::Create(texturePath, mLoadedTextures))
+		std::ifstream stream (Utils::GetRelativePath(texturePath));
+		
+		if (!stream.is_open())
 		{
-			return &mLoadedTextures.back();
+			std::cout << "No such file: " << texturePath << std::endl;
+			return nullptr;
 		}
+
+		stream.close();
 		
-		return nullptr;
+		return mLoadedTextures.emplace_back(
+			std::make_unique<Texture>(texturePath)
+		).get();
 	}
 	
 	Model* ResourcesManager::GetOrCreateModel(const char* modelPath)
@@ -78,18 +108,18 @@ namespace erm {
 		auto it = std::find_if(
 			mLoadedModels.begin(),
 			mLoadedModels.end(),
-			[modelPath](Model& model) {
-				return model.GetPath().compare(modelPath) == 0;
+			[modelPath](Handle<Model>& model) {
+				return model->GetPath().compare(modelPath) == 0;
 			}
 		);
 		if (it != mLoadedModels.end())
 		{
-			return &(*it);
+			return (*it).get();
 		}
 		
 		if (ModelUtils::ParseModel(modelPath, mLoadedModels, mLoadedMaterials))
 		{
-			return &mLoadedModels.back();
+			return mLoadedModels.back().get();
 		}
 		
 		return nullptr;

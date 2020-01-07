@@ -1,18 +1,13 @@
 #pragma once
 
 #include <string>
-#include <deque>
+#include <vector>
 
 namespace erm {
 	
 	class Texture
 	{
 	public:
-		static bool Create(
-			const char* path,
-			std::deque<Texture>& texturesContainer
-		);
-		
 		Texture(const char* path);
 		~Texture();
 		
@@ -33,8 +28,8 @@ namespace erm {
 	private:
 		unsigned int mRendererId;
 		unsigned char* mLocalBuffer;
-		std::string mPath;
 		int mWidth, mHeight, mBPP;
+		const std::string mPath;
 		
 	};
 	

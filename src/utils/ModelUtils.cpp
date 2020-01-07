@@ -17,8 +17,8 @@
 
 namespace {
 
-	std::deque<erm::Model*> loadingModels;
-	std::deque<std::future<void>> futures;
+	std::vector<erm::Model*> loadingModels;
+	std::vector<std::future<void>> futures;
 	std::atomic<bool> stop = false;
 	std::mutex mut;
 
@@ -65,8 +65,8 @@ namespace erm {
 	
 	bool ModelUtils::ParseModel(
 		const char* path,
-		std::deque<Model>& modelContainer,
-		std::deque<Material>& materialContainer
+		std::vector<std::unique_ptr<Model>>& modelsContainer,
+		std::vector<std::unique_ptr<Material>>& materialsContainer
 	)
 	{
 		std::ifstream stream (Utils::GetRelativePath(path));
@@ -79,7 +79,7 @@ namespace erm {
 
 		stream.close();
 
-		Model& model = modelContainer.emplace_back(path, "unknown");
+		Model& model = *modelsContainer.emplace_back(std::make_unique<Model>(path, "unknown")).get();
 		
 		loadingModels.emplace_back(&model);
 		futures.emplace_back(
@@ -98,7 +98,7 @@ namespace erm {
 	void ModelUtils::ParseModelInt(
 		const char* path,
 		Model& model,
-		std::deque<Material>& materialContainer
+		std::vector<std::unique_ptr<Material>>& materialContainer
 	)
 	{
 		std::ifstream stream(Utils::GetRelativePath(path));
@@ -106,11 +106,11 @@ namespace erm {
 		std::string line;
 		std::string name;
 		std::string meshName;
-		std::deque<Vertex> positions;
-		std::deque<UVVertex> tPositions;
-		std::deque<NormalVertex> nPositions;
-		std::deque<VertexData> vertices;
-		std::deque<IndexData> indices;
+		std::vector<Vertex> positions;
+		std::vector<UVVertex> tPositions;
+		std::vector<NormalVertex> nPositions;
+		std::vector<VertexData> vertices;
+		std::vector<IndexData> indices;
 		Material* material;
 
 		bool wasLooping = false;
@@ -124,7 +124,7 @@ namespace erm {
 				return;
 			}
 
-			std::deque<std::string> splitted = Utils::SplitString(line, ' ');
+			std::vector<std::string> splitted = Utils::SplitString(line, ' ');
 
 			if (splitted.size() > 0)
 			{
@@ -213,20 +213,20 @@ namespace erm {
 					ASSERT(splitted.size() >= 2);
 					std::string name = splitted[splitted.size() - 1];
 					mut.lock();
-					auto it = std::find_if(materialContainer.begin(), materialContainer.end(), [name](const Material& material) {
-						return material.mName.compare(name) == 0;
+					auto it = std::find_if(materialContainer.begin(), materialContainer.end(), [name](const std::unique_ptr<Material>& material) {
+						return material->mName.compare(name) == 0;
 					});
-					material = it != materialContainer.end() ? &(*it) : nullptr;
+					material = it != materialContainer.end() ? (*it).get() : nullptr;
 					mut.unlock();
 				}
 				else if (splitted[0].compare("f") == 0)
 				{
 					wasLooping = true;
 
-					std::deque<VertexData> vVertices;
+					std::vector<VertexData> vVertices;
 					ParseFace(vVertices, positions, tPositions, nPositions, splitted);
 
-					std::deque<IndexData> vIndices;
+					std::vector<IndexData> vIndices;
 					Triangulate(vIndices, vVertices);
 
 					if (vIndices.empty())
@@ -263,11 +263,11 @@ namespace erm {
 	}
 	
 	void ModelUtils::ParseFace(
-		std::deque<VertexData>& oVertices,
-		const std::deque<Vertex>& positions,
-		const std::deque<UVVertex>& tPositions,
-		const std::deque<NormalVertex>& nPositions,
-		const std::deque<std::string>& splitted
+		std::vector<VertexData>& oVertices,
+		const std::vector<Vertex>& positions,
+		const std::vector<UVVertex>& tPositions,
+		const std::vector<NormalVertex>& nPositions,
+		const std::vector<std::string>& splitted
 	)
 	{
 		static constexpr unsigned int kVertexIndex = 0;
@@ -281,7 +281,7 @@ namespace erm {
 				continue;
 			}
 			
-			const std::deque<std::string> indices = Utils::SplitString(split, '/');
+			const std::vector<std::string> indices = Utils::SplitString(split, '/');
 			ASSERT(indices.size() <= 3);
 			VertexData vertex;
 			
@@ -331,8 +331,8 @@ namespace erm {
 	}
 	
 	void ModelUtils::Triangulate(
-		std::deque<IndexData>& oIndices,
-		const std::deque<VertexData>& vertices
+		std::vector<IndexData>& oIndices,
+		const std::vector<VertexData>& vertices
 	)
 	{
 		if (vertices.size() < 3 || vertices.size() > 4)
@@ -392,8 +392,8 @@ namespace erm {
 	}
 	
 	Mesh ModelUtils::CreateMesh(
-		const std::deque<VertexData>& vertices,
-		const std::deque<IndexData>& indices,
+		const std::vector<VertexData>& vertices,
+		const std::vector<IndexData>& indices,
 		Material* material,
 		const std::string& name
 	)
@@ -422,7 +422,7 @@ namespace erm {
 	
 	bool ModelUtils::ParseMaterialsLib(
 		const char* path,
-		std::deque<Material>& materialsContainer
+		std::vector<std::unique_ptr<Material>>& materialsContainer
 	)
 	{
 		std::ifstream stream (Utils::GetRelativePath(path));
@@ -446,7 +446,7 @@ namespace erm {
 				return false;
 			}
 
-			std::deque<std::string> splitted = Utils::SplitString(line, ' ');
+			std::vector<std::string> splitted = Utils::SplitString(line, ' ');
 			
 			if (splitted.size() > 0)
 			{
@@ -455,7 +455,7 @@ namespace erm {
 					if (!skip && mat)
 					{
 						mut.lock();
-						materialsContainer.emplace_back(std::move(mat.value()));
+						materialsContainer.emplace_back(std::make_unique<Material>(std::move(mat.value())));
 						mut.unlock();
 					}
 					
@@ -465,8 +465,8 @@ namespace erm {
 					ASSERT(splitted.size() >= 2);
 					std::string name = splitted[splitted.size() - 1];
 					mut.lock();
-					const auto& it = std::find_if(materialsContainer.begin(), materialsContainer.end(), [name](const Material& mat) {
-						return mat.mName.compare(name) == 0;
+					const auto& it = std::find_if(materialsContainer.begin(), materialsContainer.end(), [name](const std::unique_ptr<Material>& mat) {
+						return mat->mName.compare(name) == 0;
 					});
 					if (it != materialsContainer.end())
 					{
@@ -524,7 +524,7 @@ namespace erm {
 		if (!skip && mat)
 		{
 			mut.lock();
-			materialsContainer.emplace_back(std::move(mat.value()));
+			materialsContainer.emplace_back(std::make_unique<Material>(std::move(mat.value())));
 			mut.unlock();
 		}
 		

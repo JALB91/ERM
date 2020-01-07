@@ -4,7 +4,7 @@
 
 #include "rendering/Mesh.h"
 
-#include <deque>
+#include <vector>
 #include <string>
 
 namespace erm {
@@ -26,8 +26,8 @@ namespace erm {
 		inline const std::string& GetName() const { return mName; }
 		inline void SetName(const std::string& name) { mName = name; }
 		
-		inline const std::deque<Mesh>& GetMeshes() const { return mMeshes; }
-		inline std::deque<Mesh>& GetMeshes() { return mMeshes; }
+		inline const std::vector<Mesh>& GetMeshes() const { return mMeshes; }
+		inline std::vector<Mesh>& GetMeshes() { return mMeshes; }
 		
 		inline BoundingBox3D GetLocalBounds() { return mLocalBounds; }
 		inline const BoundingBox3D& GetLocalBounds() const { return mLocalBounds; }
@@ -41,7 +41,7 @@ namespace erm {
 	private:
 		const std::string mPath;
 		std::string mName;
-		std::deque<Mesh> mMeshes;
+		std::vector<Mesh> mMeshes;
 		BoundingBox3D mLocalBounds;
 		bool mIsDirty;
 		

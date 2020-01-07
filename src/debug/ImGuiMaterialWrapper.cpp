@@ -19,7 +19,7 @@ namespace ImGui {
 			
 			ImGui::Indent();
 			
-			static std::deque<erm::Material>& all = erm::ResourcesManager::GetLoadedMaterials();
+			static erm::ResourcesManager::Materials& all = erm::ResourcesManager::GetLoadedMaterials();
 			std::string currentPath = material ? material->mPath : "";
 			std::string currentName = material ? material->mName : "";
 			std::set<std::string> displayedPaths;
@@ -36,21 +36,21 @@ namespace ImGui {
 				
 				for (unsigned int i = 0; i < all.size(); ++i)
 				{
-					if (std::find(displayedPaths.begin(), displayedPaths.end(), all[i].mPath) != displayedPaths.end())
+					if (std::find(displayedPaths.begin(), displayedPaths.end(), all[i]->mPath) != displayedPaths.end())
 					{
 						continue;
 					}
 					
-					displayedPaths.insert(all[i].mPath);
+					displayedPaths.insert(all[i]->mPath);
 					
-					bool isSelected = currentPath == all[i].mPath;
-					if (ImGui::Selectable(all[i].mPath.c_str(), &isSelected))
+					bool isSelected = currentPath == all[i]->mPath;
+					if (ImGui::Selectable(all[i]->mPath.c_str(), &isSelected))
 					{
-						if (currentPath != all[i].mPath)
+						if (currentPath != all[i]->mPath)
 						{
-							currentPath = all[i].mPath;
-							currentName = all[i].mName;
-							mesh.SetMaterial(&all[i]);
+							currentPath = all[i]->mPath;
+							currentName = all[i]->mName;
+							mesh.SetMaterial(all[i].get());
 						}
 					}
 				}
@@ -68,15 +68,15 @@ namespace ImGui {
 				
 				for (unsigned int i = 0; i < all.size(); ++i)
 				{
-					if (currentPath == all[i].mPath)
+					if (currentPath == all[i]->mPath)
 					{
-						bool isSelected = currentName == all[i].mName;
-						if (ImGui::Selectable(all[i].mName.c_str(), &isSelected))
+						bool isSelected = currentName == all[i]->mName;
+						if (ImGui::Selectable(all[i]->mName.c_str(), &isSelected))
 						{
-							if (currentName != all[i].mName)
+							if (currentName != all[i]->mName)
 							{
-								currentName = all[i].mName;
-								mesh.SetMaterial(&all[i]);
+								currentName = all[i]->mName;
+								mesh.SetMaterial(all[i].get());
 							}
 						}
 					}

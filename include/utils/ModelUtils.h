@@ -3,8 +3,9 @@
 #include "rendering/VertexData.h"
 #include "rendering/IndexData.h"
 
+#include <memory>
 #include <string>
-#include <deque>
+#include <vector>
 
 namespace erm {
 	
@@ -20,38 +21,38 @@ namespace erm {
 
 		static bool ParseModel(
 			const char* path,
-			std::deque<Model>& modelsContainer,
-			std::deque<Material>& materialsContainer
+			std::vector<std::unique_ptr<Model>>& modelsContainer,
+			std::vector<std::unique_ptr<Material>>& materialsContainer
 		);
 		
 	private:
 		static bool ParseMaterialsLib(
 			const char* path,
-			std::deque<Material>& materialsContainer
+			std::vector<std::unique_ptr<Material>>& materialsContainer
 		);
 		
 		static void ParseModelInt(
 			const char* path,
 			Model& model,
-			std::deque<Material>& materialContainer
+			std::vector<std::unique_ptr<Material>>& materialsContainer
 		);
 
 		static void ParseFace(
-			std::deque<VertexData>& oVertices,
-			const std::deque<Vertex>& positions,
-			const std::deque<UVVertex>& tPositions,
-			const std::deque<NormalVertex>& nPositions,
-			const std::deque<std::string>& splitted
+			std::vector<VertexData>& oVertices,
+			const std::vector<Vertex>& positions,
+			const std::vector<UVVertex>& tPositions,
+			const std::vector<NormalVertex>& nPositions,
+			const std::vector<std::string>& splitted
 		);
 		
 		static void Triangulate(
-			std::deque<IndexData>& oIndices,
-			const std::deque<VertexData>& vertices
+			std::vector<IndexData>& oIndices,
+			const std::vector<VertexData>& vertices
 		);
 		
 		static Mesh CreateMesh(
-			const std::deque<VertexData>& vertices,
-			const std::deque<IndexData>& indices,
+			const std::vector<VertexData>& vertices,
+			const std::vector<IndexData>& indices,
 			Material* material,
 			const std::string& name
 		);

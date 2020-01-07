@@ -14,7 +14,7 @@ namespace ImGui {
 	
 	void ShowPathOptions(erm::ModelComponent& modelComponent)
 	{
-		static std::deque<erm::Model>& all = erm::ResourcesManager::GetLoadedModels();
+		static erm::ResourcesManager::Models& all = erm::ResourcesManager::GetLoadedModels();
 		
 		erm::Model* model = modelComponent.GetModel();
 		std::string currentPath = model ? model->GetPath() : "";
@@ -30,13 +30,13 @@ namespace ImGui {
 			
 			for (unsigned int i = 0; i < all.size(); ++i)
 			{
-				bool isSelected = currentPath == all[i].GetPath();
-				if (ImGui::Selectable(all[i].GetPath().c_str(), &isSelected))
+				bool isSelected = currentPath == all[i]->GetPath();
+				if (ImGui::Selectable(all[i]->GetPath().c_str(), &isSelected))
 				{
-					if (currentPath != all[i].GetPath())
+					if (currentPath != all[i]->GetPath())
 					{
-						currentPath = all[i].GetPath();
-						modelComponent.SetModel(&all[i]);
+						currentPath = all[i]->GetPath();
+						modelComponent.SetModel(all[i].get());
 					}
 				}
 			}
@@ -54,7 +54,7 @@ namespace ImGui {
 			{
 				int vertices = 0;
 				int indices = 0;
-				std::deque<erm::Mesh>& meshes = model->GetMeshes();
+				std::vector<erm::Mesh>& meshes = model->GetMeshes();
 				
 				bool showMeshes = ImGui::CollapsingHeader("Meshes");
 				

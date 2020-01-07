@@ -1,6 +1,6 @@
 #pragma once
 
-#include <deque>
+#include <vector>
 #include <string>
 #include <assert.h>
 
@@ -20,7 +20,7 @@ namespace erm {
 		bool GLLogCall(const char* function, const char* file, int line);
 		void GLClearError();
 		
-		std::deque<std::string> SplitString(const std::string& str, char ch);
+		std::vector<std::string> SplitString(const std::string& str, char ch);
 		std::string GetRelativePath(const char* absolutePath);
 		
 	}
