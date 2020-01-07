@@ -21,6 +21,7 @@ namespace {
 	std::vector<std::future<void>> futures;
 	std::atomic<bool> stop = false;
 	std::mutex mut;
+	std::mutex mut2;
 
 }
 
@@ -28,6 +29,11 @@ namespace erm {
 
 	void ModelUtils::Update()
 	{
+		if (!mut2.try_lock())
+		{
+			return;
+		}
+		
 		for (erm::Model* model : loadingModels)
 		{
 			for (Mesh& mesh : model->GetMeshes())
@@ -38,6 +44,8 @@ namespace erm {
 				}
 			}
 		}
+		
+		mut2.unlock();
 
 		for (int i = 0; i < static_cast<int>(futures.size()); ++i)
 		{
@@ -98,7 +106,7 @@ namespace erm {
 	void ModelUtils::ParseModelInt(
 		const char* path,
 		Model& model,
-		std::vector<std::unique_ptr<Material>>& materialContainer
+		std::vector<std::unique_ptr<Material>>& materialsContainer
 	)
 	{
 		std::ifstream stream(Utils::GetRelativePath(path));
@@ -135,7 +143,7 @@ namespace erm {
 
 					if (!vertices.empty() && !indices.empty())
 					{
-						model.AddMesh(CreateMesh(vertices, indices, material, meshName));
+						AddMesh(model, vertices, indices, material, meshName);
 						material = nullptr;
 						vertices.clear();
 						indices.clear();
@@ -155,13 +163,13 @@ namespace erm {
 					pathStr = pathStr.substr(0, pathStr.rfind("/"));
 					pathStr.append("/");
 					pathStr.append(splitted[1]);
-					noMat = !ParseMaterialsLib(pathStr.c_str(), materialContainer);
+					noMat = !ParseMaterialsLib(pathStr.c_str(), materialsContainer);
 				}
 				else if (splitted[0].compare("v") == 0)
 				{
 					if (!vertices.empty() && !indices.empty() && material)
 					{
-						model.AddMesh(CreateMesh(vertices, indices, material, meshName));
+						AddMesh(model, vertices, indices, material, meshName);
 						material = nullptr;
 						vertices.clear();
 						indices.clear();
@@ -203,7 +211,7 @@ namespace erm {
 				{
 					if (!vertices.empty() && !indices.empty())
 					{
-						model.AddMesh(CreateMesh(vertices, indices, material, meshName));
+						AddMesh(model, vertices, indices, material, meshName);
 					}
 					if (noMat)
 					{
@@ -213,10 +221,10 @@ namespace erm {
 					ASSERT(splitted.size() >= 2);
 					std::string name = splitted[splitted.size() - 1];
 					mut.lock();
-					auto it = std::find_if(materialContainer.begin(), materialContainer.end(), [name](const std::unique_ptr<Material>& material) {
+					auto it = std::find_if(materialsContainer.begin(), materialsContainer.end(), [name](const std::unique_ptr<Material>& material) {
 						return material->mName.compare(name) == 0;
 					});
-					material = it != materialContainer.end() ? (*it).get() : nullptr;
+					material = it != materialsContainer.end() ? (*it).get() : nullptr;
 					mut.unlock();
 				}
 				else if (splitted[0].compare("f") == 0)
@@ -251,7 +259,7 @@ namespace erm {
 
 		if (meshName.find("Collider") == std::string::npos && !vertices.empty() && !indices.empty())
 		{
-			model.AddMesh(CreateMesh(vertices, indices, material, meshName));
+			AddMesh(model, vertices, indices, material, meshName);
 		}
 
 		if (name.empty())
@@ -389,6 +397,21 @@ namespace erm {
 		oIndices.push_back(0);
 		oIndices.push_back(1);
 		oIndices.push_back(2);
+	}
+	
+	void ModelUtils::AddMesh(
+		Model& model,
+		std::vector<VertexData>& vertices,
+		std::vector<IndexData>& indices,
+		Material* material,
+		std::string& meshName
+	)
+	{
+		Mesh mesh (CreateMesh(vertices, indices, material, meshName));
+		
+		mut2.lock();
+		model.AddMesh(std::move(mesh));
+		mut2.unlock();
 	}
 	
 	Mesh ModelUtils::CreateMesh(

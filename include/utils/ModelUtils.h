@@ -50,6 +50,14 @@ namespace erm {
 			const std::vector<VertexData>& vertices
 		);
 		
+		static void AddMesh(
+			Model& model,
+			std::vector<VertexData>& vertices,
+			std::vector<IndexData>& indices,
+			Material* material,
+			std::string& meshName
+		);
+		
 		static Mesh CreateMesh(
 			const std::vector<VertexData>& vertices,
 			const std::vector<IndexData>& indices,
