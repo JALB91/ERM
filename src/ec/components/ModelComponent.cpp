@@ -23,7 +23,17 @@ namespace erm {
 	
 	void ModelComponent::OnPostUpdate()
 	{
-		if (mIsDirty || (mModel && mModel->IsDirty())) UpdateWorldBounds();
+		if (IsDirty() || (mModel && mModel->IsDirty()))
+		{
+			UpdateWorldBounds();
+		}
+		
+		SetDirty(false);
+		
+		if (mModel && mModel->IsDirty())
+		{
+			mModel->SetDirty(false);
+		}
 	}
 	
 	void ModelComponent::UpdateWorldBounds()
@@ -37,7 +47,7 @@ namespace erm {
 			mWorldBounds.Empty();
 		}
 		
-		mIsDirty = false;
+		SetDirty(false);
 	}
 	
 	void ModelComponent::SetModel(Model* model)
@@ -45,7 +55,7 @@ namespace erm {
 		if (model == mModel) return;
 		
 		mModel = model;
-		SetDirty();
+		SetDirty(true);
 	}
 	
 }

@@ -25,7 +25,7 @@ namespace erm {
 		inline Entity& GetEntity() { return mEntity; }
 		inline const Entity& GetEntity() const { return mEntity; }
 		
-		inline void SetDirty() { mIsDirty = true; }
+		inline void SetDirty(bool isDirty) { mIsDirty = isDirty; }
 		inline bool IsDirty() const { return mIsDirty; }
 		
 	protected:

@@ -34,7 +34,7 @@ namespace erm {
 			
 			mWorldTransform *= mLocalTransform;
 			
-			mIsDirty = false;
+			SetDirty(false);
 		}
 	}
 	
@@ -42,42 +42,42 @@ namespace erm {
 	{
 		if (translation == mTranslation) return;
 		mTranslation = translation;
-		mIsDirty = true;
+		SetDirty(true);
 	}
 	
 	void TransformComponent::Translate(const math::vec3& translation)
 	{
 		if (translation == math::vec3(0.0f)) return;
 		mTranslation += translation;
-		mIsDirty = true;
+		SetDirty(true);
 	}
 	
 	void TransformComponent::SetRotation(const math::vec3& rotation)
 	{
 		if (rotation == mRotation) return;
 		mRotation = rotation;
-		mIsDirty = true;
+		SetDirty(true);
 	}
 	
 	void TransformComponent::Rotate(const math::vec3& rotation)
 	{
 		if (rotation == math::vec3(0.0f)) return;
 		mRotation += rotation;
-		mIsDirty = true;
+		SetDirty(true);
 	}
 	
 	void TransformComponent::SetScale(const math::vec3& scale)
 	{
 		if (scale == mScale) return;
 		mScale = scale;
-		mIsDirty = true;
+		SetDirty(true);
 	}
 	
 	void TransformComponent::Scale(const math::vec3& scale)
 	{
 		if (scale == math::vec3(0.0f)) return;
 		mScale += scale;
-		mIsDirty = true;
+		SetDirty(true);
 	}
 	
 }

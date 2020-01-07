@@ -39,10 +39,10 @@ namespace erm {
 		inline const VertexArray& GetVA() const { return *mVA; }
 		
 		inline const VertexData* GetVerticesData() const { return mVerticesData; }
-		inline int GetVerticesDataCount() const { return mVerticesDataCount; }
+		inline unsigned int GetVerticesDataCount() const { return mVerticesDataCount; }
 		
 		inline const IndexData* GetIndicesData() const { return mIndicesData; }
-		inline int GetIndicesCount() const { return mIndicesDataCount; }
+		inline unsigned int GetIndicesCount() const { return mIndicesDataCount; }
 		
 		inline const std::string& GetName() const { return mName; }
 		inline void SetName(const std::string& name) { mName = name; }

@@ -34,10 +34,10 @@ namespace erm {
 	Texture::Texture(const char* path)
 		: mRendererId(0)
 		, mLocalBuffer(nullptr)
-		, mPath(path)
 		, mWidth(0)
 		, mHeight(0)
 		, mBPP(0)
+		, mPath(path)
 	{
 		stbi_set_flip_vertically_on_load(1);
 		mLocalBuffer = stbi_load(path, &mWidth, &mHeight, &mBPP, 4);

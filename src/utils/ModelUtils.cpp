@@ -28,10 +28,8 @@ namespace erm {
 
 	void ModelUtils::Update()
 	{
-		for (int i = 0; i < static_cast<int>(loadingModels.size()); ++i)
+		for (erm::Model* model : loadingModels)
 		{
-			erm::Model* model = loadingModels[i];
-
 			for (Mesh& mesh : model->GetMeshes())
 			{
 				if (!mesh.IsReady())
@@ -49,7 +47,7 @@ namespace erm {
 			{
 				futures.erase(futures.begin() + i);
 				loadingModels.erase(loadingModels.begin() + i);
-				i--;
+				--i;
 			}
 		}
 	}
@@ -84,7 +82,15 @@ namespace erm {
 		Model& model = modelContainer.emplace_back(path, "unknown");
 		
 		loadingModels.emplace_back(&model);
-		futures.emplace_back(std::async(std::launch::async, &ModelUtils::ParseModelInt, path, std::ref(model), std::ref(materialContainer)));
+		futures.emplace_back(
+			std::async(
+				std::launch::async,
+				&ModelUtils::ParseModelInt,
+				path,
+				std::ref(model),
+				std::ref(materialsContainer)
+			)
+		);
 
 		return true;
 	}

@@ -55,7 +55,7 @@ namespace erm {
 		ForEachChild([](Entity& child) {
 			child.OnPostUpdate();
 		});
-		mIsDirty = false;
+		SetDirty(false);
 	}
 	
 	void Entity::OnRender()
@@ -80,7 +80,7 @@ namespace erm {
 		}
 		else
 		{
-			child->SetDirty();
+			child->SetDirty(true);
 		}
 		
 		child->mParent = this;
@@ -96,20 +96,20 @@ namespace erm {
 			if (it != children.end())
 			{
 				children.erase(it);
-				SetDirty();
+				SetDirty(true);
 			}
 		}
 	}
 	
-	void Entity::SetDirty()
+	void Entity::SetDirty(bool isDirty)
 	{
-		ForEachComponent([](IComponent& component) {
-			component.SetDirty();
+		ForEachComponent([isDirty](IComponent& component) {
+			component.SetDirty(isDirty);
 		});
-		ForEachChild([](Entity& child) {
-			child.SetDirty();
+		ForEachChild([isDirty](Entity& child) {
+			child.SetDirty(isDirty);
 		});
-		mIsDirty = true;
+		mIsDirty = isDirty;
 	}
 	
 	void Entity::ForEachComponent(const std::function<void(IComponent&)>& function)

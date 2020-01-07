@@ -30,14 +30,14 @@ namespace erm {
 		{
 			if (const VertexData* verticesData = mesh.GetVerticesData())
 			{
-				for (int i = 0; i < mesh.GetVerticesDataCount(); ++i)
+				for (unsigned int i = 0; i < mesh.GetVerticesDataCount(); ++i)
 				{
 					const Vertex& vertex = verticesData[i].mVertex;
 					mLocalBounds = mLocalBounds.Expand(vertex);
 				}
 			}
 		}
-		mIsDirty = true;
+		SetDirty(true);
 	}
 	
 }

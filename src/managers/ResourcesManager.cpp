@@ -12,14 +12,6 @@ namespace erm {
 	std::deque<Texture> ResourcesManager::mLoadedTextures {};
 	std::deque<Model> ResourcesManager::mLoadedModels {};
 	
-	void ResourcesManager::OnPostUpdate()
-	{
-		for (Model& model : mLoadedModels)
-		{
-			model.SetDirty(false);
-		}
-	}
-	
 	ShaderProgram* ResourcesManager::GetOrCreateShaderProgram(const char* shaderProgramPath)
 	{
 		auto it = std::find_if(

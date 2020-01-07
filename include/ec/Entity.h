@@ -92,7 +92,7 @@ namespace erm {
 		inline Entity* GetParent() const { return mParent; }
 		inline const std::deque<Entity*>& GetChildren() const { return mChildren; }
 		
-		void SetDirty();
+		void SetDirty(bool isDirty);
 		inline bool IsDirty() const { return mIsDirty; }
 		
 		void ForEachComponent(const std::function<void(IComponent&)>& function);

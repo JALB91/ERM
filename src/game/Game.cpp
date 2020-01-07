@@ -127,7 +127,6 @@ namespace erm {
 	void Game::OnPostUpdate()
 	{
 		if (mRoot) mRoot->OnPostUpdate();
-		ResourcesManager::OnPostUpdate();
 	}
 	
 	void Game::OnPreRender()

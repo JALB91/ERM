@@ -12,7 +12,6 @@ namespace erm {
 	class ResourcesManager
 	{
 	public:
-		static void OnPostUpdate();
 		
 		static inline std::deque<ShaderProgram>& GetLoadedShaderPrograms() { return mLoadedShaderPrograms; }
 		static ShaderProgram* GetOrCreateShaderProgram(const char* shaderProgramPath);
