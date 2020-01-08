@@ -9,7 +9,11 @@ namespace erm {
 	class Window;
 	class RenderContext;
 	class Renderer;
-	class Entity;
+	
+	namespace ecs {
+		class ECS;
+		struct Entity;
+	}
 	
 	class Game : private IWindowListener
 	{
@@ -30,7 +34,7 @@ namespace erm {
 		inline Window& GetWindow() const { return *mWindow; }
 		inline RenderContext& GetRenderContext() const { return *mRenderContext; }
 		inline Renderer& GetRenderer() const { return *mRenderer; }
-		inline Entity& GetRoot() const { return *mRoot; }
+		inline ecs::Entity& GetRoot() const { return *mRoot; }
 		
 	private:
 		// IWindowListener
@@ -44,10 +48,12 @@ namespace erm {
 		std::unique_ptr<Window> mWindow;
 		std::unique_ptr<RenderContext> mRenderContext;
 		std::unique_ptr<Renderer> mRenderer;
+		std::unique_ptr<ecs::ECS> mECS;
 		
-		std::unique_ptr<Entity> mRoot;
-		std::unique_ptr<Entity> mCamera;
-		std::unique_ptr<Entity> mObject;
+		ecs::Entity* mRoot;
+		ecs::Entity* mCamera;
+		ecs::Entity* mObject;
+		
 	};
 	
 }

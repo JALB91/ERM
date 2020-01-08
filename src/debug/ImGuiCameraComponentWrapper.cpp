@@ -1,12 +1,12 @@
 #include "debug/ImGuiCameraComponentWrapper.h"
 
-#include "ec/components/CameraComponent.h"
+#include "ecs/components/CameraComponent.h"
 
 #include <imgui.h>
 
 namespace ImGui {
 	
-	void ShowCameraComponentDebugWindow(erm::CameraComponent& cameraComponent)
+	void ShowCameraComponentDebugWindow(erm::ecs::CameraComponent& cameraComponent)
 	{
 		if (ImGui::CollapsingHeader("Camera"))
 		{

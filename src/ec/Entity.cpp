@@ -66,8 +66,6 @@ namespace erm {
 		ForEachChild([](Entity& child) {
 			child.OnRender();
 		});
-		
-		mGame.GetRenderer().AddToQueue(*this);
 	}
 	
 	void Entity::AddChild(Entity* child)

@@ -6,7 +6,8 @@
 
 #include "window/Window.h"
 
-#include "ec/Entity.h"
+#include "ecs/Entity.h"
+#include "ecs/IComponent.h"
 
 #include <imgui.h>
 
@@ -18,7 +19,7 @@ namespace ImGui {
 		const erm::math::vec2 winSize (window.GetWindowWidth(), window.GetWindowHeight());
 		const erm::math::vec2& viewport = window.GetViewport();
 		
-		static erm::Entity* active = nullptr;
+		static erm::ecs::Entity* active = nullptr;
 		
 		if (ImGui::Begin("Scene", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_HorizontalScrollbar))
 		{
@@ -30,12 +31,10 @@ namespace ImGui {
 		
 		if (ImGui::Begin("Entity", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_HorizontalScrollbar) && active)
 		{
-			ImGui::PushID(active->GetEntityID());
+			ImGui::PushID(active->GetID());
 			ImGui::Separator();
 			ImGui::Text("Components");
-			active->ForEachComponent([](erm::IComponent& component) {
-				ImGui::ShowComponentDebugWindow(&component);
-			});
+			ImGui::ShowComponentDebugWindow(active);
 			ImGui::Separator();
 			ImGui::PopID();
 		}

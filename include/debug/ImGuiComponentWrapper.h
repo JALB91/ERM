@@ -1,11 +1,13 @@
 #pragma once
 
 namespace erm {
-	class IComponent;
+	namespace ecs {
+		struct Entity;
+	}
 }
 
 namespace ImGui {
 	
-	void ShowComponentDebugWindow(erm::IComponent* component);
+	void ShowComponentDebugWindow(erm::ecs::Entity* entity);
 	
 }

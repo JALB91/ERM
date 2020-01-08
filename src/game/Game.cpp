@@ -10,10 +10,10 @@
 #include "utils/MeshUtils.h"
 #include "utils/ModelUtils.h"
 
-#include "ec/Entity.h"
-#include "ec/components/CameraComponent.h"
-#include "ec/components/ModelComponent.h"
-#include "ec/components/TransformComponent.h"
+#include "ecs/Entity.h"
+#include "ecs/systems/TransformSystem.h"
+#include "ecs/systems/ModelSystem.h"
+#include "ecs/systems/CameraSystem.h"
 
 #include "managers/ResourcesManager.h"
 
@@ -44,6 +44,7 @@ namespace erm {
 		: mWindow(std::make_unique<Window>())
 		, mRenderContext(nullptr)
 		, mRenderer(nullptr)
+		, mECS(nullptr)
 		, mRoot(nullptr)
 		, mCamera(nullptr)
 		, mObject(nullptr)
@@ -59,9 +60,6 @@ namespace erm {
 		ResourcesManager::GetLoadedTextures().clear();
 		ResourcesManager::GetLoadedModels().clear();
 
-		mObject.reset();
-		mCamera.reset();
-		mRoot.reset();
 		mRenderer.reset();
 		mRenderContext.reset();
 		mWindow.reset();
@@ -76,18 +74,19 @@ namespace erm {
 		
 		mRenderContext = std::make_unique<RenderContext>();
 		mRenderer = std::make_unique<Renderer>(*mRenderContext);
+		mECS = std::make_unique<ecs::ECS>();
 
-		mRoot = std::make_unique<Entity>(*this, "Root");
+		mRoot = mECS->GetRoot();
 
-		mCamera = std::make_unique<Entity>(*this, "Camera");
-		mCamera->RequireComponent<CameraComponent>(*mWindow);
-		mCamera->GetComponent<TransformComponent>()->SetTranslation(math::vec3(0.0f, 145.0f, 400.0f));
+		mCamera = mECS->GetOrCreateEntity();
+		mCamera->RequireComponent<ecs::CameraComponent>(*mWindow);
+		mCamera->GetComponent<ecs::TransformComponent>()->SetTranslation(math::vec3(0.0f, 145.0f, 400.0f));
 
-		mObject = std::make_unique<Entity>(*this, "Model");
-		mObject->RequireComponent<ModelComponent>(ResourcesManager::GetOrCreateModel(kIronManModelPath));
+		mObject = mECS->GetOrCreateEntity();
+		mObject->RequireComponent<ecs::ModelComponent>(ResourcesManager::GetOrCreateModel(kIronManModelPath));
 
-		mRoot->AddChild(mCamera.get());
-		mRoot->AddChild(mObject.get());
+		mRoot->AddChild(*mCamera);
+		mRoot->AddChild(*mObject);
 		
 		ResourcesManager::GetOrCreateModel(kLamborghiniModelPath);
 		ResourcesManager::GetOrCreateModel(kSpaceshipModelPath);
@@ -118,7 +117,7 @@ namespace erm {
 	
 	void Game::OnUpdate(float dt)
 	{
-		if (mRoot) mRoot->OnUpdate(dt);
+		mECS->OnUpdate(dt);
 		mWindow->NewFrame();
 		if (mRenderContext) mRenderContext->Clear();
 		ModelUtils::Update();
@@ -126,7 +125,7 @@ namespace erm {
 	
 	void Game::OnPostUpdate()
 	{
-		if (mRoot) mRoot->OnPostUpdate();
+		mECS->OnPostUpdate();
 	}
 	
 	void Game::OnPreRender()
@@ -139,9 +138,7 @@ namespace erm {
 	
 	void Game::OnRender()
 	{
-		if (mRoot) mRoot->OnRender();
-		if (mCamera) mRenderer->ProcessQueue(*mCamera);
-		
+		mECS->OnRender(*mRenderer.get());
 		mWindow->Render();
 	}
 	

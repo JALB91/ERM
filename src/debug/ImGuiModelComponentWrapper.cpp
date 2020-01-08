@@ -6,13 +6,13 @@
 
 #include "managers/ResourcesManager.h"
 
-#include "ec/components/ModelComponent.h"
+#include "ecs/components/ModelComponent.h"
 
 #include <imgui.h>
 
 namespace ImGui {
 	
-	void ShowPathOptions(erm::ModelComponent& modelComponent)
+	void ShowPathOptions(erm::ecs::ModelComponent& modelComponent)
 	{
 		static erm::ResourcesManager::Models& all = erm::ResourcesManager::GetLoadedModels();
 		
@@ -44,7 +44,7 @@ namespace ImGui {
 		}
 	}
 	
-	void ShowModelComponentDebugWindow(erm::ModelComponent& modelComponent)
+	void ShowModelComponentDebugWindow(erm::ecs::ModelComponent& modelComponent)
 	{
 		if (ImGui::CollapsingHeader("Model"))
 		{
@@ -78,7 +78,7 @@ namespace ImGui {
 				ImGui::Text("Vertices: %d", vertices);
 				ImGui::Text("Indices: %d", indices);
 				
-				bool shouldShowBoundingBox = modelComponent.ShouldShowBoundingBox();
+				bool shouldShowBoundingBox = modelComponent.GetShouldShowBoundingBox();
 				ImGui::Checkbox("Show Bounding Box", &shouldShowBoundingBox);
 				modelComponent.SetShouldShowBoundingBox(shouldShowBoundingBox);
 			}

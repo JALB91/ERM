@@ -1,12 +1,12 @@
 #include "debug/ImGuiTransformComponentWrapper.h"
 
-#include "ec/components/TransformComponent.h"
+#include "ecs/components/TransformComponent.h"
 
 #include <imgui.h>
 
 namespace ImGui {
 	
-	void ShowTransformComponentDebugWindow(erm::TransformComponent& transformComponent)
+	void ShowTransformComponentDebugWindow(erm::ecs::TransformComponent& transformComponent)
 	{
 		if (ImGui::CollapsingHeader("Transform"))
 		{

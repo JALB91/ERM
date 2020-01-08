@@ -3,26 +3,29 @@
 #include "debug/ImGuiModelComponentWrapper.h"
 #include "debug/ImGuiCameraComponentWrapper.h"
 
-#include "ec/IComponent.h"
-#include "ec/components/TransformComponent.h"
-#include "ec/components/ModelComponent.h"
-#include "ec/components/CameraComponent.h"
+#include "ecs/ECS.h"
+#include "ecs/Entity.h"
+#include "ecs/components/TransformComponent.h"
+#include "ecs/components/ModelComponent.h"
+#include "ecs/components/CameraComponent.h"
+#include "ecs/systems/ModelSystem.h"
+#include "ecs/systems/CameraSystem.h"
 
 namespace ImGui {
 	
-	void ShowComponentDebugWindow(erm::IComponent* component)
+	void ShowComponentDebugWindow(erm::ecs::Entity* entity)
 	{
-		if (!component) return;
+		if (!entity || !(*entity)) return;
 		
-		if (erm::TransformComponent* transformComponent = dynamic_cast<erm::TransformComponent*>(component))
+		if (erm::ecs::TransformComponent* transformComponent = entity->GetECS().GetSystem<erm::ecs::TransformSystem>().GetComponent(entity->GetID()))
 		{
 			ShowTransformComponentDebugWindow(*transformComponent);
 		}
-		else if (erm::ModelComponent* modelComponent = dynamic_cast<erm::ModelComponent*>(component))
+		if (erm::ecs::ModelComponent* modelComponent = entity->GetECS().GetSystem<erm::ecs::ModelSystem>().GetComponent(entity->GetID()))
 		{
 			ShowModelComponentDebugWindow(*modelComponent);
 		}
-		else if (erm::CameraComponent* cameraComponent = dynamic_cast<erm::CameraComponent*>(component))
+		if (erm::ecs::CameraComponent* cameraComponent = entity->GetECS().GetSystem<erm::ecs::CameraSystem>().GetComponent(entity->GetID()))
 		{
 			ShowCameraComponentDebugWindow(*cameraComponent);
 		}

@@ -1,11 +1,13 @@
 #pragma once
 
 namespace erm {
-	class CameraComponent;
+	namespace ecs {
+		struct CameraComponent;
+	}
 }
 
 namespace ImGui {
 	
-	void ShowCameraComponentDebugWindow(erm::CameraComponent& cameraComponent);
+	void ShowCameraComponentDebugWindow(erm::ecs::CameraComponent& cameraComponent);
 	
 }

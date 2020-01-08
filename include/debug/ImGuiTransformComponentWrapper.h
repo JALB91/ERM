@@ -1,11 +1,13 @@
 #pragma once
 
 namespace erm {
-	class TransformComponent;
+	namespace ecs {
+		struct TransformComponent;
+	}
 }
 
 namespace ImGui {
 	
-	void ShowTransformComponentDebugWindow(erm::TransformComponent& transformComponent);
+	void ShowTransformComponentDebugWindow(erm::ecs::TransformComponent& transformComponent);
 	
 }

@@ -1,12 +1,14 @@
 #pragma once
 
 namespace erm {
-	class ModelComponent;
+	namespace ecs {
+		struct ModelComponent;
+	}
 }
 
 namespace ImGui {
 	
-	void ShowPathOptions(erm::ModelComponent& modelComponent);
-	void ShowModelComponentDebugWindow(erm::ModelComponent& modelComponent);
+	void ShowPathOptions(erm::ecs::ModelComponent& modelComponent);
+	void ShowModelComponentDebugWindow(erm::ecs::ModelComponent& modelComponent);
 	
 }

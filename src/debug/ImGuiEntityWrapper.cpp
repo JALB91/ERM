@@ -1,12 +1,12 @@
 #include "debug/ImGuiEntityWrapper.h"
 
-#include "ec/Entity.h"
+#include "ecs/Entity.h"
 
 #include <imgui.h>
 
 namespace ImGui {
 	
-	void ShowEntityDebugWindow(erm::Entity** active, erm::Entity& entity)
+	void ShowEntityDebugWindow(erm::ecs::Entity** active, erm::ecs::Entity& entity)
 	{
 		int flags = ImGuiTreeNodeFlags_FramePadding;
 		
@@ -20,8 +20,8 @@ namespace ImGui {
 			flags |= ImGuiTreeNodeFlags_Selected;
 		}
 		
-		ImGui::PushID(entity.GetEntityID());
-		bool isOpen = ImGui::TreeNodeEx(entity.GetName().c_str(), flags);
+		ImGui::PushID(entity.GetID());
+		bool isOpen = ImGui::TreeNodeEx("Unknown", flags);
 		ImGui::PopID();
 		
 		if (ImGui::IsItemClicked())
@@ -31,8 +31,9 @@ namespace ImGui {
 		
 		if (isOpen)
 		{
-			entity.ForEachChild([active](erm::Entity& child) {
-				ImGui::ShowEntityDebugWindow(active, child);
+			std::vector<erm::ecs::Entity*> children (entity.GetChildren());
+			std::for_each(children.begin(), children.end(), [active](erm::ecs::Entity* child) {
+				ImGui::ShowEntityDebugWindow(active, *child);
 			});
 			ImGui::TreePop();
 		}
