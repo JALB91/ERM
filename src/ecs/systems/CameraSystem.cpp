@@ -100,7 +100,7 @@ namespace erm {
 		
 		void CameraSystem::OnUpdate(float /*dt*/)
 		{
-			for (ID i = 0; i < MAX_ENTITIES; ++i)
+			for (ID i = 0; i < MAX_ID; ++i)
 			{
 				CameraComponent* camera = GetComponent(i);
 				
@@ -114,7 +114,7 @@ namespace erm {
 		
 		void CameraSystem::OnPostUpdate()
 		{
-			for (ID i = 0; i < MAX_ENTITIES; ++i)
+			for (ID i = 0; i < MAX_ID; ++i)
 			{
 				CameraComponent* camera = GetComponent(i);
 				

@@ -34,6 +34,7 @@ namespace erm {
 		inline Window& GetWindow() const { return *mWindow; }
 		inline RenderContext& GetRenderContext() const { return *mRenderContext; }
 		inline Renderer& GetRenderer() const { return *mRenderer; }
+		inline ecs::ECS& GetECS() const { return *mECS; }
 		inline ecs::Entity& GetRoot() const { return *mRoot; }
 		
 	private:

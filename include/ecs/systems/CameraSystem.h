@@ -19,8 +19,8 @@ namespace erm {
 			
 		private:
 			// ISystem
-			void OnComponentAdded(ID /*id*/) override {}
-			void OnComponentRemoved(ID /*id*/) override {}
+			void OnComponentAdded(EntityId /*id*/) override {}
+			void OnComponentRemoved(EntityId /*id*/) override {}
 			
 			void UpdateCameraComponent(CameraComponent& camera, TransformComponent& transform);
 			

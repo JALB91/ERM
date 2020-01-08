@@ -15,7 +15,7 @@ namespace erm {
 		
 		void ModelSystem::OnPostUpdate()
 		{
-			for (ID i = 0; i < MAX_ENTITIES; ++i)
+			for (ID i = 0; i < MAX_ID; ++i)
 			{
 				ModelComponent* modelComponent = GetComponent(i);
 				

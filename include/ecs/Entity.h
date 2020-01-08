@@ -5,8 +5,7 @@
 #include "ecs/ECSConfig.h"
 #include "ecs/ECS.h"
 
-#include <functional>
-#include <utility>
+#include <string>
 
 namespace erm {
 	namespace ecs {
@@ -17,20 +16,28 @@ namespace erm {
 			friend class ECS;
 			
 		public:
-			explicit operator bool() const
+			~Entity()
 			{
-				return IsValid();
+				mECS.OnEntityBeingRemoved(mId);
 			}
+			
+			Entity(Entity&&) = delete;
+			Entity(const Entity&) = delete;
+			
+			Entity& operator=(Entity&&) = delete;
+			Entity& operator=(const Entity&) = delete;
 			
 			bool operator==(const Entity& other) const
 			{
 				return other.mId == mId;
 			}
 			
-			inline bool IsValid() const { return (mId != INVALID_ID); }
+			inline bool IsValid() const { return mId.IsValid(); }
 			
-			inline ID GetID() const { return mId; }
 			inline ECS& GetECS() const { return mECS; }
+			
+			inline const std::string& GetName() const { return mName; }
+			inline void SetName(const std::string& name) { mName = name; }
 			
 			template<typename T>
 			inline bool HasComponent() const
@@ -56,24 +63,26 @@ namespace erm {
 				return mECS.GetSystem<typename T::SYSTEM_TYPE>().RequireComponent(mId, std::move(args)...);
 			}
 			
-			inline Entity* GetParent() const { return mTransformSystem.GetParent(*this); }
-			inline std::vector<Entity*> GetChildren() const { return mTransformSystem.GetChildren(*this); }
+			inline EntityId GetParent() const { return mTransformComponent.GetParent(); }
+			inline const std::vector<EntityId>& GetChildren() const { return mTransformComponent.GetChildren(); }
 			
-			inline void RemoveFromParent() const { mTransformSystem.RemoveFromParent(*this); }
-			inline void AddChild(const Entity& child) const { mTransformSystem.AddChild(*this, child); }
+			inline void RemoveFromParent() { mTransformSystem.RemoveFromParent(mId); }
+			inline void AddChild(Entity& child) { mTransformSystem.AddChild(mId, child.mId); }
 			
 		private:
-			inline Entity(ID id, ECS& ecs)
+			inline Entity(EntityId id, ECS& ecs, const std::string& name)
 				: mId(id)
 				, mECS(ecs)
+				, mName(name)
 				, mTransformSystem(mECS.GetSystem<TransformSystem>())
-			{
-				RequireComponent<TransformComponent>();
-			}
+				, mTransformComponent(*RequireComponent<TransformComponent>())
+			{}
 			
-			ID mId;
+			const EntityId mId;
 			ECS& mECS;
+			std::string mName;
 			TransformSystem& mTransformSystem;
+			TransformComponent& mTransformComponent;
 			
 		};
 		

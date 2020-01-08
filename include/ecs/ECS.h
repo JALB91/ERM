@@ -1,8 +1,10 @@
 #pragma once
 
+#include "ecs/EntityId.h"
 #include "ecs/ECSConfig.h"
 
 #include <array>
+#include <string>
 #include <vector>
 #include <memory>
 
@@ -55,14 +57,14 @@ namespace erm {
 				return *mRenderingSystem.get();
 			}
 			
+			void OnEntityBeingRemoved(EntityId id);
+			
 			Entity* GetRoot();
-			Entity* GetOrCreateEntity();
-			Entity* GetEntityById(ID id);
-			std::vector<Entity*> GetEntitiesByIds(const std::array<bool, MAX_ENTITIES>& ids);
+			Entity* GetOrCreateEntity(const std::string& name = "Unknown");
+			Entity* GetEntityById(EntityId id);
 			
 		private:
-			std::array<std::unique_ptr<Entity>, MAX_ENTITIES> mEntities;
-			std::array<bool, MAX_ENTITIES> mDirtyEntities;
+			std::array<std::unique_ptr<Entity>, MAX_ID> mEntities;
 			
 			std::unique_ptr<TransformSystem> mTransformSystem;
 			std::unique_ptr<ModelSystem> mModelSystem;

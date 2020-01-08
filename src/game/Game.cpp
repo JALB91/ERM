@@ -60,6 +60,7 @@ namespace erm {
 		ResourcesManager::GetLoadedTextures().clear();
 		ResourcesManager::GetLoadedModels().clear();
 
+		mECS.reset();
 		mRenderer.reset();
 		mRenderContext.reset();
 		mWindow.reset();
@@ -78,11 +79,11 @@ namespace erm {
 
 		mRoot = mECS->GetRoot();
 
-		mCamera = mECS->GetOrCreateEntity();
+		mCamera = mECS->GetOrCreateEntity("Camera");
 		mCamera->RequireComponent<ecs::CameraComponent>(*mWindow);
 		mCamera->GetComponent<ecs::TransformComponent>()->SetTranslation(math::vec3(0.0f, 145.0f, 400.0f));
 
-		mObject = mECS->GetOrCreateEntity();
+		mObject = mECS->GetOrCreateEntity("Model");
 		mObject->RequireComponent<ecs::ModelComponent>(ResourcesManager::GetOrCreateModel(kIronManModelPath));
 
 		mRoot->AddChild(*mCamera);

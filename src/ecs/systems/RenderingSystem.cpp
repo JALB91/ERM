@@ -50,7 +50,7 @@ namespace erm {
 		
 		void RenderingSystem::OnRender(const Renderer& renderer)
 		{
-			for (ID i = 0; i < MAX_ENTITIES; ++i)
+			for (ID i = 0; i < MAX_ID; ++i)
 			{
 				const TransformComponent* transformComponent = mTransformSystem.GetComponent(i);
 				

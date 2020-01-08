@@ -28,10 +28,6 @@ namespace erm {
 			void OnRender(const Renderer& renderer);
 			
 		private:
-			// ISystem
-			void OnComponentAdded(ID /*id*/) override {}
-			void OnComponentRemoved(ID /*id*/) override {}
-			
 			void ProcessModel(const Renderer& renderer, ID id);
 
 			TransformSystem& mTransformSystem;

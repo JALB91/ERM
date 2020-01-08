@@ -6,7 +6,8 @@
 
 #include "window/Window.h"
 
-#include "ecs/Entity.h"
+#include "ecs/EntityId.h"
+#include "ecs/ECSConfig.h"
 #include "ecs/IComponent.h"
 
 #include <imgui.h>
@@ -19,22 +20,22 @@ namespace ImGui {
 		const erm::math::vec2 winSize (window.GetWindowWidth(), window.GetWindowHeight());
 		const erm::math::vec2& viewport = window.GetViewport();
 		
-		static erm::ecs::Entity* active = nullptr;
+		static erm::ecs::EntityId active;
 		
 		if (ImGui::Begin("Scene", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_HorizontalScrollbar))
 		{
-			ImGui::ShowEntityDebugWindow(&active, game.GetRoot());
+			active = ImGui::ShowEntityDebugWindow(game.GetECS(), active, erm::ecs::EntityId(erm::ecs::ROOT_ID));
 		}
 		ImGui::SetWindowSize(ImVec2((winSize.x - viewport.x) * 0.5f, winSize.y - ImGui::GetFrameHeight()));
 		ImGui::SetWindowPos(ImVec2(0.0f, ImGui::GetFrameHeight()));
 		ImGui::End();
 		
-		if (ImGui::Begin("Entity", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_HorizontalScrollbar) && active)
+		if (ImGui::Begin("Entity", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_HorizontalScrollbar) && active.IsValid())
 		{
-			ImGui::PushID(active->GetID());
+			ImGui::PushID(active());
 			ImGui::Separator();
 			ImGui::Text("Components");
-			ImGui::ShowComponentDebugWindow(active);
+			ImGui::ShowComponentDebugWindow(game.GetECS(), active);
 			ImGui::Separator();
 			ImGui::PopID();
 		}

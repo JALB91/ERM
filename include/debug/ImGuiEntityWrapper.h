@@ -2,12 +2,17 @@
 
 namespace erm {
 	namespace ecs {
-		struct Entity;
+		class ECS;
+		struct EntityId;
 	}
 }
 
 namespace ImGui {
 	
-	void ShowEntityDebugWindow(erm::ecs::Entity** active, erm::ecs::Entity& entity);
+	erm::ecs::EntityId ShowEntityDebugWindow(
+		erm::ecs::ECS& ecs,
+		erm::ecs::EntityId active,
+		erm::ecs::EntityId entity
+	);
 	
 }

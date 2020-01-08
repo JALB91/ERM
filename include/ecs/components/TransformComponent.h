@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ecs/ECSConfig.h"
+#include "ecs/EntityId.h"
 #include "ecs/IComponent.h"
 
 #include "math/vec.h"
@@ -8,7 +8,7 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <array>
+#include <vector>
 
 namespace erm {
 	namespace ecs {
@@ -37,9 +37,15 @@ namespace erm {
 			SENSIBLE_MEMBER(Rotation, const math::vec3&, mRotation)
 			SENSIBLE_MEMBER(Scale, const math::vec3&, mScale)
 			
+			inline EntityId GetParent() const { return mParent; }
+			inline const std::vector<EntityId>& GetChildren() const { return mChildren; }
+			
 			inline math::vec3 GetTranslation() { return mTranslation; }
 			
 		private:
+			EntityId mParent;
+			std::vector<EntityId> mChildren;
+			
 			math::mat4 mWorldTransform;
 			math::mat4 mLocalTransform;
 			math::vec3 mTranslation;

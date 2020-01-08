@@ -16,11 +16,21 @@ namespace erm {
 			, mCameraSystem(std::make_unique<CameraSystem>(*this))
 			, mRenderingSystem(std::make_unique<RenderingSystem>(*this))
 		{
-			mEntities[0].reset(new Entity(0, *this));
+			mEntities[0].reset(new Entity(0, *this, "Root"));
 		}
 		
 		ECS::~ECS()
-		{}
+		{
+			for (std::unique_ptr<Entity>& entity : mEntities)
+			{
+				entity.reset();
+			}
+			
+			mRenderingSystem.reset();
+			mCameraSystem.reset();
+			mModelSystem.reset();
+			mTransformSystem.reset();
+		}
 		
 		void ECS::OnUpdate(float dt)
 		{
@@ -39,18 +49,25 @@ namespace erm {
 			mRenderingSystem->OnRender(renderer);
 		}
 		
+		void ECS::OnEntityBeingRemoved(EntityId id)
+		{
+			mModelSystem->RemoveComponent(id);
+			mCameraSystem->RemoveComponent(id);
+			mTransformSystem->RemoveComponent(id);
+		}
+		
 		Entity* ECS::GetRoot()
 		{
 			return GetEntityById(0);
 		}
 		
-		Entity* ECS::GetOrCreateEntity()
+		Entity* ECS::GetOrCreateEntity(const std::string& name /*= "Unknown"*/)
 		{
-			for (ID i = 0; i < MAX_ENTITIES; ++i)
+			for (ID i = 0; i < MAX_ID; ++i)
 			{
-				if (!mEntities[i] || !(*mEntities[i].get()))
+				if (!mEntities[i] || !mEntities[i]->IsValid())
 				{
-					mEntities[i].reset(new Entity(i, *this));
+					mEntities[i].reset(new Entity(i, *this, name));
 					return mEntities[i].get();
 				}
 			}
@@ -58,22 +75,9 @@ namespace erm {
 			return nullptr;
 		}
 		
-		Entity* ECS::GetEntityById(ID id)
+		Entity* ECS::GetEntityById(EntityId id)
 		{
-			return ((id != INVALID_ID && mEntities[id] && *mEntities[id].get()) ? mEntities[id].get() : nullptr);
-		}
-		
-		std::vector<Entity*> ECS::GetEntitiesByIds(const std::array<bool, MAX_ENTITIES>& ids)
-		{
-			std::vector<Entity*> result;
-			for (ID i = 0; i < MAX_ENTITIES; ++i)
-			{
-				if (ids[i] && mEntities[i] && *mEntities[i].get())
-				{
-					result.emplace_back(mEntities[i].get());
-				}
-			}
-			return result;
+			return ((id.IsValid() && mEntities[id()]) ? mEntities[id()].get() : nullptr);
 		}
 		
 	}

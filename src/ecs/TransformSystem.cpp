@@ -11,34 +11,22 @@ namespace erm {
 			: ISystem<TransformComponent>(ecs)
 		{}
 		
-		void TransformSystem::OnComponentAdded(ID id)
+		void TransformSystem::OnComponentBeingRemoved(EntityId id)
 		{
-			std::array<bool, MAX_ENTITIES> temp { false };
-			mTree[id] = std::make_pair(INVALID_ID, std::move(temp));
-		}
-		
-		void TransformSystem::OnComponentRemoved(ID id)
-		{
-			if (Entity* entity = mECS.GetEntityById(id))
-			{
-				entity->RemoveFromParent();
-				
-				for (Entity* entity : entity->GetChildren())
-				{
-					entity->RemoveFromParent();
-				}
-			}
+			TransformComponent* transform = GetComponent(id);
 			
-			auto it = mTree.find(id);
-			if (it != mTree.end())
+			for (EntityId id : transform->mChildren)
 			{
-				mTree.erase(it);
+				RemoveFromParent(id);
 			}
+			transform->mChildren.clear();
+			
+			RemoveFromParent(id);
 		}
 		
 		void TransformSystem::OnPostUpdate()
 		{
-			for (ID i = 0; i < MAX_ENTITIES; ++i)
+			for (ID i = 0; i < MAX_ID; ++i)
 			{
 				TransformComponent* transform = GetComponent(i);
 				
@@ -47,9 +35,9 @@ namespace erm {
 				transform->mWorldTransform = glm::identity<math::mat4>();
 				transform->mLocalTransform = glm::identity<math::mat4>();
 				
-				ID parent = GetParent(i);
+				EntityId parent = transform->mParent;
 				
-				if (parent != INVALID_ID)
+				if (parent.IsValid())
 				{
 					if (TransformComponent* parentTransform = GetComponent(parent))
 					{
@@ -69,43 +57,39 @@ namespace erm {
 			}
 		}
 		
-		Entity* TransformSystem::GetParent(const Entity& entity) const
+		void TransformSystem::RemoveFromParent(EntityId id) const
 		{
-			return (entity ? mECS.GetEntityById(mTree.at(entity.GetID()).first) : nullptr);
+			if (!id.IsValid()) return;
+			
+			TransformComponent* entityTransform = GetComponent(id);
+			EntityId parentId = entityTransform->mParent;
+			
+			if (!parentId.IsValid()) return;
+			
+			std::vector<EntityId>& children = GetComponent(parentId)->mChildren;
+			children.erase(std::find(children.begin(), children.end(), id));
+			
+			entityTransform->mParent.Reset();
+			entityTransform->SetDirty(true);
 		}
 		
-		std::vector<Entity*> TransformSystem::GetChildren(const Entity& entity) const
+		void TransformSystem::AddChild(EntityId parent, EntityId child) const
 		{
-			if (entity)
-			{
-				return mECS.GetEntitiesByIds(mTree.at(entity.GetID()).second);
-			}
-			return {};
-		}
-		
-		void TransformSystem::RemoveFromParent(const Entity& entity)
-		{
-			if (!entity) return;
+			if (!parent.IsValid()
+				|| !child.IsValid()
+				|| parent == child
+				|| child() == ROOT_ID
+			) return;
 			
-			Entity* parent = GetParent(entity);
+			TransformComponent* parentTransform = GetComponent(parent);
+			TransformComponent* childTransform = GetComponent(child);
 			
-			if (!parent || !(*parent)) return;
+			if (childTransform->mParent == parent) return;
 			
-			mTree.at(parent->GetID()).second[entity.GetID()] = false;
-			mTree.at(entity.GetID()).first = INVALID_ID;
-		}
-		
-		void TransformSystem::AddChild(const Entity& parent, const Entity& child)
-		{
-			if (!parent || !child || parent == child || &child == mECS.GetRoot()) return;
 			RemoveFromParent(child);
-			mTree.at(parent.GetID()).second[child.GetID()] = true;
-			mTree.at(child.GetID()).first = parent.GetID();
-		}
-		
-		ID TransformSystem::GetParent(ID id) const
-		{
-			return (id != INVALID_ID ? mTree.at(id).first : INVALID_ID);
+			parentTransform->mChildren.emplace_back(child);
+			childTransform->mParent = parent;
+			childTransform->SetDirty(true);
 		}
 		
 	}

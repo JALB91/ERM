@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ecs/EntityId.h"
 #include "ecs/ECSConfig.h"
 
 #include <array>
@@ -16,25 +17,27 @@ namespace erm {
 		public:
 			ISystem(ECS& ecs)
 				: mECS(ecs)
+				, mComponents{ nullptr }
 			{}
 			virtual ~ISystem() = default;
 			
-			bool HasComponent(ID id) const
+			bool HasComponent(EntityId id) const
 			{
-				return mComponents[id].get();
+				return (id.IsValid() && mComponents[id()].get());
 			}
 			
-			T* GetComponent(ID id) const
+			T* GetComponent(EntityId id) const
 			{
-				return mComponents[id].get();
+				return (HasComponent(id) ? mComponents[id()].get() : nullptr);
 			}
 			
 			template<typename... Args>
-			T* AddComponent(ID id, Args&&... args)
+			T* AddComponent(EntityId id, Args&&... args)
 			{
 				if (!HasComponent(id))
 				{
-					mComponents[id] = std::make_unique<T>(args...);
+					OnComponentBeingAdded(id);
+					mComponents[id()] = std::make_unique<T>(std::move(args)...);
 					OnComponentAdded(id);
 				}
 				
@@ -42,40 +45,32 @@ namespace erm {
 			}
 			
 			template<typename... Args>
-			T* RequireComponent(ID id, Args&&... args)
+			T* RequireComponent(EntityId id, Args&&... args)
 			{
 				return (HasComponent(id) ? GetComponent(id) : AddComponent(id, std::move(args)...));
 			}
 			
-			void RemoveComponent(ID id)
+			void RemoveComponent(EntityId id)
 			{
 				if (!HasComponent(id))
 				{
 					return;
 				}
 				
-				mComponents[id].reset();
+				OnComponentBeingRemoved(id);
+				mComponents[id()].reset();
 				OnComponentRemoved(id);
 			}
 			
 		protected:
-			virtual void OnComponentAdded(ID id) = 0;
-			virtual void OnComponentRemoved(ID id) = 0;
+			virtual void OnComponentBeingAdded(EntityId /*id*/) {}
+			virtual void OnComponentAdded(EntityId /*id*/) {}
 			
-			template<typename F>
-			void ForEachComponent(const F& function)
-			{
-				for (ID i = 0; i < MAX_ENTITIES; ++i)
-				{
-					if (HasComponent(i))
-					{
-						function(GetComponent(i));
-					}
-				}
-			}
+			virtual void OnComponentBeingRemoved(EntityId /*id*/) {}
+			virtual void OnComponentRemoved(EntityId /*id*/) {}
 			
 			ECS& mECS;
-			std::array<std::unique_ptr<T>, MAX_ENTITIES> mComponents;
+			std::array<std::unique_ptr<T>, MAX_ID> mComponents;
 			
 		};
 		
