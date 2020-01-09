@@ -1,5 +1,7 @@
 #include "rendering/Material.h"
 
+#include "managers/ResourcesManager.h"
+
 namespace erm {
 	
 	Material Material::DEFAULT {
@@ -8,7 +10,8 @@ namespace erm {
 		math::vec3(0.2f),
 		math::vec3(0.2f),
 		math::vec3(0.2f),
-		50.0f
+		50.0f,
+		nullptr
 	};
 	
 }

@@ -4,7 +4,6 @@
 #include "ecs/components/RenderingComponent.h"
 
 #include <queue>
-#include <memory>
 
 namespace erm {
 	
@@ -39,7 +38,6 @@ namespace erm {
 			
 			std::unique_ptr<Mesh> mDebugMesh;
 			ShaderProgram* mDebugShader;
-			ShaderProgram* mModelShader;
 			
 		};
 		

@@ -6,6 +6,8 @@
 
 namespace erm {
 	
+	class ShaderProgram;
+	
 	struct Material
 	{
 		static Material DEFAULT;
@@ -18,6 +20,7 @@ namespace erm {
 		math::vec3 mDiffuse;
 		math::vec3 mSpecular;
 		float mShininess;
+		ShaderProgram* mShaderProgram;
 	};
 	
 }

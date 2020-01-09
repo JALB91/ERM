@@ -27,7 +27,6 @@
 namespace {
 	
 	const char* const kDebugShaderPath ("res/shaders/basic");
-	const char* const kModelShaderPath ("res/shaders/model");
 	
 }
 
@@ -42,7 +41,6 @@ namespace erm {
 			, mCamera(nullptr)
 			, mDebugMesh(std::make_unique<Mesh>(MeshUtils::CreateCube()))
 			, mDebugShader(ResourcesManager::GetOrCreateShaderProgram(kDebugShaderPath))
-			, mModelShader(ResourcesManager::GetOrCreateShaderProgram(kModelShaderPath))
 		{}
 		
 		RenderingSystem::~RenderingSystem()
@@ -90,7 +88,6 @@ namespace erm {
 		{
 			const TransformComponent* transformComponent = mTransformSystem.GetComponent(id);
 			const ModelComponent* modelComponent = mModelSystem.GetComponent(id);
-			
 			const CameraComponent* cameraComponent = mCamera->GetComponent<CameraComponent>();
 			
 			const Model* modelPtr = modelComponent->GetModel();
@@ -103,28 +100,33 @@ namespace erm {
 
 			const math::vec3& viewPos = mCamera->GetComponent<TransformComponent>()->GetTranslation();
 
-			mModelShader->Bind();
-			mModelShader->SetUniformMat4f(Uniform::MODEL, model);
-			mModelShader->SetUniformMat4f(Uniform::VIEW, view);
-			mModelShader->SetUniformMat4f(Uniform::PROJECTION, projection);
-
-			mModelShader->SetUniform3f(Uniform::LIGHT_AMBIENT, 1.0f, 1.0f, 1.0f);
-			mModelShader->SetUniform3f(Uniform::LIGHT_DIFFUSE, 1.0f, 1.0f, 1.0f);
-			mModelShader->SetUniform3f(Uniform::LIGHT_SPECULAR, 1.0f, 1.0f, 1.0f);
-			mModelShader->SetUniform3f(Uniform::LIGHT_POSITION, viewPos.x, viewPos.y, viewPos.z);
-
-			mModelShader->SetUniform3f(Uniform::VIEW_POS, viewPos.x, viewPos.y, viewPos.z);
-
 			for (const Mesh& mesh: modelPtr->GetMeshes())
 			{
 				if (!mesh.IsReady()) continue;
 
-				const Material& material = mesh.GetMaterial() ? *mesh.GetMaterial() : Material::DEFAULT;
+				Material& material = mesh.GetMaterial() ? *mesh.GetMaterial() : Material::DEFAULT;
+				
+				if (!material.mShaderProgram)
+				{
+					material.mShaderProgram = ResourcesManager::GetOrCreateShaderProgram("res/shaders/model");
+				}
+				
+				material.mShaderProgram->Bind();
+				material.mShaderProgram->SetUniformMat4f(Uniform::MODEL, model);
+				material.mShaderProgram->SetUniformMat4f(Uniform::VIEW, view);
+				material.mShaderProgram->SetUniformMat4f(Uniform::PROJECTION, projection);
 
-				mModelShader->SetUniform3f(Uniform::MATERIAL_AMBIENT, material.mAmbient.x, material.mAmbient.y, material.mAmbient.z);
-				mModelShader->SetUniform3f(Uniform::MATERIAL_DIFFUSE, material.mDiffuse.x, material.mDiffuse.y, material.mDiffuse.z);
-				mModelShader->SetUniform3f(Uniform::MATERIAL_SPECULAR, material.mSpecular.x, material.mSpecular.y, material.mSpecular.z);
-				mModelShader->SetUniform1f(Uniform::MATERIAL_SHININESS, material.mShininess);
+				material.mShaderProgram->SetUniform3f(Uniform::LIGHT_AMBIENT, 1.0f, 1.0f, 1.0f);
+				material.mShaderProgram->SetUniform3f(Uniform::LIGHT_DIFFUSE, 1.0f, 1.0f, 1.0f);
+				material.mShaderProgram->SetUniform3f(Uniform::LIGHT_SPECULAR, 1.0f, 1.0f, 1.0f);
+				material.mShaderProgram->SetUniform3f(Uniform::LIGHT_POSITION, viewPos.x, viewPos.y, viewPos.z);
+
+				material.mShaderProgram->SetUniform3f(Uniform::VIEW_POS, viewPos.x, viewPos.y, viewPos.z);
+
+				material.mShaderProgram->SetUniform3f(Uniform::MATERIAL_AMBIENT, material.mAmbient.x, material.mAmbient.y, material.mAmbient.z);
+				material.mShaderProgram->SetUniform3f(Uniform::MATERIAL_DIFFUSE, material.mDiffuse.x, material.mDiffuse.y, material.mDiffuse.z);
+				material.mShaderProgram->SetUniform3f(Uniform::MATERIAL_SPECULAR, material.mSpecular.x, material.mSpecular.y, material.mSpecular.z);
+				material.mShaderProgram->SetUniform1f(Uniform::MATERIAL_SHININESS, material.mShininess);
 
 				renderer.Draw(mesh.GetVA(), mesh.GetIB());
 			}
