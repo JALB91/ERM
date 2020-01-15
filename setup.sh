@@ -1,22 +1,13 @@
 #!/bin/sh
 
-OPT="-DPRINT_VARIABLES=FALSE"
-DIR=`dirname $0`
-
-for i in "$@"
-do
-	case $i in
-		-v|--verbose)
-			OPT="-DPRINT_VARIABLES=TRUE"
-	esac
-	case $i in
-		--cmake)
-			CMAKE=true
-	esac
-done
-
-_GENERATOR=""
-_OS=""
+function print_help {
+	echo "ERM Project setup script usage:"
+	echo "    -h) Print this message"
+	echo "    -C) Setup the project using CMake"
+	echo "    -c) Compile the project"
+	echo "    -o) Open in the editor"
+	echo "    -f) Fast run the project"
+}
 
 if [[ "$OSTYPE" == "linux-gnu" ]]; then
 	_OS="Linux"
@@ -31,43 +22,69 @@ else
 	exit
 fi
 
-if [[ $CMAKE ]]; then
-	_GENERATOR="Unix Makefiles"
-fi
+OPT="-DPRINT_VARIABLES=FALSE"
+DIR=`dirname $0`
+
+while getopts ":hCcvof" opt; do
+case $opt in
+	v)
+		OPT="-DPRINT_VARIABLES=TRUE"
+		;;
+	C)
+		_USE_CMAKE=true
+		_GENERATOR="Unix Makefiles"
+		;;
+	c)
+		_COMPILE=true
+		;;
+	o)
+		_OPEN=true
+		;;
+	f)
+		_FAST_RUN=true
+		;;
+	h)
+		print_help
+		exit
+		;;
+	\?)
+		echo "Invalid option: -$OPTARG"
+		echo
+		print_help
+		exit 1
+		;;
+esac
+done
 
 cd ${DIR}/build/ && cmake "$OPT" -G "$_GENERATOR" ..
 
-for i in "$@"
-do
-	case $i in
-		-o|--open)
-			if [[ $CMAKE ]]; then
-				"Not Ready Yet"
-				exit
-			elif [[ "$_OS" == "OSX" ]]; then
-				open ERM.xcodeproj
-			elif [[ "$_OS" == "WIN32" ]]; then
-				start ERM.sln
-			fi
-	esac
-	case $i in
-		-c|--compile)
-			if [[ $CMAKE ]]; then
-				make
-			elif [[ "$_OS" == "OSX" ]]; then
-				xcodebuild -target ERM
-			elif [[ "$_OS" == "WIN32" ]]; then
-				echo "Not ready yet"
-			fi
-	esac
-	case $i in
-		-f|--fastrun)
-			if [[ $CMAKE ]]; then
-				cd .. && ./build/ERM
-			elif [[ "$_OS" == "OSX" ]]; then
-				xcodebuild -target ERM && cd Debug/ && ./ERM
-			elif [[ "$_OS" == "WIN32" ]]; then
-				echo "Not ready yet"
-			fi
-	esac
-done
+ln -s compile_commands.json ../ &> /dev/null
+
+if [[ $_OPEN ]]; then
+	if [[ $_USE_CMAKE ]]; then
+		cd .. && vim
+	elif [[ "$_OS" == "OSX" ]]; then
+		open ERM.xcodeproj
+	elif [[ "$_OS" == "WIN32" ]]; then
+		start ERM.sln
+	fi
+	exit
+fi
+if [[ $_COMPILE ]]; then
+	if [[ $_USE_CMAKE ]]; then
+		make || exit 1
+	elif [[ "$_OS" == "OSX" ]]; then
+		xcodebuild -target ERM || exit 1
+	elif [[ "$_OS" == "WIN32" ]]; then
+		echo "Not ready yet" && exit 1
+	fi
+fi
+if [[ $_FAST_RUN ]]; then
+	if [[ $_USE_CMAKE ]]; then
+		(cd .. && ./build/ERM) || exit 1
+	elif [[ "$_OS" == "OSX" ]]; then
+		(xcodebuild -target ERM && cd Debug/ && ./ERM) || exit 1
+	elif [[ "$_OS" == "WIN32" ]]; then
+		echo "Not ready yet" && exit 1
+	fi
+fi
