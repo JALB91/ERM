@@ -9,6 +9,6 @@ namespace erm {
 
 namespace ImGui {
 	
-	void ShowComponentDebugWindow(erm::ecs::ECS& ecs, erm::ecs::EntityId entity);
+	extern void ShowComponentDebugWindow(erm::ecs::ECS& ecs, erm::ecs::EntityId entity);
 	
 }

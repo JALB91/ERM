@@ -8,6 +8,6 @@ namespace erm {
 
 namespace ImGui {
 	
-	void ShowCameraComponentDebugWindow(erm::ecs::CameraComponent& cameraComponent);
+	extern void ShowCameraComponentDebugWindow(erm::ecs::CameraComponent& cameraComponent);
 	
 }

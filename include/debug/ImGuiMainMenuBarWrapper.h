@@ -2,6 +2,6 @@
 
 namespace ImGui {
 	
-	void ShowMainMenuBar();
+	extern void ShowMainMenuBar();
 	
 }

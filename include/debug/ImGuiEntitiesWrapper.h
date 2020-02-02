@@ -6,6 +6,6 @@ namespace erm {
 
 namespace ImGui {
 	
-	void ShowEntitiesDebugWindow(erm::Game& game);
+	extern void ShowEntitiesDebugWindow(erm::Game& game);
 	
 }

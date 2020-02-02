@@ -6,6 +6,6 @@ namespace erm {
 
 namespace ImGui {
 	
-	void ShowMaterialDebug(erm::Mesh& mesh);
+	extern void ShowMaterialDebug(erm::Mesh& mesh);
 	
 }

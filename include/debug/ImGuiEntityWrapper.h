@@ -9,7 +9,7 @@ namespace erm {
 
 namespace ImGui {
 	
-	erm::ecs::EntityId ShowEntityDebugWindow(
+	extern erm::ecs::EntityId ShowEntityDebugWindow(
 		erm::ecs::ECS& ecs,
 		erm::ecs::EntityId active,
 		erm::ecs::EntityId entity
