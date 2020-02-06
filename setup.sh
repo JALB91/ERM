@@ -58,6 +58,7 @@ done
 
 cd ${DIR}/build/ && cmake "$OPT" -G "$_GENERATOR" ..
 
+rm ../compile_commands.json &> /dev/null
 ln compile_commands.json ../ &> /dev/null
 
 if [[ $_OPEN ]]; then
