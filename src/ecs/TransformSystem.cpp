@@ -15,9 +15,11 @@ namespace erm {
 		{
 			TransformComponent* transform = GetComponent(id);
 			
-			for (EntityId id : transform->mChildren)
+			for (EntityId entityId : transform->mChildren)
 			{
-				RemoveFromParent(id);
+				TransformComponent* entityTransform = GetComponent(entityId);
+				entityTransform->mParent.Reset();
+				entityTransform->SetDirty(true);
 			}
 			transform->mChildren.clear();
 			

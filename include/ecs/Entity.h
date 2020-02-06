@@ -32,6 +32,7 @@ namespace erm {
 				return other.mId == mId;
 			}
 			
+			inline EntityId GetId() const { return mId; }
 			inline bool IsValid() const { return mId.IsValid(); }
 			
 			inline ECS& GetECS() const { return mECS; }

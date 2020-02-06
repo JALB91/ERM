@@ -50,22 +50,16 @@ namespace erm {
 		
 		void RenderingSystem::OnRender(const Renderer& renderer)
 		{
-			for (ID i = 0; i < MAX_ID; ++i)
+			for (ID i = ROOT_ID; i < MAX_ID; ++i)
 			{
-				const TransformComponent* transformComponent = mTransformSystem.GetComponent(i);
+				if (!mTransformSystem.GetComponent(i)) continue;
 				
-				if (!transformComponent) continue;
-				
-				const CameraComponent* cameraComponent = mCameraSystem.GetComponent(i);
-				
-				if (cameraComponent)
+				if (mCameraSystem.GetComponent(i))
 				{
 					mCamera = mECS.GetEntityById(i);
 				}
 				
-				const ModelComponent* modelComponent = mModelSystem.GetComponent(i);
-				
-				if (modelComponent)
+				if (mModelSystem.GetComponent(i))
 				{
 					mModelsRenderingQueue.push(i);
 				}
@@ -79,14 +73,14 @@ namespace erm {
 			
 			while (!mModelsRenderingQueue.empty())
 			{
-				ProcessModel(renderer, mModelsRenderingQueue.back());
+				ProcessModel(renderer, mModelsRenderingQueue.front());
 				mModelsRenderingQueue.pop();
 			}
 			
 			mCamera = nullptr;
 		}
 		
-		void RenderingSystem::ProcessModel(const Renderer& renderer, ID id)
+		void RenderingSystem::ProcessModel(const Renderer& renderer, EntityId id)
 		{
 			const TransformComponent* transformComponent = mTransformSystem.GetComponent(id);
 			const ModelComponent* modelComponent = mModelSystem.GetComponent(id);

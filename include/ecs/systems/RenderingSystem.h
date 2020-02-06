@@ -27,7 +27,7 @@ namespace erm {
 			void OnRender(const Renderer& renderer);
 			
 		private:
-			void ProcessModel(const Renderer& renderer, ID id);
+			void ProcessModel(const Renderer& renderer, EntityId id);
 
 			TransformSystem& mTransformSystem;
 			ModelSystem& mModelSystem;
