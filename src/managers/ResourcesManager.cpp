@@ -9,10 +9,18 @@
 
 namespace erm {
 	
-	ResourcesManager::Shaders ResourcesManager::mLoadedShaderPrograms {};
-	ResourcesManager::Materials ResourcesManager::mLoadedMaterials {};
-	ResourcesManager::Textures ResourcesManager::mLoadedTextures {};
-	ResourcesManager::Models ResourcesManager::mLoadedModels {};
+	ResourcesManager::ResourcesManager()
+	{}
+	
+	ResourcesManager::~ResourcesManager()
+	{}
+	
+	ShaderProgram* ResourcesManager::GetOrCreateShaderProgram(const char* vertexShader, const char* fragmentShader)
+	{
+		return mLoadedShaderPrograms.emplace_back(
+			std::make_unique<ShaderProgram>(vertexShader, fragmentShader)
+		).get();
+	}
 	
 	ShaderProgram* ResourcesManager::GetOrCreateShaderProgram(const char* shaderProgramPath)
 	{

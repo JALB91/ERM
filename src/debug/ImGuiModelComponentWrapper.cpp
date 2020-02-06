@@ -1,6 +1,8 @@
 #include "debug/ImGuiModelComponentWrapper.h"
 #include "debug/ImGuiMeshWrapper.h"
 
+#include "game/Game.h"
+
 #include "rendering/Model.h"
 #include "rendering/Mesh.h"
 
@@ -14,7 +16,7 @@ namespace ImGui {
 	
 	void ShowPathOptions(erm::ecs::ModelComponent& modelComponent)
 	{
-		static erm::ResourcesManager::Models& all = erm::ResourcesManager::GetLoadedModels();
+		static erm::Models& all = erm::Game::GetInstance().GetResourcesManager().GetLoadedModels();
 		
 		erm::Model* model = modelComponent.GetModel();
 		std::string currentPath = model ? model->GetPath() : "";

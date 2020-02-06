@@ -33,24 +33,25 @@ namespace {
 
 namespace erm {
 	
+	unsigned int ShaderProgram::sShaderId = 0;
+	
+	ShaderProgram::ShaderProgram(const std::string& vertexShader, const std::string& fragmentShader)
+		: mRendererId(CreateShaderProgram(vertexShader, fragmentShader))
+		, mPath("TEMP_" + std::to_string(sShaderId))
+		, mVertex(vertexShader)
+		, mFragment(fragmentShader)
+		, mId(sShaderId++)
+	{
+		CacheUniformsLocations();
+	}
+	
 	ShaderProgram::ShaderProgram(const std::string& shaderPath)
 		: ShaderProgram(
-			(shaderPath + ".vert").c_str(),
-			(shaderPath + ".frag").c_str()
+			ParseShader(Utils::GetRelativePath((shaderPath + ".vert").c_str())),
+			ParseShader(Utils::GetRelativePath((shaderPath + ".frag").c_str()))
 		)
 	{
 		mPath = shaderPath;
-	}
-	
-	ShaderProgram::ShaderProgram(const char* vertexPath, const char* fragmentPath)
-		: mRendererId(
-			CreateShaderProgram(
-				ParseShader(Utils::GetRelativePath(vertexPath)),
-				ParseShader(Utils::GetRelativePath(fragmentPath))
-			)
-		)
-	{
-		CacheUniformsLocations();
 	}
 	
 	ShaderProgram::~ShaderProgram()
@@ -66,6 +67,16 @@ namespace erm {
 	void ShaderProgram::Unbind() const
 	{
 		GL_CALL(glUseProgram(0));
+	}
+	
+	void ShaderProgram::SetShaderSources(const std::string& vertexShader, const std::string& fragmentShader)
+	{
+		GL_CALL(glDeleteProgram(mRendererId));
+		mRendererId = CreateShaderProgram(vertexShader, fragmentShader);
+		mVertex = vertexShader;
+		mFragment = fragmentShader;
+		mUniformLocationsCache.clear();
+		CacheUniformsLocations();
 	}
 	
 	void ShaderProgram::SetUniform1i(const Uniform& uniform, int value) const

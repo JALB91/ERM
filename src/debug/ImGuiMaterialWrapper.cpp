@@ -1,5 +1,7 @@
 #include "debug/ImGuiMaterialWrapper.h"
 
+#include "game/Game.h"
+
 #include "managers/ResourcesManager.h"
 
 #include "rendering/Material.h"
@@ -19,7 +21,7 @@ namespace ImGui {
 			
 			ImGui::Indent();
 			
-			static erm::ResourcesManager::Materials& all = erm::ResourcesManager::GetLoadedMaterials();
+			static erm::Materials& all = erm::Game::GetInstance().GetResourcesManager().GetLoadedMaterials();
 			std::string currentPath = material ? material->mPath : "";
 			std::string currentName = material ? material->mName : "";
 			std::set<std::string> displayedPaths;
@@ -90,6 +92,11 @@ namespace ImGui {
 				ImGui::SliderFloat3("Diffuse", &material->mDiffuse.x, 0.0f, 1.0f);
 				ImGui::SliderFloat3("Specular", &material->mSpecular.x, 0.0f, 1.0f);
 				ImGui::SliderFloat("Shininess", &material->mShininess, 0.0f, 1000.0f);
+				
+				if (erm::ShaderProgram* shaderProgram = material->mShaderProgram)
+				{
+					
+				}
 			}
 			
 			ImGui::Unindent();

@@ -40,8 +40,30 @@ namespace {
 
 namespace erm {
 	
+	Game* Game::mInstance = nullptr;
+	
+	Game& Game::GetInstance()
+	{
+		if (!mInstance)
+		{
+			mInstance = new Game();
+		}
+		
+		return *mInstance;
+	}
+	
+	void Game::DestroyInstance()
+	{
+		if (mInstance)
+		{
+			delete mInstance;
+			mInstance = nullptr;
+		}
+	}
+	
 	Game::Game()
-		: mWindow(std::make_unique<Window>())
+		: mResourcesManager(std::make_unique<ResourcesManager>())
+		, mWindow(std::make_unique<Window>())
 		, mRenderContext(nullptr)
 		, mRenderer(nullptr)
 		, mECS(nullptr)
@@ -55,11 +77,8 @@ namespace erm {
 	Game::~Game()
 	{
 		ModelUtils::Destroy();
-		ResourcesManager::GetLoadedShaderPrograms().clear();
-		ResourcesManager::GetLoadedMaterials().clear();
-		ResourcesManager::GetLoadedTextures().clear();
-		ResourcesManager::GetLoadedModels().clear();
-
+		
+		mResourcesManager.reset();
 		mECS.reset();
 		mRenderer.reset();
 		mRenderContext.reset();
@@ -84,19 +103,19 @@ namespace erm {
 		mCamera->GetComponent<ecs::TransformComponent>()->SetTranslation(math::vec3(0.0f, 145.0f, 400.0f));
 
 		mObject = mECS->GetOrCreateEntity("Model");
-		mObject->RequireComponent<ecs::ModelComponent>(ResourcesManager::GetOrCreateModel(kIronManModelPath));
+		mObject->RequireComponent<ecs::ModelComponent>(mResourcesManager->GetOrCreateModel(kIronManModelPath));
 
 		mRoot->AddChild(*mCamera);
 		mRoot->AddChild(*mObject);
 		
-		ResourcesManager::GetOrCreateModel(kLamborghiniModelPath);
-		ResourcesManager::GetOrCreateModel(kSpaceshipModelPath);
-		ResourcesManager::GetOrCreateModel(kIronManModelPath);
-		ResourcesManager::GetOrCreateModel(kIphoneModelPath);
-		ResourcesManager::GetOrCreateModel(kAventModelPath);
-		ResourcesManager::GetOrCreateModel(kCrateModelPath);
-		ResourcesManager::GetOrCreateModel(kChairModelPath);
-		ResourcesManager::GetOrCreateModel(kCubeModelPath);
+		mResourcesManager->GetOrCreateModel(kLamborghiniModelPath);
+		mResourcesManager->GetOrCreateModel(kSpaceshipModelPath);
+		mResourcesManager->GetOrCreateModel(kIronManModelPath);
+		mResourcesManager->GetOrCreateModel(kIphoneModelPath);
+		mResourcesManager->GetOrCreateModel(kAventModelPath);
+		mResourcesManager->GetOrCreateModel(kCrateModelPath);
+		mResourcesManager->GetOrCreateModel(kChairModelPath);
+		mResourcesManager->GetOrCreateModel(kCubeModelPath);
 		
 		return true;
 	}
@@ -134,7 +153,7 @@ namespace erm {
 	
 	void Game::OnImGuiRender()
 	{
-		ImGui::ShowGameDebug(*this);
+		ImGui::ShowGameDebug();
 	}
 	
 	void Game::OnRender()

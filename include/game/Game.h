@@ -6,6 +6,7 @@
 
 namespace erm {
 
+	class ResourcesManager;
 	class Window;
 	class RenderContext;
 	class Renderer;
@@ -17,8 +18,15 @@ namespace erm {
 	
 	class Game : private IWindowListener
 	{
-	public:
+	private:
 		Game();
+		
+		static Game* mInstance;
+		
+	public:
+		static Game& GetInstance();
+		static void DestroyInstance();
+		
 		~Game();
 		
 		bool Init();
@@ -31,6 +39,7 @@ namespace erm {
 		void OnRender();
 		void OnPostRender();
 		
+		inline ResourcesManager& GetResourcesManager() const { return *mResourcesManager; }
 		inline Window& GetWindow() const { return *mWindow; }
 		inline RenderContext& GetRenderContext() const { return *mRenderContext; }
 		inline Renderer& GetRenderer() const { return *mRenderer; }
@@ -46,6 +55,7 @@ namespace erm {
 		void OnMouseMoved(double xPos, double yPos) override;
 		void OnSizeChanged(int width, int height) override;
 		
+		std::unique_ptr<ResourcesManager> mResourcesManager;
 		std::unique_ptr<Window> mWindow;
 		std::unique_ptr<RenderContext> mRenderContext;
 		std::unique_ptr<Renderer> mRenderer;

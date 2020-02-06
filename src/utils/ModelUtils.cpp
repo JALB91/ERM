@@ -8,6 +8,7 @@
 
 #include "math/math.h"
 
+#include <deque>
 #include <future>
 #include <thread>
 #include <fstream>
@@ -17,8 +18,8 @@
 
 namespace {
 
-	std::vector<erm::Model*> loadingModels;
-	std::vector<std::future<void>> futures;
+	std::deque<erm::Model*> loadingModels;
+	std::deque<std::future<void>> futures;
 	std::atomic<bool> stop = false;
 	std::mutex mut;
 	std::mutex mut2;
@@ -87,7 +88,7 @@ namespace erm {
 
 		stream.close();
 
-		Model& model = *modelsContainer.emplace_back(std::make_unique<Model>(path, "unknown")).get();
+		Model& model = *modelsContainer.emplace_back(std::make_unique<Model>(path, "unknown"));
 		
 		loadingModels.emplace_back(&model);
 		futures.emplace_back(
@@ -407,10 +408,8 @@ namespace erm {
 		std::string& meshName
 	)
 	{
-		Mesh mesh (CreateMesh(vertices, indices, material, meshName));
-		
 		mut2.lock();
-		model.AddMesh(std::move(mesh));
+		model.AddMesh(CreateMesh(vertices, indices, material, meshName));
 		mut2.unlock();
 	}
 	
@@ -491,13 +490,12 @@ namespace erm {
 					const auto& it = std::find_if(materialsContainer.begin(), materialsContainer.end(), [name](const std::unique_ptr<Material>& mat) {
 						return mat->mName.compare(name) == 0;
 					});
+					mut.unlock();
 					if (it != materialsContainer.end())
 					{
 						skip = true;
-						mut.unlock();
 						continue;
 					}
-					mut.unlock();
 					
 					mat = Material::DEFAULT;
 					mat->mPath = path;

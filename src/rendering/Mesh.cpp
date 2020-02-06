@@ -58,8 +58,13 @@ namespace erm {
 		
 	void Mesh::Setup()
 	{
-		if (!mVerticesData || mVerticesDataCount <= 0 ||
-			!mIndicesData || mIndicesDataCount <= 0)
+		if (
+			IsReady() ||
+			!mVerticesData ||
+			mVerticesDataCount <= 0 ||
+			!mIndicesData ||
+			mIndicesDataCount <= 0
+		)
 		{
 			return;
 		}

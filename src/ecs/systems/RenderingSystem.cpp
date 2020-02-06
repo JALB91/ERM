@@ -6,6 +6,8 @@
 #include "ecs/systems/ModelSystem.h"
 #include "ecs/systems/CameraSystem.h"
 
+#include "game/Game.h"
+
 #include "managers/ResourcesManager.h"
 
 #include "utils/MeshUtils.h"
@@ -40,7 +42,7 @@ namespace erm {
 			, mCameraSystem(mECS.GetSystem<CameraSystem>())
 			, mCamera(nullptr)
 			, mDebugMesh(std::make_unique<Mesh>(MeshUtils::CreateCube()))
-			, mDebugShader(ResourcesManager::GetOrCreateShaderProgram(kDebugShaderPath))
+			, mDebugShader(Game::GetInstance().GetResourcesManager().GetOrCreateShaderProgram(kDebugShaderPath))
 		{}
 		
 		RenderingSystem::~RenderingSystem()
@@ -108,7 +110,7 @@ namespace erm {
 				
 				if (!material.mShaderProgram)
 				{
-					material.mShaderProgram = ResourcesManager::GetOrCreateShaderProgram("res/shaders/model");
+					material.mShaderProgram = Game::GetInstance().GetResourcesManager().GetOrCreateShaderProgram("res/shaders/model");
 				}
 				
 				material.mShaderProgram->Bind();

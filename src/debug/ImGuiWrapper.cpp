@@ -5,11 +5,11 @@
 
 namespace ImGui {
 	
-	void ShowGameDebug(erm::Game& game)
+	void ShowGameDebug()
 	{
 		ImGui::ShowMainMenuBar();
-		ImGui::ShowEntitiesDebugWindow(game);
-		ImGui::ShowRenderingDebugWindow(game);
+		ImGui::ShowEntitiesDebugWindow();
+		ImGui::ShowRenderingDebugWindow();
 	}
 	
 }
