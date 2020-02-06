@@ -15,121 +15,121 @@ namespace erm {
 	
 	void RenderContext::Draw(int count) const
 	{
-		GLCALL(glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr));
+		GL_CALL(glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr));
 	}
 	
 	void RenderContext::Clear() const
 	{
-		GLCALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+		GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 	}
 	
 	bool RenderContext::IsDepthEnabled() const
 	{
-		GLCALL(return glIsEnabled(GL_DEPTH_TEST));
+		GL_CALL(return glIsEnabled(GL_DEPTH_TEST));
 	}
 	
 	int RenderContext::GetDepthFunction() const
 	{
 		int result;
-		GLCALL(glGetIntegerv(GL_DEPTH_FUNC, &result));
+		GL_CALL(glGetIntegerv(GL_DEPTH_FUNC, &result));
 		return result;
 	}
 	
 	void RenderContext::SetDepthEnabled(bool enabled) const
 	{
-		GLCALL(enabled ? glEnable(GL_DEPTH_TEST) : glDisable(GL_DEPTH_TEST));
+		GL_CALL(enabled ? glEnable(GL_DEPTH_TEST) : glDisable(GL_DEPTH_TEST));
 	}
 	
 	void RenderContext::SetDepthFunction(int depthFunc) const
 	{
-		GLCALL(glDepthFunc(depthFunc));
+		GL_CALL(glDepthFunc(depthFunc));
 	}
 	
 	bool RenderContext::IsBlendEnabled() const
 	{
-		GLCALL(return glIsEnabled(GL_BLEND));
+		GL_CALL(return glIsEnabled(GL_BLEND));
 	}
 	
 	int RenderContext::GetBlendSourceFactor() const
 	{
 		int result;
-		GLCALL(glGetIntegerv(GL_BLEND_SRC, &result));
+		GL_CALL(glGetIntegerv(GL_BLEND_SRC, &result));
 		return result;
 	}
 	
 	int RenderContext::GetBlendDestinationFactor() const
 	{
 		int result;
-		GLCALL(glGetIntegerv(GL_BLEND_DST, &result));
+		GL_CALL(glGetIntegerv(GL_BLEND_DST, &result));
 		return result;
 	}
 	
 	void RenderContext::SetBlendEnabled(bool enabled) const
 	{
-		GLCALL(enabled ? glEnable(GL_BLEND) : glDisable(GL_BLEND));
+		GL_CALL(enabled ? glEnable(GL_BLEND) : glDisable(GL_BLEND));
 	}
 	
 	void RenderContext::SetBlendFunction(int sFactor, int dFactor) const
 	{
-		GLCALL(glBlendFunc(sFactor, dFactor));
+		GL_CALL(glBlendFunc(sFactor, dFactor));
 	}
 	
 	bool RenderContext::IsCullFaceEnabled() const
 	{
-		GLCALL(return glIsEnabled(GL_CULL_FACE));
+		GL_CALL(return glIsEnabled(GL_CULL_FACE));
 	}
 	
 	int RenderContext::GetCullFace() const
 	{
 		int result;
-		GLCALL(glGetIntegerv(GL_CULL_FACE_MODE, &result));
+		GL_CALL(glGetIntegerv(GL_CULL_FACE_MODE, &result));
 		return result;
 	}
 	
 	int RenderContext::GetFrontFace() const
 	{
 		int result;
-		GLCALL(glGetIntegerv(GL_FRONT_FACE, &result));
+		GL_CALL(glGetIntegerv(GL_FRONT_FACE, &result));
 		return result;
 	}
 	
 	void RenderContext::SetCullFaceEnabled(bool enabled) const
 	{
-		GLCALL(enabled ? glEnable(GL_CULL_FACE) : glDisable(GL_CULL_FACE));
+		GL_CALL(enabled ? glEnable(GL_CULL_FACE) : glDisable(GL_CULL_FACE));
 	}
 	
 	void RenderContext::SetCullFace(int cullFace) const
 	{
-		GLCALL(glCullFace(cullFace));
+		GL_CALL(glCullFace(cullFace));
 	}
 	
 	void RenderContext::SetFrontFace(int frontFace) const
 	{
-		GLCALL(glFrontFace(frontFace));
+		GL_CALL(glFrontFace(frontFace));
 	}
 	
 	int RenderContext::GetPolygonMode() const
 	{
 		int result;
-		GLCALL(glGetIntegerv(GL_POLYGON_MODE, &result));
+		GL_CALL(glGetIntegerv(GL_POLYGON_MODE, &result));
 		return result;
 	}
 	
 	void RenderContext::SetPolygonMode(int mode) const
 	{
-		GLCALL(glPolygonMode(GL_FRONT_AND_BACK, mode));
+		GL_CALL(glPolygonMode(GL_FRONT_AND_BACK, mode));
 	}
 	
 	math::vec4 RenderContext::GetClearColor() const
 	{
 		math::vec4 result;
-		GLCALL(glGetFloatv(GL_COLOR_CLEAR_VALUE, &result.x));
+		GL_CALL(glGetFloatv(GL_COLOR_CLEAR_VALUE, &result.x));
 		return result;
 	}
 	
 	void RenderContext::SetClearColor(const math::vec4& clearColor) const
 	{
-		GLCALL(glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w));
+		GL_CALL(glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w));
 	}
 	
 }

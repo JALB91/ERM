@@ -6,7 +6,7 @@
 
 #define ASSERT(x) assert(x)
 #define EXPECT(x, msg) erm::Utils::LogCall((x), msg, #x, __FILE__, __LINE__)
-#define GLCALL(x) \
+#define GL_CALL(x) \
 	erm::Utils::GLClearError();\
 	x;\
 	ASSERT(erm::Utils::GLLogCall(#x, __FILE__, __LINE__))

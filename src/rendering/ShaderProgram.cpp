@@ -55,42 +55,42 @@ namespace erm {
 	
 	ShaderProgram::~ShaderProgram()
 	{
-		GLCALL(glDeleteProgram(mRendererId));
+		GL_CALL(glDeleteProgram(mRendererId));
 	}
 	
 	void ShaderProgram::Bind() const
 	{
-		GLCALL(glUseProgram(mRendererId));
+		GL_CALL(glUseProgram(mRendererId));
 	}
 	
 	void ShaderProgram::Unbind() const
 	{
-		GLCALL(glUseProgram(0));
+		GL_CALL(glUseProgram(0));
 	}
 	
 	void ShaderProgram::SetUniform1i(const Uniform& uniform, int value) const
 	{
-		GLCALL(glUniform1i(GetUniformLocation(kUniforms.at(uniform)), value));
+		GL_CALL(glUniform1i(GetUniformLocation(kUniforms.at(uniform)), value));
 	}
 	
 	void ShaderProgram::SetUniform1f(const Uniform& uniform, float value) const
 	{
-		GLCALL(glUniform1f(GetUniformLocation(kUniforms.at(uniform)), value));
+		GL_CALL(glUniform1f(GetUniformLocation(kUniforms.at(uniform)), value));
 	}
 	
 	void ShaderProgram::SetUniform3f(const Uniform& uniform, float v0, float v1, float v2) const
 	{
-		GLCALL(glUniform3f(GetUniformLocation(kUniforms.at(uniform)), v0, v1, v2));
+		GL_CALL(glUniform3f(GetUniformLocation(kUniforms.at(uniform)), v0, v1, v2));
 	}
 	
 	void ShaderProgram::SetUniform4f(const Uniform& uniform, float v0, float v1, float v2, float v3) const
 	{
-		GLCALL(glUniform4f(GetUniformLocation(kUniforms.at(uniform)), v0, v1, v2, v3));
+		GL_CALL(glUniform4f(GetUniformLocation(kUniforms.at(uniform)), v0, v1, v2, v3));
 	}
 	
 	void ShaderProgram::SetUniformMat4f(const Uniform& uniform, const math::mat4& matrix) const
 	{
-		GLCALL(glUniformMatrix4fv(GetUniformLocation(kUniforms.at(uniform)), 1, GL_FALSE, &matrix[0][0]));
+		GL_CALL(glUniformMatrix4fv(GetUniformLocation(kUniforms.at(uniform)), 1, GL_FALSE, &matrix[0][0]));
 	}
 	
 	std::string ShaderProgram::ParseShader(const std::string& path) const
@@ -112,25 +112,25 @@ namespace erm {
 	
 	unsigned int ShaderProgram::CompileShader(unsigned int type, const std::string& source) const
 	{
-		GLCALL(unsigned int id = glCreateShader(type));
+		GL_CALL(unsigned int id = glCreateShader(type));
 		const char* src = source.c_str();
 		
-		GLCALL(glShaderSource(id, 1, &src, nullptr));
-		GLCALL(glCompileShader(id));
+		GL_CALL(glShaderSource(id, 1, &src, nullptr));
+		GL_CALL(glCompileShader(id));
 		
 		int result;
-		GLCALL(glGetShaderiv(id, GL_COMPILE_STATUS, &result));
+		GL_CALL(glGetShaderiv(id, GL_COMPILE_STATUS, &result));
 		
 		if (result == GL_FALSE)
 		{
 			int lenght;
-			GLCALL(glGetShaderiv(id, GL_INFO_LOG_LENGTH, &lenght));
+			GL_CALL(glGetShaderiv(id, GL_INFO_LOG_LENGTH, &lenght));
 			char* infoLog = (char*)alloca(lenght * sizeof(char));
-			GLCALL(glGetShaderInfoLog(id, lenght, &lenght, infoLog));
+			GL_CALL(glGetShaderInfoLog(id, lenght, &lenght, infoLog));
 			
 			std::cout << infoLog << std::endl;
 			
-			GLCALL(glDeleteShader(id));
+			GL_CALL(glDeleteShader(id));
 			
 			return 0;
 		}
@@ -140,17 +140,17 @@ namespace erm {
 	
 	unsigned int ShaderProgram::CreateShaderProgram(const std::string& vertex, const std::string& fragment) const
 	{
-		GLCALL(unsigned int program = glCreateProgram());
+		GL_CALL(unsigned int program = glCreateProgram());
 		unsigned int vs = CompileShader(GL_VERTEX_SHADER, vertex);
 		unsigned int fs = CompileShader(GL_FRAGMENT_SHADER, fragment);
 		
-		GLCALL(glAttachShader(program, vs));
-		GLCALL(glAttachShader(program, fs));
-		GLCALL(glLinkProgram(program));
-		GLCALL(glValidateProgram(program));
+		GL_CALL(glAttachShader(program, vs));
+		GL_CALL(glAttachShader(program, fs));
+		GL_CALL(glLinkProgram(program));
+		GL_CALL(glValidateProgram(program));
 		
-		GLCALL(glDeleteShader(vs));
-		GLCALL(glDeleteShader(fs));
+		GL_CALL(glDeleteShader(vs));
+		GL_CALL(glDeleteShader(fs));
 		
 		return program;
 	}
@@ -159,7 +159,7 @@ namespace erm {
 	{
 		for (const auto& uniform: kUniforms)
 		{
-			GLCALL(mUniformLocationsCache[uniform.second] = glGetUniformLocation(mRendererId, uniform.second));
+			GL_CALL(mUniformLocationsCache[uniform.second] = glGetUniformLocation(mRendererId, uniform.second));
 		}
 	}
 	

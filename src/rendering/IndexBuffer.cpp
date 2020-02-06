@@ -10,24 +10,24 @@ namespace erm {
 	{
 		ASSERT(sizeof(unsigned int) == sizeof(GLuint));
 		
-		GLCALL(glGenBuffers(1, &mRendererId));
-		GLCALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mRendererId));
-		GLCALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(unsigned int), data, GL_STATIC_DRAW));
+		GL_CALL(glGenBuffers(1, &mRendererId));
+		GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mRendererId));
+		GL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(unsigned int), data, GL_STATIC_DRAW));
 	}
 	
 	IndexBuffer::~IndexBuffer()
 	{
-		GLCALL(glDeleteBuffers(1, &mRendererId));
+		GL_CALL(glDeleteBuffers(1, &mRendererId));
 	}
 	
 	void IndexBuffer::Bind() const
 	{
-		GLCALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mRendererId));
+		GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mRendererId));
 	}
 	
 	void IndexBuffer::Unbind() const
 	{
-		GLCALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+		GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 	}
 	
 }

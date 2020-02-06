@@ -7,24 +7,24 @@ namespace erm {
 	
 	VertexBuffer::VertexBuffer(const void* data, unsigned int size)
 	{
-		GLCALL(glGenBuffers(1, &mRendererId));
-		GLCALL(glBindBuffer(GL_ARRAY_BUFFER, mRendererId));
-		GLCALL(glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW));
+		GL_CALL(glGenBuffers(1, &mRendererId));
+		GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, mRendererId));
+		GL_CALL(glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW));
 	}
 	
 	VertexBuffer::~VertexBuffer()
 	{
-		GLCALL(glDeleteBuffers(1, &mRendererId));
+		GL_CALL(glDeleteBuffers(1, &mRendererId));
 	}
 	
 	void VertexBuffer::Bind() const
 	{
-		GLCALL(glBindBuffer(GL_ARRAY_BUFFER, mRendererId));
+		GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, mRendererId));
 	}
 	
 	void VertexBuffer::Unbind() const
 	{
-		GLCALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
+		GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
 	}
 	
 }

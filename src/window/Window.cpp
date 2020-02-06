@@ -278,7 +278,7 @@ namespace erm {
 		const float viewPortX = std::max(width * 0.1f, width - (width * kImGuiSpaceRight + width * kImGuiSpaceLeft));
 		const float viewPortY = std::max(height * 0.1f, height - (height * kImGuiSpaceUp + height * kImGuiSpaceDown));
 		
-		GLCALL(glViewport(
+		GL_CALL(glViewport(
 			static_cast<int>(width * kImGuiSpaceLeft),
 			static_cast<int>(height * kImGuiSpaceDown),
 			static_cast<int>(viewPortX),
