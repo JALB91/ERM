@@ -25,6 +25,8 @@
 
 #include <GLFW/glfw3.h>
 
+#include <random>
+
 namespace {
 
 	const char* const kLamborghiniModelPath = "res/models/Lamborghini_Aventador.obj";
@@ -35,6 +37,8 @@ namespace {
 	const char* const kChairModelPath = "res/models/chair.obj";
 	const char* const kAventModelPath = "res/models/Avent.obj";
 	const char* const kCubeModelPath = "res/models/cube.obj";
+
+	static const int kEntities = 1;
 
 }
 
@@ -68,6 +72,7 @@ namespace erm {
 		, mRenderer(nullptr)
 		, mECS(nullptr)
 	{
+		std::srand(static_cast<int>(time(NULL)));
 		mWindow->AddListener(static_cast<IWindowListener&>(*this));
 	}
 	
@@ -99,15 +104,13 @@ namespace erm {
 
 		auto root = mECS->GetRoot();
 		root->AddChild(*camera);
-		
-		mResourcesManager->GetOrCreateModel(kLamborghiniModelPath);
-		mResourcesManager->GetOrCreateModel(kSpaceshipModelPath);
-		mResourcesManager->GetOrCreateModel(kIronManModelPath);
-		mResourcesManager->GetOrCreateModel(kIphoneModelPath);
-		mResourcesManager->GetOrCreateModel(kAventModelPath);
-		mResourcesManager->GetOrCreateModel(kCrateModelPath);
-		mResourcesManager->GetOrCreateModel(kChairModelPath);
-		mResourcesManager->GetOrCreateModel(kCubeModelPath);
+
+		for (int i = 0; i < kEntities; ++i)
+		{
+			auto entity = mECS->GetOrCreateEntity();
+			entity->RequireComponent<ecs::ModelComponent>(mResourcesManager->GetOrCreateModel(kIronManModelPath));
+			root->AddChild(*entity);
+		}
 		
 		return true;
 	}
@@ -143,6 +146,18 @@ namespace erm {
 			
 			frameElapsedTime = 0.0;
 			frameInSecond = 0;
+		}
+
+		for (auto child : mECS->GetRoot()->GetChildren())
+		{
+			auto entity = mECS->GetEntityById(child);
+
+			if (entity->HasComponent<ecs::CameraComponent>()) continue;
+
+			auto transform = entity->GetComponent<ecs::TransformComponent>();
+			auto rotation = transform->GetRotation();
+			const float rot = (static_cast<float>(std::rand() % 100)) * 0.0001f;
+			transform->SetRotation(rotation + math::vec3(0.0f, rot, 0.0f));
 		}
 		
 		mECS->OnUpdate(dt);
