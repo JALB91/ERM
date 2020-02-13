@@ -67,16 +67,13 @@ namespace erm {
 		, mRenderContext(nullptr)
 		, mRenderer(nullptr)
 		, mECS(nullptr)
-		, mRoot(nullptr)
-		, mCamera(nullptr)
-		, mObject(nullptr)
 	{
 		mWindow->AddListener(static_cast<IWindowListener&>(*this));
 	}
 	
 	Game::~Game()
 	{
-		ModelUtils::Destroy();
+		ModelUtils::OnDestroy();
 		
 		mResourcesManager.reset();
 		mECS.reset();
@@ -96,17 +93,12 @@ namespace erm {
 		mRenderer = std::make_unique<Renderer>(*mRenderContext);
 		mECS = std::make_unique<ecs::ECS>();
 
-		mRoot = mECS->GetRoot();
+		auto camera = mECS->GetOrCreateEntity("Camera");
+		camera->RequireComponent<ecs::CameraComponent>(*mWindow);
+		camera->GetComponent<ecs::TransformComponent>()->SetTranslation(math::vec3(0.0f, 145.0f, 400.0f));
 
-		mCamera = mECS->GetOrCreateEntity("Camera");
-		mCamera->RequireComponent<ecs::CameraComponent>(*mWindow);
-		mCamera->GetComponent<ecs::TransformComponent>()->SetTranslation(math::vec3(0.0f, 145.0f, 400.0f));
-
-		mObject = mECS->GetOrCreateEntity("Model");
-		mObject->RequireComponent<ecs::ModelComponent>(mResourcesManager->GetOrCreateModel(kIronManModelPath));
-
-		mRoot->AddChild(*mCamera);
-		mRoot->AddChild(*mObject);
+		auto root = mECS->GetRoot();
+		root->AddChild(*camera);
 		
 		mResourcesManager->GetOrCreateModel(kLamborghiniModelPath);
 		mResourcesManager->GetOrCreateModel(kSpaceshipModelPath);
@@ -140,7 +132,7 @@ namespace erm {
 		mECS->OnUpdate(dt);
 		mWindow->NewFrame();
 		if (mRenderContext) mRenderContext->Clear();
-		ModelUtils::Update();
+		ModelUtils::OnUpdate();
 	}
 	
 	void Game::OnPostUpdate()
@@ -158,12 +150,14 @@ namespace erm {
 	
 	void Game::OnRender()
 	{
+		ModelUtils::OnRender();
 		mECS->OnRender(*mRenderer.get());
 		mWindow->Render();
 	}
 	
 	void Game::OnPostRender()
 	{
+		ModelUtils::OnPostRender();
 		mWindow->PostRender();
 	}
 	

@@ -44,7 +44,6 @@ namespace erm {
 		inline RenderContext& GetRenderContext() const { return *mRenderContext; }
 		inline Renderer& GetRenderer() const { return *mRenderer; }
 		inline ecs::ECS& GetECS() const { return *mECS; }
-		inline ecs::Entity& GetRoot() const { return *mRoot; }
 		
 	private:
 		// IWindowListener
@@ -60,10 +59,6 @@ namespace erm {
 		std::unique_ptr<RenderContext> mRenderContext;
 		std::unique_ptr<Renderer> mRenderer;
 		std::unique_ptr<ecs::ECS> mECS;
-		
-		ecs::Entity* mRoot;
-		ecs::Entity* mCamera;
-		ecs::Entity* mObject;
 		
 	};
 	

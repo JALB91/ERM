@@ -78,10 +78,6 @@ namespace ImGui {
 			}
 		}
 		
-//		const erm::math::vec2 winSize (window.GetWindowWidth(), window.GetWindowHeight());
-//		const erm::math::vec2 viewport = window.GetViewport();
-//		ImGui::SetWindowSize(ImVec2(viewport.x, winSize.y - viewport.y));
-//		ImGui::SetWindowPos(ImVec2((winSize.x - viewport.x) * 0.5f, winSize.y - (winSize.y - viewport.y)));
 		ImGui::End();
 	}
 	

@@ -16,8 +16,10 @@ namespace erm {
 	class ModelUtils
 	{
 	public:
-		static void Update();
-		static void Destroy();
+		static void OnUpdate();
+		static void OnRender();
+		static void OnPostRender();
+		static void OnDestroy();
 
 		static bool ParseModel(
 			const char* path,

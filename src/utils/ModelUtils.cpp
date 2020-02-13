@@ -28,7 +28,7 @@ namespace {
 
 namespace erm {
 
-	void ModelUtils::Update()
+	void ModelUtils::OnUpdate()
 	{
 		if (!mut2.try_lock())
 		{
@@ -60,8 +60,20 @@ namespace erm {
 			}
 		}
 	}
+	
+	void ModelUtils::OnRender()
+	{
+		mut.lock();
+		mut2.lock();
+	}
+	
+	void ModelUtils::OnPostRender()
+	{
+		mut.unlock();
+		mut2.unlock();
+	}
 
-	void ModelUtils::Destroy()
+	void ModelUtils::OnDestroy()
 	{
 		stop = true;
 		for (const std::future<void>& future : futures)
@@ -88,7 +100,11 @@ namespace erm {
 
 		stream.close();
 
-		Model& model = *modelsContainer.emplace_back(std::make_unique<Model>(path, "unknown"));
+		mut.lock();
+		mut2.lock();
+		Model& model = *models.emplace_back(std::make_unique<Model>(path, "unknown"));
+		mut.unlock();
+		mut2.unlock();
 		
 		loadingModels.emplace_back(&model);
 		futures.emplace_back(
@@ -408,8 +424,10 @@ namespace erm {
 		std::string& meshName
 	)
 	{
+		mut.lock();
 		mut2.lock();
 		model.AddMesh(CreateMesh(vertices, indices, material, meshName));
+		mut.unlock();
 		mut2.unlock();
 	}
 	
