@@ -3,6 +3,8 @@
 #include "ecs/ISystem.h"
 #include "ecs/components/RenderingComponent.h"
 
+#include "math/mat.h"
+
 #include <queue>
 
 namespace erm {
@@ -27,7 +29,11 @@ namespace erm {
 			void OnRender(const Renderer& renderer);
 			
 		private:
-			void ProcessModel(const Renderer& renderer, EntityId id);
+			void ProcessModel(
+				const Renderer& renderer,
+				const math::mat4& viewProjection,
+				EntityId id
+			);
 
 			TransformSystem& mTransformSystem;
 			ModelSystem& mModelSystem;

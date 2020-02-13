@@ -18,6 +18,7 @@ namespace {
 		{ erm::Uniform::MODEL, "u_Model" },
 		{ erm::Uniform::VIEW, "u_View" },
 		{ erm::Uniform::PROJECTION, "u_Projection" },
+		{ erm::Uniform::VIEW_PROJECTION, "u_ViewProjection" },
 		{ erm::Uniform::MATERIAL_AMBIENT, "u_Material.ambient" },
 		{ erm::Uniform::MATERIAL_DIFFUSE, "u_Material.diffuse" },
 		{ erm::Uniform::MATERIAL_SPECULAR, "u_Material.specular" },

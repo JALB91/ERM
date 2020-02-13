@@ -71,16 +71,25 @@ namespace erm {
 				return;
 			}
 			
+			const CameraComponent* cameraComponent = mCamera->GetComponent<CameraComponent>();
+			const math::mat4& view = mCamera->GetComponent<TransformComponent>()->GetWorldTransform();
+			const math::mat4& projection = cameraComponent->GetProjectionMatrix();
+			const math::mat4 viewProjection = projection * glm::inverse(view);
+			
 			while (!mModelsRenderingQueue.empty())
 			{
-				ProcessModel(renderer, mModelsRenderingQueue.front());
+				ProcessModel(renderer, viewProjection, mModelsRenderingQueue.front());
 				mModelsRenderingQueue.pop();
 			}
 			
 			mCamera = nullptr;
 		}
 		
-		void RenderingSystem::ProcessModel(const Renderer& renderer, EntityId id)
+		void RenderingSystem::ProcessModel(
+			const Renderer& renderer,
+			const math::mat4& viewProjection,
+			EntityId id
+		)
 		{
 			const TransformComponent* transformComponent = mTransformSystem.GetComponent(id);
 			const ModelComponent* modelComponent = mModelSystem.GetComponent(id);
@@ -111,6 +120,7 @@ namespace erm {
 				material.mShaderProgram->SetUniformMat4f(Uniform::MODEL, model);
 				material.mShaderProgram->SetUniformMat4f(Uniform::VIEW, view);
 				material.mShaderProgram->SetUniformMat4f(Uniform::PROJECTION, projection);
+				material.mShaderProgram->SetUniformMat4f(Uniform::VIEW_PROJECTION, viewProjection);
 
 				material.mShaderProgram->SetUniform3f(Uniform::LIGHT_AMBIENT, 1.0f, 1.0f, 1.0f);
 				material.mShaderProgram->SetUniform3f(Uniform::LIGHT_DIFFUSE, 1.0f, 1.0f, 1.0f);
