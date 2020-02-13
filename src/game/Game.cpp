@@ -129,6 +129,22 @@ namespace erm {
 	
 	void Game::OnUpdate(float dt)
 	{
+		static double frameElapsedTime = 0.0;
+		static unsigned int frameInSecond = 0;
+		
+		mTimer.Update();
+		
+		frameElapsedTime += mTimer.GetFrameElapsedTime();
+		++frameInSecond;
+		
+		if (frameElapsedTime >= 1000.0)
+		{
+			mFPS = frameInSecond;
+			
+			frameElapsedTime = 0.0;
+			frameInSecond = 0;
+		}
+		
 		mECS->OnUpdate(dt);
 		mWindow->NewFrame();
 		if (mRenderContext) mRenderContext->Clear();

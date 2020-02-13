@@ -2,6 +2,8 @@
 
 #include "window/IWindowListener.h"
 
+#include "utils/Timer.h"
+
 #include <memory>
 
 namespace erm {
@@ -39,6 +41,9 @@ namespace erm {
 		void OnRender();
 		void OnPostRender();
 		
+		inline unsigned int GetFPS() const { return mFPS; }
+		
+		inline const Timer& GetTimer() const { return mTimer; }
 		inline ResourcesManager& GetResourcesManager() const { return *mResourcesManager; }
 		inline Window& GetWindow() const { return *mWindow; }
 		inline RenderContext& GetRenderContext() const { return *mRenderContext; }
@@ -53,6 +58,9 @@ namespace erm {
 		void OnMouseButtonReleased(MouseButton mouseButton) override;
 		void OnMouseMoved(double xPos, double yPos) override;
 		void OnSizeChanged(int width, int height) override;
+		
+		Timer mTimer;
+		unsigned int mFPS;
 		
 		std::unique_ptr<ResourcesManager> mResourcesManager;
 		std::unique_ptr<Window> mWindow;
