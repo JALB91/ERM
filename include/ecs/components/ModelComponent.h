@@ -21,6 +21,7 @@ namespace erm {
 			ModelComponent(Model* model = nullptr)
 				: IComponent()
 				, mModel(model)
+				, mShouldShowBoundingBox(false)
 			{}
 			
 			SENSIBLE_MEMBER(Model, Model*, mModel)

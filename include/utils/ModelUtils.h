@@ -1,5 +1,7 @@
 #pragma once
 
+#include "managers/ResourcesManager.h"
+
 #include "rendering/VertexData.h"
 #include "rendering/IndexData.h"
 
@@ -23,20 +25,20 @@ namespace erm {
 
 		static bool ParseModel(
 			const char* path,
-			std::vector<std::unique_ptr<Model>>& modelsContainer,
-			std::vector<std::unique_ptr<Material>>& materialsContainer
+			Models& models,
+			Materials& materials
 		);
 		
 	private:
 		static bool ParseMaterialsLib(
 			const char* path,
-			std::vector<std::unique_ptr<Material>>& materialsContainer
+			Materials& materials
 		);
 		
 		static void ParseModelInt(
 			const char* path,
 			Model& model,
-			std::vector<std::unique_ptr<Material>>& materialsContainer
+			Materials& materials
 		);
 
 		static void ParseFace(

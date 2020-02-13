@@ -86,8 +86,8 @@ namespace erm {
 	
 	bool ModelUtils::ParseModel(
 		const char* path,
-		std::vector<std::unique_ptr<Model>>& modelsContainer,
-		std::vector<std::unique_ptr<Material>>& materialsContainer
+		Models& models,
+		Materials& materials
 	)
 	{
 		std::ifstream stream (Utils::GetRelativePath(path));
@@ -113,7 +113,7 @@ namespace erm {
 				&ModelUtils::ParseModelInt,
 				path,
 				std::ref(model),
-				std::ref(materialsContainer)
+				std::ref(materials)
 			)
 		);
 
@@ -123,7 +123,7 @@ namespace erm {
 	void ModelUtils::ParseModelInt(
 		const char* path,
 		Model& model,
-		std::vector<std::unique_ptr<Material>>& materialsContainer
+		Materials& materials
 	)
 	{
 		std::ifstream stream(Utils::GetRelativePath(path));
@@ -180,7 +180,7 @@ namespace erm {
 					pathStr = pathStr.substr(0, pathStr.rfind("/"));
 					pathStr.append("/");
 					pathStr.append(splitted[1]);
-					noMat = !ParseMaterialsLib(pathStr.c_str(), materialsContainer);
+					noMat = !ParseMaterialsLib(pathStr.c_str(), materials);
 				}
 				else if (splitted[0].compare("v") == 0)
 				{
@@ -238,10 +238,10 @@ namespace erm {
 					ASSERT(splitted.size() >= 2);
 					std::string name = splitted[splitted.size() - 1];
 					mut.lock();
-					auto it = std::find_if(materialsContainer.begin(), materialsContainer.end(), [name](const std::unique_ptr<Material>& material) {
+					auto it = std::find_if(materials.begin(), materials.end(), [name](const std::unique_ptr<Material>& material) {
 						return material->mName.compare(name) == 0;
 					});
-					material = it != materialsContainer.end() ? (*it).get() : nullptr;
+					material = it != materials.end() ? (*it).get() : nullptr;
 					mut.unlock();
 				}
 				else if (splitted[0].compare("f") == 0)
@@ -462,7 +462,7 @@ namespace erm {
 	
 	bool ModelUtils::ParseMaterialsLib(
 		const char* path,
-		std::vector<std::unique_ptr<Material>>& materialsContainer
+		Materials& materials
 	)
 	{
 		std::ifstream stream (Utils::GetRelativePath(path));
@@ -495,7 +495,7 @@ namespace erm {
 					if (!skip && mat)
 					{
 						mut.lock();
-						materialsContainer.emplace_back(std::make_unique<Material>(std::move(mat.value())));
+						materials.emplace_back(std::make_unique<Material>(std::move(mat.value())));
 						mut.unlock();
 					}
 					
@@ -505,11 +505,11 @@ namespace erm {
 					ASSERT(splitted.size() >= 2);
 					std::string name = splitted[splitted.size() - 1];
 					mut.lock();
-					const auto& it = std::find_if(materialsContainer.begin(), materialsContainer.end(), [name](const std::unique_ptr<Material>& mat) {
+					const auto& it = std::find_if(materials.begin(), materials.end(), [name](const std::unique_ptr<Material>& mat) {
 						return mat->mName.compare(name) == 0;
 					});
 					mut.unlock();
-					if (it != materialsContainer.end())
+					if (it != materials.end())
 					{
 						skip = true;
 						continue;
@@ -563,7 +563,7 @@ namespace erm {
 		if (!skip && mat)
 		{
 			mut.lock();
-			materialsContainer.emplace_back(std::make_unique<Material>(std::move(mat.value())));
+			materials.emplace_back(std::make_unique<Material>(std::move(mat.value())));
 			mut.unlock();
 		}
 		
