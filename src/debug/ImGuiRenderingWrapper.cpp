@@ -13,7 +13,7 @@
 #include <vector>
 
 namespace {
-	std::vector<std::pair<const char*, int>> kDepthFnValues {
+	const std::vector<std::pair<const char*, int>> kDepthFnValues {
 		{ "NEVER", 		0x0200 },
 		{ "LESS", 		0x0201 },
 		{ "EQUAL", 		0x0202 },
@@ -24,7 +24,7 @@ namespace {
 		{ "ALWAYS", 	0x0207 }
 	};
 	
-	std::vector<std::pair<const char*, int>> kBlendFnValues {
+	const std::vector<std::pair<const char*, int>> kBlendFnValues {
 		{ "ZERO", 						0 },
 		{ "ONE", 						1 },
 		{ "SRC_COLOR", 					0x0300 },
@@ -42,18 +42,18 @@ namespace {
 		{ "ONE_MINUS_CONSTANT_ALPHA", 	0x8004 }
 	};
 	
-	std::vector<std::pair<const char*, int>> kCullFace {
+	const std::vector<std::pair<const char*, int>> kCullFace {
 		{ "FRONT", 			0x0404 },
 		{ "BACK", 			0x0405 },
 		{ "FRONT_AND_BACK",	0x0408 }
 	};
 	
-	std::vector<std::pair<const char*, int>> kFrontFace {
+	const std::vector<std::pair<const char*, int>> kFrontFace {
 		{ "CW", 	0x0900 },
 		{ "CCW", 	0x0901 }
 	};
 	
-	std::vector<std::pair<const char*, int>> kPolygonMode {
+	const std::vector<std::pair<const char*, int>> kPolygonMode {
 		{ "POINT", 	0x1B00 },
 		{ "LINE", 	0x1B01 },
 		{ "FILL",	0x1B02 }

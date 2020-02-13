@@ -2,9 +2,6 @@
 
 #include <imgui.h>
 
-#include <tuple>
-#include <vector>
-
 namespace ImGui {
 
 	void ShowComboOf(
@@ -14,7 +11,7 @@ namespace ImGui {
 	)
 	{
 		const int count = static_cast<int>(values.size());
-		const char* names[count];
+		const char** names = new const char*[count];
 		int selectedIndex = 0;
 		for (int i = 0; i < count; ++i)
 		{
@@ -23,6 +20,8 @@ namespace ImGui {
 		}
 		ImGui::Combo(displayName, &selectedIndex, names, count);
 		selectedValue = values[selectedIndex].second;
+
+		delete[] names;
 	}
 
 }

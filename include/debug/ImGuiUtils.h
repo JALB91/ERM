@@ -5,7 +5,7 @@
 
 namespace ImGui {
 
-	void ShowComboOf(
+	extern void ShowComboOf(
 		const std::vector<std::pair<const char*, int>>& values,
 		const char* displayName,
 		int& selectedValue
