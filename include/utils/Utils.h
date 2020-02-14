@@ -4,6 +4,7 @@
 #include <string>
 #include <assert.h>
 
+#define UNUSED(x) (void)x;
 #define ASSERT(x) assert(x)
 #define EXPECT(x, msg) erm::Utils::LogCall((x), msg, #x, __FILE__, __LINE__)
 #define GL_CALL(x) \
@@ -15,13 +16,13 @@ namespace erm {
 	
 	namespace Utils {
 	
-		bool LogCall(bool cond, const char* msg, const char* function, const char* file, int line);
+		extern bool LogCall(bool cond, const char* msg, const char* function, const char* file, int line);
 		
-		bool GLLogCall(const char* function, const char* file, int line);
-		void GLClearError();
+		extern bool GLLogCall(const char* function, const char* file, int line);
+		extern void GLClearError();
 		
-		std::vector<std::string> SplitString(const std::string& str, char ch);
-		std::string GetRelativePath(const char* absolutePath);
+		extern std::vector<std::string> SplitString(const std::string& str, char ch);
+		extern std::string GetRelativePath(const char* absolutePath);
 		
 	}
 	

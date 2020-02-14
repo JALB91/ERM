@@ -149,7 +149,7 @@ namespace erm {
 				return;
 			}
 
-			std::vector<std::string> splitted = Utils::SplitString(line, ' ');
+			const std::vector<std::string> splitted = Utils::SplitString(line, ' ');
 
 			if (splitted.size() > 0)
 			{
@@ -486,7 +486,7 @@ namespace erm {
 				return false;
 			}
 
-			std::vector<std::string> splitted = Utils::SplitString(line, ' ');
+			const std::vector<std::string> splitted = Utils::SplitString(line, ' ');
 			
 			if (splitted.size() > 0)
 			{

@@ -43,7 +43,7 @@ namespace erm {
 			
 			while (std::getline(ss, segment, ch))
 			{
-				res.push_back(segment);
+				res.emplace_back(segment);
 			}
 
 			return res;
