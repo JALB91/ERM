@@ -17,10 +17,10 @@ namespace ImGui {
 		erm::Game& game = erm::Game::GetInstance();
 		static erm::Shaders& shaders = game.GetResourcesManager().GetLoadedShaderPrograms();
 		static erm::ShaderProgram* selected = nullptr;
-//		const erm::Window& window = game.GetWindow();
+		const erm::Window& window = game.GetWindow();
 		
-		ImGui::SetNextWindowSize(ImVec2(520,600), ImGuiCond_FirstUseEver);
-		ImGui::SetNextWindowPos(ImVec2(0, 0));
+		ImGui::SetNextWindowSize(ImVec2(600, 600), ImGuiCond_FirstUseEver);
+		ImGui::SetNextWindowPos(ImVec2(window.GetWindowWidth() / 2, window.GetWindowHeight() / 2), ImGuiCond_FirstUseEver);
 		
 		if (ImGui::Begin("Shaders", &open, ImGuiWindowFlags_NoCollapse))
 		{

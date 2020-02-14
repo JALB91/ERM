@@ -72,6 +72,14 @@ namespace erm {
 		, mRenderer(nullptr)
 		, mECS(nullptr)
 	{
+		UNUSED(kLamborghiniModelPath);
+		UNUSED(kSpaceshipModelPath);
+		UNUSED(kIronManModelPath);
+		UNUSED(kIphoneModelPath);
+		UNUSED(kCrateModelPath);
+		UNUSED(kChairModelPath);
+		UNUSED(kAventModelPath);
+		UNUSED(kCubeModelPath);
 		std::srand(static_cast<int>(time(NULL)));
 		mWindow->AddListener(static_cast<IWindowListener&>(*this));
 	}
@@ -108,7 +116,7 @@ namespace erm {
 		for (int i = 0; i < kEntities; ++i)
 		{
 			auto entity = mECS->GetOrCreateEntity();
-			entity->RequireComponent<ecs::ModelComponent>(mResourcesManager->GetOrCreateModel(kIronManModelPath));
+			entity->RequireComponent<ecs::ModelComponent>(mResourcesManager->GetOrCreateModel(kLamborghiniModelPath));
 			root->AddChild(*entity);
 		}
 		
@@ -156,7 +164,7 @@ namespace erm {
 
 			auto transform = entity->GetComponent<ecs::TransformComponent>();
 			auto rotation = transform->GetRotation();
-			const float rot = (static_cast<float>(std::rand() % 100)) * 0.0001f;
+			const float rot = 0.005f;
 			transform->SetRotation(rotation + math::vec3(0.0f, rot, 0.0f));
 		}
 		
