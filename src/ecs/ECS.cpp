@@ -49,6 +49,18 @@ namespace erm {
 			mRenderingSystem->OnRender(renderer);
 		}
 		
+		void ECS::RemoveEntity(EntityId id)
+		{
+			if (Entity* entity = GetEntityById(id))
+			{
+				for (EntityId child : entity->GetChildren())
+				{
+					RemoveEntity(child);
+				}
+				mEntities[id()].reset();
+			}
+		}
+		
 		void ECS::OnEntityBeingRemoved(EntityId id)
 		{
 			mModelSystem->RemoveComponent(id);

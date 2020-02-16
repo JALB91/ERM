@@ -57,6 +57,7 @@ namespace erm {
 				return *mRenderingSystem.get();
 			}
 			
+			void RemoveEntity(EntityId id);
 			void OnEntityBeingRemoved(EntityId id);
 			
 			Entity* GetRoot();

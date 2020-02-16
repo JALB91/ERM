@@ -29,9 +29,33 @@ namespace ImGui {
 		bool isOpen = ImGui::TreeNodeEx(ecs.GetEntityById(entity())->GetName().c_str(), flags);
 		ImGui::PopID();
 		
-		if (ImGui::IsItemClicked())
+		if (ImGui::IsItemClicked(0))
 		{
 			active = entity;
+		}
+		else if (ImGui::IsItemClicked(1))
+		{
+			active = entity;
+			ImGui::OpenPopup("Entity");
+		}
+		
+		bool shouldRemove = false;
+		
+		if (ImGui::BeginPopup("Entity"))
+		{
+			if (ImGui::Button("Add..."))
+			{
+				ecs.GetEntityById(active)->AddChild(*ecs.GetOrCreateEntity());
+				ImGui::CloseCurrentPopup();
+			}
+			
+			if (ImGui::Button("Remove..."))
+			{
+				shouldRemove = entity != ecs.GetRoot()->GetId();
+				ImGui::CloseCurrentPopup();
+			}
+			
+			ImGui::EndPopup();
 		}
 		
 		if (isOpen)
@@ -41,6 +65,11 @@ namespace ImGui {
 				active = ImGui::ShowEntityDebugWindow(ecs, active, child);
 			});
 			ImGui::TreePop();
+		}
+		
+		if (shouldRemove)
+		{
+			ecs.RemoveEntity(entity);
 		}
 		
 		return active;

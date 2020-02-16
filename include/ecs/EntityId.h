@@ -13,6 +13,7 @@ namespace erm {
 			{}
 			
 			inline ID operator()() const { return mId; }
+			inline bool operator!=(EntityId other) const { return mId != other.mId; }
 			inline bool operator==(EntityId other) const { return mId == other.mId; }
 			
 			inline bool IsValid() const
