@@ -30,7 +30,7 @@ namespace ImGui {
 		bool hasModel = false;
 		bool hasCamera = false;
 		
-		if (erm::ecs::TransformComponent* transformComponent = game.GetECS().GetSystem<erm::ecs::TransformSystem>().GetComponent(entity()))
+		if (erm::ecs::TransformComponent* transformComponent = game.GetECS().GetSystem<erm::ecs::TransformSystem>().GetComponent(entity))
 		{
 			if (ShowTransformComponentDebugWindow(*transformComponent))
 			{
@@ -38,7 +38,7 @@ namespace ImGui {
 			}
 			hasTransform = true;
 		}
-		if (erm::ecs::ModelComponent* modelComponent = game.GetECS().GetSystem<erm::ecs::ModelSystem>().GetComponent(entity()))
+		if (erm::ecs::ModelComponent* modelComponent = game.GetECS().GetSystem<erm::ecs::ModelSystem>().GetComponent(entity))
 		{
 			if (ShowModelComponentDebugWindow(*modelComponent))
 			{
@@ -46,7 +46,7 @@ namespace ImGui {
 			}
 			hasModel = true;
 		}
-		if (erm::ecs::CameraComponent* cameraComponent = game.GetECS().GetSystem<erm::ecs::CameraSystem>().GetComponent(entity()))
+		if (erm::ecs::CameraComponent* cameraComponent = game.GetECS().GetSystem<erm::ecs::CameraSystem>().GetComponent(entity))
 		{
 			if (ShowCameraComponentDebugWindow(*cameraComponent))
 			{
