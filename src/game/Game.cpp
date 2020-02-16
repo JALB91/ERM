@@ -108,6 +108,8 @@ namespace erm {
 		mRenderContext = std::make_unique<RenderContext>();
 		mRenderer = std::make_unique<Renderer>(*mRenderContext);
 		mECS = std::make_unique<ecs::ECS>();
+		
+		mResourcesManager->LoadDefaultResources();
 
 		auto camera = mECS->GetOrCreateEntity("Camera");
 		camera->RequireComponent<ecs::CameraComponent>(*mWindow);

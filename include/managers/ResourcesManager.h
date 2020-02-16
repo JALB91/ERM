@@ -24,6 +24,8 @@ namespace erm {
 		ResourcesManager();
 		~ResourcesManager();
 		
+		void LoadDefaultResources();
+		
 		inline Shaders& GetLoadedShaderPrograms() { return mLoadedShaderPrograms; }
 		ShaderProgram* GetOrCreateShaderProgram(const char* vertexShader, const char* fragmentShader);
 		ShaderProgram* GetOrCreateShaderProgram(const char* shaderProgramPath);

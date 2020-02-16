@@ -1,6 +1,7 @@
 #include "managers/ResourcesManager.h"
 
 #include "utils/ModelUtils.h"
+#include "utils/MeshUtils.h"
 #include "utils/Utils.h"
 
 #include <algorithm>
@@ -14,6 +15,23 @@ namespace erm {
 	
 	ResourcesManager::~ResourcesManager()
 	{}
+	
+	void ResourcesManager::LoadDefaultResources()
+	{
+		mLoadedModels.reserve(10);
+		mLoadedModels.emplace_back(std::make_unique<Model>("Defaults/Triangle", "Triangle"));
+		mLoadedModels.back()->AddMesh(MeshUtils::CreateTriangle());
+		mLoadedModels.emplace_back(std::make_unique<Model>("Defaults/Square", "Square"));
+		mLoadedModels.back()->AddMesh(MeshUtils::CreateSquare());
+		mLoadedModels.emplace_back(std::make_unique<Model>("Defaults/Cube", "Cube"));
+		mLoadedModels.back()->AddMesh(MeshUtils::CreateCube());
+		mLoadedModels.emplace_back(std::make_unique<Model>("Defaults/Sphere", "Sphere"));
+		mLoadedModels.back()->AddMesh(MeshUtils::CreateSphere());
+		mLoadedModels.emplace_back(std::make_unique<Model>("Defaults/Spike", "Spike"));
+		mLoadedModels.back()->AddMesh(MeshUtils::CreateSpike());
+		mLoadedModels.emplace_back(std::make_unique<Model>("Defaults/Grid", "Grid"));
+		mLoadedModels.back()->AddMesh(MeshUtils::CreateGrid());
+	}
 	
 	ShaderProgram* ResourcesManager::GetOrCreateShaderProgram(const char* vertexShader, const char* fragmentShader)
 	{
