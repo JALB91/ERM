@@ -40,7 +40,7 @@ namespace erm {
 			, mTransformSystem(mECS.GetSystem<TransformSystem>())
 			, mModelSystem(mECS.GetSystem<ModelSystem>())
 			, mCameraSystem(mECS.GetSystem<CameraSystem>())
-			, mGridMesh(std::make_unique<Mesh>(MeshUtils::CreateGrid(1000, 1000, 10.0f, 10.0f)))
+			, mGridMesh(std::make_unique<Mesh>(MeshUtils::CreateGrid(1000, 1000, 100.0f, 100.0f)))
 			, mDebugMesh(std::make_unique<Mesh>(MeshUtils::CreateCube()))
 			, mDebugShader(Game::GetInstance().GetResourcesManager().GetOrCreateShaderProgram(kDebugShaderPath))
 		{}
@@ -74,7 +74,7 @@ namespace erm {
 			}
 			
 			const CameraComponent* cameraComponent = camera->GetComponent<CameraComponent>();
-			const math::mat4& view = camera->GetComponent<TransformComponent>()->GetWorldTransform();
+			const math::mat4& view = camera->GetComponent<TransformComponent>()->mWorldTransform;
 			const math::mat4& projection = cameraComponent->GetProjectionMatrix();
 			const math::mat4 viewProjection = projection * glm::inverse(view);
 			
@@ -120,11 +120,11 @@ namespace erm {
 
 			if (!modelPtr) return;
 
-			const math::mat4& model = transformComponent->GetWorldTransform();
-			const math::mat4& view = camera.GetComponent<TransformComponent>()->GetWorldTransform();
+			const math::mat4& model = transformComponent->mWorldTransform;
+			const math::mat4& view = camera.GetComponent<TransformComponent>()->mWorldTransform;
 			const math::mat4& projection = cameraComponent->GetProjectionMatrix();
 
-			const math::vec3& viewPos = camera.GetComponent<TransformComponent>()->GetTranslation();
+			const math::vec3& viewPos = camera.GetComponent<TransformComponent>()->mTranslation;
 
 			for (const Mesh& mesh: modelPtr->GetMeshes())
 			{

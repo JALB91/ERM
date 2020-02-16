@@ -31,26 +31,18 @@ namespace erm {
 				, mScale(1.0f)
 			{}
 			
-			SENSIBLE_MEMBER(WorldTransform, const math::mat4&, mWorldTransform)
-			SENSIBLE_MEMBER(LocalTransform, const math::mat4&, mLocalTransform)
-			SENSIBLE_MEMBER(Translation, const math::vec3&, mTranslation)
-			SENSIBLE_MEMBER(Rotation, const math::vec3&, mRotation)
-			SENSIBLE_MEMBER(Scale, const math::vec3&, mScale)
-			
 			inline EntityId GetParent() const { return mParent; }
 			inline const std::vector<EntityId>& GetChildren() const { return mChildren; }
-			
-			inline math::vec3 GetTranslation() { return mTranslation; }
-			
-		private:
-			EntityId mParent;
-			std::vector<EntityId> mChildren;
 			
 			math::mat4 mWorldTransform;
 			math::mat4 mLocalTransform;
 			math::vec3 mTranslation;
 			math::vec3 mRotation;
 			math::vec3 mScale;
+			
+		private:
+			EntityId mParent;
+			std::vector<EntityId> mChildren;
 			
 		};
 		

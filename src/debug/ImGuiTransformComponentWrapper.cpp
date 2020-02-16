@@ -30,9 +30,9 @@ namespace ImGui {
 		
 		if (headerOpen)
 		{
-			erm::math::vec3 translation = transformComponent.GetTranslation();
-			erm::math::vec3 rotation = transformComponent.GetRotation();
-			erm::math::vec3 scale = transformComponent.GetScale();
+			erm::math::vec3& translation = transformComponent.mTranslation;
+			erm::math::vec3& rotation = transformComponent.mRotation;
+			erm::math::vec3& scale = transformComponent.mScale;
 			
 			ImGui::Indent();
 			bool reset = ImGui::Button("Reset");
@@ -43,15 +43,9 @@ namespace ImGui {
 			
 			if (reset)
 			{
-				transformComponent.SetTranslation(erm::math::vec3(0.0f));
-				transformComponent.SetRotation(erm::math::vec3(0.0f));
-				transformComponent.SetScale(erm::math::vec3(1.0f));
-			}
-			else
-			{
-				transformComponent.SetTranslation(translation);
-				transformComponent.SetRotation(rotation);
-				transformComponent.SetScale(scale);
+				translation = erm::math::vec3(0.0f);
+				rotation = erm::math::vec3(0.0f);
+				scale = erm::math::vec3(1.0f);
 			}
 		}
 		

@@ -16,7 +16,7 @@ namespace erm {
 			, mCameraSystem(std::make_unique<CameraSystem>(*this))
 			, mRenderingSystem(std::make_unique<RenderingSystem>(*this))
 		{
-			mEntities[0].reset(new Entity(0, *this, "Root"));
+			mEntities[ROOT_ID].reset(new Entity(ROOT_ID, *this, "Root"));
 		}
 		
 		ECS::~ECS()
@@ -70,12 +70,12 @@ namespace erm {
 		
 		Entity* ECS::GetRoot()
 		{
-			return GetEntityById(0);
+			return GetEntityById(ROOT_ID);
 		}
 		
 		Entity* ECS::GetOrCreateEntity(const std::string& name /*= "Unknown"*/)
 		{
-			for (ID i = 0; i < MAX_ID; ++i)
+			for (ID i = ROOT_ID; i < MAX_ID; ++i)
 			{
 				if (!mEntities[i] || !mEntities[i]->IsValid())
 				{

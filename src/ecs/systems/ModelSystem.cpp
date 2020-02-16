@@ -28,7 +28,7 @@ namespace erm {
 				if (model)
 				{
 					TransformComponent* transformComponent = mTransformSystem.RequireComponent(i);
-					modelComponent->mWorldBounds = model->GetLocalBounds().Expand(transformComponent->GetWorldTransform());
+					modelComponent->mWorldBounds = model->GetLocalBounds().Expand(transformComponent->mWorldTransform);
 					model->SetDirty(false);
 				}
 				else

@@ -113,7 +113,7 @@ namespace erm {
 
 		auto camera = mECS->GetOrCreateEntity("Camera");
 		camera->RequireComponent<ecs::CameraComponent>(*mWindow);
-		camera->GetComponent<ecs::TransformComponent>()->SetTranslation(math::vec3(0.0f, 145.0f, 400.0f));
+		camera->GetComponent<ecs::TransformComponent>()->mTranslation = math::vec3(0.0f, 145.0f, 400.0f);
 
 		auto root = mECS->GetRoot();
 		root->AddChild(*camera);
@@ -125,8 +125,8 @@ namespace erm {
 			auto transform = entity->RequireComponent<ecs::TransformComponent>();
 			const float x = std::rand()%100-std::rand()%100;
 			const float z = std::rand()%100-std::rand()%100;
-			transform->SetTranslation(math::vec3(x, 0.0f, z));
-			transform->SetScale(math::vec3(kDefaultScale));
+			transform->mTranslation = math::vec3(x, 0.0f, z);
+			transform->mScale = math::vec3(kDefaultScale);
 			root->AddChild(*entity);
 		}
 		
@@ -173,9 +173,8 @@ namespace erm {
 			if (entity->HasComponent<ecs::CameraComponent>()) continue;
 
 			auto transform = entity->GetComponent<ecs::TransformComponent>();
-			auto rotation = transform->GetRotation();
 			const float rot = 0.005f;
-			transform->SetRotation(rotation + math::vec3(0.0f, rot, 0.0f));
+			transform->mRotation += math::vec3(0.0f, rot, 0.0f);
 		}
 		
 		mECS->OnUpdate(dt);

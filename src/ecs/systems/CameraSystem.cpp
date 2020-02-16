@@ -36,7 +36,7 @@ namespace erm {
 						(camera.mWindow.GetPreviousMousePosX() - camera.mWindow.GetMousePosX()),
 						0.0f
 					);
-					rotation = glm::radians(rotation * camera.mMouseSensibility) + transform.GetRotation();
+					rotation = glm::radians(rotation * camera.mMouseSensibility) + transform.mRotation;
 					
 					if (rotation.x > camera.mAngleLimit)
 					{
@@ -47,7 +47,7 @@ namespace erm {
 						rotation.x = -camera.mAngleLimit;
 					}
 					
-					transform.SetRotation(rotation);
+					transform.mRotation = rotation;
 				}
 				else if (camera.mWindow.IsMouseButtonDown(MOUSE_BUTTON_2))
 				{
@@ -87,14 +87,14 @@ namespace erm {
 			if (translation.x != 0.0f || translation.z != 0.0f || translation.y != 0.0f)
 			{
 				math::mat4 rotationMatrix (glm::identity<math::mat4>());
-				rotationMatrix = glm::rotate(rotationMatrix, transform.GetRotation().z, math::vec3(0.0f, 0.0f, 1.0f));
-				rotationMatrix = glm::rotate(rotationMatrix, transform.GetRotation().y, math::vec3(0.0f, 1.0f, 0.0f));
-				rotationMatrix = glm::rotate(rotationMatrix, transform.GetRotation().x, math::vec3(1.0f, 0.0f, 0.0f));
+				rotationMatrix = glm::rotate(rotationMatrix, transform.mRotation.z, math::vec3(0.0f, 0.0f, 1.0f));
+				rotationMatrix = glm::rotate(rotationMatrix, transform.mRotation.y, math::vec3(0.0f, 1.0f, 0.0f));
+				rotationMatrix = glm::rotate(rotationMatrix, transform.mRotation.x, math::vec3(1.0f, 0.0f, 0.0f));
 				
 				translation = rotationMatrix * math::vec4(translation, 1.0f);
-				translation = transform.GetTranslation() + translation;
+				translation = transform.mTranslation + translation;
 				
-				transform.SetTranslation(translation);
+				transform.mTranslation = translation;
 			}
 		}
 		

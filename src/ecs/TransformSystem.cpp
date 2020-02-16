@@ -28,11 +28,11 @@ namespace erm {
 		
 		void TransformSystem::OnPostUpdate()
 		{
-			for (ID i = 0; i < MAX_ID; ++i)
+			for (ID i = ROOT_ID; i < MAX_ID; ++i)
 			{
 				TransformComponent* transform = GetComponent(i);
 				
-				if (!transform || !transform->IsDirty()) continue;
+				if (!transform) continue;
 				
 				transform->mWorldTransform = glm::identity<math::mat4>();
 				transform->mLocalTransform = glm::identity<math::mat4>();
