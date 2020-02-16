@@ -8,6 +8,6 @@ namespace erm {
 
 namespace ImGui {
 	
-	extern void ShowTransformComponentDebugWindow(erm::ecs::TransformComponent& transformComponent);
+	extern bool ShowTransformComponentDebugWindow(erm::ecs::TransformComponent& transformComponent);
 	
 }

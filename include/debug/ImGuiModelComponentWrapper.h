@@ -9,6 +9,6 @@ namespace erm {
 namespace ImGui {
 	
 	extern void ShowPathOptions(erm::ecs::ModelComponent& modelComponent);
-	extern void ShowModelComponentDebugWindow(erm::ecs::ModelComponent& modelComponent);
+	extern bool ShowModelComponentDebugWindow(erm::ecs::ModelComponent& modelComponent);
 	
 }

@@ -6,9 +6,29 @@
 
 namespace ImGui {
 	
-	void ShowCameraComponentDebugWindow(erm::ecs::CameraComponent& cameraComponent)
+	bool ShowCameraComponentDebugWindow(erm::ecs::CameraComponent& cameraComponent)
 	{
-		if (ImGui::CollapsingHeader("Camera"))
+		const bool headerOpen = ImGui::CollapsingHeader("Camera");
+		
+		if (ImGui::IsItemClicked(1))
+		{
+			ImGui::OpenPopup("CameraPopup");
+		}
+		
+		bool shouldRemove = false;
+		
+		if (ImGui::BeginPopup("CameraPopup"))
+		{
+			if (ImGui::Button("Remove..."))
+			{
+				shouldRemove = true;
+				ImGui::CloseCurrentPopup();
+			}
+			
+			ImGui::EndPopup();
+		}
+		
+		if (headerOpen)
 		{
 			ImGui::Indent();
 			
@@ -35,6 +55,8 @@ namespace ImGui {
 			
 			ImGui::Unindent();
 		}
+		
+		return shouldRemove;
 	}
 	
 }

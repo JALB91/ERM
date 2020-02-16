@@ -32,17 +32,26 @@ namespace ImGui {
 		
 		if (erm::ecs::TransformComponent* transformComponent = game.GetECS().GetSystem<erm::ecs::TransformSystem>().GetComponent(entity()))
 		{
-			ShowTransformComponentDebugWindow(*transformComponent);
+			if (ShowTransformComponentDebugWindow(*transformComponent))
+			{
+				game.GetECS().GetSystem<erm::ecs::TransformSystem>().RemoveComponent(entity);
+			}
 			hasTransform = true;
 		}
 		if (erm::ecs::ModelComponent* modelComponent = game.GetECS().GetSystem<erm::ecs::ModelSystem>().GetComponent(entity()))
 		{
-			ShowModelComponentDebugWindow(*modelComponent);
+			if (ShowModelComponentDebugWindow(*modelComponent))
+			{
+				game.GetECS().GetSystem<erm::ecs::ModelSystem>().RemoveComponent(entity);
+			}
 			hasModel = true;
 		}
 		if (erm::ecs::CameraComponent* cameraComponent = game.GetECS().GetSystem<erm::ecs::CameraSystem>().GetComponent(entity()))
 		{
-			ShowCameraComponentDebugWindow(*cameraComponent);
+			if (ShowCameraComponentDebugWindow(*cameraComponent))
+			{
+				game.GetECS().GetSystem<erm::ecs::CameraSystem>().RemoveComponent(entity);
+			}
 			hasCamera = true;
 		}
 		

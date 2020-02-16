@@ -6,9 +6,29 @@
 
 namespace ImGui {
 	
-	void ShowTransformComponentDebugWindow(erm::ecs::TransformComponent& transformComponent)
+	bool ShowTransformComponentDebugWindow(erm::ecs::TransformComponent& transformComponent)
 	{
-		if (ImGui::CollapsingHeader("Transform"))
+		const bool headerOpen = ImGui::CollapsingHeader("Transform");
+		
+		if (ImGui::IsItemClicked(1))
+		{
+			ImGui::OpenPopup("TransformPopup");
+		}
+		
+		bool shouldRemove = false;
+		
+		if (ImGui::BeginPopup("TransformPopup"))
+		{
+			if (ImGui::Button("Remove..."))
+			{
+				shouldRemove = true;
+				ImGui::CloseCurrentPopup();
+			}
+			
+			ImGui::EndPopup();
+		}
+		
+		if (headerOpen)
 		{
 			erm::math::vec3 translation = transformComponent.GetTranslation();
 			erm::math::vec3 rotation = transformComponent.GetRotation();
@@ -34,6 +54,8 @@ namespace ImGui {
 				transformComponent.SetScale(scale);
 			}
 		}
+		
+		return shouldRemove;
 	}
 	
 }

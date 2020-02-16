@@ -46,9 +46,29 @@ namespace ImGui {
 		}
 	}
 	
-	void ShowModelComponentDebugWindow(erm::ecs::ModelComponent& modelComponent)
+	bool ShowModelComponentDebugWindow(erm::ecs::ModelComponent& modelComponent)
 	{
-		if (ImGui::CollapsingHeader("Model"))
+		const bool headerOpen = ImGui::CollapsingHeader("Model");
+		
+		if (ImGui::IsItemClicked(1))
+		{
+			ImGui::OpenPopup("ModelPopup");
+		}
+		
+		bool shouldRemove = false;
+		
+		if (ImGui::BeginPopup("ModelPopup"))
+		{
+			if (ImGui::Button("Remove..."))
+			{
+				shouldRemove = true;
+				ImGui::CloseCurrentPopup();
+			}
+			
+			ImGui::EndPopup();
+		}
+		
+		if (headerOpen)
 		{
 			ImGui::Indent();
 			
@@ -91,6 +111,8 @@ namespace ImGui {
 			
 			ImGui::Unindent();
 		}
+		
+		return shouldRemove;
 	}
 	
 }
