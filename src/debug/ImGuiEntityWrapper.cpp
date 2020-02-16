@@ -55,6 +55,39 @@ namespace ImGui {
 				ImGui::CloseCurrentPopup();
 			}
 			
+			if (ImGui::Button("Rename..."))
+			{
+				ImGui::OpenPopup("Rename");
+			}
+			
+			if (ImGui::BeginPopupModal("Rename", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+			{
+				static char* buffer = new char[100];
+				ImGui::InputText("Name", buffer, 100);
+				
+				ImGui::Separator();
+				
+				if (ImGui::Button("Ok"))
+				{
+					if (std::strcmp(buffer, "") != 0)
+					{
+						ecs.GetEntityById(entity)->SetName(buffer);
+						std::memset(buffer, 0, 100);
+						ImGui::CloseCurrentPopup();
+					}
+				}
+				
+				ImGui::SameLine();
+				
+				if (ImGui::Button("Cancel"))
+				{
+					std::memset(buffer, 0, 100);
+					ImGui::CloseCurrentPopup();
+				}
+				
+				ImGui::EndPopup();
+			}
+			
 			ImGui::EndPopup();
 		}
 		
