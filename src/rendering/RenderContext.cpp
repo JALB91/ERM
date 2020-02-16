@@ -13,9 +13,17 @@ namespace erm {
 		std::cout << "GLSL " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
 	}
 	
-	void RenderContext::Draw(int count) const
+	void RenderContext::Draw(DrawMode drawMode, int count) const
 	{
-		GL_CALL(glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr));
+		switch (drawMode)
+		{
+			case DrawMode::TRIANGLES:
+				GL_CALL(glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr));
+				break;
+			case DrawMode::LINES:
+				GL_CALL(glDrawElements(GL_LINES, count, GL_UNSIGNED_INT, nullptr));
+				break;
+		}
 	}
 	
 	void RenderContext::Clear() const

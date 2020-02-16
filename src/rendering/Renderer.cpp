@@ -28,11 +28,11 @@ namespace erm {
 		mRenderContext.SetClearColor(math::vec4(0.25f, 0.25f, 0.25f, 1.0f));
 	}
 	
-	void Renderer::Draw(const VertexArray& va, const IndexBuffer& ib) const
+	void Renderer::Draw(DrawMode drawMode, const VertexArray& va,const IndexBuffer& ib) const
 	{
 		va.Bind();
 		ib.Bind();
-		mRenderContext.Draw(ib.GetCount());
+		mRenderContext.Draw(drawMode, ib.GetCount());
 	}
 	
 }

@@ -38,7 +38,8 @@ namespace {
 	const char* const kAventModelPath = "res/models/Avent.obj";
 	const char* const kCubeModelPath = "res/models/cube.obj";
 
-	static const int kEntities = 1;
+	const char* const kModelToUse = kCrateModelPath;
+	const int kEntities = 100;
 
 }
 
@@ -116,7 +117,12 @@ namespace erm {
 		for (int i = 0; i < kEntities; ++i)
 		{
 			auto entity = mECS->GetOrCreateEntity();
-			entity->RequireComponent<ecs::ModelComponent>(mResourcesManager->GetOrCreateModel(kLamborghiniModelPath));
+			entity->RequireComponent<ecs::ModelComponent>(mResourcesManager->GetOrCreateModel(kModelToUse));
+			auto transform = entity->RequireComponent<ecs::TransformComponent>();
+			const float x = std::rand()%100-std::rand()%100;
+			const float z = std::rand()%100-std::rand()%100;
+			transform->SetTranslation(math::vec3(x, 0.0f, z));
+			transform->SetScale(math::vec3(10.0f, 10.0f, 10.0f));
 			root->AddChild(*entity);
 		}
 		

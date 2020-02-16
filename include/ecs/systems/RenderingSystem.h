@@ -29,8 +29,13 @@ namespace erm {
 			void OnRender(const Renderer& renderer);
 			
 		private:
-			void ProcessModel(
+			void RenderGrid(
 				const Renderer& renderer,
+				const math::mat4& viewProjection
+			);
+			void RenderModel(
+				const Renderer& renderer,
+				const Entity& camera,
 				const math::mat4& viewProjection,
 				EntityId id
 			);
@@ -40,8 +45,8 @@ namespace erm {
 			CameraSystem& mCameraSystem;
 			
 			std::queue<ID> mModelsRenderingQueue;
-			Entity* mCamera;
 			
+			std::unique_ptr<Mesh> mGridMesh;
 			std::unique_ptr<Mesh> mDebugMesh;
 			ShaderProgram* mDebugShader;
 			

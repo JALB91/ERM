@@ -1,5 +1,7 @@
 #pragma once
 
+#include "rendering/DrawMode.h"
+
 #include "math/vec.h"
 
 namespace erm {
@@ -9,7 +11,7 @@ namespace erm {
 	public:
 		RenderContext();
 		
-		void Draw(int count) const;
+		void Draw(DrawMode drawMode, int count) const;
 		
 		void Clear() const;
 		

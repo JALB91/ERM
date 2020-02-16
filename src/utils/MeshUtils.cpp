@@ -10,7 +10,7 @@ namespace erm {
 		const math::vec3& b /* = math::vec3(1.0f, -1.0f, 0.0f) */,
 		const math::vec3& c /* = math::vec3(-1.0f, 1.0f, 0.0f) */
 	) {
-		Mesh mesh;
+		Mesh mesh (DrawMode::TRIANGLES);
 		
 		mesh.mVerticesDataCount = 3;
 		mesh.mVerticesData = new VertexData[mesh.mVerticesDataCount];
@@ -39,7 +39,7 @@ namespace erm {
 		float width /* = 1.0f */,
 		float height /* = 1.0f */
 	) {
-		Mesh mesh;
+		Mesh mesh (DrawMode::TRIANGLES);
 		
 		const float halfWidth = width*0.5f;
 		const float halfHeight = height*0.5f;
@@ -82,7 +82,7 @@ namespace erm {
 		const float halfY = sizeY*0.5f;
 		const float halfZ = sizeZ*0.5f;
 		
-		Mesh mesh;
+		Mesh mesh (DrawMode::TRIANGLES);
 		
 		mesh.mVerticesDataCount = 6 * 4;
 		mesh.mVerticesData = new VertexData[mesh.mVerticesDataCount];
@@ -202,7 +202,7 @@ namespace erm {
 		const float halfY = sizeY*0.5f;
 		const float halfZ = sizeZ*0.5f;
 		
-		Mesh mesh;
+		Mesh mesh (DrawMode::TRIANGLES);
 		
 		mesh.mVerticesDataCount = 4 + 4 * 3;
 		mesh.mVerticesData = new VertexData[mesh.mVerticesDataCount];
@@ -300,7 +300,7 @@ namespace erm {
 		int sectors /* = 10 */,
 		int rings /* = 10 */
 	) {
-		Mesh mesh;
+		Mesh mesh (DrawMode::TRIANGLES);
 		
 		mesh.mVerticesDataCount = (sectors + 1) * (rings + 1);
 		mesh.mVerticesData = new VertexData[mesh.mVerticesDataCount];
@@ -364,6 +364,80 @@ namespace erm {
 					mesh.mIndicesData[index++] = k2 + 1;
 				}
 			}
+		}
+		
+		mesh.Setup();
+		
+		return mesh;
+	}
+	
+	Mesh MeshUtils::CreateGrid(
+		int sizeX /*= 100*/,
+		int sizeY /*= 100*/,
+		float width /*= 1.0f*/,
+		float height /*= 1.0f*/
+	)
+	{
+		Mesh mesh (DrawMode::LINES);
+		
+		const int halfSizeX = sizeX / 2;
+		const int halfSizeY = sizeY / 2;
+		
+		mesh.mVerticesDataCount = (sizeX + 1) * 2 + (sizeY + 1) * 2;
+		mesh.mVerticesData = new VertexData[mesh.mVerticesDataCount];
+		
+		int index = 0;
+		
+		for (int i = 0; i < sizeX + 1; ++i)
+		{
+			mesh.mVerticesData[index].mVertex = Vertex(- halfSizeX * width, 0.0f, height * (i - halfSizeY));
+			mesh.mVerticesData[index].mUVVertex = UVVertex(0.0f, 0.0f);
+			mesh.mVerticesData[index].mNormalVertex = NormalVertex(0.0f, 0.0f, 0.0f);
+			++index;
+		}
+		
+		for (int i = 0; i < sizeX + 1; ++i)
+		{
+			mesh.mVerticesData[index].mVertex = Vertex(halfSizeX * width, 0.0f, height * (i - halfSizeY));
+			mesh.mVerticesData[index].mUVVertex = UVVertex(0.0f, 0.0f);
+			mesh.mVerticesData[index].mNormalVertex = NormalVertex(0.0f, 0.0f, 0.0f);
+			++index;
+		}
+		
+		for (int i = 0; i < sizeY + 1; ++i)
+		{
+			mesh.mVerticesData[index].mVertex = Vertex(width * (i - halfSizeX), 0.0f, - halfSizeY * height);
+			mesh.mVerticesData[index].mUVVertex = UVVertex(0.0f, 0.0f);
+			mesh.mVerticesData[index].mNormalVertex = NormalVertex(0.0f, 0.0f, 0.0f);
+			++index;
+		}
+		
+		for (int i = 0; i < sizeY + 1; ++i)
+		{
+			mesh.mVerticesData[index].mVertex = Vertex(width * (i - halfSizeX), 0.0f, halfSizeY * height);
+			mesh.mVerticesData[index].mUVVertex = UVVertex(0.0f, 0.0f);
+			mesh.mVerticesData[index].mNormalVertex = NormalVertex(0.0f, 0.0f, 0.0f);
+			++index;
+		}
+		
+		mesh.mIndicesDataCount = mesh.mVerticesDataCount;
+		mesh.mIndicesData = new IndexData[mesh.mIndicesDataCount];
+		
+		index = 0;
+		
+		for (int i = 0; i < sizeX + 1; ++i)
+		{
+			mesh.mIndicesData[index * 2] = i;
+			mesh.mIndicesData[(index * 2) + 1] = i + (sizeX + 1);
+			++index;
+		}
+		
+		for (int i = 0; i < sizeY + 1; ++i)
+		{
+			const int start = i + (sizeX + 1) * 2;
+			mesh.mIndicesData[index * 2] = start;
+			mesh.mIndicesData[index * 2 + 1] = start + (sizeY + 1);
+			++index;
 		}
 		
 		mesh.Setup();

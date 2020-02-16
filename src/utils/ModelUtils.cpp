@@ -438,7 +438,7 @@ namespace erm {
 		const std::string& name
 	)
 	{
-		Mesh mesh;
+		Mesh mesh (DrawMode::TRIANGLES);
 		
 		mesh.mVerticesDataCount = vertices.size();
 		mesh.mVerticesData = new VertexData[mesh.mVerticesDataCount];

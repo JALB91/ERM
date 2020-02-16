@@ -33,6 +33,12 @@ namespace erm {
 			int stackCount = 10,
 			int sectorCount = 10
 		);
+		static Mesh CreateGrid(
+			int sizeX = 100,
+			int sizeY = 100,
+			float width = 1.0f,
+			float height = 1.0f
+		);
 	};
 	
 }

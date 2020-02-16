@@ -1,5 +1,7 @@
 #pragma once
 
+#include "rendering/DrawMode.h"
+
 namespace erm {
 
 	class VertexArray;
@@ -13,7 +15,7 @@ namespace erm {
 		
 		inline const RenderContext& GetRenderContext() const { return mRenderContext; }
 		
-		void Draw(const VertexArray& va,const IndexBuffer& ib) const;
+		void Draw(DrawMode drawMode, const VertexArray& va,const IndexBuffer& ib) const;
 		
 	private:
 		const RenderContext& mRenderContext;

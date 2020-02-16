@@ -2,6 +2,7 @@
 
 #include "rendering/IndexData.h"
 #include "rendering/Material.h"
+#include "rendering/DrawMode.h"
 
 #include <glm/glm.hpp>
 
@@ -23,7 +24,7 @@ namespace erm {
 		friend class ModelUtils;
 		
 	public:
-		Mesh();
+		Mesh(DrawMode drawMode);
 		~Mesh();
 		
 		Mesh(Mesh&& other);
@@ -31,6 +32,8 @@ namespace erm {
 		
 		Mesh& operator=(Mesh&&) = delete;
 		Mesh& operator=(const Mesh&) = delete;
+		
+		inline DrawMode GetDrawMode() const { return mDrawMode; }
 		
 		inline Material* GetMaterial() const { return mMaterial; }
 		inline void SetMaterial(Material* material) { mMaterial = material; }
@@ -51,6 +54,8 @@ namespace erm {
 		
 	private:
 		void Setup();
+		
+		const DrawMode mDrawMode;
 		
 		VertexData* mVerticesData;
 		unsigned int mVerticesDataCount;

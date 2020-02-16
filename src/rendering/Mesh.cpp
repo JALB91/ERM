@@ -7,8 +7,9 @@
 
 namespace erm {
 	
-	Mesh::Mesh()
-		: mVerticesData(nullptr)
+	Mesh::Mesh(DrawMode drawMode)
+		: mDrawMode(drawMode)
+		, mVerticesData(nullptr)
 		, mVerticesDataCount(0)
 		, mIndicesData(nullptr)
 		, mIndicesDataCount(0)
@@ -32,7 +33,8 @@ namespace erm {
 	}
 	
 	Mesh::Mesh(Mesh&& other)
-		: mVerticesData(other.mVerticesData)
+		: mDrawMode(other.mDrawMode)
+		, mVerticesData(other.mVerticesData)
 		, mVerticesDataCount(other.mVerticesDataCount)
 		, mIndicesData(other.mIndicesData)
 		, mIndicesDataCount(other.mIndicesDataCount)
