@@ -49,23 +49,23 @@ namespace ImGui {
 	{
 		if (ImGui::CollapsingHeader("Material"))
 		{
-			erm::Material* material = mesh.GetMaterial();
+			erm::Material* material = mesh.GetMaterial() ? mesh.GetMaterial() : &erm::Material::DEFAULT;
 			
 			ImGui::Indent();
 			
 			static erm::Materials& all = erm::Game::GetInstance().GetResourcesManager().GetLoadedMaterials();
-			std::string currentPath = material ? material->mPath : "";
-			std::string currentName = material ? material->mName : "";
+			std::string currentPath = material->mPath;
+			std::string currentName = material->mName;
 			std::set<std::string> displayedPaths;
 			
 			if (ImGui::BeginCombo("Material Path", currentPath.c_str()))
 			{
-				bool isSelected = currentPath == "";
-				if (ImGui::Selectable("", &isSelected))
+				bool isSelected = currentPath == "Default";
+				if (ImGui::Selectable("Default", &isSelected))
 				{
-					currentPath = "";
-					currentName = "";
-					mesh.SetMaterial(nullptr);
+					currentPath = "Default";
+					currentName = "Default";
+					mesh.SetMaterial(&erm::Material::DEFAULT);
 				}
 				
 				for (unsigned int i = 0; i < all.size(); ++i)
@@ -93,11 +93,11 @@ namespace ImGui {
 			
 			if (ImGui::BeginCombo("Name", currentName.c_str()))
 			{
-				bool isSelected = currentName == "";
-				if (ImGui::Selectable("", &isSelected))
+				bool isSelected = currentName == "Default";
+				if (ImGui::Selectable("Default", &isSelected))
 				{
-					currentName = "";
-					mesh.SetMaterial(nullptr);
+					currentName = "Default";
+					mesh.SetMaterial(&erm::Material::DEFAULT);
 				}
 				
 				for (unsigned int i = 0; i < all.size(); ++i)
@@ -118,15 +118,12 @@ namespace ImGui {
 				ImGui::EndCombo();
 			}
 			
-			if (erm::Material* material = mesh.GetMaterial())
-			{
-				ImGui::SliderFloat3("Ambient", &material->mAmbient.x, 0.0f, 1.0f);
-				ImGui::SliderFloat3("Diffuse", &material->mDiffuse.x, 0.0f, 1.0f);
-				ImGui::SliderFloat3("Specular", &material->mSpecular.x, 0.0f, 1.0f);
-				ImGui::SliderFloat("Shininess", &material->mShininess, 0.0f, 1000.0f);
-				
-				ShowPathOptions(*material);
-			}
+			ImGui::SliderFloat3("Ambient", &material->mAmbient.x, 0.0f, 1.0f);
+			ImGui::SliderFloat3("Diffuse", &material->mDiffuse.x, 0.0f, 1.0f);
+			ImGui::SliderFloat3("Specular", &material->mSpecular.x, 0.0f, 1.0f);
+			ImGui::SliderFloat("Shininess", &material->mShininess, 0.0f, 1000.0f);
+			
+			ShowPathOptions(*material);
 			
 			ImGui::Unindent();
 		}

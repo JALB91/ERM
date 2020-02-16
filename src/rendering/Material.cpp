@@ -5,8 +5,8 @@
 namespace erm {
 	
 	Material Material::DEFAULT {
-		"default",
-		"default",
+		"Default",
+		"Default",
 		math::vec3(0.2f),
 		math::vec3(0.2f),
 		math::vec3(0.2f),
