@@ -196,6 +196,11 @@ namespace erm {
 	
 	void Window::OnKey(int key, int /*scanCode*/, int action, int /*mods*/)
 	{
+		if (action != GLFW_RELEASE && (ImGui::IsAnyItemActive() || ImGui::IsAnyWindowHovered() || ImGui::IsAnyWindowFocused()))
+		{
+			return;
+		}
+		
 		if (action == GLFW_PRESS)
 		{
 			mPressedKeys.insert(key);
@@ -218,6 +223,11 @@ namespace erm {
 	
 	void Window::OnMouseButton(int button, int action, int /*mods*/)
 	{
+		if (action != GLFW_RELEASE && (ImGui::IsAnyItemActive() || ImGui::IsAnyWindowHovered() || ImGui::IsAnyWindowFocused()))
+		{
+			return;
+		}
+		
 		if (action == GLFW_PRESS)
 		{
 			mPressedButtons.insert(button);

@@ -40,6 +40,7 @@ namespace {
 	const char* const kCubeModelPath = "res/models/cube.obj";
 
 	const char* const kModelToUse = kIronManModelPath;
+	const float kDefaultScale = 1.0f;
 	const int kEntities = 1;
 
 }
@@ -123,7 +124,7 @@ namespace erm {
 			const float x = std::rand()%100-std::rand()%100;
 			const float z = std::rand()%100-std::rand()%100;
 			transform->SetTranslation(math::vec3(x, 0.0f, z));
-			transform->SetScale(math::vec3(10.0f, 10.0f, 10.0f));
+			transform->SetScale(math::vec3(kDefaultScale));
 			root->AddChild(*entity);
 		}
 		
