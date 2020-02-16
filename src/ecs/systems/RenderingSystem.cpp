@@ -98,7 +98,8 @@ namespace erm {
 			renderer.GetRenderContext().SetCullFaceEnabled(false);
 			renderer.GetRenderContext().SetPolygonMode(GL_LINE);
 			mDebugShader->Bind();
-			mDebugShader->SetUniformMat4f(Uniform::MVP, viewProjection * glm::identity<math::mat4>());
+			mDebugShader->SetUniformMat4f(Uniform::VIEW_PROJECTION, viewProjection);
+			mDebugShader->SetUniformMat4f(Uniform::MODEL, glm::identity<math::mat4>());
 			renderer.Draw(mGridMesh->GetDrawMode(), mGridMesh->GetVA(), mGridMesh->GetIB());
 			renderer.GetRenderContext().SetPolygonMode(polygonMode);
 			renderer.GetRenderContext().SetCullFaceEnabled(wasCullFaceEnabled);
@@ -170,7 +171,8 @@ namespace erm {
 				renderer.GetRenderContext().SetCullFaceEnabled(false);
 				renderer.GetRenderContext().SetPolygonMode(GL_LINE);
 				mDebugShader->Bind();
-				mDebugShader->SetUniformMat4f(Uniform::MVP, projection * glm::inverse(view) * bBTransform);
+				mDebugShader->SetUniformMat4f(Uniform::VIEW_PROJECTION, viewProjection);
+				mDebugShader->SetUniformMat4f(Uniform::MODEL, bBTransform);
 				renderer.Draw(mDebugMesh->GetDrawMode(), mDebugMesh->GetVA(), mDebugMesh->GetIB());
 				renderer.GetRenderContext().SetPolygonMode(polygonMode);
 				renderer.GetRenderContext().SetCullFaceEnabled(wasCullFaceEnabled);

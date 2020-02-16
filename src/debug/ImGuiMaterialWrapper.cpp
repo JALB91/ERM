@@ -13,6 +13,38 @@
 
 namespace ImGui {
 	
+	void ShowPathOptions(erm::Material& material)
+	{
+		static erm::Shaders& all = erm::Game::GetInstance().GetResourcesManager().GetLoadedShaderPrograms();
+		
+		erm::ShaderProgram* shader = material.mShaderProgram;
+		std::string currentPath = shader ? shader->GetPath() : "";
+		
+		if (ImGui::BeginCombo("Shader Path", currentPath.c_str()))
+		{
+			bool isSelected = currentPath == "";
+			if (ImGui::Selectable("", &isSelected))
+			{
+				currentPath = "";
+				material.mShaderProgram = nullptr;
+			}
+			
+			for (unsigned int i = 0; i < all.size(); ++i)
+			{
+				bool isSelected = currentPath == all[i]->GetPath();
+				if (ImGui::Selectable(all[i]->GetPath().c_str(), &isSelected))
+				{
+					if (currentPath != all[i]->GetPath())
+					{
+						currentPath = all[i]->GetPath();
+						material.mShaderProgram = all[i].get();
+					}
+				}
+			}
+			ImGui::EndCombo();
+		}
+	}
+	
 	void ShowMaterialDebug(erm::Mesh& mesh)
 	{
 		if (ImGui::CollapsingHeader("Material"))
@@ -26,7 +58,7 @@ namespace ImGui {
 			std::string currentName = material ? material->mName : "";
 			std::set<std::string> displayedPaths;
 			
-			if (ImGui::BeginCombo("Path", currentPath.c_str()))
+			if (ImGui::BeginCombo("Material Path", currentPath.c_str()))
 			{
 				bool isSelected = currentPath == "";
 				if (ImGui::Selectable("", &isSelected))
@@ -93,10 +125,7 @@ namespace ImGui {
 				ImGui::SliderFloat3("Specular", &material->mSpecular.x, 0.0f, 1.0f);
 				ImGui::SliderFloat("Shininess", &material->mShininess, 0.0f, 1000.0f);
 				
-				if (erm::ShaderProgram* shaderProgram = material->mShaderProgram)
-				{
-					
-				}
+				ShowPathOptions(*material);
 			}
 			
 			ImGui::Unindent();
