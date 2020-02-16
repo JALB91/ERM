@@ -9,6 +9,7 @@
 #include "utils/Utils.h"
 #include "utils/MeshUtils.h"
 #include "utils/ModelUtils.h"
+#include "utils/Profiler.h"
 
 #include "ecs/Entity.h"
 #include "ecs/systems/TransformSystem.h"
@@ -38,8 +39,8 @@ namespace {
 	const char* const kAventModelPath = "res/models/Avent.obj";
 	const char* const kCubeModelPath = "res/models/cube.obj";
 
-	const char* const kModelToUse = kCrateModelPath;
-	const int kEntities = 100;
+	const char* const kModelToUse = kIronManModelPath;
+	const int kEntities = 1;
 
 }
 
@@ -133,14 +134,14 @@ namespace erm {
 	{
 		while (mWindow && !mWindow->ShouldClose())
 		{
-			OnUpdate(0.0f);
-			OnPostUpdate();
+			PROFILE(OnUpdate(0.0f), "Update");
+			PROFILE(OnPostUpdate(), "PostUpdate");
 			
-			OnPreRender();
+			PROFILE(OnPreRender(), "PreRender");
 			OnImGuiRender();
-			OnRender();
+			PROFILE(OnRender(), "Render");
 			
-			OnPostRender();
+			PROFILE(OnPostRender(), "PostRender");
 		}
 	}
 	
