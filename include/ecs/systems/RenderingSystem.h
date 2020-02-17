@@ -9,9 +9,10 @@
 
 namespace erm {
 	
-	class ShaderProgram;
-	class Renderer;
 	class Mesh;
+	class Renderer;
+	class ShaderProgram;
+	class ResourcesManager;
 	
 	namespace ecs {
 		
@@ -23,7 +24,7 @@ namespace erm {
 		class RenderingSystem : public ISystem<RenderingComponent>
 		{
 		public:
-			RenderingSystem(ECS& ecs);
+			RenderingSystem(ECS& ecs, ResourcesManager& resourcesManager);
 			~RenderingSystem();
 			
 			void OnRender(const Renderer& renderer);
@@ -39,6 +40,8 @@ namespace erm {
 				const math::mat4& viewProjection,
 				EntityId id
 			);
+			
+			ResourcesManager& mResourcesManager;
 
 			TransformSystem& mTransformSystem;
 			ModelSystem& mModelSystem;

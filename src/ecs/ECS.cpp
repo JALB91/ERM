@@ -6,15 +6,18 @@
 #include "ecs/systems/CameraSystem.h"
 #include "ecs/systems/RenderingSystem.h"
 
+#include "game/Game.h"
+
 namespace erm {
 	namespace ecs {
 		
-		ECS::ECS()
-			: mEntities{ nullptr }
+		ECS::ECS(Game& game)
+			: mGame(game)
+			, mEntities{ nullptr }
 			, mTransformSystem(std::make_unique<TransformSystem>(*this))
 			, mModelSystem(std::make_unique<ModelSystem>(*this))
 			, mCameraSystem(std::make_unique<CameraSystem>(*this))
-			, mRenderingSystem(std::make_unique<RenderingSystem>(*this))
+			, mRenderingSystem(std::make_unique<RenderingSystem>(*this, mGame.GetResourcesManager()))
 		{
 			mEntities[ROOT_ID].reset(new Entity(ROOT_ID, *this, "Root"));
 		}

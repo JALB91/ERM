@@ -11,9 +11,8 @@
 
 namespace ImGui {
 	
-	void ShowInfoWindow(bool& open)
+	void ShowInfoWindow(erm::Game& game, bool& open)
 	{
-		const erm::Game& game = erm::Game::GetInstance();
 		const erm::Timer& timer = game.GetTimer();
 		const erm::Window& window = game.GetWindow();
 		

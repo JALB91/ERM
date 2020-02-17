@@ -1,7 +1,11 @@
 #pragma once
 
+namespace erm {
+	class Game;
+}
+
 namespace ImGui {
 	
-	extern void ShowShadersDebug(bool& open);
+	extern void ShowShadersDebug(erm::Game& game, bool& open);
 	
 }

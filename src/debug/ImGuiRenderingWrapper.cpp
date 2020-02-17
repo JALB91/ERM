@@ -62,9 +62,8 @@ namespace {
 
 namespace ImGui {
 	
-	void ShowRenderingDebugWindow()
+	void ShowRenderingDebugWindow(erm::Game& game)
 	{
-		erm::Game& game = erm::Game::GetInstance();
 		const erm::Window& window = game.GetWindow();
 		erm::RenderContext& renderContext = game.GetRenderContext();
 		

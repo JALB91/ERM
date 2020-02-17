@@ -7,7 +7,7 @@
 
 namespace ImGui {
 	
-	void ShowMainMenuBar()
+	void ShowMainMenuBar(erm::Game& game)
 	{
 		static bool showDemo = false;
 		static bool showInfos = false;
@@ -26,8 +26,8 @@ namespace ImGui {
 		}
 		
 		if (showDemo) ImGui::ShowDemoWindow(&showDemo);
-		if (showInfos) ImGui::ShowInfoWindow(showInfos);
-		if (showShaders) ImGui::ShowShadersDebug(showShaders);
+		if (showInfos) ImGui::ShowInfoWindow(game, showInfos);
+		if (showShaders) ImGui::ShowShadersDebug(game, showShaders);
 	}
 	
 }

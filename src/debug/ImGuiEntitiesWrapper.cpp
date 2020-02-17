@@ -14,9 +14,8 @@
 
 namespace ImGui {
 	
-	void ShowEntitiesDebugWindow()
+	void ShowEntitiesDebugWindow(erm::Game& game)
 	{
-		erm::Game& game = erm::Game::GetInstance();
 		const erm::Window& window = game.GetWindow();
 		const erm::math::vec2 winSize (window.GetWindowWidth(), window.GetWindowHeight());
 		const erm::math::vec2& viewport = window.GetViewport();
@@ -36,7 +35,7 @@ namespace ImGui {
 			ImGui::PushID(active());
 			ImGui::Separator();
 			ImGui::Text("Components");
-			ImGui::ShowComponentDebugWindow(active);
+			ImGui::ShowComponentDebugWindow(game, active);
 			ImGui::Separator();
 			ImGui::PopID();
 		}

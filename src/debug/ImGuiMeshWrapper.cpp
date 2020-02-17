@@ -7,7 +7,7 @@
 
 namespace ImGui {
 	
-	void ShowMeshDebugWindow(erm::Mesh& mesh, unsigned int meshId)
+	void ShowMeshDebugWindow(erm::Game& game, erm::Mesh& mesh, unsigned int meshId)
 	{
 		static const std::string title = "Mesh ";
 		
@@ -18,7 +18,7 @@ namespace ImGui {
 			
 			ImGui::Text("Vertices: %d", mesh.GetVerticesDataCount());
 			ImGui::Text("Indices: %d", mesh.GetIndicesCount());
-			ImGui::ShowMaterialDebug(mesh);
+			ImGui::ShowMaterialDebug(game, mesh);
 			
 			ImGui::Unindent();
 		}

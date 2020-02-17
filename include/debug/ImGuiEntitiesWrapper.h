@@ -1,7 +1,11 @@
 #pragma once
 
+namespace erm {
+	class Game;
+}
+
 namespace ImGui {
 	
-	extern void ShowEntitiesDebugWindow();
+	extern void ShowEntitiesDebugWindow(erm::Game& game);
 	
 }

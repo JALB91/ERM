@@ -35,14 +35,15 @@ namespace {
 namespace erm {
 	namespace ecs {
 		
-		RenderingSystem::RenderingSystem(ECS& ecs)
+		RenderingSystem::RenderingSystem(ECS& ecs, ResourcesManager& resourcesManager)
 			: ISystem<RenderingComponent>(ecs)
+			, mResourcesManager(resourcesManager)
 			, mTransformSystem(mECS.GetSystem<TransformSystem>())
 			, mModelSystem(mECS.GetSystem<ModelSystem>())
 			, mCameraSystem(mECS.GetSystem<CameraSystem>())
 			, mGridMesh(std::make_unique<Mesh>(MeshUtils::CreateGrid(1000, 1000, 100.0f, 100.0f)))
 			, mDebugMesh(std::make_unique<Mesh>(MeshUtils::CreateCube()))
-			, mDebugShader(Game::GetInstance().GetResourcesManager().GetOrCreateShaderProgram(kDebugShaderPath))
+			, mDebugShader(mResourcesManager.GetOrCreateShaderProgram(kDebugShaderPath))
 		{}
 		
 		RenderingSystem::~RenderingSystem()
@@ -134,7 +135,7 @@ namespace erm {
 				
 				if (!material.mShaderProgram)
 				{
-					material.mShaderProgram = Game::GetInstance().GetResourcesManager().GetOrCreateShaderProgram("res/shaders/model");
+					material.mShaderProgram = mResourcesManager.GetOrCreateShaderProgram("res/shaders/model");
 				}
 				
 				material.mShaderProgram->Bind();

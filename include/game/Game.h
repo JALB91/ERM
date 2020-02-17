@@ -20,16 +20,14 @@ namespace erm {
 	
 	class Game : private IWindowListener
 	{
-	private:
-		Game();
-		
-		static Game* mInstance;
-		
 	public:
-		static Game& GetInstance();
-		static void DestroyInstance();
-		
+		Game();
 		~Game();
+		
+		Game& operator=(const Game&) = delete;
+		Game& operator=(Game&&) = delete;
+		Game(const Game&) = delete;
+		Game(Game&&) = delete;
 		
 		bool Init();
 		void Run();

@@ -13,9 +13,9 @@
 
 namespace ImGui {
 	
-	void ShowPathOptions(erm::Material& material)
+	void ShowPathOptions(erm::Game& game, erm::Material& material)
 	{
-		static erm::Shaders& all = erm::Game::GetInstance().GetResourcesManager().GetLoadedShaderPrograms();
+		static erm::Shaders& all = game.GetResourcesManager().GetLoadedShaderPrograms();
 		
 		erm::ShaderProgram* shader = material.mShaderProgram;
 		std::string currentPath = shader ? shader->GetPath() : "";
@@ -45,7 +45,7 @@ namespace ImGui {
 		}
 	}
 	
-	void ShowMaterialDebug(erm::Mesh& mesh)
+	void ShowMaterialDebug(erm::Game& game, erm::Mesh& mesh)
 	{
 		if (ImGui::CollapsingHeader("Material"))
 		{
@@ -53,7 +53,7 @@ namespace ImGui {
 			
 			ImGui::Indent();
 			
-			static erm::Materials& all = erm::Game::GetInstance().GetResourcesManager().GetLoadedMaterials();
+			static erm::Materials& all = game.GetResourcesManager().GetLoadedMaterials();
 			std::string currentPath = material->mPath;
 			std::string currentName = material->mName;
 			std::set<std::string> displayedPaths;
@@ -123,7 +123,7 @@ namespace ImGui {
 			ImGui::SliderFloat3("Specular", &material->mSpecular.x, 0.0f, 1.0f);
 			ImGui::SliderFloat("Shininess", &material->mShininess, 0.0f, 1000.0f);
 			
-			ShowPathOptions(*material);
+			ShowPathOptions(game, *material);
 			
 			ImGui::Unindent();
 		}

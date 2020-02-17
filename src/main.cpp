@@ -2,7 +2,7 @@
 
 int main(int /*argc*/, char** /*argv*/)
 {
-	erm::Game& game = erm::Game::GetInstance();
+	erm::Game game;
 	
 	if (game.Init())
 	{
@@ -10,11 +10,8 @@ int main(int /*argc*/, char** /*argv*/)
 	}
 	else
 	{
-		erm::Game::DestroyInstance();
 		return 1;
 	}
-	
-	erm::Game::DestroyInstance();
 	
 	return 0;
 }

@@ -14,9 +14,9 @@
 
 namespace ImGui {
 	
-	void ShowPathOptions(erm::ecs::ModelComponent& modelComponent)
+	void ShowPathOptions(erm::Game& game, erm::ecs::ModelComponent& modelComponent)
 	{
-		static erm::Models& all = erm::Game::GetInstance().GetResourcesManager().GetLoadedModels();
+		static erm::Models& all = game.GetResourcesManager().GetLoadedModels();
 		
 		erm::Model* model = modelComponent.GetModel();
 		std::string currentPath = model ? model->GetPath() : "";
@@ -46,7 +46,7 @@ namespace ImGui {
 		}
 	}
 	
-	bool ShowModelComponentDebugWindow(erm::ecs::ModelComponent& modelComponent)
+	bool ShowModelComponentDebugWindow(erm::Game& game, erm::ecs::ModelComponent& modelComponent)
 	{
 		const bool headerOpen = ImGui::CollapsingHeader("Model");
 		
@@ -87,7 +87,7 @@ namespace ImGui {
 					
 					if (showMeshes)
 					{
-						ImGui::ShowMeshDebugWindow(mesh, i);
+						ImGui::ShowMeshDebugWindow(game, mesh, i);
 					}
 					
 					vertices += mesh.GetVerticesDataCount();
@@ -95,7 +95,7 @@ namespace ImGui {
 				}
 				ImGui::Unindent();
 				
-				ShowPathOptions(modelComponent);
+				ShowPathOptions(game, modelComponent);
 				ImGui::Text("Name: %s", model->GetName().c_str());
 				ImGui::Text("Vertices: %d", vertices);
 				ImGui::Text("Indices: %d", indices);
@@ -106,7 +106,7 @@ namespace ImGui {
 			}
 			else
 			{
-				ShowPathOptions(modelComponent);
+				ShowPathOptions(game, modelComponent);
 			}
 			
 			ImGui::Unindent();

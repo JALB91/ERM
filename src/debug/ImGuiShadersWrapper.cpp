@@ -12,9 +12,8 @@
 
 namespace ImGui {
 	
-	void ShowShadersDebug(bool& open)
+	void ShowShadersDebug(erm::Game& game, bool& open)
 	{
-		erm::Game& game = erm::Game::GetInstance();
 		static erm::Shaders& shaders = game.GetResourcesManager().GetLoadedShaderPrograms();
 		static erm::ShaderProgram* selected = nullptr;
 		const erm::Window& window = game.GetWindow();

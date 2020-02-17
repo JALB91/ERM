@@ -12,7 +12,7 @@ namespace erm {
 		
 		void Update();
 		
-		inline double GetCurrentTime() const { return static_cast<double>(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count()); }
+		static double GetCurrentTime() { return static_cast<double>(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count()); }
 		inline double GetElapsedTime() const { return GetCurrentTime() - mStartingTime; }
 		inline double GetFrameElapsedTime() const { return mCurrentFrameTime - mPreviousFrameTime; }
 		

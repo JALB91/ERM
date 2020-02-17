@@ -47,27 +47,6 @@ namespace {
 
 namespace erm {
 	
-	Game* Game::mInstance = nullptr;
-	
-	Game& Game::GetInstance()
-	{
-		if (!mInstance)
-		{
-			mInstance = new Game();
-		}
-		
-		return *mInstance;
-	}
-	
-	void Game::DestroyInstance()
-	{
-		if (mInstance)
-		{
-			delete mInstance;
-			mInstance = nullptr;
-		}
-	}
-	
 	Game::Game()
 		: mResourcesManager(std::make_unique<ResourcesManager>())
 		, mWindow(std::make_unique<Window>())
@@ -107,7 +86,7 @@ namespace erm {
 		
 		mRenderContext = std::make_unique<RenderContext>();
 		mRenderer = std::make_unique<Renderer>(*mRenderContext);
-		mECS = std::make_unique<ecs::ECS>();
+		mECS = std::make_unique<ecs::ECS>(*this);
 		
 		mResourcesManager->LoadDefaultResources();
 
@@ -193,7 +172,7 @@ namespace erm {
 	
 	void Game::OnImGuiRender()
 	{
-		ImGui::ShowGameDebug();
+		ImGui::ShowGameDebug(*this);
 	}
 	
 	void Game::OnRender()

@@ -1,6 +1,7 @@
 #pragma once
 
 namespace erm {
+	class Game;
 	namespace ecs {
 		struct ModelComponent;
 	}
@@ -8,7 +9,6 @@ namespace erm {
 
 namespace ImGui {
 	
-	extern void ShowPathOptions(erm::ecs::ModelComponent& modelComponent);
-	extern bool ShowModelComponentDebugWindow(erm::ecs::ModelComponent& modelComponent);
+	extern bool ShowModelComponentDebugWindow(erm::Game& game, erm::ecs::ModelComponent& modelComponent);
 	
 }

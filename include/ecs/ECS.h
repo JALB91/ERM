@@ -10,6 +10,7 @@
 
 namespace erm {
 	
+	class Game;
 	class Renderer;
 	
 	namespace ecs {
@@ -23,7 +24,7 @@ namespace erm {
 		class ECS
 		{
 		public:
-			ECS();
+			ECS(Game& game);
 			~ECS();
 			
 			void OnUpdate(float dt);
@@ -65,6 +66,7 @@ namespace erm {
 			Entity* GetEntityById(EntityId id);
 			
 		private:
+			Game& mGame;
 			std::array<std::unique_ptr<Entity>, MAX_ID> mEntities;
 			
 			std::unique_ptr<TransformSystem> mTransformSystem;
