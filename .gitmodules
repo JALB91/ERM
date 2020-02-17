@@ -7,3 +7,6 @@
 [submodule "externals/glew-cmake"]
 	path = externals/glew-cmake
 	url = https://github.com/Perlmint/glew-cmake.git
+[submodule "externals/tinyxml"]
+	path = externals/tinyxml
+	url = https://github.com/leethomason/tinyxml2.git

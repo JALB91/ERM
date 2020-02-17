@@ -58,6 +58,7 @@ add_subdirectory(externals/glm)
 add_subdirectory(externals/glfw)
 add_subdirectory(externals/imgui)
 add_subdirectory(externals/stb_image)
+add_subdirectory(externals/tinyxml)
 
 add_compile_definitions(GLFW_INCLUDE_GLCOREARB)
 
@@ -94,6 +95,7 @@ target_link_libraries(
 	glm
 	imgui
 	stb_image
+	tinyxml2
 )
 
 set(res_source ${CMAKE_HOME_DIRECTORY}/res/)
