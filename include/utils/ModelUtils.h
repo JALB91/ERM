@@ -2,72 +2,35 @@
 
 #include "managers/ResourcesManager.h"
 
-#include "rendering/VertexData.h"
-#include "rendering/IndexData.h"
-
-#include <memory>
-#include <string>
-#include <vector>
+#include <atomic>
+#include <deque>
+#include <future>
+#include <mutex>
 
 namespace erm {
 	
-	class Mesh;
 	class Model;
-	struct Material;
 	
 	class ModelUtils
 	{
 	public:
-		static void OnUpdate();
-		static void OnRender();
-		static void OnPostRender();
-		static void OnDestroy();
+		~ModelUtils();
+		
+		void OnUpdate();
+		void OnRender();
+		void OnPostRender();
 
-		static bool ParseModel(
+		bool ParseModel(
 			const char* path,
 			Models& models,
 			Materials& materials
 		);
 		
 	private:
-		static bool ParseMaterialsLib(
-			const char* path,
-			Materials& materials
-		);
-		
-		static void ParseModelInt(
-			const char* path,
-			Model& model,
-			Materials& materials
-		);
-
-		static void ParseFace(
-			std::vector<VertexData>& oVertices,
-			const std::vector<Vertex>& positions,
-			const std::vector<UVVertex>& tPositions,
-			const std::vector<NormalVertex>& nPositions,
-			const std::vector<std::string>& splitted
-		);
-		
-		static void Triangulate(
-			std::vector<IndexData>& oIndices,
-			const std::vector<VertexData>& vertices
-		);
-		
-		static void AddMesh(
-			Model& model,
-			std::vector<VertexData>& vertices,
-			std::vector<IndexData>& indices,
-			Material* material,
-			std::string& meshName
-		);
-		
-		static Mesh CreateMesh(
-			const std::vector<VertexData>& vertices,
-			const std::vector<IndexData>& indices,
-			Material* material,
-			const std::string& name
-		);
+		std::mutex mMutex;
+		std::atomic<bool> mStop;
+		std::deque<erm::Model*> mLoadingModels;
+		std::deque<std::future<void>> mFutures;
 		
 	};
 	

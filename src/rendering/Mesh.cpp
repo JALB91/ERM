@@ -7,13 +7,22 @@
 
 namespace erm {
 	
-	Mesh::Mesh(DrawMode drawMode)
+	Mesh::Mesh(
+		DrawMode drawMode,
+		VertexData* vertices,
+		unsigned int verticesCount,
+		IndexData* indices,
+		unsigned int indicesCount,
+		Material* material, /*= nullptr*/
+		const std::string& name /*= ""*/
+		)
 		: mDrawMode(drawMode)
-		, mVerticesData(nullptr)
-		, mVerticesDataCount(0)
-		, mIndicesData(nullptr)
-		, mIndicesDataCount(0)
-		, mMaterial(nullptr)
+		, mVerticesData(vertices)
+		, mVerticesDataCount(verticesCount)
+		, mIndicesData(indices)
+		, mIndicesDataCount(indicesCount)
+		, mMaterial(material)
+		, mName(name)
 		, mVB(nullptr)
 		, mIB(nullptr)
 		, mVA(nullptr)

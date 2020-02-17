@@ -7,8 +7,6 @@
 #include "rendering/Model.h"
 
 #include "utils/Utils.h"
-#include "utils/MeshUtils.h"
-#include "utils/ModelUtils.h"
 #include "utils/Profiler.h"
 
 #include "ecs/Entity.h"
@@ -68,8 +66,6 @@ namespace erm {
 	
 	Game::~Game()
 	{
-		ModelUtils::OnDestroy();
-		
 		mResourcesManager.reset();
 		mECS.reset();
 		mRenderer.reset();
@@ -159,7 +155,7 @@ namespace erm {
 		mECS->OnUpdate(dt);
 		mWindow->NewFrame();
 		if (mRenderContext) mRenderContext->Clear();
-		ModelUtils::OnUpdate();
+		mResourcesManager->OnUpdate();
 	}
 	
 	void Game::OnPostUpdate()
@@ -177,15 +173,15 @@ namespace erm {
 	
 	void Game::OnRender()
 	{
-		ModelUtils::OnRender();
+		mResourcesManager->OnRender();
 		mECS->OnRender(*mRenderer.get());
 		mWindow->Render();
 	}
 	
 	void Game::OnPostRender()
 	{
-		ModelUtils::OnPostRender();
 		mWindow->PostRender();
+		mResourcesManager->OnPostRender();
 	}
 	
 	void Game::OnKeyPressed(Key /*keyCode*/)

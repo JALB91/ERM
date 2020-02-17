@@ -10,28 +10,26 @@ namespace erm {
 		const math::vec3& b /* = math::vec3(1.0f, -1.0f, 0.0f) */,
 		const math::vec3& c /* = math::vec3(-1.0f, 1.0f, 0.0f) */
 	) {
-		Mesh mesh (DrawMode::TRIANGLES);
+		const unsigned int verticesCount = 3;
+		VertexData* vertices = new VertexData[verticesCount];
+		vertices[0].mVertex = a;
+		vertices[0].mUVVertex = UVVertex(0.0f, 0.0f);
+		vertices[0].mNormalVertex = NormalVertex(0.0f);
+		vertices[1].mVertex = b;
+		vertices[1].mUVVertex = UVVertex(0.0f, 1.0f);
+		vertices[1].mNormalVertex = NormalVertex(0.0f);
+		vertices[2].mVertex = c;
+		vertices[2].mUVVertex = UVVertex(1.0f, 0.0f);
+		vertices[2].mNormalVertex = NormalVertex(0.0f);
 		
-		mesh.mVerticesDataCount = 3;
-		mesh.mVerticesData = new VertexData[mesh.mVerticesDataCount];
-		mesh.mVerticesData[0].mVertex = a;
-		mesh.mVerticesData[0].mUVVertex = UVVertex(0.0f, 0.0f);
-		mesh.mVerticesData[0].mNormalVertex = NormalVertex(0.0f);
-		mesh.mVerticesData[1].mVertex = b;
-		mesh.mVerticesData[1].mUVVertex = UVVertex(0.0f, 1.0f);
-		mesh.mVerticesData[1].mNormalVertex = NormalVertex(0.0f);
-		mesh.mVerticesData[2].mVertex = c;
-		mesh.mVerticesData[2].mUVVertex = UVVertex(1.0f, 0.0f);
-		mesh.mVerticesData[2].mNormalVertex = NormalVertex(0.0f);
+		const unsigned int indicesCount = 3;
+		IndexData* indices = new IndexData[indicesCount];
+		indices[0] = 0;
+		indices[1] = 1;
+		indices[2] = 2;
 		
-		mesh.mIndicesDataCount = 3;
-		mesh.mIndicesData = new IndexData[mesh.mIndicesDataCount];
-		mesh.mIndicesData[0] = 0;
-		mesh.mIndicesData[1] = 1;
-		mesh.mIndicesData[2] = 2;
-		
+		Mesh mesh (DrawMode::TRIANGLES, vertices, verticesCount, indices, indicesCount);
 		mesh.Setup();
-		
 		return mesh;
 	}
 	
@@ -39,37 +37,35 @@ namespace erm {
 		float width /* = 1.0f */,
 		float height /* = 1.0f */
 	) {
-		Mesh mesh (DrawMode::TRIANGLES);
-		
 		const float halfWidth = width*0.5f;
 		const float halfHeight = height*0.5f;
 		
-		mesh.mVerticesDataCount = 4;
-		mesh.mVerticesData = new VertexData[mesh.mVerticesDataCount];
-		mesh.mVerticesData[0].mVertex = Vertex(-halfWidth, -halfHeight, 0.0f);
-		mesh.mVerticesData[0].mUVVertex = UVVertex(0.0f, 0.0f);
-		mesh.mVerticesData[0].mNormalVertex = NormalVertex(0.0f, 0.0f, -1.0f);
-		mesh.mVerticesData[1].mVertex = Vertex(halfWidth, -halfHeight, 0.0f);
-		mesh.mVerticesData[1].mUVVertex = UVVertex(1.0f, 0.0f);
-		mesh.mVerticesData[1].mNormalVertex = NormalVertex(0.0f, 0.0f, -1.0f);
-		mesh.mVerticesData[2].mVertex = Vertex(-halfWidth, halfHeight, 0.0f);
-		mesh.mVerticesData[2].mUVVertex = UVVertex(0.0f, 1.0f);
-		mesh.mVerticesData[2].mNormalVertex = NormalVertex(0.0f, 0.0f, -1.0f);
-		mesh.mVerticesData[3].mVertex = Vertex(halfWidth, halfHeight, 0.0f);
-		mesh.mVerticesData[3].mUVVertex = UVVertex(1.0f, 1.0f);
-		mesh.mVerticesData[3].mNormalVertex = NormalVertex(0.0f, 0.0f, -1.0f);
+		const unsigned int verticesCount = 4;
+		VertexData* vertices = new VertexData[verticesCount];
+		vertices[0].mVertex = Vertex(-halfWidth, -halfHeight, 0.0f);
+		vertices[0].mUVVertex = UVVertex(0.0f, 0.0f);
+		vertices[0].mNormalVertex = NormalVertex(0.0f, 0.0f, -1.0f);
+		vertices[1].mVertex = Vertex(halfWidth, -halfHeight, 0.0f);
+		vertices[1].mUVVertex = UVVertex(1.0f, 0.0f);
+		vertices[1].mNormalVertex = NormalVertex(0.0f, 0.0f, -1.0f);
+		vertices[2].mVertex = Vertex(-halfWidth, halfHeight, 0.0f);
+		vertices[2].mUVVertex = UVVertex(0.0f, 1.0f);
+		vertices[2].mNormalVertex = NormalVertex(0.0f, 0.0f, -1.0f);
+		vertices[3].mVertex = Vertex(halfWidth, halfHeight, 0.0f);
+		vertices[3].mUVVertex = UVVertex(1.0f, 1.0f);
+		vertices[3].mNormalVertex = NormalVertex(0.0f, 0.0f, -1.0f);
 		
-		mesh.mIndicesDataCount = 6;
-		mesh.mIndicesData = new IndexData[mesh.mIndicesDataCount];
-		mesh.mIndicesData[0] = 0;
-		mesh.mIndicesData[1] = 1;
-		mesh.mIndicesData[2] = 2;
-		mesh.mIndicesData[3] = 2;
-		mesh.mIndicesData[4] = 1;
-		mesh.mIndicesData[5] = 3;
+		const unsigned int indicesCount = 6;
+		IndexData* indices = new IndexData[indicesCount];
+		indices[0] = 0;
+		indices[1] = 1;
+		indices[2] = 2;
+		indices[3] = 2;
+		indices[4] = 1;
+		indices[5] = 3;
 		
+		Mesh mesh (DrawMode::TRIANGLES, vertices, verticesCount, indices, indicesCount);
 		mesh.Setup();
-		
 		return mesh;
 	}
 	
@@ -82,114 +78,112 @@ namespace erm {
 		const float halfY = sizeY*0.5f;
 		const float halfZ = sizeZ*0.5f;
 		
-		Mesh mesh (DrawMode::TRIANGLES);
-		
-		mesh.mVerticesDataCount = 6 * 4;
-		mesh.mVerticesData = new VertexData[mesh.mVerticesDataCount];
+		const unsigned int verticesCount = 6 * 4;
+		VertexData* vertices = new VertexData[verticesCount];
 		
 		int vertIndex = 0;
 		
 		// Front
-		mesh.mVerticesData[vertIndex].mVertex = Vertex(-halfX, -halfY, -halfZ);
-		mesh.mVerticesData[vertIndex].mUVVertex = UVVertex(0.0f, 0.0f);
-		mesh.mVerticesData[vertIndex++].mNormalVertex = NormalVertex(0.0f, 0.0f, -1.0f);
-		mesh.mVerticesData[vertIndex].mVertex = Vertex(halfX, -halfY, -halfZ);
-		mesh.mVerticesData[vertIndex].mUVVertex = UVVertex(1.0f, 0.0f);
-		mesh.mVerticesData[vertIndex++].mNormalVertex = NormalVertex(0.0f, 0.0f, -1.0f);
-		mesh.mVerticesData[vertIndex].mVertex = Vertex(-halfX, halfY, -halfZ);
-		mesh.mVerticesData[vertIndex].mUVVertex = UVVertex(0.0f, 1.0f);
-		mesh.mVerticesData[vertIndex++].mNormalVertex = NormalVertex(0.0f, 0.0f, -1.0f);
-		mesh.mVerticesData[vertIndex].mVertex = Vertex(halfX, halfY, -halfZ);
-		mesh.mVerticesData[vertIndex].mUVVertex = UVVertex(1.0f, 1.0f);
-		mesh.mVerticesData[vertIndex++].mNormalVertex = NormalVertex(0.0f, 0.0f, -1.0f);
+		vertices[vertIndex].mVertex = Vertex(-halfX, -halfY, -halfZ);
+		vertices[vertIndex].mUVVertex = UVVertex(0.0f, 0.0f);
+		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f, 0.0f, -1.0f);
+		vertices[vertIndex].mVertex = Vertex(halfX, -halfY, -halfZ);
+		vertices[vertIndex].mUVVertex = UVVertex(1.0f, 0.0f);
+		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f, 0.0f, -1.0f);
+		vertices[vertIndex].mVertex = Vertex(-halfX, halfY, -halfZ);
+		vertices[vertIndex].mUVVertex = UVVertex(0.0f, 1.0f);
+		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f, 0.0f, -1.0f);
+		vertices[vertIndex].mVertex = Vertex(halfX, halfY, -halfZ);
+		vertices[vertIndex].mUVVertex = UVVertex(1.0f, 1.0f);
+		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f, 0.0f, -1.0f);
 		
 		// Back
-		mesh.mVerticesData[vertIndex].mVertex = Vertex(halfX, -halfY, halfZ);
-		mesh.mVerticesData[vertIndex].mUVVertex = UVVertex(0.0f, 0.0f);
-		mesh.mVerticesData[vertIndex++].mNormalVertex = NormalVertex(0.0f, 0.0f, 1.0f);
-		mesh.mVerticesData[vertIndex].mVertex = Vertex(-halfX, -halfY, halfZ);
-		mesh.mVerticesData[vertIndex].mUVVertex = UVVertex(1.0f, 0.0f);
-		mesh.mVerticesData[vertIndex++].mNormalVertex = NormalVertex(0.0f, 0.0f, 1.0f);
-		mesh.mVerticesData[vertIndex].mVertex = Vertex(halfX, halfY, halfZ);
-		mesh.mVerticesData[vertIndex].mUVVertex = UVVertex(0.0f, 1.0f);
-		mesh.mVerticesData[vertIndex++].mNormalVertex = NormalVertex(0.0f, 0.0f, 1.0f);
-		mesh.mVerticesData[vertIndex].mVertex = Vertex(-halfX, halfY, halfZ);
-		mesh.mVerticesData[vertIndex].mUVVertex = UVVertex(1.0f, 1.0f);
-		mesh.mVerticesData[vertIndex++].mNormalVertex = NormalVertex(0.0f, 0.0f, 1.0f);
+		vertices[vertIndex].mVertex = Vertex(halfX, -halfY, halfZ);
+		vertices[vertIndex].mUVVertex = UVVertex(0.0f, 0.0f);
+		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f, 0.0f, 1.0f);
+		vertices[vertIndex].mVertex = Vertex(-halfX, -halfY, halfZ);
+		vertices[vertIndex].mUVVertex = UVVertex(1.0f, 0.0f);
+		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f, 0.0f, 1.0f);
+		vertices[vertIndex].mVertex = Vertex(halfX, halfY, halfZ);
+		vertices[vertIndex].mUVVertex = UVVertex(0.0f, 1.0f);
+		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f, 0.0f, 1.0f);
+		vertices[vertIndex].mVertex = Vertex(-halfX, halfY, halfZ);
+		vertices[vertIndex].mUVVertex = UVVertex(1.0f, 1.0f);
+		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f, 0.0f, 1.0f);
 		
 		// Top
-		mesh.mVerticesData[vertIndex].mVertex = Vertex(-halfX, halfY, -halfZ);
-		mesh.mVerticesData[vertIndex].mUVVertex = UVVertex(0.0f, 0.0f);
-		mesh.mVerticesData[vertIndex++].mNormalVertex = NormalVertex(0.0f, 1.0f, 0.0f);
-		mesh.mVerticesData[vertIndex].mVertex = Vertex(halfX, halfY, -halfZ);
-		mesh.mVerticesData[vertIndex].mUVVertex = UVVertex(1.0f, 0.0f);
-		mesh.mVerticesData[vertIndex++].mNormalVertex = NormalVertex(0.0f, 1.0f, 0.0f);
-		mesh.mVerticesData[vertIndex].mVertex = Vertex(-halfX, halfY, halfZ);
-		mesh.mVerticesData[vertIndex].mUVVertex = UVVertex(0.0f, 1.0f);
-		mesh.mVerticesData[vertIndex++].mNormalVertex = NormalVertex(0.0f, 1.0f, 0.0f);
-		mesh.mVerticesData[vertIndex].mVertex = Vertex(halfX, halfY, halfZ);
-		mesh.mVerticesData[vertIndex].mUVVertex = UVVertex(1.0f, 1.0f);
-		mesh.mVerticesData[vertIndex++].mNormalVertex = NormalVertex(0.0f, 1.0f, 0.0f);
+		vertices[vertIndex].mVertex = Vertex(-halfX, halfY, -halfZ);
+		vertices[vertIndex].mUVVertex = UVVertex(0.0f, 0.0f);
+		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f, 1.0f, 0.0f);
+		vertices[vertIndex].mVertex = Vertex(halfX, halfY, -halfZ);
+		vertices[vertIndex].mUVVertex = UVVertex(1.0f, 0.0f);
+		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f, 1.0f, 0.0f);
+		vertices[vertIndex].mVertex = Vertex(-halfX, halfY, halfZ);
+		vertices[vertIndex].mUVVertex = UVVertex(0.0f, 1.0f);
+		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f, 1.0f, 0.0f);
+		vertices[vertIndex].mVertex = Vertex(halfX, halfY, halfZ);
+		vertices[vertIndex].mUVVertex = UVVertex(1.0f, 1.0f);
+		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f, 1.0f, 0.0f);
 		
 		// Bottom
-		mesh.mVerticesData[vertIndex].mVertex = Vertex(-halfX, -halfY, halfZ);
-		mesh.mVerticesData[vertIndex].mUVVertex = UVVertex(0.0f, 0.0f);
-		mesh.mVerticesData[vertIndex++].mNormalVertex = NormalVertex(0.0f, -1.0f, 0.0f);
-		mesh.mVerticesData[vertIndex].mVertex = Vertex(halfX, -halfY, halfZ);
-		mesh.mVerticesData[vertIndex].mUVVertex = UVVertex(1.0f, 0.0f);
-		mesh.mVerticesData[vertIndex++].mNormalVertex = NormalVertex(0.0f, -1.0f, 0.0f);
-		mesh.mVerticesData[vertIndex].mVertex = Vertex(-halfX, -halfY, -halfZ);
-		mesh.mVerticesData[vertIndex].mUVVertex = UVVertex(0.0f, 1.0f);
-		mesh.mVerticesData[vertIndex++].mNormalVertex = NormalVertex(0.0f, -1.0f, 0.0f);
-		mesh.mVerticesData[vertIndex].mVertex = Vertex(halfX, -halfY, -halfZ);
-		mesh.mVerticesData[vertIndex].mUVVertex = UVVertex(1.0f, 1.0f);
-		mesh.mVerticesData[vertIndex++].mNormalVertex = NormalVertex(0.0f, -1.0f, 0.0f);
+		vertices[vertIndex].mVertex = Vertex(-halfX, -halfY, halfZ);
+		vertices[vertIndex].mUVVertex = UVVertex(0.0f, 0.0f);
+		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f, -1.0f, 0.0f);
+		vertices[vertIndex].mVertex = Vertex(halfX, -halfY, halfZ);
+		vertices[vertIndex].mUVVertex = UVVertex(1.0f, 0.0f);
+		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f, -1.0f, 0.0f);
+		vertices[vertIndex].mVertex = Vertex(-halfX, -halfY, -halfZ);
+		vertices[vertIndex].mUVVertex = UVVertex(0.0f, 1.0f);
+		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f, -1.0f, 0.0f);
+		vertices[vertIndex].mVertex = Vertex(halfX, -halfY, -halfZ);
+		vertices[vertIndex].mUVVertex = UVVertex(1.0f, 1.0f);
+		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f, -1.0f, 0.0f);
 		
 		// Right
-		mesh.mVerticesData[vertIndex].mVertex = Vertex(halfX, -halfY, -halfZ);
-		mesh.mVerticesData[vertIndex].mUVVertex = UVVertex(0.0f, 0.0f);
-		mesh.mVerticesData[vertIndex++].mNormalVertex = NormalVertex(1.0f, 0.0f, 0.0);
-		mesh.mVerticesData[vertIndex].mVertex = Vertex(halfX, -halfY, halfZ);
-		mesh.mVerticesData[vertIndex].mUVVertex = UVVertex(1.0f, 0.0f);
-		mesh.mVerticesData[vertIndex++].mNormalVertex = NormalVertex(1.0f, 0.0f, 0.0);
-		mesh.mVerticesData[vertIndex].mVertex = Vertex(halfX, halfY, -halfZ);
-		mesh.mVerticesData[vertIndex].mUVVertex = UVVertex(0.0f, 1.0f);
-		mesh.mVerticesData[vertIndex++].mNormalVertex = NormalVertex(1.0f, 0.0f, 0.0);
-		mesh.mVerticesData[vertIndex].mVertex = Vertex(halfX, halfY, halfZ);
-		mesh.mVerticesData[vertIndex].mUVVertex = UVVertex(1.0f, 1.0f);
-		mesh.mVerticesData[vertIndex++].mNormalVertex = NormalVertex(1.0f, 0.0f, 0.0);
+		vertices[vertIndex].mVertex = Vertex(halfX, -halfY, -halfZ);
+		vertices[vertIndex].mUVVertex = UVVertex(0.0f, 0.0f);
+		vertices[vertIndex++].mNormalVertex = NormalVertex(1.0f, 0.0f, 0.0);
+		vertices[vertIndex].mVertex = Vertex(halfX, -halfY, halfZ);
+		vertices[vertIndex].mUVVertex = UVVertex(1.0f, 0.0f);
+		vertices[vertIndex++].mNormalVertex = NormalVertex(1.0f, 0.0f, 0.0);
+		vertices[vertIndex].mVertex = Vertex(halfX, halfY, -halfZ);
+		vertices[vertIndex].mUVVertex = UVVertex(0.0f, 1.0f);
+		vertices[vertIndex++].mNormalVertex = NormalVertex(1.0f, 0.0f, 0.0);
+		vertices[vertIndex].mVertex = Vertex(halfX, halfY, halfZ);
+		vertices[vertIndex].mUVVertex = UVVertex(1.0f, 1.0f);
+		vertices[vertIndex++].mNormalVertex = NormalVertex(1.0f, 0.0f, 0.0);
 		
 		// Left
-		mesh.mVerticesData[vertIndex].mVertex = Vertex(-halfX, -halfY, halfZ);
-		mesh.mVerticesData[vertIndex].mUVVertex = UVVertex(0.0f, 0.0f);
-		mesh.mVerticesData[vertIndex++].mNormalVertex = NormalVertex(-1.0f, 0.0f, 0.0);
-		mesh.mVerticesData[vertIndex].mVertex = Vertex(-halfX, -halfY, -halfZ);
-		mesh.mVerticesData[vertIndex].mUVVertex = UVVertex(1.0f, 0.0f);
-		mesh.mVerticesData[vertIndex++].mNormalVertex = NormalVertex(-1.0f, 0.0f, 0.0);
-		mesh.mVerticesData[vertIndex].mVertex = Vertex(-halfX, halfY, halfZ);
-		mesh.mVerticesData[vertIndex].mUVVertex = UVVertex(0.0f, 1.0f);
-		mesh.mVerticesData[vertIndex++].mNormalVertex = NormalVertex(-1.0f, 0.0f, 0.0);
-		mesh.mVerticesData[vertIndex].mVertex = Vertex(-halfX, halfY, -halfZ);
-		mesh.mVerticesData[vertIndex].mUVVertex = UVVertex(1.0f, 1.0f);
-		mesh.mVerticesData[vertIndex++].mNormalVertex = NormalVertex(-1.0f, 0.0f, 0.0);
+		vertices[vertIndex].mVertex = Vertex(-halfX, -halfY, halfZ);
+		vertices[vertIndex].mUVVertex = UVVertex(0.0f, 0.0f);
+		vertices[vertIndex++].mNormalVertex = NormalVertex(-1.0f, 0.0f, 0.0);
+		vertices[vertIndex].mVertex = Vertex(-halfX, -halfY, -halfZ);
+		vertices[vertIndex].mUVVertex = UVVertex(1.0f, 0.0f);
+		vertices[vertIndex++].mNormalVertex = NormalVertex(-1.0f, 0.0f, 0.0);
+		vertices[vertIndex].mVertex = Vertex(-halfX, halfY, halfZ);
+		vertices[vertIndex].mUVVertex = UVVertex(0.0f, 1.0f);
+		vertices[vertIndex++].mNormalVertex = NormalVertex(-1.0f, 0.0f, 0.0);
+		vertices[vertIndex].mVertex = Vertex(-halfX, halfY, -halfZ);
+		vertices[vertIndex].mUVVertex = UVVertex(1.0f, 1.0f);
+		vertices[vertIndex++].mNormalVertex = NormalVertex(-1.0f, 0.0f, 0.0);
 		
 		// Indices
-		mesh.mIndicesDataCount = 36;
-		mesh.mIndicesData = new IndexData[mesh.mIndicesDataCount];
+		const unsigned int indicesCount = 36;
+		IndexData* indices = new IndexData[indicesCount];
 		
 		for (int i = 0; i < 6; ++i)
 		{
 			const int offset = i * 4;
-			mesh.mIndicesData[i * 6] = offset;
-			mesh.mIndicesData[(i * 6) + 1] = offset + 2;
-			mesh.mIndicesData[(i * 6) + 2] = offset + 1;
-			mesh.mIndicesData[(i * 6) + 3] = offset + 3;
-			mesh.mIndicesData[(i * 6) + 4] = offset + 1;
-			mesh.mIndicesData[(i * 6) + 5] = offset + 2;
+			indices[i * 6] = offset;
+			indices[(i * 6) + 1] = offset + 2;
+			indices[(i * 6) + 2] = offset + 1;
+			indices[(i * 6) + 3] = offset + 3;
+			indices[(i * 6) + 4] = offset + 1;
+			indices[(i * 6) + 5] = offset + 2;
 		}
 		
+		Mesh mesh (DrawMode::TRIANGLES, vertices, verticesCount, indices, indicesCount);
 		mesh.Setup();
-		
 		return mesh;
 	}
 	
@@ -202,96 +196,94 @@ namespace erm {
 		const float halfY = sizeY*0.5f;
 		const float halfZ = sizeZ*0.5f;
 		
-		Mesh mesh (DrawMode::TRIANGLES);
-		
-		mesh.mVerticesDataCount = 4 + 4 * 3;
-		mesh.mVerticesData = new VertexData[mesh.mVerticesDataCount];
+		const unsigned int verticesCount = 4 + 4 * 3;
+		VertexData* vertices = new VertexData[verticesCount];
 		
 		int vertIndex = 0;
 		
 		// Bottom
-		mesh.mVerticesData[vertIndex].mVertex = Vertex(-halfX, -halfY, halfZ);
-		mesh.mVerticesData[vertIndex].mUVVertex = UVVertex(0.0f, 0.0f);
-		mesh.mVerticesData[vertIndex++].mNormalVertex = NormalVertex(0.0f);
-		mesh.mVerticesData[vertIndex].mVertex = Vertex(halfX, -halfY, halfZ);
-		mesh.mVerticesData[vertIndex].mUVVertex = UVVertex(1.0f, 0.0f);
-		mesh.mVerticesData[vertIndex++].mNormalVertex = NormalVertex(0.0f);
-		mesh.mVerticesData[vertIndex].mVertex = Vertex(-halfX, -halfY, -halfZ);
-		mesh.mVerticesData[vertIndex].mUVVertex = UVVertex(0.0f, 1.0f);
-		mesh.mVerticesData[vertIndex++].mNormalVertex = NormalVertex(0.0f);
-		mesh.mVerticesData[vertIndex].mVertex = Vertex(halfX, -halfY, -halfZ);
-		mesh.mVerticesData[vertIndex].mUVVertex = UVVertex(1.0f, 1.0f);
-		mesh.mVerticesData[vertIndex++].mNormalVertex = NormalVertex(0.0f);
+		vertices[vertIndex].mVertex = Vertex(-halfX, -halfY, halfZ);
+		vertices[vertIndex].mUVVertex = UVVertex(0.0f, 0.0f);
+		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f);
+		vertices[vertIndex].mVertex = Vertex(halfX, -halfY, halfZ);
+		vertices[vertIndex].mUVVertex = UVVertex(1.0f, 0.0f);
+		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f);
+		vertices[vertIndex].mVertex = Vertex(-halfX, -halfY, -halfZ);
+		vertices[vertIndex].mUVVertex = UVVertex(0.0f, 1.0f);
+		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f);
+		vertices[vertIndex].mVertex = Vertex(halfX, -halfY, -halfZ);
+		vertices[vertIndex].mUVVertex = UVVertex(1.0f, 1.0f);
+		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f);
 		
 		// Front
-		mesh.mVerticesData[vertIndex].mVertex = Vertex(-halfX, -halfY, -halfZ);
-		mesh.mVerticesData[vertIndex].mUVVertex = UVVertex(0.0f, 0.0f);
-		mesh.mVerticesData[vertIndex++].mNormalVertex = NormalVertex(0.0f);
-		mesh.mVerticesData[vertIndex].mVertex = Vertex(halfX, -halfY, -halfZ);
-		mesh.mVerticesData[vertIndex].mUVVertex = UVVertex(0.5f, 0.0f);
-		mesh.mVerticesData[vertIndex++].mNormalVertex = NormalVertex(0.0f);
-		mesh.mVerticesData[vertIndex].mVertex = Vertex(0.0f, halfY, 0.0f);
-		mesh.mVerticesData[vertIndex].mUVVertex = UVVertex(0.0f, 1.0f);
-		mesh.mVerticesData[vertIndex++].mNormalVertex = NormalVertex(0.0f);
+		vertices[vertIndex].mVertex = Vertex(-halfX, -halfY, -halfZ);
+		vertices[vertIndex].mUVVertex = UVVertex(0.0f, 0.0f);
+		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f);
+		vertices[vertIndex].mVertex = Vertex(halfX, -halfY, -halfZ);
+		vertices[vertIndex].mUVVertex = UVVertex(0.5f, 0.0f);
+		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f);
+		vertices[vertIndex].mVertex = Vertex(0.0f, halfY, 0.0f);
+		vertices[vertIndex].mUVVertex = UVVertex(0.0f, 1.0f);
+		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f);
 		
 		// Right
-		mesh.mVerticesData[vertIndex].mVertex = Vertex(halfX, -halfY, -halfZ);
-		mesh.mVerticesData[vertIndex].mUVVertex = UVVertex(0.0f, 0.0f);
-		mesh.mVerticesData[vertIndex++].mNormalVertex = NormalVertex(0.0f);
-		mesh.mVerticesData[vertIndex].mVertex = Vertex(halfX, -halfY, halfZ);
-		mesh.mVerticesData[vertIndex].mUVVertex = UVVertex(1.0f, 0.0f);
-		mesh.mVerticesData[vertIndex++].mNormalVertex = NormalVertex(0.0f);
-		mesh.mVerticesData[vertIndex].mVertex = Vertex(0.0f, halfY, 0.0f);
-		mesh.mVerticesData[vertIndex].mUVVertex = UVVertex(1.0f, 1.0f);
-		mesh.mVerticesData[vertIndex++].mNormalVertex = NormalVertex(0.0f);
+		vertices[vertIndex].mVertex = Vertex(halfX, -halfY, -halfZ);
+		vertices[vertIndex].mUVVertex = UVVertex(0.0f, 0.0f);
+		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f);
+		vertices[vertIndex].mVertex = Vertex(halfX, -halfY, halfZ);
+		vertices[vertIndex].mUVVertex = UVVertex(1.0f, 0.0f);
+		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f);
+		vertices[vertIndex].mVertex = Vertex(0.0f, halfY, 0.0f);
+		vertices[vertIndex].mUVVertex = UVVertex(1.0f, 1.0f);
+		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f);
 		
 		// Back
-		mesh.mVerticesData[vertIndex].mVertex = Vertex(halfX, -halfY, halfZ);
-		mesh.mVerticesData[vertIndex].mUVVertex = UVVertex(0.0f, 0.0f);
-		mesh.mVerticesData[vertIndex++].mNormalVertex = NormalVertex(0.0f);
-		mesh.mVerticesData[vertIndex].mVertex = Vertex(-halfX, -halfY, halfZ);
-		mesh.mVerticesData[vertIndex].mUVVertex = UVVertex(1.0f, 0.0f);
-		mesh.mVerticesData[vertIndex++].mNormalVertex = NormalVertex(0.0f);
-		mesh.mVerticesData[vertIndex].mVertex = Vertex(0.0f, halfY, 0.0f);
-		mesh.mVerticesData[vertIndex].mUVVertex = UVVertex(0.0f, 1.0f);
-		mesh.mVerticesData[vertIndex++].mNormalVertex = NormalVertex(0.0f);
+		vertices[vertIndex].mVertex = Vertex(halfX, -halfY, halfZ);
+		vertices[vertIndex].mUVVertex = UVVertex(0.0f, 0.0f);
+		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f);
+		vertices[vertIndex].mVertex = Vertex(-halfX, -halfY, halfZ);
+		vertices[vertIndex].mUVVertex = UVVertex(1.0f, 0.0f);
+		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f);
+		vertices[vertIndex].mVertex = Vertex(0.0f, halfY, 0.0f);
+		vertices[vertIndex].mUVVertex = UVVertex(0.0f, 1.0f);
+		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f);
 		
 		// Left
-		mesh.mVerticesData[vertIndex].mVertex = Vertex(-halfX, -halfY, halfZ);
-		mesh.mVerticesData[vertIndex].mUVVertex = UVVertex(0.0f, 0.0f);
-		mesh.mVerticesData[vertIndex++].mNormalVertex = NormalVertex(0.0f);
-		mesh.mVerticesData[vertIndex].mVertex = Vertex(-halfX, -halfY, -halfZ);
-		mesh.mVerticesData[vertIndex].mUVVertex = UVVertex(1.0f, 0.0f);
-		mesh.mVerticesData[vertIndex++].mNormalVertex = NormalVertex(0.0f);
-		mesh.mVerticesData[vertIndex].mVertex = Vertex(0.0f, halfY, 0.0f);
-		mesh.mVerticesData[vertIndex].mUVVertex = UVVertex(1.0f, 1.0f);
-		mesh.mVerticesData[vertIndex++].mNormalVertex = NormalVertex(0.0f);
+		vertices[vertIndex].mVertex = Vertex(-halfX, -halfY, halfZ);
+		vertices[vertIndex].mUVVertex = UVVertex(0.0f, 0.0f);
+		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f);
+		vertices[vertIndex].mVertex = Vertex(-halfX, -halfY, -halfZ);
+		vertices[vertIndex].mUVVertex = UVVertex(1.0f, 0.0f);
+		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f);
+		vertices[vertIndex].mVertex = Vertex(0.0f, halfY, 0.0f);
+		vertices[vertIndex].mUVVertex = UVVertex(1.0f, 1.0f);
+		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f);
 		
 		// Indices
-		mesh.mIndicesDataCount = 18;
-		mesh.mIndicesData = new IndexData[mesh.mIndicesDataCount];
+		const unsigned int indicesCount = 18;
+		IndexData* indices = new IndexData[indicesCount];
 		
-		mesh.mIndicesData[0] = 0;
-		mesh.mIndicesData[1] = 1;
-		mesh.mIndicesData[2] = 2;
-		mesh.mIndicesData[3] = 2;
-		mesh.mIndicesData[4] = 1;
-		mesh.mIndicesData[5] = 3;
-		mesh.mIndicesData[6] = 4;
-		mesh.mIndicesData[7] = 5;
-		mesh.mIndicesData[8] = 6;
-		mesh.mIndicesData[9] = 7;
-		mesh.mIndicesData[10] = 8;
-		mesh.mIndicesData[11] = 9;
-		mesh.mIndicesData[12] = 10;
-		mesh.mIndicesData[13] = 11;
-		mesh.mIndicesData[14] = 12;
-		mesh.mIndicesData[15] = 13;
-		mesh.mIndicesData[16] = 14;
-		mesh.mIndicesData[17] = 15;
+		indices[0] = 0;
+		indices[1] = 1;
+		indices[2] = 2;
+		indices[3] = 2;
+		indices[4] = 1;
+		indices[5] = 3;
+		indices[6] = 4;
+		indices[7] = 5;
+		indices[8] = 6;
+		indices[9] = 7;
+		indices[10] = 8;
+		indices[11] = 9;
+		indices[12] = 10;
+		indices[13] = 11;
+		indices[14] = 12;
+		indices[15] = 13;
+		indices[16] = 14;
+		indices[17] = 15;
 		
+		Mesh mesh (DrawMode::TRIANGLES, vertices, verticesCount, indices, indicesCount);
 		mesh.Setup();
-		
 		return mesh;
 	}
 	
@@ -300,13 +292,11 @@ namespace erm {
 		int sectors /* = 10 */,
 		int rings /* = 10 */
 	) {
-		Mesh mesh (DrawMode::TRIANGLES);
+		const unsigned int verticesCount = (sectors + 1) * (rings + 1);
+		VertexData* vertices = new VertexData[verticesCount];
 		
-		mesh.mVerticesDataCount = (sectors + 1) * (rings + 1);
-		mesh.mVerticesData = new VertexData[mesh.mVerticesDataCount];
-		
-		mesh.mIndicesDataCount = sectors * rings * 6 - sectors * 6;
-		mesh.mIndicesData = new IndexData[mesh.mIndicesDataCount];
+		const unsigned int indicesCount = sectors * rings * 6 - sectors * 6;
+		IndexData* indices = new IndexData[indicesCount];
 		
 		float x, y, z, xy;
 		float s, t;
@@ -328,13 +318,13 @@ namespace erm {
 				
 				x = xy * cosf(sectorAngle);
 				y = xy * sinf(sectorAngle);
-				mesh.mVerticesData[index].mVertex = Vertex(x, y, z);
+				vertices[index].mVertex = Vertex(x, y, z);
 				
 				s = (float)j / sectors;
 				t = (float)i / rings;
-				mesh.mVerticesData[index].mUVVertex = UVVertex(s, t);
+				vertices[index].mUVVertex = UVVertex(s, t);
 				
-				mesh.mVerticesData[index].mNormalVertex = NormalVertex(0.0f);
+				vertices[index].mNormalVertex = NormalVertex(0.0f);
 				
 				index++;
 			}
@@ -352,22 +342,22 @@ namespace erm {
 			{
 				if (i != 0)
 				{
-					mesh.mIndicesData[index++] = k1;
-					mesh.mIndicesData[index++] = k2;
-					mesh.mIndicesData[index++] = k1 + 1;
+					indices[index++] = k1;
+					indices[index++] = k2;
+					indices[index++] = k1 + 1;
 				}
 				
 				if (i != (rings-1))
 				{
-					mesh.mIndicesData[index++] = k1 + 1;
-					mesh.mIndicesData[index++] = k2;
-					mesh.mIndicesData[index++] = k2 + 1;
+					indices[index++] = k1 + 1;
+					indices[index++] = k2;
+					indices[index++] = k2 + 1;
 				}
 			}
 		}
 		
+		Mesh mesh (DrawMode::TRIANGLES, vertices, verticesCount, indices, indicesCount);
 		mesh.Setup();
-		
 		return mesh;
 	}
 	
@@ -378,70 +368,68 @@ namespace erm {
 		float height /*= 1.0f*/
 	)
 	{
-		Mesh mesh (DrawMode::LINES);
-		
 		const int halfSizeX = sizeX / 2;
 		const int halfSizeY = sizeY / 2;
 		
-		mesh.mVerticesDataCount = (sizeX + 1) * 2 + (sizeY + 1) * 2;
-		mesh.mVerticesData = new VertexData[mesh.mVerticesDataCount];
+		const unsigned int verticesCount = (sizeX + 1) * 2 + (sizeY + 1) * 2;
+		VertexData* vertices = new VertexData[verticesCount];
 		
 		int index = 0;
 		
 		for (int i = 0; i < sizeX + 1; ++i)
 		{
-			mesh.mVerticesData[index].mVertex = Vertex(- halfSizeX * width, 0.0f, height * (i - halfSizeY));
-			mesh.mVerticesData[index].mUVVertex = UVVertex(0.0f, 0.0f);
-			mesh.mVerticesData[index].mNormalVertex = NormalVertex(0.0f, 0.0f, 0.0f);
+			vertices[index].mVertex = Vertex(- halfSizeX * width, 0.0f, height * (i - halfSizeY));
+			vertices[index].mUVVertex = UVVertex(0.0f, 0.0f);
+			vertices[index].mNormalVertex = NormalVertex(0.0f, 0.0f, 0.0f);
 			++index;
 		}
 		
 		for (int i = 0; i < sizeX + 1; ++i)
 		{
-			mesh.mVerticesData[index].mVertex = Vertex(halfSizeX * width, 0.0f, height * (i - halfSizeY));
-			mesh.mVerticesData[index].mUVVertex = UVVertex(0.0f, 0.0f);
-			mesh.mVerticesData[index].mNormalVertex = NormalVertex(0.0f, 0.0f, 0.0f);
+			vertices[index].mVertex = Vertex(halfSizeX * width, 0.0f, height * (i - halfSizeY));
+			vertices[index].mUVVertex = UVVertex(0.0f, 0.0f);
+			vertices[index].mNormalVertex = NormalVertex(0.0f, 0.0f, 0.0f);
 			++index;
 		}
 		
 		for (int i = 0; i < sizeY + 1; ++i)
 		{
-			mesh.mVerticesData[index].mVertex = Vertex(width * (i - halfSizeX), 0.0f, - halfSizeY * height);
-			mesh.mVerticesData[index].mUVVertex = UVVertex(0.0f, 0.0f);
-			mesh.mVerticesData[index].mNormalVertex = NormalVertex(0.0f, 0.0f, 0.0f);
+			vertices[index].mVertex = Vertex(width * (i - halfSizeX), 0.0f, - halfSizeY * height);
+			vertices[index].mUVVertex = UVVertex(0.0f, 0.0f);
+			vertices[index].mNormalVertex = NormalVertex(0.0f, 0.0f, 0.0f);
 			++index;
 		}
 		
 		for (int i = 0; i < sizeY + 1; ++i)
 		{
-			mesh.mVerticesData[index].mVertex = Vertex(width * (i - halfSizeX), 0.0f, halfSizeY * height);
-			mesh.mVerticesData[index].mUVVertex = UVVertex(0.0f, 0.0f);
-			mesh.mVerticesData[index].mNormalVertex = NormalVertex(0.0f, 0.0f, 0.0f);
+			vertices[index].mVertex = Vertex(width * (i - halfSizeX), 0.0f, halfSizeY * height);
+			vertices[index].mUVVertex = UVVertex(0.0f, 0.0f);
+			vertices[index].mNormalVertex = NormalVertex(0.0f, 0.0f, 0.0f);
 			++index;
 		}
 		
-		mesh.mIndicesDataCount = mesh.mVerticesDataCount;
-		mesh.mIndicesData = new IndexData[mesh.mIndicesDataCount];
+		const unsigned int indicesCount = verticesCount;
+		IndexData* indices = new IndexData[indicesCount];
 		
 		index = 0;
 		
 		for (int i = 0; i < sizeX + 1; ++i)
 		{
-			mesh.mIndicesData[index * 2] = i;
-			mesh.mIndicesData[(index * 2) + 1] = i + (sizeX + 1);
+			indices[index * 2] = i;
+			indices[(index * 2) + 1] = i + (sizeX + 1);
 			++index;
 		}
 		
 		for (int i = 0; i < sizeY + 1; ++i)
 		{
 			const int start = i + (sizeX + 1) * 2;
-			mesh.mIndicesData[index * 2] = start;
-			mesh.mIndicesData[index * 2 + 1] = start + (sizeY + 1);
+			indices[index * 2] = start;
+			indices[index * 2 + 1] = start + (sizeY + 1);
 			++index;
 		}
 		
+		Mesh mesh (DrawMode::LINES, vertices, verticesCount, indices, indicesCount);
 		mesh.Setup();
-		
 		return mesh;
 	}
 	

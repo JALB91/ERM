@@ -10,6 +10,8 @@
 
 namespace erm {
 	
+	class ModelUtils;
+	
 	template<typename T>
 	using Handle = std::unique_ptr<T>;
 	
@@ -26,6 +28,10 @@ namespace erm {
 		
 		void LoadDefaultResources();
 		
+		void OnUpdate();
+		void OnRender();
+		void OnPostRender();
+		
 		inline Shaders& GetLoadedShaderPrograms() { return mLoadedShaderPrograms; }
 		ShaderProgram* GetOrCreateShaderProgram(const char* vertexShader, const char* fragmentShader);
 		ShaderProgram* GetOrCreateShaderProgram(const char* shaderProgramPath);
@@ -40,6 +46,8 @@ namespace erm {
 		Model* GetOrCreateModel(const char* modelPath);
 		
 	private:
+		std::unique_ptr<ModelUtils> mModelUtils;
+		
 		Shaders mLoadedShaderPrograms;
 		Materials mLoadedMaterials;
 		Textures mLoadedTextures;

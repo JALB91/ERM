@@ -20,11 +20,15 @@ namespace erm {
 	class Mesh
 	{
 	public:
-		friend class MeshUtils;
-		friend class ModelUtils;
-		
-	public:
-		Mesh(DrawMode drawMode);
+		Mesh(
+			 DrawMode drawMode,
+			 VertexData* vertices,
+			 unsigned int verticesCount,
+			 IndexData* indices,
+			 unsigned int indicesCount,
+			 Material* material = nullptr,
+			 const std::string& name = ""
+		);
 		~Mesh();
 		
 		Mesh(Mesh&& other);
@@ -32,6 +36,8 @@ namespace erm {
 		
 		Mesh& operator=(Mesh&&) = delete;
 		Mesh& operator=(const Mesh&) = delete;
+		
+		void Setup();
 		
 		inline DrawMode GetDrawMode() const { return mDrawMode; }
 		
@@ -53,8 +59,6 @@ namespace erm {
 		inline bool IsReady() const { return mVerticesData && mIndicesData && mVerticesDataCount > 0 && mIndicesDataCount > 0 && mIB && mVA && mVB; }
 		
 	private:
-		void Setup();
-		
 		const DrawMode mDrawMode;
 		
 		VertexData* mVerticesData;

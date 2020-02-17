@@ -11,10 +11,13 @@
 namespace erm {
 	
 	ResourcesManager::ResourcesManager()
+		: mModelUtils(std::make_unique<ModelUtils>())
 	{}
 	
 	ResourcesManager::~ResourcesManager()
-	{}
+	{
+		mModelUtils.reset();
+	}
 	
 	void ResourcesManager::LoadDefaultResources()
 	{
@@ -31,6 +34,21 @@ namespace erm {
 		mLoadedModels.back()->AddMesh(MeshUtils::CreateSpike());
 		mLoadedModels.emplace_back(std::make_unique<Model>("Defaults/Grid", "Grid"));
 		mLoadedModels.back()->AddMesh(MeshUtils::CreateGrid());
+	}
+	
+	void ResourcesManager::OnUpdate()
+	{
+		mModelUtils->OnUpdate();
+	}
+	
+	void ResourcesManager::OnRender()
+	{
+		mModelUtils->OnRender();
+	}
+	
+	void ResourcesManager::OnPostRender()
+	{
+		mModelUtils->OnPostRender();
 	}
 	
 	ShaderProgram* ResourcesManager::GetOrCreateShaderProgram(const char* vertexShader, const char* fragmentShader)
@@ -143,7 +161,7 @@ namespace erm {
 			return (*it).get();
 		}
 		
-		if (ModelUtils::ParseModel(modelPath, mLoadedModels, mLoadedMaterials))
+		if (mModelUtils->ParseModel(modelPath, mLoadedModels, mLoadedMaterials))
 		{
 			return mLoadedModels.back().get();
 		}
