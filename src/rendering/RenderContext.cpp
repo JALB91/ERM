@@ -17,11 +17,20 @@ namespace erm {
 	{
 		switch (drawMode)
 		{
-			case DrawMode::TRIANGLES:
-				GL_CALL(glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr));
-				break;
 			case DrawMode::LINES:
-				GL_CALL(glDrawElements(GL_LINES, count, GL_UNSIGNED_INT, nullptr));
+				GL_CALL(glDrawElements(GL_LINES, count, GL_UNSIGNED_SHORT, nullptr));
+				break;
+			case DrawMode::LINE_STRIP:
+				GL_CALL(glDrawElements(GL_LINE_STRIP, count, GL_UNSIGNED_SHORT, nullptr));
+				break;
+			case DrawMode::TRIANGLES:
+				GL_CALL(glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_SHORT, nullptr));
+				break;
+			case DrawMode::TRIANGLE_FAN:
+				GL_CALL(glDrawElements(GL_TRIANGLE_FAN, count, GL_UNSIGNED_SHORT, nullptr));
+				break;
+			case DrawMode::TRIANGLE_STRIP:
+				GL_CALL(glDrawElements(GL_TRIANGLE_STRIP, count, GL_UNSIGNED_SHORT, nullptr));
 				break;
 		}
 	}

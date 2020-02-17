@@ -5,7 +5,7 @@ namespace erm {
 	class IndexBuffer
 	{
 	public:
-		IndexBuffer(const unsigned int* data, unsigned int count);
+		IndexBuffer(const unsigned short* data, unsigned int count);
 		~IndexBuffer();
 		
 		IndexBuffer(IndexBuffer&&) = delete;

@@ -2,6 +2,9 @@
 
 enum class DrawMode
 {
+	LINES,
+	LINE_STRIP,
 	TRIANGLES,
-	LINES
+	TRIANGLE_FAN,
+	TRIANGLE_STRIP
 };
