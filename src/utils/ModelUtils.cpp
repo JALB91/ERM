@@ -6,6 +6,7 @@
 
 #include "utils/Utils.h"
 #include "utils/ObjModelUtils.h"
+#include "utils/DaeModelUtils.h"
 
 #include <tinyxml2.h>
 
@@ -86,23 +87,45 @@ namespace erm {
 		}
 
 		stream.close();
+		
+		std::string pathStr = path;
+		std::string name = pathStr.substr(pathStr.rfind("/") + 1, pathStr.rfind("."));
+		std::string extension = pathStr.substr(pathStr.rfind(".") + 1);
 
 		mMutex.lock();
-		Model& model = *models.emplace_back(std::make_unique<Model>(path, "unknown"));
+		Model& model = *models.emplace_back(std::make_unique<Model>(path, name.c_str()));
 		mMutex.unlock();
 		
 		mLoadingModels.emplace_back(&model);
-		mFutures.emplace_back(
-			std::async(
-				std::launch::async,
-				&ParseObjModel,
-				std::ref(mMutex),
-				std::ref(mStop),
-				path,
-				std::ref(model),
-				std::ref(materials)
-			)
-		);
+		
+		if (std::strcmp(extension.c_str(), "obj") == 0)
+		{
+			mFutures.emplace_back(
+				std::async(
+					std::launch::async,
+					&ParseObjModel,
+					std::ref(mMutex),
+					std::ref(mStop),
+					path,
+					std::ref(model),
+					std::ref(materials)
+				)
+			);
+		}
+		else if (std::strcmp(extension.c_str(), "dae") == 0)
+		{
+			mFutures.emplace_back(
+				std::async(
+					std::launch::async,
+					&ParseDaeModel,
+					std::ref(mMutex),
+					std::ref(mStop),
+					path,
+					std::ref(model),
+					std::ref(materials)
+				)
+			);
+		}
 
 		return true;
 	}
