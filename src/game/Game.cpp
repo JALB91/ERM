@@ -38,8 +38,8 @@ namespace {
 	const char* const kCubeModelPath = "res/models/cube.obj";
 	const char* const kHandgunModelPath = "res/models/Handgun.dae";
 
-	const char* const kModelToUse = kHandgunModelPath;
-	const float kDefaultScale = 100.0f;
+	const char* const kModelToUse = kIronManModelPath;
+	const float kDefaultScale = 1.0f;
 	const int kEntities = 1;
 
 }
