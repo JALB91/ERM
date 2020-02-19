@@ -5,6 +5,7 @@
 #include "ecs/systems/ModelSystem.h"
 #include "ecs/systems/CameraSystem.h"
 #include "ecs/systems/RenderingSystem.h"
+#include "ecs/systems/LightSystem.h"
 
 #include "game/Game.h"
 
@@ -15,6 +16,7 @@ namespace erm {
 			: mGame(game)
 			, mEntities{ nullptr }
 			, mTransformSystem(std::make_unique<TransformSystem>(*this))
+			, mLightSystem(std::make_unique<LightSystem>(*this))
 			, mModelSystem(std::make_unique<ModelSystem>(*this))
 			, mCameraSystem(std::make_unique<CameraSystem>(*this))
 			, mRenderingSystem(std::make_unique<RenderingSystem>(*this, mGame.GetResourcesManager()))
@@ -32,6 +34,7 @@ namespace erm {
 			mRenderingSystem.reset();
 			mCameraSystem.reset();
 			mModelSystem.reset();
+			mLightSystem.reset();
 			mTransformSystem.reset();
 		}
 		

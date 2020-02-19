@@ -13,6 +13,7 @@
 #include "ecs/systems/TransformSystem.h"
 #include "ecs/systems/ModelSystem.h"
 #include "ecs/systems/CameraSystem.h"
+#include "ecs/systems/LightSystem.h"
 
 #include "managers/ResourcesManager.h"
 
@@ -89,6 +90,7 @@ namespace erm {
 		mResourcesManager->LoadDefaultResources();
 
 		auto camera = mECS->GetOrCreateEntity("Camera");
+		camera->AddComponent<ecs::LightComponent>();
 		camera->RequireComponent<ecs::CameraComponent>(*mWindow);
 		camera->GetComponent<ecs::TransformComponent>()->mTranslation = math::vec3(0.0f, 145.0f, 400.0f);
 

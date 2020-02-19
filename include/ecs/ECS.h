@@ -20,6 +20,7 @@ namespace erm {
 		class ModelSystem;
 		class CameraSystem;
 		class RenderingSystem;
+		class LightSystem;
 		
 		class ECS
 		{
@@ -58,6 +59,12 @@ namespace erm {
 				return *mRenderingSystem.get();
 			}
 			
+			template<>
+			inline LightSystem& GetSystem() const
+			{
+				return *mLightSystem.get();
+			}
+			
 			void RemoveEntity(EntityId id);
 			void OnEntityBeingRemoved(EntityId id);
 			
@@ -70,6 +77,7 @@ namespace erm {
 			std::array<std::unique_ptr<Entity>, MAX_ID> mEntities;
 			
 			std::unique_ptr<TransformSystem> mTransformSystem;
+			std::unique_ptr<LightSystem> mLightSystem;
 			std::unique_ptr<ModelSystem> mModelSystem;
 			std::unique_ptr<CameraSystem> mCameraSystem;
 			std::unique_ptr<RenderingSystem> mRenderingSystem;

@@ -19,6 +19,7 @@ namespace erm {
 		class TransformSystem;
 		class ModelSystem;
 		class CameraSystem;
+		class LightSystem;
 		struct Entity;
 		
 		class RenderingSystem : public ISystem<RenderingComponent>
@@ -38,6 +39,7 @@ namespace erm {
 				const Renderer& renderer,
 				const Entity& camera,
 				const math::mat4& viewProjection,
+				const std::vector<ID>& lights,
 				EntityId id
 			);
 			
@@ -46,6 +48,7 @@ namespace erm {
 			TransformSystem& mTransformSystem;
 			ModelSystem& mModelSystem;
 			CameraSystem& mCameraSystem;
+			LightSystem& mLightSystem;
 			
 			std::queue<ID> mModelsRenderingQueue;
 			

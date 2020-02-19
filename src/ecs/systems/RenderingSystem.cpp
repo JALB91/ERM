@@ -5,6 +5,7 @@
 #include "ecs/systems/TransformSystem.h"
 #include "ecs/systems/ModelSystem.h"
 #include "ecs/systems/CameraSystem.h"
+#include "ecs/systems/LightSystem.h"
 
 #include "game/Game.h"
 
@@ -41,6 +42,7 @@ namespace erm {
 			, mTransformSystem(mECS.GetSystem<TransformSystem>())
 			, mModelSystem(mECS.GetSystem<ModelSystem>())
 			, mCameraSystem(mECS.GetSystem<CameraSystem>())
+			, mLightSystem(mECS.GetSystem<LightSystem>())
 			, mGridMesh(std::make_unique<Mesh>(MeshUtils::CreateGrid(1000, 1000, 100.0f, 100.0f)))
 			, mDebugMesh(std::make_unique<Mesh>(MeshUtils::CreateCube()))
 			, mDebugShader(mResourcesManager.GetOrCreateShaderProgram(kDebugShaderPath))
@@ -52,6 +54,7 @@ namespace erm {
 		void RenderingSystem::OnRender(const Renderer& renderer)
 		{
 			Entity* camera = nullptr;
+			std::vector<ID> lights;
 			
 			for (ID i = ROOT_ID; i < MAX_ID; ++i)
 			{
@@ -65,6 +68,11 @@ namespace erm {
 				if (mModelSystem.GetComponent(i))
 				{
 					mModelsRenderingQueue.push(i);
+				}
+				
+				if (mLightSystem.GetComponent(i))
+				{
+					lights.emplace_back(i);
 				}
 			}
 			
@@ -83,7 +91,7 @@ namespace erm {
 			
 			while (!mModelsRenderingQueue.empty())
 			{
-				RenderModel(renderer, *camera, viewProjection, mModelsRenderingQueue.front());
+				RenderModel(renderer, *camera, viewProjection, lights, mModelsRenderingQueue.front());
 				mModelsRenderingQueue.pop();
 			}
 		}
@@ -110,6 +118,7 @@ namespace erm {
 			const Renderer& renderer,
 			const Entity& camera,
 			const math::mat4& viewProjection,
+			const std::vector<ID>& lights,
 			EntityId id
 		)
 		{
@@ -144,16 +153,22 @@ namespace erm {
 				material.mShaderProgram->SetUniformMat4f(Uniform::PROJECTION, projection);
 				material.mShaderProgram->SetUniformMat4f(Uniform::VIEW_PROJECTION, viewProjection);
 
-				material.mShaderProgram->SetUniform3f(Uniform::LIGHT_AMBIENT, 1.0f, 1.0f, 1.0f);
-				material.mShaderProgram->SetUniform3f(Uniform::LIGHT_DIFFUSE, 1.0f, 1.0f, 1.0f);
-				material.mShaderProgram->SetUniform3f(Uniform::LIGHT_SPECULAR, 1.0f, 1.0f, 1.0f);
-				material.mShaderProgram->SetUniform3f(Uniform::LIGHT_POSITION, viewPos.x, viewPos.y, viewPos.z);
+				for (ID light : lights)
+				{
+					LightComponent* lightComponent = mLightSystem.GetComponent(light);
+					TransformComponent* lightTransform = mTransformSystem.GetComponent(light);
+					
+					material.mShaderProgram->SetUniform3f(Uniform::LIGHT_AMBIENT, lightComponent->mAmbient);
+					material.mShaderProgram->SetUniform3f(Uniform::LIGHT_DIFFUSE, lightComponent->mDiffuse);
+					material.mShaderProgram->SetUniform3f(Uniform::LIGHT_SPECULAR, lightComponent->mSpecular);
+					material.mShaderProgram->SetUniform3f(Uniform::LIGHT_POSITION, lightTransform->mTranslation);
+				}
 
 				material.mShaderProgram->SetUniform3f(Uniform::VIEW_POS, viewPos.x, viewPos.y, viewPos.z);
 
-				material.mShaderProgram->SetUniform3f(Uniform::MATERIAL_AMBIENT, material.mAmbient.x, material.mAmbient.y, material.mAmbient.z);
-				material.mShaderProgram->SetUniform3f(Uniform::MATERIAL_DIFFUSE, material.mDiffuse.x, material.mDiffuse.y, material.mDiffuse.z);
-				material.mShaderProgram->SetUniform3f(Uniform::MATERIAL_SPECULAR, material.mSpecular.x, material.mSpecular.y, material.mSpecular.z);
+				material.mShaderProgram->SetUniform3f(Uniform::MATERIAL_AMBIENT, material.mAmbient);
+				material.mShaderProgram->SetUniform3f(Uniform::MATERIAL_DIFFUSE, material.mDiffuse);
+				material.mShaderProgram->SetUniform3f(Uniform::MATERIAL_SPECULAR, material.mSpecular);
 				material.mShaderProgram->SetUniform1f(Uniform::MATERIAL_SHININESS, material.mShininess);
 
 				renderer.Draw(mesh.GetDrawMode(), mesh.GetVA(), mesh.GetIB());

@@ -90,9 +90,19 @@ namespace erm {
 		GL_CALL(glUniform1f(GetUniformLocation(kUniforms.at(uniform)), value));
 	}
 	
+	void ShaderProgram::SetUniform3f(const Uniform& uniform, math::vec3 value) const
+	{
+		GL_CALL(glUniform3f(GetUniformLocation(kUniforms.at(uniform)), value.x, value.y, value.z));
+	}
+	
 	void ShaderProgram::SetUniform3f(const Uniform& uniform, float v0, float v1, float v2) const
 	{
 		GL_CALL(glUniform3f(GetUniformLocation(kUniforms.at(uniform)), v0, v1, v2));
+	}
+	
+	void ShaderProgram::SetUniform4f(const Uniform& uniform, math::vec4 value) const
+	{
+		GL_CALL(glUniform4f(GetUniformLocation(kUniforms.at(uniform)), value.x, value.y, value.z, value.w));
 	}
 	
 	void ShaderProgram::SetUniform4f(const Uniform& uniform, float v0, float v1, float v2, float v3) const

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "math/mat.h"
+#include "math/vec.h"
 
 #include <unordered_map>
 #include <string>
@@ -34,8 +35,13 @@ namespace erm {
 		
 		void SetUniform1i(const Uniform& uniform, int value) const;
 		void SetUniform1f(const Uniform& uniform, float value) const;
+		
+		void SetUniform3f(const Uniform& uniform, math::vec3 value) const;
 		void SetUniform3f(const Uniform& uniform, float v0, float v1, float v2) const;
+		
+		void SetUniform4f(const Uniform& uniform, math::vec4 value) const;
 		void SetUniform4f(const Uniform& uniform, float v0, float v1, float v2, float v3) const;
+		
 		void SetUniformMat4f(const Uniform& uniform, const math::mat4& matrix) const;
 		
 	private:
