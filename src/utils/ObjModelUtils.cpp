@@ -209,12 +209,10 @@ namespace erm {
 			AddMesh(mutex, model, vertices, indices, material, meshName);
 		}
 
-		if (name.empty())
+		if (!name.empty())
 		{
-			name = "unknown";
+			model.SetName(name);
 		}
-
-		model.SetName(name);
 	}
 	
 	void ParseFace(
