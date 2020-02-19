@@ -2,6 +2,7 @@
 #include "debug/ImGuiTransformComponentWrapper.h"
 #include "debug/ImGuiModelComponentWrapper.h"
 #include "debug/ImGuiCameraComponentWrapper.h"
+#include "debug/ImGuiLightComponentWrapper.h"
 
 #include "game/Game.h"
 
@@ -10,12 +11,10 @@
 #include "ecs/ECS.h"
 #include "ecs/Entity.h"
 #include "ecs/EntityId.h"
-#include "ecs/components/TransformComponent.h"
-#include "ecs/components/ModelComponent.h"
-#include "ecs/components/CameraComponent.h"
 #include "ecs/systems/TransformSystem.h"
 #include "ecs/systems/ModelSystem.h"
 #include "ecs/systems/CameraSystem.h"
+#include "ecs/systems/LightSystem.h"
 
 #include <imgui.h>
 
@@ -28,6 +27,7 @@ namespace ImGui {
 		bool hasTransform = false;
 		bool hasModel = false;
 		bool hasCamera = false;
+		bool hasLight = false;
 		
 		if (erm::ecs::TransformComponent* transformComponent = game.GetECS().GetSystem<erm::ecs::TransformSystem>().GetComponent(entity))
 		{
@@ -52,6 +52,14 @@ namespace ImGui {
 				game.GetECS().GetSystem<erm::ecs::CameraSystem>().RemoveComponent(entity);
 			}
 			hasCamera = true;
+		}
+		if (erm::ecs::LightComponent* lightComponent = game.GetECS().GetSystem<erm::ecs::LightSystem>().GetComponent(entity))
+		{
+			if (ShowLightComponentDebugWindow(*lightComponent))
+			{
+				game.GetECS().GetSystem<erm::ecs::LightSystem>().RemoveComponent(entity);
+			}
+			hasLight = true;
 		}
 		
 		ImGui::Separator();
@@ -88,6 +96,15 @@ namespace ImGui {
 				if (ImGui::Button("Camera"))
 				{
 					game.GetECS().GetEntityById(entity)->AddComponent<erm::ecs::CameraComponent>(game.GetWindow());
+					ImGui::CloseCurrentPopup();
+				}
+			}
+			
+			if (!hasLight)
+			{
+				if (ImGui::Button("Light"))
+				{
+					game.GetECS().GetEntityById(entity)->AddComponent<erm::ecs::LightComponent>();
 					ImGui::CloseCurrentPopup();
 				}
 			}
