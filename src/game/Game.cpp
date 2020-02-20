@@ -116,7 +116,24 @@ namespace erm {
 	{
 		while (mWindow && !mWindow->ShouldClose())
 		{
-			PROFILE(OnUpdate(0.0f), "Update");
+			static double elapsedTime = 0.0;
+			static unsigned int frameInSecond = 0;
+			
+			mTimer.Update();
+			
+			const double frameElapsedTime = mTimer.GetFrameElapsedTime();
+			elapsedTime += frameElapsedTime;
+			++frameInSecond;
+			
+			if (elapsedTime >= 1000.0)
+			{
+				mFPS = frameInSecond;
+				
+				elapsedTime = 0.0;
+				frameInSecond = 0;
+			}
+			
+			PROFILE(OnUpdate(static_cast<float>(frameElapsedTime)), "Update");
 			PROFILE(OnPostUpdate(), "PostUpdate");
 			
 			PROFILE(OnPreRender(), "PreRender");
@@ -129,22 +146,6 @@ namespace erm {
 	
 	void Game::OnUpdate(float dt)
 	{
-		static double frameElapsedTime = 0.0;
-		static unsigned int frameInSecond = 0;
-		
-		mTimer.Update();
-		
-		frameElapsedTime += mTimer.GetFrameElapsedTime();
-		++frameInSecond;
-		
-		if (frameElapsedTime >= 1000.0)
-		{
-			mFPS = frameInSecond;
-			
-			frameElapsedTime = 0.0;
-			frameInSecond = 0;
-		}
-
 		for (auto child : mECS->GetRoot()->GetChildren())
 		{
 			auto entity = mECS->GetEntityById(child);
