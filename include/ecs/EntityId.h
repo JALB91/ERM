@@ -8,13 +8,13 @@ namespace erm {
 		struct EntityId
 		{
 		public:
-			EntityId(ID id = ROOT_ID - 1)
+			EntityId(ID id = INVALID_ID)
 				: mId(id)
 			{}
 			
 			inline ID operator()() const { return mId; }
-			inline bool operator!=(EntityId other) const { return mId != other.mId; }
 			inline bool operator==(EntityId other) const { return mId == other.mId; }
+			inline bool operator!=(EntityId other) const { return mId != other.mId; }
 			
 			inline bool IsValid() const
 			{
@@ -23,7 +23,7 @@ namespace erm {
 			
 			inline ID Get() const { return mId; }
 			inline void Set(ID id) { mId = id; }
-			inline void Reset() { mId = ROOT_ID - 1; }
+			inline void Reset() { mId = INVALID_ID; }
 			
 		private:
 			ID mId;
