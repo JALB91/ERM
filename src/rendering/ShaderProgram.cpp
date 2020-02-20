@@ -25,7 +25,7 @@ namespace {
 		{ erm::Uniform::MATERIAL_SHININESS, "u_Material.shininess" },
 		{ erm::Uniform::LIGHT_POSITION, "u_Light.position" },
 		{ erm::Uniform::LIGHT_AMBIENT, "u_Light.ambient" },
-		{ erm::Uniform::LIGHT_DIFFUSE, "u_Light,diffuse" },
+		{ erm::Uniform::LIGHT_DIFFUSE, "u_Light.diffuse" },
 		{ erm::Uniform::LIGHT_SPECULAR, "u_Light.specular" },
 		{ erm::Uniform::VIEW_POS, "u_ViewPos" }
 	};
