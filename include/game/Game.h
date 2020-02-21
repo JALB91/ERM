@@ -60,10 +60,10 @@ namespace erm {
 		Timer mTimer;
 		unsigned int mFPS;
 		
-		std::unique_ptr<ResourcesManager> mResourcesManager;
 		std::unique_ptr<Window> mWindow;
 		std::unique_ptr<RenderContext> mRenderContext;
 		std::unique_ptr<Renderer> mRenderer;
+		std::unique_ptr<ResourcesManager> mResourcesManager;
 		std::unique_ptr<ecs::ECS> mECS;
 		
 	};

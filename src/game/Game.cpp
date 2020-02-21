@@ -48,11 +48,7 @@ namespace {
 namespace erm {
 	
 	Game::Game()
-		: mResourcesManager(std::make_unique<ResourcesManager>())
-		, mWindow(std::make_unique<Window>())
-		, mRenderContext(nullptr)
-		, mRenderer(nullptr)
-		, mECS(nullptr)
+		: mWindow(std::make_unique<Window>())
 	{
 		UNUSED(kLamborghiniModelPath);
 		UNUSED(kSpaceshipModelPath);
@@ -67,14 +63,7 @@ namespace erm {
 		mWindow->AddListener(static_cast<IWindowListener&>(*this));
 	}
 	
-	Game::~Game()
-	{
-		mResourcesManager.reset();
-		mECS.reset();
-		mRenderer.reset();
-		mRenderContext.reset();
-		mWindow.reset();
-	}
+	Game::~Game() = default;
 	
 	bool Game::Init()
 	{
@@ -85,6 +74,7 @@ namespace erm {
 		
 		mRenderContext = std::make_unique<RenderContext>();
 		mRenderer = std::make_unique<Renderer>(*mRenderContext);
+		mResourcesManager = std::make_unique<ResourcesManager>();
 		mECS = std::make_unique<ecs::ECS>(*this);
 		
 		mResourcesManager->LoadDefaultResources();
