@@ -205,7 +205,7 @@ namespace erm {
 	{
 		PROFILE_FUNCTION();
 		
-		if (action != GLFW_RELEASE && (ImGui::IsAnyItemActive() || ImGui::IsAnyWindowHovered() || ImGui::IsAnyWindowFocused()))
+		if (action != GLFW_RELEASE && ImGui::IsAnyWindowHovered())
 		{
 			return;
 		}
@@ -234,7 +234,7 @@ namespace erm {
 	{
 		PROFILE_FUNCTION();
 		
-		if (action != GLFW_RELEASE && (ImGui::IsAnyItemActive() || ImGui::IsAnyWindowHovered() || ImGui::IsAnyWindowFocused()))
+		if (action != GLFW_RELEASE && ImGui::IsAnyWindowHovered())
 		{
 			return;
 		}
