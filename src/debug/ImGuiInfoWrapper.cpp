@@ -9,6 +9,8 @@
 
 #include <imgui.h>
 
+#include <algorithm>
+
 namespace ImGui {
 	
 	enum class TREE_OP

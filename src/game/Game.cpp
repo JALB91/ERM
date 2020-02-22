@@ -92,8 +92,8 @@ namespace erm {
 			auto entity = mECS->GetOrCreateEntity();
 			entity->RequireComponent<ecs::ModelComponent>(mResourcesManager->GetOrCreateModel(kModelToUse));
 			auto transform = entity->RequireComponent<ecs::TransformComponent>();
-			const float x = std::rand()%100-std::rand()%100;
-			const float z = std::rand()%100-std::rand()%100;
+			const float x = static_cast<float>(std::rand()%100-std::rand()%100);
+			const float z = static_cast<float>(std::rand()%100-std::rand()%100);
 			transform->mTranslation = math::vec3(x, 0.0f, z);
 			transform->mScale = math::vec3(kDefaultScale);
 			root->AddChild(*entity);

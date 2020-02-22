@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <vector>
+#include <functional>
 
 namespace erm {
 	
@@ -9,7 +10,7 @@ namespace erm {
 	class Tree
 	{
 	public:
-		typedef std::vector<std::unique_ptr<Tree<S, T>>> Children;
+		typedef std::vector<std::unique_ptr<Tree>> Children;
 		
 	public:
 		Tree(S id, T payload)

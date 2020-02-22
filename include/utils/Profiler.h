@@ -5,7 +5,11 @@
 #include "utils/Utils.h"
 
 #define PROFILE(name) erm::Profiler p(name)
+#ifdef WIN32
+#define PROFILE_FUNCTION() PROFILE(Utils::StripFunctionName(__FUNCSIG__))
+#else
 #define PROFILE_FUNCTION() PROFILE(Utils::StripFunctionName(__PRETTY_FUNCTION__))
+#endif
 
 namespace erm {
 	

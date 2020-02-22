@@ -19,7 +19,7 @@ namespace ImGui {
 		const erm::Window& window = game.GetWindow();
 		
 		ImGui::SetNextWindowSize(ImVec2(600, 600), ImGuiCond_FirstUseEver);
-		ImGui::SetNextWindowPos(ImVec2(window.GetWindowWidth() / 2, window.GetWindowHeight() / 2), ImGuiCond_FirstUseEver);
+		ImGui::SetNextWindowPos(ImVec2(static_cast<float>(window.GetWindowWidth() / 2), static_cast<float>(window.GetWindowHeight() / 2)), ImGuiCond_FirstUseEver);
 		
 		if (ImGui::Begin("Shaders", &open, ImGuiWindowFlags_NoCollapse))
 		{

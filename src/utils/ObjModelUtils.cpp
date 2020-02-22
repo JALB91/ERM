@@ -6,9 +6,11 @@
 
 #include "math/math.h"
 
+#include <algorithm>
 #include <fstream>
 #include <string>
 #include <iostream>
+#include <optional>
 
 namespace erm {
 	
@@ -191,7 +193,7 @@ namespace erm {
 
 					for (unsigned int i = 0; i < vIndices.size(); ++i)
 					{
-						indices.emplace_back(vertices.size() + vIndices[i]);
+						indices.emplace_back(static_cast<IndexData>(vertices.size() + vIndices[i]));
 					}
 
 					for (unsigned int i = 0; i < vVertices.size(); ++i)
