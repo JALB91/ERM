@@ -24,6 +24,8 @@ namespace erm {
 		extern std::vector<std::string> SplitString(const std::string& str, char ch);
 		extern std::string GetRelativePath(const char* absolutePath);
 		
+		extern std::string StripFunctionName(const char* fn);
+		
 	}
 	
 }

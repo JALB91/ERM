@@ -62,4 +62,14 @@ namespace erm {
 		
 	}
 	
+	std::string Utils::StripFunctionName(const char* fn)
+	{
+		std::string result = fn;
+		
+		result = result.substr(result.find("erm::") + 5);
+		result = result.substr(0, result.find("("));
+		
+		return result;
+	}
+	
 }

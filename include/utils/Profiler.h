@@ -1,22 +1,41 @@
 #pragma once
 
-#include <tuple>
-#include <unordered_map>
+#include "utils/Timer.h"
+#include "utils/Tree.h"
+#include "utils/Utils.h"
 
-#define PROFILE(x, NAME) \
-	Profiler::Profile(NAME); \
-	x; \
-	Profiler::EndProfiling(NAME);
+#define PROFILE(name) erm::Profiler p(name)
+#define PROFILE_FUNCTION() PROFILE(Utils::StripFunctionName(__PRETTY_FUNCTION__))
 
 namespace erm {
 	
 	class Profiler
 	{
 	public:
-		static void Profile(const char* id);
-		static void EndProfiling(const char* id);
+		struct Profile
+		{
+			Profile(double time = 0.0, bool done = false)
+				: mTime(time)
+				, mDone(done)
+			{}
+			
+			double mTime;
+			bool mDone;
+		};
 		
-		static const std::unordered_map<const char*, std::pair<double, bool>>& GetProfilers();
+		using ProfilingTree = Tree<std::string, Profile>;
+		
+	public:
+		Profiler(const std::string& id);
+		~Profiler();
+		
+		static const ProfilingTree& GetRoot();
+		
+	private:
+		static std::unique_ptr<ProfilingTree> sTree;
+		static ProfilingTree* sCurrentNode;
+		
+		const Timer mTimer;
 		
 	};
 	

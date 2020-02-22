@@ -1,6 +1,7 @@
 #include "window/Window.h"
 
 #include "utils/Utils.h"
+#include "utils/Profiler.h"
 
 #include "window/IWindowListener.h"
 
@@ -172,6 +173,8 @@ namespace erm {
 	
 	void Window::NewFrame()
 	{
+		PROFILE_FUNCTION();
+		
 		mPrevMousePosX = mMousePosX;
 		mPrevMousePosY = mMousePosY;
 		glfwGetCursorPos(mWindow, &mMousePosX, &mMousePosY);
@@ -183,6 +186,8 @@ namespace erm {
 	
 	void Window::Render()
 	{
+		PROFILE_FUNCTION();
+		
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		
@@ -191,11 +196,15 @@ namespace erm {
 	
 	void Window::PostRender()
 	{
+		PROFILE_FUNCTION();
+		
 		glfwPollEvents();
 	}
 	
 	void Window::OnKey(int key, int /*scanCode*/, int action, int /*mods*/)
 	{
+		PROFILE_FUNCTION();
+		
 		if (action != GLFW_RELEASE && (ImGui::IsAnyItemActive() || ImGui::IsAnyWindowHovered() || ImGui::IsAnyWindowFocused()))
 		{
 			return;
@@ -223,6 +232,8 @@ namespace erm {
 	
 	void Window::OnMouseButton(int button, int action, int /*mods*/)
 	{
+		PROFILE_FUNCTION();
+		
 		if (action != GLFW_RELEASE && (ImGui::IsAnyItemActive() || ImGui::IsAnyWindowHovered() || ImGui::IsAnyWindowFocused()))
 		{
 			return;
@@ -257,6 +268,8 @@ namespace erm {
 	
 	void Window::OnSizeChanged(int width, int height)
 	{
+		PROFILE_FUNCTION();
+		
 		mWindowWidth = width;
 		mWindowHeight = height;
 		UpdateViewport();

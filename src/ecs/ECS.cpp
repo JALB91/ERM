@@ -9,6 +9,8 @@
 
 #include "game/Game.h"
 
+#include "utils/Profiler.h"
+
 namespace erm {
 	namespace ecs {
 		
@@ -40,11 +42,15 @@ namespace erm {
 		
 		void ECS::OnUpdate(float dt)
 		{
+			PROFILE_FUNCTION();
+			
 			mCameraSystem->OnUpdate(dt);
 		}
 		
 		void ECS::OnPostUpdate()
 		{
+			PROFILE_FUNCTION();
+			
 			mTransformSystem->OnPostUpdate();
 			mModelSystem->OnPostUpdate();
 			mCameraSystem->OnPostUpdate();
@@ -52,6 +58,8 @@ namespace erm {
 		
 		void ECS::OnRender(const Renderer& renderer)
 		{
+			PROFILE_FUNCTION();
+			
 			mRenderingSystem->OnRender(renderer);
 		}
 		

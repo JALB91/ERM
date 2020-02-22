@@ -23,6 +23,8 @@
 #include "rendering/Model.h"
 #include "rendering/Material.h"
 
+#include "utils/Profiler.h"
+
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <GL/glew.h>
@@ -53,6 +55,8 @@ namespace erm {
 		
 		void RenderingSystem::OnRender(const Renderer& renderer)
 		{
+			PROFILE_FUNCTION();
+			
 			Entity* camera = nullptr;
 			std::vector<ID> lights;
 			
@@ -101,6 +105,8 @@ namespace erm {
 			const math::mat4& viewProjection
 		)
 		{
+			PROFILE_FUNCTION();
+			
 			const int polygonMode = renderer.GetRenderContext().GetPolygonMode();
 			const bool wasCullFaceEnabled = renderer.GetRenderContext().IsCullFaceEnabled();
 
@@ -122,6 +128,8 @@ namespace erm {
 			EntityId id
 		)
 		{
+			PROFILE_FUNCTION();
+			
 			const TransformComponent* transformComponent = mTransformSystem.GetComponent(id);
 			const ModelComponent* modelComponent = mModelSystem.GetComponent(id);
 			const CameraComponent* cameraComponent = camera.GetComponent<CameraComponent>();

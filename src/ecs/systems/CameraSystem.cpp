@@ -11,6 +11,8 @@
 #include "math/vec.h"
 #include "math/quat.h"
 
+#include "utils/Profiler.h"
+
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <imgui.h>
@@ -100,6 +102,8 @@ namespace erm {
 		
 		void CameraSystem::OnUpdate(float /*dt*/)
 		{
+			PROFILE_FUNCTION();
+			
 			for (ID i = 0; i < MAX_ID; ++i)
 			{
 				CameraComponent* camera = GetComponent(i);
@@ -114,6 +118,8 @@ namespace erm {
 		
 		void CameraSystem::OnPostUpdate()
 		{
+			PROFILE_FUNCTION();
+			
 			for (ID i = 0; i < MAX_ID; ++i)
 			{
 				CameraComponent* camera = GetComponent(i);

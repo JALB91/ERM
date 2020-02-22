@@ -1,28 +1,47 @@
 #include "utils/Profiler.h"
-
-#include "game/Game.h"
-
-namespace {
-	
-	std::unordered_map<const char*, std::pair<double, bool>> profiling;
-	
-}
+#include "utils/Utils.h"
 
 namespace erm {
 	
-	void Profiler::Profile(const char* id)
+	std::unique_ptr<Profiler::ProfilingTree> Profiler::sTree = nullptr;
+	Profiler::ProfilingTree* Profiler::sCurrentNode = nullptr;
+	
+	Profiler::Profiler(const std::string& id)
 	{
-		profiling[id] = std::make_pair(Timer::GetCurrentTime(), false);
+		if (!sTree)
+		{
+			sTree = std::make_unique<ProfilingTree>(id, Profile());
+			sCurrentNode = sTree.get();
+			return;
+		}
+		
+		ProfilingTree* node = ProfilingTree::Find(*sCurrentNode, id);
+		if (node)
+		{
+			node->GetPayload().mDone = false;
+		}
+		else
+		{
+			node = &(sCurrentNode->AddChild(id, Profile()));
+		}
+		sCurrentNode = node;
 	}
 	
-	void Profiler::EndProfiling(const char* id)
+	Profiler::~Profiler()
 	{
-		profiling[id] = std::make_pair(Timer::GetCurrentTime() - profiling[id].first, true);
+		const double prevTime = sCurrentNode->GetPayload().mTime;
+		const double time = mTimer.GetElapsedTime();
+		sCurrentNode->GetPayload().mTime = prevTime == 0.0 ? time : (time + prevTime) / 2.0;
+		sCurrentNode->GetPayload().mDone = true;
+		if (ProfilingTree* parent = sCurrentNode->GetParent())
+		{
+			sCurrentNode = parent;
+		}
 	}
 	
-	const std::unordered_map<const char*, std::pair<double, bool>>& Profiler::GetProfilers()
+	const Profiler::ProfilingTree& Profiler::GetRoot()
 	{
-		return profiling;
+		return *sTree;
 	}
 	
 }

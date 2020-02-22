@@ -106,6 +106,8 @@ namespace erm {
 	{
 		while (mWindow && !mWindow->ShouldClose())
 		{
+			PROFILE_FUNCTION();
+			
 			static double elapsedTime = 0.0;
 			static unsigned int frameInSecond = 0;
 			
@@ -123,19 +125,21 @@ namespace erm {
 				frameInSecond = 0;
 			}
 			
-			PROFILE(OnUpdate(static_cast<float>(frameElapsedTime)), "Update");
-			PROFILE(OnPostUpdate(), "PostUpdate");
+			OnUpdate(static_cast<float>(frameElapsedTime));
+			OnPostUpdate();
 			
-			PROFILE(OnPreRender(), "PreRender");
+			OnPreRender();
 			OnImGuiRender();
-			PROFILE(OnRender(), "Render");
+			OnRender();
 			
-			PROFILE(OnPostRender(), "PostRender");
+			OnPostRender();
 		}
 	}
 	
 	void Game::OnUpdate(float dt)
 	{
+		PROFILE_FUNCTION();
+		
 		for (auto child : mECS->GetRoot()->GetChildren())
 		{
 			auto entity = mECS->GetEntityById(child);
@@ -155,19 +159,27 @@ namespace erm {
 	
 	void Game::OnPostUpdate()
 	{
+		PROFILE_FUNCTION();
+		
 		mECS->OnPostUpdate();
 	}
 	
 	void Game::OnPreRender()
-	{}
+	{
+		PROFILE_FUNCTION();
+	}
 	
 	void Game::OnImGuiRender()
 	{
+		PROFILE_FUNCTION();
+		
 		ImGui::ShowGameDebug(*this);
 	}
 	
 	void Game::OnRender()
 	{
+		PROFILE_FUNCTION();
+		
 		mResourcesManager->OnRender();
 		mECS->OnRender(*mRenderer.get());
 		mWindow->Render();
@@ -175,6 +187,8 @@ namespace erm {
 	
 	void Game::OnPostRender()
 	{
+		PROFILE_FUNCTION();
+		
 		mWindow->PostRender();
 		mResourcesManager->OnPostRender();
 	}

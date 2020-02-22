@@ -2,6 +2,8 @@
 
 #include "ecs/Entity.h"
 
+#include "utils/Profiler.h"
+
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace erm {
@@ -28,6 +30,8 @@ namespace erm {
 		
 		void TransformSystem::OnPostUpdate()
 		{
+			PROFILE_FUNCTION();
+			
 			for (ID i = ROOT_ID; i < MAX_ID; ++i)
 			{
 				TransformComponent* transform = GetComponent(i);

@@ -3,6 +3,8 @@
 #include "ecs/ECS.h"
 #include "ecs/systems/TransformSystem.h"
 
+#include "utils/Profiler.h"
+
 #include "rendering/Model.h"
 
 namespace erm {
@@ -15,6 +17,8 @@ namespace erm {
 		
 		void ModelSystem::OnPostUpdate()
 		{
+			PROFILE_FUNCTION();
+			
 			for (ID i = 0; i < MAX_ID; ++i)
 			{
 				ModelComponent* modelComponent = GetComponent(i);
