@@ -56,7 +56,7 @@ namespace erm {
 		Materials& materials
 	)
 	{
-		std::ifstream stream(Utils::GetRelativePath(path));
+		std::ifstream stream(path);
 
 		std::string line;
 		std::string name;
@@ -389,7 +389,7 @@ namespace erm {
 		Materials& materials
 	)
 	{
-		std::ifstream stream (Utils::GetRelativePath(path));
+		std::ifstream stream (path);
 		
 		if (!stream.is_open())
 		{

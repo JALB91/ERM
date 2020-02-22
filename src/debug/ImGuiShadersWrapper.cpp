@@ -14,7 +14,7 @@ namespace ImGui {
 	
 	void ShowShadersDebug(erm::Game& game, bool& open)
 	{
-		static erm::Shaders& shaders = game.GetResourcesManager().GetLoadedShaderPrograms();
+		const std::vector<std::string>& shaders = game.GetFileLocator().GetShaderPrograms();
 		static erm::ShaderProgram* selected = nullptr;
 		const erm::Window& window = game.GetWindow();
 		
@@ -36,11 +36,11 @@ namespace ImGui {
 				
 				for (unsigned int i = 0; i < shaders.size(); ++i)
 				{
-					bool isSelected = selected == shaders[i].get();
-					if (ImGui::Selectable(shaders[i]->GetPath().c_str(), &isSelected))
+					bool isSelected = selected ? selected->GetPath() == shaders[i] : false;
+					if (ImGui::Selectable(shaders[i].c_str(), &isSelected))
 					{
-						hasChanged = selected != shaders[i].get();
-						selected = shaders[i].get();
+						hasChanged = true;
+						selected = game.GetResourcesManager().GetOrCreateShaderProgram(shaders[i].c_str());
 					}
 				}
 				ImGui::EndCombo();

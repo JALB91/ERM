@@ -76,7 +76,7 @@ namespace erm {
 		std::strcat(buffer, shaderProgramPath);
 		std::strcat(buffer, ".vert");
 		
-		std::ifstream stream (Utils::GetRelativePath(buffer));
+		std::ifstream stream (buffer);
 		if (!stream.is_open())
 		{
 			std::cout << "No such file: " << shaderProgramPath << std::endl;
@@ -88,7 +88,7 @@ namespace erm {
 		std::strcat(buffer, shaderProgramPath);
 		std::strcat(buffer, ".frag");
 
-		stream = std::ifstream(Utils::GetRelativePath(buffer));
+		stream = std::ifstream(buffer);
 		if (!stream.is_open())
 		{
 			std::cout << "No such file: " << shaderProgramPath << std::endl;
@@ -132,7 +132,7 @@ namespace erm {
 			return (*it).get();
 		}
 		
-		std::ifstream stream (Utils::GetRelativePath(texturePath));
+		std::ifstream stream (texturePath);
 		
 		if (!stream.is_open())
 		{

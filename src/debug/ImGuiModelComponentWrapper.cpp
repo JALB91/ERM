@@ -16,7 +16,7 @@ namespace ImGui {
 	
 	void ShowPathOptions(erm::Game& game, erm::ecs::ModelComponent& modelComponent)
 	{
-		static erm::Models& all = game.GetResourcesManager().GetLoadedModels();
+		const std::vector<std::string>& all = game.GetFileLocator().GetModels();
 		
 		erm::Model* model = modelComponent.GetModel();
 		std::string currentPath = model ? model->GetPath() : "";
@@ -32,13 +32,13 @@ namespace ImGui {
 			
 			for (unsigned int i = 0; i < all.size(); ++i)
 			{
-				bool isSelected = currentPath == all[i]->GetPath();
-				if (ImGui::Selectable(all[i]->GetPath().c_str(), &isSelected))
+				bool isSelected = currentPath == all[i];
+				if (ImGui::Selectable(all[i].c_str(), &isSelected))
 				{
-					if (currentPath != all[i]->GetPath())
+					if (currentPath != all[i])
 					{
-						currentPath = all[i]->GetPath();
-						modelComponent.SetModel(all[i].get());
+						currentPath = all[i];
+						modelComponent.SetModel(game.GetResourcesManager().GetOrCreateModel(all[i].c_str()));
 					}
 				}
 			}

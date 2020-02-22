@@ -78,7 +78,7 @@ namespace erm {
 		Materials& materials
 	)
 	{
-		std::ifstream stream (Utils::GetRelativePath(path));
+		std::ifstream stream (path);
 		
 		if (!stream.is_open())
 		{

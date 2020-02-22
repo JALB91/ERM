@@ -3,6 +3,7 @@
 #include "window/IWindowListener.h"
 
 #include "utils/Timer.h"
+#include "utils/FileLocator.h"
 
 #include <memory>
 
@@ -42,6 +43,7 @@ namespace erm {
 		inline unsigned int GetFPS() const { return mFPS; }
 		
 		inline const Timer& GetTimer() const { return mTimer; }
+		inline const FileLocator& GetFileLocator() const { return mFileLocator; }
 		inline ResourcesManager& GetResourcesManager() const { return *mResourcesManager; }
 		inline Window& GetWindow() const { return *mWindow; }
 		inline RenderContext& GetRenderContext() const { return *mRenderContext; }
@@ -59,6 +61,8 @@ namespace erm {
 		
 		Timer mTimer;
 		unsigned int mFPS;
+		
+		FileLocator mFileLocator;
 		
 		std::unique_ptr<Window> mWindow;
 		std::unique_ptr<RenderContext> mRenderContext;

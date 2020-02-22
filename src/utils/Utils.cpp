@@ -49,27 +49,16 @@ namespace erm {
 			return res;
 		}
 		
-		std::string GetRelativePath(const char* absolutePath)
+		std::string StripFunctionName(const char* fn)
 		{
-#if defined(WIN32)
-			return std::string("../") + absolutePath;
-#elif defined(__APPLE__)
-			return absolutePath;
-#else
-			return absolutePath;
-#endif
+			std::string result = fn;
+			
+			result = result.substr(result.find("erm::") + 5);
+			result = result.substr(0, result.find("("));
+			
+			return result;
 		}
 		
-	}
-	
-	std::string Utils::StripFunctionName(const char* fn)
-	{
-		std::string result = fn;
-		
-		result = result.substr(result.find("erm::") + 5);
-		result = result.substr(0, result.find("("));
-		
-		return result;
 	}
 	
 }

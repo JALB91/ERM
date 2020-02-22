@@ -15,7 +15,7 @@ namespace ImGui {
 	
 	void ShowPathOptions(erm::Game& game, erm::Material& material)
 	{
-		static erm::Shaders& all = game.GetResourcesManager().GetLoadedShaderPrograms();
+		const std::vector<std::string>& all = game.GetFileLocator().GetShaderPrograms();
 		
 		erm::ShaderProgram* shader = material.mShaderProgram;
 		std::string currentPath = shader ? shader->GetPath() : "";
@@ -31,13 +31,13 @@ namespace ImGui {
 			
 			for (unsigned int i = 0; i < all.size(); ++i)
 			{
-				bool isSelected = currentPath == all[i]->GetPath();
-				if (ImGui::Selectable(all[i]->GetPath().c_str(), &isSelected))
+				bool isSelected = currentPath == all[i];
+				if (ImGui::Selectable(all[i].c_str(), &isSelected))
 				{
-					if (currentPath != all[i]->GetPath())
+					if (currentPath != all[i])
 					{
-						currentPath = all[i]->GetPath();
-						material.mShaderProgram = all[i].get();
+						currentPath = all[i];
+						material.mShaderProgram = game.GetResourcesManager().GetOrCreateShaderProgram(all[i].c_str());
 					}
 				}
 			}
