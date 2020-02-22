@@ -7,6 +7,13 @@
 
 namespace ImGui {
 	
+	void ShowEntityPopup(
+		erm::ecs::ECS& ecs,
+		erm::ecs::EntityId entity,
+		bool& shouldAdd,
+		bool& shouldRemove
+	);
+	
 	erm::ecs::EntityId ShowEntityDebugWindow(
 		erm::ecs::ECS& ecs,
 		erm::ecs::EntityId active,
@@ -26,8 +33,7 @@ namespace ImGui {
 		}
 		
 		ImGui::PushID(entity());
-		bool isOpen = ImGui::TreeNodeEx(ecs.GetEntityById(entity())->GetName().c_str(), flags);
-		ImGui::PopID();
+		const bool isOpen = ImGui::TreeNodeEx(ecs.GetEntityById(entity())->GetName().c_str(), flags);
 		
 		if (ImGui::IsItemClicked(0))
 		{
@@ -39,13 +45,51 @@ namespace ImGui {
 			ImGui::OpenPopup("Entity");
 		}
 		
-		bool shouldRemove = false;
+		ImGui::SameLine(ImGui::GetWindowSize().x - 50.0f);
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 1.0f, 0.0f, 0.25f));
+		bool shouldAdd = ImGui::Button("+");
+		ImGui::PopStyleColor();
+		ImGui::SameLine();
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 0.0f, 0.0f, 0.25f));
+		bool shouldRemove = ImGui::Button("-");
+		ImGui::PopStyleColor();
+		ImGui::PopID();
 		
+		ShowEntityPopup(ecs, entity, shouldAdd, shouldRemove);
+		
+		if (isOpen)
+		{
+			const std::vector<erm::ecs::EntityId>& children (ecs.GetEntityById(entity)->GetChildren());
+			std::for_each(children.begin(), children.end(), [&ecs, &active](erm::ecs::EntityId child) {
+				active = ImGui::ShowEntityDebugWindow(ecs, active, child);
+			});
+			ImGui::TreePop();
+		}
+		
+		if (shouldAdd)
+		{
+			ecs.GetEntityById(entity)->AddChild(*ecs.GetOrCreateEntity());
+		}
+		else if (shouldRemove)
+		{
+			ecs.RemoveEntity(entity);
+		}
+		
+		return active;
+	}
+	
+	void ShowEntityPopup(
+		erm::ecs::ECS& ecs,
+		erm::ecs::EntityId entity,
+		bool& shouldAdd,
+		bool& shouldRemove
+	)
+	{
 		if (ImGui::BeginPopup("Entity"))
 		{
 			if (ImGui::Button("Add..."))
 			{
-				ecs.GetEntityById(active)->AddChild(*ecs.GetOrCreateEntity());
+				shouldAdd = true;
 				ImGui::CloseCurrentPopup();
 			}
 			
@@ -90,22 +134,6 @@ namespace ImGui {
 			
 			ImGui::EndPopup();
 		}
-		
-		if (isOpen)
-		{
-			const std::vector<erm::ecs::EntityId>& children (ecs.GetEntityById(entity)->GetChildren());
-			std::for_each(children.begin(), children.end(), [&ecs, &active](erm::ecs::EntityId child) {
-				active = ImGui::ShowEntityDebugWindow(ecs, active, child);
-			});
-			ImGui::TreePop();
-		}
-		
-		if (shouldRemove)
-		{
-			ecs.RemoveEntity(entity);
-		}
-		
-		return active;
 	}
 	
 }
