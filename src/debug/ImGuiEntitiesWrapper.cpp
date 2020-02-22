@@ -22,7 +22,9 @@ namespace ImGui {
 		
 		static erm::ecs::EntityId active;
 		
-		if (ImGui::Begin("Scene", nullptr, ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_HorizontalScrollbar))
+		const int flags = ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoNavInputs;
+		
+		if (ImGui::Begin("Scene", nullptr, flags))
 		{
 			active = ImGui::ShowEntityDebugWindow(game.GetECS(), active, erm::ecs::EntityId(erm::ecs::ROOT_ID));
 		}
@@ -30,7 +32,7 @@ namespace ImGui {
 		ImGui::SetWindowPos(ImVec2(0.0f, ImGui::GetFrameHeight()));
 		ImGui::End();
 		
-		if (ImGui::Begin("Entity", nullptr, ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_HorizontalScrollbar) && active.IsValid())
+		if (ImGui::Begin("Entity", nullptr, flags) && active.IsValid())
 		{
 			ImGui::PushID(active());
 			ImGui::Separator();

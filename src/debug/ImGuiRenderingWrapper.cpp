@@ -67,7 +67,9 @@ namespace ImGui {
 		const erm::Window& window = game.GetWindow();
 		erm::RenderContext& renderContext = game.GetRenderContext();
 		
-		if (ImGui::Begin("Game Debug", nullptr, ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse))
+		const int flags = ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoNavInputs;
+		
+		if (ImGui::Begin("Game Debug", nullptr, flags))
 		{
 			bool isDepthEnabled = renderContext.IsDepthEnabled();
 			int depthFunction = renderContext.GetDepthFunction();
