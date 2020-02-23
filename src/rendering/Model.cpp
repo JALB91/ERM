@@ -32,7 +32,7 @@ namespace erm {
 			{
 				for (unsigned int i = 0; i < mesh.GetVerticesDataCount(); ++i)
 				{
-					const Vertex& vertex = verticesData[i].mVertex;
+					const PositionVertex& vertex = verticesData[i].mPositionVertex;
 					mLocalBounds = mLocalBounds.Expand(vertex);
 				}
 			}

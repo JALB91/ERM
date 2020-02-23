@@ -81,18 +81,18 @@ namespace erm {
 		}
 		
 		mVB = std::make_unique<VertexBuffer>(
-			&mVerticesData[0].mVertex[0],
-			sizeof(VertexType) * kVectorsLenght * mVerticesDataCount +
-			sizeof(VertexType) * kUVVectorsLenght * mVerticesDataCount +
-			sizeof(VertexType) * kNormalVectorsLenght * mVerticesDataCount
+			&mVerticesData[0].mPositionVertex[0],
+			sizeof(VertexType) * kPositionVectorsLenght * mVerticesDataCount +
+			sizeof(VertexType) * kNormalVectorsLenght * mVerticesDataCount +
+			sizeof(VertexType) * kUVVectorsLenght * mVerticesDataCount
 		);
 		
 		mIB = std::make_unique<IndexBuffer>(mIndicesData, mIndicesDataCount);
 		
 		VertexBufferLayout vbl;
-		vbl.Push<VertexType>(kVectorsLenght);
-		vbl.Push<VertexType>(kUVVectorsLenght);
+		vbl.Push<VertexType>(kPositionVectorsLenght);
 		vbl.Push<VertexType>(kNormalVectorsLenght);
+		vbl.Push<VertexType>(kUVVectorsLenght);
 		
 		mVA = std::make_unique<VertexArray>();
 		mVA->AddBuffer(*mVB, vbl);

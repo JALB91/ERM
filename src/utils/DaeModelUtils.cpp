@@ -18,9 +18,9 @@ namespace erm {
 	
 	void ReadSources(
 		XMLElement* mesh,
-		std::vector<Vertex>& pVertices,
-		std::vector<UVVertex>& uvVertices,
-		std::vector<NormalVertex>& nVertices
+		std::vector<PositionVertex>& pVertices,
+		std::vector<NormalVertex>& nVertices,
+		std::vector<UVVertex>& uvVertices
 	);
 	
 	void ParseDaeModel(
@@ -76,11 +76,11 @@ namespace erm {
 					continue;
 				}
 				
-				std::vector<Vertex> pVertices;
-				std::vector<UVVertex> uvVertices;
+				std::vector<PositionVertex> pVertices;
 				std::vector<NormalVertex> nVertices;
+				std::vector<UVVertex> uvVertices;
 				
-				ReadSources(mesh, pVertices, uvVertices, nVertices);
+				ReadSources(mesh, pVertices, nVertices, uvVertices);
 				
 				int primCount;
 				primitive->QueryIntAttribute("count", &primCount);
@@ -103,7 +103,7 @@ namespace erm {
 					indicesData[index] = index;
 					
 					const unsigned short pIndex = std::atoi(values[i].c_str());
-					vertexData.mVertex = pVertices[pIndex];
+					vertexData.mPositionVertex = pVertices[pIndex];
 					
 					if (!nVertices.empty())
 					{
@@ -133,9 +133,9 @@ namespace erm {
 
 	void ReadSources(
 		XMLElement* mesh,
-		std::vector<Vertex>& pVertices,
-		std::vector<UVVertex>& uvVertices,
-		std::vector<NormalVertex>& nVertices
+		std::vector<PositionVertex>& pVertices,
+		std::vector<NormalVertex>& nVertices,
+		std::vector<UVVertex>& uvVertices
 	)
 	{
 		std::string pSourceStr = mesh->FirstChildElement("vertices")->FirstChildElement("input")->Attribute("source");
@@ -181,34 +181,6 @@ namespace erm {
 			else if (secondInputSemantic == "NORMAL") nInput = secondInput;
 		}
 		
-		
-		if (uvInput)
-		{
-			std::string uvSourceStr = uvInput->Attribute("source");
-			uvSourceStr = uvSourceStr.erase(0, 1);
-			XMLElement* uvSource = mesh->FirstChildElement("source");
-			while (uvSource)
-			{
-				if (uvSource->Attribute("id") == uvSourceStr) break;
-				uvSource = uvSource->NextSiblingElement("source");
-			}
-			if (uvSource)
-			{
-				std::string uvSourceVecStr = uvSource->FirstChildElement("float_array")->GetText();
-				std::vector<std::string> uvSourceVec (Utils::SplitString(uvSourceVecStr, ' '));
-				
-				ASSERT(uvSourceVec.size() % 2 == 0);
-				
-				for (unsigned int i = 0; i < static_cast<unsigned int>(uvSourceVec.size()); i += 2)
-				{
-					uvVertices.emplace_back(
-						atof(uvSourceVec[i].c_str()),
-						atof(uvSourceVec[i+1].c_str())
-					);
-				}
-			}
-		}
-		
 		if (nInput)
 		{
 			std::string nSourceStr = nInput->Attribute("source");
@@ -232,6 +204,34 @@ namespace erm {
 						atof(nSourceVec[i].c_str()),
 						atof(nSourceVec[i+1].c_str()),
 						atof(nSourceVec[i+2].c_str())
+					);
+				}
+			}
+		}
+		
+		
+		if (uvInput)
+		{
+			std::string uvSourceStr = uvInput->Attribute("source");
+			uvSourceStr = uvSourceStr.erase(0, 1);
+			XMLElement* uvSource = mesh->FirstChildElement("source");
+			while (uvSource)
+			{
+				if (uvSource->Attribute("id") == uvSourceStr) break;
+				uvSource = uvSource->NextSiblingElement("source");
+			}
+			if (uvSource)
+			{
+				std::string uvSourceVecStr = uvSource->FirstChildElement("float_array")->GetText();
+				std::vector<std::string> uvSourceVec (Utils::SplitString(uvSourceVecStr, ' '));
+				
+				ASSERT(uvSourceVec.size() % 2 == 0);
+				
+				for (unsigned int i = 0; i < static_cast<unsigned int>(uvSourceVec.size()); i += 2)
+				{
+					uvVertices.emplace_back(
+						atof(uvSourceVec[i].c_str()),
+						atof(uvSourceVec[i+1].c_str())
 					);
 				}
 			}

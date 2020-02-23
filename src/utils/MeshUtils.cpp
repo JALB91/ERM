@@ -12,15 +12,12 @@ namespace erm {
 	) {
 		const unsigned int verticesCount = 3;
 		VertexData* vertices = new VertexData[verticesCount];
-		vertices[0].mVertex = a;
-		vertices[0].mUVVertex = UVVertex(0.0f, 0.0f);
-		vertices[0].mNormalVertex = NormalVertex(0.0f);
-		vertices[1].mVertex = b;
-		vertices[1].mUVVertex = UVVertex(0.0f, 1.0f);
-		vertices[1].mNormalVertex = NormalVertex(0.0f);
-		vertices[2].mVertex = c;
-		vertices[2].mUVVertex = UVVertex(1.0f, 0.0f);
-		vertices[2].mNormalVertex = NormalVertex(0.0f);
+		vertices[0].mPositionVertex = a;
+		vertices[0].mNormalVertex = NormalVertex(0.0f, 0.0f, -1.0f);
+		vertices[1].mPositionVertex = b;
+		vertices[1].mNormalVertex = NormalVertex(0.0f, 0.0f, -1.0f);
+		vertices[2].mPositionVertex = c;
+		vertices[2].mNormalVertex = NormalVertex(0.0f, 0.0f, -1.0f);
 		
 		const unsigned int indicesCount = 3;
 		IndexData* indices = new IndexData[indicesCount];
@@ -42,17 +39,13 @@ namespace erm {
 		
 		const unsigned int verticesCount = 4;
 		VertexData* vertices = new VertexData[verticesCount];
-		vertices[0].mVertex = Vertex(-halfWidth, -halfHeight, 0.0f);
-		vertices[0].mUVVertex = UVVertex(0.0f, 0.0f);
+		vertices[0].mPositionVertex = PositionVertex(-halfWidth, -halfHeight, 0.0f);
 		vertices[0].mNormalVertex = NormalVertex(0.0f, 0.0f, -1.0f);
-		vertices[1].mVertex = Vertex(halfWidth, -halfHeight, 0.0f);
-		vertices[1].mUVVertex = UVVertex(1.0f, 0.0f);
+		vertices[1].mPositionVertex = PositionVertex(halfWidth, -halfHeight, 0.0f);
 		vertices[1].mNormalVertex = NormalVertex(0.0f, 0.0f, -1.0f);
-		vertices[2].mVertex = Vertex(-halfWidth, halfHeight, 0.0f);
-		vertices[2].mUVVertex = UVVertex(0.0f, 1.0f);
+		vertices[2].mPositionVertex = PositionVertex(-halfWidth, halfHeight, 0.0f);
 		vertices[2].mNormalVertex = NormalVertex(0.0f, 0.0f, -1.0f);
-		vertices[3].mVertex = Vertex(halfWidth, halfHeight, 0.0f);
-		vertices[3].mUVVertex = UVVertex(1.0f, 1.0f);
+		vertices[3].mPositionVertex = PositionVertex(halfWidth, halfHeight, 0.0f);
 		vertices[3].mNormalVertex = NormalVertex(0.0f, 0.0f, -1.0f);
 		
 		const unsigned int indicesCount = 6;
@@ -84,88 +77,88 @@ namespace erm {
 		int vertIndex = 0;
 		
 		// Front
-		vertices[vertIndex].mVertex = Vertex(-halfX, -halfY, -halfZ);
-		vertices[vertIndex].mUVVertex = UVVertex(0.0f, 0.0f);
-		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f, 0.0f, -1.0f);
-		vertices[vertIndex].mVertex = Vertex(halfX, -halfY, -halfZ);
-		vertices[vertIndex].mUVVertex = UVVertex(1.0f, 0.0f);
-		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f, 0.0f, -1.0f);
-		vertices[vertIndex].mVertex = Vertex(-halfX, halfY, -halfZ);
-		vertices[vertIndex].mUVVertex = UVVertex(0.0f, 1.0f);
-		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f, 0.0f, -1.0f);
-		vertices[vertIndex].mVertex = Vertex(halfX, halfY, -halfZ);
-		vertices[vertIndex].mUVVertex = UVVertex(1.0f, 1.0f);
-		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f, 0.0f, -1.0f);
+		vertices[vertIndex].mPositionVertex = PositionVertex(-halfX, -halfY, -halfZ);
+		vertices[vertIndex].mNormalVertex = NormalVertex(0.0f, 0.0f, -1.0f);
+		vertices[vertIndex++].mUVVertex = UVVertex(0.0f, 0.0f);
+		vertices[vertIndex].mPositionVertex = PositionVertex(halfX, -halfY, -halfZ);
+		vertices[vertIndex].mNormalVertex = NormalVertex(0.0f, 0.0f, -1.0f);
+		vertices[vertIndex++].mUVVertex = UVVertex(1.0f, 0.0f);
+		vertices[vertIndex].mPositionVertex = PositionVertex(-halfX, halfY, -halfZ);
+		vertices[vertIndex].mNormalVertex = NormalVertex(0.0f, 0.0f, -1.0f);
+		vertices[vertIndex++].mUVVertex = UVVertex(0.0f, 1.0f);
+		vertices[vertIndex].mPositionVertex = PositionVertex(halfX, halfY, -halfZ);
+		vertices[vertIndex].mNormalVertex = NormalVertex(0.0f, 0.0f, -1.0f);
+		vertices[vertIndex++].mUVVertex = UVVertex(1.0f, 1.0f);
 		
 		// Back
-		vertices[vertIndex].mVertex = Vertex(halfX, -halfY, halfZ);
-		vertices[vertIndex].mUVVertex = UVVertex(0.0f, 0.0f);
-		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f, 0.0f, 1.0f);
-		vertices[vertIndex].mVertex = Vertex(-halfX, -halfY, halfZ);
-		vertices[vertIndex].mUVVertex = UVVertex(1.0f, 0.0f);
-		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f, 0.0f, 1.0f);
-		vertices[vertIndex].mVertex = Vertex(halfX, halfY, halfZ);
-		vertices[vertIndex].mUVVertex = UVVertex(0.0f, 1.0f);
-		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f, 0.0f, 1.0f);
-		vertices[vertIndex].mVertex = Vertex(-halfX, halfY, halfZ);
-		vertices[vertIndex].mUVVertex = UVVertex(1.0f, 1.0f);
-		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f, 0.0f, 1.0f);
+		vertices[vertIndex].mPositionVertex = PositionVertex(halfX, -halfY, halfZ);
+		vertices[vertIndex].mNormalVertex = NormalVertex(0.0f, 0.0f, 1.0f);
+		vertices[vertIndex++].mUVVertex = UVVertex(0.0f, 0.0f);
+		vertices[vertIndex].mPositionVertex = PositionVertex(-halfX, -halfY, halfZ);
+		vertices[vertIndex].mNormalVertex = NormalVertex(0.0f, 0.0f, 1.0f);
+		vertices[vertIndex++].mUVVertex = UVVertex(1.0f, 0.0f);
+		vertices[vertIndex].mPositionVertex = PositionVertex(halfX, halfY, halfZ);
+		vertices[vertIndex].mNormalVertex = NormalVertex(0.0f, 0.0f, 1.0f);
+		vertices[vertIndex++].mUVVertex = UVVertex(0.0f, 1.0f);
+		vertices[vertIndex].mPositionVertex = PositionVertex(-halfX, halfY, halfZ);
+		vertices[vertIndex].mNormalVertex = NormalVertex(0.0f, 0.0f, 1.0f);
+		vertices[vertIndex++].mUVVertex = UVVertex(1.0f, 1.0f);
 		
 		// Top
-		vertices[vertIndex].mVertex = Vertex(-halfX, halfY, -halfZ);
-		vertices[vertIndex].mUVVertex = UVVertex(0.0f, 0.0f);
-		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f, 1.0f, 0.0f);
-		vertices[vertIndex].mVertex = Vertex(halfX, halfY, -halfZ);
-		vertices[vertIndex].mUVVertex = UVVertex(1.0f, 0.0f);
-		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f, 1.0f, 0.0f);
-		vertices[vertIndex].mVertex = Vertex(-halfX, halfY, halfZ);
-		vertices[vertIndex].mUVVertex = UVVertex(0.0f, 1.0f);
-		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f, 1.0f, 0.0f);
-		vertices[vertIndex].mVertex = Vertex(halfX, halfY, halfZ);
-		vertices[vertIndex].mUVVertex = UVVertex(1.0f, 1.0f);
-		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f, 1.0f, 0.0f);
+		vertices[vertIndex].mPositionVertex = PositionVertex(-halfX, halfY, -halfZ);
+		vertices[vertIndex].mNormalVertex = NormalVertex(0.0f, 1.0f, 0.0f);
+		vertices[vertIndex++].mUVVertex = UVVertex(0.0f, 0.0f);
+		vertices[vertIndex].mPositionVertex = PositionVertex(halfX, halfY, -halfZ);
+		vertices[vertIndex].mNormalVertex = NormalVertex(0.0f, 1.0f, 0.0f);
+		vertices[vertIndex++].mUVVertex = UVVertex(1.0f, 0.0f);
+		vertices[vertIndex].mPositionVertex = PositionVertex(-halfX, halfY, halfZ);
+		vertices[vertIndex].mNormalVertex = NormalVertex(0.0f, 1.0f, 0.0f);
+		vertices[vertIndex++].mUVVertex = UVVertex(0.0f, 1.0f);
+		vertices[vertIndex].mPositionVertex = PositionVertex(halfX, halfY, halfZ);
+		vertices[vertIndex].mNormalVertex = NormalVertex(0.0f, 1.0f, 0.0f);
+		vertices[vertIndex++].mUVVertex = UVVertex(1.0f, 1.0f);
 		
 		// Bottom
-		vertices[vertIndex].mVertex = Vertex(-halfX, -halfY, halfZ);
-		vertices[vertIndex].mUVVertex = UVVertex(0.0f, 0.0f);
-		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f, -1.0f, 0.0f);
-		vertices[vertIndex].mVertex = Vertex(halfX, -halfY, halfZ);
-		vertices[vertIndex].mUVVertex = UVVertex(1.0f, 0.0f);
-		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f, -1.0f, 0.0f);
-		vertices[vertIndex].mVertex = Vertex(-halfX, -halfY, -halfZ);
-		vertices[vertIndex].mUVVertex = UVVertex(0.0f, 1.0f);
-		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f, -1.0f, 0.0f);
-		vertices[vertIndex].mVertex = Vertex(halfX, -halfY, -halfZ);
-		vertices[vertIndex].mUVVertex = UVVertex(1.0f, 1.0f);
-		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f, -1.0f, 0.0f);
+		vertices[vertIndex].mPositionVertex = PositionVertex(-halfX, -halfY, halfZ);
+		vertices[vertIndex].mNormalVertex = NormalVertex(0.0f, -1.0f, 0.0f);
+		vertices[vertIndex++].mUVVertex = UVVertex(0.0f, 0.0f);
+		vertices[vertIndex].mPositionVertex = PositionVertex(halfX, -halfY, halfZ);
+		vertices[vertIndex].mNormalVertex = NormalVertex(0.0f, -1.0f, 0.0f);
+		vertices[vertIndex++].mUVVertex = UVVertex(1.0f, 0.0f);
+		vertices[vertIndex].mPositionVertex = PositionVertex(-halfX, -halfY, -halfZ);
+		vertices[vertIndex].mNormalVertex = NormalVertex(0.0f, -1.0f, 0.0f);
+		vertices[vertIndex++].mUVVertex = UVVertex(0.0f, 1.0f);
+		vertices[vertIndex].mPositionVertex = PositionVertex(halfX, -halfY, -halfZ);
+		vertices[vertIndex].mNormalVertex = NormalVertex(0.0f, -1.0f, 0.0f);
+		vertices[vertIndex++].mUVVertex = UVVertex(1.0f, 1.0f);
 		
 		// Right
-		vertices[vertIndex].mVertex = Vertex(halfX, -halfY, -halfZ);
-		vertices[vertIndex].mUVVertex = UVVertex(0.0f, 0.0f);
-		vertices[vertIndex++].mNormalVertex = NormalVertex(1.0f, 0.0f, 0.0);
-		vertices[vertIndex].mVertex = Vertex(halfX, -halfY, halfZ);
-		vertices[vertIndex].mUVVertex = UVVertex(1.0f, 0.0f);
-		vertices[vertIndex++].mNormalVertex = NormalVertex(1.0f, 0.0f, 0.0);
-		vertices[vertIndex].mVertex = Vertex(halfX, halfY, -halfZ);
-		vertices[vertIndex].mUVVertex = UVVertex(0.0f, 1.0f);
-		vertices[vertIndex++].mNormalVertex = NormalVertex(1.0f, 0.0f, 0.0);
-		vertices[vertIndex].mVertex = Vertex(halfX, halfY, halfZ);
-		vertices[vertIndex].mUVVertex = UVVertex(1.0f, 1.0f);
-		vertices[vertIndex++].mNormalVertex = NormalVertex(1.0f, 0.0f, 0.0);
+		vertices[vertIndex].mPositionVertex = PositionVertex(halfX, -halfY, -halfZ);
+		vertices[vertIndex].mNormalVertex = NormalVertex(1.0f, 0.0f, 0.0);
+		vertices[vertIndex++].mUVVertex = UVVertex(0.0f, 0.0f);
+		vertices[vertIndex].mPositionVertex = PositionVertex(halfX, -halfY, halfZ);
+		vertices[vertIndex].mNormalVertex = NormalVertex(1.0f, 0.0f, 0.0);
+		vertices[vertIndex++].mUVVertex = UVVertex(1.0f, 0.0f);
+		vertices[vertIndex].mPositionVertex = PositionVertex(halfX, halfY, -halfZ);
+		vertices[vertIndex].mNormalVertex = NormalVertex(1.0f, 0.0f, 0.0);
+		vertices[vertIndex++].mUVVertex = UVVertex(0.0f, 1.0f);
+		vertices[vertIndex].mPositionVertex = PositionVertex(halfX, halfY, halfZ);
+		vertices[vertIndex].mNormalVertex = NormalVertex(1.0f, 0.0f, 0.0);
+		vertices[vertIndex++].mUVVertex = UVVertex(1.0f, 1.0f);
 		
 		// Left
-		vertices[vertIndex].mVertex = Vertex(-halfX, -halfY, halfZ);
-		vertices[vertIndex].mUVVertex = UVVertex(0.0f, 0.0f);
-		vertices[vertIndex++].mNormalVertex = NormalVertex(-1.0f, 0.0f, 0.0);
-		vertices[vertIndex].mVertex = Vertex(-halfX, -halfY, -halfZ);
-		vertices[vertIndex].mUVVertex = UVVertex(1.0f, 0.0f);
-		vertices[vertIndex++].mNormalVertex = NormalVertex(-1.0f, 0.0f, 0.0);
-		vertices[vertIndex].mVertex = Vertex(-halfX, halfY, halfZ);
-		vertices[vertIndex].mUVVertex = UVVertex(0.0f, 1.0f);
-		vertices[vertIndex++].mNormalVertex = NormalVertex(-1.0f, 0.0f, 0.0);
-		vertices[vertIndex].mVertex = Vertex(-halfX, halfY, -halfZ);
-		vertices[vertIndex].mUVVertex = UVVertex(1.0f, 1.0f);
-		vertices[vertIndex++].mNormalVertex = NormalVertex(-1.0f, 0.0f, 0.0);
+		vertices[vertIndex].mPositionVertex = PositionVertex(-halfX, -halfY, halfZ);
+		vertices[vertIndex].mNormalVertex = NormalVertex(-1.0f, 0.0f, 0.0);
+		vertices[vertIndex++].mUVVertex = UVVertex(0.0f, 0.0f);
+		vertices[vertIndex].mPositionVertex = PositionVertex(-halfX, -halfY, -halfZ);
+		vertices[vertIndex].mNormalVertex = NormalVertex(-1.0f, 0.0f, 0.0);
+		vertices[vertIndex++].mUVVertex = UVVertex(1.0f, 0.0f);
+		vertices[vertIndex].mPositionVertex = PositionVertex(-halfX, halfY, halfZ);
+		vertices[vertIndex].mNormalVertex = NormalVertex(-1.0f, 0.0f, 0.0);
+		vertices[vertIndex++].mUVVertex = UVVertex(0.0f, 1.0f);
+		vertices[vertIndex].mPositionVertex = PositionVertex(-halfX, halfY, -halfZ);
+		vertices[vertIndex].mNormalVertex = NormalVertex(-1.0f, 0.0f, 0.0);
+		vertices[vertIndex++].mUVVertex = UVVertex(1.0f, 1.0f);
 		
 		// Indices
 		const unsigned int indicesCount = 36;
@@ -202,61 +195,45 @@ namespace erm {
 		int vertIndex = 0;
 		
 		// Bottom
-		vertices[vertIndex].mVertex = Vertex(-halfX, -halfY, halfZ);
-		vertices[vertIndex].mUVVertex = UVVertex(0.0f, 0.0f);
+		vertices[vertIndex].mPositionVertex = PositionVertex(-halfX, -halfY, halfZ);
 		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f);
-		vertices[vertIndex].mVertex = Vertex(halfX, -halfY, halfZ);
-		vertices[vertIndex].mUVVertex = UVVertex(1.0f, 0.0f);
+		vertices[vertIndex].mPositionVertex = PositionVertex(halfX, -halfY, halfZ);
 		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f);
-		vertices[vertIndex].mVertex = Vertex(-halfX, -halfY, -halfZ);
-		vertices[vertIndex].mUVVertex = UVVertex(0.0f, 1.0f);
+		vertices[vertIndex].mPositionVertex = PositionVertex(-halfX, -halfY, -halfZ);
 		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f);
-		vertices[vertIndex].mVertex = Vertex(halfX, -halfY, -halfZ);
-		vertices[vertIndex].mUVVertex = UVVertex(1.0f, 1.0f);
+		vertices[vertIndex].mPositionVertex = PositionVertex(halfX, -halfY, -halfZ);
 		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f);
 		
 		// Front
-		vertices[vertIndex].mVertex = Vertex(-halfX, -halfY, -halfZ);
-		vertices[vertIndex].mUVVertex = UVVertex(0.0f, 0.0f);
+		vertices[vertIndex].mPositionVertex = PositionVertex(-halfX, -halfY, -halfZ);
 		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f);
-		vertices[vertIndex].mVertex = Vertex(halfX, -halfY, -halfZ);
-		vertices[vertIndex].mUVVertex = UVVertex(0.5f, 0.0f);
+		vertices[vertIndex].mPositionVertex = PositionVertex(halfX, -halfY, -halfZ);
 		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f);
-		vertices[vertIndex].mVertex = Vertex(0.0f, halfY, 0.0f);
-		vertices[vertIndex].mUVVertex = UVVertex(0.0f, 1.0f);
+		vertices[vertIndex].mPositionVertex = PositionVertex(0.0f, halfY, 0.0f);
 		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f);
 		
 		// Right
-		vertices[vertIndex].mVertex = Vertex(halfX, -halfY, -halfZ);
-		vertices[vertIndex].mUVVertex = UVVertex(0.0f, 0.0f);
+		vertices[vertIndex].mPositionVertex = PositionVertex(halfX, -halfY, -halfZ);
 		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f);
-		vertices[vertIndex].mVertex = Vertex(halfX, -halfY, halfZ);
-		vertices[vertIndex].mUVVertex = UVVertex(1.0f, 0.0f);
+		vertices[vertIndex].mPositionVertex = PositionVertex(halfX, -halfY, halfZ);
 		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f);
-		vertices[vertIndex].mVertex = Vertex(0.0f, halfY, 0.0f);
-		vertices[vertIndex].mUVVertex = UVVertex(1.0f, 1.0f);
+		vertices[vertIndex].mPositionVertex = PositionVertex(0.0f, halfY, 0.0f);
 		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f);
 		
 		// Back
-		vertices[vertIndex].mVertex = Vertex(halfX, -halfY, halfZ);
-		vertices[vertIndex].mUVVertex = UVVertex(0.0f, 0.0f);
+		vertices[vertIndex].mPositionVertex = PositionVertex(halfX, -halfY, halfZ);
 		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f);
-		vertices[vertIndex].mVertex = Vertex(-halfX, -halfY, halfZ);
-		vertices[vertIndex].mUVVertex = UVVertex(1.0f, 0.0f);
+		vertices[vertIndex].mPositionVertex = PositionVertex(-halfX, -halfY, halfZ);
 		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f);
-		vertices[vertIndex].mVertex = Vertex(0.0f, halfY, 0.0f);
-		vertices[vertIndex].mUVVertex = UVVertex(0.0f, 1.0f);
+		vertices[vertIndex].mPositionVertex = PositionVertex(0.0f, halfY, 0.0f);
 		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f);
 		
 		// Left
-		vertices[vertIndex].mVertex = Vertex(-halfX, -halfY, halfZ);
-		vertices[vertIndex].mUVVertex = UVVertex(0.0f, 0.0f);
+		vertices[vertIndex].mPositionVertex = PositionVertex(-halfX, -halfY, halfZ);
 		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f);
-		vertices[vertIndex].mVertex = Vertex(-halfX, -halfY, -halfZ);
-		vertices[vertIndex].mUVVertex = UVVertex(1.0f, 0.0f);
+		vertices[vertIndex].mPositionVertex = PositionVertex(-halfX, -halfY, -halfZ);
 		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f);
-		vertices[vertIndex].mVertex = Vertex(0.0f, halfY, 0.0f);
-		vertices[vertIndex].mUVVertex = UVVertex(1.0f, 1.0f);
+		vertices[vertIndex].mPositionVertex = PositionVertex(0.0f, halfY, 0.0f);
 		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f);
 		
 		// Indices
@@ -298,35 +275,27 @@ namespace erm {
 		const unsigned int indicesCount = sectors * rings * 6 - sectors * 6;
 		IndexData* indices = new IndexData[indicesCount];
 		
-		float x, y, z, xy;
-		float s, t;
-		
-		float sectorStep = static_cast<float>(2.0f * M_PI / sectors);
-		float stackStep = static_cast<float>(M_PI / rings);
-		float sectorAngle, stackAngle;
+		const float sectorStep = static_cast<float>(2.0f * M_PI / sectors);
+		const float stackStep = static_cast<float>(M_PI / rings);
+		float stackAngle;
 		int index = 0;
 		
 		for (int i = 0; i <= rings; ++i)
 		{
 			stackAngle = static_cast<float>(M_PI / 2.0f - i * stackStep);
-			xy = radius * cosf(stackAngle);
-			z = radius * sinf(stackAngle);
+			const float xy = radius * cosf(stackAngle);
+			const float z = radius * sinf(stackAngle);
 			
 			for (int j = 0; j <= sectors; ++j)
 			{
-				sectorAngle = j * sectorStep;
-				
-				x = xy * cosf(sectorAngle);
-				y = xy * sinf(sectorAngle);
-				vertices[index].mVertex = Vertex(x, y, z);
-				
-				s = (float)j / sectors;
-				t = (float)i / rings;
-				vertices[index].mUVVertex = UVVertex(s, t);
-				
+				const float sectorAngle = j * sectorStep;
+				const float x = xy * cosf(sectorAngle);
+				const float y = xy * sinf(sectorAngle);
+				vertices[index].mPositionVertex = PositionVertex(x, y, z);
 				vertices[index].mNormalVertex = NormalVertex(0.0f);
+				vertices[index].mUVVertex = UVVertex(static_cast<float>(j / sectors), static_cast<float>(i / rings));
 				
-				index++;
+				++index;
 			}
 		}
 		
@@ -378,32 +347,28 @@ namespace erm {
 		
 		for (int i = 0; i < sizeX + 1; ++i)
 		{
-			vertices[index].mVertex = Vertex(- halfSizeX * width, 0.0f, height * (i - halfSizeY));
-			vertices[index].mUVVertex = UVVertex(0.0f, 0.0f);
+			vertices[index].mPositionVertex = PositionVertex(- halfSizeX * width, 0.0f, height * (i - halfSizeY));
 			vertices[index].mNormalVertex = NormalVertex(0.0f, 0.0f, 0.0f);
 			++index;
 		}
 		
 		for (int i = 0; i < sizeX + 1; ++i)
 		{
-			vertices[index].mVertex = Vertex(halfSizeX * width, 0.0f, height * (i - halfSizeY));
-			vertices[index].mUVVertex = UVVertex(0.0f, 0.0f);
+			vertices[index].mPositionVertex = PositionVertex(halfSizeX * width, 0.0f, height * (i - halfSizeY));
 			vertices[index].mNormalVertex = NormalVertex(0.0f, 0.0f, 0.0f);
 			++index;
 		}
 		
 		for (int i = 0; i < sizeY + 1; ++i)
 		{
-			vertices[index].mVertex = Vertex(width * (i - halfSizeX), 0.0f, - halfSizeY * height);
-			vertices[index].mUVVertex = UVVertex(0.0f, 0.0f);
+			vertices[index].mPositionVertex = PositionVertex(width * (i - halfSizeX), 0.0f, - halfSizeY * height);
 			vertices[index].mNormalVertex = NormalVertex(0.0f, 0.0f, 0.0f);
 			++index;
 		}
 		
 		for (int i = 0; i < sizeY + 1; ++i)
 		{
-			vertices[index].mVertex = Vertex(width * (i - halfSizeX), 0.0f, halfSizeY * height);
-			vertices[index].mUVVertex = UVVertex(0.0f, 0.0f);
+			vertices[index].mPositionVertex = PositionVertex(width * (i - halfSizeX), 0.0f, halfSizeY * height);
 			vertices[index].mNormalVertex = NormalVertex(0.0f, 0.0f, 0.0f);
 			++index;
 		}

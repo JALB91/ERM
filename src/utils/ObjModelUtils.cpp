@@ -23,15 +23,15 @@ namespace erm {
 
 	void ParseFace(
 		std::vector<VertexData>& oVertices,
-		const std::vector<Vertex>& positions,
-		const std::vector<UVVertex>& tPositions,
-		const std::vector<NormalVertex>& nPositions,
+		const std::vector<PositionVertex>& pVertices,
+		const std::vector<NormalVertex>& nVertices,
+		const std::vector<UVVertex>& uvVertices,
 		const std::vector<std::string>& splitted
 	);
 	
 	void Triangulate(
-		std::vector<IndexData>& oIndices,
-		const std::vector<VertexData>& vertices
+		const std::vector<VertexData>& vertices,
+		std::vector<IndexData>& oIndices
 	);
 	
 	void AddMesh(
@@ -63,11 +63,11 @@ namespace erm {
 		std::string line;
 		std::string name;
 		std::string meshName;
-		std::vector<Vertex> positions;
-		std::vector<UVVertex> tPositions;
-		std::vector<NormalVertex> nPositions;
-		std::vector<VertexData> vertices;
-		std::vector<IndexData> indices;
+		std::vector<PositionVertex> pVertices;
+		std::vector<NormalVertex> nVertices;
+		std::vector<UVVertex> uvVertices;
+		std::vector<VertexData> verticesData;
+		std::vector<IndexData> indicesData;
 		Material* material;
 
 		bool wasLooping = false;
@@ -90,12 +90,12 @@ namespace erm {
 					ASSERT(splitted.size() >= 2);
 					name = splitted[splitted.size() - 1];
 
-					if (!vertices.empty() && !indices.empty())
+					if (!verticesData.empty() && !indicesData.empty())
 					{
-						AddMesh(mutex, model, vertices, indices, material, meshName);
+						AddMesh(mutex, model, verticesData, indicesData, material, meshName);
 						material = nullptr;
-						vertices.clear();
-						indices.clear();
+						verticesData.clear();
+						indicesData.clear();
 						meshName.clear();
 					}
 				}
@@ -116,24 +116,33 @@ namespace erm {
 				}
 				else if (splitted[0].compare("v") == 0)
 				{
-					if (!vertices.empty() && !indices.empty() && material)
+					if (!verticesData.empty() && !indicesData.empty() && material)
 					{
-						AddMesh(mutex, model, vertices, indices, material, meshName);
+						AddMesh(mutex, model, verticesData, indicesData, material, meshName);
 						material = nullptr;
-						vertices.clear();
-						indices.clear();
+						verticesData.clear();
+						indicesData.clear();
 					}
 
 					if (wasLooping)
 					{
 						wasLooping = false;
 						material = nullptr;
-						vertices.clear();
-						indices.clear();
+						verticesData.clear();
+						indicesData.clear();
 					}
 
 					ASSERT(splitted.size() >= 4);
-					positions.emplace_back(
+					pVertices.emplace_back(
+						std::atof(splitted[splitted.size() - 3].c_str()),
+						std::atof(splitted[splitted.size() - 2].c_str()),
+						std::atof(splitted[splitted.size() - 1].c_str())
+					);
+				}
+				else if (splitted[0].compare("vn") == 0)
+				{
+					ASSERT(splitted.size() >= 4);
+					nVertices.emplace_back(
 						std::atof(splitted[splitted.size() - 3].c_str()),
 						std::atof(splitted[splitted.size() - 2].c_str()),
 						std::atof(splitted[splitted.size() - 1].c_str())
@@ -142,25 +151,16 @@ namespace erm {
 				else if (splitted[0].compare("vt") == 0)
 				{
 					ASSERT(splitted.size() >= 3);
-					tPositions.emplace_back(
-						std::atof(splitted[splitted.size() - 2].c_str()),
-						std::atof(splitted[splitted.size() - 1].c_str())
-					);
-				}
-				else if (splitted[0].compare("vn") == 0)
-				{
-					ASSERT(splitted.size() >= 4);
-					nPositions.emplace_back(
-						std::atof(splitted[splitted.size() - 3].c_str()),
+					uvVertices.emplace_back(
 						std::atof(splitted[splitted.size() - 2].c_str()),
 						std::atof(splitted[splitted.size() - 1].c_str())
 					);
 				}
 				else if (splitted[0].compare("usemtl") == 0)
 				{
-					if (!vertices.empty() && !indices.empty())
+					if (!verticesData.empty() && !indicesData.empty())
 					{
-						AddMesh(mutex, model, vertices, indices, material, meshName);
+						AddMesh(mutex, model, verticesData, indicesData, material, meshName);
 					}
 					if (noMat)
 					{
@@ -181,10 +181,10 @@ namespace erm {
 					wasLooping = true;
 
 					std::vector<VertexData> vVertices;
-					ParseFace(vVertices, positions, tPositions, nPositions, splitted);
+					ParseFace(vVertices, pVertices, nVertices, uvVertices, splitted);
 
 					std::vector<IndexData> vIndices;
-					Triangulate(vIndices, vVertices);
+					Triangulate(vVertices, vIndices);
 
 					if (vIndices.empty())
 					{
@@ -193,12 +193,12 @@ namespace erm {
 
 					for (unsigned int i = 0; i < vIndices.size(); ++i)
 					{
-						indices.emplace_back(static_cast<IndexData>(vertices.size() + vIndices[i]));
+						indicesData.emplace_back(static_cast<IndexData>(verticesData.size() + vIndices[i]));
 					}
 
 					for (unsigned int i = 0; i < vVertices.size(); ++i)
 					{
-						vertices.emplace_back(vVertices[i]);
+						verticesData.emplace_back(vVertices[i]);
 					}
 				}
 			}
@@ -206,9 +206,9 @@ namespace erm {
 
 		stream.close();
 
-		if (meshName.find("Collider") == std::string::npos && !vertices.empty() && !indices.empty())
+		if (meshName.find("Collider") == std::string::npos && !verticesData.empty() && !indicesData.empty())
 		{
-			AddMesh(mutex, model, vertices, indices, material, meshName);
+			AddMesh(mutex, model, verticesData, indicesData, material, meshName);
 		}
 
 		if (!name.empty())
@@ -219,9 +219,9 @@ namespace erm {
 	
 	void ParseFace(
 		std::vector<VertexData>& oVertices,
-		const std::vector<Vertex>& positions,
-		const std::vector<UVVertex>& tPositions,
-		const std::vector<NormalVertex>& nPositions,
+		const std::vector<PositionVertex>& pVertices,
+		const std::vector<NormalVertex>& nVertices,
+		const std::vector<UVVertex>& uvVertices,
 		const std::vector<std::string>& splitted
 	)
 	{
@@ -241,12 +241,12 @@ namespace erm {
 			VertexData vertex;
 			
 			const unsigned int positionIndex = std::atoi(indices[kVertexIndex].c_str()) - 1;
-			int tPositionIndex = -1;
 			int nPositionIndex = -1;
+			int uvPositionIndex = -1;
 			
 			if (indices.size() == 2)
 			{
-				tPositionIndex = std::atoi(indices[kUVVertexIndex].c_str()) - 1;
+				uvPositionIndex = std::atoi(indices[kUVVertexIndex].c_str()) - 1;
 			}
 			else if (indices.size() == 3)
 			{
@@ -254,31 +254,23 @@ namespace erm {
 				
 				if (!indices[kUVVertexIndex].empty())
 				{
-					tPositionIndex = std::atoi(indices[kUVVertexIndex].c_str()) - 1;
+					uvPositionIndex = std::atoi(indices[kUVVertexIndex].c_str()) - 1;
 				}
 			}
 			
-			ASSERT(positionIndex < positions.size());
-			vertex.mVertex = positions[positionIndex];
+			ASSERT(positionIndex < pVertices.size());
+			vertex.mPositionVertex = pVertices[positionIndex];
 			
-			if (tPositionIndex >= 0 && tPositionIndex < static_cast<int>(tPositions.size()))
+			if (nPositionIndex >= 0 && nPositionIndex < static_cast<int>(nVertices.size()))
 			{
-				ASSERT(tPositionIndex < static_cast<int>(tPositions.size()));
-				vertex.mUVVertex = tPositions[tPositionIndex];
-			}
-			else
-			{
-				vertex.mUVVertex = math::vec3(0.0f);
+				ASSERT(nPositionIndex < static_cast<int>(nVertices.size()));
+				vertex.mNormalVertex = nVertices[nPositionIndex];
 			}
 			
-			if (nPositionIndex >= 0 && nPositionIndex < static_cast<int>(nPositions.size()))
+			if (uvPositionIndex >= 0 && uvPositionIndex < static_cast<int>(uvVertices.size()))
 			{
-				ASSERT(nPositionIndex < static_cast<int>(nPositions.size()));
-				vertex.mNormalVertex = nPositions[nPositionIndex];
-			}
-			else
-			{
-				vertex.mNormalVertex = math::vec3(0.0f);
+				ASSERT(uvPositionIndex < static_cast<int>(uvVertices.size()));
+				vertex.mUVVertex = uvVertices[uvPositionIndex];
 			}
 			
 			oVertices.emplace_back(vertex);
@@ -286,8 +278,8 @@ namespace erm {
 	}
 	
 	void Triangulate(
-		std::vector<IndexData>& oIndices,
-		const std::vector<VertexData>& vertices
+		const std::vector<VertexData>& vertices,
+		std::vector<IndexData>& oIndices
 	)
 	{
 		if (vertices.size() < 3 || vertices.size() > 4)
@@ -302,10 +294,10 @@ namespace erm {
 			return;
 		}
 		
-		const Vertex& a = vertices[0].mVertex;
-		const Vertex& b = vertices[1].mVertex;
-		const Vertex& c = vertices[2].mVertex;
-		const Vertex& d = vertices[3].mVertex;
+		const PositionVertex& a = vertices[0].mPositionVertex;
+		const PositionVertex& b = vertices[1].mPositionVertex;
+		const PositionVertex& c = vertices[2].mPositionVertex;
+		const PositionVertex& d = vertices[3].mPositionVertex;
 		
 		if ((a == b && d == c) ||
 			(a == d && b == c) ||
@@ -318,9 +310,9 @@ namespace erm {
 		oIndices.push_back(1);
 		oIndices.push_back(3);
 		
-		Vertex d1 = c - a;
-		Vertex d2 = d - b;
-		Vertex intersection;
+		PositionVertex d1 = c - a;
+		PositionVertex d2 = d - b;
+		PositionVertex intersection;
 		
 		if (math::VerticesIntersection(a, b, d1, d2, intersection))
 		{

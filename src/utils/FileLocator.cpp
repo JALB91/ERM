@@ -51,6 +51,18 @@ namespace erm {
 	
 	void FileLocator::Refresh()
 	{
+		mModels.clear();
+		mTextures.clear();
+		mMaterials.clear();
+		mShaderPrograms.clear();
+		
+		mModels.emplace_back("Defaults/Triangle");
+		mModels.emplace_back("Defaults/Square");
+		mModels.emplace_back("Defaults/Cube");
+		mModels.emplace_back("Defaults/Sphere");
+		mModels.emplace_back("Defaults/Spike");
+		mModels.emplace_back("Defaults/Grid");
+		
 		for (const char* ext : kSupportedModelsExtensions)
 		{
 			std::vector<std::string> result = GetResourcesWithExtension(ext);

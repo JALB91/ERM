@@ -7,26 +7,26 @@ namespace erm {
 namespace math {
 	
 	bool VerticesIntersection(
-		const Vertex& a,
-		const Vertex& b,
-		const Vertex& d1,
-		const Vertex& d2,
-		Vertex& intersection
+		const math::vec3& a,
+		const math::vec3& b,
+		const math::vec3& d1,
+		const math::vec3& d2,
+		math::vec3& intersection
 	)
 	{
-		mat<2, 2, VertexType> m1;
+		mat2 m1;
 		m1[0][0] = a.x - b.x;
 		m1[0][1] = -d1.x;
 		m1[1][0] = a.y - b.y;
 		m1[1][1] = -d1.y;
 		
-		mat<2, 2, VertexType> m2;
+		mat2 m2;
 		m2[0][0] = d2.x;
 		m2[0][1] = -d1.x;
 		m2[1][0] = d2.y;
 		m2[1][1] = -d1.y;
 		
-		VertexType det2 = glm::determinant(m2);
+		float det2 = glm::determinant(m2);
 		
 		if (det2 == 0.0f)
 		{
@@ -65,8 +65,8 @@ namespace math {
 			}
 		}
 		
-		const VertexType det1 = glm::determinant(m1);
-		const VertexType t = det1/det2;
+		const float det1 = glm::determinant(m1);
+		const float t = det1/det2;
 		
 		intersection = b + t * d2;
 		
