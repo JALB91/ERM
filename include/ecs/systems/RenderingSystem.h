@@ -28,7 +28,7 @@ namespace erm {
 			RenderingSystem(ECS& ecs, ResourcesManager& resourcesManager);
 			~RenderingSystem();
 			
-			void OnRender(const Renderer& renderer);
+			void OnRender(const Renderer& renderer) override;
 			
 		private:
 			void RenderGrid(

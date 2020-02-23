@@ -16,7 +16,6 @@ namespace erm {
 		
 		ECS::ECS(Game& game)
 			: mGame(game)
-			, mEntities{ nullptr }
 			, mTransformSystem(std::make_unique<TransformSystem>(*this))
 			, mLightSystem(std::make_unique<LightSystem>(*this))
 			, mModelSystem(std::make_unique<ModelSystem>(*this))
@@ -27,40 +26,33 @@ namespace erm {
 		}
 		
 		ECS::~ECS()
-		{
-			for (std::unique_ptr<Entity>& entity : mEntities)
-			{
-				entity.reset();
-			}
-			
-			mRenderingSystem.reset();
-			mCameraSystem.reset();
-			mModelSystem.reset();
-			mLightSystem.reset();
-			mTransformSystem.reset();
-		}
+		{}
 		
 		void ECS::OnUpdate(float dt)
 		{
 			PROFILE_FUNCTION();
 			
-			mCameraSystem->OnUpdate(dt);
+			ForEachSystem([dt](auto& system) {
+				system.OnUpdate(dt);
+			});
 		}
 		
 		void ECS::OnPostUpdate()
 		{
 			PROFILE_FUNCTION();
 			
-			mTransformSystem->OnPostUpdate();
-			mModelSystem->OnPostUpdate();
-			mCameraSystem->OnPostUpdate();
+			ForEachSystem([](auto& system) {
+				system.OnPostUpdate();
+			});
 		}
 		
 		void ECS::OnRender(const Renderer& renderer)
 		{
 			PROFILE_FUNCTION();
 			
-			mRenderingSystem->OnRender(renderer);
+			ForEachSystem([&renderer](auto& system) {
+				system.OnRender(renderer);
+			});
 		}
 		
 		void ECS::RemoveEntity(EntityId id)
@@ -77,9 +69,9 @@ namespace erm {
 		
 		void ECS::OnEntityBeingRemoved(EntityId id)
 		{
-			mModelSystem->RemoveComponent(id);
-			mCameraSystem->RemoveComponent(id);
-			mTransformSystem->RemoveComponent(id);
+			ForEachSystem([id](auto& system) {
+				system.RemoveComponent(id);
+			});
 		}
 		
 		Entity* ECS::GetRoot()
@@ -104,6 +96,16 @@ namespace erm {
 		Entity* ECS::GetEntityById(EntityId id)
 		{
 			return ((id.IsValid() && mEntities[id()]) ? mEntities[id()].get() : nullptr);
+		}
+		
+		template<typename T>
+		void ECS::ForEachSystem(const T& function)
+		{
+			function(*mTransformSystem);
+			function(*mLightSystem);
+			function(*mModelSystem);
+			function(*mCameraSystem);
+			function(*mRenderingSystem);
 		}
 		
 	}

@@ -12,7 +12,7 @@ namespace erm {
 		public:
 			TransformSystem(ECS& ecs);
 			
-			void OnPostUpdate();
+			void OnPostUpdate() override;
 			
 			void RemoveFromParent(EntityId id) const;
 			void AddChild(EntityId parent, EntityId child) const;

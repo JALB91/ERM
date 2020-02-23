@@ -13,13 +13,9 @@ namespace erm {
 		public:
 			ModelSystem(ECS& ecs);
 			
-			void OnPostUpdate();
+			void OnPostUpdate() override;
 			
 		private:
-			// ISystem
-			void OnComponentAdded(EntityId /*id*/) override {}
-			void OnComponentRemoved(EntityId /*id*/) override {}
-			
 			TransformSystem& mTransformSystem;
 			
 		};

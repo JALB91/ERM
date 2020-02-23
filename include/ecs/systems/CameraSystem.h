@@ -14,14 +14,10 @@ namespace erm {
 		public:
 			CameraSystem(ECS& ecs);
 			
-			void OnUpdate(float dt);
-			void OnPostUpdate();
+			void OnUpdate(float dt) override;
+			void OnPostUpdate() override;
 			
 		private:
-			// ISystem
-			void OnComponentAdded(EntityId /*id*/) override {}
-			void OnComponentRemoved(EntityId /*id*/) override {}
-			
 			void UpdateCameraComponent(CameraComponent& camera, TransformComponent& transform);
 			
 			TransformSystem& mTransformSystem;

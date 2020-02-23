@@ -5,8 +5,13 @@
 
 #include <array>
 #include <string>
-#include <vector>
 #include <memory>
+
+#define ADD_SYSTEM(NAME, VAR) \
+	public: \
+		template<> inline NAME& GetSystem() const { return *VAR; } \
+	private: \
+		std::unique_ptr<NAME> VAR;
 
 namespace erm {
 	
@@ -35,36 +40,6 @@ namespace erm {
 			template<typename T>
 			T& GetSystem() const;
 			
-			template<>
-			inline TransformSystem& GetSystem() const
-			{
-				return *mTransformSystem.get();
-			}
-			
-			template<>
-			inline ModelSystem& GetSystem() const
-			{
-				return *mModelSystem.get();
-			}
-			
-			template<>
-			inline CameraSystem& GetSystem() const
-			{
-				return *mCameraSystem.get();
-			}
-			
-			template<>
-			inline RenderingSystem& GetSystem() const
-			{
-				return *mRenderingSystem.get();
-			}
-			
-			template<>
-			inline LightSystem& GetSystem() const
-			{
-				return *mLightSystem.get();
-			}
-			
 			void RemoveEntity(EntityId id);
 			void OnEntityBeingRemoved(EntityId id);
 			
@@ -73,14 +48,18 @@ namespace erm {
 			Entity* GetEntityById(EntityId id);
 			
 		private:
-			Game& mGame;
-			std::array<std::unique_ptr<Entity>, MAX_ID> mEntities;
+			template<typename T>
+			void ForEachSystem(const T& function);
 			
-			std::unique_ptr<TransformSystem> mTransformSystem;
-			std::unique_ptr<LightSystem> mLightSystem;
-			std::unique_ptr<ModelSystem> mModelSystem;
-			std::unique_ptr<CameraSystem> mCameraSystem;
-			std::unique_ptr<RenderingSystem> mRenderingSystem;
+			Game& mGame;
+			
+			ADD_SYSTEM(TransformSystem, mTransformSystem);
+			ADD_SYSTEM(LightSystem, mLightSystem);
+			ADD_SYSTEM(ModelSystem, mModelSystem);
+			ADD_SYSTEM(CameraSystem, mCameraSystem);
+			ADD_SYSTEM(RenderingSystem, mRenderingSystem);
+			
+			std::array<std::unique_ptr<Entity>, MAX_ID> mEntities;
 			
 		};
 		

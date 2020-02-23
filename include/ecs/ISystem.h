@@ -7,6 +7,9 @@
 #include <memory>
 
 namespace erm {
+	
+	class Renderer;
+	
 	namespace ecs {
 		
 		class ECS;
@@ -21,12 +24,16 @@ namespace erm {
 			{}
 			virtual ~ISystem() = default;
 			
-			bool HasComponent(EntityId id) const
+			virtual void OnUpdate(float /*dt*/) {}
+			virtual void OnPostUpdate() {}
+			virtual void OnRender(const Renderer& /*renderer*/) {}
+			
+			virtual bool HasComponent(EntityId id) const final
 			{
 				return (id.IsValid() && mComponents[id()].get());
 			}
 			
-			T* GetComponent(EntityId id) const
+			virtual T* GetComponent(EntityId id) const final
 			{
 				return (HasComponent(id) ? mComponents[id()].get() : nullptr);
 			}
@@ -50,7 +57,7 @@ namespace erm {
 				return (HasComponent(id) ? GetComponent(id) : AddComponent(id, std::move(args)...));
 			}
 			
-			void RemoveComponent(EntityId id)
+			virtual void RemoveComponent(EntityId id) final
 			{
 				if (!HasComponent(id))
 				{
