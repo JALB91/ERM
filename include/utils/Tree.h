@@ -58,9 +58,9 @@ namespace erm {
 		static void ForEachDo(Tree& node, const std::function<void(Tree&)>& function)
 		{
 			function(node);
-			for (Tree& child : node.mChildren)
+			for (std::unique_ptr<Tree>& child : node.mChildren)
 			{
-				ForEachDo(child, function);
+				ForEachDo(*child, function);
 			}
 		}
 		
