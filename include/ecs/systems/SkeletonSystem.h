@@ -9,9 +9,9 @@ namespace erm {
 		class SkeletonSystem : public ISystem<SkeletonComponent>
 		{
 		public:
-			SkeletonSystem(ECS& ecs);
-			
-			void OnPostUpdate() override;
+			SkeletonSystem(ECS& ecs)
+				: ISystem(ecs)
+			{}
 			
 		};
 		
