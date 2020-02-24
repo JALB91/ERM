@@ -24,6 +24,7 @@ namespace erm {
 		class TransformSystem;
 		class LightSystem;
 		class SkeletonSystem;
+		class AnimationSystem;
 		class ModelSystem;
 		class CameraSystem;
 		class RenderingSystem;
@@ -57,6 +58,7 @@ namespace erm {
 			ADD_SYSTEM(TransformSystem, mTransformSystem);
 			ADD_SYSTEM(LightSystem, mLightSystem);
 			ADD_SYSTEM(SkeletonSystem, mSkeletonSystem);
+			ADD_SYSTEM(AnimationSystem, mAnimationSystem);
 			ADD_SYSTEM(ModelSystem, mModelSystem);
 			ADD_SYSTEM(CameraSystem, mCameraSystem);
 			ADD_SYSTEM(RenderingSystem, mRenderingSystem);

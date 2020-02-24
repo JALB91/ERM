@@ -7,6 +7,7 @@
 #include "ecs/systems/RenderingSystem.h"
 #include "ecs/systems/LightSystem.h"
 #include "ecs/systems/SkeletonSystem.h"
+#include "ecs/systems/AnimationSystem.h"
 
 #include "game/Game.h"
 
@@ -20,6 +21,7 @@ namespace erm {
 			, mTransformSystem(std::make_unique<TransformSystem>(*this))
 			, mLightSystem(std::make_unique<LightSystem>(*this))
 			, mSkeletonSystem(std::make_unique<SkeletonSystem>(*this))
+			, mAnimationSystem(std::make_unique<AnimationSystem>(*this))
 			, mModelSystem(std::make_unique<ModelSystem>(*this))
 			, mCameraSystem(std::make_unique<CameraSystem>(*this))
 			, mRenderingSystem(std::make_unique<RenderingSystem>(*this, mGame.GetResourcesManager()))
@@ -106,6 +108,7 @@ namespace erm {
 			function(*mTransformSystem);
 			function(*mLightSystem);
 			function(*mSkeletonSystem);
+			function(*mAnimationSystem);
 			function(*mModelSystem);
 			function(*mCameraSystem);
 			function(*mRenderingSystem);

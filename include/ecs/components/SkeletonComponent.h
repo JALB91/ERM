@@ -6,6 +6,8 @@
 
 #include "rendering/data_structs/Bone.h"
 
+#include "utils/Tree.h"
+
 #include <array>
 #include <memory>
 
@@ -14,18 +16,13 @@ namespace erm {
 		
 		class SkeletonSystem;
 		
-		static const BoneId MAX_BONES = 50;
-		static const BoneId INVALID_BONE = -1;
+		typedef Tree<unsigned short, std::unique_ptr<Bone>> BonesTree;
 		
 		struct SkeletonComponent : public IComponent
 		{
-		public:
 			typedef SkeletonSystem SYSTEM_TYPE;
-			friend class SkeletonSystem;
 				
-		public:
-			std::array<std::unique_ptr<Bone>, MAX_BONES> mRootBone;
-			
+			BonesTree mRootBone;
 		};
 		
 	}
