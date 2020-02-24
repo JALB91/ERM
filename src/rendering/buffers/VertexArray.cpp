@@ -1,7 +1,8 @@
-#include "rendering/VertexArray.h"
-#include "rendering/VertexBuffer.h"
-#include "rendering/VertexBufferLayout.h"
-#include "rendering/Renderer.h"
+#include "rendering/buffers/VertexArray.h"
+
+#include "rendering/buffers/VertexBuffer.h"
+#include "rendering/buffers/VertexBufferLayout.h"
+#include "rendering/renderer/Renderer.h"
 
 #include "utils/Utils.h"
 

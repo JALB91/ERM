@@ -2,9 +2,9 @@
 
 #include "ecs/IComponent.h"
 
-#include "rendering/Bone.h"
-
 #include "math/mat.h"
+
+#include "rendering/data_structs/Bone.h"
 
 #include <array>
 #include <memory>

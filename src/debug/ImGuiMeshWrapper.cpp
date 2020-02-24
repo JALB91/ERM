@@ -1,7 +1,7 @@
 #include "debug/ImGuiMeshWrapper.h"
 #include "debug/ImGuiMaterialWrapper.h"
 
-#include "rendering/Mesh.h"
+#include "rendering/data_structs/Mesh.h"
 
 #include <imgui.h>
 

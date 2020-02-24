@@ -1,5 +1,5 @@
-#include "rendering/ShaderProgram.h"
-#include "rendering/Uniforms.h"
+#include "rendering/shaders/ShaderProgram.h"
+#include "rendering/shaders/Uniforms.h"
 
 #include "utils/Utils.h"
 

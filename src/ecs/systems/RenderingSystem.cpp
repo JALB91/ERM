@@ -13,15 +13,15 @@
 
 #include "utils/MeshUtils.h"
 
-#include "rendering/Renderer.h"
-#include "rendering/Mesh.h"
-#include "rendering/VertexArray.h"
-#include "rendering/IndexBuffer.h"
-#include "rendering/ShaderProgram.h"
-#include "rendering/Uniforms.h"
-#include "rendering/RenderContext.h"
-#include "rendering/Model.h"
-#include "rendering/Material.h"
+#include "rendering/renderer/Renderer.h"
+#include "rendering/data_structs/Mesh.h"
+#include "rendering/buffers/VertexArray.h"
+#include "rendering/buffers/IndexBuffer.h"
+#include "rendering/shaders/ShaderProgram.h"
+#include "rendering/shaders/Uniforms.h"
+#include "rendering/renderer/RenderContext.h"
+#include "rendering/data_structs/Model.h"
+#include "rendering/data_structs/Material.h"
 
 #include "utils/Profiler.h"
 

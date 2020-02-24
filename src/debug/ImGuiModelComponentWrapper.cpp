@@ -3,8 +3,8 @@
 
 #include "game/Game.h"
 
-#include "rendering/Model.h"
-#include "rendering/Mesh.h"
+#include "rendering/data_structs/Model.h"
+#include "rendering/data_structs/Mesh.h"
 
 #include "managers/ResourcesManager.h"
 

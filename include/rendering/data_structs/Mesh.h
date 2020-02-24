@@ -1,9 +1,9 @@
 #pragma once
 
-#include "rendering/IndexData.h"
-#include "rendering/Material.h"
-#include "rendering/DrawMode.h"
-#include "rendering/Bone.h"
+#include "rendering/buffers/IndexData.h"
+#include "rendering/data_structs/Material.h"
+#include "rendering/enums/DrawMode.h"
+#include "rendering/data_structs/Bone.h"
 
 #include <glm/glm.hpp>
 

@@ -4,7 +4,7 @@
 
 #include "window/Window.h"
 
-#include "rendering/RenderContext.h"
+#include "rendering/renderer/RenderContext.h"
 
 #include "managers/ResourcesManager.h"
 

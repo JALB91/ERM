@@ -1,4 +1,4 @@
-#include "rendering/RenderContext.h"
+#include "rendering/renderer/RenderContext.h"
 #include "utils/Utils.h"
 
 #include <GL/glew.h>

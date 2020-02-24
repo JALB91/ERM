@@ -1,4 +1,4 @@
-#include "rendering/Texture.h"
+#include "rendering/textures/Texture.h"
 
 #include "utils/Utils.h"
 

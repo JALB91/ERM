@@ -1,8 +1,8 @@
 #include "utils/ObjModelUtils.h"
 #include "utils/Utils.h"
 
-#include "rendering/VertexData.h"
-#include "rendering/IndexData.h"
+#include "rendering/buffers/VertexData.h"
+#include "rendering/buffers/IndexData.h"
 
 #include "math/math.h"
 

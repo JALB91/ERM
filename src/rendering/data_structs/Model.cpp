@@ -1,6 +1,6 @@
-#include "rendering/Model.h"
-#include "rendering/Renderer.h"
-#include "rendering/VertexData.h"
+#include "rendering/data_structs/Model.h"
+#include "rendering/renderer/Renderer.h"
+#include "rendering/buffers/VertexData.h"
 
 #include "utils/Utils.h"
 

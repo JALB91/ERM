@@ -1,8 +1,8 @@
 #include "utils/ModelUtils.h"
 
-#include "rendering/Mesh.h"
-#include "rendering/Model.h"
-#include "rendering/Material.h"
+#include "rendering/data_structs/Mesh.h"
+#include "rendering/data_structs/Model.h"
+#include "rendering/data_structs/Material.h"
 
 #include "utils/Utils.h"
 #include "utils/ObjModelUtils.h"

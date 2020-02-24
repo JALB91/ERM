@@ -5,7 +5,7 @@
 
 #include "utils/Profiler.h"
 
-#include "rendering/Model.h"
+#include "rendering/data_structs/Model.h"
 
 namespace erm {
 	namespace ecs {

@@ -2,9 +2,9 @@
 
 #include "window/Window.h"
 
-#include "rendering/RenderContext.h"
-#include "rendering/Renderer.h"
-#include "rendering/Model.h"
+#include "rendering/renderer/RenderContext.h"
+#include "rendering/renderer/Renderer.h"
+#include "rendering/data_structs/Model.h"
 
 #include "utils/Utils.h"
 #include "utils/Profiler.h"

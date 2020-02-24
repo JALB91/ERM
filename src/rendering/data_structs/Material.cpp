@@ -1,4 +1,4 @@
-#include "rendering/Material.h"
+#include "rendering/data_structs/Material.h"
 
 #include "managers/ResourcesManager.h"
 

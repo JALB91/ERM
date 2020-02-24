@@ -1,9 +1,9 @@
 #pragma once
 
-#include "rendering/ShaderProgram.h"
-#include "rendering/Material.h"
-#include "rendering/Texture.h"
-#include "rendering/Model.h"
+#include "rendering/shaders/ShaderProgram.h"
+#include "rendering/data_structs/Material.h"
+#include "rendering/textures/Texture.h"
+#include "rendering/data_structs/Model.h"
 
 #include <vector>
 #include <memory>

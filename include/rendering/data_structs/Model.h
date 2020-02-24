@@ -2,7 +2,7 @@
 
 #include "math/BoundingBox.h"
 
-#include "rendering/Mesh.h"
+#include "rendering/data_structs/Mesh.h"
 
 #include <vector>
 #include <string>

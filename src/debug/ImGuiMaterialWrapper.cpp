@@ -4,8 +4,8 @@
 
 #include "managers/ResourcesManager.h"
 
-#include "rendering/Material.h"
-#include "rendering/Mesh.h"
+#include "rendering/data_structs/Material.h"
+#include "rendering/data_structs/Mesh.h"
 
 #include <imgui.h>
 

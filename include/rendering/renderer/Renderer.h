@@ -1,6 +1,6 @@
 #pragma once
 
-#include "rendering/DrawMode.h"
+#include "rendering/enums/DrawMode.h"
 
 namespace erm {
 
