@@ -33,16 +33,16 @@ namespace erm {
 		
 		void SetShaderSources(const std::string& vertexShader, const std::string& fragmentShader);
 		
-		void SetUniform1i(const Uniform& uniform, int value) const;
-		void SetUniform1f(const Uniform& uniform, float value) const;
+		void SetUniform1i(const Uniform& uniform, int value, int index = -1);
+		void SetUniform1f(const Uniform& uniform, float value, int index = -1);
 		
-		void SetUniform3f(const Uniform& uniform, math::vec3 value) const;
-		void SetUniform3f(const Uniform& uniform, float v0, float v1, float v2) const;
+		void SetUniform3f(const Uniform& uniform, math::vec3 value, int index = -1);
+		void SetUniform3f(const Uniform& uniform, float v0, float v1, float v2, int index = -1);
 		
-		void SetUniform4f(const Uniform& uniform, math::vec4 value) const;
-		void SetUniform4f(const Uniform& uniform, float v0, float v1, float v2, float v3) const;
+		void SetUniform4f(const Uniform& uniform, math::vec4 value, int index = -1);
+		void SetUniform4f(const Uniform& uniform, float v0, float v1, float v2, float v3, int index = -1);
 		
-		void SetUniformMat4f(const Uniform& uniform, const math::mat4& matrix) const;
+		void SetUniformMat4f(const Uniform& uniform, const math::mat4& matrix, int index = -1);
 		
 	private:
 		std::string ParseShader(const std::string& path) const;
@@ -50,7 +50,7 @@ namespace erm {
 		unsigned int CreateShaderProgram(const std::string& vertexSource, const std::string& fragmentSource) const;
 		
 		void CacheUniformsLocations();
-		int GetUniformLocation(const std::string& name) const;
+		int GetUniformLocation(const std::string& name);
 		
 		std::unordered_map<std::string, int> mUniformLocationsCache;
 		unsigned int mRendererId;

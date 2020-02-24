@@ -3,6 +3,7 @@
 #include "rendering/IndexData.h"
 #include "rendering/Material.h"
 #include "rendering/DrawMode.h"
+#include "rendering/Bone.h"
 
 #include <glm/glm.hpp>
 
@@ -27,6 +28,7 @@ namespace erm {
 			 IndexData* indices,
 			 unsigned int indicesCount,
 			 Material* material = nullptr,
+			 Bone* bone = nullptr,
 			 const std::string& name = ""
 		);
 		~Mesh();
@@ -39,10 +41,11 @@ namespace erm {
 		
 		void Setup();
 		
-		inline DrawMode GetDrawMode() const { return mDrawMode; }
-		
 		inline Material* GetMaterial() const { return mMaterial; }
 		inline void SetMaterial(Material* material) { mMaterial = material; }
+		
+		inline Bone* GetBone() const { return mBone; }
+		inline void SetBone(Bone* bone) { mBone = bone; }
 		
 		inline const IndexBuffer& GetIB() const { return *mIB; }
 		inline const VertexArray& GetVA() const { return *mVA; }
@@ -52,6 +55,8 @@ namespace erm {
 		
 		inline const IndexData* GetIndicesData() const { return mIndicesData; }
 		inline unsigned int GetIndicesCount() const { return mIndicesDataCount; }
+		
+		inline DrawMode GetDrawMode() const { return mDrawMode; }
 		
 		inline const std::string& GetName() const { return mName; }
 		inline void SetName(const std::string& name) { mName = name; }
@@ -68,6 +73,7 @@ namespace erm {
 		unsigned int mIndicesDataCount;
 		
 		Material* mMaterial;
+		Bone* mBone;
 		
 		std::string mName;
 		

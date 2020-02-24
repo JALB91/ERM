@@ -143,33 +143,69 @@ namespace erm {
 			const math::mat4& projection = cameraComponent->GetProjectionMatrix();
 
 			const math::vec3& viewPos = camera.GetComponent<TransformComponent>()->mTranslation;
-
-			for (const Mesh& mesh: modelPtr->GetMeshes())
+			const std::vector<Mesh>& meshes = modelPtr->GetMeshes();
+			
+			for (unsigned int i = 0; i < meshes.size(); ++i)
 			{
-				if (!mesh.IsReady()) continue;
-
+				const Mesh& mesh = meshes[i];
+				const bool hasBone = mesh.GetBone();
+				
 				Material& material = mesh.GetMaterial() ? *mesh.GetMaterial() : Material::DEFAULT;
 				
 				if (!material.mShaderProgram)
 				{
-					material.mShaderProgram = mResourcesManager.GetOrCreateShaderProgram("res/shaders/model");
+					if (hasBone)
+					{
+						material.mShaderProgram = mResourcesManager.GetOrCreateShaderProgram("res/shaders/skeleton_model");
+					}
+					else
+					{
+						material.mShaderProgram = mResourcesManager.GetOrCreateShaderProgram("res/shaders/model");
+					}
 				}
+				
+				if (!hasBone) continue;
+				
+				material.mShaderProgram->SetUniformMat4f(
+					Uniform::BONE_TRANSFORM_I,
+					mesh.GetBone()->mAnimatedTransofrm,
+					mesh.GetBone()->mId
+				);
+			}
+
+			for (unsigned int i = 0; i < meshes.size(); ++i)
+			{
+				const Mesh& mesh = meshes[i];
+				
+				if (!mesh.IsReady()) continue;
+
+				Material& material = mesh.GetMaterial() ? *mesh.GetMaterial() : Material::DEFAULT;
 				
 				material.mShaderProgram->Bind();
 				material.mShaderProgram->SetUniformMat4f(Uniform::MODEL, model);
 				material.mShaderProgram->SetUniformMat4f(Uniform::VIEW, view);
 				material.mShaderProgram->SetUniformMat4f(Uniform::PROJECTION, projection);
 				material.mShaderProgram->SetUniformMat4f(Uniform::VIEW_PROJECTION, viewProjection);
-
-				for (ID light : lights)
+				
+				if (lights.empty())
 				{
-					LightComponent* lightComponent = mLightSystem.GetComponent(light);
-					TransformComponent* lightTransform = mTransformSystem.GetComponent(light);
-					
-					material.mShaderProgram->SetUniform3f(Uniform::LIGHT_AMBIENT, lightComponent->mAmbient);
-					material.mShaderProgram->SetUniform3f(Uniform::LIGHT_DIFFUSE, lightComponent->mDiffuse);
-					material.mShaderProgram->SetUniform3f(Uniform::LIGHT_SPECULAR, lightComponent->mSpecular);
-					material.mShaderProgram->SetUniform3f(Uniform::LIGHT_POSITION, lightTransform->mTranslation);
+					material.mShaderProgram->SetUniform3f(Uniform::LIGHT_AMBIENT, math::vec3(0.0f));
+					material.mShaderProgram->SetUniform3f(Uniform::LIGHT_DIFFUSE, math::vec3(0.0f));
+					material.mShaderProgram->SetUniform3f(Uniform::LIGHT_SPECULAR, math::vec3(0.0f));
+					material.mShaderProgram->SetUniform3f(Uniform::LIGHT_POSITION, math::vec3(0.0f));
+				}
+				else
+				{
+					for (ID light : lights)
+					{
+						LightComponent* lightComponent = mLightSystem.GetComponent(light);
+						TransformComponent* lightTransform = mTransformSystem.GetComponent(light);
+						
+						material.mShaderProgram->SetUniform3f(Uniform::LIGHT_AMBIENT, lightComponent->mAmbient);
+						material.mShaderProgram->SetUniform3f(Uniform::LIGHT_DIFFUSE, lightComponent->mDiffuse);
+						material.mShaderProgram->SetUniform3f(Uniform::LIGHT_SPECULAR, lightComponent->mSpecular);
+						material.mShaderProgram->SetUniform3f(Uniform::LIGHT_POSITION, lightTransform->mTranslation);
+					}
 				}
 
 				material.mShaderProgram->SetUniform3f(Uniform::VIEW_POS, viewPos.x, viewPos.y, viewPos.z);
@@ -178,7 +214,7 @@ namespace erm {
 				material.mShaderProgram->SetUniform3f(Uniform::MATERIAL_DIFFUSE, material.mDiffuse);
 				material.mShaderProgram->SetUniform3f(Uniform::MATERIAL_SPECULAR, material.mSpecular);
 				material.mShaderProgram->SetUniform1f(Uniform::MATERIAL_SHININESS, material.mShininess);
-
+				
 				renderer.Draw(mesh.GetDrawMode(), mesh.GetVA(), mesh.GetIB());
 			}
 

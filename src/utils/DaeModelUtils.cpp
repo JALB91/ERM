@@ -122,7 +122,7 @@ namespace erm {
 				}
 				
 				mutex.lock();
-				model.AddMesh(Mesh(DrawMode::TRIANGLES, verticesData, indicesCount, indicesData, indicesCount, nullptr, name));
+				model.AddMesh(Mesh(DrawMode::TRIANGLES, verticesData, indicesCount, indicesData, indicesCount, nullptr, nullptr, name));
 				mutex.unlock();
 				
 				mesh = mesh->NextSiblingElement("mesh");

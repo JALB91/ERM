@@ -27,7 +27,8 @@ namespace {
 		{ erm::Uniform::LIGHT_AMBIENT, "u_Light.ambient" },
 		{ erm::Uniform::LIGHT_DIFFUSE, "u_Light.diffuse" },
 		{ erm::Uniform::LIGHT_SPECULAR, "u_Light.specular" },
-		{ erm::Uniform::VIEW_POS, "u_ViewPos" }
+		{ erm::Uniform::VIEW_POS, "u_ViewPos" },
+		{ erm::Uniform::BONE_TRANSFORM_I, "u_BoneTransforms" }
 	};
 	
 }
@@ -80,39 +81,88 @@ namespace erm {
 		CacheUniformsLocations();
 	}
 	
-	void ShaderProgram::SetUniform1i(const Uniform& uniform, int value) const
+	void ShaderProgram::SetUniform1i(const Uniform& uniform, int value, int index /*= -1*/)
 	{
-		GL_CALL(glUniform1i(GetUniformLocation(kUniforms.at(uniform)), value));
+		std::string uniformName = kUniforms.at(uniform);
+		
+		if (index >= 0)
+		{
+			uniformName += "[" + std::to_string(index) + "]";
+		}
+		
+		GL_CALL(glUniform1i(GetUniformLocation(uniformName), value));
 	}
 	
-	void ShaderProgram::SetUniform1f(const Uniform& uniform, float value) const
+	void ShaderProgram::SetUniform1f(const Uniform& uniform, float value, int index /*= -1*/)
 	{
-		GL_CALL(glUniform1f(GetUniformLocation(kUniforms.at(uniform)), value));
+		std::string uniformName = kUniforms.at(uniform);
+		
+		if (index >= 0)
+		{
+			uniformName += "[" + std::to_string(index) + "]";
+		}
+		
+		GL_CALL(glUniform1f(GetUniformLocation(uniformName), value));
 	}
 	
-	void ShaderProgram::SetUniform3f(const Uniform& uniform, math::vec3 value) const
+	void ShaderProgram::SetUniform3f(const Uniform& uniform, math::vec3 value, int index /*= -1*/)
 	{
-		GL_CALL(glUniform3f(GetUniformLocation(kUniforms.at(uniform)), value.x, value.y, value.z));
+		std::string uniformName = kUniforms.at(uniform);
+		
+		if (index >= 0)
+		{
+			uniformName += "[" + std::to_string(index) + "]";
+		}
+		
+		GL_CALL(glUniform3f(GetUniformLocation(uniformName), value.x, value.y, value.z));
 	}
 	
-	void ShaderProgram::SetUniform3f(const Uniform& uniform, float v0, float v1, float v2) const
+	void ShaderProgram::SetUniform3f(const Uniform& uniform, float v0, float v1, float v2, int index /*= -1*/)
 	{
-		GL_CALL(glUniform3f(GetUniformLocation(kUniforms.at(uniform)), v0, v1, v2));
+		std::string uniformName = kUniforms.at(uniform);
+		
+		if (index >= 0)
+		{
+			uniformName += "[" + std::to_string(index) + "]";
+		}
+		
+		GL_CALL(glUniform3f(GetUniformLocation(uniformName), v0, v1, v2));
 	}
 	
-	void ShaderProgram::SetUniform4f(const Uniform& uniform, math::vec4 value) const
+	void ShaderProgram::SetUniform4f(const Uniform& uniform, math::vec4 value, int index /*= -1*/)
 	{
-		GL_CALL(glUniform4f(GetUniformLocation(kUniforms.at(uniform)), value.x, value.y, value.z, value.w));
+		std::string uniformName = kUniforms.at(uniform);
+		
+		if (index >= 0)
+		{
+			uniformName += "[" + std::to_string(index) + "]";
+		}
+		
+		GL_CALL(glUniform4f(GetUniformLocation(uniformName), value.x, value.y, value.z, value.w));
 	}
 	
-	void ShaderProgram::SetUniform4f(const Uniform& uniform, float v0, float v1, float v2, float v3) const
+	void ShaderProgram::SetUniform4f(const Uniform& uniform, float v0, float v1, float v2, float v3, int index /*= -1*/)
 	{
-		GL_CALL(glUniform4f(GetUniformLocation(kUniforms.at(uniform)), v0, v1, v2, v3));
+		std::string uniformName = kUniforms.at(uniform);
+		
+		if (index >= 0)
+		{
+			uniformName += "[" + std::to_string(index) + "]";
+		}
+		
+		GL_CALL(glUniform4f(GetUniformLocation(uniformName), v0, v1, v2, v3));
 	}
 	
-	void ShaderProgram::SetUniformMat4f(const Uniform& uniform, const math::mat4& matrix) const
+	void ShaderProgram::SetUniformMat4f(const Uniform& uniform, const math::mat4& matrix, int index /*= -1*/)
 	{
-		GL_CALL(glUniformMatrix4fv(GetUniformLocation(kUniforms.at(uniform)), 1, GL_FALSE, &matrix[0][0]));
+		std::string uniformName = kUniforms.at(uniform);
+		
+		if (index >= 0)
+		{
+			uniformName += "[" + std::to_string(index) + "]";
+		}
+		
+		GL_CALL(glUniformMatrix4fv(GetUniformLocation(uniformName), 1, GL_FALSE, &matrix[0][0]));
 	}
 	
 	std::string ShaderProgram::ParseShader(const std::string& path) const
@@ -185,11 +235,20 @@ namespace erm {
 		}
 	}
 	
-	int ShaderProgram::GetUniformLocation(const std::string& name) const
+	int ShaderProgram::GetUniformLocation(const std::string& name)
 	{
 		if (mUniformLocationsCache.find(name) != mUniformLocationsCache.end())
 		{
 			return mUniformLocationsCache.at(name);
+		}
+		else
+		{
+			GL_CALL(int location = glGetUniformLocation(mRendererId, name.c_str()));
+			if (location >= 0)
+			{
+				mUniformLocationsCache[name] = location;
+				return location;
+			}
 		}
 		
 		std::cout << "Uniform location not found" << std::endl;

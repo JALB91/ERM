@@ -19,7 +19,8 @@ namespace erm {
 		LIGHT_AMBIENT,
 		LIGHT_DIFFUSE,
 		LIGHT_SPECULAR,
-		VIEW_POS
+		VIEW_POS,
+		BONE_TRANSFORM_I
 	};
 	
 }

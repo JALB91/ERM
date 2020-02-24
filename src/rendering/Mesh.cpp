@@ -13,7 +13,8 @@ namespace erm {
 		unsigned int verticesCount,
 		IndexData* indices,
 		unsigned int indicesCount,
-		Material* material, /*= nullptr*/
+		Material* material /*= nullptr*/,
+		Bone* bone /* = nullptr*/,
 		const std::string& name /*= ""*/
 		)
 		: mDrawMode(drawMode)
@@ -22,6 +23,7 @@ namespace erm {
 		, mIndicesData(indices)
 		, mIndicesDataCount(indicesCount)
 		, mMaterial(material)
+		, mBone(bone)
 		, mName(name)
 		, mVB(nullptr)
 		, mIB(nullptr)
@@ -48,6 +50,7 @@ namespace erm {
 		, mIndicesData(other.mIndicesData)
 		, mIndicesDataCount(other.mIndicesDataCount)
 		, mMaterial(std::move(other.mMaterial))
+		, mBone(std::move(other.mBone))
 		, mName(std::move(other.mName))
 		, mVB(std::move(other.mVB))
 		, mIB(std::move(other.mIB))
@@ -84,7 +87,9 @@ namespace erm {
 			&mVerticesData[0].mPositionVertex[0],
 			sizeof(VertexType) * kPositionVectorsLenght * mVerticesDataCount +
 			sizeof(VertexType) * kNormalVectorsLenght * mVerticesDataCount +
-			sizeof(VertexType) * kUVVectorsLenght * mVerticesDataCount
+			sizeof(VertexType) * kUVVectorsLenght * mVerticesDataCount +
+			sizeof(unsigned int) * kBoneIdsCount * mVerticesDataCount +
+			sizeof(VertexType) * kBoneWeightsCount * mVerticesDataCount
 		);
 		
 		mIB = std::make_unique<IndexBuffer>(mIndicesData, mIndicesDataCount);
@@ -93,6 +98,8 @@ namespace erm {
 		vbl.Push<VertexType>(kPositionVectorsLenght);
 		vbl.Push<VertexType>(kNormalVectorsLenght);
 		vbl.Push<VertexType>(kUVVectorsLenght);
+		vbl.Push<unsigned int>(kBoneIdsCount);
+		vbl.Push<float>(kBoneWeightsCount);
 		
 		mVA = std::make_unique<VertexArray>();
 		mVA->AddBuffer(*mVB, vbl);
