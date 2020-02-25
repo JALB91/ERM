@@ -65,7 +65,7 @@ namespace erm {
 				
 				bool isValid = true;
 				
-				for (const std::string value : Utils::SplitString(primitive->FirstChildElement("vcount")->GetText(), ' '))
+				for (const std::string& value : Utils::SplitString(primitive->FirstChildElement("vcount")->GetText(), ' '))
 				{
 					isValid &= (std::atoi(value.c_str()) == 3);
 				}
@@ -86,34 +86,61 @@ namespace erm {
 				primitive->QueryIntAttribute("count", &primCount);
 				const int indicesCount = primCount * 3;
 				
-				int offset = 1;
-				if (!nVertices.empty()) offset++;
-				if (!uvVertices.empty()) offset++;
+				int totalOffset = 0;
+				int pOffset = -1;
+				int nOffset = -1;
+				int uvOffset = -1;
+				
+				XMLElement* input = primitive->FirstChildElement("input");
+				
+				while (input)
+				{
+					int offset;
+					input->QueryIntAttribute("offset", &offset);
+					
+					if (std::strcmp(input->Attribute("semantic"), "VERTEX") == 0)
+					{
+						pOffset = offset;
+					}
+					else if (std::strcmp(input->Attribute("semantic"), "NORMAL") == 0)
+					{
+						nOffset = offset;
+					}
+					else if (std::strcmp(input->Attribute("semantic"), "TEXCOORD") == 0)
+					{
+						uvOffset = offset;
+					}
+					
+					totalOffset = std::max(totalOffset, offset);
+					
+					input = input->NextSiblingElement("input");
+				}
+				
+				++totalOffset;
 				
 				const std::vector<std::string> values = Utils::SplitString(primitive->FirstChildElement("p")->GetText(), ' ');
 				
 				IndexData* indicesData = new IndexData[indicesCount];
 				VertexData* verticesData = new VertexData[indicesCount];
 				
-				for (unsigned int i = 0; i < static_cast<unsigned int>(values.size()); i += offset)
+				for (unsigned int i = 0; i < static_cast<unsigned int>(values.size()); i += totalOffset)
 				{
-					const int index = i / offset;
+					const int index = i / totalOffset;
 					VertexData vertexData;
 					
 					indicesData[index] = index;
 					
-					const unsigned short pIndex = std::atoi(values[i].c_str());
+					const unsigned short pIndex = std::atoi(values[i + pOffset].c_str());
 					vertexData.mPositionVertex = pVertices[pIndex];
 					
-					if (!nVertices.empty())
+					if (!nVertices.empty() && nOffset >= 0)
 					{
-						const unsigned short nIndex = std::atoi(values[i+1].c_str());
+						const unsigned short nIndex = std::atoi(values[i+nOffset].c_str());
 						vertexData.mNormalVertex = nVertices[nIndex];
 					}
 					
-					if (!uvVertices.empty())
+					if (!uvVertices.empty() && uvOffset >= 0)
 					{
-						const unsigned int uvOffset = nVertices.empty() ? 1 : 2;
 						const unsigned short uvIndex = std::atoi(values[i+uvOffset].c_str());
 						vertexData.mUVVertex = uvVertices[uvIndex];
 					}
