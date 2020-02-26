@@ -38,9 +38,10 @@ namespace {
 	const char* const kAventModelPath = "res/models/Avent.obj";
 	const char* const kCubeModelPath = "res/models/cube.obj";
 	const char* const kHandgunModelPath = "res/models/Handgun.dae";
+	const char* const kModelModelPath = "res/models/model.dae";
 
-	const char* const kModelToUse = kIronManModelPath;
-	const float kDefaultScale = 1.0f;
+	const char* const kModelToUse = kModelModelPath;
+	const float kDefaultScale = 15.0f;
 	const int kEntities = 1;
 
 }
@@ -59,6 +60,8 @@ namespace erm {
 		UNUSED(kAventModelPath);
 		UNUSED(kCubeModelPath);
 		UNUSED(kHandgunModelPath);
+		UNUSED(kModelModelPath);
+		UNUSED(kDefaultScale);
 		std::srand(static_cast<int>(time(NULL)));
 		mWindow->AddListener(static_cast<IWindowListener&>(*this));
 	}

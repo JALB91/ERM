@@ -6,6 +6,7 @@
 #include "ecs/systems/ModelSystem.h"
 #include "ecs/systems/CameraSystem.h"
 #include "ecs/systems/LightSystem.h"
+#include "ecs/systems/SkeletonSystem.h"
 
 #include "game/Game.h"
 
@@ -42,6 +43,7 @@ namespace erm {
 			: ISystem<RenderingComponent>(ecs)
 			, mResourcesManager(resourcesManager)
 			, mTransformSystem(mECS.GetSystem<TransformSystem>())
+			, mSkeletonSystem(mECS.GetSystem<SkeletonSystem>())
 			, mModelSystem(mECS.GetSystem<ModelSystem>())
 			, mCameraSystem(mECS.GetSystem<CameraSystem>())
 			, mLightSystem(mECS.GetSystem<LightSystem>())
@@ -133,6 +135,7 @@ namespace erm {
 			const TransformComponent* transformComponent = mTransformSystem.GetComponent(id);
 			const ModelComponent* modelComponent = mModelSystem.GetComponent(id);
 			const CameraComponent* cameraComponent = camera.GetComponent<CameraComponent>();
+			SkeletonComponent* skeletonComponent = mSkeletonSystem.GetComponent(id);
 			
 			const Model* modelPtr = modelComponent->GetModel();
 
@@ -148,29 +151,27 @@ namespace erm {
 			for (unsigned int i = 0; i < meshes.size(); ++i)
 			{
 				const Mesh& mesh = meshes[i];
-				const bool hasBone = mesh.GetBone();
+				const bool hasBone = skeletonComponent;
 				
 				Material& material = mesh.GetMaterial() ? *mesh.GetMaterial() : Material::DEFAULT;
 				
-				if (!material.mShaderProgram)
+				if (hasBone)
 				{
-					if (hasBone)
-					{
-						material.mShaderProgram = mResourcesManager.GetOrCreateShaderProgram("res/shaders/skeleton_model");
-					}
-					else
-					{
-						material.mShaderProgram = mResourcesManager.GetOrCreateShaderProgram("res/shaders/model");
-					}
+					material.mShaderProgram = mResourcesManager.GetOrCreateShaderProgram("res/shaders/skeleton_model");
+					material.mShaderProgram->Bind();
+					
+					BonesTree::ForEachDo(skeletonComponent->mRootBone, [&material](BonesTree& node) {
+						material.mShaderProgram->SetUniformMat4f(
+							Uniform::BONE_TRANSFORM_I,
+							node.GetPayload()->mAnimatedTransform,
+							node.GetPayload()->mId
+						);
+					});
 				}
-				
-				if (!hasBone) continue;
-				
-				material.mShaderProgram->SetUniformMat4f(
-					Uniform::BONE_TRANSFORM_I,
-					mesh.GetBone()->mAnimatedTransform,
-					mesh.GetBone()->mId
-				);
+				else
+				{
+					material.mShaderProgram = mResourcesManager.GetOrCreateShaderProgram("res/shaders/model");
+				}
 			}
 
 			for (unsigned int i = 0; i < meshes.size(); ++i)

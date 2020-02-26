@@ -373,7 +373,7 @@ namespace erm {
 			indicesData[i] = indices[i];
 		}
 		
-		return Mesh(DrawMode::TRIANGLES, verticesData, verticesCount, indicesData, indicesCount, material, nullptr, name);
+		return Mesh(DrawMode::TRIANGLES, verticesData, verticesCount, indicesData, indicesCount, material, name);
 	}
 	
 	bool ParseMaterialsLib(

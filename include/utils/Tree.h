@@ -15,10 +15,17 @@ namespace erm {
 	public:
 		Tree(S id, T payload)
 			: mParent(nullptr)
-			, mId(id)
-			, mPayload(payload)
+			, mId(std::forward<S>(id))
+			, mPayload(std::forward<T>(payload))
 		{}
 		~Tree() = default;
+		
+		Tree(Tree&& other)
+			: mParent(std::move(other.mParent))
+			, mChildren(std::move(other.mChildren))
+			, mId(std::move(other.mId))
+			, mPayload(std::move(other.mPayload))
+		{}
 		
 		Tree& GetRoot()
 		{
@@ -41,17 +48,19 @@ namespace erm {
 		{
 			if (Tree* child = Tree::Find(GetRoot(), id))
 			{
+				child->SetPayload(std::forward<T>(payload));
 				return *child;
 			}
-			std::unique_ptr<Tree>& child = mChildren.emplace_back(std::make_unique<Tree>(id, payload));
+			std::unique_ptr<Tree>& child = mChildren.emplace_back(std::make_unique<Tree>(std::forward<S>(id), std::forward<T>(payload)));
 			child->mParent = this;
 			return *child;
 		}
 		
+		inline void SetPayload(T payload) { mPayload = std::forward<T>(payload); }
+		inline const T& GetPayload() const { return mPayload; }
 		inline T& GetPayload() { return mPayload; }
 		inline S GetId() const { return mId; }
 		inline Tree* GetParent() { return mParent; }
-		inline const T& GetPayload() const { return mPayload; }
 		inline const Children& GetChildren() const { return mChildren; }
 		
 	public:

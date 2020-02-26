@@ -17,6 +17,7 @@ namespace erm {
 	namespace ecs {
 		
 		class TransformSystem;
+		class SkeletonSystem;
 		class ModelSystem;
 		class CameraSystem;
 		class LightSystem;
@@ -46,6 +47,7 @@ namespace erm {
 			ResourcesManager& mResourcesManager;
 
 			TransformSystem& mTransformSystem;
+			SkeletonSystem& mSkeletonSystem;
 			ModelSystem& mModelSystem;
 			CameraSystem& mCameraSystem;
 			LightSystem& mLightSystem;

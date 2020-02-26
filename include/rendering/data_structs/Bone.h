@@ -4,12 +4,18 @@
 
 namespace erm {
 	
-	typedef int BoneId;
+	typedef unsigned int BoneId;
 	static const BoneId MAX_BONES = 50;
-	static const BoneId INVALID_BONE = -1;
 	
 	struct Bone
 	{
+		Bone(BoneId id, const math::mat4& bindTransform, const math::mat4& inverseBindTransform)
+			: mId(id)
+			, mBindTransform(bindTransform)
+			, mInverseBindTransform(inverseBindTransform)
+			, mAnimatedTransform(bindTransform)
+		{}
+		
 		const BoneId mId;
 		
 		const math::mat4 mBindTransform;

@@ -1,20 +1,20 @@
 #version 330 core
 
 const int MAX_BONES = 50;
-const int MAX_WEIGHTS = 3;
+const int MAX_WEIGHTS = 4;
 
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aNormal;
 layout (location = 2) in vec2 texCoord;
-layout (location = 3) in ivec3 boneIds;
-layout (location = 4) in vec3 boneWeights;
+layout (location = 3) in vec4 boneWeights;
+layout (location = 4) in ivec4 boneIds;
 
 out vec3 FragPos;
 out vec3 Normal;
 
 uniform mat4 u_Model;
 uniform mat4 u_ViewProjection;
-uniform mat4[MAX_BONES] u_BoneTransforms;
+uniform mat4 u_BoneTransforms[MAX_BONES];
 
 void main()
 {

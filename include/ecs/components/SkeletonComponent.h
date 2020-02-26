@@ -16,11 +16,15 @@ namespace erm {
 		
 		class SkeletonSystem;
 		
-		typedef Tree<unsigned short, std::unique_ptr<Bone>> BonesTree;
+		typedef Tree<BoneId, std::unique_ptr<Bone>> BonesTree;
 		
 		struct SkeletonComponent : public IComponent
 		{
 			typedef SkeletonSystem SYSTEM_TYPE;
+			
+			SkeletonComponent(BonesTree tree)
+				: mRootBone(std::move(tree))
+			{}
 				
 			BonesTree mRootBone;
 		};
