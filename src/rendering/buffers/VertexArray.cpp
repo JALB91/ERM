@@ -27,7 +27,7 @@ namespace erm {
 		unsigned long offset = 0;
 		const std::vector<VertexBufferElement>& elements = vbl.GetElements();
 		
-		for (unsigned int i = 0; i < elements.size(); ++i)
+		for (unsigned int i = 0; i < static_cast<unsigned int>(elements.size()); ++i)
 		{
 			const VertexBufferElement& element = elements[i];
 			GL_CALL(glEnableVertexAttribArray(i));
@@ -35,9 +35,11 @@ namespace erm {
 			{
 				case GL_FLOAT:
 				case GL_DOUBLE:
+					GL_CALL(glVertexAttribPointer(i, element.mCount, element.mType, element.mNormalized, vbl.GetStride(), (const void*)offset));
+					break;
 				case GL_UNSIGNED_INT:
 				case GL_UNSIGNED_BYTE:
-					GL_CALL(glVertexAttribPointer(i, element.mCount, element.mType, element.mNormalized, vbl.GetStride(), (const void*)offset));
+					GL_CALL(glVertexAttribIPointer(i, element.mCount, element.mType, vbl.GetStride(), (const void*)offset));
 					break;
 				default:
 					ASSERT(false);
