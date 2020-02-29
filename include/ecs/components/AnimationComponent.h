@@ -7,11 +7,15 @@
 namespace erm {
 	namespace ecs {
 		
-		class SkeletonSystem;
+		class AnimationSystem;
 		
 		struct AnimationComponent : public IComponent
 		{
-			typedef SkeletonSystem SYSTEM_TYPE;
+			typedef AnimationSystem SYSTEM_TYPE;
+			
+			AnimationComponent(SkeletonAnimation skeletonAnimation)
+				: mSkeletonAnimation(std::move(skeletonAnimation))
+			{}
 			
 			SkeletonAnimation mSkeletonAnimation;
 		};
