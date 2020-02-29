@@ -169,4 +169,22 @@ namespace erm {
 		return nullptr;
 	}
 	
+	BonesTree* ResourcesManager::GetSkin(const char* name)
+	{
+		auto it = std::find_if(mLoadedSkins.begin(), mLoadedSkins.end(), [name](Handle<BonesTree>& bone) {
+			return bone->GetPayload()->mName == name;
+		});
+		
+		return (it != mLoadedSkins.end() ? (*it).get() : nullptr);
+	}
+	
+	SkeletonAnimation* ResourcesManager::GetAnimation(const char* name)
+	{
+		auto it = std::find_if(mLoadedAnimations.begin(), mLoadedAnimations.end(), [name](Handle<SkeletonAnimation>& animation) {
+			return animation->mName == name;
+		});
+		
+		return (it != mLoadedAnimations.end() ? (*it).get() : nullptr);
+	}
+	
 }

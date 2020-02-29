@@ -30,8 +30,7 @@ namespace erm {
 			friend class CameraSystem;
 			
 			CameraComponent(const IWindow& window)
-				: IComponent()
-				, mWindow(window)
+				: mWindow(window)
 				, mMovementSpeed(1.0f)
 				, mMouseSensibility(0.25f)
 				, mAngleLimit(static_cast<float>(M_PI) * 0.35f)

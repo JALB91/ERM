@@ -19,8 +19,7 @@ namespace erm {
 			friend class ModelSystem;
 			
 			ModelComponent(Model* model = nullptr)
-				: IComponent()
-				, mModel(model)
+				: mModel(model)
 				, mShouldShowBoundingBox(false)
 			{}
 			

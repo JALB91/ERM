@@ -13,7 +13,7 @@ namespace erm {
 		{
 			typedef SkeletonSystem SYSTEM_TYPE;
 			
-			SkeletonComponent(BonesTree* tree)
+			SkeletonComponent(BonesTree* tree = nullptr)
 				: mRootBone(tree)
 			{}
 				

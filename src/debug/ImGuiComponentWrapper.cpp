@@ -3,6 +3,8 @@
 #include "debug/ImGuiModelComponentWrapper.h"
 #include "debug/ImGuiCameraComponentWrapper.h"
 #include "debug/ImGuiLightComponentWrapper.h"
+#include "debug/ImGuiSkeletonComponentWrapper.h"
+#include "debug/ImGuiAnimationComponentWrapper.h"
 
 #include "game/Game.h"
 
@@ -15,6 +17,8 @@
 #include "ecs/systems/ModelSystem.h"
 #include "ecs/systems/CameraSystem.h"
 #include "ecs/systems/LightSystem.h"
+#include "ecs/systems/SkeletonSystem.h"
+#include "ecs/systems/AnimationSystem.h"
 
 #include <imgui.h>
 
@@ -28,6 +32,8 @@ namespace ImGui {
 		bool hasModel = false;
 		bool hasCamera = false;
 		bool hasLight = false;
+		bool hasSkeleton = false;
+//		bool hasAnimation = false;
 		
 		if (erm::ecs::TransformComponent* transformComponent = game.GetECS().GetSystem<erm::ecs::TransformSystem>().GetComponent(entity))
 		{
@@ -61,6 +67,22 @@ namespace ImGui {
 			}
 			hasLight = true;
 		}
+		if (erm::ecs::SkeletonComponent* skeletonComponent = game.GetECS().GetSystem<erm::ecs::SkeletonSystem>().GetComponent(entity))
+		{
+			if (ShowSkeletonComponentDebugWindow(game, *skeletonComponent))
+			{
+				game.GetECS().GetSystem<erm::ecs::SkeletonSystem>().RemoveComponent(entity);
+			}
+			hasSkeleton = true;
+		}
+//		if (erm::ecs::AnimationComponent* animationComponent = game.GetECS().GetSystem<erm::ecs::AnimationSystem>().GetComponent(entity))
+//		{
+//			if (ShowAnimationComponentDebugWindow(*animationComponent))
+//			{
+//				game.GetECS().GetSystem<erm::ecs::AnimationSystem>().RemoveComponent(entity);
+//			}
+//			hasAnimation = true;
+//		}
 		
 		ImGui::Separator();
 		
@@ -105,6 +127,15 @@ namespace ImGui {
 				if (ImGui::Button("Light"))
 				{
 					game.GetECS().GetEntityById(entity)->AddComponent<erm::ecs::LightComponent>();
+					ImGui::CloseCurrentPopup();
+				}
+			}
+			
+			if (!hasSkeleton)
+			{
+				if (ImGui::Button("Skeleton"))
+				{
+					game.GetECS().GetEntityById(entity)->AddComponent<erm::ecs::SkeletonComponent>();
 					ImGui::CloseCurrentPopup();
 				}
 			}

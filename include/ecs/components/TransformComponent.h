@@ -23,8 +23,7 @@ namespace erm {
 			
 		public:
 			TransformComponent()
-				: IComponent()
-				, mWorldTransform(glm::identity<math::mat4>())
+				: mWorldTransform(glm::identity<math::mat4>())
 				, mLocalTransform(glm::identity<math::mat4>())
 				, mTranslation(0.0f)
 				, mRotation(0.0f)

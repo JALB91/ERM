@@ -14,7 +14,7 @@ namespace erm {
 		{
 			typedef AnimationSystem SYSTEM_TYPE;
 			
-			AnimationComponent(SkeletonAnimation* skeletonAnimation)
+			AnimationComponent(SkeletonAnimation* skeletonAnimation = nullptr)
 				: mSkeletonAnimation(skeletonAnimation)
 				, mCurrentAnimationTime(0.0f)
 				, mPlaying(false)
