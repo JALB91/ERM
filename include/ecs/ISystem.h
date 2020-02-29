@@ -5,6 +5,7 @@
 
 #include <array>
 #include <memory>
+#include <utility>
 
 namespace erm {
 	
@@ -44,7 +45,7 @@ namespace erm {
 				if (!HasComponent(id))
 				{
 					OnComponentBeingAdded(id);
-					mComponents[id()] = std::make_unique<T>(std::move(args)...);
+					mComponents[id()] = std::make_unique<T>(std::forward<Args>(args)...);
 					OnComponentAdded(id);
 				}
 				
@@ -54,7 +55,7 @@ namespace erm {
 			template<typename... Args>
 			T* RequireComponent(EntityId id, Args&&... args)
 			{
-				return (HasComponent(id) ? GetComponent(id) : AddComponent(id, std::move(args)...));
+				return (HasComponent(id) ? GetComponent(id) : AddComponent(id, std::forward<Args>(args)...));
 			}
 			
 			virtual void RemoveComponent(EntityId id) final
