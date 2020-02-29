@@ -20,9 +20,10 @@
 namespace erm {
 	namespace ecs {
 		
-		CameraSystem::CameraSystem(ECS& ecs)
+		CameraSystem::CameraSystem(ECS& ecs, const IWindow& window)
 			: ISystem<CameraComponent>(ecs)
 			, mTransformSystem(mECS.GetSystem<TransformSystem>())
+			, mWindow(window)
 		{}
 		
 		void CameraSystem::UpdateCameraComponent(CameraComponent& camera, TransformComponent& transform)
@@ -31,11 +32,11 @@ namespace erm {
 			
 			if (!ImGui::IsAnyWindowHovered() && !ImGui::IsAnyItemHovered())
 			{
-				if (camera.mWindow.IsMouseButtonDown(MOUSE_BUTTON_1))
+				if (mWindow.IsMouseButtonDown(MOUSE_BUTTON_1))
 				{
 					math::vec3 rotation (
-						(camera.mWindow.GetPreviousMousePosY() - camera.mWindow.GetMousePosY()),
-						(camera.mWindow.GetPreviousMousePosX() - camera.mWindow.GetMousePosX()),
+						(mWindow.GetPreviousMousePosY() - mWindow.GetMousePosY()),
+						(mWindow.GetPreviousMousePosX() - mWindow.GetMousePosX()),
 						0.0f
 					);
 					rotation = glm::radians(rotation * camera.mMouseSensibility) + transform.mRotation;
@@ -51,37 +52,37 @@ namespace erm {
 					
 					transform.mRotation = rotation;
 				}
-				else if (camera.mWindow.IsMouseButtonDown(MOUSE_BUTTON_2))
+				else if (mWindow.IsMouseButtonDown(MOUSE_BUTTON_2))
 				{
 					
 				}
-				else if (camera.mWindow.IsMouseButtonDown(MOUSE_BUTTON_3))
+				else if (mWindow.IsMouseButtonDown(MOUSE_BUTTON_3))
 				{
 					
 				}
 			}
 			
-			if (camera.mWindow.IsKeyDown(KEY_W))
+			if (mWindow.IsKeyDown(KEY_W))
 			{
 				translation.z -= camera.mMovementSpeed;
 			}
-			if (camera.mWindow.IsKeyDown(KEY_D))
+			if (mWindow.IsKeyDown(KEY_D))
 			{
 				translation.x += camera.mMovementSpeed;
 			}
-			if (camera.mWindow.IsKeyDown(KEY_S))
+			if (mWindow.IsKeyDown(KEY_S))
 			{
 				translation.z += camera.mMovementSpeed;
 			}
-			if (camera.mWindow.IsKeyDown(KEY_A))
+			if (mWindow.IsKeyDown(KEY_A))
 			{
 				translation.x -= camera.mMovementSpeed;
 			}
-			if (camera.mWindow.IsKeyDown(KEY_SPACE))
+			if (mWindow.IsKeyDown(KEY_SPACE))
 			{
 				translation.y += camera.mMovementSpeed;
 			}
-			if (camera.mWindow.IsKeyDown(KEY_LEFT_SHIFT))
+			if (mWindow.IsKeyDown(KEY_LEFT_SHIFT))
 			{
 				translation.y -= camera.mMovementSpeed;
 			}
@@ -128,7 +129,7 @@ namespace erm {
 				
 				camera->mProjectionMatrix = glm::perspective(
 					glm::radians(camera->mFOV),
-					camera->mWindow.GetAspectRatio(),
+					mWindow.GetAspectRatio(),
 					camera->mZNear,
 					camera->mZFar
 				);

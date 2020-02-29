@@ -17,11 +17,13 @@ namespace erm {
 			AnimationComponent(SkeletonAnimation* skeletonAnimation = nullptr)
 				: mSkeletonAnimation(skeletonAnimation)
 				, mCurrentAnimationTime(0.0f)
+				, mTimeScale(1.0f)
 				, mPlaying(false)
 			{}
 			
 			SkeletonAnimation* mSkeletonAnimation;
 			float mCurrentAnimationTime;
+			float mTimeScale;
 			bool mPlaying;
 		};
 		

@@ -4,6 +4,9 @@
 #include "ecs/components/CameraComponent.h"
 
 namespace erm {
+	
+	class IWindow;
+	
 	namespace ecs {
 		
 		class TransformSystem;
@@ -12,7 +15,7 @@ namespace erm {
 		class CameraSystem : public ISystem<CameraComponent>
 		{
 		public:
-			CameraSystem(ECS& ecs);
+			CameraSystem(ECS& ecs, const IWindow& window);
 			
 			void OnUpdate(float dt) override;
 			void OnPostUpdate() override;
@@ -21,6 +24,7 @@ namespace erm {
 			void UpdateCameraComponent(CameraComponent& camera, TransformComponent& transform);
 			
 			TransformSystem& mTransformSystem;
+			const IWindow& mWindow;
 			
 		};
 		

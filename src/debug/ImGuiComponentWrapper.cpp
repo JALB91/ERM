@@ -24,123 +24,46 @@
 
 namespace ImGui {
 	
+	template<typename T>
+	void ShowComponentDebugWindow(erm::Game& game, erm::ecs::EntityId entity, const std::function<bool(T&)>& callback, const char* name)
+	{
+		if (T* component = game.GetECS().GetSystem<typename T::SYSTEM_TYPE>().GetComponent(entity))
+		{
+			ImGui::PushID(name);
+			if (callback(*component))
+			{
+				game.GetECS().GetSystem<typename T::SYSTEM_TYPE>().RemoveComponent(entity);
+			}
+			ImGui::PopID();
+		}
+		else if (ImGui::BeginPopup("Components"))
+		{
+			if (ImGui::Button(name))
+			{
+				game.GetECS().GetEntityById(entity)->AddComponent<T>();
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::EndPopup();
+		}
+	}
+	
 	void ShowComponentDebugWindow(erm::Game& game, erm::ecs::EntityId entity)
 	{
 		if (!entity.IsValid()) return;
 		
-		bool hasTransform = false;
-		bool hasModel = false;
-		bool hasCamera = false;
-		bool hasLight = false;
-		bool hasSkeleton = false;
-//		bool hasAnimation = false;
-		
-		if (erm::ecs::TransformComponent* transformComponent = game.GetECS().GetSystem<erm::ecs::TransformSystem>().GetComponent(entity))
-		{
-			if (ShowTransformComponentDebugWindow(*transformComponent))
-			{
-				game.GetECS().GetSystem<erm::ecs::TransformSystem>().RemoveComponent(entity);
-			}
-			hasTransform = true;
-		}
-		if (erm::ecs::ModelComponent* modelComponent = game.GetECS().GetSystem<erm::ecs::ModelSystem>().GetComponent(entity))
-		{
-			if (ShowModelComponentDebugWindow(game, *modelComponent))
-			{
-				game.GetECS().GetSystem<erm::ecs::ModelSystem>().RemoveComponent(entity);
-			}
-			hasModel = true;
-		}
-		if (erm::ecs::CameraComponent* cameraComponent = game.GetECS().GetSystem<erm::ecs::CameraSystem>().GetComponent(entity))
-		{
-			if (ShowCameraComponentDebugWindow(*cameraComponent))
-			{
-				game.GetECS().GetSystem<erm::ecs::CameraSystem>().RemoveComponent(entity);
-			}
-			hasCamera = true;
-		}
-		if (erm::ecs::LightComponent* lightComponent = game.GetECS().GetSystem<erm::ecs::LightSystem>().GetComponent(entity))
-		{
-			if (ShowLightComponentDebugWindow(*lightComponent))
-			{
-				game.GetECS().GetSystem<erm::ecs::LightSystem>().RemoveComponent(entity);
-			}
-			hasLight = true;
-		}
-		if (erm::ecs::SkeletonComponent* skeletonComponent = game.GetECS().GetSystem<erm::ecs::SkeletonSystem>().GetComponent(entity))
-		{
-			if (ShowSkeletonComponentDebugWindow(game, *skeletonComponent))
-			{
-				game.GetECS().GetSystem<erm::ecs::SkeletonSystem>().RemoveComponent(entity);
-			}
-			hasSkeleton = true;
-		}
-//		if (erm::ecs::AnimationComponent* animationComponent = game.GetECS().GetSystem<erm::ecs::AnimationSystem>().GetComponent(entity))
-//		{
-//			if (ShowAnimationComponentDebugWindow(*animationComponent))
-//			{
-//				game.GetECS().GetSystem<erm::ecs::AnimationSystem>().RemoveComponent(entity);
-//			}
-//			hasAnimation = true;
-//		}
-		
-		ImGui::Separator();
-		
-		const bool hasMissingComponents = (!hasTransform || !hasModel || !hasCamera);
-		
-		if (hasMissingComponents && ImGui::Button("Add Component..."))
+		if (ImGui::Button("Add Component..."))
 		{
 			ImGui::OpenPopup("Components");
 		}
 		
-		if (hasMissingComponents && ImGui::BeginPopup("Components"))
-		{
-			if (!hasTransform)
-			{
-				if (ImGui::Button("Transform"))
-				{
-					game.GetECS().GetEntityById(entity)->AddComponent<erm::ecs::TransformComponent>();
-					ImGui::CloseCurrentPopup();
-				}
-			}
-			
-			if (!hasModel)
-			{
-				if (ImGui::Button("Model"))
-				{
-					game.GetECS().GetEntityById(entity)->AddComponent<erm::ecs::ModelComponent>();
-					ImGui::CloseCurrentPopup();
-				}
-			}
-			
-			if (!hasCamera)
-			{
-				if (ImGui::Button("Camera"))
-				{
-					game.GetECS().GetEntityById(entity)->AddComponent<erm::ecs::CameraComponent>(game.GetWindow());
-					ImGui::CloseCurrentPopup();
-				}
-			}
-			
-			if (!hasLight)
-			{
-				if (ImGui::Button("Light"))
-				{
-					game.GetECS().GetEntityById(entity)->AddComponent<erm::ecs::LightComponent>();
-					ImGui::CloseCurrentPopup();
-				}
-			}
-			
-			if (!hasSkeleton)
-			{
-				if (ImGui::Button("Skeleton"))
-				{
-					game.GetECS().GetEntityById(entity)->AddComponent<erm::ecs::SkeletonComponent>();
-					ImGui::CloseCurrentPopup();
-				}
-			}
-			ImGui::EndPopup();
-		}
+		ImGui::Separator();
+		
+		ShowComponentDebugWindow<erm::ecs::TransformComponent>(game, entity, [](erm::ecs::TransformComponent& component) { return ShowTransformComponentDebugWindow(component); }, "Transform");
+		ShowComponentDebugWindow<erm::ecs::ModelComponent>(game, entity, [&game](erm::ecs::ModelComponent& component) { return ShowModelComponentDebugWindow(game, component); }, "Model");
+		ShowComponentDebugWindow<erm::ecs::CameraComponent>(game, entity, [](erm::ecs::CameraComponent& component) { return ShowCameraComponentDebugWindow(component); }, "Camera");
+		ShowComponentDebugWindow<erm::ecs::LightComponent>(game, entity, [](erm::ecs::LightComponent& component) { return ShowLightComponentDebugWindow(component); }, "Light");
+		ShowComponentDebugWindow<erm::ecs::SkeletonComponent>(game, entity, [&game](erm::ecs::SkeletonComponent& component) { return ShowSkeletonComponentDebugWindow(game, component); }, "Skeleton");
+		ShowComponentDebugWindow<erm::ecs::AnimationComponent>(game, entity, [&game](erm::ecs::AnimationComponent& component) { return ShowAnimationComponentDebugWindow(game, component); }, "Animation");
 	}
 	
 }

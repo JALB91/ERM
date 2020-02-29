@@ -84,7 +84,7 @@ namespace erm {
 
 		auto camera = mECS->GetOrCreateEntity("Camera");
 		camera->AddComponent<ecs::LightComponent>();
-		camera->RequireComponent<ecs::CameraComponent>(*mWindow);
+		camera->RequireComponent<ecs::CameraComponent>();
 		camera->GetComponent<ecs::TransformComponent>()->mTranslation = math::vec3(0.0f, 145.0f, 400.0f);
 
 		auto root = mECS->GetRoot();

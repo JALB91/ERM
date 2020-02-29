@@ -16,9 +16,6 @@ namespace {
 }
 
 namespace erm {
-	
-	class IWindow;
-	
 	namespace ecs {
 		
 		class CameraSystem;
@@ -29,9 +26,8 @@ namespace erm {
 			typedef CameraSystem SYSTEM_TYPE;
 			friend class CameraSystem;
 			
-			CameraComponent(const IWindow& window)
-				: mWindow(window)
-				, mMovementSpeed(1.0f)
+			CameraComponent()
+				: mMovementSpeed(1.0f)
 				, mMouseSensibility(0.25f)
 				, mAngleLimit(static_cast<float>(M_PI) * 0.35f)
 				, mFOV(45.0f)
@@ -49,7 +45,6 @@ namespace erm {
 			inline const math::mat4& GetProjectionMatrix() const { return mProjectionMatrix; }
 			
 		private:
-			const IWindow& mWindow;
 			math::mat4 mProjectionMatrix;
 			float mMovementSpeed;
 			float mMouseSensibility;

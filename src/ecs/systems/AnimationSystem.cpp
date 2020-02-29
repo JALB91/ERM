@@ -5,6 +5,8 @@
 
 #include "rendering/animations/SkeletonAnimation.h"
 
+#include "utils/Profiler.h"
+
 #include <cmath>
 
 namespace erm {
@@ -22,12 +24,14 @@ namespace erm {
 		
 		void AnimationSystem::OnPostUpdate()
 		{
+			PROFILE_FUNCTION();
+			
 			for (ID i = ROOT_ID; i < MAX_ID; ++i)
 			{
 				AnimationComponent* animationComponent = GetComponent(i);
 				SkeletonComponent* skeletonComponent = mSkeletonSystem.GetComponent(i);
 				
-				if (!animationComponent || !skeletonComponent) continue;
+				if (!animationComponent || !animationComponent->mPlaying || !skeletonComponent) continue;
 				
 				SkeletonAnimation* currentAnimation = animationComponent->mSkeletonAnimation;
 				BonesTree* rootBone = skeletonComponent->mRootBone;
@@ -40,7 +44,7 @@ namespace erm {
 				const KeyFrame* prevKeyFrame = &keyFrames[0];
 				const KeyFrame* nextKeyFrame = &keyFrames[0];
 				
-				currentAnimationTime += mFrameTime;
+				currentAnimationTime += mFrameTime * animationComponent->mTimeScale;
 				
 				if (currentAnimationTime > currentAnimation->mTotalAnimationTime)
 				{

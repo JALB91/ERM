@@ -11,6 +11,8 @@
 
 #include "game/Game.h"
 
+#include "window/Window.h"
+
 #include "utils/Profiler.h"
 
 namespace erm {
@@ -23,7 +25,7 @@ namespace erm {
 			, mSkeletonSystem(std::make_unique<SkeletonSystem>(*this))
 			, mAnimationSystem(std::make_unique<AnimationSystem>(*this))
 			, mModelSystem(std::make_unique<ModelSystem>(*this))
-			, mCameraSystem(std::make_unique<CameraSystem>(*this))
+			, mCameraSystem(std::make_unique<CameraSystem>(*this, mGame.GetWindow()))
 			, mRenderingSystem(std::make_unique<RenderingSystem>(*this, mGame.GetResourcesManager()))
 		{
 			mEntities[ROOT_ID].reset(new Entity(ROOT_ID, *this, "Root"));

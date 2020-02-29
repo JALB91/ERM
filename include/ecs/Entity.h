@@ -6,6 +6,7 @@
 #include "ecs/ECS.h"
 
 #include <string>
+#include <utility>
 
 namespace erm {
 	namespace ecs {
@@ -55,13 +56,13 @@ namespace erm {
 			template<typename T, typename... Args>
 			inline T* AddComponent(Args&&... args) const
 			{
-				return mECS.GetSystem<typename T::SYSTEM_TYPE>().AddComponent(mId, std::move(args)...);
+				return mECS.GetSystem<typename T::SYSTEM_TYPE>().AddComponent(mId, std::forward<Args>(args)...);
 			}
 			
 			template<typename T, typename... Args>
 			inline T* RequireComponent(Args&&... args) const
 			{
-				return mECS.GetSystem<typename T::SYSTEM_TYPE>().RequireComponent(mId, std::move(args)...);
+				return mECS.GetSystem<typename T::SYSTEM_TYPE>().RequireComponent(mId, std::forward<Args>(args)...);
 			}
 			
 			inline EntityId GetParent() const { return mTransformComponent.GetParent(); }
