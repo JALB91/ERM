@@ -128,7 +128,7 @@ namespace erm {
 				frameInSecond = 0;
 			}
 			
-			OnUpdate(static_cast<float>(frameElapsedTime));
+			OnUpdate(static_cast<float>(frameElapsedTime * 0.001));
 			OnPostUpdate();
 			
 			OnPreRender();

@@ -160,11 +160,11 @@ namespace erm {
 					material.mShaderProgram = mResourcesManager.GetOrCreateShaderProgram("res/shaders/skeleton_model");
 					material.mShaderProgram->Bind();
 					
-					BonesTree::ForEachDo(skeletonComponent->mRootBone, [&material](BonesTree& node) {
+					skeletonComponent->mRootBone.ForEachDo([&material](BonesTree& node) {
 						material.mShaderProgram->SetUniformMat4f(
 							Uniform::BONE_TRANSFORM_I,
 							node.GetPayload()->mAnimatedTransform,
-							node.GetPayload()->mId
+							node.GetId()
 						);
 					});
 				}

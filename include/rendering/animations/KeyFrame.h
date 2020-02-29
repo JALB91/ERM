@@ -9,8 +9,12 @@ namespace erm {
 	
 	struct KeyFrame
 	{
-		const float mTimestamp;
-		const std::array<Pose, MAX_BONES> mTransforms;
+		KeyFrame(float timestamp)
+			: mTimestamp(timestamp)
+		{}
+		
+		std::array<Pose, MAX_BONES> mTransforms;
+		float mTimestamp;
 	};
 	
 }

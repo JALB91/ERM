@@ -22,10 +22,32 @@ namespace erm {
 		
 		Tree(Tree&& other)
 			: mParent(std::move(other.mParent))
-			, mChildren(std::move(other.mChildren))
 			, mId(std::move(other.mId))
 			, mPayload(std::move(other.mPayload))
-		{}
+		{
+			for (auto& child : other.mChildren)
+			{
+				auto& newChild = mChildren.emplace_back(std::move(child));
+				newChild->mParent = this;
+			}
+		}
+		
+		Tree& operator=(Tree&& other)
+		{
+			mChildren.clear();
+			
+			mParent = std::move(other.mParent);
+			mId = std::move(other.mId);
+			mPayload = std::move(other.mPayload);
+			
+			for (auto& child : other.mChildren)
+			{
+				auto& newChild = mChildren.emplace_back(std::move(child));
+				newChild->mParent = this;
+			}
+			
+			return *this;
+		}
 		
 		Tree& GetRoot()
 		{
@@ -63,13 +85,27 @@ namespace erm {
 		inline Tree* GetParent() { return mParent; }
 		inline const Children& GetChildren() const { return mChildren; }
 		
-	public:
-		static void ForEachDo(Tree& node, const std::function<void(Tree&)>& function)
+		inline void ForEachDo(const std::function<void(Tree&)>& before, const std::function<void(Tree&)>& after = nullptr)
 		{
-			function(node);
+			ForEachDo(*this, before, after);
+		}
+		
+		inline void Find(S id)
+		{
+			return Find(*this, id);
+		}
+		
+	public:
+		static void ForEachDo(Tree& node, const std::function<void(Tree&)>& before, const std::function<void(Tree&)>& after)
+		{
+			before(node);
 			for (std::unique_ptr<Tree>& child : node.mChildren)
 			{
-				ForEachDo(*child, function);
+				ForEachDo(*child, before, after);
+			}
+			if (after)
+			{
+				after(node);
 			}
 		}
 		

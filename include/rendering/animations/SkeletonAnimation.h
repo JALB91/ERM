@@ -8,9 +8,13 @@ namespace erm {
 	
 	struct SkeletonAnimation
 	{
-		const float mTotalAnimationTime;
-		float mCurrentAnimationTime;
+		SkeletonAnimation(const std::vector<KeyFrame>& keyFrames, float totalAnimationTime)
+			: mKeyFrames(keyFrames)
+			, mTotalAnimationTime(totalAnimationTime)
+		{}
+		
 		std::vector<KeyFrame> mKeyFrames;
+		float mTotalAnimationTime;
 	};
 	
 }

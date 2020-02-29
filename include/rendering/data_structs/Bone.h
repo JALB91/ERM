@@ -2,6 +2,8 @@
 
 #include "math/mat.h"
 
+#include <glm/gtc/matrix_transform.hpp>
+
 namespace erm {
 	
 	typedef unsigned int BoneId;
@@ -9,16 +11,11 @@ namespace erm {
 	
 	struct Bone
 	{
-		Bone(BoneId id, const math::mat4& bindTransform, const math::mat4& inverseBindTransform)
-			: mId(id)
-			, mBindTransform(bindTransform)
-			, mInverseBindTransform(inverseBindTransform)
-			, mAnimatedTransform(bindTransform)
+		Bone(const math::mat4& inverseBindTransform)
+			: mInverseBindTransform(inverseBindTransform)
+			, mAnimatedTransform(glm::identity<math::mat4>())
 		{}
 		
-		const BoneId mId;
-		
-		const math::mat4 mBindTransform;
 		const math::mat4 mInverseBindTransform;
 		math::mat4 mAnimatedTransform;
 	};

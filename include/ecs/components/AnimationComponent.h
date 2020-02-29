@@ -15,9 +15,11 @@ namespace erm {
 			
 			AnimationComponent(SkeletonAnimation skeletonAnimation)
 				: mSkeletonAnimation(std::move(skeletonAnimation))
+				, mCurrentAnimationTime(0.0f)
 			{}
 			
 			SkeletonAnimation mSkeletonAnimation;
+			float mCurrentAnimationTime;
 		};
 		
 	}

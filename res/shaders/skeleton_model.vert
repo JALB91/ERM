@@ -18,8 +18,8 @@ uniform mat4 u_BoneTransforms[MAX_BONES];
 
 void main()
 {
-	vec4 localPos = u_Model * vec4(aPos, 1.0);
-	vec4 localNormal = u_Model * vec4(aNormal, 0.0);
+	vec4 localPos = vec4(aPos, 1.0);
+	vec4 localNormal = vec4(aNormal, 0.0);
 
 	for (int i = 0; i < MAX_WEIGHTS; ++i)
 	{
@@ -31,6 +31,9 @@ void main()
 		vec4 worldNormal = boneTransform * vec4(aNormal, 0.0);
 		localNormal += worldNormal * boneWeights[i];
 	}
+
+	localPos = u_Model * localPos;
+	localNormal = u_Model * localNormal;
 
 	FragPos = vec3(localPos);
 	Normal = vec3(localNormal);
