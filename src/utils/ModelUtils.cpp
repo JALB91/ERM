@@ -6,10 +6,10 @@
 #include "utils/DaeModelUtils.h"
 #include "utils/ObjModelUtils.h"
 
-#include <fstream>
 #include <iostream>
 #include <thread>
 #include <algorithm>
+#include <filesystem>
 
 namespace erm {
 	
@@ -75,24 +75,17 @@ namespace erm {
 		Animations& animations
 	)
 	{
-		std::ifstream stream (path);
-		
-		if (!stream.is_open())
+		if (!std::filesystem::exists(path))
 		{
 			std::cout << "No such file: " << path << std::endl;
 			return false;
 		}
 
-		stream.close();
-		
 		std::string pathStr = path;
 		std::string name = pathStr.substr(pathStr.rfind("/") + 1, pathStr.rfind("."));
 		std::string extension = pathStr.substr(pathStr.rfind(".") + 1);
 
-		mMutex.lock();
 		Model& model = *models.emplace_back(std::make_unique<Model>(path, name.c_str()));
-		mMutex.unlock();
-		
 		mLoadingModels.emplace_back(&model);
 		
 		if (std::strcmp(extension.c_str(), "obj") == 0)

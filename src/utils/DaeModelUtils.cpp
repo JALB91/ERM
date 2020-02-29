@@ -1,6 +1,8 @@
 #include "utils/DaeModelUtils.h"
 #include "utils/Utils.h"
 
+#include "math/math.h"
+
 #include "rendering/buffers/VertexData.h"
 #include "rendering/buffers/IndexData.h"
 
@@ -306,11 +308,13 @@ namespace erm {
 				
 				for (unsigned int i = 0; i < keyFrames.size(); ++i)
 				{
-					math::vec3 translation = math::vec3(matrices[i][3][0], matrices[i][3][1], matrices[i][3][2]);
-					math::quat quat = glm::quat_cast(matrices[i]);
-					keyFrames[i].mTransforms[targetBone].mTranslation = translation;
-					keyFrames[i].mTransforms[targetBone].mRotation = quat;
-					keyFrames[i].mTransforms[targetBone].mScale = math::vec3(1.0f);
+					Pose& currentPose = keyFrames[i].mTransforms[targetBone];
+					math::DecomposeMatrix(
+						matrices[i],
+						currentPose.mTranslation,
+						currentPose.mRotation,
+						currentPose.mScale
+					);
 				}
 			}
 			animationSource = animationSource->NextSiblingElement("animation");
