@@ -8,7 +8,6 @@
 
 #include "utils/Tree.h"
 
-#include <array>
 #include <memory>
 
 namespace erm {
