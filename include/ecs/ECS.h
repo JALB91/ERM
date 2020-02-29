@@ -4,7 +4,6 @@
 #include "ecs/ECSConfig.h"
 
 #include <array>
-#include <string>
 #include <memory>
 
 #define ADD_SYSTEM(NAME, VAR) \
@@ -46,7 +45,7 @@ namespace erm {
 			void OnEntityBeingRemoved(EntityId id);
 			
 			Entity* GetRoot();
-			Entity* GetOrCreateEntity(const std::string& name = "Unknown");
+			Entity* GetOrCreateEntity(const char* name = "Unknown");
 			Entity* GetEntityById(EntityId id);
 			
 		private:

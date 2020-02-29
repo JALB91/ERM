@@ -14,8 +14,8 @@ namespace erm {
 			
 			void OnPostUpdate() override;
 			
-			void RemoveFromParent(EntityId id) const;
-			void AddChild(EntityId parent, EntityId child) const;
+			void RemoveFromParent(EntityId id);
+			void AddChild(EntityId parent, EntityId child);
 			
 		private:
 			// ISystem

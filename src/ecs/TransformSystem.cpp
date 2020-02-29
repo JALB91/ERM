@@ -63,7 +63,7 @@ namespace erm {
 			}
 		}
 		
-		void TransformSystem::RemoveFromParent(EntityId id) const
+		void TransformSystem::RemoveFromParent(EntityId id)
 		{
 			if (!id.IsValid()) return;
 			
@@ -79,7 +79,7 @@ namespace erm {
 			entityTransform->SetDirty(true);
 		}
 		
-		void TransformSystem::AddChild(EntityId parent, EntityId child) const
+		void TransformSystem::AddChild(EntityId parent, EntityId child)
 		{
 			if (!parent.IsValid()
 				|| !child.IsValid()

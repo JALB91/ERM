@@ -85,7 +85,7 @@ namespace erm {
 			return GetEntityById(ROOT_ID);
 		}
 		
-		Entity* ECS::GetOrCreateEntity(const std::string& name /*= "Unknown"*/)
+		Entity* ECS::GetOrCreateEntity(const char* name /*= "Unknown"*/)
 		{
 			for (ID i = ROOT_ID; i < MAX_ID; ++i)
 			{

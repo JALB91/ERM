@@ -6,6 +6,7 @@
 #include <array>
 #include <memory>
 #include <utility>
+#include <type_traits>
 
 namespace erm {
 	
@@ -15,13 +16,17 @@ namespace erm {
 		
 		class ECS;
 		
-		template<typename T>
+		template<
+			typename T,
+			typename Enable = std::enable_if_t<std::is_default_constructible_v<T>>
+		>
 		class ISystem
 		{
 		public:
 			ISystem(ECS& ecs)
 				: mECS(ecs)
-				, mComponents{ nullptr }
+				, mComponents{}
+				, mComponentsBitmask { false }
 			{}
 			virtual ~ISystem() = default;
 			
@@ -31,12 +36,17 @@ namespace erm {
 			
 			virtual bool HasComponent(EntityId id) const final
 			{
-				return (id.IsValid() && mComponents[id()].get());
+				return (id.IsValid() && mComponentsBitmask[id()]);
 			}
 			
-			virtual T* GetComponent(EntityId id) const final
+			virtual const T* GetComponent(EntityId id) const final
 			{
-				return (HasComponent(id) ? mComponents[id()].get() : nullptr);
+				return (HasComponent(id) ? &mComponents[id()] : nullptr);
+			}
+			
+			virtual T* GetComponent(EntityId id) final
+			{
+				return (HasComponent(id) ? &mComponents[id()] : nullptr);
 			}
 			
 			template<typename... Args>
@@ -45,7 +55,8 @@ namespace erm {
 				if (!HasComponent(id))
 				{
 					OnComponentBeingAdded(id);
-					mComponents[id()] = std::make_unique<T>(std::forward<Args>(args)...);
+					mComponentsBitmask[id()] = true;
+					mComponents[id()] = T(std::forward<Args>(args)...);
 					OnComponentAdded(id);
 				}
 				
@@ -66,7 +77,7 @@ namespace erm {
 				}
 				
 				OnComponentBeingRemoved(id);
-				mComponents[id()].reset();
+				mComponentsBitmask[id()] = false;
 				OnComponentRemoved(id);
 			}
 			
@@ -78,7 +89,8 @@ namespace erm {
 			virtual void OnComponentRemoved(EntityId /*id*/) {}
 			
 			ECS& mECS;
-			std::array<std::unique_ptr<T>, MAX_ID> mComponents;
+			std::array<T, MAX_ID> mComponents;
+			std::array<bool, MAX_ID> mComponentsBitmask;
 			
 		};
 		
