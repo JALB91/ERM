@@ -3,6 +3,8 @@
 #include "ecs/ECS.h"
 #include "ecs/systems/SkeletonSystem.h"
 
+#include "rendering/animations/SkeletonAnimation.h"
+
 #include <cmath>
 
 namespace erm {
@@ -27,17 +29,22 @@ namespace erm {
 				
 				if (!animationComponent || !skeletonComponent) continue;
 				
+				SkeletonAnimation* currentAnimation = animationComponent->mSkeletonAnimation;
+				BonesTree* rootBone = skeletonComponent->mRootBone;
+				
+				if (!currentAnimation || !rootBone) continue;
+				
 				float& currentAnimationTime = animationComponent->mCurrentAnimationTime;
-				const std::vector<KeyFrame>& keyFrames = animationComponent->mSkeletonAnimation.mKeyFrames;
+				const std::vector<KeyFrame>& keyFrames = currentAnimation->mKeyFrames;
 				
 				const KeyFrame* prevKeyFrame = &keyFrames[0];
 				const KeyFrame* nextKeyFrame = &keyFrames[0];
 				
 				currentAnimationTime += mFrameTime;
 				
-				if (currentAnimationTime > animationComponent->mSkeletonAnimation.mTotalAnimationTime)
+				if (currentAnimationTime > currentAnimation->mTotalAnimationTime)
 				{
-					currentAnimationTime = std::fmod(currentAnimationTime, animationComponent->mSkeletonAnimation.mTotalAnimationTime);
+					currentAnimationTime = std::fmod(currentAnimationTime, currentAnimation->mTotalAnimationTime);
 				}
 				
 				for (unsigned int i = 1; i < static_cast<unsigned int>(keyFrames.size()); ++i)
@@ -52,7 +59,7 @@ namespace erm {
 				
 				const float progression = (currentAnimationTime - prevKeyFrame->mTimestamp) / (nextKeyFrame->mTimestamp - prevKeyFrame->mTimestamp);
 				
-				skeletonComponent->mRootBone.ForEachDo(
+				rootBone->ForEachDo(
 					[&prevKeyFrame, &nextKeyFrame, progression](BonesTree& node) {
 						Bone& currentBone = *node.GetPayload();
 						

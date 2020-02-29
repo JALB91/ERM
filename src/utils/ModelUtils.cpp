@@ -2,18 +2,13 @@
 
 #include "rendering/data_structs/Mesh.h"
 #include "rendering/data_structs/Model.h"
-#include "rendering/data_structs/Material.h"
 
-#include "utils/Utils.h"
-#include "utils/ObjModelUtils.h"
 #include "utils/DaeModelUtils.h"
-
-#include <tinyxml2.h>
+#include "utils/ObjModelUtils.h"
 
 #include <fstream>
 #include <iostream>
 #include <thread>
-#include <optional>
 #include <algorithm>
 
 namespace erm {
@@ -75,7 +70,9 @@ namespace erm {
 	bool ModelUtils::ParseModel(
 		const char* path,
 		Models& models,
-		Materials& materials
+		Materials& materials,
+		Skins& skins,
+		Animations& animations
 	)
 	{
 		std::ifstream stream (path);
@@ -122,7 +119,9 @@ namespace erm {
 					std::ref(mStop),
 					path,
 					std::ref(model),
-					std::ref(materials)
+					std::ref(materials),
+					std::ref(skins),
+					std::ref(animations)
 				)
 			);
 		}

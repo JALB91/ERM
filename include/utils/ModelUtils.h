@@ -23,7 +23,9 @@ namespace erm {
 		bool ParseModel(
 			const char* path,
 			Models& models,
-			Materials& materials
+			Materials& materials,
+			Skins& skins,
+			Animations& animations
 		);
 		
 	private:

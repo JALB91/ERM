@@ -1,9 +1,11 @@
 #pragma once
 
-#include "rendering/shaders/ShaderProgram.h"
+#include "rendering/animations/SkeletonAnimation.h"
+#include "rendering/data_structs/Bone.h"
 #include "rendering/data_structs/Material.h"
-#include "rendering/textures/Texture.h"
 #include "rendering/data_structs/Model.h"
+#include "rendering/shaders/ShaderProgram.h"
+#include "rendering/textures/Texture.h"
 
 #include <vector>
 #include <memory>
@@ -19,6 +21,8 @@ namespace erm {
 	using Materials = std::vector<Handle<Material>>;
 	using Textures = std::vector<Handle<Texture>>;
 	using Models = std::vector<Handle<Model>>;
+	using Skins = std::vector<Handle<BonesTree>>;
+	using Animations = std::vector<Handle<SkeletonAnimation>>;
 	
 	class ResourcesManager
 	{
@@ -45,6 +49,12 @@ namespace erm {
 		inline Models& GetLoadedModels() { return mLoadedModels; }
 		Model* GetOrCreateModel(const char* modelPath);
 		
+		inline Skins& GetLoadedSkins() { return mLoadedSkins; }
+		BonesTree* GetSkin(const char* name);
+		
+		inline Animations& GetLoadedAnimations() { return mLoadedAnimations; }
+		SkeletonAnimation* GetAnimation(const char* name);
+		
 	private:
 		std::unique_ptr<ModelUtils> mModelUtils;
 		
@@ -52,6 +62,8 @@ namespace erm {
 		Materials mLoadedMaterials;
 		Textures mLoadedTextures;
 		Models mLoadedModels;
+		Skins mLoadedSkins;
+		Animations mLoadedAnimations;
 		
 	};
 	

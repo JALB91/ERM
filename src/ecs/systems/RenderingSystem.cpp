@@ -151,7 +151,7 @@ namespace erm {
 			for (unsigned int i = 0; i < meshes.size(); ++i)
 			{
 				const Mesh& mesh = meshes[i];
-				const bool hasBone = skeletonComponent;
+				const bool hasBone = skeletonComponent && skeletonComponent->mRootBone;
 				
 				Material& material = mesh.GetMaterial() ? *mesh.GetMaterial() : Material::DEFAULT;
 				
@@ -160,7 +160,7 @@ namespace erm {
 					material.mShaderProgram = mResourcesManager.GetOrCreateShaderProgram("res/shaders/skeleton_model");
 					material.mShaderProgram->Bind();
 					
-					skeletonComponent->mRootBone.ForEachDo([&material](BonesTree& node) {
+					skeletonComponent->mRootBone->ForEachDo([&material](BonesTree& node) {
 						material.mShaderProgram->SetUniformMat4f(
 							Uniform::BONE_TRANSFORM_I,
 							node.GetPayload()->mAnimatedTransform,

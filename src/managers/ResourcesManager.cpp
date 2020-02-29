@@ -1,7 +1,7 @@
 #include "managers/ResourcesManager.h"
 
-#include "utils/ModelUtils.h"
 #include "utils/MeshUtils.h"
+#include "utils/ModelUtils.h"
 #include "utils/Utils.h"
 
 #include <algorithm>
@@ -161,7 +161,7 @@ namespace erm {
 			return (*it).get();
 		}
 		
-		if (mModelUtils->ParseModel(modelPath, mLoadedModels, mLoadedMaterials))
+		if (mModelUtils->ParseModel(modelPath, mLoadedModels, mLoadedMaterials, mLoadedSkins, mLoadedAnimations))
 		{
 			return mLoadedModels.back().get();
 		}

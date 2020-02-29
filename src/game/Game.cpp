@@ -41,7 +41,7 @@ namespace {
 	const char* const kModelModelPath = "res/models/model.dae";
 
 	const char* const kModelToUse = kModelModelPath;
-	const float kDefaultScale = 15.0f;
+	const float kDefaultScale = 20.0f;
 	const int kEntities = 1;
 
 }
@@ -95,9 +95,7 @@ namespace erm {
 			auto entity = mECS->GetOrCreateEntity();
 			entity->RequireComponent<ecs::ModelComponent>(mResourcesManager->GetOrCreateModel(kModelToUse));
 			auto transform = entity->RequireComponent<ecs::TransformComponent>();
-			const float x = static_cast<float>(std::rand()%100-std::rand()%100);
-			const float z = static_cast<float>(std::rand()%100-std::rand()%100);
-			transform->mTranslation = math::vec3(x, 0.0f, z);
+			transform->mRotation.x = -static_cast<float>(M_PI * 0.5);
 			transform->mScale = math::vec3(kDefaultScale);
 			root->AddChild(*entity);
 		}
@@ -142,17 +140,6 @@ namespace erm {
 	void Game::OnUpdate(float dt)
 	{
 		PROFILE_FUNCTION();
-		
-		for (auto child : mECS->GetRoot()->GetChildren())
-		{
-			auto entity = mECS->GetEntityById(child);
-
-			if (entity->HasComponent<ecs::CameraComponent>()) continue;
-
-			auto transform = entity->GetComponent<ecs::TransformComponent>();
-			const float rot = 0.005f;
-			transform->mRotation += math::vec3(0.0f, rot, 0.0f);
-		}
 		
 		mECS->OnUpdate(dt);
 		mWindow->NewFrame();
