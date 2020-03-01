@@ -133,8 +133,8 @@ namespace erm {
 					
 					const unsigned short pIndex = std::atoi(values[i + pOffset].c_str());
 					vertexData.mPositionVertex = pVertices[pIndex];
-					vertexData.mBoneIds = boneIds[pIndex];
-					vertexData.mBoneWeights = boneWeights[pIndex];
+					vertexData.mBoneIds = boneIds.size() > pIndex ? boneIds[pIndex] : BoneIds(0);
+					vertexData.mBoneWeights = boneWeights.size() > pIndex ? boneWeights[pIndex] : BoneWeights(0.0f);
 					
 					if (!nVertices.empty() && nOffset >= 0)
 					{

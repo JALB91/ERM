@@ -26,8 +26,8 @@ namespace erm {
 	{
 		XMLElement* controllers = document.RootElement()->FirstChildElement("library_controllers");
 		if (!controllers) return;
-		
 		XMLElement* controller = controllers->FirstChildElement("controller");
+		if (!controller) return;
 		XMLElement* skin = controller->FirstChildElement("skin");
 		
 		XMLElement* vertexWeights = skin->FirstChildElement("vertex_weights");

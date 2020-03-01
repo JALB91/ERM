@@ -46,6 +46,7 @@ namespace erm {
 			
 			if (targetBone < 0)
 			{
+				animationSource = animationSource->NextSiblingElement("animation");
 				continue;
 			}
 			
@@ -113,9 +114,12 @@ namespace erm {
 			animationSource = animationSource->NextSiblingElement("animation");
 		}
 		
-		mutex.lock();
-		animations.emplace_back(std::make_unique<SkeletonAnimation>(keyFrames, keyFrames.back().mTimestamp, path));
-		mutex.unlock();
+		if (keyFrames.size() > 0)
+		{
+			mutex.lock();
+			animations.emplace_back(std::make_unique<SkeletonAnimation>(keyFrames, keyFrames.back().mTimestamp, path));
+			mutex.unlock();
+		}
 	}
 	
 }

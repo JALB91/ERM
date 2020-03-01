@@ -44,9 +44,12 @@ namespace erm {
 			visualScene = visualScene->NextSiblingElement("visual_scene");
 		}
 		
-		mutex.lock();
-		skins.emplace_back(std::move(tree));
-		mutex.unlock();
+		if (tree->GetPayload())
+		{
+			mutex.lock();
+			skins.emplace_back(std::move(tree));
+			mutex.unlock();
+		}
 	}
 	
 	void ProcessNode(
