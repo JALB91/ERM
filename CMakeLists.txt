@@ -98,6 +98,13 @@ target_link_libraries(
 	tinyxml2
 )
 
+if (WIN32)
+	set_target_properties(
+		${PROJECT_NAME} PROPERTIES
+		VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/Debug"
+	)
+endif()
+
 set(res_source ${CMAKE_HOME_DIRECTORY}/res/)
 set(res_dest ${CMAKE_CURRENT_BINARY_DIR}/Debug/res)
 

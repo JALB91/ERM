@@ -78,7 +78,7 @@ namespace erm {
 								{
 									for (unsigned int i = timestamps.size(); i < values.size(); ++i)
 									{
-										timestamps.emplace_back(std::atof(values[i].c_str()));
+										timestamps.emplace_back(static_cast<float>(std::atof(values[i].c_str())));
 									}
 								}
 								else if (isOutput)

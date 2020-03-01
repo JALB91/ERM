@@ -290,6 +290,9 @@ namespace erm {
 	{
 		int width, height;
 		glfwGetWindowSize(mWindow, &width, &height);
+		
+		if (mWindowWidth == width && mWindowHeight == height) return;
+
 		OnSizeChanged(width, height);
 	}
 	
@@ -314,7 +317,14 @@ namespace erm {
 
 	void Window::UpdateAspectRatio()
 	{
-		mAspectRatio = mViewport.x / mViewport.y;
+		if (mViewport.y > 0.0f)
+		{
+			mAspectRatio = mViewport.x / mViewport.y;
+		}
+		else
+		{
+			mAspectRatio = 0.0f;
+		}
 	}
 	
 }

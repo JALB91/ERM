@@ -91,7 +91,7 @@ namespace erm {
 		boneNames = Utils::SplitString(jointsSource->FirstChildElement("Name_array")->GetText(), ' ');
 		for (std::string& value : Utils::SplitString(weigthsSource->FirstChildElement("float_array")->GetText(), ' '))
 		{
-			weights.emplace_back(std::atof(value.c_str()));
+			weights.emplace_back(static_cast<float>(std::atof(value.c_str())));
 		}
 	}
 	
