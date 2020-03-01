@@ -49,9 +49,9 @@ namespace ImGui {
 					[&hasChanges](erm::BonesTree& node) {
 						ImGui::PushID(node.GetId());
 						if (node.GetParent()) ImGui::Indent(ImGui::GetStyle().IndentSpacing * 0.75f);
-						if (ImGui::TreeNode(node.GetPayload().mName.c_str()))
+						if (ImGui::TreeNode(node.GetPayload()->mName.c_str()))
 						{
-							hasChanges |= ImGui::ShowMatrixDebug(node.GetPayload().mLocalTransform);
+							hasChanges |= ImGui::ShowMatrixDebug(node.GetPayload()->mLocalTransform);
 							ImGui::TreePop();
 						}
 					},
@@ -77,7 +77,7 @@ namespace ImGui {
 		const erm::Skins& all = game.GetResourcesManager().GetLoadedSkins();
 		
 		erm::BonesTree* rootBone = skeletonComponent.GetRootBone();
-		std::string currentPath = rootBone ? rootBone->GetPayload().mName : "";
+		std::string currentPath = rootBone ? rootBone->GetPayload()->mName : "";
 		
 		if (ImGui::BeginCombo("Path", currentPath.c_str()))
 		{
@@ -90,7 +90,7 @@ namespace ImGui {
 			
 			for (unsigned int i = 0; i < all.size(); ++i)
 			{
-				const std::string& currentName = all[i]->GetPayload().mName;
+				const std::string& currentName = all[i]->GetPayload()->mName;
 				bool isSelected = currentPath == currentName;
 				if (ImGui::Selectable(currentName.c_str(), &isSelected))
 				{

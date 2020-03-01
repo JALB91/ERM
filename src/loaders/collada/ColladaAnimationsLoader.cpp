@@ -15,7 +15,7 @@ namespace erm {
 	void ProcessAnimations(
 		std::mutex& mutex,
 		tinyxml2::XMLDocument& document,
-		const std::vector<std::string>& boneNames,
+		const std::map<std::string, ColladaSkinData>& skinsData,
 		const char* path,
 		Animations& animations
 	)
@@ -35,12 +35,16 @@ namespace erm {
 			
 			int targetBone = -1;
 			
-			for (unsigned int i = 0; i < boneNames.size(); ++i)
+			for (const auto& entry : skinsData)
 			{
-				if (boneNames[i] == boneId)
+				const std::vector<std::string>& boneNames = entry.second.mBoneNames;
+				for (unsigned int i = 0; i < boneNames.size(); ++i)
 				{
-					targetBone = i;
-					break;
+					if (boneNames[i] == boneId || ("Armature_" + boneNames[i]) == boneId)
+					{
+						targetBone = i;
+						break;
+					}
 				}
 			}
 			

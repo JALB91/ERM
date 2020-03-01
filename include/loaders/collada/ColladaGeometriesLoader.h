@@ -1,10 +1,11 @@
 #pragma once
 
-#include "rendering/buffers/VertexData.h"
+#include "loaders/collada/ColladaSkinData.h"
 
 #include <atomic>
+#include <map>
 #include <mutex>
-#include <vector>
+#include <string>
 
 namespace tinyxml2 {
 	class XMLDocument;
@@ -18,9 +19,8 @@ namespace erm {
 		std::mutex& mutex,
 		std::atomic<bool>& stop,
 		tinyxml2::XMLDocument& document,
-		const std::vector<BoneIds>& boneIds,
-		const std::vector<BoneWeights>& boneWeights,
-		Model& model
+		Model& model,
+		const std::map<std::string, ColladaSkinData>& skinsData
 	);
 	
 }

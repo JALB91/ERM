@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <vector>
 #include <functional>
 
@@ -9,7 +10,7 @@ namespace erm {
 	class Tree
 	{
 	public:
-		typedef std::vector<Tree> Children;
+		typedef std::vector<std::unique_ptr<Tree>> Children;
 		
 	public:
 		Tree(S id, T payload)
@@ -21,57 +22,28 @@ namespace erm {
 		
 		Tree(Tree&& other)
 			: mParent(std::move(other.mParent))
+			, mChildren(std::move(other.mChildren))
 			, mId(std::move(other.mId))
 			, mPayload(std::move(other.mPayload))
 		{
-			for (Tree& child : other.mChildren)
+			for (auto& child : mChildren)
 			{
-				Tree& newChild = mChildren.emplace_back(std::move(child));
-				newChild.mParent = this;
-			}
-		}
-		
-		Tree(const Tree& other)
-			: mParent(other.mParent)
-			, mId(other.mId)
-			, mPayload(other.mPayload)
-		{
-			for (const Tree& child : other.mChildren)
-			{
-				Tree& newChild = mChildren.emplace_back(child);
-				newChild.mParent = this;
+				child->mParent = this;
 			}
 		}
 		
 		Tree& operator=(Tree&& other)
 		{
-			mChildren.clear();
+			if (&other == this) return *this;
 			
 			mParent = std::move(other.mParent);
+			mChildren = std::move(other.mChildren);
 			mId = std::move(other.mId);
 			mPayload = std::move(other.mPayload);
 			
-			for (auto& child : other.mChildren)
+			for (auto& child : mChildren)
 			{
-				auto& newChild = mChildren.emplace_back(std::move(child));
-				newChild.mParent = this;
-			}
-			
-			return *this;
-		}
-		
-		Tree& operator=(const Tree& other)
-		{
-			mChildren.clear();
-			
-			mParent = other.mParent;
-			mId = other.mId;
-			mPayload = other.mPayload;
-			
-			for (const Tree& child : other.mChildren)
-			{
-				Tree& newChild = mChildren.emplace_back(child);
-				newChild.mParent = this;
+				child->mParent = this;
 			}
 			
 			return *this;
@@ -101,9 +73,9 @@ namespace erm {
 				child->SetPayload(std::forward<T>(payload));
 				return *child;
 			}
-			Tree& child = mChildren.emplace_back(std::forward<S>(id), std::forward<T>(payload));
-			child.mParent = this;
-			return child;
+			auto& child = mChildren.emplace_back(std::make_unique<Tree>(std::forward<S>(id), std::forward<T>(payload)));
+			child->mParent = this;
+			return *child;
 		}
 		
 		inline void ForEachDo(const std::function<void(Tree&)>& before, const std::function<void(Tree&)>& after = nullptr)
@@ -136,9 +108,9 @@ namespace erm {
 		static void ForEachDo(Tree& node, const std::function<void(Tree&)>& before, const std::function<void(Tree&)>& after)
 		{
 			if (before) before(node);
-			for (Tree& child : node.mChildren)
+			for (auto& child : node.mChildren)
 			{
-				ForEachDo(child, before, after);
+				ForEachDo(*child, before, after);
 			}
 			if (after) after(node);
 		}
@@ -147,9 +119,9 @@ namespace erm {
 		{
 			if (node.mId == id) return &node;
 			
-			for (Tree& child : node.mChildren)
+			for (auto& child : node.mChildren)
 			{
-				if (Tree* result = Find(child, id))
+				if (Tree* result = Find(*child, id))
 				{
 					return result;
 				}

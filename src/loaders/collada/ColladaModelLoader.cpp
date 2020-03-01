@@ -1,5 +1,6 @@
 #include "loaders/collada/ColladaModelLoader.h"
 
+#include "loaders/collada/ColladaSkinData.h"
 #include "loaders/collada/ColladaLoaderUtils.h"
 #include "loaders/collada/ColladaSceneLoader.h"
 #include "loaders/collada/ColladaSkeletonLoader.h"
@@ -9,6 +10,8 @@
 #include <tinyxml2.h>
 
 #include <iostream>
+#include <map>
+#include <string>
 
 using namespace tinyxml2;
 
@@ -33,14 +36,12 @@ namespace erm {
 			return;
 		}
 		
-		std::vector<BoneIds> boneIds;
-		std::vector<BoneWeights> boneWeights;
-		std::vector<std::string> boneNames;
+		std::map<std::string, ColladaSkinData> skinsData;
 		
-		ProcessSkeleton(document, boneIds, boneWeights, boneNames);
-		ProcessGeometries(mutex, stop, document, boneIds, boneWeights, model);
-		ProcessScene(mutex, document, boneNames, skins);
-		ProcessAnimations(mutex, document, boneNames, path, animations);
+		ProcessSkeleton(document, skinsData);
+		ProcessGeometries(mutex, stop, document, model, skinsData);
+		ProcessScene(mutex, document, skins, skinsData);
+		ProcessAnimations(mutex, document, skinsData, path, animations);
 	}
 	
 }

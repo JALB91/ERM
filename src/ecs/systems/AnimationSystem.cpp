@@ -65,7 +65,7 @@ namespace erm {
 				
 				rootBone->ForEachDo(
 					[&prevKeyFrame, &nextKeyFrame, progression](BonesTree& node) {
-						Bone& currentBone = node.GetPayload();
+						Bone& currentBone = *node.GetPayload();
 						
 						const Pose& prevPose = prevKeyFrame->mTransforms[node.GetId()];
 						const Pose& nextPose = nextKeyFrame->mTransforms[node.GetId()];

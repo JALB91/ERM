@@ -2,6 +2,7 @@
 
 #include "loaders/collada/ColladaLoaderUtils.h"
 
+#include "rendering/buffers/VertexData.h"
 #include "rendering/buffers/IndexData.h"
 #include "rendering/data_structs/Mesh.h"
 #include "rendering/data_structs/Model.h"
@@ -11,14 +12,13 @@
 #include <tinyxml2.h>
 
 #include <array>
-#include <string>
 
 using namespace tinyxml2;
 
 namespace {
 	std::array<const char*, 2> kSupportedPrimitives {
 		"polylist",
-		"vertices"
+		"triangles"
 	};
 }
 
@@ -36,9 +36,8 @@ namespace erm {
 		std::mutex& mutex,
 		std::atomic<bool>& stop,
 		XMLDocument& document,
-		const std::vector<BoneIds>& boneIds,
-		const std::vector<BoneWeights>& boneWeights,
-		Model& model
+		Model& model,
+		const std::map<std::string, ColladaSkinData>& skinsData
 	)
 	{
 		XMLElement* geometry =
@@ -49,6 +48,7 @@ namespace erm {
 			if (stop) return;
 			
 			const char* name = geometry->Attribute("id");
+			const ColladaSkinData* currentSkinData = (skinsData.find(name) != skinsData.end()) ? &skinsData.at(name) : nullptr;
 			
 			XMLElement* mesh = geometry->FirstChildElement("mesh");
 			
@@ -61,9 +61,9 @@ namespace erm {
 					if ((primitive = mesh->FirstChildElement(primitiveName))) break;
 				}
 				
-				bool isValid = true;
+				bool isValid = primitive;
 				
-				if (primitive)
+				if (primitive && primitive->FirstChildElement("vcount"))
 				{
 					for (const std::string& value : Utils::SplitString(primitive->FirstChildElement("vcount")->GetText(), ' '))
 					{
@@ -133,8 +133,8 @@ namespace erm {
 					
 					const unsigned short pIndex = std::atoi(values[i + pOffset].c_str());
 					vertexData.mPositionVertex = pVertices[pIndex];
-					vertexData.mBoneIds = boneIds.size() > pIndex ? boneIds[pIndex] : BoneIds(0);
-					vertexData.mBoneWeights = boneWeights.size() > pIndex ? boneWeights[pIndex] : BoneWeights(0.0f);
+					vertexData.mBoneIds = (currentSkinData && currentSkinData->mBoneIds.size() > pIndex) ? currentSkinData->mBoneIds[pIndex] : BoneIds(0);
+					vertexData.mBoneWeights = (currentSkinData && currentSkinData->mBoneWeights.size() > pIndex) ? currentSkinData->mBoneWeights[pIndex] : BoneWeights(0.0f);
 					
 					if (!nVertices.empty() && nOffset >= 0)
 					{

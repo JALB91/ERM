@@ -166,7 +166,7 @@ namespace erm {
 					skeletonComponent->GetRootBone()->ForEachDo([&material](BonesTree& node) {
 						material.mShaderProgram->SetUniformMat4f(
 							Uniform::BONE_TRANSFORM_I,
-							node.GetPayload().mAnimatedTransform,
+							node.GetPayload()->mAnimatedTransform,
 							node.GetId()
 						);
 					});

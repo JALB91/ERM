@@ -13,7 +13,7 @@ namespace erm {
 	
 	typedef unsigned int BoneId;
 	
-	static const BoneId MAX_BONES = 50;
+	static const BoneId MAX_BONES = 100;
 	
 	struct Bone
 	{
@@ -28,15 +28,12 @@ namespace erm {
 			, mName(name)
 		{}
 		
-		Bone()
-		{}
-		
-		math::mat4 mInverseBindTransform;
+		const math::mat4 mInverseBindTransform;
 		math::mat4 mAnimatedTransform;
 		math::mat4 mLocalTransform;
 		std::string mName;
 	};
 	
-	typedef Tree<BoneId, Bone> BonesTree;
+	typedef Tree<BoneId, std::unique_ptr<Bone>> BonesTree;
 	
 }

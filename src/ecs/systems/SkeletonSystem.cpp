@@ -19,11 +19,11 @@ namespace erm {
 				
 				rootBone->ForEachDo(
 					[](BonesTree& bone) {
-						bone.GetPayload().mAnimatedTransform = bone.GetParent() ? bone.GetParent()->GetPayload().mAnimatedTransform : glm::identity<math::mat4>();
-						bone.GetPayload().mAnimatedTransform *= bone.GetPayload().mLocalTransform;
+						bone.GetPayload()->mAnimatedTransform = bone.GetParent() ? bone.GetParent()->GetPayload()->mAnimatedTransform : glm::identity<math::mat4>();
+						bone.GetPayload()->mAnimatedTransform *= bone.GetPayload()->mLocalTransform;
 					},
 					[](BonesTree& bone) {
-						bone.GetPayload().mAnimatedTransform *= bone.GetPayload().mInverseBindTransform;
+						bone.GetPayload()->mAnimatedTransform *= bone.GetPayload()->mInverseBindTransform;
 					}
 				);
 				

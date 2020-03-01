@@ -82,7 +82,7 @@ namespace ImGui {
 		if (nodeOpen)
 		{
 			std::for_each(children.cbegin(), children.cend(), [operation](auto& child) {
-				ShowProfilingTree(child, operation);
+				ShowProfilingTree(*child, operation);
 			});
 			ImGui::TreePop();
 		}

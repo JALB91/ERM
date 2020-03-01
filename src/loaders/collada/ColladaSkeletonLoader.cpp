@@ -2,6 +2,8 @@
 
 #include "loaders/collada/ColladaLoaderUtils.h"
 
+#include "math/mat.h"
+
 #include "utils/Utils.h"
 
 #include <tinyxml2.h>
@@ -19,28 +21,29 @@ namespace erm {
 	
 	void ProcessSkeleton(
 		XMLDocument& document,
-		std::vector<BoneIds>& boneIds,
-		std::vector<BoneWeights>& boneWeigths,
-		std::vector<std::string>& boneNames
+		std::map<std::string, ColladaSkinData>& skinsData
 	)
 	{
 		XMLElement* controllers = document.RootElement()->FirstChildElement("library_controllers");
 		if (!controllers) return;
-		XMLElement* controller = controllers->FirstChildElement("controller");
+		XMLElement* controller = FindChildWithAttribute(*controllers, "controller", "name", "Armature");
 		if (!controller) return;
 		XMLElement* skin = controller->FirstChildElement("skin");
+		
+		std::string currentSource = skin->Attribute("source");
+		ColladaSkinData& currentSkinData = skinsData[currentSource.substr(1)];
 		
 		XMLElement* vertexWeights = skin->FirstChildElement("vertex_weights");
 		const unsigned int count = vertexWeights->IntAttribute("count");
 		
-		boneIds.reserve(count);
-		boneWeigths.reserve(count);
+		currentSkinData.mBoneIds.reserve(count);
+		currentSkinData.mBoneWeights.reserve(count);
 		
 		std::vector<float> weights;
 		std::vector<unsigned int> counts;
 		std::vector<unsigned int> values;
 		
-		GatherSources(*skin, *vertexWeights, weights, boneNames);
+		GatherSources(*skin, *vertexWeights, weights, currentSkinData.mBoneNames);
 		
 		for (std::string& count : Utils::SplitString(vertexWeights->FirstChildElement("vcount")->GetText(), ' '))
 		{
@@ -56,14 +59,14 @@ namespace erm {
 		
 		for (unsigned int i = 0; i < static_cast<unsigned int>(counts.size()); ++i)
 		{
-			boneIds.emplace_back(BoneIds(0));
-			boneWeigths.emplace_back(0.0f);
+			currentSkinData.mBoneIds.emplace_back(BoneIds(0));
+			currentSkinData.mBoneWeights.emplace_back(0.0f);
 			for (unsigned int j = 0; j < counts[i]; ++j)
 			{
 				if (j > kMaxBonesNumber - 1) break;
 				
-				boneIds[i][j] = values[currentIndex + j * 2];
-				boneWeigths[i][j] = weights[values[currentIndex + j * 2 + 1]];
+				currentSkinData.mBoneIds[i][j] = values[currentIndex + j * 2];
+				currentSkinData.mBoneWeights[i][j] = weights[values[currentIndex + j * 2 + 1]];
 			}
 			currentIndex += counts[i] * 2;
 		}
