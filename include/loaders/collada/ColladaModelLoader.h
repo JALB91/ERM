@@ -7,7 +7,7 @@
 
 namespace erm {
 	
-	extern void ParseDaeModel(
+	extern void ParseColladaModel(
 		std::mutex& mutex,
 		std::atomic<bool>& stop,
 		const char* path,

@@ -1,10 +1,10 @@
-#include "utils/ModelUtils.h"
+#include "loaders/ResourcesLoader.h"
 
 #include "rendering/data_structs/Mesh.h"
 #include "rendering/data_structs/Model.h"
 
-#include "utils/DaeModelUtils.h"
-#include "utils/ObjModelUtils.h"
+#include "loaders/obj/ObjModelLoader.h"
+#include "loaders/collada/ColladaModelLoader.h"
 
 #include <iostream>
 #include <thread>
@@ -13,7 +13,7 @@
 
 namespace erm {
 	
-	ModelUtils::~ModelUtils()
+	ResourcesLoader::~ResourcesLoader()
 	{
 		mStop = true;
 		for (const std::future<void>& future : mFutures)
@@ -24,7 +24,7 @@ namespace erm {
 		mLoadingModels.clear();
 	}
 
-	void ModelUtils::OnUpdate()
+	void ResourcesLoader::OnUpdate()
 	{
 		if (!mMutex.try_lock())
 		{
@@ -57,17 +57,17 @@ namespace erm {
 		}
 	}
 	
-	void ModelUtils::OnRender()
+	void ResourcesLoader::OnRender()
 	{
 		mMutex.lock();
 	}
 	
-	void ModelUtils::OnPostRender()
+	void ResourcesLoader::OnPostRender()
 	{
 		mMutex.unlock();
 	}
 	
-	bool ModelUtils::ParseModel(
+	bool ResourcesLoader::ParseModel(
 		const char* path,
 		Models& models,
 		Materials& materials,
@@ -107,7 +107,7 @@ namespace erm {
 			mFutures.emplace_back(
 				std::async(
 					std::launch::async,
-					&ParseDaeModel,
+					&ParseColladaModel,
 					std::ref(mMutex),
 					std::ref(mStop),
 					path,

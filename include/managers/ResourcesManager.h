@@ -12,7 +12,7 @@
 
 namespace erm {
 	
-	class ModelUtils;
+	class ResourcesLoader;
 	
 	template<typename T>
 	using Handle = std::unique_ptr<T>;
@@ -56,7 +56,7 @@ namespace erm {
 		SkeletonAnimation* GetAnimation(const char* name);
 		
 	private:
-		std::unique_ptr<ModelUtils> mModelUtils;
+		std::unique_ptr<ResourcesLoader> mResourcesLoader;
 		
 		Shaders mLoadedShaderPrograms;
 		Materials mLoadedMaterials;

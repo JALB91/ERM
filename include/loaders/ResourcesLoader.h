@@ -11,10 +11,10 @@ namespace erm {
 	
 	class Model;
 	
-	class ModelUtils
+	class ResourcesLoader
 	{
 	public:
-		~ModelUtils();
+		~ResourcesLoader();
 		
 		void OnUpdate();
 		void OnRender();

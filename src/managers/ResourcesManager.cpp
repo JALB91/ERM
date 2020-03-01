@@ -1,7 +1,8 @@
 #include "managers/ResourcesManager.h"
 
+#include "loaders/ResourcesLoader.h"
+
 #include "utils/MeshUtils.h"
-#include "utils/ModelUtils.h"
 #include "utils/Utils.h"
 
 #include <algorithm>
@@ -11,12 +12,12 @@
 namespace erm {
 	
 	ResourcesManager::ResourcesManager()
-		: mModelUtils(std::make_unique<ModelUtils>())
+		: mResourcesLoader(std::make_unique<ResourcesLoader>())
 	{}
 	
 	ResourcesManager::~ResourcesManager()
 	{
-		mModelUtils.reset();
+		mResourcesLoader.reset();
 	}
 	
 	void ResourcesManager::LoadDefaultResources()
@@ -38,17 +39,17 @@ namespace erm {
 	
 	void ResourcesManager::OnUpdate()
 	{
-		mModelUtils->OnUpdate();
+		mResourcesLoader->OnUpdate();
 	}
 	
 	void ResourcesManager::OnRender()
 	{
-		mModelUtils->OnRender();
+		mResourcesLoader->OnRender();
 	}
 	
 	void ResourcesManager::OnPostRender()
 	{
-		mModelUtils->OnPostRender();
+		mResourcesLoader->OnPostRender();
 	}
 	
 	ShaderProgram* ResourcesManager::GetOrCreateShaderProgram(const char* vertexShader, const char* fragmentShader)
@@ -161,7 +162,7 @@ namespace erm {
 			return (*it).get();
 		}
 		
-		if (mModelUtils->ParseModel(modelPath, mLoadedModels, mLoadedMaterials, mLoadedSkins, mLoadedAnimations))
+		if (mResourcesLoader->ParseModel(modelPath, mLoadedModels, mLoadedMaterials, mLoadedSkins, mLoadedAnimations))
 		{
 			return mLoadedModels.back().get();
 		}
