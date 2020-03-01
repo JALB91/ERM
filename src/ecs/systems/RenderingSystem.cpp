@@ -148,16 +148,19 @@ namespace erm {
 			const math::vec3& viewPos = camera.GetComponent<TransformComponent>()->mTranslation;
 			const std::vector<Mesh>& meshes = modelPtr->GetMeshes();
 			
+			const bool hasBone = skeletonComponent && skeletonComponent->GetRootBone();
+
+			ShaderProgram* skeletonShaderProgram = mResourcesManager.GetOrCreateShaderProgram("res/shaders/skeleton_model");
+			ShaderProgram* modelShaderProgram = mResourcesManager.GetOrCreateShaderProgram("res/shaders/model");
+
 			for (unsigned int i = 0; i < meshes.size(); ++i)
 			{
 				const Mesh& mesh = meshes[i];
-				const bool hasBone = skeletonComponent && skeletonComponent->GetRootBone();
-				
 				Material& material = mesh.GetMaterial() ? *mesh.GetMaterial() : Material::DEFAULT;
 				
 				if (hasBone)
 				{
-					material.mShaderProgram = mResourcesManager.GetOrCreateShaderProgram("res/shaders/skeleton_model");
+					material.mShaderProgram = skeletonShaderProgram;
 					material.mShaderProgram->Bind();
 					
 					skeletonComponent->GetRootBone()->ForEachDo([&material](BonesTree& node) {
@@ -170,7 +173,7 @@ namespace erm {
 				}
 				else
 				{
-					material.mShaderProgram = mResourcesManager.GetOrCreateShaderProgram("res/shaders/model");
+					material.mShaderProgram = modelShaderProgram;
 				}
 			}
 
