@@ -13,7 +13,7 @@ namespace ImGui {
 		int& selectedValue
 	);
 	
-	extern void ShowMatrixDebug(
+	extern bool ShowMatrixDebug(
 		erm::math::mat4& matrix
 	);
 

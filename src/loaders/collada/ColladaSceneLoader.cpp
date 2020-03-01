@@ -29,7 +29,7 @@ namespace erm {
 		if (!libraryVisualScene) return;
 		XMLElement* visualScene = libraryVisualScene->FirstChildElement("visual_scene");
 		
-		std::unique_ptr<BonesTree> tree = std::make_unique<BonesTree>(0, nullptr);
+		std::unique_ptr<BonesTree> tree = std::make_unique<BonesTree>(0, Bone());
 		
 		while (visualScene)
 		{
@@ -44,7 +44,7 @@ namespace erm {
 			visualScene = visualScene->NextSiblingElement("visual_scene");
 		}
 		
-		if (tree->GetPayload())
+		if (tree->GetSize() > 1)
 		{
 			mutex.lock();
 			skins.emplace_back(std::move(tree));
@@ -75,7 +75,7 @@ namespace erm {
 				parentBind *= bindMatrix;
 				parentInverseBind = glm::inverse(parentBind);
 				
-				tree = &tree->AddChild(i, std::make_unique<Bone>(parentInverseBind, boneName.c_str()));
+				tree = &tree->AddChild(i, Bone(bindMatrix, parentInverseBind, boneName.c_str()));
 				found = true;
 				break;
 			}

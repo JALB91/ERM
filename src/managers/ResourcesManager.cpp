@@ -173,7 +173,7 @@ namespace erm {
 	BonesTree* ResourcesManager::GetSkin(const char* name)
 	{
 		auto it = std::find_if(mLoadedSkins.begin(), mLoadedSkins.end(), [name](Handle<BonesTree>& bone) {
-			return bone->GetPayload()->mName == name;
+			return bone->GetPayload().mName == name;
 		});
 		
 		return (it != mLoadedSkins.end() ? (*it).get() : nullptr);

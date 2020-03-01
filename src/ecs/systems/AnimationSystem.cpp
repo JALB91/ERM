@@ -34,7 +34,7 @@ namespace erm {
 				if (!animationComponent || !animationComponent->mPlaying || !skeletonComponent) continue;
 				
 				SkeletonAnimation* currentAnimation = animationComponent->mSkeletonAnimation;
-				BonesTree* rootBone = skeletonComponent->mRootBone;
+				BonesTree* rootBone = skeletonComponent->GetRootBone();
 				
 				if (!currentAnimation || !rootBone) continue;
 				
@@ -65,29 +65,24 @@ namespace erm {
 				
 				rootBone->ForEachDo(
 					[&prevKeyFrame, &nextKeyFrame, progression](BonesTree& node) {
-						Bone& currentBone = *node.GetPayload();
+						Bone& currentBone = node.GetPayload();
 						
 						const Pose& prevPose = prevKeyFrame->mTransforms[node.GetId()];
 						const Pose& nextPose = nextKeyFrame->mTransforms[node.GetId()];
 						
 						Pose currentPose;
 						currentPose.mTranslation = glm::mix(prevPose.mTranslation, nextPose.mTranslation, progression);
-						currentPose.mRotation = glm::slerp(prevPose.mRotation, nextPose.mRotation, progression);
+						currentPose.mRotation = glm::normalize(glm::slerp(prevPose.mRotation, nextPose.mRotation, progression));
 						currentPose.mScale = glm::mix(prevPose.mScale, nextPose.mScale, progression);
 						
-						math::mat4 poseTransform = glm::identity<math::mat4>();
-						poseTransform = glm::translate(poseTransform, currentPose.mTranslation);
-						poseTransform *= glm::mat4_cast(currentPose.mRotation);
-						poseTransform = glm::scale(poseTransform, currentPose.mScale);
-
-						currentBone.mAnimatedTransform = node.GetParent() ? node.GetParent()->GetPayload()->mAnimatedTransform : glm::identity<math::mat4>();
-						currentBone.mAnimatedTransform *= poseTransform;
-					},
-					[](BonesTree& node) {
-						Bone& currentBone = *node.GetPayload();
-						currentBone.mAnimatedTransform *= currentBone.mInverseBindTransform;
+						currentBone.mLocalTransform = glm::identity<math::mat4>();
+						currentBone.mLocalTransform = glm::translate(currentBone.mLocalTransform, currentPose.mTranslation);
+						currentBone.mLocalTransform *= glm::mat4_cast(currentPose.mRotation);
+						currentBone.mLocalTransform = glm::scale(currentBone.mLocalTransform, currentPose.mScale);
 					}
 				);
+				
+				skeletonComponent->SetDirty(true);
 			}
 		}
 		

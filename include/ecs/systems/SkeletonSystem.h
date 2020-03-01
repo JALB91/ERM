@@ -13,6 +13,8 @@ namespace erm {
 				: ISystem(ecs)
 			{}
 			
+			void OnPostUpdate() override;
+			
 		};
 		
 	}

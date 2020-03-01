@@ -42,15 +42,16 @@ namespace ImGui {
 			
 			ShowPathOptions(game, skeletonComponent);
 			
-			if (skeletonComponent.mRootBone)
+			if (erm::BonesTree* rootBone = skeletonComponent.GetRootBone())
 			{
-				skeletonComponent.mRootBone->ForEachDo(
-					[](erm::BonesTree& node) {
+				bool hasChanges = false;
+				rootBone->ForEachDo(
+					[&hasChanges](erm::BonesTree& node) {
 						ImGui::PushID(node.GetId());
 						if (node.GetParent()) ImGui::Indent(ImGui::GetStyle().IndentSpacing * 0.75f);
-						if (ImGui::TreeNode(node.GetPayload()->mName.c_str()))
+						if (ImGui::TreeNode(node.GetPayload().mName.c_str()))
 						{
-							ImGui::ShowMatrixDebug(node.GetPayload()->mAnimatedTransform);
+							hasChanges |= ImGui::ShowMatrixDebug(node.GetPayload().mLocalTransform);
 							ImGui::TreePop();
 						}
 					},
@@ -59,6 +60,10 @@ namespace ImGui {
 						ImGui::PopID();
 					}
 				);
+				if (hasChanges)
+				{
+					skeletonComponent.SetDirty(true);
+				}
 			}
 			
 			ImGui::Unindent();
@@ -71,8 +76,8 @@ namespace ImGui {
 	{
 		const erm::Skins& all = game.GetResourcesManager().GetLoadedSkins();
 		
-		erm::BonesTree* rootBone = skeletonComponent.mRootBone;
-		std::string currentPath = rootBone ? rootBone->GetPayload()->mName : "";
+		erm::BonesTree* rootBone = skeletonComponent.GetRootBone();
+		std::string currentPath = rootBone ? rootBone->GetPayload().mName : "";
 		
 		if (ImGui::BeginCombo("Path", currentPath.c_str()))
 		{
@@ -80,19 +85,19 @@ namespace ImGui {
 			if (ImGui::Selectable("", &isSelected))
 			{
 				currentPath = "";
-				skeletonComponent.mRootBone = nullptr;
+				skeletonComponent.SetRootBone(nullptr);
 			}
 			
 			for (unsigned int i = 0; i < all.size(); ++i)
 			{
-				const std::string& currentName = all[i]->GetPayload()->mName;
+				const std::string& currentName = all[i]->GetPayload().mName;
 				bool isSelected = currentPath == currentName;
 				if (ImGui::Selectable(currentName.c_str(), &isSelected))
 				{
 					if (currentPath != currentName)
 					{
 						currentPath = currentName;
-						skeletonComponent.mRootBone = game.GetResourcesManager().GetSkin(currentPath.c_str());
+						skeletonComponent.SetRootBone(game.GetResourcesManager().GetSkin(currentPath.c_str()));
 					}
 				}
 			}

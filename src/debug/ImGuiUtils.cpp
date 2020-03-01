@@ -26,7 +26,7 @@ namespace ImGui {
 		delete[] names;
 	}
 	
-	void ShowMatrixDebug(
+	bool ShowMatrixDebug(
 		erm::math::mat4& matrix
 	)
 	{
@@ -49,6 +49,8 @@ namespace ImGui {
 			matrix *= glm::mat4_cast(glm::quat(euler));
 			matrix = glm::scale(matrix, scale);
 		}
+		
+		return hasChanges;
 	}
 
 }

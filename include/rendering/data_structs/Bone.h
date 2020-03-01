@@ -17,17 +17,26 @@ namespace erm {
 	
 	struct Bone
 	{
-		Bone(const math::mat4& inverseBindTransform, const char* name)
+		Bone(
+			const math::mat4& localTransform,
+			const math::mat4& inverseBindTransform,
+			const char* name
+			)
 			: mInverseBindTransform(inverseBindTransform)
 			, mAnimatedTransform(glm::identity<math::mat4>())
+			, mLocalTransform(localTransform)
 			, mName(name)
 		{}
 		
-		const math::mat4 mInverseBindTransform;
+		Bone()
+		{}
+		
+		math::mat4 mInverseBindTransform;
 		math::mat4 mAnimatedTransform;
+		math::mat4 mLocalTransform;
 		std::string mName;
 	};
 	
-	typedef Tree<BoneId, std::unique_ptr<Bone>> BonesTree;
+	typedef Tree<BoneId, Bone> BonesTree;
 	
 }
