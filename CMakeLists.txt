@@ -1,116 +1,125 @@
-cmake_minimum_required(VERSION 3.1)
+# CMAKE VERSION
+cmake_minimum_required(VERSION 3.1...3.17)
 
-set(PROJECT_NAME ERM)
+# PROJECT DECLARATION
+project(
+	"ERM"
+	VERSION 0.0.1
+	DESCRIPTION "C++ Game Engine"
+	LANGUAGES CXX
+)
 
-project(${PROJECT_NAME})
-
-set (CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
-set(GLM_TEST_ENABLE_CXX_98 OFF CACHE BOOL "" FORCE)
-set(GLM_TEST_ENABLE_CXX_11 OFF CACHE BOOL "" FORCE)
-set(GLM_TEST_ENABLE_CXX_14 OFF CACHE BOOL "" FORCE)
-set(GLM_TEST_ENABLE_CXX_17 OFF CACHE BOOL "" FORCE)
-set(GLM_TEST_ENABLE_CXX_20 OFF CACHE BOOL "" FORCE)
-set(GLM_TEST_ENABLE OFF CACHE BOOL "" FORCE)
-set(GLM_TEST_ENABLE_SIMD_SSE2 OFF CACHE BOOL "" FORCE)
-set(GLM_TEST_ENABLE_SIMD_SSE3 OFF CACHE BOOL "" FORCE)
-set(GLM_TEST_ENABLE_SIMD_SSSE3 OFF CACHE BOOL "" FORCE)
-set(GLM_TEST_ENABLE_SIMD_SSE4_1 OFF CACHE BOOL "" FORCE)
-set(GLM_TEST_ENABLE_SIMD_SSE4_2 OFF CACHE BOOL "" FORCE)
-set(GLM_TEST_ENABLE_SIMD_AVX OFF CACHE BOOL "" FORCE)
-set(GLM_TEST_ENABLE_SIMD_AVX2 OFF CACHE BOOL "" FORCE)
-set(GLM_TEST_FORCE_PURE OFF CACHE BOOL "" FORCE)
-
-set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-
-set(glew-cmake_BUILD_SHARED OFF CACHE BOOL "" FORCE)
-set(glew-cmake_BUILD_STATIC ON CACHE BOOL "" FORCE)
-set(glew-cmake_BUILD_SINGLE_CONTEXT ON CACHE BOOL "" FORCE)
-set(glew-cmake_BUILD_MULTI_CONTEXT OFF CACHE BOOL "" FORCE)
-
-if (APPLE)
-	list(APPEND CMAKE_CXX_FLAGS "-Wall -Werror -Wextra")
-	add_compile_definitions(
-		GL_DO_NOT_WARN_IF_MULTI_GL_VERSION_HEADERS_INCLUDED
-		GL_SILENCE_DEPRECATION
-	)
-elseif (WIN32)
-	list(APPEND CMAKE_CXX_FLAGS "-Wall")
-	add_compile_definitions(
-		_USE_MATH_DEFINES
-	)
+# BUILD TYPE
+if(NOT "${CMAKE_BUILD_TYPE}")
+	set(CMAKE_BUILD_TYPE "Debug")
 endif()
 
+# C++ OPTIONS
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS}")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}")
 
-add_compile_definitions(
-	IMGUI_IMPL_OPENGL_LOADER_GLEW
-	GLEW_STATIC
-)
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-find_package(OpenGL REQUIRED)
-add_subdirectory(externals/glew-cmake)
-add_subdirectory(externals/glm)
-add_subdirectory(externals/glfw)
-add_subdirectory(externals/imgui)
-add_subdirectory(externals/stb_image)
-add_subdirectory(externals/tinyxml)
-
-add_compile_definitions(GLFW_INCLUDE_GLCOREARB)
-
-include_directories(
-	include
-)
-
-file(GLOB_RECURSE SOURCES 
-	include/*.h 
-	src/*.cpp
-)
-
+# SETUP CMAKE_MODULE_PATH
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(macros)
+include(ERMConfig)
 
-CREATE_GROUPS("${SOURCES}")
+# SETUP TARGET API
+setup_api()
 
-if (${PRINT_VARIABLES})
-	get_cmake_property(_variableNames VARIABLES)
-	list (SORT _variableNames)
-	foreach (_variableName ${_variableNames})
-    	message(STATUS "${_variableName}=${${_variableName}}")
+# ADD EXTERNALS DEPENDENCIES SUBDIRECTORY
+add_subdirectory(externals)
+
+# GATHER SOURCES
+file(GLOB_RECURSE SOURCES 
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/*.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
+)
+create_groups("${SOURCES}")
+
+# CREATE EXECUTABLE IF STANDALONE, LIBRARY IF NOT
+if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_SOURCE_DIR}")
+	add_executable("${PROJECT_NAME}" "${SOURCES}")
+else()
+	add_library("${PROJECT_NAME}" "${SOURCES}")
+endif()
+
+# LINK LIBRARIES
+target_link_libraries(
+	"${PROJECT_NAME}"
+	PRIVATE 
+		"${TARGET_API_LIB}"
+		"${PRIVATE_DEPENDENCIES}"
+		glfw
+		stb_image
+	PUBLIC 
+		"${PUBLIC_DEPENDENCIES}"
+		glm
+		imgui
+		tinyxml2
+)
+
+# TARGET INCLUDE DIRECTORIES
+target_include_directories(
+	"${PROJECT_NAME}"
+	PRIVATE 
+		"${CMAKE_CURRENT_SOURCE_DIR}/include"
+)
+
+# TARGET COMMON CONFIGURATIONS
+target_compile_definitions(
+	"${PROJECT_NAME}"
+	PRIVATE 
+		IMGUI_IMPL_OPENGL_LOADER_GLEW
+		GLEW_STATIC
+)
+
+# TARGET COMMON FEATURES
+target_compile_features(
+	"${PROJECT_NAME}"
+	PUBLIC 
+		cxx_std_17
+)
+
+# TARGET COMMON PROPERTIES
+set_target_properties(
+	"${PROJECT_NAME}" PROPERTIES
+	CXX_STANDARD 17
+	CXX_EXTENSIONS OFF
+)
+
+# SETUP PLATFORM SPECIFIC OPTIONS
+if(MSVC)
+	include(MSVCConfig)
+elseif(XCODE)
+	include(OSXConfig)
+else()
+	message(FATAL_ERROR "Unsupported Platform")
+endif()
+target_setup_project("${PROJECT_NAME}")
+
+# CUSTOM PROPERTIES
+set (CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(RES_SOURCE "${CMAKE_HOME_DIRECTORY}/res/")
+set(RES_DEST "${CMAKE_CURRENT_BINARY_DIR}/${CONFIG}/res")
+
+# CUSTOM COMMANDS
+add_custom_command(
+	TARGET "${PROJECT_NAME}" POST_BUILD
+ 	COMMAND "${CMAKE_COMMAND}" -E copy_directory "${RES_SOURCE}" "${RES_DEST}"
+ 	DEPENDS "${RES_DEST}"
+ 	COMMENT "symbolic link resources folder from ${RES_SOURCE} => ${RES_DEST}"
+ )
+
+# DEBUG PRINT VARIABLES
+if ("${PRINT_VARIABLES}")
+	get_cmake_property(VARIABLE_NAMES VARIABLES)
+	list (SORT VARIABLE_NAMES)
+	foreach (VARIABLE_NAME ${VARIABLE_NAMES})
+    	message(STATUS "${VARIABLE_NAME}=${${VARIABLE_NAME}}")
 	endforeach()
 
 	execute_process(COMMAND "${CMAKE_COMMAND}" "-E" "environment")
 endif()
-
-add_executable(${PROJECT_NAME} ${SOURCES})
-target_link_libraries(
-	${PROJECT_NAME}
-	${OPENGL_gl_LIBRARY}
-	libglew_static
-	glfw
-	glm
-	imgui
-	stb_image
-	tinyxml2
-)
-
-if (WIN32)
-	set_target_properties(
-		${PROJECT_NAME} PROPERTIES
-		VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/Debug"
-	)
-endif()
-
-set(res_source ${CMAKE_HOME_DIRECTORY}/res/)
-set(res_dest ${CMAKE_CURRENT_BINARY_DIR}/Debug/res)
-
-add_custom_command(
-	TARGET ${PROJECT_NAME} POST_BUILD
- 	COMMAND ${CMAKE_COMMAND} -E copy_directory ${res_source} ${res_dest}
- 	DEPENDS ${res_dest}
- 	COMMENT "symbolic link resources folder from ${res_source} => ${res_dest}"
-)

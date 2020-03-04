@@ -1,4 +1,4 @@
-function(CREATE_GROUPS SRCS)
+function(create_groups SRCS)
 	foreach(FILE ${SRCS}) 
 		# Get the directory of the source file
 		get_filename_component(PARENT_DIR "${FILE}" DIRECTORY)
