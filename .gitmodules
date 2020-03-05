@@ -6,7 +6,10 @@
 	url = https://github.com/g-truc/glm.git
 [submodule "externals/glew-cmake"]
 	path = externals/glew-cmake
-	url = https://github.com/Perlmint/glew-cmake.git
+	url = https://github.com/JALB91/glew-cmake.git
 [submodule "externals/tinyxml"]
 	path = externals/tinyxml
-	url = https://github.com/leethomason/tinyxml2.git
+	url = https://github.com/JALB91/tinyxml2.git
+[submodule "externals/imgui/imgui"]
+	path = externals/imgui/imgui
+	url = https://github.com/JALB91/imgui.git

@@ -19,6 +19,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS}")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}")
 
+# IDEs FRIENDLY
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # SETUP CMAKE_MODULE_PATH
@@ -34,19 +35,20 @@ message(STATUS "Using ${TARGET_API} APIs")
 if ("${TARGET_API}" STREQUAL "OpenGl")
 	include(GLEWConfig)
 	add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/glew-cmake")
-	set(PUBLIC_DEPENDENCIES "libglew_static")
+	set(GLEW_LIBRARY libglew_static)
+	set(PUBLIC_DEPENDENCIES "${GLEW_LIBRARY}")
 endif()
 
 # INCLUDE CONFIGURATION FILES FOR DEPENDENCIES
-include(GLFWConfig)
 include(GLMConfig)
+include(GLFWConfig)
 
 # ADDS COMMON EXTERNALS DEPENDENCIES
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/glm")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/glfw")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/imgui")
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/stb_image")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/tinyxml")
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/stb_image")
 
 # GATHER SOURCES
 file(GLOB_RECURSE SOURCES 
@@ -90,8 +92,7 @@ target_include_directories(
 # TARGET COMMON CONFIGURATIONS
 target_compile_definitions(
 	"${PROJECT_NAME}"
-	PRIVATE 
-		IMGUI_IMPL_OPENGL_LOADER_GLEW
+	PRIVATE
 		GLEW_STATIC
 )
 
@@ -104,9 +105,10 @@ target_compile_features(
 
 # TARGET COMMON PROPERTIES
 set_target_properties(
-	"${PROJECT_NAME}" PROPERTIES
-	CXX_STANDARD 17
-	CXX_EXTENSIONS OFF
+	"${PROJECT_NAME}" 
+	PROPERTIES
+		CXX_STANDARD 17
+		CXX_EXTENSIONS OFF
 )
 
 # SETUP PLATFORM SPECIFIC OPTIONS
