@@ -6,7 +6,6 @@ include(GLMConfig)
 # ADD DEPENDENCIES BASED ON TARGET API
 if ("${TARGET_API}" STREQUAL "OpenGl")
 	include(GLEWConfig)
-	# SETUP POLICIES
 	add_subdirectory(glew-cmake)
 	set(PUBLIC_DEPENDENCIES "libglew_static" PARENT_SCOPE)
 endif()
@@ -16,6 +15,4 @@ add_subdirectory(glm)
 add_subdirectory(glfw)
 add_subdirectory(imgui)
 add_subdirectory(stb_image)
-
-# SETUP POLICIES
 add_subdirectory(tinyxml)
