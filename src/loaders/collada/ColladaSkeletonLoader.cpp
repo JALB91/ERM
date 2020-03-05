@@ -34,10 +34,10 @@ namespace erm {
 		ColladaSkinData& currentSkinData = skinsData[currentSource.substr(1)];
 		
 		XMLElement* vertexWeights = skin->FirstChildElement("vertex_weights");
-		const unsigned int count = vertexWeights->IntAttribute("count");
+		const unsigned int bonesCount = vertexWeights->IntAttribute("count");
 		
-		currentSkinData.mBoneIds.reserve(count);
-		currentSkinData.mBoneWeights.reserve(count);
+		currentSkinData.mBoneIds.reserve(bonesCount);
+		currentSkinData.mBoneWeights.reserve(bonesCount);
 		
 		std::vector<float> weights;
 		std::vector<unsigned int> counts;

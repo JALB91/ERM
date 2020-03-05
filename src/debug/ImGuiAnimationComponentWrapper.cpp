@@ -73,7 +73,7 @@ namespace ImGui {
 			for (unsigned int i = 0; i < all.size(); ++i)
 			{
 				const std::string& currentName = all[i]->mName;
-				bool isSelected = currentPath == currentName;
+				isSelected = currentPath == currentName;
 				if (ImGui::Selectable(currentName.c_str(), &isSelected))
 				{
 					if (currentPath != currentName)

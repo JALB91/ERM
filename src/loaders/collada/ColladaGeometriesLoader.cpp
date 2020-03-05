@@ -58,7 +58,8 @@ namespace erm {
 				
 				for (const char* primitiveName : kSupportedPrimitives)
 				{
-					if ((primitive = mesh->FirstChildElement(primitiveName))) break;
+					primitive = mesh->FirstChildElement(primitiveName);
+					if (primitive) break;
 				}
 				
 				bool isValid = primitive;
@@ -131,20 +132,20 @@ namespace erm {
 					
 					indicesData[index] = index;
 					
-					const unsigned short pIndex = std::atoi(values[i + pOffset].c_str());
+					const IndexData pIndex = std::atoi(values[i + pOffset].c_str());
 					vertexData.mPositionVertex = pVertices[pIndex];
 					vertexData.mBoneIds = (currentSkinData && currentSkinData->mBoneIds.size() > pIndex) ? currentSkinData->mBoneIds[pIndex] : BoneIds(0);
 					vertexData.mBoneWeights = (currentSkinData && currentSkinData->mBoneWeights.size() > pIndex) ? currentSkinData->mBoneWeights[pIndex] : BoneWeights(0.0f);
 					
 					if (!nVertices.empty() && nOffset >= 0)
 					{
-						const unsigned short nIndex = std::atoi(values[i+nOffset].c_str());
+						const IndexData nIndex = std::atoi(values[i+nOffset].c_str());
 						vertexData.mNormalVertex = nVertices[nIndex];
 					}
 					
 					if (!uvVertices.empty() && uvOffset >= 0)
 					{
-						const unsigned short uvIndex = std::atoi(values[i+uvOffset].c_str());
+						const IndexData uvIndex = std::atoi(values[i+uvOffset].c_str());
 						vertexData.mUVVertex = uvVertices[uvIndex];
 					}
 					

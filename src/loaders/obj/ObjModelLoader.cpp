@@ -69,7 +69,7 @@ namespace erm {
 		std::vector<UVVertex> uvVertices;
 		std::vector<VertexData> verticesData;
 		std::vector<IndexData> indicesData;
-		Material* material;
+		Material* material = nullptr;
 
 		bool wasLooping = false;
 		bool noMat = false;
@@ -169,10 +169,10 @@ namespace erm {
 						continue;
 					}
 					ASSERT(splitted.size() >= 2);
-					std::string name = splitted[splitted.size() - 1];
+					std::string materialName = splitted[splitted.size() - 1];
 					mutex.lock();
-					auto it = std::find_if(materials.begin(), materials.end(), [name](const std::unique_ptr<Material>& material) {
-						return material->mName.compare(name) == 0;
+					auto it = std::find_if(materials.begin(), materials.end(), [materialName](const std::unique_ptr<Material>& material) {
+						return material->mName.compare(materialName) == 0;
 					});
 					material = it != materials.end() ? (*it).get() : nullptr;
 					mutex.unlock();

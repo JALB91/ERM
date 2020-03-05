@@ -36,7 +36,7 @@ namespace ImGui {
 				
 				for (unsigned int i = 0; i < shaders.size(); ++i)
 				{
-					bool isSelected = selected ? selected->GetPath() == shaders[i] : false;
+					isSelected = selected ? selected->GetPath() == shaders[i] : false;
 					if (ImGui::Selectable(shaders[i].c_str(), &isSelected))
 					{
 						hasChanged = true;

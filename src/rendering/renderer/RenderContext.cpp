@@ -13,24 +13,24 @@ namespace erm {
 		std::cout << "GLSL " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
 	}
 	
-	void RenderContext::Draw(DrawMode drawMode, int count) const
+	void RenderContext::Draw(DrawMode drawMode, unsigned int count) const
 	{
 		switch (drawMode)
 		{
 			case DrawMode::LINES:
-				GL_CALL(glDrawElements(GL_LINES, count, GL_UNSIGNED_SHORT, nullptr));
+				GL_CALL(glDrawElements(GL_LINES, count, GL_UNSIGNED_INT, nullptr));
 				break;
 			case DrawMode::LINE_STRIP:
-				GL_CALL(glDrawElements(GL_LINE_STRIP, count, GL_UNSIGNED_SHORT, nullptr));
+				GL_CALL(glDrawElements(GL_LINE_STRIP, count, GL_UNSIGNED_INT, nullptr));
 				break;
 			case DrawMode::TRIANGLES:
-				GL_CALL(glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_SHORT, nullptr));
+				GL_CALL(glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr));
 				break;
 			case DrawMode::TRIANGLE_FAN:
-				GL_CALL(glDrawElements(GL_TRIANGLE_FAN, count, GL_UNSIGNED_SHORT, nullptr));
+				GL_CALL(glDrawElements(GL_TRIANGLE_FAN, count, GL_UNSIGNED_INT, nullptr));
 				break;
 			case DrawMode::TRIANGLE_STRIP:
-				GL_CALL(glDrawElements(GL_TRIANGLE_STRIP, count, GL_UNSIGNED_SHORT, nullptr));
+				GL_CALL(glDrawElements(GL_TRIANGLE_STRIP, count, GL_UNSIGNED_INT, nullptr));
 				break;
 		}
 	}
@@ -42,7 +42,8 @@ namespace erm {
 	
 	bool RenderContext::IsDepthEnabled() const
 	{
-		GL_CALL(return glIsEnabled(GL_DEPTH_TEST));
+		GL_CALL(const bool result = glIsEnabled(GL_DEPTH_TEST));
+		return result;
 	}
 	
 	int RenderContext::GetDepthFunction() const
@@ -64,7 +65,8 @@ namespace erm {
 	
 	bool RenderContext::IsBlendEnabled() const
 	{
-		GL_CALL(return glIsEnabled(GL_BLEND));
+		GL_CALL(const bool result = glIsEnabled(GL_BLEND));
+		return result;
 	}
 	
 	int RenderContext::GetBlendSourceFactor() const
@@ -93,7 +95,8 @@ namespace erm {
 	
 	bool RenderContext::IsCullFaceEnabled() const
 	{
-		GL_CALL(return glIsEnabled(GL_CULL_FACE));
+		GL_CALL(const bool result = glIsEnabled(GL_CULL_FACE));
+		return result;
 	}
 	
 	int RenderContext::GetCullFace() const

@@ -266,8 +266,8 @@ namespace erm {
 	
 	Mesh MeshUtils::CreateSphere(
 		float radius /* = 1.0f */,
-		int sectors /* = 10 */,
-		int rings /* = 10 */
+		unsigned int sectors /* = 10 */,
+		unsigned int rings /* = 10 */
 	) {
 		const unsigned int verticesCount = (sectors + 1) * (rings + 1);
 		VertexData* vertices = new VertexData[verticesCount];
@@ -277,16 +277,16 @@ namespace erm {
 		
 		const float sectorStep = static_cast<float>(2.0f * M_PI / sectors);
 		const float stackStep = static_cast<float>(M_PI / rings);
-		float stackAngle;
-		int index = 0;
+		float stackAngle = 0.0f;
+		unsigned int index = 0;
 		
-		for (int i = 0; i <= rings; ++i)
+		for (unsigned int i = 0; i <= rings; ++i)
 		{
-			stackAngle = static_cast<float>(M_PI / 2.0f - i * stackStep);
+			stackAngle = static_cast<float>(M_PI * 0.5f - i * stackStep);
 			const float xy = radius * cosf(stackAngle);
 			const float z = radius * sinf(stackAngle);
 			
-			for (int j = 0; j <= sectors; ++j)
+			for (unsigned int j = 0; j <= sectors; ++j)
 			{
 				const float sectorAngle = j * sectorStep;
 				const float x = xy * cosf(sectorAngle);
@@ -299,15 +299,15 @@ namespace erm {
 			}
 		}
 		
-		int k1, k2;
+		unsigned int k1, k2;
 		index = 0;
 		
-		for (int i = 0; i < rings; ++i)
+		for (unsigned int i = 0; i < rings; ++i)
 		{
 			k1 = i * (sectors + 1);
 			k2 = k1 + sectors + 1;
 			
-			for (int j = 0; j < sectors; ++j, ++k1, ++k2)
+			for (unsigned int j = 0; j < sectors; ++j, ++k1, ++k2)
 			{
 				if (i != 0)
 				{
@@ -331,8 +331,8 @@ namespace erm {
 	}
 	
 	Mesh MeshUtils::CreateGrid(
-		int sizeX /*= 100*/,
-		int sizeY /*= 100*/,
+		unsigned int sizeX /*= 100*/,
+		unsigned int sizeY /*= 100*/,
 		float width /*= 1.0f*/,
 		float height /*= 1.0f*/
 	)
@@ -343,30 +343,30 @@ namespace erm {
 		const unsigned int verticesCount = (sizeX + 1) * 2 + (sizeY + 1) * 2;
 		VertexData* vertices = new VertexData[verticesCount];
 		
-		int index = 0;
+		unsigned int index = 0;
 		
-		for (int i = 0; i < sizeX + 1; ++i)
+		for (int i = 0; i < static_cast<int>(sizeX + 1); ++i)
 		{
 			vertices[index].mPositionVertex = PositionVertex(- halfSizeX * width, 0.0f, height * (i - halfSizeY));
 			vertices[index].mNormalVertex = NormalVertex(0.0f, 0.0f, 0.0f);
 			++index;
 		}
 		
-		for (int i = 0; i < sizeX + 1; ++i)
+		for (int i = 0; i < static_cast<int>(sizeX + 1); ++i)
 		{
 			vertices[index].mPositionVertex = PositionVertex(halfSizeX * width, 0.0f, height * (i - halfSizeY));
 			vertices[index].mNormalVertex = NormalVertex(0.0f, 0.0f, 0.0f);
 			++index;
 		}
 		
-		for (int i = 0; i < sizeY + 1; ++i)
+		for (int i = 0; i < static_cast<int>(sizeY + 1); ++i)
 		{
 			vertices[index].mPositionVertex = PositionVertex(width * (i - halfSizeX), 0.0f, - halfSizeY * height);
 			vertices[index].mNormalVertex = NormalVertex(0.0f, 0.0f, 0.0f);
 			++index;
 		}
 		
-		for (int i = 0; i < sizeY + 1; ++i)
+		for (int i = 0; i < static_cast<int>(sizeY + 1); ++i)
 		{
 			vertices[index].mPositionVertex = PositionVertex(width * (i - halfSizeX), 0.0f, halfSizeY * height);
 			vertices[index].mNormalVertex = NormalVertex(0.0f, 0.0f, 0.0f);
@@ -378,16 +378,16 @@ namespace erm {
 		
 		index = 0;
 		
-		for (int i = 0; i < sizeX + 1; ++i)
+		for (unsigned int i = 0; i < sizeX + 1; ++i)
 		{
 			indices[index * 2] = i;
 			indices[(index * 2) + 1] = i + (sizeX + 1);
 			++index;
 		}
 		
-		for (int i = 0; i < sizeY + 1; ++i)
+		for (unsigned int i = 0; i < sizeY + 1; ++i)
 		{
-			const int start = i + (sizeX + 1) * 2;
+			const unsigned int start = i + (sizeX + 1) * 2;
 			indices[index * 2] = start;
 			indices[index * 2 + 1] = start + (sizeY + 1);
 			++index;

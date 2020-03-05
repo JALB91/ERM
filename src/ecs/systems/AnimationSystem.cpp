@@ -51,14 +51,14 @@ namespace erm {
 					currentAnimationTime = std::fmod(currentAnimationTime, currentAnimation->mTotalAnimationTime);
 				}
 				
-				for (unsigned int i = 1; i < static_cast<unsigned int>(keyFrames.size()); ++i)
+				for (unsigned int j = 1; j < static_cast<unsigned int>(keyFrames.size()); ++j)
 				{
-					nextKeyFrame = &keyFrames[i];
-					if (keyFrames[i].mTimestamp > currentAnimationTime)
+					nextKeyFrame = &keyFrames[j];
+					if (keyFrames[j].mTimestamp > currentAnimationTime)
 					{
 						break;
 					}
-					prevKeyFrame = &keyFrames[i];
+					prevKeyFrame = &keyFrames[j];
 				}
 				
 				const float progression = (currentAnimationTime - prevKeyFrame->mTimestamp) / (nextKeyFrame->mTimestamp - prevKeyFrame->mTimestamp);

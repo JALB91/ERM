@@ -32,7 +32,7 @@ namespace ImGui {
 			
 			for (unsigned int i = 0; i < all.size(); ++i)
 			{
-				bool isSelected = currentPath == all[i];
+				isSelected = currentPath == all[i];
 				if (ImGui::Selectable(all[i].c_str(), &isSelected))
 				{
 					if (currentPath != all[i])

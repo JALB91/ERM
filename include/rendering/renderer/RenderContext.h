@@ -11,7 +11,7 @@ namespace erm {
 	public:
 		RenderContext();
 		
-		void Draw(DrawMode drawMode, int count) const;
+		void Draw(DrawMode drawMode, unsigned int count) const;
 		
 		void Clear() const;
 		

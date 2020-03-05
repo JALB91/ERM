@@ -5,14 +5,14 @@
 
 namespace erm {
 	
-	IndexBuffer::IndexBuffer(const unsigned short* data, unsigned int count)
+	IndexBuffer::IndexBuffer(const IndexData* data, unsigned int count)
 		: mCount(count)
 	{
-		ASSERT(sizeof(unsigned short) == sizeof(GLushort));
+		ASSERT(sizeof(IndexData) == sizeof(GLuint));
 		
 		GL_CALL(glGenBuffers(1, &mRendererId));
 		GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mRendererId));
-		GL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(unsigned short), data, GL_STATIC_DRAW));
+		GL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(IndexData), data, GL_STATIC_DRAW));
 	}
 	
 	IndexBuffer::~IndexBuffer()

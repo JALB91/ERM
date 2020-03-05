@@ -4,6 +4,6 @@
 
 namespace erm {
 	
-	typedef unsigned short IndexData;
+	typedef unsigned int IndexData;
 	
 }

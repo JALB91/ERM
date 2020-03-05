@@ -30,12 +30,12 @@ namespace erm {
 		);
 		static Mesh CreateSphere(
 			float radius = 1.0f,
-			int stackCount = 10,
-			int sectorCount = 10
+			unsigned int stackCount = 10,
+			unsigned int sectorCount = 10
 		);
 		static Mesh CreateGrid(
-			int sizeX = 100,
-			int sizeY = 100,
+			unsigned int sizeX = 100,
+			unsigned int sizeY = 100,
 			float width = 1.0f,
 			float height = 1.0f
 		);

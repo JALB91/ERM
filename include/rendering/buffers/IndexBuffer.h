@@ -1,11 +1,13 @@
 #pragma once
 
+#include "rendering\buffers\IndexData.h"
+
 namespace erm {
 
 	class IndexBuffer
 	{
 	public:
-		IndexBuffer(const unsigned short* data, unsigned int count);
+		IndexBuffer(const IndexData* data, unsigned int count);
 		~IndexBuffer();
 		
 		IndexBuffer(IndexBuffer&&) = delete;

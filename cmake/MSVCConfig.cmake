@@ -13,6 +13,6 @@ function(target_setup_project TARGET)
 	target_compile_options(
 		"${TARGET}"
 		PRIVATE 
-			$<$<STREQUAL:"${CMAKE_BUILD_TYPE}","Debug">:/W4>
+			$<$<STREQUAL:"${CMAKE_BUILD_TYPE}","Debug">:/W3 /WX>
 	)
 endfunction()

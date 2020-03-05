@@ -31,7 +31,7 @@ namespace ImGui {
 			
 			for (unsigned int i = 0; i < all.size(); ++i)
 			{
-				bool isSelected = currentPath == all[i];
+				isSelected = currentPath == all[i];
 				if (ImGui::Selectable(all[i].c_str(), &isSelected))
 				{
 					if (currentPath != all[i])
@@ -77,7 +77,7 @@ namespace ImGui {
 					
 					displayedPaths.insert(all[i]->mPath);
 					
-					bool isSelected = currentPath == all[i]->mPath;
+					isSelected = currentPath == all[i]->mPath;
 					if (ImGui::Selectable(all[i]->mPath.c_str(), &isSelected))
 					{
 						if (currentPath != all[i]->mPath)
@@ -104,7 +104,7 @@ namespace ImGui {
 				{
 					if (currentPath == all[i]->mPath)
 					{
-						bool isSelected = currentName == all[i]->mName;
+						isSelected = currentName == all[i]->mName;
 						if (ImGui::Selectable(all[i]->mName.c_str(), &isSelected))
 						{
 							if (currentName != all[i]->mName)
