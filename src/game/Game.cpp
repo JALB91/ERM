@@ -62,7 +62,7 @@ namespace erm {
 		UNUSED(kHandgunModelPath);
 		UNUSED(kModelModelPath);
 		UNUSED(kDefaultScale);
-		std::srand(static_cast<int>(time(NULL)));
+		std::srand(static_cast<unsigned int>(time(NULL)));
 		mWindow->AddListener(static_cast<IWindowListener&>(*this));
 	}
 	

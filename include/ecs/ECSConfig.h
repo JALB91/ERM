@@ -5,11 +5,11 @@
 namespace erm {
 	namespace ecs {
 		
-		typedef int ID;
+		typedef unsigned int ID;
 		
-		static const ID INVALID_ID = -1;
-		static const ID ROOT_ID = 0;
-		static const ID MAX_ID = 1000;
+		static constexpr ID ROOT_ID = 0;
+		static constexpr ID MAX_ID = 1000;
+		static constexpr ID INVALID_ID = MAX_ID;
 		
 	}
 }

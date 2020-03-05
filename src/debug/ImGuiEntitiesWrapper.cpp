@@ -34,7 +34,7 @@ namespace ImGui {
 		
 		if (ImGui::Begin("Entity", nullptr, flags) && active.IsValid())
 		{
-			ImGui::PushID(active());
+			ImGui::PushID(static_cast<int>(active()));
 			ImGui::Separator();
 			ImGui::Text("Components");
 			ImGui::ShowComponentDebugWindow(game, active);

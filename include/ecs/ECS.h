@@ -54,13 +54,13 @@ namespace erm {
 			
 			Game& mGame;
 			
-			ADD_SYSTEM(TransformSystem, mTransformSystem);
-			ADD_SYSTEM(LightSystem, mLightSystem);
-			ADD_SYSTEM(SkeletonSystem, mSkeletonSystem);
-			ADD_SYSTEM(AnimationSystem, mAnimationSystem);
-			ADD_SYSTEM(ModelSystem, mModelSystem);
-			ADD_SYSTEM(CameraSystem, mCameraSystem);
-			ADD_SYSTEM(RenderingSystem, mRenderingSystem);
+			ADD_SYSTEM(TransformSystem, mTransformSystem)
+			ADD_SYSTEM(LightSystem, mLightSystem)
+			ADD_SYSTEM(SkeletonSystem, mSkeletonSystem)
+			ADD_SYSTEM(AnimationSystem, mAnimationSystem)
+			ADD_SYSTEM(ModelSystem, mModelSystem)
+			ADD_SYSTEM(CameraSystem, mCameraSystem)
+			ADD_SYSTEM(RenderingSystem, mRenderingSystem)
 			
 			std::array<std::unique_ptr<Entity>, MAX_ID> mEntities;
 			

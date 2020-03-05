@@ -32,7 +32,7 @@ namespace ImGui {
 			flags |= ImGuiTreeNodeFlags_Selected;
 		}
 		
-		ImGui::PushID(entity());
+		ImGui::PushID(static_cast<int>(entity()));
 		const bool isOpen = ImGui::TreeNodeEx(ecs.GetEntityById(entity())->GetName().c_str(), flags);
 		
 		if (ImGui::IsItemClicked(0))

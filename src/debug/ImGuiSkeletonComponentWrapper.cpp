@@ -47,7 +47,7 @@ namespace ImGui {
 				bool hasChanges = false;
 				rootBone->ForEachDo(
 					[&hasChanges](erm::BonesTree& node) {
-						ImGui::PushID(node.GetId());
+						ImGui::PushID(static_cast<int>(node.GetId()));
 						if (node.GetParent()) ImGui::Indent(ImGui::GetStyle().IndentSpacing * 0.75f);
 						if (ImGui::TreeNode(node.GetPayload()->mName.c_str()))
 						{

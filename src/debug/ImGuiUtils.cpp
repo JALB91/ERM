@@ -12,16 +12,16 @@ namespace ImGui {
 		int& selectedValue
 	)
 	{
-		const int count = static_cast<int>(values.size());
+		const unsigned int count = static_cast<unsigned int>(values.size());
 		const char** names = new const char*[count];
 		int selectedIndex = 0;
-		for (int i = 0; i < count; ++i)
+		for (unsigned int i = 0; i < count; ++i)
 		{
 			names[i] = values[i].first;
-			if (values[i].second == selectedValue) selectedIndex = i;
+			if (values[i].second == selectedValue) selectedIndex = static_cast<int>(i);
 		}
-		ImGui::Combo(displayName, &selectedIndex, names, count);
-		selectedValue = values[selectedIndex].second;
+		ImGui::Combo(displayName, &selectedIndex, names, static_cast<int>(count));
+		selectedValue = values[static_cast<unsigned int>(selectedIndex)].second;
 
 		delete[] names;
 	}

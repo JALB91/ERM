@@ -167,7 +167,7 @@ namespace erm {
 						material.mShaderProgram->SetUniformMat4f(
 							Uniform::BONE_TRANSFORM_I,
 							node.GetPayload()->mAnimatedTransform,
-							node.GetId()
+							static_cast<int>(node.GetId())
 						);
 					});
 				}

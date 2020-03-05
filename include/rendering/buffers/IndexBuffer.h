@@ -1,6 +1,6 @@
 #pragma once
 
-#include "rendering\buffers\IndexData.h"
+#include "rendering/buffers/IndexData.h"
 
 namespace erm {
 
