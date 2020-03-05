@@ -7,6 +7,7 @@ function print_help {
 	echo "    -c) Compile the project"
 	echo "    -o) Open in the editor"
 	echo "    -f) Fast run the project"
+	echo "    -f) Print CMake variables"
 }
 
 if [[ "$OSTYPE" == "linux-gnu" ]]; then
@@ -72,13 +73,7 @@ if [[ $_OPEN ]]; then
 	exit
 fi
 if [[ $_COMPILE ]]; then
-	if [[ $_USE_CMAKE ]]; then
-		make || exit 1
-	elif [[ "$_OS" == "OSX" ]]; then
-		xcodebuild -target ERM || exit 1
-	elif [[ "$_OS" == "WIN32" ]]; then
-		echo "Not ready yet" && exit 1
-	fi
+	cmake --build . || exit 1
 fi
 if [[ $_FAST_RUN ]]; then
 	if [[ $_USE_CMAKE ]]; then

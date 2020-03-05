@@ -28,9 +28,25 @@ include(ERMConfig)
 
 # SETUP TARGET API
 setup_api()
+message(STATUS "Using ${TARGET_API} APIs")
 
-# ADD EXTERNALS DEPENDENCIES SUBDIRECTORY
-add_subdirectory(externals)
+# ADD DEPENDENCIES BASED ON TARGET API
+if ("${TARGET_API}" STREQUAL "OpenGl")
+	include(GLEWConfig)
+	add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/glew-cmake")
+	set(PUBLIC_DEPENDENCIES "libglew_static")
+endif()
+
+# INCLUDE CONFIGURATION FILES FOR DEPENDENCIES
+include(GLFWConfig)
+include(GLMConfig)
+
+# ADDS COMMON EXTERNALS DEPENDENCIES
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/glm")
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/glfw")
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/imgui")
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/stb_image")
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/tinyxml")
 
 # GATHER SOURCES
 file(GLOB_RECURSE SOURCES 
@@ -64,8 +80,11 @@ target_link_libraries(
 # TARGET INCLUDE DIRECTORIES
 target_include_directories(
 	"${PROJECT_NAME}"
-	PRIVATE 
+	PRIVATE
+		"${PRIVATE_INCLUDES}"
 		"${CMAKE_CURRENT_SOURCE_DIR}/include"
+	PUBLIC 
+		"${PUBLIC_INCLUDES}"
 )
 
 # TARGET COMMON CONFIGURATIONS
