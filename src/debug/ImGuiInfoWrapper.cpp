@@ -1,11 +1,11 @@
-#include "debug/ImGuiInfoWrapper.h"
+#include "erm/debug/ImGuiInfoWrapper.h"
 
-#include "game/Game.h"
+#include "erm/game/Game.h"
 
-#include "window/Window.h"
+#include "erm/window/Window.h"
 
-#include "utils/Timer.h"
-#include "utils/Profiler.h"
+#include "erm/utils/Timer.h"
+#include "erm/utils/Profiler.h"
 
 #include <imgui.h>
 

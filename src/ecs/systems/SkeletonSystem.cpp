@@ -1,6 +1,6 @@
-#include "ecs/systems/SkeletonSystem.h"
+#include "erm/ecs/systems/SkeletonSystem.h"
 
-#include "utils/Profiler.h"
+#include "erm/utils/Profiler.h"
 
 namespace erm {
 	namespace ecs {

@@ -1,7 +1,7 @@
-#include "utils/MeshUtils.h"
+#include "erm/utils/MeshUtils.h"
 
-#include "rendering/data_structs/Mesh.h"
-#include "rendering/buffers/VertexData.h"
+#include "erm/rendering/data_structs/Mesh.h"
+#include "erm/rendering/buffers/VertexData.h"
 
 namespace erm {
 	

@@ -1,9 +1,9 @@
-#include "debug/ImGuiMainMenuBarWrapper.h"
+#include "erm/debug/ImGuiMainMenuBarWrapper.h"
 
-#include "debug/ImGuiInfoWrapper.h"
-#include "debug/ImGuiShadersWrapper.h"
+#include "erm/debug/ImGuiInfoWrapper.h"
+#include "erm/debug/ImGuiShadersWrapper.h"
 
-#include "input/Keys.h"
+#include "erm/input/Keys.h"
 
 #include <imgui.h>
 

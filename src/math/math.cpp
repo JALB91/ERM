@@ -1,6 +1,6 @@
-#include "math/math.h"
+#include "erm/math/math.h"
 
-#include "math/mat.h"
+#include "erm/math/mat.h"
 
 namespace erm {
 	namespace math {

@@ -1,13 +1,13 @@
-#include "loaders/collada/ColladaGeometriesLoader.h"
+#include "erm/loaders/collada/ColladaGeometriesLoader.h"
 
-#include "loaders/collada/ColladaLoaderUtils.h"
+#include "erm/loaders/collada/ColladaLoaderUtils.h"
 
-#include "rendering/buffers/VertexData.h"
-#include "rendering/buffers/IndexData.h"
-#include "rendering/data_structs/Mesh.h"
-#include "rendering/data_structs/Model.h"
+#include "erm/rendering/buffers/VertexData.h"
+#include "erm/rendering/buffers/IndexData.h"
+#include "erm/rendering/data_structs/Mesh.h"
+#include "erm/rendering/data_structs/Model.h"
 
-#include "utils/Utils.h"
+#include "erm/utils/Utils.h"
 
 #include <tinyxml2.h>
 

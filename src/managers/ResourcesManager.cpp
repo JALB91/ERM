@@ -1,9 +1,9 @@
-#include "managers/ResourcesManager.h"
+#include "erm/managers/ResourcesManager.h"
 
-#include "loaders/ResourcesLoader.h"
+#include "erm/loaders/ResourcesLoader.h"
 
-#include "utils/MeshUtils.h"
-#include "utils/Utils.h"
+#include "erm/utils/MeshUtils.h"
+#include "erm/utils/Utils.h"
 
 #include <algorithm>
 #include <iostream>

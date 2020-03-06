@@ -1,10 +1,10 @@
-#include "loaders/ResourcesLoader.h"
+#include "erm/loaders/ResourcesLoader.h"
 
-#include "rendering/data_structs/Mesh.h"
-#include "rendering/data_structs/Model.h"
+#include "erm/rendering/data_structs/Mesh.h"
+#include "erm/rendering/data_structs/Model.h"
 
-#include "loaders/obj/ObjModelLoader.h"
-#include "loaders/collada/ColladaModelLoader.h"
+#include "erm/loaders/obj/ObjModelLoader.h"
+#include "erm/loaders/collada/ColladaModelLoader.h"
 
 #include <iostream>
 #include <thread>

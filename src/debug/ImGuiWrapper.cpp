@@ -1,7 +1,7 @@
-#include "debug/ImGuiWrapper.h"
-#include "debug/ImGuiEntitiesWrapper.h"
-#include "debug/ImGuiRenderingWrapper.h"
-#include "debug/ImGuiMainMenuBarWrapper.h"
+#include "erm/debug/ImGuiWrapper.h"
+#include "erm/debug/ImGuiEntitiesWrapper.h"
+#include "erm/debug/ImGuiRenderingWrapper.h"
+#include "erm/debug/ImGuiMainMenuBarWrapper.h"
 
 namespace ImGui {
 	

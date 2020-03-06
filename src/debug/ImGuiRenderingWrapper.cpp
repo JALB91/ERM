@@ -1,11 +1,11 @@
-#include "debug/ImGuiRenderingWrapper.h"
-#include "debug/ImGuiUtils.h"
+#include "erm/debug/ImGuiRenderingWrapper.h"
+#include "erm/debug/ImGuiUtils.h"
 
-#include "game/Game.h"
+#include "erm/game/Game.h"
 
-#include "window/Window.h"
+#include "erm/window/Window.h"
 
-#include "rendering/renderer/RenderContext.h"
+#include "erm/rendering/renderer/RenderContext.h"
 
 #include <imgui.h>
 

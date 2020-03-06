@@ -1,11 +1,11 @@
-#include "loaders/obj/ObjModelLoader.h"
+#include "erm/loaders/obj/ObjModelLoader.h"
 
-#include "math/math.h"
+#include "erm/math/math.h"
 
-#include "rendering/buffers/VertexData.h"
-#include "rendering/buffers/IndexData.h"
+#include "erm/rendering/buffers/VertexData.h"
+#include "erm/rendering/buffers/IndexData.h"
 
-#include "utils/Utils.h"
+#include "erm/utils/Utils.h"
 
 #include <algorithm>
 #include <fstream>

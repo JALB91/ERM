@@ -1,6 +1,6 @@
-#include "debug/ImGuiUtils.h"
+#include "erm/debug/ImGuiUtils.h"
 
-#include "math/math.h"
+#include "erm/math/math.h"
 
 #include <imgui.h>
 

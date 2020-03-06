@@ -1,11 +1,11 @@
-#include "ecs/systems/AnimationSystem.h"
+#include "erm/ecs/systems/AnimationSystem.h"
 
-#include "ecs/ECS.h"
-#include "ecs/systems/SkeletonSystem.h"
+#include "erm/ecs/ECS.h"
+#include "erm/ecs/systems/SkeletonSystem.h"
 
-#include "rendering/animations/SkeletonAnimation.h"
+#include "erm/rendering/animations/SkeletonAnimation.h"
 
-#include "utils/Profiler.h"
+#include "erm/utils/Profiler.h"
 
 #include <cmath>
 

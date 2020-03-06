@@ -1,11 +1,11 @@
-#include "loaders/collada/ColladaModelLoader.h"
+#include "erm/loaders/collada/ColladaModelLoader.h"
 
-#include "loaders/collada/ColladaSkinData.h"
-#include "loaders/collada/ColladaLoaderUtils.h"
-#include "loaders/collada/ColladaSceneLoader.h"
-#include "loaders/collada/ColladaSkeletonLoader.h"
-#include "loaders/collada/ColladaGeometriesLoader.h"
-#include "loaders/collada/ColladaAnimationsLoader.h"
+#include "erm/loaders/collada/ColladaSkinData.h"
+#include "erm/loaders/collada/ColladaLoaderUtils.h"
+#include "erm/loaders/collada/ColladaSceneLoader.h"
+#include "erm/loaders/collada/ColladaSkeletonLoader.h"
+#include "erm/loaders/collada/ColladaGeometriesLoader.h"
+#include "erm/loaders/collada/ColladaAnimationsLoader.h"
 
 #include <tinyxml2.h>
 

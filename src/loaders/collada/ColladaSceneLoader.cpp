@@ -1,8 +1,8 @@
-#include "loaders/collada/ColladaSceneLoader.h"
+#include "erm/loaders/collada/ColladaSceneLoader.h"
 
-#include "loaders/collada/ColladaLoaderUtils.h"
+#include "erm/loaders/collada/ColladaLoaderUtils.h"
 
-#include "utils/Utils.h"
+#include "erm/utils/Utils.h"
 
 #include <tinyxml2.h>
 

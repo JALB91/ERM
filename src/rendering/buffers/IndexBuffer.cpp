@@ -1,5 +1,5 @@
-#include "rendering/buffers/IndexBuffer.h"
-#include "utils/Utils.h"
+#include "erm/rendering/buffers/IndexBuffer.h"
+#include "erm/utils/Utils.h"
 
 #include <GL/glew.h>
 

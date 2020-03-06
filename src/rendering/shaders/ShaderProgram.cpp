@@ -1,7 +1,7 @@
-#include "rendering/shaders/ShaderProgram.h"
-#include "rendering/shaders/Uniforms.h"
+#include "erm/rendering/shaders/ShaderProgram.h"
+#include "erm/rendering/shaders/Uniforms.h"
 
-#include "utils/Utils.h"
+#include "erm/utils/Utils.h"
 
 #include <GL/glew.h>
 

@@ -1,6 +1,6 @@
-#include "rendering/textures/Texture.h"
+#include "erm/rendering/textures/Texture.h"
 
-#include "utils/Utils.h"
+#include "erm/utils/Utils.h"
 
 #include <stb_image.h>
 

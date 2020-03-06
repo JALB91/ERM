@@ -1,12 +1,12 @@
-#include "debug/ImGuiShadersWrapper.h"
+#include "erm/debug/ImGuiShadersWrapper.h"
 
-#include "game/Game.h"
+#include "erm/game/Game.h"
 
-#include "window/Window.h"
+#include "erm/window/Window.h"
 
-#include "rendering/renderer/RenderContext.h"
+#include "erm/rendering/renderer/RenderContext.h"
 
-#include "managers/ResourcesManager.h"
+#include "erm/managers/ResourcesManager.h"
 
 #include <imgui.h>
 

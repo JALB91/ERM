@@ -1,7 +1,7 @@
-#include "debug/ImGuiEntityWrapper.h"
+#include "erm/debug/ImGuiEntityWrapper.h"
 
-#include "ecs/ECS.h"
-#include "ecs/Entity.h"
+#include "erm/ecs/ECS.h"
+#include "erm/ecs/Entity.h"
 
 #include <imgui.h>
 

@@ -1,25 +1,25 @@
-#include "game/Game.h"
+#include "erm/game/Game.h"
 
-#include "window/Window.h"
+#include "erm/window/Window.h"
 
-#include "rendering/renderer/RenderContext.h"
-#include "rendering/renderer/Renderer.h"
-#include "rendering/data_structs/Model.h"
+#include "erm/rendering/renderer/RenderContext.h"
+#include "erm/rendering/renderer/Renderer.h"
+#include "erm/rendering/data_structs/Model.h"
 
-#include "utils/Utils.h"
-#include "utils/Profiler.h"
+#include "erm/utils/Utils.h"
+#include "erm/utils/Profiler.h"
 
-#include "ecs/Entity.h"
-#include "ecs/systems/TransformSystem.h"
-#include "ecs/systems/ModelSystem.h"
-#include "ecs/systems/CameraSystem.h"
-#include "ecs/systems/LightSystem.h"
+#include "erm/ecs/Entity.h"
+#include "erm/ecs/systems/TransformSystem.h"
+#include "erm/ecs/systems/ModelSystem.h"
+#include "erm/ecs/systems/CameraSystem.h"
+#include "erm/ecs/systems/LightSystem.h"
 
-#include "managers/ResourcesManager.h"
+#include "erm/managers/ResourcesManager.h"
 
-#include "math/vec.h"
+#include "erm/math/vec.h"
 
-#include "debug/ImGuiWrapper.h"
+#include "erm/debug/ImGuiWrapper.h"
 
 #include <imgui.h>
 

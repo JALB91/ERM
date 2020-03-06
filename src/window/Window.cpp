@@ -1,9 +1,9 @@
-#include "window/Window.h"
+#include "erm/window/Window.h"
 
-#include "utils/Utils.h"
-#include "utils/Profiler.h"
+#include "erm/utils/Utils.h"
+#include "erm/utils/Profiler.h"
 
-#include "window/IWindowListener.h"
+#include "erm/window/IWindowListener.h"
 
 #include <GL/glew.h>
 

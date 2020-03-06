@@ -1,12 +1,12 @@
-#include "debug/ImGuiSkeletonComponentWrapper.h"
+#include "erm/debug/ImGuiSkeletonComponentWrapper.h"
 
-#include "debug/ImGuiUtils.h"
+#include "erm/debug/ImGuiUtils.h"
 
-#include "ecs/systems/SkeletonSystem.h"
+#include "erm/ecs/systems/SkeletonSystem.h"
 
-#include "managers/ResourcesManager.h"
+#include "erm/managers/ResourcesManager.h"
 
-#include "game/Game.h"
+#include "erm/game/Game.h"
 
 #include <imgui.h>
 

@@ -1,10 +1,10 @@
-#include "rendering/buffers/VertexArray.h"
+#include "erm/rendering/buffers/VertexArray.h"
 
-#include "rendering/buffers/VertexBuffer.h"
-#include "rendering/buffers/VertexBufferLayout.h"
-#include "rendering/renderer/Renderer.h"
+#include "erm/rendering/buffers/VertexBuffer.h"
+#include "erm/rendering/buffers/VertexBufferLayout.h"
+#include "erm/rendering/renderer/Renderer.h"
 
-#include "utils/Utils.h"
+#include "erm/utils/Utils.h"
 
 #include <GL/glew.h>
 

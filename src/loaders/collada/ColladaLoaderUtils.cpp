@@ -1,4 +1,4 @@
-#include "loaders/collada/ColladaLoaderUtils.h"
+#include "erm/loaders/collada/ColladaLoaderUtils.h"
 
 #include <tinyxml2.h>
 

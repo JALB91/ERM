@@ -1,30 +1,30 @@
-#include "ecs/systems/RenderingSystem.h"
+#include "erm/ecs/systems/RenderingSystem.h"
 
-#include "ecs/ECS.h"
-#include "ecs/Entity.h"
-#include "ecs/systems/TransformSystem.h"
-#include "ecs/systems/ModelSystem.h"
-#include "ecs/systems/CameraSystem.h"
-#include "ecs/systems/LightSystem.h"
-#include "ecs/systems/SkeletonSystem.h"
+#include "erm/ecs/ECS.h"
+#include "erm/ecs/Entity.h"
+#include "erm/ecs/systems/TransformSystem.h"
+#include "erm/ecs/systems/ModelSystem.h"
+#include "erm/ecs/systems/CameraSystem.h"
+#include "erm/ecs/systems/LightSystem.h"
+#include "erm/ecs/systems/SkeletonSystem.h"
 
-#include "game/Game.h"
+#include "erm/game/Game.h"
 
-#include "managers/ResourcesManager.h"
+#include "erm/managers/ResourcesManager.h"
 
-#include "utils/MeshUtils.h"
+#include "erm/utils/MeshUtils.h"
 
-#include "rendering/renderer/Renderer.h"
-#include "rendering/data_structs/Mesh.h"
-#include "rendering/buffers/VertexArray.h"
-#include "rendering/buffers/IndexBuffer.h"
-#include "rendering/shaders/ShaderProgram.h"
-#include "rendering/shaders/Uniforms.h"
-#include "rendering/renderer/RenderContext.h"
-#include "rendering/data_structs/Model.h"
-#include "rendering/data_structs/Material.h"
+#include "erm/rendering/renderer/Renderer.h"
+#include "erm/rendering/data_structs/Mesh.h"
+#include "erm/rendering/buffers/VertexArray.h"
+#include "erm/rendering/buffers/IndexBuffer.h"
+#include "erm/rendering/shaders/ShaderProgram.h"
+#include "erm/rendering/shaders/Uniforms.h"
+#include "erm/rendering/renderer/RenderContext.h"
+#include "erm/rendering/data_structs/Model.h"
+#include "erm/rendering/data_structs/Material.h"
 
-#include "utils/Profiler.h"
+#include "erm/utils/Profiler.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 

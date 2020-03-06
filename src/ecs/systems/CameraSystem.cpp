@@ -1,17 +1,17 @@
-#include "ecs/systems/CameraSystem.h"
+#include "erm/ecs/systems/CameraSystem.h"
 
-#include "ecs/ECS.h"
-#include "ecs/systems/TransformSystem.h"
+#include "erm/ecs/ECS.h"
+#include "erm/ecs/systems/TransformSystem.h"
 
-#include "window/IWindow.h"
+#include "erm/window/IWindow.h"
 
-#include "input/Keys.h"
-#include "input/Mouse.h"
+#include "erm/input/Keys.h"
+#include "erm/input/Mouse.h"
 
-#include "math/vec.h"
-#include "math/quat.h"
+#include "erm/math/vec.h"
+#include "erm/math/quat.h"
 
-#include "utils/Profiler.h"
+#include "erm/utils/Profiler.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 

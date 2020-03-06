@@ -1,6 +1,6 @@
-#include "debug/ImGuiCameraComponentWrapper.h"
+#include "erm/debug/ImGuiCameraComponentWrapper.h"
 
-#include "ecs/components/CameraComponent.h"
+#include "erm/ecs/components/CameraComponent.h"
 
 #include <imgui.h>
 

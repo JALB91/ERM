@@ -1,8 +1,8 @@
-#include "rendering/data_structs/Model.h"
-#include "rendering/renderer/Renderer.h"
-#include "rendering/buffers/VertexData.h"
+#include "erm/rendering/data_structs/Model.h"
+#include "erm/rendering/renderer/Renderer.h"
+#include "erm/rendering/buffers/VertexData.h"
 
-#include "utils/Utils.h"
+#include "erm/utils/Utils.h"
 
 #include <iostream>
 

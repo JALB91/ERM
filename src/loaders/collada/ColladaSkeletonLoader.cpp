@@ -1,10 +1,10 @@
-#include "loaders/collada/ColladaSkeletonLoader.h"
+#include "erm/loaders/collada/ColladaSkeletonLoader.h"
 
-#include "loaders/collada/ColladaLoaderUtils.h"
+#include "erm/loaders/collada/ColladaLoaderUtils.h"
 
-#include "math/mat.h"
+#include "erm/math/mat.h"
 
-#include "utils/Utils.h"
+#include "erm/utils/Utils.h"
 
 #include <tinyxml2.h>
 

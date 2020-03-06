@@ -1,10 +1,10 @@
-#include "debug/ImGuiAnimationComponentWrapper.h"
+#include "erm/debug/ImGuiAnimationComponentWrapper.h"
 
-#include "ecs/systems/AnimationSystem.h"
+#include "erm/ecs/systems/AnimationSystem.h"
 
-#include "managers/ResourcesManager.h"
+#include "erm/managers/ResourcesManager.h"
 
-#include "game/Game.h"
+#include "erm/game/Game.h"
 
 #include <imgui.h>
 

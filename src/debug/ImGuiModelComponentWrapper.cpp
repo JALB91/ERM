@@ -1,14 +1,14 @@
-#include "debug/ImGuiModelComponentWrapper.h"
-#include "debug/ImGuiMeshWrapper.h"
+#include "erm/debug/ImGuiModelComponentWrapper.h"
+#include "erm/debug/ImGuiMeshWrapper.h"
 
-#include "game/Game.h"
+#include "erm/game/Game.h"
 
-#include "rendering/data_structs/Model.h"
-#include "rendering/data_structs/Mesh.h"
+#include "erm/rendering/data_structs/Model.h"
+#include "erm/rendering/data_structs/Mesh.h"
 
-#include "managers/ResourcesManager.h"
+#include "erm/managers/ResourcesManager.h"
 
-#include "ecs/components/ModelComponent.h"
+#include "erm/ecs/components/ModelComponent.h"
 
 #include <imgui.h>
 

@@ -1,8 +1,8 @@
-#include "rendering/renderer/Renderer.h"
+#include "erm/rendering/renderer/Renderer.h"
 
-#include "rendering/buffers/VertexArray.h"
-#include "rendering/buffers/IndexBuffer.h"
-#include "rendering/renderer/RenderContext.h"
+#include "erm/rendering/buffers/VertexArray.h"
+#include "erm/rendering/buffers/IndexBuffer.h"
+#include "erm/rendering/renderer/RenderContext.h"
 
 #include <GL/glew.h>
 

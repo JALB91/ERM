@@ -1,14 +1,14 @@
-#include "debug/ImGuiEntitiesWrapper.h"
-#include "debug/ImGuiEntityWrapper.h"
-#include "debug/ImGuiComponentWrapper.h"
+#include "erm/debug/ImGuiEntitiesWrapper.h"
+#include "erm/debug/ImGuiEntityWrapper.h"
+#include "erm/debug/ImGuiComponentWrapper.h"
 
-#include "game/Game.h"
+#include "erm/game/Game.h"
 
-#include "window/Window.h"
+#include "erm/window/Window.h"
 
-#include "ecs/EntityId.h"
-#include "ecs/ECSConfig.h"
-#include "ecs/IComponent.h"
+#include "erm/ecs/EntityId.h"
+#include "erm/ecs/ECSConfig.h"
+#include "erm/ecs/IComponent.h"
 
 #include <imgui.h>
 

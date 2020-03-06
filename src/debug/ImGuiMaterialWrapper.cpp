@@ -1,11 +1,11 @@
-#include "debug/ImGuiMaterialWrapper.h"
+#include "erm/debug/ImGuiMaterialWrapper.h"
 
-#include "game/Game.h"
+#include "erm/game/Game.h"
 
-#include "managers/ResourcesManager.h"
+#include "erm/managers/ResourcesManager.h"
 
-#include "rendering/data_structs/Material.h"
-#include "rendering/data_structs/Mesh.h"
+#include "erm/rendering/data_structs/Material.h"
+#include "erm/rendering/data_structs/Mesh.h"
 
 #include <imgui.h>
 

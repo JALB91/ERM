@@ -1,5 +1,5 @@
-#include "rendering/buffers/VertexBufferLayout.h"
-#include "utils/Utils.h"
+#include "erm/rendering/buffers/VertexBufferLayout.h"
+#include "erm/utils/Utils.h"
 
 #include <GL/glew.h>
 

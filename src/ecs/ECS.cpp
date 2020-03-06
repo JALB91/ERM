@@ -1,19 +1,19 @@
-#include "ecs/ECS.h"
+#include "erm/ecs/ECS.h"
 
-#include "ecs/Entity.h"
-#include "ecs/systems/TransformSystem.h"
-#include "ecs/systems/ModelSystem.h"
-#include "ecs/systems/CameraSystem.h"
-#include "ecs/systems/RenderingSystem.h"
-#include "ecs/systems/LightSystem.h"
-#include "ecs/systems/SkeletonSystem.h"
-#include "ecs/systems/AnimationSystem.h"
+#include "erm/ecs/Entity.h"
+#include "erm/ecs/systems/TransformSystem.h"
+#include "erm/ecs/systems/ModelSystem.h"
+#include "erm/ecs/systems/CameraSystem.h"
+#include "erm/ecs/systems/RenderingSystem.h"
+#include "erm/ecs/systems/LightSystem.h"
+#include "erm/ecs/systems/SkeletonSystem.h"
+#include "erm/ecs/systems/AnimationSystem.h"
 
-#include "game/Game.h"
+#include "erm/game/Game.h"
 
-#include "window/Window.h"
+#include "erm/window/Window.h"
 
-#include "utils/Profiler.h"
+#include "erm/utils/Profiler.h"
 
 namespace erm {
 	namespace ecs {

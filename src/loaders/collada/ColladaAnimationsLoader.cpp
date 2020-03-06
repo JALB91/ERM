@@ -1,10 +1,10 @@
-#include "loaders/collada/ColladaAnimationsLoader.h"
+#include "erm/loaders/collada/ColladaAnimationsLoader.h"
 
-#include "loaders/collada/ColladaLoaderUtils.h"
+#include "erm/loaders/collada/ColladaLoaderUtils.h"
 
-#include "math/math.h"
+#include "erm/math/math.h"
 
-#include "utils/Utils.h"
+#include "erm/utils/Utils.h"
 
 #include <tinyxml2.h>
 

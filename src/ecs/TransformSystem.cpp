@@ -1,8 +1,8 @@
-#include "ecs/systems/TransformSystem.h"
+#include "erm/ecs/systems/TransformSystem.h"
 
-#include "ecs/Entity.h"
+#include "erm/ecs/Entity.h"
 
-#include "utils/Profiler.h"
+#include "erm/utils/Profiler.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 

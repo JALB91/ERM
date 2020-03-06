@@ -1,6 +1,6 @@
-#include "debug/ImGuiTransformComponentWrapper.h"
+#include "erm/debug/ImGuiTransformComponentWrapper.h"
 
-#include "ecs/components/TransformComponent.h"
+#include "erm/ecs/components/TransformComponent.h"
 
 #include <imgui.h>
 

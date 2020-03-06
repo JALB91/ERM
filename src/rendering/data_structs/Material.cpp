@@ -1,6 +1,6 @@
-#include "rendering/data_structs/Material.h"
+#include "erm/rendering/data_structs/Material.h"
 
-#include "managers/ResourcesManager.h"
+#include "erm/managers/ResourcesManager.h"
 
 namespace erm {
 	

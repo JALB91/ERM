@@ -1,11 +1,11 @@
-#include "ecs/systems/ModelSystem.h"
+#include "erm/ecs/systems/ModelSystem.h"
 
-#include "ecs/ECS.h"
-#include "ecs/systems/TransformSystem.h"
+#include "erm/ecs/ECS.h"
+#include "erm/ecs/systems/TransformSystem.h"
 
-#include "utils/Profiler.h"
+#include "erm/utils/Profiler.h"
 
-#include "rendering/data_structs/Model.h"
+#include "erm/rendering/data_structs/Model.h"
 
 namespace erm {
 	namespace ecs {

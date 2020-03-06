@@ -1,10 +1,10 @@
-#include "rendering/data_structs/Mesh.h"
+#include "erm/rendering/data_structs/Mesh.h"
 
-#include "rendering/buffers/VertexData.h"
-#include "rendering/buffers/VertexBuffer.h"
-#include "rendering/buffers/VertexBufferLayout.h"
-#include "rendering/buffers/IndexBuffer.h"
-#include "rendering/buffers/VertexArray.h"
+#include "erm/rendering/buffers/VertexData.h"
+#include "erm/rendering/buffers/VertexBuffer.h"
+#include "erm/rendering/buffers/VertexBufferLayout.h"
+#include "erm/rendering/buffers/IndexBuffer.h"
+#include "erm/rendering/buffers/VertexArray.h"
 
 namespace erm {
 	
