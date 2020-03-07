@@ -1091,7 +1091,7 @@ namespace erm {
 		/*
 			INIT IMGUI
 		*/
-		ImGui::CreateContext();
+		/*ImGui::CreateContext();
 		ImGui::StyleColorsDark();
 		ImGui_ImplGlfw_InitForVulkan(mWindow, true);
 		ImGui_ImplVulkan_InitInfo init_info = {};
@@ -1106,7 +1106,7 @@ namespace erm {
 		init_info.MinImageCount = g_MinImageCount;
 		init_info.ImageCount = wd->ImageCount;
 		init_info.CheckVkResultFn = check_vk_result;
-		ImGui_ImplVulkan_Init(&init_info, wd->RenderPass);
+		ImGui_ImplVulkan_Init(&init_info, wd->RenderPass);*/
 		
 		return true;
 	}
