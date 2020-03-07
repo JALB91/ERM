@@ -80,7 +80,7 @@ namespace erm {
 								
 								if (isInput && values.size() > timestamps.size())
 								{
-									for (unsigned int i = timestamps.size(); i < values.size(); ++i)
+									for (unsigned int i = static_cast<unsigned int>(timestamps.size()); i < values.size(); ++i)
 									{
 										timestamps.emplace_back(static_cast<float>(std::atof(values[i].c_str())));
 									}
@@ -99,12 +99,12 @@ namespace erm {
 					input = input->NextSiblingElement("input");
 				}
 				
-				for (unsigned int i = keyFrames.size(); i < timestamps.size(); ++i)
+				for (unsigned int i = static_cast<unsigned int>(keyFrames.size()); i < static_cast<unsigned int>(timestamps.size()); ++i)
 				{
 					keyFrames.emplace_back(KeyFrame(timestamps[i]));
 				}
 				
-				for (unsigned int i = 0; i < keyFrames.size(); ++i)
+				for (unsigned int i = 0; i < static_cast<unsigned int>(keyFrames.size()); ++i)
 				{
 					Pose& currentPose = keyFrames[i].mTransforms[targetBone];
 					math::DecomposeMatrix(

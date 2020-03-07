@@ -83,11 +83,13 @@ namespace erm {
 		
 		mVB = std::make_unique<VertexBuffer>(
 			&mVerticesData[0].mPositionVertex[0],
-			sizeof(VertexType) * kPositionVectorsLenght * mVerticesDataCount +
-			sizeof(VertexType) * kNormalVectorsLenght * mVerticesDataCount +
-			sizeof(VertexType) * kUVVectorsLenght * mVerticesDataCount +
-			sizeof(VertexType) * kMaxBonesNumber * mVerticesDataCount +
-			sizeof(IdType) * kMaxBonesNumber * mVerticesDataCount
+			static_cast<unsigned int>(
+				sizeof(VertexType) * kPositionVectorsLenght * mVerticesDataCount +
+				sizeof(VertexType) * kNormalVectorsLenght * mVerticesDataCount +
+				sizeof(VertexType) * kUVVectorsLenght * mVerticesDataCount +
+				sizeof(VertexType) * kMaxBonesNumber * mVerticesDataCount +
+				sizeof(IdType) * kMaxBonesNumber * mVerticesDataCount
+			)
 		);
 		
 		mIB = std::make_unique<IndexBuffer>(mIndicesData, mIndicesDataCount);

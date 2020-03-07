@@ -19,10 +19,14 @@ add_library("${PROJECT_NAME}"
 	${SOURCES}
 	$<$<STREQUAL:"${TARGET_API}","OpenGl">:${CMAKE_CURRENT_SOURCE_DIR}/imgui/examples/imgui_impl_opengl3.h>
 	$<$<STREQUAL:"${TARGET_API}","OpenGl">:${CMAKE_CURRENT_SOURCE_DIR}/imgui/examples/imgui_impl_opengl3.cpp>
+	$<$<STREQUAL:"${TARGET_API}","Vulkan">:${CMAKE_CURRENT_SOURCE_DIR}/imgui/examples/imgui_impl_vulkan.h>
+	$<$<STREQUAL:"${TARGET_API}","Vulkan">:${CMAKE_CURRENT_SOURCE_DIR}/imgui/examples/imgui_impl_vulkan.cpp>
 )
 
 target_include_directories(
 	"${PROJECT_NAME}"
+	PRIVATE
+		"${TARGET_API_INCLUDE_DIR}"
 	PUBLIC 
 		"${CMAKE_CURRENT_SOURCE_DIR}/imgui/"
 		"${CMAKE_CURRENT_SOURCE_DIR}/imgui/examples/"
@@ -31,13 +35,13 @@ target_include_directories(
 target_compile_definitions(
 	"${PROJECT_NAME}"
 	PRIVATE 
-		IMGUI_IMPL_OPENGL_LOADER_GLEW
-		GLEW_STATIC
+		$<$<STREQUAL:"${TARGET_API}","OpenGl">:IMGUI_IMPL_OPENGL_LOADER_GLEW>
+		$<$<STREQUAL:"${TARGET_API}","OpenGl">:GLEW_STATIC>
 )
 
 target_link_libraries(
 	"${PROJECT_NAME}"
 	PRIVATE
-		"${GLEW_LIBRARY}"
+		$<$<STREQUAL:"${TARGET_API}","OpenGl">:${GLEW_LIBRARY}>
 		glfw
 )

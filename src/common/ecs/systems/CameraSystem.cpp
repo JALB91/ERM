@@ -30,7 +30,7 @@ namespace erm {
 		{
 			math::vec3 translation (0.0f);
 			
-			if (!ImGui::IsAnyWindowHovered() && !ImGui::IsAnyItemHovered())
+			//if (!ImGui::IsAnyWindowHovered() && !ImGui::IsAnyItemHovered())
 			{
 				if (mWindow.IsMouseButtonDown(MOUSE_BUTTON_1))
 				{

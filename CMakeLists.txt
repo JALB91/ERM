@@ -53,7 +53,8 @@ add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/stb_image")
 # GATHER SOURCES
 file(GLOB_RECURSE SOURCES 
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/*.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/common/*.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/${TARGET_API}/*.cpp"
 )
 create_groups("${SOURCES}")
 
@@ -83,6 +84,7 @@ target_link_libraries(
 target_include_directories(
 	"${PROJECT_NAME}"
 	PRIVATE
+		"${TARGET_API_INCLUDE_DIR}"
 		"${PRIVATE_INCLUDES}"
 		"${CMAKE_CURRENT_SOURCE_DIR}/include"
 	PUBLIC 
@@ -123,24 +125,38 @@ target_setup_project("${PROJECT_NAME}")
 
 # CUSTOM PROPERTIES
 set (CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(RES_SOURCE "${CMAKE_HOME_DIRECTORY}/res/")
-set(RES_DEST "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/res")
+set(RES_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/res/")
+set(RES_DEST "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/res/")
 
 # CUSTOM COMMANDS
 add_custom_command(
-	TARGET "${PROJECT_NAME}" POST_BUILD
+	TARGET "${PROJECT_NAME}" PRE_BUILD
  	COMMAND "${CMAKE_COMMAND}" -E copy_directory "${RES_SOURCE}" "${RES_DEST}"
  	DEPENDS "${RES_DEST}"
- 	COMMENT "symbolic link resources folder from ${RES_SOURCE} => ${RES_DEST}"
- )
+ 	COMMENT "Copy resources folder from ${RES_SOURCE} to ${RES_DEST}"
+)
+
+if("${TARGET_API}" STREQUAL "Vulkan")
+	file(GLOB SHADERS
+		"${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/res/shaders/vulkan_test*"
+	)
+
+	foreach(SHADER ${SHADERS})
+		add_custom_command(
+			TARGET "${PROJECT_NAME}" POST_BUILD
+			COMMAND "$ENV{VULKAN_SDK}\\Bin32\\glslc.exe" "${SHADER}" -o "${SHADER}"
+			COMMENT "Compiling shader ${SHADER}"
+		)
+	endforeach(SHADER)
+endif("${TARGET_API}" STREQUAL "Vulkan")
 
 # DEBUG PRINT VARIABLES
-if ("${PRINT_VARIABLES}")
+if("${PRINT_VARIABLES}")
 	get_cmake_property(VARIABLE_NAMES VARIABLES)
 	list (SORT VARIABLE_NAMES)
-	foreach (VARIABLE_NAME ${VARIABLE_NAMES})
+	foreach(VARIABLE_NAME ${VARIABLE_NAMES})
     	message(STATUS "${VARIABLE_NAME}=${${VARIABLE_NAME}}")
-	endforeach()
+	endforeach(VARIABLE_NAME ${VARIABLE_NAMES})
 
 	execute_process(COMMAND "${CMAKE_COMMAND}" "-E" "environment")
-endif()
+endif("${PRINT_VARIABLES}")

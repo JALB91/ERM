@@ -4,8 +4,6 @@
 
 #include "erm/math/vec.h"
 
-#include <set>
-
 struct GLFWwindow;
 
 namespace erm {

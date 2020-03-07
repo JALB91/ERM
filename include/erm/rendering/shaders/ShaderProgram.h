@@ -3,6 +3,8 @@
 #include "erm/math/mat.h"
 #include "erm/math/vec.h"
 
+#include <vulkan/vulkan.h>
+
 #include <unordered_map>
 #include <string>
 #include <vector>
@@ -15,6 +17,7 @@ namespace erm {
 	{
 	public:
 		ShaderProgram(const std::string& vertexShader, const std::string& fragmentShader);
+		ShaderProgram(const std::string& shaderPath, VkDevice device);
 		ShaderProgram(const std::string& shaderPath);
 		~ShaderProgram();
 		
@@ -43,6 +46,12 @@ namespace erm {
 		void SetUniform4f(const Uniform& uniform, float v0, float v1, float v2, float v3, int index = -1);
 		
 		void SetUniformMat4f(const Uniform& uniform, const math::mat4& matrix, int index = -1);
+
+		std::vector<char> mVkVertex;
+		std::vector<char> mVkFragment;
+
+		VkShaderModule mVertModule;
+		VkShaderModule mFragModule;
 		
 	private:
 		std::string ParseShader(const std::string& path) const;

@@ -57,7 +57,7 @@ case $opt in
 esac
 done
 
-cd ${DIR}/build/ && cmake "$OPT" -G "$_GENERATOR" ..
+cd ${DIR}/build/ && cmake "$OPT" -G "$_GENERATOR" -A x64 ..
 
 rm ../compile_commands.json &> /dev/null
 ln compile_commands.json ../ &> /dev/null
