@@ -34,6 +34,8 @@ namespace {
 			if (t) func(t);
 		}
 	}
+
+	GLFWwindow* window = nullptr;
 	
 	const char* const kGlslVersion = "#version 330";
 	
@@ -91,6 +93,7 @@ namespace {
 	std::vector<VkFence> inFlightFences;
 	std::vector<VkFence> imagesInFlight;
 	size_t currentFrame = 0;
+	bool framebufferResized = false;
 
 	struct QueueFamilyIndices
 	{
@@ -275,7 +278,10 @@ namespace {
 		}
 		else
 		{
-			VkExtent2D actualExtent = { static_cast<uint32_t>(fallbackWidth), static_cast<uint32_t>(fallbackHeight) };
+			VkExtent2D actualExtent = {
+				static_cast<uint32_t>(fallbackWidth),
+				static_cast<uint32_t>(fallbackHeight)
+			};
 
 			actualExtent.width = std::max(capabilities.minImageExtent.width, std::min(capabilities.maxImageExtent.width, actualExtent.width));
 			actualExtent.height = std::max(capabilities.minImageExtent.height, std::min(capabilities.maxImageExtent.height, actualExtent.height));
@@ -395,7 +401,7 @@ namespace {
 		}
 #endif
 	}
-	void CreateSurface(GLFWwindow* window)
+	void CreateSurface()
 	{
 		if (glfwCreateWindowSurface(instance, window, nullptr, &surface) != VK_SUCCESS)
 		{
@@ -471,14 +477,14 @@ namespace {
 		vkGetDeviceQueue(device, indices.mGraphicsFamily.value(), 0, &graphicsQueue);
 		vkGetDeviceQueue(device, indices.mPresentFamily.value(), 0, &presentQueue);
 	}
-	void CreateSwapChain(const GLFWvidmode* mode)
+	void CreateSwapChain(int width, int height)
 	{
 		SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(physicalDevice);
 		QueueFamilyIndices indices = FindQueueFamilies(physicalDevice);
 
 		VkSurfaceFormatKHR surfaceFormat = ChooseSwapSurfaceFormat(swapChainSupport.mFormats);
 		VkPresentModeKHR presentMode = ChooseSwapPresentMode(swapChainSupport.mPresentModes);
-		swapChainExtent = ChooseSwapExtent(swapChainSupport.mCapabilities, mode->width, mode->height);
+		swapChainExtent = ChooseSwapExtent(swapChainSupport.mCapabilities, width, height);
 		swapChainImageFormat = surfaceFormat.format;
 
 		uint32_t imageCount = swapChainSupport.mCapabilities.minImageCount + 1;
@@ -869,14 +875,14 @@ namespace {
 			}
 		}
 	}
-	void InitVulkan(GLFWwindow* window, const GLFWvidmode* mode)
+	void InitVulkan(int width, int height)
 	{
 		CreateInstance();
 		SetupDebugMessenger();
-		CreateSurface(window);
+		CreateSurface();
 		PickPhysicalDevice();
 		CreateLogicalDevice();
-		CreateSwapChain(mode);
+		CreateSwapChain(width, height);
 		CreateImageViews();
 		CreateRenderPass();
 		CreateGraphicsPipeline();
@@ -886,13 +892,60 @@ namespace {
 		CreateSyncObjects();
 	}
 
+	void CleanupSwapChain()
+	{
+		for (size_t i = 0; i < swapChainFramebuffers.size(); ++i)
+		{
+			vkDestroyFramebuffer(device, swapChainFramebuffers[i], nullptr);
+		}
+		vkFreeCommandBuffers(device, commandPool, static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
+		vkDestroyPipeline(device, graphicsPipeline, nullptr);
+		vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
+		vkDestroyRenderPass(device, renderPass, nullptr);
+		for (size_t i = 0; i < swapChainImageViews.size(); ++i)
+		{
+			vkDestroyImageView(device, swapChainImageViews[i], nullptr);
+		}
+		vkDestroySwapchainKHR(device, swapChain, nullptr);
+	}
+	void RecreateSwapChain()
+	{
+		int width = 0, height = 0;
+		glfwGetFramebufferSize(window, &width, &height);
+		while (width == 0 || height == 0)
+		{
+			glfwGetFramebufferSize(window, &width, &height);
+			glfwWaitEvents();
+		}
+
+		vkDeviceWaitIdle(device);
+
+		CleanupSwapChain();
+
+		CreateSwapChain(width, height);
+		CreateImageViews();
+		CreateRenderPass();
+		CreateGraphicsPipeline();
+		CreateFramebuffers();
+		CreateCommandBuffers();
+	}
+
 	void DrawFrame()
 	{
 		vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
-		vkResetFences(device, 1, &inFlightFences[currentFrame]);
 
 		uint32_t imageIndex;
-		vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+		VkResult result = vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+
+		if (result == VK_ERROR_OUT_OF_DATE_KHR)
+		{
+			RecreateSwapChain();
+			return;
+		}
+		else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
+		{
+			throw std::runtime_error("Failed to acquire swap chain image!");
+		}
 
 		// Check if a previous frame is using this image (i.e. there is its fence to wait on)
 		if (imagesInFlight[imageIndex] != VK_NULL_HANDLE)
@@ -935,9 +988,17 @@ namespace {
 		presentInfo.pImageIndices = &imageIndex;
 		presentInfo.pResults = nullptr; // Optional
 
-		vkQueuePresentKHR(presentQueue, &presentInfo);
+		result = vkQueuePresentKHR(presentQueue, &presentInfo);
 
-		vkQueueWaitIdle(presentQueue);
+		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized)
+		{
+			framebufferResized = false;
+			RecreateSwapChain();
+		}
+		else if (result != VK_SUCCESS)
+		{
+			throw std::runtime_error("failed to present swap chain image!");
+		}
 
 		currentFrame = (currentFrame + 1) % kMaxFramesInFlight;
 	}
@@ -950,32 +1011,23 @@ namespace internal {
 	{
 		static_cast<erm::Window*>(glfwGetWindowUserPointer(window))->OnFocus();
 	}
-	
-	void OnMaximized(GLFWwindow* window, int maximised)
-	{
-		static_cast<erm::Window*>(glfwGetWindowUserPointer(window))->OnMaximised(maximised == GLFW_TRUE);
-	}
-	
-	void OnSizeChanged(GLFWwindow* window, int width, int height)
-	{
-		static_cast<erm::Window*>(glfwGetWindowUserPointer(window))->OnSizeChanged(width, height);
-	}
-	
 	void OnMouseButton(GLFWwindow* window, int button, int action, int mods)
 	{
 		static_cast<erm::Window*>(glfwGetWindowUserPointer(window))->OnMouseButton(button, action, mods);
 	}
-	
 	void OnMousePos(GLFWwindow* window, double xPos, double yPos)
 	{
 		static_cast<erm::Window*>(glfwGetWindowUserPointer(window))->OnMousePos(xPos, yPos);
 	}
-	
 	void OnKey(GLFWwindow* window, int key, int scanCode, int action, int mods)
 	{
 		static_cast<erm::Window*>(glfwGetWindowUserPointer(window))->OnKey(key, scanCode, action, mods);
 	}
-
+	void OnFrameBufferResize(GLFWwindow* window, int width, int height)
+	{
+		framebufferResized = true;
+		static_cast<erm::Window*>(glfwGetWindowUserPointer(window))->OnSizeChanged(width, height);
+	}
 	void OnRefresh(GLFWwindow* window)
 	{
 		if (firstRefresh)
@@ -993,18 +1045,17 @@ namespace erm {
 	
 	Window::Window()
 		: IWindow()
-		, mWindow(nullptr)
 	{}
 	
 	Window::~Window()
 	{
 		mWindowListeners.clear();
 
+		/*
+			DESTROY VULKAN
+		*/
 		vkDeviceWaitIdle(device);
-
-#ifndef NDEBUG
-		DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
-#endif
+		CleanupSwapChain();
 		for (size_t i = 0; i < kMaxFramesInFlight; ++i)
 		{
 			vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
@@ -1012,24 +1063,23 @@ namespace erm {
 			vkDestroyFence(device, inFlightFences[i], nullptr);
 		}
 		vkDestroyCommandPool(device, commandPool, nullptr);
-		for (VkFramebuffer framebuffer : swapChainFramebuffers)
-		{
-			vkDestroyFramebuffer(device, framebuffer, nullptr);
-		}
-		for (VkImageView imageView : swapChainImageViews)
-		{
-			vkDestroyImageView(device, imageView, nullptr);
-		}
-		vkDestroyPipeline(device, graphicsPipeline, nullptr);
-		vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
-		vkDestroyRenderPass(device, renderPass, nullptr);
-		vkDestroySwapchainKHR(device, swapChain, nullptr);
 		vkDestroyDevice(device, nullptr);
+#ifndef NDEBUG
+		DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
+#endif
 		vkDestroySurfaceKHR(instance, surface, nullptr);
 		vkDestroyInstance(instance, nullptr);
+
+		/*
+			DESTROY IMGUI
+		*/
 		/*ImGui_ImplVulkan_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();*/
+
+		/*
+			DESTROY GLFW
+		*/
 		glfwTerminate();
 	}
 	
@@ -1055,14 +1105,13 @@ namespace erm {
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
 		float width = static_cast<float>(mode->width);
 		float height = static_cast<float>(mode->height);
 		
-		mWindow = glfwCreateWindow(mode->width, mode->height, "ERM Vulkan", nullptr, nullptr);
+		window = glfwCreateWindow(mode->width, mode->height, "ERM Vulkan", nullptr, nullptr);
 		
-		if (!mWindow)
+		if (!window)
 		{
 			throw std::runtime_error("GLFW Window creation failed!");
 		}
@@ -1070,23 +1119,21 @@ namespace erm {
 		/*
 			CONFIGURE GLFW
 		*/
-		glfwMakeContextCurrent(mWindow);
+		glfwMakeContextCurrent(window);
 		glfwSwapInterval(1);
-		glfwSetWindowUserPointer(mWindow, this);
+		glfwSetWindowUserPointer(window, this);
 
-		glfwSetWindowFocusCallback(mWindow, internal::OnFocus);
-		glfwSetWindowMaximizeCallback(mWindow, internal::OnMaximized);
-		glfwSetFramebufferSizeCallback(mWindow, internal::OnSizeChanged);
-		glfwSetWindowSizeCallback(mWindow, internal::OnSizeChanged);
-		glfwSetMouseButtonCallback(mWindow, internal::OnMouseButton);
-		glfwSetCursorPosCallback(mWindow, internal::OnMousePos);
-		glfwSetKeyCallback(mWindow, internal::OnKey);
-		glfwSetWindowRefreshCallback(mWindow, internal::OnRefresh);
+		glfwSetWindowFocusCallback(window, internal::OnFocus);
+		glfwSetMouseButtonCallback(window, internal::OnMouseButton);
+		glfwSetCursorPosCallback(window, internal::OnMousePos);
+		glfwSetKeyCallback(window, internal::OnKey);
+		glfwSetWindowRefreshCallback(window, internal::OnRefresh);
+		glfwSetFramebufferSizeCallback(window, internal::OnFrameBufferResize);
 
 		/*
 			INIT VULKAN
 		*/
-		InitVulkan(mWindow, mode);
+		InitVulkan(mode->width, mode->height);
 		
 		/*
 			INIT IMGUI
@@ -1113,7 +1160,7 @@ namespace erm {
 	
 	bool Window::ShouldClose()
 	{
-		return glfwWindowShouldClose(mWindow) || IsKeyDown(KEY_ESCAPE);
+		return glfwWindowShouldClose(window) || IsKeyDown(KEY_ESCAPE);
 	}
 	
 	void Window::NewFrame()
@@ -1122,7 +1169,7 @@ namespace erm {
 		
 		mPrevMousePosX = mMousePosX;
 		mPrevMousePosY = mMousePosY;
-		glfwGetCursorPos(mWindow, &mMousePosX, &mMousePosY);
+		glfwGetCursorPos(window, &mMousePosX, &mMousePosY);
 		
 		/*ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
@@ -1136,7 +1183,7 @@ namespace erm {
 		/*ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());*/
 		
-		glfwSwapBuffers(mWindow);
+		glfwSwapBuffers(window);
 	}
 	
 	void Window::PostRender()
@@ -1228,14 +1275,14 @@ namespace erm {
 	void Window::OnMaximised(bool /*wasMaximised*/)
 	{
 		int width, height;
-		glfwGetWindowSize(mWindow, &width, &height);
+		glfwGetWindowSize(window, &width, &height);
 		OnSizeChanged(width, height);
 	}
 	
 	void Window::OnFocus()
 	{
 		int width, height;
-		glfwGetWindowSize(mWindow, &width, &height);
+		glfwGetWindowSize(window, &width, &height);
 		
 		if (mWindowWidth == width && mWindowHeight == height) return;
 
@@ -1245,7 +1292,7 @@ namespace erm {
 	void Window::UpdateViewport()
 	{
 		int width, height;
-		glfwGetFramebufferSize(mWindow, &width, &height);
+		glfwGetFramebufferSize(window, &width, &height);
 
 		const float viewPortX = std::max(width * 0.1f, width - (width * kImGuiSpaceRight + width * kImGuiSpaceLeft));
 		const float viewPortY = std::max(height * 0.1f, height - (height * kImGuiSpaceUp + height * kImGuiSpaceDown));

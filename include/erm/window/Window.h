@@ -36,8 +36,6 @@ namespace erm {
 	private:
 		void UpdateViewport();
 		void UpdateAspectRatio();
-
-		GLFWwindow* mWindow;
 		
 	};
 	
