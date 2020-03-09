@@ -3,7 +3,7 @@
 #include "erm/ecs/ECS.h"
 #include "erm/ecs/systems/TransformSystem.h"
 
-#include "erm/window/IWindow.h"
+#include "erm/rendering/window/IWindow.h"
 
 #include "erm/input/Keys.h"
 #include "erm/input/Mouse.h"
@@ -30,7 +30,7 @@ namespace erm {
 		{
 			math::vec3 translation (0.0f);
 			
-			//if (!ImGui::IsAnyWindowHovered() && !ImGui::IsAnyItemHovered())
+			if (!ImGui::IsAnyWindowHovered() && !ImGui::IsAnyItemHovered())
 			{
 				if (mWindow.IsMouseButtonDown(MOUSE_BUTTON_1))
 				{

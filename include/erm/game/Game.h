@@ -1,6 +1,6 @@
 #pragma once
 
-#include "erm/window/IWindowListener.h"
+#include "erm/rendering/window/IWindowListener.h"
 
 #include "erm/utils/Timer.h"
 #include "erm/utils/FileLocator.h"

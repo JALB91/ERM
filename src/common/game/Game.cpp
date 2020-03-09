@@ -1,6 +1,6 @@
 #include "erm/game/Game.h"
 
-#include "erm/window/Window.h"
+#include "erm/rendering/window/Window.h"
 
 #include "erm/rendering/renderer/RenderContext.h"
 #include "erm/rendering/renderer/Renderer.h"
@@ -126,14 +126,14 @@ namespace erm {
 				frameInSecond = 0;
 			}
 			
-			/*OnUpdate(static_cast<float>(frameElapsedTime * 0.001));
+			OnUpdate(static_cast<float>(frameElapsedTime * 0.001));
 			OnPostUpdate();
 			
 			OnPreRender();
 			OnImGuiRender();
 			OnRender();
 			
-			OnPostRender();*/
+			OnPostRender();
 			mWindow->PostRender();
 		}
 	}
@@ -164,7 +164,7 @@ namespace erm {
 	{
 		PROFILE_FUNCTION();
 		
-		//ImGui::ShowGameDebug(*this);
+		ImGui::ShowGameDebug(*this);
 	}
 	
 	void Game::OnRender()

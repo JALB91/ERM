@@ -4,19 +4,20 @@ function print_help {
 	echo "ERM Project setup script usage:"
 	echo "    -h) Print this message"
 	echo "    -C) Setup the project using CMake"
+	echo "    -t) Set target api [OpenGl, Vulknan (default)]"
+	echo "    -i) Run cmake in interactive mode"
 	echo "    -c) Compile the project"
 	echo "    -o) Open in the editor"
 	echo "    -f) Fast run the project"
 	echo "    -f) Print CMake variables"
 }
 
-if [[ "$OSTYPE" == "linux-gnu" ]]; then
-	_OS="Linux"
-elif [[ "$OSTYPE" == "darwin"* ]]; then
+if [[ "$OSTYPE" == "darwin"* ]]; then
 	_GENERATOR="Xcode"
 	_OS="OSX"
 elif [[ "$OSTYPE" == "cygwin" || "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
 	_GENERATOR="Visual Studio 15 2017"
+	_ARCHITECTURE="-A x64"
 	_OS="WIN32"
 else
 	echo "Unknown OS"
@@ -26,7 +27,7 @@ fi
 OPT="-DPRINT_VARIABLES=FALSE"
 DIR=`dirname $0`
 
-while getopts ":hCcvof" opt; do
+while getopts ":hCt:icvof" opt; do
 case $opt in
 	v)
 		OPT="-DPRINT_VARIABLES=TRUE"
@@ -34,6 +35,12 @@ case $opt in
 	C)
 		_USE_CMAKE=true
 		_GENERATOR="Unix Makefiles"
+		;;
+	t)
+		_TARGET_API=$OPTARG
+		;;
+	i)
+		_INTERACTIVE=true
 		;;
 	c)
 		_COMPILE=true
@@ -57,7 +64,13 @@ case $opt in
 esac
 done
 
-cd ${DIR}/build/ && cmake "$OPT" -G "$_GENERATOR" -A x64 ..
+if [[ $_INTERACTIVE ]]; then
+	_CMAKE_CMD=ccmake
+else
+	_CMAKE_CMD=cmake
+fi
+
+cd ${DIR}/build/ && $_CMAKE_CMD "$OPT" -DTARGET_API="$_TARGET_API" -G "$_GENERATOR" "$_ARCHITECTURE" ..
 
 rm ../compile_commands.json &> /dev/null
 ln compile_commands.json ../ &> /dev/null

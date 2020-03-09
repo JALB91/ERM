@@ -11,4 +11,8 @@ function(target_setup_project TARGET)
 		PRIVATE
 			$<$<STREQUAL:"${CMAKE_BUILD_TYPE}","Debug">:-Wall -Werror -Wextra -pedantic-errors>
 	)
+
+	if("${TARGET_API}" STREQUAL "Vulkan")
+		set(SHADERS_COMPILER "glslc" PARENT_SCOPE)
+	endif("${TARGET_API}" STREQUAL "Vulkan")
 endfunction()

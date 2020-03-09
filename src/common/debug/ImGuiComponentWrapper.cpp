@@ -8,7 +8,7 @@
 
 #include "erm/game/Game.h"
 
-#include "erm/window/Window.h"
+#include "erm/rendering/window/Window.h"
 
 #include "erm/ecs/ECS.h"
 #include "erm/ecs/Entity.h"

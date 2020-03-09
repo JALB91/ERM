@@ -28,6 +28,8 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <GL/glew.h>
+
 namespace {
 	
 	const char* const kDebugShaderPath ("res/shaders/basic");
@@ -111,7 +113,7 @@ namespace erm {
 			const bool wasCullFaceEnabled = renderer.GetRenderContext().IsCullFaceEnabled();
 
 			renderer.GetRenderContext().SetCullFaceEnabled(false);
-			//renderer.GetRenderContext().SetPolygonMode(GL_LINE);
+			renderer.GetRenderContext().SetPolygonMode(GL_LINE);
 			mDebugShader->Bind();
 			mDebugShader->SetUniformMat4f(Uniform::VIEW_PROJECTION, viewProjection);
 			mDebugShader->SetUniformMat4f(Uniform::MODEL, glm::identity<math::mat4>());
@@ -231,7 +233,7 @@ namespace erm {
 				const bool wasCullFaceEnabled = renderer.GetRenderContext().IsCullFaceEnabled();
 
 				renderer.GetRenderContext().SetCullFaceEnabled(false);
-				//renderer.GetRenderContext().SetPolygonMode(GL_LINE);
+				renderer.GetRenderContext().SetPolygonMode(GL_LINE);
 				mDebugShader->Bind();
 				mDebugShader->SetUniformMat4f(Uniform::VIEW_PROJECTION, viewProjection);
 				mDebugShader->SetUniformMat4f(Uniform::MODEL, bBTransform);

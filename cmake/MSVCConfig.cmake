@@ -15,4 +15,8 @@ function(target_setup_project TARGET)
 		PRIVATE 
 			$<$<STREQUAL:"${CMAKE_BUILD_TYPE}","Debug">:/W3 /WX>
 	)
+
+	if("${TARGET_API}" STREQUAL "Vulkan")
+		set(SHADERS_COMPILER "$ENV{VULKAN_SDK}\\Bin32\\glslc.exe" PARENT_SCOPE)
+	endif("${TARGET_API}" STREQUAL "Vulkan")
 endfunction()

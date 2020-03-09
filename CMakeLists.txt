@@ -138,13 +138,13 @@ add_custom_command(
 
 if("${TARGET_API}" STREQUAL "Vulkan")
 	file(GLOB SHADERS
-		"${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/res/shaders/vulkan_test*"
+		"${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/res/shaders/vk_*"
 	)
 
 	foreach(SHADER ${SHADERS})
 		add_custom_command(
 			TARGET "${PROJECT_NAME}" POST_BUILD
-			COMMAND "$ENV{VULKAN_SDK}\\Bin32\\glslc.exe" "${SHADER}" -o "${SHADER}"
+			COMMAND "${SHADERS_COMPILER}" "${SHADER}" -o "${SHADER}"
 			COMMENT "Compiling shader ${SHADER}"
 		)
 	endforeach(SHADER)

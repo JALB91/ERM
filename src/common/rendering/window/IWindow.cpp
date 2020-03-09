@@ -1,4 +1,4 @@
-#include "erm/window/IWindow.h"
+#include "erm/rendering/window/IWindow.h"
 
 namespace erm {
 	

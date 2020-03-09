@@ -1,8 +1,10 @@
 #pragma once
 
-#include "erm/window/IWindow.h"
+#include "erm/rendering/window/IWindow.h"
 
 #include "erm/math/vec.h"
+
+#include <set>
 
 struct GLFWwindow;
 
@@ -36,6 +38,8 @@ namespace erm {
 	private:
 		void UpdateViewport();
 		void UpdateAspectRatio();
+
+		GLFWwindow* mWindow;
 		
 	};
 	
