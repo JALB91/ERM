@@ -1,5 +1,6 @@
 #include "erm/rendering/buffers/VertexBuffer.h"
-#include "erm/utils/Utils.h"
+
+#include "erm/GlMacros.h"
 
 #include <GL/glew.h>
 

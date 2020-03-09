@@ -52,7 +52,8 @@ add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/stb_image")
 
 # GATHER SOURCES
 file(GLOB_RECURSE SOURCES 
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/*.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/common/*.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/${TARGET_API}/*.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/common/*.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/${TARGET_API}/*.cpp"
 )
@@ -86,7 +87,8 @@ target_include_directories(
 	PRIVATE
 		"${TARGET_API_INCLUDE_DIR}"
 		"${PRIVATE_INCLUDES}"
-		"${CMAKE_CURRENT_SOURCE_DIR}/include"
+		"${CMAKE_CURRENT_SOURCE_DIR}/include/common/"
+		"${CMAKE_CURRENT_SOURCE_DIR}/include/${TARGET_API}/"
 	PUBLIC 
 		"${PUBLIC_INCLUDES}"
 )

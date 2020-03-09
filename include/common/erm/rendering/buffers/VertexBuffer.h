@@ -18,7 +18,6 @@ namespace erm {
 		void Unbind() const;
 		
 	private:
-		unsigned int mRendererId;
 		
 	};
 	
