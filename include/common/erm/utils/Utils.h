@@ -12,6 +12,7 @@ namespace erm {
 	
 	namespace Utils {
 		
+		extern bool LogCall(bool cond, const char* msg, const char* function, const char* file, int line);
 		extern std::vector<std::string> SplitString(const std::string& str, char ch);
 		extern std::string StripFunctionName(const char* fn);
 		

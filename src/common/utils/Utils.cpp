@@ -8,6 +8,16 @@ namespace erm {
 	
 	namespace Utils {
 
+		bool LogCall(bool cond, const char* msg, const char* function, const char* file, int line)
+		{
+			if (!cond)
+			{
+				std::cout << "[Assert] (" << msg << ") " << function << " " << file << ":" << line << std::endl;
+				ASSERT(cond);
+			}
+			return cond;
+		}
+
 		std::vector<std::string> SplitString(const std::string& str, char ch)
 		{
 			std::vector<std::string> res;

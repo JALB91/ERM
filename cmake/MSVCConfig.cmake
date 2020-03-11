@@ -1,4 +1,6 @@
 function(target_setup_project TARGET)
+	set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT "${TARGET}")
+
 	set_target_properties(
 		"${TARGET}" PROPERTIES
 		VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/"
