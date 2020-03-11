@@ -9,9 +9,7 @@ namespace erm {
 	{}
 	
 	void RenderContext::Draw(DrawMode drawMode, unsigned int count) const
-	{
-		
-	}
+	{}
 	
 	void RenderContext::Clear() const
 	{}
