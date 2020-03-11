@@ -3,6 +3,8 @@
 
 #include "erm/utils/Utils.h"
 
+#include <vulkan/vulkan.h>
+
 #include <iostream>
 #include <fstream>
 
@@ -82,24 +84,6 @@ namespace erm {
 		CacheUniformsLocations();
 	}
 
-	ShaderProgram::ShaderProgram(const std::string& shaderPath, VkDevice device)
-		: mVkVertex(ReadShader((shaderPath + ".vert").c_str()))
-		, mVkFragment(ReadShader((shaderPath + ".frag").c_str()))
-		, mVertModule(CreateShaderModule(mVkVertex, device))
-		, mFragModule(CreateShaderModule(mVkFragment, device))
-		, mId(0)
-	{
-		mPath = shaderPath;
-	}
-	
-	ShaderProgram::ShaderProgram(const std::string& shaderPath)
-		: mVkVertex(ReadShader((shaderPath + ".vert").c_str()))
-		, mVkFragment(ReadShader((shaderPath + ".frag").c_str()))
-		, mId(0)
-	{
-		mPath = shaderPath;
-	}
-	
 	ShaderProgram::~ShaderProgram()
 	{
 		//GL_CALL(glDeleteProgram(mRendererId));

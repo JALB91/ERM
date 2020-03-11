@@ -1,5 +1,5 @@
-#include "erm/window/Window.h"
-#include "erm/window/IWindowListener.h"
+#include "erm/rendering/window/Window.h"
+#include "erm/rendering/window/IWindowListener.h"
 #include "erm/rendering/shaders/ShaderProgram.h"
 
 #include "erm/utils/Utils.h"
@@ -607,7 +607,7 @@ namespace {
 		/*
 			LOAD SHADERS
 		*/
-		erm::ShaderProgram shaders("res/shaders/vulkan_test", device);
+//		erm::ShaderProgram shaders("res/shaders/vulkan_test", device);
 
 		VkPipelineShaderStageCreateInfo vertShaderStageInfo = {};
 		vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;

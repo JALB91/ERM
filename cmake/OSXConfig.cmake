@@ -2,8 +2,8 @@ function(target_setup_project TARGET)
 	target_compile_definitions(
 		"${TARGET}"
 		PRIVATE 
-			GL_DO_NOT_WARN_IF_MULTI_GL_VERSION_HEADERS_INCLUDED
-			GL_SILENCE_DEPRECATION
+			$<$<STREQUAL:"${TARGET_API}","OpenGl">:GL_DO_NOT_WARN_IF_MULTI_GL_VERSION_HEADERS_INCLUDED>
+			$<$<STREQUAL:"${TARGET_API}","OpenGl">:GL_SILENCE_DEPRECATION>
 	)
 
 	target_compile_options(

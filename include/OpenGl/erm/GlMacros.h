@@ -8,7 +8,7 @@
 #define GL_CALL(x) \
 	erm::GLClearError();\
 	x;\
-	ASSERT(erm::GLLogCall(#x, __FILE__, __LINE__))
+	EXPECT(erm::GLLogCall(#x, __FILE__, __LINE__), "")
 
 namespace erm {
 	

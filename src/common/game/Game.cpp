@@ -134,7 +134,6 @@ namespace erm {
 			OnRender();
 			
 			OnPostRender();
-			mWindow->PostRender();
 		}
 	}
 	
