@@ -23,6 +23,9 @@
 #include <functional>
 #include <optional>
 
+/*
+	WINDOW STUFF
+*/
 namespace {
 	
 	template <typename T>
@@ -48,6 +51,50 @@ namespace {
 	
 }
 
+/*
+	VERTEX BUFFER
+*/
+namespace {
+
+	struct Vertex {
+		glm::vec2 mPos;
+		glm::vec3 mColor;
+
+		static VkVertexInputBindingDescription GetBindingDescription()
+		{
+			VkVertexInputBindingDescription bindingDescription = {};
+			bindingDescription.binding = 0;
+			bindingDescription.stride = sizeof(Vertex);
+			bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+			return bindingDescription;
+		}
+
+		static std::array<VkVertexInputAttributeDescription, 2> GetAttributeDescriptions()
+		{
+			std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions = {};
+			attributeDescriptions[0].binding = 0;
+			attributeDescriptions[0].location = 0;
+			attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+			attributeDescriptions[0].offset = offsetof(Vertex, mPos);
+			attributeDescriptions[1].binding = 0;
+			attributeDescriptions[1].location = 1;
+			attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+			attributeDescriptions[1].offset = offsetof(Vertex, mColor);
+			return attributeDescriptions;
+		}
+	};
+
+	const std::vector<Vertex> vertices = {
+		{{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+		{{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+		{{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+	};
+
+}
+
+/*
+	VULKAN INITIALIZATION
+*/
 namespace {
 
 #ifndef NDEBUG
@@ -86,6 +133,7 @@ namespace {
 	std::vector<VkFramebuffer> swapChainFramebuffers;
 
 	VkCommandPool commandPool;
+	VkBuffer vertexBuffer;
 	std::vector<VkCommandBuffer> commandBuffers;
 
 	std::vector<VkSemaphore> imageAvailableSemaphores;
@@ -288,6 +336,11 @@ namespace {
 
 			return actualExtent;
 		}
+	}
+	uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
+	{
+		VkPhysicalDeviceMemoryProperties memProperties;
+		vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
 	}
 
 	void CreateInstance()
@@ -626,12 +679,15 @@ namespace {
 		/*
 			SETUP VERTEX INPUT
 		*/
+		auto bindingDescription = Vertex::GetBindingDescription();
+		auto attributeDescriptions = Vertex::GetAttributeDescriptions();
+
 		VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
 		vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-		vertexInputInfo.vertexBindingDescriptionCount = 0;
-		vertexInputInfo.pVertexBindingDescriptions = nullptr; // Optional
-		vertexInputInfo.vertexAttributeDescriptionCount = 0;
-		vertexInputInfo.pVertexAttributeDescriptions = nullptr; // Optional
+		vertexInputInfo.vertexBindingDescriptionCount = 1;
+		vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
+		vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
+		vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
 		/*
 			SETUP INPUT ASSEMBLY
@@ -802,6 +858,22 @@ namespace {
 			throw std::runtime_error("Failed to create command pool!");
 		}
 	}
+	void CreateVertexBuffer()
+	{
+		VkBufferCreateInfo bufferInfo = {};
+		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+		bufferInfo.size = sizeof(vertices[0]) * vertices.size();
+		bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+		bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+		if (vkCreateBuffer(device, &bufferInfo, nullptr, &vertexBuffer) != VK_SUCCESS)
+		{
+			throw std::runtime_error("Failed to create vertex buffer!");
+		}
+
+		VkMemoryRequirements memRequirements;
+		vkGetBufferMemoryRequirements(device, vertexBuffer, &memRequirements);
+	}
 	void CreateCommandBuffers()
 	{
 		commandBuffers.resize(swapChainFramebuffers.size());
@@ -888,6 +960,7 @@ namespace {
 		CreateGraphicsPipeline();
 		CreateFramebuffers();
 		CreateCommandPool();
+		CreateVertexBuffer();
 		CreateCommandBuffers();
 		CreateSyncObjects();
 	}
@@ -929,6 +1002,13 @@ namespace {
 		CreateFramebuffers();
 		CreateCommandBuffers();
 	}
+
+}
+
+/*
+	VULKAN DRAW
+*/
+namespace {
 
 	void DrawFrame()
 	{
@@ -1005,6 +1085,9 @@ namespace {
 
 }
 
+/*
+	WINDOW CALLBACKS
+*/
 namespace internal {
 	
 	void OnFocus(GLFWwindow* window, int /*focus*/)
@@ -1041,6 +1124,9 @@ namespace internal {
 	
 }
 
+/*
+	WINDOW IMPL
+*/
 namespace erm {
 	
 	Window::Window()
@@ -1056,6 +1142,7 @@ namespace erm {
 		*/
 		vkDeviceWaitIdle(device);
 		CleanupSwapChain();
+		vkDestroyBuffer(device, vertexBuffer, nullptr);
 		for (size_t i = 0; i < kMaxFramesInFlight; ++i)
 		{
 			vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
