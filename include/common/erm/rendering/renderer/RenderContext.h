@@ -1,6 +1,11 @@
 #pragma once
 
 #include "erm/rendering/enums/DrawMode.h"
+#include "erm/rendering/enums/PolygonMode.h"
+#include "erm/rendering/enums/DepthFunction.h"
+#include "erm/rendering/enums/BlendFunction.h"
+#include "erm/rendering/enums/CullFace.h"
+#include "erm/rendering/enums/FrontFace.h"
 
 #include "erm/math/vec.h"
 
@@ -16,25 +21,25 @@ namespace erm {
 		void Clear() const;
 		
 		bool IsDepthEnabled() const;
-		int GetDepthFunction() const;
+		DepthFunction GetDepthFunction() const;
 		void SetDepthEnabled(bool enabled) const;
-		void SetDepthFunction(int depthFunc) const;
+		void SetDepthFunction(DepthFunction depthFunc) const;
 		
 		bool IsBlendEnabled() const;
-		int GetBlendSourceFactor() const;
-		int GetBlendDestinationFactor() const;
+		BlendFunction GetBlendSourceFactor() const;
+		BlendFunction GetBlendDestinationFactor() const;
 		void SetBlendEnabled(bool enabled) const;
-		void SetBlendFunction(int sFactor, int dFactor) const;
+		void SetBlendFunction(BlendFunction sFactor, BlendFunction dFactor) const;
 		
 		bool IsCullFaceEnabled() const;
-		int GetCullFace() const;
-		int GetFrontFace() const;
+		CullFace GetCullFace() const;
+		FrontFace GetFrontFace() const;
 		void SetCullFaceEnabled(bool enabled) const;
-		void SetCullFace(int cullFace) const;
-		void SetFrontFace(int frontFace) const;
+		void SetCullFace(CullFace cullFace) const;
+		void SetFrontFace(FrontFace frontFace) const;
 		
-		int GetPolygonMode() const;
-		void SetPolygonMode(int mode) const;
+		PolygonMode GetPolygonMode() const;
+		void SetPolygonMode(PolygonMode mode) const;
 		
 		math::vec4 GetClearColor() const;
 		void SetClearColor(const math::vec4& clearColor) const;

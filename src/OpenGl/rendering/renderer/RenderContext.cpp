@@ -1,6 +1,7 @@
 #include "erm/rendering/renderer/RenderContext.h"
 
-#include "erm/GlMacros.h"
+#include "erm/utils/GlMacros.h"
+#include "erm/utils/GlUtils.h"
 
 #include <GL/glew.h>
 
@@ -16,24 +17,7 @@ namespace erm {
 	
 	void RenderContext::Draw(DrawMode drawMode, unsigned int count) const
 	{
-		switch (drawMode)
-		{
-			case DrawMode::LINES:
-				GL_CALL(glDrawElements(GL_LINES, count, GL_UNSIGNED_INT, nullptr));
-				break;
-			case DrawMode::LINE_STRIP:
-				GL_CALL(glDrawElements(GL_LINE_STRIP, count, GL_UNSIGNED_INT, nullptr));
-				break;
-			case DrawMode::TRIANGLES:
-				GL_CALL(glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr));
-				break;
-			case DrawMode::TRIANGLE_FAN:
-				GL_CALL(glDrawElements(GL_TRIANGLE_FAN, count, GL_UNSIGNED_INT, nullptr));
-				break;
-			case DrawMode::TRIANGLE_STRIP:
-				GL_CALL(glDrawElements(GL_TRIANGLE_STRIP, count, GL_UNSIGNED_INT, nullptr));
-				break;
-		}
+		GL_CALL(glDrawElements(DrawModeToInt(drawMode), count, GL_UNSIGNED_INT, nullptr));
 	}
 	
 	void RenderContext::Clear() const
@@ -47,11 +31,11 @@ namespace erm {
 		return result;
 	}
 	
-	int RenderContext::GetDepthFunction() const
+	DepthFunction RenderContext::GetDepthFunction() const
 	{
 		int result;
 		GL_CALL(glGetIntegerv(GL_DEPTH_FUNC, &result));
-		return result;
+		return IntToDepthFunction(result);
 	}
 	
 	void RenderContext::SetDepthEnabled(bool enabled) const
@@ -59,9 +43,9 @@ namespace erm {
 		GL_CALL(enabled ? glEnable(GL_DEPTH_TEST) : glDisable(GL_DEPTH_TEST));
 	}
 	
-	void RenderContext::SetDepthFunction(int depthFunc) const
+	void RenderContext::SetDepthFunction(DepthFunction depthFunc) const
 	{
-		GL_CALL(glDepthFunc(depthFunc));
+		GL_CALL(glDepthFunc(DepthFunctionToInt(depthFunc)));
 	}
 	
 	bool RenderContext::IsBlendEnabled() const
@@ -70,18 +54,18 @@ namespace erm {
 		return result;
 	}
 	
-	int RenderContext::GetBlendSourceFactor() const
+	BlendFunction RenderContext::GetBlendSourceFactor() const
 	{
 		int result;
 		GL_CALL(glGetIntegerv(GL_BLEND_SRC, &result));
-		return result;
+		return IntToBlendFunction(result);
 	}
 	
-	int RenderContext::GetBlendDestinationFactor() const
+	BlendFunction RenderContext::GetBlendDestinationFactor() const
 	{
 		int result;
 		GL_CALL(glGetIntegerv(GL_BLEND_DST, &result));
-		return result;
+		return IntToBlendFunction(result);
 	}
 	
 	void RenderContext::SetBlendEnabled(bool enabled) const
@@ -89,9 +73,9 @@ namespace erm {
 		GL_CALL(enabled ? glEnable(GL_BLEND) : glDisable(GL_BLEND));
 	}
 	
-	void RenderContext::SetBlendFunction(int sFactor, int dFactor) const
+	void RenderContext::SetBlendFunction(BlendFunction sFactor, BlendFunction dFactor) const
 	{
-		GL_CALL(glBlendFunc(sFactor, dFactor));
+		GL_CALL(glBlendFunc(BlendFunctionToInt(sFactor), BlendFunctionToInt(dFactor)));
 	}
 	
 	bool RenderContext::IsCullFaceEnabled() const
@@ -100,18 +84,18 @@ namespace erm {
 		return result;
 	}
 	
-	int RenderContext::GetCullFace() const
+	CullFace RenderContext::GetCullFace() const
 	{
 		int result;
 		GL_CALL(glGetIntegerv(GL_CULL_FACE_MODE, &result));
-		return result;
+		return IntToCullFace(result);
 	}
 	
-	int RenderContext::GetFrontFace() const
+	FrontFace RenderContext::GetFrontFace() const
 	{
 		int result;
 		GL_CALL(glGetIntegerv(GL_FRONT_FACE, &result));
-		return result;
+		return IntToFrontFace(result);
 	}
 	
 	void RenderContext::SetCullFaceEnabled(bool enabled) const
@@ -119,26 +103,26 @@ namespace erm {
 		GL_CALL(enabled ? glEnable(GL_CULL_FACE) : glDisable(GL_CULL_FACE));
 	}
 	
-	void RenderContext::SetCullFace(int cullFace) const
+	void RenderContext::SetCullFace(CullFace cullFace) const
 	{
-		GL_CALL(glCullFace(cullFace));
+		GL_CALL(glCullFace(CullFaceToInt(cullFace)));
 	}
 	
-	void RenderContext::SetFrontFace(int frontFace) const
+	void RenderContext::SetFrontFace(FrontFace frontFace) const
 	{
-		GL_CALL(glFrontFace(frontFace));
+		GL_CALL(glFrontFace(FrontFaceToInt(frontFace)));
 	}
 	
-	int RenderContext::GetPolygonMode() const
+	PolygonMode RenderContext::GetPolygonMode() const
 	{
 		int result;
 		GL_CALL(glGetIntegerv(GL_POLYGON_MODE, &result));
-		return result;
+		return IntToPolygonMode(result);
 	}
 	
-	void RenderContext::SetPolygonMode(int mode) const
+	void RenderContext::SetPolygonMode(PolygonMode mode) const
 	{
-		GL_CALL(glPolygonMode(GL_FRONT_AND_BACK, mode));
+		GL_CALL(glPolygonMode(GL_FRONT_AND_BACK, PolygonModeToInt(mode)));
 	}
 	
 	math::vec4 RenderContext::GetClearColor() const

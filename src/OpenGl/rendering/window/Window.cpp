@@ -2,7 +2,7 @@
 
 #include "erm/rendering/window/IWindowListener.h"
 
-#include "erm/GlMacros.h"
+#include "erm/utils/GlMacros.h"
 
 #include "erm/utils/Profiler.h"
 

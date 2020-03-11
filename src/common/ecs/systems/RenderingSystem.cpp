@@ -28,8 +28,6 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <GL/glew.h>
-
 namespace {
 	
 	const char* const kDebugShaderPath ("res/shaders/basic");
@@ -109,11 +107,11 @@ namespace erm {
 		{
 			PROFILE_FUNCTION();
 			
-			const int polygonMode = renderer.GetRenderContext().GetPolygonMode();
+			const PolygonMode polygonMode = renderer.GetRenderContext().GetPolygonMode();
 			const bool wasCullFaceEnabled = renderer.GetRenderContext().IsCullFaceEnabled();
 
 			renderer.GetRenderContext().SetCullFaceEnabled(false);
-			renderer.GetRenderContext().SetPolygonMode(GL_LINE);
+			renderer.GetRenderContext().SetPolygonMode(PolygonMode::LINE);
 			mDebugShader->Bind();
 			mDebugShader->SetUniformMat4f(Uniform::VIEW_PROJECTION, viewProjection);
 			mDebugShader->SetUniformMat4f(Uniform::MODEL, glm::identity<math::mat4>());
@@ -229,11 +227,11 @@ namespace erm {
 				bBTransform = glm::translate(bBTransform, (objBBox.mMax + objBBox.mMin) * 0.5f);
 				bBTransform = glm::scale(bBTransform, objBBox.GetSize());
 				
-				const int polygonMode = renderer.GetRenderContext().GetPolygonMode();
+				const PolygonMode polygonMode = renderer.GetRenderContext().GetPolygonMode();
 				const bool wasCullFaceEnabled = renderer.GetRenderContext().IsCullFaceEnabled();
 
 				renderer.GetRenderContext().SetCullFaceEnabled(false);
-				renderer.GetRenderContext().SetPolygonMode(GL_LINE);
+				renderer.GetRenderContext().SetPolygonMode(PolygonMode::LINE);
 				mDebugShader->Bind();
 				mDebugShader->SetUniformMat4f(Uniform::VIEW_PROJECTION, viewProjection);
 				mDebugShader->SetUniformMat4f(Uniform::MODEL, bBTransform);

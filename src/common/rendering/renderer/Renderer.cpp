@@ -3,8 +3,10 @@
 #include "erm/rendering/buffers/VertexArray.h"
 #include "erm/rendering/buffers/IndexBuffer.h"
 #include "erm/rendering/renderer/RenderContext.h"
-
-#include <GL\glew.h>
+#include "erm/rendering/enums/BlendFunction.h"
+#include "erm/rendering/enums/DepthFunction.h"
+#include "erm/rendering/enums/CullFace.h"
+#include "erm/rendering/enums/FrontFace.h"
 
 namespace erm {
 	
@@ -12,17 +14,17 @@ namespace erm {
 		: mRenderContext(renderContext)
 	{
 		mRenderContext.SetDepthEnabled(true);
-		mRenderContext.SetDepthFunction(GL_LESS);
+		mRenderContext.SetDepthFunction(DepthFunction::LESS);
 
 		mRenderContext.SetBlendEnabled(true);
-		mRenderContext.SetBlendFunction(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		mRenderContext.SetBlendFunction(BlendFunction::SRC_ALPHA, BlendFunction::ONE_MINUS_SRC_ALPHA);
 
 		mRenderContext.SetCullFaceEnabled(true);
-		mRenderContext.SetCullFace(GL_FRONT);
+		mRenderContext.SetCullFace(CullFace::FRONT);
 #if defined(GLM_FORCE_LEFT_HANDED)
-		mRenderContext.SetFrontFace(GL_CCW);
+		mRenderContext.SetFrontFace(FrontFace::CCW);
 #else
-		mRenderContext.SetFrontFace(GL_CW);
+		mRenderContext.SetFrontFace(FrontFace::CW);
 #endif
 
 		mRenderContext.SetClearColor(math::vec4(0.25f, 0.25f, 0.25f, 1.0f));

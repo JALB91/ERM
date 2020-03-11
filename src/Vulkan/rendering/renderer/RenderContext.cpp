@@ -134,15 +134,15 @@ namespace erm {
 		//GL_CALL(glFrontFace(frontFace));
 	}
 	
-	int RenderContext::GetPolygonMode() const
+	PolygonMode RenderContext::GetPolygonMode() const
 	{
 		/*int result;
 		GL_CALL(glGetIntegerv(GL_POLYGON_MODE, &result));
 		return result;*/
-		return 0;
+		return PolygonMode::FILL;
 	}
 	
-	void RenderContext::SetPolygonMode(int mode) const
+	void RenderContext::SetPolygonMode(PolygonMode mode) const
 	{
 		//GL_CALL(glPolygonMode(GL_FRONT_AND_BACK, mode));
 	}

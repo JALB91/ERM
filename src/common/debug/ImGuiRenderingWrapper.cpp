@@ -3,8 +3,13 @@
 
 #include "erm/game/Game.h"
 
+#include "erm/rendering/enums/BlendFunction.h"
+#include "erm/rendering/enums/DepthFunction.h"
+#include "erm/rendering/enums/CullFace.h"
+#include "erm/rendering/enums/DrawMode.h"
+#include "erm/rendering/enums/FrontFace.h"
+#include "erm/rendering/enums/PolygonMode.h"
 #include "erm/rendering/window/Window.h"
-
 #include "erm/rendering/renderer/RenderContext.h"
 
 #include <imgui.h>
@@ -13,50 +18,49 @@
 #include <vector>
 
 namespace {
-	const std::vector<std::pair<const char*, int>> kDepthFnValues {
-		{ "NEVER", 		0x0200 },
-		{ "LESS", 		0x0201 },
-		{ "EQUAL", 		0x0202 },
-		{ "LEQUAL", 	0x0203 },
-		{ "GREATER", 	0x0204 },
-		{ "NOTEQUAL", 	0x0205 },
-		{ "GEQUAL", 	0x0206 },
-		{ "ALWAYS", 	0x0207 }
+	const std::vector<std::pair<const char*, erm::DepthFunction>> kDepthFnValues {
+		{ "NEVER", 		erm::DepthFunction::NEVER },
+		{ "LESS", 		erm::DepthFunction::LESS },
+		{ "EQUAL", 		erm::DepthFunction::EQUAL },
+		{ "LEQUAL", 	erm::DepthFunction::LEQUAL },
+		{ "GREATER", 	erm::DepthFunction::GREATER },
+		{ "NOT_EQUAL", 	erm::DepthFunction::NOT_EQUAL },
+		{ "GEQUAL", 	erm::DepthFunction::GEQUAL },
+		{ "ALWAYS", 	erm::DepthFunction::ALWAYS }
 	};
 	
-	const std::vector<std::pair<const char*, int>> kBlendFnValues {
-		{ "ZERO", 						0 },
-		{ "ONE", 						1 },
-		{ "SRC_COLOR", 					0x0300 },
-		{ "ONE_MINUS_SRC_COLOR", 		0x0301 },
-		{ "SRC_ALPHA", 					0x0302 },
-		{ "ONE_MINUS_SRC_ALPHA", 		0x0303 },
-		{ "DST_ALPHA", 					0x0304 },
-		{ "ONE_MINUS_DST_ALPHA", 		0x0305 },
-		{ "DST_COLOR", 					0x0306 },
-		{ "ONE_MINUS_DST_COLOR", 		0x0307 },
-		{ "SRC_ALPHA_SATURATE", 		0x0308 },
-		{ "CONSTANT_COLOR", 			0x8001 },
-		{ "ONE_MINUS_CONSTANT_COLOR", 	0x8002 },
-		{ "CONSTANT_ALPHA", 			0x8003 },
-		{ "ONE_MINUS_CONSTANT_ALPHA", 	0x8004 }
+	const std::vector<std::pair<const char*, erm::BlendFunction>> kBlendFnValues {
+		{ "ZERO", 						erm::BlendFunction::ZERO },
+		{ "ONE", 						erm::BlendFunction::ONE },
+		{ "SRC_COLOR", 					erm::BlendFunction::SRC_COLOR },
+		{ "ONE_MINUS_SRC_COLOR", 		erm::BlendFunction::ONE_MINUS_SRC_COLOR },
+		{ "SRC_ALPHA", 					erm::BlendFunction::SRC_ALPHA },
+		{ "ONE_MINUS_SRC_ALPHA", 		erm::BlendFunction::ONE_MINUS_SRC_ALPHA },
+		{ "DST_ALPHA", 					erm::BlendFunction::DST_ALPHA },
+		{ "ONE_MINUS_DST_ALPHA", 		erm::BlendFunction::ONE_MINUS_DST_ALPHA },
+		{ "DST_COLOR", 					erm::BlendFunction::DST_COLOR },
+		{ "ONE_MINUS_DST_COLOR", 		erm::BlendFunction::ONE_MINUS_DST_COLOR },
+		{ "CONSTANT_COLOR", 			erm::BlendFunction::CONSTANT_COLOR },
+		{ "ONE_MINUS_CONSTANT_COLOR", 	erm::BlendFunction::ONE_MINUS_CONSTANT_COLOR },
+		{ "CONSTANT_ALPHA", 			erm::BlendFunction::CONSTANT_ALPHA },
+		{ "ONE_MINUS_CONSTANT_ALPHA", 	erm::BlendFunction::ONE_MINUS_CONSTANT_ALPHA }
 	};
 	
-	const std::vector<std::pair<const char*, int>> kCullFace {
-		{ "FRONT", 			0x0404 },
-		{ "BACK", 			0x0405 },
-		{ "FRONT_AND_BACK",	0x0408 }
+	const std::vector<std::pair<const char*, erm::CullFace>> kCullFace {
+		{ "FRONT", 			erm::CullFace::FRONT },
+		{ "BACK", 			erm::CullFace::BACK },
+		{ "FRONT_AND_BACK",	erm::CullFace::FRONT_AND_BACK }
 	};
 	
-	const std::vector<std::pair<const char*, int>> kFrontFace {
-		{ "CW", 	0x0900 },
-		{ "CCW", 	0x0901 }
+	const std::vector<std::pair<const char*, erm::FrontFace>> kFrontFace {
+		{ "CW", 	erm::FrontFace::CW },
+		{ "CCW", 	erm::FrontFace::CCW }
 	};
 	
-	const std::vector<std::pair<const char*, int>> kPolygonMode {
-		{ "POINT", 	0x1B00 },
-		{ "LINE", 	0x1B01 },
-		{ "FILL",	0x1B02 }
+	const std::vector<std::pair<const char*, erm::PolygonMode>> kPolygonMode {
+		{ "POINT", 	erm::PolygonMode::POINT },
+		{ "LINE", 	erm::PolygonMode::LINE },
+		{ "FILL",	erm::PolygonMode::FILL }
 	};
 }
 
@@ -72,15 +76,15 @@ namespace ImGui {
 		if (ImGui::Begin("Game Debug", nullptr, flags))
 		{
 			bool isDepthEnabled = renderContext.IsDepthEnabled();
-			int depthFunction = renderContext.GetDepthFunction();
+			erm::DepthFunction depthFunction = renderContext.GetDepthFunction();
 			ImGui::Checkbox("Depth test enabled", &isDepthEnabled);
 			ImGui::ShowComboOf(kDepthFnValues, "Depth Function", depthFunction);
 			
 			ImGui::Separator();
 			
 			bool isBlendEnabled = renderContext.IsBlendEnabled();
-			int blendSrc = renderContext.GetBlendSourceFactor();
-			int blendDst = renderContext.GetBlendDestinationFactor();
+			erm::BlendFunction blendSrc = renderContext.GetBlendSourceFactor();
+			erm::BlendFunction blendDst = renderContext.GetBlendDestinationFactor();
 			ImGui::Checkbox("Blend enabled", &isBlendEnabled);
 			ImGui::ShowComboOf(kBlendFnValues, "Blend Source", blendSrc);
 			ImGui::ShowComboOf(kBlendFnValues, "Blend Destination", blendDst);
@@ -88,15 +92,15 @@ namespace ImGui {
 			ImGui::Separator();
 			
 			bool isCullFaceEnabled = renderContext.IsCullFaceEnabled();
-			int cullFace = renderContext.GetCullFace();
-			int frontFace = renderContext.GetFrontFace();
+			erm::CullFace cullFace = renderContext.GetCullFace();
+			erm::FrontFace frontFace = renderContext.GetFrontFace();
 			ImGui::Checkbox("Cull face enabled", &isCullFaceEnabled);
 			ImGui::ShowComboOf(kCullFace, "Cull Face", cullFace);
 			ImGui::ShowComboOf(kFrontFace, "Front Face", frontFace);
 			
 			ImGui::Separator();
 			
-			int polygonMode = renderContext.GetPolygonMode();
+			erm::PolygonMode polygonMode = renderContext.GetPolygonMode();
 			ImGui::ShowComboOf(kPolygonMode, "Polygon Mode", polygonMode);
 			
 			ImGui::Separator();
