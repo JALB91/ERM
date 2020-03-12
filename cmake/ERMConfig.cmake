@@ -1,6 +1,6 @@
 function(setup_api)
 	if("${TARGET_API}" STREQUAL "OpenGl")
-		find_package(OpenGl REQUIRED)
+		find_package(OpenGL REQUIRED)
 		set(TARGET_API_LIB "${OPENGL_gl_LIBRARY}" PARENT_SCOPE)
 	elseif("${TARGET_API}" STREQUAL "Vulkan" OR NOT "${TARGET_API}")
 		set(TARGET_API "Vulkan" PARENT_SCOPE)

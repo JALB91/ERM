@@ -3,7 +3,8 @@
 function print_help {
 	echo "ERM Project setup script usage:"
 	echo "    -h) Print this message"
-	echo "    -C) Setup the project using CMake"
+	echo "    -S) Setup the project using Sublime (With Make as default)"
+	echo "    -M) Setup the project using Make"
 	echo "    -N) Setup the project using Ninja"
 	echo "    -t) Set target api [OpenGl, Vulknan (default)]"
 	echo "    -r) Release mode"
@@ -33,20 +34,39 @@ _TARGET_API="OpenGl"
 _PRINT_VARIABLES="FALSE"
 DIR=`dirname $0`
 
-while getopts ":hCNt:ricvof" opt; do
+while getopts ":hSMNt:ricvof" opt; do
 case $opt in
 	v)
 		_PRINT_VARIABLES="TRUE"
 		;;
-	C)
-		_GENERATOR_NAME="Make"
-		_GENERATOR="Unix Makefiles"
-		_USE_CMAKE=true
+	S)
+		if [[ $_USE_CMAKE || ! $_USE_NINJA ]]; then
+			_GENERATOR_NAME="SublimeMake"
+			_GENERATOR="Sublime Text 2 - Unix Makefiles"
+		else
+			_GENERATOR_NAME="SublimeNinja"
+			_GENERATOR="Sublime Text 2 - Ninja"
+		fi
+		_USE_SUBLIME=true
+		unset _USE_CMAKE
+		unset _USE_NINJA
+		;;
+	M)
+		if [[ ! $_USE_SUBLIME ]]; then
+			_GENERATOR_NAME="Make"
+			_GENERATOR="Unix Makefiles"
+			_USE_CMAKE=true
+		fi
 		;;
 	N)
-		_GENERATOR_NAME="Ninja"
-		_GENERATOR="Ninja"
-		_USE_NINJA=true
+		if [[ ! $_USE_SUBLIME ]]; then
+			_GENERATOR_NAME="Ninja"
+			_GENERATOR="Ninja"
+			_USE_NINJA=true
+		else
+			_GENERATOR_NAME="SublimeNinja"
+			_GENERATOR="Sublime Text 2 - Ninja"
+		fi
 		;;
 	t)
 		_TARGET_API=$OPTARG
@@ -86,9 +106,12 @@ else
 	_CMAKE_CMD=cmake
 fi
 
+_TARGET_BUILD_DIR="$_GENERATOR_NAME"_"$_TARGET_API"_"$_BUILD_TYPE"
+
 cd ${DIR}/build/
-mkdir "$_GENERATOR_NAME"_"$_TARGET_API"_"$_BUILD_TYPE" &> /dev/null
-cd "$_GENERATOR_NAME"_"$_TARGET_API"_"$_BUILD_TYPE"
+mkdir "$_TARGET_BUILD_DIR" &> /dev/null
+mkdir "$_TARGET_BUILD_DIR"/"$_BUILD_TYPE" &> /dev/null
+cd "$_TARGET_BUILD_DIR"
 
 $_CMAKE_CMD \
 	-DPRINT_VARIABLES="$_PRINT_VARIABLES" \
@@ -111,15 +134,15 @@ if [[ $_OPEN ]]; then
 	fi
 	exit
 fi
+
 if [[ $_COMPILE ]]; then
 	cmake --build . || exit 1
 fi
+
 if [[ $_FAST_RUN ]]; then
-	if [[ $_USE_CMAKE || $_USE_NINJA ]]; then
-		cd $_BUILD_TYPE && ./bin/ERM || exit 1
-	elif [[ "$_OS" == "OSX" ]]; then
-		cd $_BUILD_TYPE/ && ./bin/ERM || exit 1
-	elif [[ "$_OS" == "WIN32" ]]; then
+	if [[ "$_OS" == "WIN32" ]]; then
 		echo "Not ready yet" && exit 1
+	else
+		cd $_BUILD_TYPE && ./bin/ERM || exit 1
 	fi
 fi
