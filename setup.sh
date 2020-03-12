@@ -108,7 +108,7 @@ fi
 
 _TARGET_BUILD_DIR="$_GENERATOR_NAME"_"$_TARGET_API"_"$_BUILD_TYPE"
 
-cd ${DIR}/build/
+cd ${DIR}/builds/
 mkdir "$_TARGET_BUILD_DIR" &> /dev/null
 mkdir "$_TARGET_BUILD_DIR"/"$_BUILD_TYPE" &> /dev/null
 cd "$_TARGET_BUILD_DIR"

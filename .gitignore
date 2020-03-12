@@ -1,5 +1,5 @@
-build/*
-!build/.gitkeep
+builds/*
+!builds/.gitkeep
 imgui.ini
 compile_commands.json
 .DS_Store
