@@ -2,6 +2,8 @@
 
 #include "erm/math/mat.h"
 
+#include <imgui.h>
+
 #include <tuple>
 #include <vector>
 

@@ -2,8 +2,6 @@
 
 #include "erm/math/math.h"
 
-#include <imgui.h>
-
 namespace ImGui {
 	
 	bool ShowMatrixDebug(
