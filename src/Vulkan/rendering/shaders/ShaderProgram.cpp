@@ -30,43 +30,6 @@ namespace {
 		{ erm::Uniform::VIEW_POS, "u_ViewPos" },
 		{ erm::Uniform::BONE_TRANSFORM_I, "u_BoneTransforms" }
 	};
-
-
-	std::vector<char> ReadShader(const std::string& path)
-	{
-		std::ifstream stream(path, std::ios::ate | std::ios::binary);
-
-		if (!stream.is_open())
-		{
-			throw std::runtime_error("Failed to open shader file!");
-		}
-
-		size_t fileSize = (size_t)stream.tellg();
-		std::vector<char> buffer(fileSize);
-
-		stream.seekg(0);
-		stream.read(buffer.data(), fileSize);
-
-		stream.close();
-
-		return buffer;
-	}
-
-	VkShaderModule CreateShaderModule(const std::vector<char>& code, VkDevice device)
-	{
-		VkShaderModuleCreateInfo createInfo = {};
-		createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-		createInfo.codeSize = code.size();
-		createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
-
-		VkShaderModule shaderModule;
-		if (vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS)
-		{
-			throw std::runtime_error("failed to create shader module!");
-		}
-
-		return shaderModule;
-	}
 	
 }
 
@@ -80,6 +43,12 @@ namespace erm {
 		, mVertex(vertexShader)
 		, mFragment(fragmentShader)
 		, mId(sShaderId++)
+	{
+		CacheUniformsLocations();
+	}
+	
+	ShaderProgram::ShaderProgram(const std::string& /*fragmentShader*/)
+		: mId(0)
 	{
 		CacheUniformsLocations();
 	}
@@ -109,7 +78,7 @@ namespace erm {
 		CacheUniformsLocations();
 	}
 	
-	void ShaderProgram::SetUniform1i(const Uniform& uniform, int value, int index /*= -1*/)
+	void ShaderProgram::SetUniform1i(const Uniform& uniform, int /*value*/, int index /*= -1*/)
 	{
 		std::string uniformName = kUniforms.at(uniform);
 		
@@ -117,11 +86,9 @@ namespace erm {
 		{
 			uniformName += "[" + std::to_string(index) + "]";
 		}
-		
-		//GL_CALL(glUniform1i(GetUniformLocation(uniformName), value));
 	}
 	
-	void ShaderProgram::SetUniform1f(const Uniform& uniform, float value, int index /*= -1*/)
+	void ShaderProgram::SetUniform1f(const Uniform& uniform, float /*value*/, int index /*= -1*/)
 	{
 		std::string uniformName = kUniforms.at(uniform);
 		
@@ -129,11 +96,9 @@ namespace erm {
 		{
 			uniformName += "[" + std::to_string(index) + "]";
 		}
-		
-		//GL_CALL(glUniform1f(GetUniformLocation(uniformName), value));
 	}
 	
-	void ShaderProgram::SetUniform3f(const Uniform& uniform, math::vec3 value, int index /*= -1*/)
+	void ShaderProgram::SetUniform3f(const Uniform& uniform, math::vec3 /*value*/, int index /*= -1*/)
 	{
 		std::string uniformName = kUniforms.at(uniform);
 		
@@ -141,132 +106,89 @@ namespace erm {
 		{
 			uniformName += "[" + std::to_string(index) + "]";
 		}
-		
-		//GL_CALL(glUniform3f(GetUniformLocation(uniformName), value.x, value.y, value.z));
 	}
 	
 	void ShaderProgram::SetUniform3f(const Uniform& uniform, float v0, float v1, float v2, int index /*= -1*/)
 	{
+		UNUSED(v0);
+		UNUSED(v1);
+		UNUSED(v2);
+		
 		std::string uniformName = kUniforms.at(uniform);
 		
 		if (index >= 0)
 		{
 			uniformName += "[" + std::to_string(index) + "]";
 		}
-		
-		//GL_CALL(glUniform3f(GetUniformLocation(uniformName), v0, v1, v2));
 	}
 	
 	void ShaderProgram::SetUniform4f(const Uniform& uniform, math::vec4 value, int index /*= -1*/)
 	{
+		UNUSED(value);
+		
 		std::string uniformName = kUniforms.at(uniform);
 		
 		if (index >= 0)
 		{
 			uniformName += "[" + std::to_string(index) + "]";
 		}
-		
-		//GL_CALL(glUniform4f(GetUniformLocation(uniformName), value.x, value.y, value.z, value.w));
 	}
 	
 	void ShaderProgram::SetUniform4f(const Uniform& uniform, float v0, float v1, float v2, float v3, int index /*= -1*/)
 	{
+		UNUSED(v0);
+		UNUSED(v1);
+		UNUSED(v2);
+		UNUSED(v3);
+		
 		std::string uniformName = kUniforms.at(uniform);
 		
 		if (index >= 0)
 		{
 			uniformName += "[" + std::to_string(index) + "]";
 		}
-		
-		//GL_CALL(glUniform4f(GetUniformLocation(uniformName), v0, v1, v2, v3));
 	}
 	
 	void ShaderProgram::SetUniformMat4f(const Uniform& uniform, const math::mat4& matrix, int index /*= -1*/)
 	{
+		UNUSED(matrix);
+		
 		std::string uniformName = kUniforms.at(uniform);
 		
 		if (index >= 0)
 		{
 			uniformName += "[" + std::to_string(index) + "]";
 		}
-		
-		//GL_CALL(glUniformMatrix4fv(GetUniformLocation(uniformName), 1, GL_FALSE, &matrix[0][0]));
 	}
 	
 	std::string ShaderProgram::ParseShader(const std::string& path) const
 	{
+		UNUSED(path);
 		return "";
 	}
 	
 	unsigned int ShaderProgram::CompileShader(unsigned int type, const std::string& source) const
 	{
-		/*GL_CALL(unsigned int id = glCreateShader(type));
-		const char* src = source.c_str();
-		
-		GL_CALL(glShaderSource(id, 1, &src, nullptr));
-		GL_CALL(glCompileShader(id));
-		
-		int result;
-		GL_CALL(glGetShaderiv(id, GL_COMPILE_STATUS, &result));
-		
-		if (result == GL_FALSE)
-		{
-			int lenght;
-			GL_CALL(glGetShaderiv(id, GL_INFO_LOG_LENGTH, &lenght));
-			char* infoLog = (char*)alloca(lenght * sizeof(char));
-			GL_CALL(glGetShaderInfoLog(id, lenght, &lenght, infoLog));
-			
-			std::cout << infoLog << std::endl;
-			
-			GL_CALL(glDeleteShader(id));
-			
-			return 0;
-		}
-		
-		return id;*/
+		UNUSED(type);
+		UNUSED(source);
 		return 0;
 	}
 	
 	unsigned int ShaderProgram::CreateShaderProgram(const std::string& vertex, const std::string& fragment) const
 	{
-		/*GL_CALL(unsigned int program = glCreateProgram());
-		unsigned int vs = CompileShader(GL_VERTEX_SHADER, vertex);
-		unsigned int fs = CompileShader(GL_FRAGMENT_SHADER, fragment);
-		
-		GL_CALL(glAttachShader(program, vs));
-		GL_CALL(glAttachShader(program, fs));
-		GL_CALL(glLinkProgram(program));
-		GL_CALL(glValidateProgram(program));
-		
-		GL_CALL(glDeleteShader(vs));
-		GL_CALL(glDeleteShader(fs));
-		
-		return program;*/
+		UNUSED(vertex);
+		UNUSED(fragment);
 		return 0;
 	}
 	
 	void ShaderProgram::CacheUniformsLocations()
-	{
-		/*for (const auto& uniform: kUniforms)
-		{
-			GL_CALL(mUniformLocationsCache[uniform.second] = glGetUniformLocation(mRendererId, uniform.second));
-		}*/
-	}
+	{}
 	
 	int ShaderProgram::GetUniformLocation(const std::string& name)
 	{
 		if (mUniformLocationsCache.find(name) != mUniformLocationsCache.end())
 		{
 			return mUniformLocationsCache.at(name);
-		}
-		else
-		{
-			/*GL_CALL(int location = glGetUniformLocation(mRendererId, name.c_str()));
-			if (location >= 0)
-			{
-				mUniformLocationsCache[name] = location;
-				return location;
-			}*/
 		}
 		
 		std::cout << "Uniform location not found" << std::endl;

@@ -126,12 +126,12 @@ namespace erm {
 				frameInSecond = 0;
 			}
 			
-			OnUpdate(static_cast<float>(frameElapsedTime * 0.001));
-			OnPostUpdate();
-			
-			OnPreRender();
-			OnImGuiRender();
-			OnRender();
+//			OnUpdate(static_cast<float>(frameElapsedTime * 0.001));
+//			OnPostUpdate();
+//
+//			OnPreRender();
+//			OnImGuiRender();
+//			OnRender();
 			
 			OnPostRender();
 		}
@@ -180,7 +180,7 @@ namespace erm {
 		PROFILE_FUNCTION();
 		
 		mWindow->PostRender();
-		mResourcesManager->OnPostRender();
+//		mResourcesManager->OnPostRender();
 	}
 	
 	void Game::OnKeyPressed(Key /*keyCode*/)
