@@ -3,6 +3,7 @@
 #include "erm/rendering/shaders/ShaderProgram.h"
 
 #include "erm/utils/Utils.h"
+#include "erm/utils/VkUtils.h"
 #include "erm/utils/Profiler.h"
 
 #include <glm/glm.hpp>
@@ -53,11 +54,10 @@ namespace {
 /*
 	VULKAN VARS
 */
-
 namespace {
 	
 #ifndef NDEBUG
-	const std::array<const char*, 1> kValidationLayers
+	const std::vector<const char*> kValidationLayers
 	{
 		"VK_LAYER_KHRONOS_validation"
 	};
@@ -65,7 +65,7 @@ namespace {
 	VkDebugUtilsMessengerEXT debugMessenger;
 #endif
 	
-	const std::array<const char*, 1> kDeviceExtensions
+	const std::vector<const char*> kDeviceExtensions
 	{
 		VK_KHR_SWAPCHAIN_EXTENSION_NAME
 	};
@@ -103,79 +103,8 @@ namespace {
 	size_t currentFrame = 0;
 	bool framebufferResized = false;
 	
-	struct QueueFamilyIndices
-	{
-		std::optional<uint32_t> mGraphicsFamily;
-		std::optional<uint32_t> mPresentFamily;
-		
-		bool IsComplete() const
-		{
-			return (mGraphicsFamily.has_value() && mPresentFamily.has_value());
-		}
-	};
-	QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device)
-	{
-		QueueFamilyIndices indices;
-		
-		uint32_t queueFamilyCount = 0;
-		vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
-		
-		std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-		vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
-		
-		for (uint32_t i = 0; i < queueFamilyCount; ++i)
-		{
-			if (queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
-			{
-				indices.mGraphicsFamily = i;
-			}
-			
-			VkBool32 presentSupport = false;
-			vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
-			
-			if (presentSupport)
-			{
-				indices.mPresentFamily = i;
-			}
-		}
-		
-		return indices;
-	}
-	
-	struct SwapChainSupportDetails
-	{
-		VkSurfaceCapabilitiesKHR mCapabilities;
-		std::vector<VkSurfaceFormatKHR> mFormats;
-		std::vector<VkPresentModeKHR> mPresentModes;
-	};
-	SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device)
-	{
-		SwapChainSupportDetails details;
-		
-		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &details.mCapabilities);
-		
-		uint32_t formatCount;
-		vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, nullptr);
-		
-		if (formatCount > 0)
-		{
-			details.mFormats.resize(formatCount);
-			vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, details.mFormats.data());
-		}
-		
-		uint32_t presentModeCount;
-		vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, nullptr);
-		
-		if (presentModeCount != 0)
-		{
-			details.mPresentModes.resize(presentModeCount);
-			vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, details.mPresentModes.data());
-		}
-		
-		return details;
-	}
-	
 }
+
 /*
 	VERTEX BUFFER
 */
@@ -313,95 +242,6 @@ namespace {
 		}
 	}
 #endif
-	bool CheckDeviceExtensionSupport(VkPhysicalDevice device)
-	{
-		uint32_t extensionCount;
-		vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
-
-		std::vector<VkExtensionProperties> availableExtensions(extensionCount);
-		vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
-
-		std::set<std::string> requiredExtensions(kDeviceExtensions.begin(), kDeviceExtensions.end());
-
-		for (const VkExtensionProperties& extension : availableExtensions) {
-			requiredExtensions.erase(extension.extensionName);
-		}
-
-		return requiredExtensions.empty();
-	}
-	bool IsDeviceSuitable(VkPhysicalDevice device)
-	{
-		VkPhysicalDeviceProperties deviceProperties;
-		vkGetPhysicalDeviceProperties(device, &deviceProperties);
-		const bool isSuitable = FindQueueFamilies(device).IsComplete() && CheckDeviceExtensionSupport(device);
-
-		bool swapChainAdequate = false;
-		if (isSuitable)
-		{
-			SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(device);
-			swapChainAdequate = !swapChainSupport.mFormats.empty() && !swapChainSupport.mPresentModes.empty();
-		}
-
-		std::cout << "Checking compatibility of: " << deviceProperties.deviceName << " -> " << std::boolalpha << (isSuitable && swapChainAdequate) << std::endl;
-
-		return isSuitable && swapChainAdequate;
-	}
-	VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)
-	{
-		for (const VkSurfaceFormatKHR& availableFormat : availableFormats)
-		{
-			if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
-			{
-				return availableFormat;
-			}
-		}
-		return availableFormats[0];
-	}
-	VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes)
-	{
-		for (const VkPresentModeKHR& availablePresentMode : availablePresentModes)
-		{
-			if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR)
-			{
-				return availablePresentMode;
-			}
-		}
-		return VK_PRESENT_MODE_FIFO_KHR;
-	}
-	VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, int fallbackWidth, int fallbackHeight)
-	{
-		if (capabilities.currentExtent.width != UINT32_MAX)
-		{
-			return capabilities.currentExtent;
-		}
-		else
-		{
-			VkExtent2D actualExtent = {
-				static_cast<uint32_t>(fallbackWidth),
-				static_cast<uint32_t>(fallbackHeight)
-			};
-
-			actualExtent.width = std::max(capabilities.minImageExtent.width, std::min(capabilities.maxImageExtent.width, actualExtent.width));
-			actualExtent.height = std::max(capabilities.minImageExtent.height, std::min(capabilities.maxImageExtent.height, actualExtent.height));
-
-			return actualExtent;
-		}
-	}
-	uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
-	{
-		VkPhysicalDeviceMemoryProperties memProperties;
-		vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
-		
-		for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
-		{
-			if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties)
-			{
-				return i;
-			}
-		}
-
-		throw std::runtime_error("failed to find suitable memory type!");
-	}
 
 	void CreateInstance()
 	{
@@ -536,7 +376,7 @@ namespace {
 
 		for (const VkPhysicalDevice& device : devices)
 		{
-			if (IsDeviceSuitable(device))
+			if (erm::Utils::IsDeviceSuitable(device, surface, kDeviceExtensions))
 			{
 				physicalDevice = device;
 				break;
@@ -550,7 +390,7 @@ namespace {
 	}
 	void CreateLogicalDevice()
 	{
-		QueueFamilyIndices indices = FindQueueFamilies(physicalDevice);
+		erm::QueueFamilyIndices indices = erm::Utils::FindQueueFamilies(physicalDevice, surface);
 		const float queuePriority = 1.0f;
 
 		std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
@@ -592,12 +432,12 @@ namespace {
 	}
 	void CreateSwapChain(int width, int height)
 	{
-		SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(physicalDevice);
-		QueueFamilyIndices indices = FindQueueFamilies(physicalDevice);
+		erm::SwapChainSupportDetails swapChainSupport = erm::Utils::QuerySwapChainSupport(physicalDevice, surface);
+		erm::QueueFamilyIndices indices = erm::Utils::FindQueueFamilies(physicalDevice, surface);
 
-		VkSurfaceFormatKHR surfaceFormat = ChooseSwapSurfaceFormat(swapChainSupport.mFormats);
-		VkPresentModeKHR presentMode = ChooseSwapPresentMode(swapChainSupport.mPresentModes);
-		swapChainExtent = ChooseSwapExtent(swapChainSupport.mCapabilities, width, height);
+		VkSurfaceFormatKHR surfaceFormat = erm::Utils::ChooseSwapSurfaceFormat(swapChainSupport.mFormats);
+		VkPresentModeKHR presentMode = erm::Utils::ChooseSwapPresentMode(swapChainSupport.mPresentModes);
+		swapChainExtent = erm::Utils::ChooseSwapExtent(swapChainSupport.mCapabilities, width, height);
 		swapChainImageFormat = surfaceFormat.format;
 
 		uint32_t imageCount = swapChainSupport.mCapabilities.minImageCount + 1;
@@ -910,7 +750,7 @@ namespace {
 	}
 	void CreateCommandPool()
 	{
-		QueueFamilyIndices queueFamilyIndices = FindQueueFamilies(physicalDevice);
+		erm::QueueFamilyIndices queueFamilyIndices = erm::Utils::FindQueueFamilies(physicalDevice, surface);
 
 		VkCommandPoolCreateInfo poolInfo = {};
 		poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
@@ -941,7 +781,11 @@ namespace {
 		VkMemoryAllocateInfo allocInfo = {};
 		allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 		allocInfo.allocationSize = memRequirements.size;
-		allocInfo.memoryTypeIndex = FindMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+		allocInfo.memoryTypeIndex = erm::Utils::FindMemoryType(
+			physicalDevice,
+			memRequirements.memoryTypeBits,
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+		);
 		
 		if (vkAllocateMemory(device, &allocInfo, nullptr, &vertexBufferMemory) != VK_SUCCESS)
 		{
@@ -1356,6 +1200,7 @@ namespace erm {
 		/*ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());*/
 		
+		DrawFrame();
 		glfwSwapBuffers(window);
 	}
 	
@@ -1364,7 +1209,6 @@ namespace erm {
 		PROFILE_FUNCTION();
 		
 		glfwPollEvents();
-		DrawFrame();
 	}
 	
 	void Window::OnKey(int key, int /*scanCode*/, int action, int /*mods*/)

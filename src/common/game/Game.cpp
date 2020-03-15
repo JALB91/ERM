@@ -132,8 +132,10 @@ namespace erm {
 //			OnPreRender();
 //			OnImGuiRender();
 //			OnRender();
-			
-			OnPostRender();
+//
+//			OnPostRender();
+			mWindow->Render();
+			mWindow->PostRender();
 		}
 	}
 	
@@ -180,7 +182,7 @@ namespace erm {
 		PROFILE_FUNCTION();
 		
 		mWindow->PostRender();
-//		mResourcesManager->OnPostRender();
+		mResourcesManager->OnPostRender();
 	}
 	
 	void Game::OnKeyPressed(Key /*keyCode*/)
