@@ -15,8 +15,6 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <imgui.h>
-
 namespace erm {
 	namespace ecs {
 		
@@ -30,36 +28,33 @@ namespace erm {
 		{
 			math::vec3 translation (0.0f);
 			
-			if (!ImGui::IsAnyWindowHovered() && !ImGui::IsAnyItemHovered())
+			if (mWindow.IsMouseButtonDown(MOUSE_BUTTON_1))
 			{
-				if (mWindow.IsMouseButtonDown(MOUSE_BUTTON_1))
+				math::vec3 rotation (
+					(mWindow.GetPreviousMousePosY() - mWindow.GetMousePosY()),
+					(mWindow.GetPreviousMousePosX() - mWindow.GetMousePosX()),
+					0.0f
+				);
+				rotation = glm::radians(rotation * camera.mMouseSensibility) + transform.mRotation;
+				
+				if (rotation.x > camera.mAngleLimit)
 				{
-					math::vec3 rotation (
-						(mWindow.GetPreviousMousePosY() - mWindow.GetMousePosY()),
-						(mWindow.GetPreviousMousePosX() - mWindow.GetMousePosX()),
-						0.0f
-					);
-					rotation = glm::radians(rotation * camera.mMouseSensibility) + transform.mRotation;
-					
-					if (rotation.x > camera.mAngleLimit)
-					{
-						rotation.x = camera.mAngleLimit;
-					}
-					else if (rotation.x < -camera.mAngleLimit)
-					{
-						rotation.x = -camera.mAngleLimit;
-					}
-					
-					transform.mRotation = rotation;
+					rotation.x = camera.mAngleLimit;
 				}
-				else if (mWindow.IsMouseButtonDown(MOUSE_BUTTON_2))
+				else if (rotation.x < -camera.mAngleLimit)
 				{
-					
+					rotation.x = -camera.mAngleLimit;
 				}
-				else if (mWindow.IsMouseButtonDown(MOUSE_BUTTON_3))
-				{
-					
-				}
+				
+				transform.mRotation = rotation;
+			}
+			else if (mWindow.IsMouseButtonDown(MOUSE_BUTTON_2))
+			{
+				
+			}
+			else if (mWindow.IsMouseButtonDown(MOUSE_BUTTON_3))
+			{
+				
 			}
 			
 			if (mWindow.IsKeyDown(KEY_W))

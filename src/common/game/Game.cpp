@@ -1,7 +1,9 @@
 #include "erm/game/Game.h"
 
-#include "erm/rendering/window/Window.h"
+#include "erm/debug/ImGuiHandle.h"
 
+#include "erm/rendering/window/Window.h"
+#include "erm/rendering/Device.h"
 #include "erm/rendering/renderer/RenderContext.h"
 #include "erm/rendering/renderer/Renderer.h"
 #include "erm/rendering/data_structs/Model.h"
@@ -18,12 +20,6 @@
 #include "erm/managers/ResourcesManager.h"
 
 #include "erm/math/vec.h"
-
-#include "erm/debug/ImGuiWrapper.h"
-
-#include <imgui.h>
-
-#include <GLFW/glfw3.h>
 
 #include <random>
 
@@ -75,6 +71,8 @@ namespace erm {
 			return false;
 		}
 		
+		mDevice = std::make_unique<Device>(mWindow->GetWindow());
+		mImGuiHandle = std::make_unique<ImGuiHandle>(*this);
 		mRenderContext = std::make_unique<RenderContext>();
 		mRenderer = std::make_unique<Renderer>(*mRenderContext);
 		mResourcesManager = std::make_unique<ResourcesManager>();
@@ -126,16 +124,13 @@ namespace erm {
 				frameInSecond = 0;
 			}
 			
-//			OnUpdate(static_cast<float>(frameElapsedTime * 0.001));
-//			OnPostUpdate();
-//
-//			OnPreRender();
-//			OnImGuiRender();
-//			OnRender();
-//
-//			OnPostRender();
-			mWindow->Render();
-			mWindow->PostRender();
+			OnUpdate(static_cast<float>(frameElapsedTime * 0.001));
+			OnPostUpdate();
+
+			OnPreRender();
+			OnRender();
+
+			OnPostRender();
 		}
 	}
 	
@@ -161,27 +156,22 @@ namespace erm {
 		PROFILE_FUNCTION();
 	}
 	
-	void Game::OnImGuiRender()
-	{
-		PROFILE_FUNCTION();
-		
-		ImGui::ShowGameDebug(*this);
-	}
-	
 	void Game::OnRender()
 	{
 		PROFILE_FUNCTION();
 		
 		mResourcesManager->OnRender();
 		mECS->OnRender(*mRenderer.get());
-		mWindow->Render();
+		mDevice->OnRender();
+		mImGuiHandle->OnRender();
+		mWindow->OnRender();
 	}
 	
 	void Game::OnPostRender()
 	{
 		PROFILE_FUNCTION();
 		
-		mWindow->PostRender();
+		mWindow->OnPostRender();
 		mResourcesManager->OnPostRender();
 	}
 	

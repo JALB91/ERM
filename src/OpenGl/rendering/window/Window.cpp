@@ -13,10 +13,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <imgui.h>
-#include <imgui_impl_glfw.h>
-#include <imgui_impl_opengl3.h>
-
 #include <string>
 #include <iostream>
 #include <algorithm>
@@ -33,8 +29,6 @@ namespace {
 			if (t) func(t);
 		}
 	}
-	
-	const char* const kGlslVersion = "#version 330";
 	
 	const float kImGuiSpaceUp = 0.0f;
 	const float kImGuiSpaceDown = 0.3f;
@@ -100,10 +94,6 @@ namespace erm {
 	Window::~Window()
 	{
 		mWindowListeners.clear();
-		
-		ImGui_ImplOpenGL3_Shutdown();
-		ImGui_ImplGlfw_Shutdown();
-		ImGui::DestroyContext();
 		glfwTerminate();
 	}
 	
@@ -159,11 +149,6 @@ namespace erm {
 		glfwSetKeyCallback(mWindow, internal::OnKey);
 		glfwSetWindowRefreshCallback(mWindow, internal::OnRefresh);
 		
-		ImGui::CreateContext();
-		ImGui::StyleColorsDark();
-		ImGui_ImplGlfw_InitForOpenGL(mWindow, true);
-		ImGui_ImplOpenGL3_Init(kGlslVersion);
-		
 		return true;
 	}
 	
@@ -179,23 +164,16 @@ namespace erm {
 		mPrevMousePosX = mMousePosX;
 		mPrevMousePosY = mMousePosY;
 		glfwGetCursorPos(mWindow, &mMousePosX, &mMousePosY);
-		
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();
 	}
 	
-	void Window::Render()
+	void Window::OnRender()
 	{
 		PROFILE_FUNCTION();
-		
-		ImGui::Render();
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		
 		glfwSwapBuffers(mWindow);
 	}
 	
-	void Window::PostRender()
+	void Window::OnPostRender()
 	{
 		PROFILE_FUNCTION();
 		
@@ -205,11 +183,6 @@ namespace erm {
 	void Window::OnKey(int key, int /*scanCode*/, int action, int /*mods*/)
 	{
 		PROFILE_FUNCTION();
-		
-		if (action != GLFW_RELEASE && ImGui::IsAnyWindowHovered())
-		{
-			return;
-		}
 		
 		if (action == GLFW_PRESS)
 		{
@@ -234,11 +207,6 @@ namespace erm {
 	void Window::OnMouseButton(int button, int action, int /*mods*/)
 	{
 		PROFILE_FUNCTION();
-		
-		if (action != GLFW_RELEASE && ImGui::IsAnyWindowHovered())
-		{
-			return;
-		}
 		
 		if (action == GLFW_PRESS)
 		{

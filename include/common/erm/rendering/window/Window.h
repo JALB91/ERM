@@ -22,11 +22,13 @@ namespace erm {
 		Window& operator=(const Window&) = delete;
 		Window& operator=(Window&&) = delete;
 		
+		inline GLFWwindow* GetWindow() const { return mWindow; }
+		
 		bool Init();
 		bool ShouldClose();
 		void NewFrame();
-		void Render();
-		void PostRender();
+		void OnRender();
+		void OnPostRender();
 		
 		void OnKey(int key, int scanCode, int action, int mods) override;
 		void OnMouseButton(int button, int action, int mods) override;
