@@ -108,6 +108,8 @@ target_include_directories(
 # TARGET COMMON CONFIGURATIONS
 target_compile_definitions(
 	"${PROJECT_NAME}"
+	PUBLIC
+		$<$<STREQUAL:"${TARGET_API}","Vulkan">:GLM_FORCE_DEPTH_ZERO_TO_ONE>
 	PRIVATE
 		$<$<STREQUAL:"${TARGET_API}","OpenGl">:GLEW_STATIC>
 )
