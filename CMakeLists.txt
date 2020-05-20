@@ -160,7 +160,7 @@ if("${TARGET_API}" STREQUAL "Vulkan")
 
 	foreach(SHADER ${SHADERS})
 		add_custom_command(
-			TARGET "${PROJECT_NAME}" POST_BUILD
+			TARGET "${PROJECT_NAME}" PRE_BUILD
 			COMMAND "${SHADERS_COMPILER}" "${SHADER}" -o "${SHADER}"
 			COMMENT "Compiling shader ${SHADER}"
 		)

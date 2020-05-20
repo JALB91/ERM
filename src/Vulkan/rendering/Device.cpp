@@ -180,7 +180,7 @@ namespace {
 
 		if (!stream.is_open())
 		{
-			throw std::runtime_error("Failed to open shader file!");
+			throw std::runtime_error("Failed to open shader file");
 		}
 
 		size_t fileSize = static_cast<size_t>(stream.tellg());
@@ -263,7 +263,7 @@ namespace erm {
 			}
 			else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
 			{
-				throw std::runtime_error("Failed to acquire swap chain image!");
+				throw std::runtime_error("Failed to acquire swap chain image");
 			}
 
 			// Check if a previous frame is using this image (i.e. there is its fence to wait on)
@@ -295,7 +295,7 @@ namespace erm {
 
 			if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, inFlightFences[currentFrame]) != VK_SUCCESS)
 			{
-				throw std::runtime_error("Failed to submit draw command buffer!");
+				throw std::runtime_error("Failed to submit draw command buffer");
 			}
 
 			VkPresentInfoKHR presentInfo = {};
@@ -318,7 +318,7 @@ namespace erm {
 			}
 			else if (result != VK_SUCCESS)
 			{
-				throw std::runtime_error("failed to present swap chain image!");
+				throw std::runtime_error("failed to present swap chain image");
 			}
 
 			currentFrame = (currentFrame + 1) % kMaxFramesInFlight;
@@ -340,7 +340,7 @@ namespace erm {
 			bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
 			if (vkCreateBuffer(device, &bufferInfo, nullptr, &buffer) != VK_SUCCESS) {
-				throw std::runtime_error("failed to create buffer!");
+				throw std::runtime_error("failed to create buffer");
 			}
 
 			VkMemoryRequirements memRequirements;
@@ -352,7 +352,7 @@ namespace erm {
 			allocInfo.memoryTypeIndex = erm::Utils::FindMemoryType(physicalDevice, memRequirements.memoryTypeBits, properties);
 
 			if (vkAllocateMemory(device, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS) {
-				throw std::runtime_error("failed to allocate buffer memory!");
+				throw std::runtime_error("failed to allocate buffer memory");
 			}
 
 			vkBindBufferMemory(device, buffer, bufferMemory, 0);
@@ -480,7 +480,7 @@ namespace erm {
 
 				if (!layerFound)
 				{
-					throw std::runtime_error((std::string(layerName) + " validation layer requested, but not available!").c_str());
+					throw std::runtime_error((std::string(layerName) + " validation layer requested, but not available").c_str());
 				}
 			}
 
@@ -494,7 +494,7 @@ namespace erm {
 
 			if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS)
 			{
-				throw std::runtime_error("Failed to create Vulkan instance!");
+				throw std::runtime_error("Failed to create Vulkan instance");
 			}
 		}
 		
@@ -506,7 +506,7 @@ namespace erm {
 
 			if (CreateDebugUtilsMessengerEXT(instance, &debugMessengerInfo, nullptr, &debugMessenger) != VK_SUCCESS)
 			{
-				throw std::runtime_error("Failed to set up Vulkan debug messenger!");
+				throw std::runtime_error("Failed to set up Vulkan debug messenger");
 			}
 	#endif
 		}
@@ -515,7 +515,7 @@ namespace erm {
 		{
 			if (glfwCreateWindowSurface(instance, mWindow, nullptr, &surface) != VK_SUCCESS)
 			{
-				throw std::runtime_error("Failed to create window surface!");
+				throw std::runtime_error("Failed to create window surface");
 			}
 		}
 		
@@ -526,7 +526,7 @@ namespace erm {
 
 			if (deviceCount == 0)
 			{
-				throw std::runtime_error("Failed to find GPUs with Vulkan support!");
+				throw std::runtime_error("Failed to find GPUs with Vulkan support");
 			}
 
 			std::vector<VkPhysicalDevice> devices(deviceCount);
@@ -543,7 +543,7 @@ namespace erm {
 
 			if (physicalDevice == VK_NULL_HANDLE)
 			{
-				throw std::runtime_error("Failed to find a suitable GPU!");
+				throw std::runtime_error("Failed to find a suitable GPU");
 			}
 		}
 		
@@ -583,7 +583,7 @@ namespace erm {
 
 			if (vkCreateDevice(physicalDevice, &deviceCreateInfo, nullptr, &device) != VK_SUCCESS)
 			{
-				throw std::runtime_error("Failed to create logical device!");
+				throw std::runtime_error("Failed to create logical device");
 			}
 
 			vkGetDeviceQueue(device, indices.mGraphicsFamily.value(), 0, &graphicsQueue);
@@ -642,7 +642,7 @@ namespace erm {
 
 			if (vkCreateSwapchainKHR(device, &swapChainCreateInfo, nullptr, &swapChain) != VK_SUCCESS)
 			{
-				throw std::runtime_error("Failed to create swap chain!");
+				throw std::runtime_error("Failed to create swap chain");
 			}
 
 			vkGetSwapchainImagesKHR(device, swapChain, &imageCount, nullptr);
@@ -672,7 +672,7 @@ namespace erm {
 
 				if (vkCreateImageView(device, &imageViewCreateInfo, nullptr, &swapChainImageViews[i]) != VK_SUCCESS)
 				{
-					throw std::runtime_error("Failed to create image view!");
+					throw std::runtime_error("Failed to create image view");
 				}
 			}
 		}
@@ -717,7 +717,7 @@ namespace erm {
 
 			if (vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS)
 			{
-				throw std::runtime_error("Failed to create render pass!");
+				throw std::runtime_error("Failed to create render pass");
 			}
 		}
 		
@@ -857,7 +857,7 @@ namespace erm {
 
 			if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS)
 			{
-				throw std::runtime_error("Failed to create pipeline layout!");
+				throw std::runtime_error("Failed to create pipeline layout");
 			}
 
 			/*
@@ -883,7 +883,7 @@ namespace erm {
 
 			if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS)
 			{
-				throw std::runtime_error("Failed to create graphics pipeline!");
+				throw std::runtime_error("Failed to create graphics pipeline");
 			}
 
 			vkDestroyShaderModule(device, vertShaderModule, nullptr);
@@ -911,7 +911,7 @@ namespace erm {
 
 				if (vkCreateFramebuffer(device, &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS)
 				{
-					throw std::runtime_error("Failed to create framebuffer!");
+					throw std::runtime_error("Failed to create framebuffer");
 				}
 			}
 		}
@@ -927,7 +927,7 @@ namespace erm {
 
 			if (vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS)
 			{
-				throw std::runtime_error("Failed to create command pool!");
+				throw std::runtime_error("Failed to create command pool");
 			}
 		}
 		
@@ -1073,7 +1073,7 @@ namespace erm {
 
 			if (vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()) != VK_SUCCESS)
 			{
-				throw std::runtime_error("Failed to allocate command buffers!");
+				throw std::runtime_error("Failed to allocate command buffers");
 			}
 
 			for (size_t i = 0; i < commandBuffers.size(); ++i)
@@ -1085,7 +1085,7 @@ namespace erm {
 
 				if (vkBeginCommandBuffer(commandBuffers[i], &beginInfo) != VK_SUCCESS)
 				{
-					throw std::runtime_error("Failed to begin recording command buffer!");
+					throw std::runtime_error("Failed to begin recording command buffer");
 				}
 
 				VkRenderPassBeginInfo renderPassInfo = {};
@@ -1117,7 +1117,7 @@ namespace erm {
 
 				if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS)
 				{
-					throw std::runtime_error("Failed to record command buffer!");
+					throw std::runtime_error("Failed to record command buffer");
 				}
 			}
 		}
@@ -1142,7 +1142,7 @@ namespace erm {
 					vkCreateSemaphore(device, &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]) != VK_SUCCESS ||
 					vkCreateFence(device, &fenceInfo, nullptr, &inFlightFences[i]))
 				{
-					throw std::runtime_error("Failed to create semaphores for a frame!");
+					throw std::runtime_error("Failed to create semaphores for a frame");
 				}
 			}
 		}
