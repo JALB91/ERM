@@ -9,8 +9,6 @@
 
 namespace erm::VkUtils {
 	
-	extern VkCommandBuffer BeginSingleTimeCommands(VkCommandPool commandPool, VkDevice device);
-	extern void EndSingleTimeCommands(VkQueue graphicsQueue, VkCommandPool commandPool, VkDevice device, VkCommandBuffer commandBuffer);
 	extern QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface);
 	extern SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface);
 	extern bool CheckDeviceExtensionSupport(VkPhysicalDevice device, VkSurfaceKHR surface, const std::vector<const char*>& deviceExtensions);
@@ -39,6 +37,18 @@ namespace erm::VkUtils {
 		VkMemoryPropertyFlags properties
 	);
 	
+	extern VkCommandBuffer BeginSingleTimeCommands(
+		VkCommandPool commandPool,
+		VkDevice device
+	);
+	
+	extern void EndSingleTimeCommands(
+		VkQueue graphicsQueue,
+		VkCommandPool commandPool,
+		VkDevice device,
+		VkCommandBuffer commandBuffer
+	);
+	
 	extern void CreateBuffer(
 		VkPhysicalDevice physicalDevice,
 		VkDevice device,
@@ -49,7 +59,7 @@ namespace erm::VkUtils {
 		VkDeviceMemory& bufferMemory
 	);
 	
-	extern void CopyBuffer(
+	extern void CopyBufferToBuffer(
 		VkCommandPool commandPool,
 		VkDevice device,
 		VkQueue graphicsQueue,

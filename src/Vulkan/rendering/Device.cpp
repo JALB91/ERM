@@ -1032,7 +1032,7 @@ namespace erm {
 				vertexBufferMemory
 			);
 			
-			VkUtils::CopyBuffer(
+			VkUtils::CopyBufferToBuffer(
 				commandPool,
 				device,
 				graphicsQueue,
@@ -1076,7 +1076,7 @@ namespace erm {
 				indexBufferMemory
 			);
 
-			VkUtils::CopyBuffer(
+			VkUtils::CopyBufferToBuffer(
 				commandPool,
 				device,
 				graphicsQueue,
