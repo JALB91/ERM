@@ -12,6 +12,8 @@
 
 #include <GLFW/glfw3.h>
 
+#include <stb_image.h>
+
 #include <vulkan/vulkan.h>
 
 #include <array>
@@ -116,17 +118,24 @@ namespace {
 			return bindingDescription;
 		}
 
-		static std::array<VkVertexInputAttributeDescription, 2> GetAttributeDescriptions()
+		static std::array<VkVertexInputAttributeDescription, 3> GetAttributeDescriptions()
 		{
-			std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions = {};
+			std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions = {};
 			attributeDescriptions[0].binding = 0;
 			attributeDescriptions[0].location = 0;
 			attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
 			attributeDescriptions[0].offset = offsetof(erm::VertexData, mPositionVertex);
+			
 			attributeDescriptions[1].binding = 0;
 			attributeDescriptions[1].location = 1;
 			attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
 			attributeDescriptions[1].offset = offsetof(erm::VertexData, mNormalVertex);
+			
+			attributeDescriptions[2].binding = 0;
+			attributeDescriptions[2].location = 2;
+			attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
+			attributeDescriptions[2].offset = offsetof(erm::VertexData, mUVVertex);
+			
 			return attributeDescriptions;
 		}
 	};
@@ -206,6 +215,10 @@ namespace erm {
 			
 			CleanupSwapChain();
 			
+			vkDestroySampler(device, textureSampler, nullptr);
+			vkDestroyImageView(device, textureImageView, nullptr);
+			vkDestroyImage(device, textureImage, nullptr);
+			vkFreeMemory(device, textureImageMemory, nullptr);
 			vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
 			vkDestroyBuffer(device, indexBuffer, nullptr);
 			vkFreeMemory(device, indexBufferMemory, nullptr);
@@ -438,7 +451,7 @@ namespace erm {
 
 			for (const VkPhysicalDevice& device : devices)
 			{
-				if (Utils::IsDeviceSuitable(device, surface, kDeviceExtensions))
+				if (VkUtils::IsDeviceSuitable(device, surface, kDeviceExtensions))
 				{
 					physicalDevice = device;
 					break;
@@ -453,7 +466,7 @@ namespace erm {
 		
 		void CreateLogicalDevice()
 		{
-			QueueFamilyIndices indices = Utils::FindQueueFamilies(physicalDevice, surface);
+			QueueFamilyIndices indices = VkUtils::FindQueueFamilies(physicalDevice, surface);
 			const float queuePriority = 1.0f;
 
 			std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
@@ -470,6 +483,7 @@ namespace erm {
 			}
 
 			VkPhysicalDeviceFeatures deviceFeatures = {};
+			deviceFeatures.samplerAnisotropy = VK_TRUE;
 
 			VkDeviceCreateInfo deviceCreateInfo = {};
 			deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -499,12 +513,12 @@ namespace erm {
 			int width, height;
 			GetFrameBufferSize(width, height);
 			
-			SwapChainSupportDetails swapChainSupport = Utils::QuerySwapChainSupport(physicalDevice, surface);
-			QueueFamilyIndices indices = Utils::FindQueueFamilies(physicalDevice, surface);
+			SwapChainSupportDetails swapChainSupport = VkUtils::QuerySwapChainSupport(physicalDevice, surface);
+			QueueFamilyIndices indices = VkUtils::FindQueueFamilies(physicalDevice, surface);
 
-			VkSurfaceFormatKHR surfaceFormat = Utils::ChooseSwapSurfaceFormat(swapChainSupport.mFormats);
-			VkPresentModeKHR presentMode = Utils::ChooseSwapPresentMode(swapChainSupport.mPresentModes);
-			swapChainExtent = Utils::ChooseSwapExtent(swapChainSupport.mCapabilities, width, height);
+			VkSurfaceFormatKHR surfaceFormat = VkUtils::ChooseSwapSurfaceFormat(swapChainSupport.mFormats);
+			VkPresentModeKHR presentMode = VkUtils::ChooseSwapPresentMode(swapChainSupport.mPresentModes);
+			swapChainExtent = VkUtils::ChooseSwapExtent(swapChainSupport.mCapabilities, width, height);
 			swapChainImageFormat = surfaceFormat.format;
 
 			uint32_t imageCount = swapChainSupport.mCapabilities.minImageCount + 1;
@@ -559,7 +573,7 @@ namespace erm {
 			swapChainImageViews.resize(swapChainImages.size());
 			for (size_t i = 0; i < swapChainImages.size(); ++i)
 			{
-				swapChainImageViews[i] = Utils::CreateImageView(device, swapChainImages[i], swapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
+				swapChainImageViews[i] = VkUtils::CreateImageView(device, swapChainImages[i], swapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
 			}
 		}
 		
@@ -580,7 +594,7 @@ namespace erm {
 			colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 			
 			VkAttachmentDescription depthAttachment{};
-			depthAttachment.format = Utils::FindDepthFormat(physicalDevice);
+			depthAttachment.format = VkUtils::FindDepthFormat(physicalDevice);
 			depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
 			depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 			depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
@@ -746,6 +760,8 @@ namespace erm {
 			/*
 				SETUP PIPELINE LAYOUT
 			*/
+			descriptorSetLayout = VkUtils::CreateDescriptorSetLayout(device);
+			
 			VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
 			pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 			pipelineLayoutInfo.setLayoutCount = 1;
@@ -829,7 +845,7 @@ namespace erm {
 		
 		void CreateCommandPool()
 		{
-			QueueFamilyIndices queueFamilyIndices = Utils::FindQueueFamilies(physicalDevice, surface);
+			QueueFamilyIndices queueFamilyIndices = VkUtils::FindQueueFamilies(physicalDevice, surface);
 
 			VkCommandPoolCreateInfo poolInfo = {};
 			poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
@@ -844,8 +860,8 @@ namespace erm {
 		
 		void CreateDepthResources()
 		{
-			VkFormat depthFormat = Utils::FindDepthFormat(physicalDevice);
-			Utils::CreateImage(
+			VkFormat depthFormat = VkUtils::FindDepthFormat(physicalDevice);
+			VkUtils::CreateImage(
 				physicalDevice,
 				device,
 				swapChainExtent.width,
@@ -857,7 +873,7 @@ namespace erm {
 				depthImage,
 				depthImageMemory
 			);
-			depthImageView = Utils::CreateImageView(device, depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
+			depthImageView = VkUtils::CreateImageView(device, depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
 		}
 		
 		void LoadModel()
@@ -875,13 +891,123 @@ namespace erm {
 			}
 		}
 		
+		void CreateTextureImage()
+		{
+			int texWidth, texHeight, texChannels;
+			stbi_set_flip_vertically_on_load(1);
+			stbi_uc* pixels = stbi_load("res/textures/viking_room.png", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+			VkDeviceSize imageSize = texWidth * texHeight * 4;
+
+			if (!pixels)
+			{
+				throw std::runtime_error("Failed to load texture image");
+			}
+			
+			VkBuffer stagingBuffer;
+			VkDeviceMemory stagingBufferMemory;
+			
+			VkUtils::CreateBuffer(
+				physicalDevice,
+				device,
+				imageSize,
+				VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+				stagingBuffer,
+				stagingBufferMemory
+			);
+			
+			void* data;
+			vkMapMemory(device, stagingBufferMemory, 0, imageSize, 0, &data);
+			memcpy(data, pixels, static_cast<size_t>(imageSize));
+			vkUnmapMemory(device, stagingBufferMemory);
+			
+			stbi_image_free(pixels);
+			
+			VkUtils::CreateImage(
+				physicalDevice,
+				device,
+				texWidth,
+				texHeight,
+				VK_FORMAT_R8G8B8A8_SRGB,
+				VK_IMAGE_TILING_OPTIMAL,
+				VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+				VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+				textureImage,
+				textureImageMemory
+			);
+			
+			VkUtils::TransitionImageLayout(
+				graphicsQueue,
+				commandPool,
+				device,
+				textureImage,
+				VK_FORMAT_R8G8B8A8_SRGB,
+				VK_IMAGE_LAYOUT_UNDEFINED,
+				VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL
+			);
+			
+			VkUtils::CopyBufferToImage(
+				graphicsQueue,
+				commandPool,
+				device,
+				stagingBuffer,
+				textureImage,
+				static_cast<uint32_t>(texWidth),
+				static_cast<uint32_t>(texHeight)
+			);
+			
+			VkUtils::TransitionImageLayout(
+				graphicsQueue,
+				commandPool,
+				device,
+				textureImage,
+				VK_FORMAT_R8G8B8A8_SRGB,
+				VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+				VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+			);
+			
+			vkDestroyBuffer(device, stagingBuffer, nullptr);
+			vkFreeMemory(device, stagingBufferMemory, nullptr);
+		}
+		
+		void CreateTextureImageView()
+		{
+			textureImageView = VkUtils::CreateImageView(device, textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
+		}
+		
+		void CreateTextureSampler()
+		{
+			VkSamplerCreateInfo samplerInfo{};
+			samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+			samplerInfo.magFilter = VK_FILTER_LINEAR;
+			samplerInfo.minFilter = VK_FILTER_LINEAR;
+			samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+			samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+			samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+			samplerInfo.anisotropyEnable = VK_TRUE;
+			samplerInfo.maxAnisotropy = 16.0f;
+			samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+			samplerInfo.unnormalizedCoordinates = VK_FALSE;
+			samplerInfo.compareEnable = VK_FALSE;
+			samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
+			samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+			samplerInfo.mipLodBias = 0.0f;
+			samplerInfo.minLod = 0.0f;
+			samplerInfo.maxLod = 0.0f;
+			
+			if (vkCreateSampler(device, &samplerInfo, nullptr, &textureSampler) != VK_SUCCESS)
+			{
+				throw std::runtime_error("Failed to create texture sampler");
+			}
+		}
+		
 		void CreateVertexBuffer()
 		{
 			VkDeviceSize bufferSize = sizeof(VertexData) * mModel->GetMeshes()[0].GetVerticesDataCount();
 
 			VkBuffer stagingBuffer;
 			VkDeviceMemory stagingBufferMemory;
-			Utils::CreateBuffer(
+			VkUtils::CreateBuffer(
 				physicalDevice,
 				device,
 				bufferSize,
@@ -896,7 +1022,7 @@ namespace erm {
 			memcpy(data, mModel->GetMeshes()[0].GetVerticesData(), (size_t)bufferSize);
 			vkUnmapMemory(device, stagingBufferMemory);
 
-			Utils::CreateBuffer(
+			VkUtils::CreateBuffer(
 				physicalDevice,
 				device,
 				bufferSize,
@@ -906,7 +1032,7 @@ namespace erm {
 				vertexBufferMemory
 			);
 			
-			Utils::CopyBuffer(
+			VkUtils::CopyBuffer(
 				commandPool,
 				device,
 				graphicsQueue,
@@ -925,7 +1051,7 @@ namespace erm {
 
 			VkBuffer stagingBuffer;
 			VkDeviceMemory stagingBufferMemory;
-			Utils::CreateBuffer(
+			VkUtils::CreateBuffer(
 				physicalDevice,
 				device,
 				bufferSize,
@@ -940,7 +1066,7 @@ namespace erm {
 			memcpy(data, mModel->GetMeshes()[0].GetIndicesData(), (size_t)bufferSize);
 			vkUnmapMemory(device, stagingBufferMemory);
 
-			Utils::CreateBuffer(
+			VkUtils::CreateBuffer(
 				physicalDevice,
 				device,
 				bufferSize,
@@ -950,7 +1076,7 @@ namespace erm {
 				indexBufferMemory
 			);
 
-			Utils::CopyBuffer(
+			VkUtils::CopyBuffer(
 				commandPool,
 				device,
 				graphicsQueue,
@@ -972,7 +1098,7 @@ namespace erm {
 
 			for (size_t i = 0; i < swapChainImages.size(); i++) 
 			{
-				Utils::CreateBuffer(
+				VkUtils::CreateBuffer(
 					physicalDevice,
 					device,
 					bufferSize,
@@ -986,14 +1112,16 @@ namespace erm {
 
 		void CreateDescriptorPool()
 		{
-			VkDescriptorPoolSize poolSize{};
-			poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			poolSize.descriptorCount = static_cast<uint32_t>(swapChainImages.size());
+			std::array<VkDescriptorPoolSize, 2> poolSizes{};
+			poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			poolSizes[0].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
+			poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+			poolSizes[1].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
 			
 			VkDescriptorPoolCreateInfo poolInfo{};
 			poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-			poolInfo.poolSizeCount = 1;
-			poolInfo.pPoolSizes = &poolSize;
+			poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
+			poolInfo.pPoolSizes = poolSizes.data();
 			poolInfo.maxSets = static_cast<uint32_t>(swapChainImages.size());
 
 			if (vkCreateDescriptorPool(device, &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS)
@@ -1025,19 +1153,31 @@ namespace erm {
 				bufferInfo.buffer = uniformBuffers[i];
 				bufferInfo.offset = 0;
 				bufferInfo.range = sizeof(UniformBufferObject);
+				
+				VkDescriptorImageInfo imageInfo{};
+				imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+				imageInfo.imageView = textureImageView;
+				imageInfo.sampler = textureSampler;
+				
+				std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
 
-				VkWriteDescriptorSet descriptorWrite{};
-				descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-				descriptorWrite.dstSet = descriptorSets[i];
-				descriptorWrite.dstBinding = 0;
-				descriptorWrite.dstArrayElement = 0;
-				descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-				descriptorWrite.descriptorCount = 1;
-				descriptorWrite.pBufferInfo = &bufferInfo;
-				descriptorWrite.pImageInfo = nullptr; // Optional
-				descriptorWrite.pTexelBufferView = nullptr; // Optional
+				descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+				descriptorWrites[0].dstSet = descriptorSets[i];
+				descriptorWrites[0].dstBinding = 0;
+				descriptorWrites[0].dstArrayElement = 0;
+				descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+				descriptorWrites[0].descriptorCount = 1;
+				descriptorWrites[0].pBufferInfo = &bufferInfo;
 
-				vkUpdateDescriptorSets(device, 1, &descriptorWrite, 0, nullptr);
+				descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+				descriptorWrites[1].dstSet = descriptorSets[i];
+				descriptorWrites[1].dstBinding = 1;
+				descriptorWrites[1].dstArrayElement = 0;
+				descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+				descriptorWrites[1].descriptorCount = 1;
+				descriptorWrites[1].pImageInfo = &imageInfo;
+
+				vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 			}
 		}
 		
@@ -1138,12 +1278,14 @@ namespace erm {
 			CreateSwapChain();
 			CreateImageViews();
 			CreateRenderPass();
-			descriptorSetLayout = Utils::CreateDescriptorSetLayout(device);
 			CreateGraphicsPipeline();
 			CreateCommandPool();
 			CreateDepthResources();
 			CreateFramebuffers();
 			LoadModel();
+			CreateTextureImage();
+			CreateTextureImageView();
+			CreateTextureSampler();
 			CreateVertexBuffer();
 			CreateIndexBuffer();
 			CreateUniformBuffers();
@@ -1239,7 +1381,7 @@ namespace erm {
 		
 		VkInstance instance;
 		VkSurfaceKHR surface;
-		VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+		VkPhysicalDevice physicalDevice;
 		VkDevice device;
 		VkQueue graphicsQueue;
 		VkQueue presentQueue;
@@ -1266,6 +1408,11 @@ namespace erm {
 		VkDeviceMemory vertexBufferMemory;
 		VkBuffer indexBuffer;
 		VkDeviceMemory indexBufferMemory;
+		
+		VkImage textureImage;
+		VkDeviceMemory textureImageMemory;
+		VkImageView textureImageView;
+		VkSampler textureSampler;
 
 		std::vector<VkBuffer> uniformBuffers;
 		std::vector<VkDeviceMemory> uniformBuffersMemory;

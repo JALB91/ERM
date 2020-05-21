@@ -9,8 +9,10 @@
 
 namespace erm {
 	
-	namespace Utils {
+	namespace VkUtils {
 		
+		extern VkCommandBuffer BeginSingleTimeCommands(VkCommandPool commandPool, VkDevice device);
+		extern void EndSingleTimeCommands(VkQueue graphicsQueue, VkCommandPool commandPool, VkDevice device, VkCommandBuffer commandBuffer);
 		extern QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface);
 		extern SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface);
 		extern bool CheckDeviceExtensionSupport(VkPhysicalDevice device, VkSurfaceKHR surface, const std::vector<const char*>& deviceExtensions);
@@ -76,6 +78,26 @@ namespace erm {
 			VkImage image,
 			VkFormat format,
 			VkImageAspectFlags aspectFlags
+		);
+		
+		extern void TransitionImageLayout(
+			VkQueue graphicsQueue,
+			VkCommandPool commandPool,
+			VkDevice device,
+			VkImage image,
+			VkFormat /*format*/,
+			VkImageLayout oldLayout,
+			VkImageLayout newLayout
+		);
+		
+		extern void CopyBufferToImage(
+			VkQueue graphicsQueue,
+			VkCommandPool commandPool,
+			VkDevice device,
+			VkBuffer buffer,
+			VkImage image,
+			uint32_t width,
+			uint32_t height
 		);
 		
 	}
