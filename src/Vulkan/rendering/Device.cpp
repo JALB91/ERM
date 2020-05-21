@@ -1,7 +1,11 @@
 #include "erm/rendering/Device.h"
 
+#include "erm/managers/ResourcesManager.h"
 #include "erm/math/vec.h"
 #include "erm/math/mat.h"
+#include "erm/rendering/buffers/VertexData.h"
+#include "erm/rendering/data_structs/Mesh.h"
+#include "erm/rendering/data_structs/Model.h"
 #include "erm/utils/VkUtils.h"
 
 #include <glm/gtc/matrix_transform.hpp>
@@ -15,7 +19,14 @@
 #include <fstream>
 #include <iostream>
 #include <set>
+#include <thread>
 #include <vector>
+
+namespace {
+	
+	const char* const kModelPath = "res/models/viking_room.obj";
+	
+}
 
 /*
 	DEBUG
@@ -90,98 +101,17 @@ namespace {
 }
 
 /*
-	HELPER FUNC
-*/
-namespace {
-	
-	void CreateImage(
-		VkPhysicalDevice physicalDevice,
-		VkDevice device,
-		uint32_t width,
-		uint32_t height,
-		VkFormat format,
-		VkImageTiling tiling,
-		VkImageUsageFlags usage,
-		VkMemoryPropertyFlags properties,
-		VkImage& image,
-		VkDeviceMemory& imageMemory
-	)
-	{
-		VkImageCreateInfo imageInfo{};
-		imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-		imageInfo.imageType = VK_IMAGE_TYPE_2D;
-		imageInfo.extent.width = width;
-		imageInfo.extent.height = height;
-		imageInfo.extent.depth = 1;
-		imageInfo.mipLevels = 1;
-		imageInfo.arrayLayers = 1;
-		imageInfo.format = format;
-		imageInfo.tiling = tiling;
-		imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		imageInfo.usage = usage;
-		imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
-		imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-
-		if (vkCreateImage(device, &imageInfo, nullptr, &image) != VK_SUCCESS)
-		{
-			throw std::runtime_error("Failed to create image");
-		}
-
-		VkMemoryRequirements memRequirements;
-		vkGetImageMemoryRequirements(device, image, &memRequirements);
-
-		VkMemoryAllocateInfo allocInfo{};
-		allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-		allocInfo.allocationSize = memRequirements.size;
-		allocInfo.memoryTypeIndex = erm::Utils::FindMemoryType(physicalDevice, memRequirements.memoryTypeBits, properties);
-
-		if (vkAllocateMemory(device, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS)
-		{
-			throw std::runtime_error("Failed to allocate image memory");
-		}
-
-		vkBindImageMemory(device, image, imageMemory, 0);
-	}
-	
-	VkImageView CreateImageView(VkDevice device, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags)
-	{
-		VkImageViewCreateInfo viewInfo{};
-		viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-		viewInfo.image = image;
-		viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-		viewInfo.format = format;
-		viewInfo.subresourceRange.aspectMask = aspectFlags;
-		viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-		viewInfo.subresourceRange.baseMipLevel = 0;
-		viewInfo.subresourceRange.levelCount = 1;
-		viewInfo.subresourceRange.baseArrayLayer = 0;
-		viewInfo.subresourceRange.layerCount = 1;
-
-		VkImageView imageView;
-		if (vkCreateImageView(device, &viewInfo, nullptr, &imageView) != VK_SUCCESS)
-		{
-			throw std::runtime_error("Failed to create texture image view");
-		}
-
-		return imageView;
-	}
-	
-}
-
-/*
 	VERTEX BUFFER
 */
 namespace {
 
 	struct Vertex {
-		glm::vec3 mPos;
-		glm::vec3 mColor;
 
 		static VkVertexInputBindingDescription GetBindingDescription()
 		{
 			VkVertexInputBindingDescription bindingDescription = {};
 			bindingDescription.binding = 0;
-			bindingDescription.stride = sizeof(Vertex);
+			bindingDescription.stride = sizeof(erm::VertexData);
 			bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 			return bindingDescription;
 		}
@@ -192,32 +122,13 @@ namespace {
 			attributeDescriptions[0].binding = 0;
 			attributeDescriptions[0].location = 0;
 			attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
-			attributeDescriptions[0].offset = offsetof(Vertex, mPos);
+			attributeDescriptions[0].offset = offsetof(erm::VertexData, mPositionVertex);
 			attributeDescriptions[1].binding = 0;
 			attributeDescriptions[1].location = 1;
 			attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-			attributeDescriptions[1].offset = offsetof(Vertex, mColor);
+			attributeDescriptions[1].offset = offsetof(erm::VertexData, mNormalVertex);
 			return attributeDescriptions;
 		}
-	};
-	
-	const std::vector<Vertex> vertices =
-	{
-		{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}},
-		{{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}},
-		{{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}},
-		{{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}},
-		
-		{{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-		{{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-		{{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}},
-		{{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}}
-	};
-	
-	const std::vector<uint16_t> indices =
-	{
-		0, 1, 2, 2, 3, 0,
-		4, 5, 6, 6, 7, 4
 	};
 
 }
@@ -231,71 +142,7 @@ namespace {
 	{
 		alignas(16) erm::math::mat4 mMVP;
 	};
-	
-	VkDescriptorSetLayout CreateDescriptorSetLayout(VkDevice device)
-	{
-		VkDescriptorSetLayoutBinding uboLayoutBinding{};
-		uboLayoutBinding.binding = 0;
-		uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		uboLayoutBinding.descriptorCount = 1;
-		uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-		uboLayoutBinding.pImmutableSamplers = nullptr;
 
-		VkDescriptorSetLayoutCreateInfo layoutInfo{};
-		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-		layoutInfo.bindingCount = 1;
-		layoutInfo.pBindings = &uboLayoutBinding;
-
-		VkDescriptorSetLayout descriptorSetLayout;
-		if (vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS)
-		{
-			throw std::runtime_error("Failed to create descriptor set layout");
-		}
-
-		return descriptorSetLayout;
-	}
-
-}
-
-/*
-	DEPTH BUFFER
-*/
-namespace {
-	
-	VkFormat FindSupportedFormat(
-		VkPhysicalDevice physicalDevice,
-		const std::vector<VkFormat>& candidates,
-		VkImageTiling tiling,
-		VkFormatFeatureFlags features
-	)
-	{
-		for (VkFormat format : candidates)
-		{
-			VkFormatProperties props;
-			vkGetPhysicalDeviceFormatProperties(physicalDevice, format, &props);
-			
-			if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features)
-			{
-				return format;
-			}
-			else if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features)
-			{
-				return format;
-			}
-		}
-		throw std::runtime_error("Failed to find supported format");
-	}
-	
-	VkFormat FindDepthFormat(VkPhysicalDevice physicalDevice)
-	{
-		return FindSupportedFormat(
-			physicalDevice,
-			{VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT},
-			VK_IMAGE_TILING_OPTIMAL,
-			VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
-		);
-	}
-	
 }
 
 /*
@@ -348,6 +195,7 @@ namespace erm {
 	public:
 		Impl(GLFWwindow* window)
 			: mWindow(window)
+			, mModel(nullptr)
 		{
 			InitVulkan();
 		}
@@ -454,79 +302,6 @@ namespace erm {
 		}
 		
 	private:
-		void CreateBuffer(
-			VkDeviceSize size,
-			VkBufferUsageFlags usage,
-			VkMemoryPropertyFlags properties,
-			VkBuffer& buffer,
-			VkDeviceMemory& bufferMemory
-		)
-		{
-			VkBufferCreateInfo bufferInfo = {};
-			bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-			bufferInfo.size = size;
-			bufferInfo.usage = usage;
-			bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-
-			if (vkCreateBuffer(device, &bufferInfo, nullptr, &buffer) != VK_SUCCESS) {
-				throw std::runtime_error("failed to create buffer");
-			}
-
-			VkMemoryRequirements memRequirements;
-			vkGetBufferMemoryRequirements(device, buffer, &memRequirements);
-
-			VkMemoryAllocateInfo allocInfo = {};
-			allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-			allocInfo.allocationSize = memRequirements.size;
-			allocInfo.memoryTypeIndex = erm::Utils::FindMemoryType(physicalDevice, memRequirements.memoryTypeBits, properties);
-
-			if (vkAllocateMemory(device, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS) {
-				throw std::runtime_error("failed to allocate buffer memory");
-			}
-
-			vkBindBufferMemory(device, buffer, bufferMemory, 0);
-		}
-		
-		void CopyBuffer(
-			VkBuffer srcBuffer,
-			VkBuffer dstBuffer,
-			VkDeviceSize size
-		)
-		{
-			VkCommandBufferAllocateInfo allocInfo = {};
-			allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-			allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-			allocInfo.commandPool = commandPool;
-			allocInfo.commandBufferCount = 1;
-
-			VkCommandBuffer commandBuffer;
-			vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer);
-			
-			VkCommandBufferBeginInfo beginInfo = {};
-			beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-			beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
-			vkBeginCommandBuffer(commandBuffer, &beginInfo);
-			
-			VkBufferCopy copyRegion = {};
-			copyRegion.srcOffset = 0; // Optional
-			copyRegion.dstOffset = 0; // Optional
-			copyRegion.size = size;
-			vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
-			
-			vkEndCommandBuffer(commandBuffer);
-			
-			VkSubmitInfo submitInfo = {};
-			submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-			submitInfo.commandBufferCount = 1;
-			submitInfo.pCommandBuffers = &commandBuffer;
-
-			vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
-			vkQueueWaitIdle(graphicsQueue);
-			
-			vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
-		}
-		
 		void CreateInstance()
 		{
 			uint32_t glfwExtensionCount = 0;
@@ -573,7 +348,7 @@ namespace erm {
 			appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
 			appInfo.pApplicationName = "ERM Vulkan";
 			appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-			appInfo.pEngineName = "No Engine";
+			appInfo.pEngineName = "ERM";
 			appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
 			appInfo.apiVersion = VK_API_VERSION_1_0;
 
@@ -663,7 +438,7 @@ namespace erm {
 
 			for (const VkPhysicalDevice& device : devices)
 			{
-				if (erm::Utils::IsDeviceSuitable(device, surface, kDeviceExtensions))
+				if (Utils::IsDeviceSuitable(device, surface, kDeviceExtensions))
 				{
 					physicalDevice = device;
 					break;
@@ -678,7 +453,7 @@ namespace erm {
 		
 		void CreateLogicalDevice()
 		{
-			erm::QueueFamilyIndices indices = erm::Utils::FindQueueFamilies(physicalDevice, surface);
+			QueueFamilyIndices indices = Utils::FindQueueFamilies(physicalDevice, surface);
 			const float queuePriority = 1.0f;
 
 			std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
@@ -724,12 +499,12 @@ namespace erm {
 			int width, height;
 			GetFrameBufferSize(width, height);
 			
-			erm::SwapChainSupportDetails swapChainSupport = erm::Utils::QuerySwapChainSupport(physicalDevice, surface);
-			erm::QueueFamilyIndices indices = erm::Utils::FindQueueFamilies(physicalDevice, surface);
+			SwapChainSupportDetails swapChainSupport = Utils::QuerySwapChainSupport(physicalDevice, surface);
+			QueueFamilyIndices indices = Utils::FindQueueFamilies(physicalDevice, surface);
 
-			VkSurfaceFormatKHR surfaceFormat = erm::Utils::ChooseSwapSurfaceFormat(swapChainSupport.mFormats);
-			VkPresentModeKHR presentMode = erm::Utils::ChooseSwapPresentMode(swapChainSupport.mPresentModes);
-			swapChainExtent = erm::Utils::ChooseSwapExtent(swapChainSupport.mCapabilities, width, height);
+			VkSurfaceFormatKHR surfaceFormat = Utils::ChooseSwapSurfaceFormat(swapChainSupport.mFormats);
+			VkPresentModeKHR presentMode = Utils::ChooseSwapPresentMode(swapChainSupport.mPresentModes);
+			swapChainExtent = Utils::ChooseSwapExtent(swapChainSupport.mCapabilities, width, height);
 			swapChainImageFormat = surfaceFormat.format;
 
 			uint32_t imageCount = swapChainSupport.mCapabilities.minImageCount + 1;
@@ -784,7 +559,7 @@ namespace erm {
 			swapChainImageViews.resize(swapChainImages.size());
 			for (size_t i = 0; i < swapChainImages.size(); ++i)
 			{
-				swapChainImageViews[i] = CreateImageView(device, swapChainImages[i], swapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
+				swapChainImageViews[i] = Utils::CreateImageView(device, swapChainImages[i], swapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
 			}
 		}
 		
@@ -805,7 +580,7 @@ namespace erm {
 			colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 			
 			VkAttachmentDescription depthAttachment{};
-			depthAttachment.format = FindDepthFormat(physicalDevice);
+			depthAttachment.format = Utils::FindDepthFormat(physicalDevice);
 			depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
 			depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 			depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
@@ -945,10 +720,6 @@ namespace erm {
 			multisampling.alphaToOneEnable = VK_FALSE; // Optional
 
 			/*
-				SETUP DEPTH AND STENCIL TESTING
-			*/
-
-			/*
 				SETUP COLOR BLENDING
 			*/
 			VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
@@ -977,8 +748,8 @@ namespace erm {
 			*/
 			VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
 			pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-			pipelineLayoutInfo.setLayoutCount = 1; // Optional
-			pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout; // Optional
+			pipelineLayoutInfo.setLayoutCount = 1;
+			pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
 			pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
 			pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
 
@@ -988,7 +759,7 @@ namespace erm {
 			}
 			
 			/*
-				SETUP STENCIL STATE
+				SETUP STENCIL AND DEPTH TESTS
 			*/
 			VkPipelineDepthStencilStateCreateInfo depthStencil{};
 			depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
@@ -1058,7 +829,7 @@ namespace erm {
 		
 		void CreateCommandPool()
 		{
-			erm::QueueFamilyIndices queueFamilyIndices = erm::Utils::FindQueueFamilies(physicalDevice, surface);
+			QueueFamilyIndices queueFamilyIndices = Utils::FindQueueFamilies(physicalDevice, surface);
 
 			VkCommandPoolCreateInfo poolInfo = {};
 			poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
@@ -1073,8 +844,8 @@ namespace erm {
 		
 		void CreateDepthResources()
 		{
-			VkFormat depthFormat = FindDepthFormat(physicalDevice);
-			CreateImage(
+			VkFormat depthFormat = Utils::FindDepthFormat(physicalDevice);
+			Utils::CreateImage(
 				physicalDevice,
 				device,
 				swapChainExtent.width,
@@ -1086,16 +857,33 @@ namespace erm {
 				depthImage,
 				depthImageMemory
 			);
-			depthImageView = CreateImageView(device, depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
+			depthImageView = Utils::CreateImageView(device, depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
+		}
+		
+		void LoadModel()
+		{
+			mModel = mResourcesManager.GetOrCreateModel(kModelPath);
+			
+			if (!mModel)
+			{
+				throw std::runtime_error("Failed to load model");
+			}
+			
+			while (mModel->GetMeshes().empty())
+			{
+				std::this_thread::sleep_for(std::chrono::seconds(1));
+			}
 		}
 		
 		void CreateVertexBuffer()
 		{
-			VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
+			VkDeviceSize bufferSize = sizeof(VertexData) * mModel->GetMeshes()[0].GetVerticesDataCount();
 
 			VkBuffer stagingBuffer;
 			VkDeviceMemory stagingBufferMemory;
-			CreateBuffer(
+			Utils::CreateBuffer(
+				physicalDevice,
+				device,
 				bufferSize,
 				VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
 				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
@@ -1105,10 +893,12 @@ namespace erm {
 
 			void* data;
 			vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
-			memcpy(data, vertices.data(), (size_t) bufferSize);
+			memcpy(data, mModel->GetMeshes()[0].GetVerticesData(), (size_t)bufferSize);
 			vkUnmapMemory(device, stagingBufferMemory);
 
-			CreateBuffer(
+			Utils::CreateBuffer(
+				physicalDevice,
+				device,
 				bufferSize,
 				VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
 				VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
@@ -1116,7 +906,14 @@ namespace erm {
 				vertexBufferMemory
 			);
 			
-			CopyBuffer(stagingBuffer, vertexBuffer, bufferSize);
+			Utils::CopyBuffer(
+				commandPool,
+				device,
+				graphicsQueue,
+				stagingBuffer,
+				vertexBuffer,
+				bufferSize
+			);
 			
 			vkDestroyBuffer(device, stagingBuffer, nullptr);
 			vkFreeMemory(device, stagingBufferMemory, nullptr);
@@ -1124,20 +921,43 @@ namespace erm {
 		
 		void CreateIndexBuffer()
 		{
-			VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
+			VkDeviceSize bufferSize = sizeof(IndexData) * mModel->GetMeshes()[0].GetIndicesCount();
 
 			VkBuffer stagingBuffer;
 			VkDeviceMemory stagingBufferMemory;
-			CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+			Utils::CreateBuffer(
+				physicalDevice,
+				device,
+				bufferSize,
+				VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+				stagingBuffer,
+				stagingBufferMemory
+			);
 
 			void* data;
 			vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
-			memcpy(data, indices.data(), (size_t) bufferSize);
+			memcpy(data, mModel->GetMeshes()[0].GetIndicesData(), (size_t)bufferSize);
 			vkUnmapMemory(device, stagingBufferMemory);
 
-			CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, indexBufferMemory);
+			Utils::CreateBuffer(
+				physicalDevice,
+				device,
+				bufferSize,
+				VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+				VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+				indexBuffer,
+				indexBufferMemory
+			);
 
-			CopyBuffer(stagingBuffer, indexBuffer, bufferSize);
+			Utils::CopyBuffer(
+				commandPool,
+				device,
+				graphicsQueue,
+				stagingBuffer,
+				indexBuffer,
+				bufferSize
+			);
 
 			vkDestroyBuffer(device, stagingBuffer, nullptr);
 			vkFreeMemory(device, stagingBufferMemory, nullptr);
@@ -1152,7 +972,9 @@ namespace erm {
 
 			for (size_t i = 0; i < swapChainImages.size(); i++) 
 			{
-				CreateBuffer(
+				Utils::CreateBuffer(
+					physicalDevice,
+					device,
 					bufferSize,
 					VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
 					VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
@@ -1268,9 +1090,9 @@ namespace erm {
 				VkBuffer vertexBuffers[] = {vertexBuffer};
 				VkDeviceSize offsets[] = {0};
 				vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
-				vkCmdBindIndexBuffer(commandBuffers[i], indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+				vkCmdBindIndexBuffer(commandBuffers[i], indexBuffer, 0, VK_INDEX_TYPE_UINT32);
 				vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[i], 0, nullptr);
-				vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+				vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(mModel->GetMeshes()[0].GetIndicesCount()), 1, 0, 0, 0);
 				
 				vkCmdEndRenderPass(commandBuffers[i]);
 
@@ -1316,11 +1138,12 @@ namespace erm {
 			CreateSwapChain();
 			CreateImageViews();
 			CreateRenderPass();
-			descriptorSetLayout = CreateDescriptorSetLayout(device);
+			descriptorSetLayout = Utils::CreateDescriptorSetLayout(device);
 			CreateGraphicsPipeline();
 			CreateCommandPool();
 			CreateDepthResources();
 			CreateFramebuffers();
+			LoadModel();
 			CreateVertexBuffer();
 			CreateIndexBuffer();
 			CreateUniformBuffers();
@@ -1411,6 +1234,8 @@ namespace erm {
 		}
 		
 		GLFWwindow* mWindow;
+		Model* mModel;
+		ResourcesManager mResourcesManager;
 		
 		VkInstance instance;
 		VkSurfaceKHR surface;
