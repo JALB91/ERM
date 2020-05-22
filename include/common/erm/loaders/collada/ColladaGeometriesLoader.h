@@ -10,10 +10,11 @@
 namespace tinyxml2 {
 	class XMLDocument;
 }
+namespace erm {
+	class Model;
+}
 
 namespace erm {
-	
-	class Model;
 	
 	extern void ProcessGeometries(
 		std::mutex& mutex,

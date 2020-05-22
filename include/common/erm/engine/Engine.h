@@ -8,29 +8,30 @@
 #include <memory>
 
 namespace erm {
-
 	class ResourcesManager;
 	class Window;
 	class Device;
 	class ImGuiHandle;
 	class RenderContext;
 	class Renderer;
-	
 	namespace ecs {
 		class ECS;
 		struct Entity;
 	}
+}
+
+namespace erm {
 	
-	class Game : private IWindowListener
+	class Engine : private IWindowListener
 	{
 	public:
-		Game();
-		~Game();
+		Engine();
+		~Engine();
 		
-		Game& operator=(const Game&) = delete;
-		Game& operator=(Game&&) = delete;
-		Game(const Game&) = delete;
-		Game(Game&&) = delete;
+		Engine& operator=(const Engine&) = delete;
+		Engine& operator=(Engine&&) = delete;
+		Engine(const Engine&) = delete;
+		Engine(Engine&&) = delete;
 		
 		bool Init();
 		void Run();

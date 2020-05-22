@@ -3,10 +3,12 @@
 #include "erm/rendering/enums/DrawMode.h"
 
 namespace erm {
-
 	class VertexArray;
 	class IndexBuffer;
 	class RenderContext;
+}
+
+namespace erm {
 	
 	class Renderer
 	{

@@ -7,10 +7,10 @@
 
 namespace erm {
 	
-	ImGuiHandle::ImGuiHandle(Game& game)
-		: mGame(game)
+	ImGuiHandle::ImGuiHandle(Engine& engine)
+		: mEngine(engine)
 	{
-		UNUSED(mGame);
+		UNUSED(mEngine);
 	}
 	
 	ImGuiHandle::~ImGuiHandle()

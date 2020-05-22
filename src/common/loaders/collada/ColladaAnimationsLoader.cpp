@@ -18,8 +18,7 @@ namespace erm {
 		const std::map<std::string, ColladaSkinData>& skinsData,
 		const char* path,
 		Animations& animations
-	)
-	{
+	) {
 		XMLElement* animationsLibrary = document.RootElement()->FirstChildElement("library_animations");
 		if (!animationsLibrary) return;
 		XMLElement* animationSource = animationsLibrary->FirstChildElement("animation");

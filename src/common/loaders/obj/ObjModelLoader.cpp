@@ -57,8 +57,7 @@ namespace erm {
 		const char* path,
 		Model& model,
 		Materials& materials
-	)
-	{
+	) {
 		std::ifstream stream(path);
 
 		std::string line;
@@ -224,8 +223,7 @@ namespace erm {
 		const std::vector<NormalVertex>& nVertices,
 		const std::vector<UVVertex>& uvVertices,
 		const std::vector<std::string>& splitted
-	)
-	{
+	) {
 		static constexpr unsigned int kVertexIndex = 0;
 		static constexpr unsigned int kUVVertexIndex = 1;
 		static constexpr unsigned int kNormalVertexIndex = 2;
@@ -281,8 +279,7 @@ namespace erm {
 	void Triangulate(
 		const std::vector<VertexData>& vertices,
 		std::vector<IndexData>& oIndices
-	)
-	{
+	) {
 		if (vertices.size() < 3 || vertices.size() > 4)
 		{
 			return;
@@ -346,8 +343,7 @@ namespace erm {
 		std::vector<IndexData>& indices,
 		Material* material,
 		std::string& meshName
-	)
-	{
+	) {
 		mutex.lock();
 		model.AddMesh(CreateMesh(vertices, indices, material, meshName));
 		mutex.unlock();
@@ -358,8 +354,7 @@ namespace erm {
 		const std::vector<IndexData>& indices,
 		Material* material,
 		const std::string& name
-	)
-	{
+	) {
 		const unsigned int verticesCount = static_cast<unsigned int>(vertices.size());
 		VertexData* verticesData = new VertexData[verticesCount];
 		for (unsigned int i = 0; i < verticesCount; ++i)
@@ -382,8 +377,7 @@ namespace erm {
 		std::atomic<bool>& stop,
 		const char* path,
 		Materials& materials
-	)
-	{
+	) {
 		std::ifstream stream (path);
 		
 		if (!stream.is_open())

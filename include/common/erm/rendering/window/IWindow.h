@@ -8,8 +8,10 @@
 #include <set>
 
 namespace erm {
-	
 	class IWindowListener;
+}
+
+namespace erm {
 	
 	class IWindow
 	{

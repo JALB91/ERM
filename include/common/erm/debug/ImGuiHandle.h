@@ -1,19 +1,21 @@
 #pragma once
 
 namespace erm {
-	
-	class Game;
+	class Engine;
+}
+
+namespace erm {
 	
 	class ImGuiHandle
 	{
 	public:
-		ImGuiHandle(Game& game);
+		ImGuiHandle(Engine& engine);
 		~ImGuiHandle();
 		
 		void OnRender();
 		
 	private:
-		Game& mGame;
+		Engine& mEngine;
 		
 	};
 	

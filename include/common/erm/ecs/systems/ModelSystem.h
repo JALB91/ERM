@@ -3,22 +3,22 @@
 #include "erm/ecs/ISystem.h"
 #include "erm/ecs/components/ModelComponent.h"
 
-namespace erm {
-	namespace ecs {
+namespace erm::ecs {
+	class TransformSystem;
+}
+
+namespace erm::ecs {
+	
+	class ModelSystem : public ISystem<ModelComponent>
+	{
+	public:
+		ModelSystem(ECS& ecs);
 		
-		class TransformSystem;
+		void OnPostUpdate() override;
 		
-		class ModelSystem : public ISystem<ModelComponent>
-		{
-		public:
-			ModelSystem(ECS& ecs);
-			
-			void OnPostUpdate() override;
-			
-		private:
-			TransformSystem& mTransformSystem;
-			
-		};
+	private:
+		TransformSystem& mTransformSystem;
 		
-	}
+	};
+	
 }

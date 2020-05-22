@@ -1,7 +1,7 @@
 #include "erm/debug/ImGuiRenderingWrapper.h"
 #include "erm/debug/ImGuiUtils.h"
 
-#include "erm/game/Game.h"
+#include "erm/engine/Engine.h"
 
 #include "erm/rendering/enums/BlendFunction.h"
 #include "erm/rendering/enums/DepthFunction.h"
@@ -66,14 +66,14 @@ namespace {
 
 namespace ImGui {
 	
-	void ShowRenderingDebugWindow(erm::Game& game)
+	void ShowRenderingDebugWindow(erm::Engine& engine)
 	{
-		const erm::Window& window = game.GetWindow();
-		erm::RenderContext& renderContext = game.GetRenderContext();
+		const erm::Window& window = engine.GetWindow();
+		erm::RenderContext& renderContext = engine.GetRenderContext();
 		
 		const int flags = ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoNavInputs;
 		
-		if (ImGui::Begin("Game Debug", nullptr, flags))
+		if (ImGui::Begin("Engine Debug", nullptr, flags))
 		{
 			bool isDepthEnabled = renderContext.IsDepthEnabled();
 			erm::DepthFunction depthFunction = renderContext.GetDepthFunction();

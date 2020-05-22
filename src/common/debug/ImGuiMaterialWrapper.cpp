@@ -1,6 +1,6 @@
 #include "erm/debug/ImGuiMaterialWrapper.h"
 
-#include "erm/game/Game.h"
+#include "erm/engine/Engine.h"
 
 #include "erm/managers/ResourcesManager.h"
 
@@ -13,9 +13,9 @@
 
 namespace ImGui {
 	
-	void ShowPathOptions(erm::Game& game, erm::Material& material)
+	void ShowPathOptions(erm::Engine& engine, erm::Material& material)
 	{
-		const std::vector<std::string>& all = game.GetFileLocator().GetShaderPrograms();
+		const std::vector<std::string>& all = engine.GetFileLocator().GetShaderPrograms();
 		
 		erm::ShaderProgram* shader = material.mShaderProgram;
 		std::string currentPath = shader ? shader->GetPath() : "";
@@ -37,7 +37,7 @@ namespace ImGui {
 					if (currentPath != all[i])
 					{
 						currentPath = all[i];
-						material.mShaderProgram = game.GetResourcesManager().GetOrCreateShaderProgram(all[i].c_str());
+						material.mShaderProgram = engine.GetResourcesManager().GetOrCreateShaderProgram(all[i].c_str());
 					}
 				}
 			}
@@ -45,7 +45,7 @@ namespace ImGui {
 		}
 	}
 	
-	void ShowMaterialDebug(erm::Game& game, erm::Mesh& mesh)
+	void ShowMaterialDebug(erm::Engine& engine, erm::Mesh& mesh)
 	{
 		if (ImGui::CollapsingHeader("Material"))
 		{
@@ -53,7 +53,7 @@ namespace ImGui {
 			
 			ImGui::Indent();
 			
-			static erm::Materials& all = game.GetResourcesManager().GetLoadedMaterials();
+			static erm::Materials& all = engine.GetResourcesManager().GetLoadedMaterials();
 			std::string currentPath = material->mPath;
 			std::string currentName = material->mName;
 			std::set<std::string> displayedPaths;
@@ -123,7 +123,7 @@ namespace ImGui {
 			ImGui::SliderFloat3("Specular", &material->mSpecular.x, 0.0f, 1.0f);
 			ImGui::SliderFloat("Shininess", &material->mShininess, 0.0f, 1000.0f);
 			
-			ShowPathOptions(game, *material);
+			ShowPathOptions(engine, *material);
 			
 			ImGui::Unindent();
 		}

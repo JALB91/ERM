@@ -73,8 +73,7 @@ namespace erm {
 		Materials& materials,
 		Skins& skins,
 		Animations& animations
-	)
-	{
+	) {
 		if (!std::filesystem::exists(path))
 		{
 			std::cout << "No such file: " << path << std::endl;

@@ -25,8 +25,7 @@ namespace erm {
 		Materials& /*materials*/,
 		Skins& skins,
 		Animations& animations
-	)
-	{
+	) {
 		XMLDocument document;
 		XMLError error = document.LoadFile(path);
 		

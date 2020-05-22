@@ -5,8 +5,10 @@
 #include <string>
 
 namespace erm {
-	
 	class ShaderProgram;
+}
+
+namespace erm {
 	
 	struct Material
 	{

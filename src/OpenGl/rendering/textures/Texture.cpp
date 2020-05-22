@@ -1,6 +1,6 @@
 #include "erm/rendering/textures/Texture.h"
 
-#include "erm/utils/GlMacros.h"
+#include "erm/utils/GlUtils.h"
 
 #include <stb_image.h>
 

@@ -1,6 +1,6 @@
 #include "erm/debug/ImGuiShadersWrapper.h"
 
-#include "erm/game/Game.h"
+#include "erm/engine/Engine.h"
 
 #include "erm/rendering/window/Window.h"
 
@@ -12,11 +12,11 @@
 
 namespace ImGui {
 	
-	void ShowShadersDebug(erm::Game& game, bool& open)
+	void ShowShadersDebug(erm::Engine& engine, bool& open)
 	{
-		const std::vector<std::string>& shaders = game.GetFileLocator().GetShaderPrograms();
+		const std::vector<std::string>& shaders = engine.GetFileLocator().GetShaderPrograms();
 		static erm::ShaderProgram* selected = nullptr;
-		const erm::Window& window = game.GetWindow();
+		const erm::Window& window = engine.GetWindow();
 		
 		ImGui::SetNextWindowSize(ImVec2(600, 600), ImGuiCond_FirstUseEver);
 		ImGui::SetNextWindowPos(ImVec2(static_cast<float>(window.GetWindowWidth() / 2), static_cast<float>(window.GetWindowHeight() / 2)), ImGuiCond_FirstUseEver);
@@ -40,7 +40,7 @@ namespace ImGui {
 					if (ImGui::Selectable(shaders[i].c_str(), &isSelected))
 					{
 						hasChanged = true;
-						selected = game.GetResourcesManager().GetOrCreateShaderProgram(shaders[i].c_str());
+						selected = engine.GetResourcesManager().GetOrCreateShaderProgram(shaders[i].c_str());
 					}
 				}
 				ImGui::EndCombo();
@@ -72,7 +72,7 @@ namespace ImGui {
 				}
 				else
 				{
-					game.GetResourcesManager().GetOrCreateShaderProgram(vertexShader, fragmentShader);
+					engine.GetResourcesManager().GetOrCreateShaderProgram(vertexShader, fragmentShader);
 				}
 			}
 		}

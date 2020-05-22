@@ -10,12 +10,14 @@
 #include <functional>
 
 namespace erm {
-	
 	struct VertexData;
 	struct Material;
 	class VertexBuffer;
 	class IndexBuffer;
 	class VertexArray;
+}
+
+namespace erm {
 	
 	class Mesh
 	{

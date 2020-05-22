@@ -1,6 +1,5 @@
 #include "erm/rendering/renderer/RenderContext.h"
 
-#include "erm/utils/GlMacros.h"
 #include "erm/utils/GlUtils.h"
 
 #include <GL/glew.h>

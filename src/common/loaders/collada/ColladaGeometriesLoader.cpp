@@ -16,10 +16,12 @@
 using namespace tinyxml2;
 
 namespace {
+	
 	std::array<const char*, 2> kSupportedPrimitives {
 		"polylist",
 		"triangles"
 	};
+	
 }
 
 namespace erm {
@@ -38,8 +40,7 @@ namespace erm {
 		XMLDocument& document,
 		Model& model,
 		const std::map<std::string, ColladaSkinData>& skinsData
-	)
-	{
+	) {
 		XMLElement* geometry =
 		  document.RootElement()->FirstChildElement("library_geometries")->FirstChildElement("geometry");
 
@@ -168,8 +169,7 @@ namespace erm {
 		std::vector<PositionVertex>& pVertices,
 		std::vector<NormalVertex>& nVertices,
 		std::vector<UVVertex>& uvVertices
-	)
-	{
+	) {
 		std::string pSourceStr = mesh.FirstChildElement("vertices")->FirstChildElement("input")->Attribute("source");
 		pSourceStr = pSourceStr.substr(1);
 		

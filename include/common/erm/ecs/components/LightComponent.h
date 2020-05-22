@@ -4,19 +4,21 @@
 
 #include "erm/math/vec.h"
 
-namespace erm {
-	namespace ecs {
+namespace erm::ecs {
+	class LightSystem;
+}
+
+namespace erm::ecs {
+	
+	struct LightComponent : IComponent
+	{
+	public:
+		typedef LightSystem SYSTEM_TYPE;
+		friend class LightSystem;
 		
-		class LightSystem;
-		
-		struct LightComponent : IComponent
-		{
-			typedef LightSystem SYSTEM_TYPE;
-			
-			math::vec3 mAmbient { 1.0f };
-			math::vec3 mDiffuse { 1.0f };
-			math::vec3 mSpecular { 1.0f };
-		};
-		
-	}
+		math::vec3 mAmbient { 1.0f };
+		math::vec3 mDiffuse { 1.0f };
+		math::vec3 mSpecular { 1.0f };
+	};
+	
 }

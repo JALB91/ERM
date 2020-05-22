@@ -3,13 +3,13 @@
 #include "erm/math/mat.h"
 #include "erm/math/vec.h"
 
+#include "erm/rendering/shaders/Uniform.h"
+
 #include <unordered_map>
 #include <string>
 #include <vector>
 
 namespace erm {
-	
-	enum class Uniform;
 	
 	class ShaderProgram
 	{

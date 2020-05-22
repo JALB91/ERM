@@ -2,12 +2,8 @@
 
 #include <glm/gtc/quaternion.hpp>
 
-namespace erm {
-	
-namespace math {
+namespace erm::math {
 	
 	typedef glm::quat quat;
-	
-}
 
 }

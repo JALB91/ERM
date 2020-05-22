@@ -8,8 +8,10 @@
 #include <mutex>
 
 namespace erm {
-	
 	class Model;
+}
+
+namespace erm {
 	
 	class ResourcesLoader
 	{

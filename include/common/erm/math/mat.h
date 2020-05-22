@@ -2,9 +2,7 @@
 
 #include <glm/glm.hpp>
 
-namespace erm {
-	
-namespace math {
+namespace erm::math {
 	
 	template <int R, int C, typename S>
 	using mat = glm::mat<R, C, S>;
@@ -12,7 +10,5 @@ namespace math {
 	typedef mat<2, 2, float> mat2;
 	typedef mat<3, 3, float> mat3;
 	typedef mat<4, 4, float> mat4;
-	
-}
 
 }

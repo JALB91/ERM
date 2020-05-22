@@ -1,16 +1,16 @@
-#include "erm/game/Game.h"
+#include "erm/engine/Engine.h"
 
 #include <iostream>
 
 int main(int /*argc*/, char** /*argv*/)
 {
-	erm::Game game;
+	erm::Engine engine;
 	
-	if (game.Init())
+	if (engine.Init())
 	{
 		try 
 		{
-			game.Run();
+			engine.Run();
 		}
 		catch (const std::exception& e) 
 		{

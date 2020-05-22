@@ -1,11 +1,11 @@
 #pragma once
 
 namespace erm {
-	class Game;
+	class Engine;
 }
 
 namespace ImGui {
 	
-	extern void ShowRenderingDebugWindow(erm::Game& game);
+	extern void ShowRenderingDebugWindow(erm::Engine& engine);
 	
 }

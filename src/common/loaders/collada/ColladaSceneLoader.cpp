@@ -24,8 +24,7 @@ namespace erm {
 		XMLDocument& document,
 		Skins& skins,
 		const std::map<std::string, ColladaSkinData>& skinsData
-	)
-	{
+	) {
 		XMLElement* libraryVisualScene = document.RootElement()->FirstChildElement("library_visual_scenes");
 		if (!libraryVisualScene) return;
 		XMLElement* visualScene = libraryVisualScene->FirstChildElement("visual_scene");
@@ -60,8 +59,7 @@ namespace erm {
 		math::mat4 parentBind,
 		math::mat4 parentInverseBind,
 		const std::map<std::string, ColladaSkinData>& skinsData
-	)
-	{
+	) {
 		bool found = false;
 		
 		if (const char* boneName = node.Attribute("sid"))
