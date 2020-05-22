@@ -1,7 +1,7 @@
 #include "erm/debug/ImGuiModelComponentWrapper.h"
 #include "erm/debug/ImGuiMeshWrapper.h"
 
-#include "erm/game/Game.h"
+#include "erm/engine/Engine.h"
 
 #include "erm/rendering/data_structs/Model.h"
 #include "erm/rendering/data_structs/Mesh.h"
@@ -14,9 +14,9 @@
 
 namespace ImGui {
 	
-	void ShowPathOptions(erm::Game& game, erm::ecs::ModelComponent& modelComponent)
+	void ShowPathOptions(erm::Engine& engine, erm::ecs::ModelComponent& modelComponent)
 	{
-		const std::vector<std::string>& all = game.GetFileLocator().GetModels();
+		const std::vector<std::string>& all = engine.GetFileLocator().GetModels();
 		
 		erm::Model* model = modelComponent.GetModel();
 		std::string currentPath = model ? model->GetPath() : "";
@@ -38,7 +38,7 @@ namespace ImGui {
 					if (currentPath != all[i])
 					{
 						currentPath = all[i];
-						modelComponent.SetModel(game.GetResourcesManager().GetOrCreateModel(all[i].c_str()));
+						modelComponent.SetModel(engine.GetResourcesManager().GetOrCreateModel(all[i].c_str()));
 					}
 				}
 			}
@@ -46,7 +46,7 @@ namespace ImGui {
 		}
 	}
 	
-	bool ShowModelComponentDebugWindow(erm::Game& game, erm::ecs::ModelComponent& modelComponent)
+	bool ShowModelComponentDebugWindow(erm::Engine& engine, erm::ecs::ModelComponent& modelComponent)
 	{
 		const bool headerOpen = ImGui::CollapsingHeader("Model");
 		
@@ -87,7 +87,7 @@ namespace ImGui {
 					
 					if (showMeshes)
 					{
-						ImGui::ShowMeshDebugWindow(game, mesh, i);
+						ImGui::ShowMeshDebugWindow(engine, mesh, i);
 					}
 					
 					vertices += mesh.GetVerticesDataCount();
@@ -95,7 +95,7 @@ namespace ImGui {
 				}
 				ImGui::Unindent();
 				
-				ShowPathOptions(game, modelComponent);
+				ShowPathOptions(engine, modelComponent);
 				ImGui::Text("Name: %s", model->GetName().c_str());
 				ImGui::Text("Vertices: %d", vertices);
 				ImGui::Text("Indices: %d", indices);
@@ -106,7 +106,7 @@ namespace ImGui {
 			}
 			else
 			{
-				ShowPathOptions(game, modelComponent);
+				ShowPathOptions(engine, modelComponent);
 			}
 			
 			ImGui::Unindent();

@@ -1,6 +1,6 @@
 #include "erm/debug/ImGuiInfoWrapper.h"
 
-#include "erm/game/Game.h"
+#include "erm/engine/Engine.h"
 
 #include "erm/rendering/window/Window.h"
 
@@ -22,10 +22,10 @@ namespace ImGui {
 	
 	void ShowProfilingTree(const erm::Profiler::ProfilingTree& node, TREE_OP operation);
 	
-	void ShowInfoWindow(erm::Game& game, bool& open)
+	void ShowInfoWindow(erm::Engine& engine, bool& open)
 	{
-		const erm::Timer& timer = game.GetTimer();
-		const erm::Window& window = game.GetWindow();
+		const erm::Timer& timer = engine.GetTimer();
+		const erm::Window& window = engine.GetWindow();
 		
 		ImGui::SetNextWindowSize(ImVec2(600, 600), ImGuiCond_FirstUseEver);
 		ImGui::SetNextWindowPos(ImVec2(static_cast<float>(window.GetWindowWidth() / 2), static_cast<float>(window.GetWindowHeight() / 2)), ImGuiCond_FirstUseEver);
@@ -35,7 +35,7 @@ namespace ImGui {
 			ImGui::Text("Current Time: %f", timer.GetCurrentTime());
 			ImGui::Text("Total Elapsed Time %f", timer.GetElapsedTime());
 			ImGui::Text("Frame Elapsed Time: %f", timer.GetFrameElapsedTime());
-			ImGui::Text("FPS: %d", game.GetFPS());
+			ImGui::Text("FPS: %d", engine.GetFPS());
 			
 			ImGui::Separator();
 			

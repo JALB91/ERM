@@ -11,8 +11,10 @@
 #include <memory>
 
 namespace erm {
-	
 	class ResourcesLoader;
+}
+
+namespace erm {
 	
 	template<typename T>
 	using Handle = std::unique_ptr<T>;

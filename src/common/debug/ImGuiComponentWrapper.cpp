@@ -6,7 +6,7 @@
 #include "erm/debug/ImGuiSkeletonComponentWrapper.h"
 #include "erm/debug/ImGuiAnimationComponentWrapper.h"
 
-#include "erm/game/Game.h"
+#include "erm/engine/Engine.h"
 
 #include "erm/rendering/window/Window.h"
 
@@ -25,14 +25,14 @@
 namespace ImGui {
 	
 	template<typename T>
-	void ShowComponentDebugWindow(erm::Game& game, erm::ecs::EntityId entity, const std::function<bool(T&)>& callback, const char* name)
+	void ShowComponentDebugWindow(erm::Engine& engine, erm::ecs::EntityId entity, const std::function<bool(T&)>& callback, const char* name)
 	{
-		if (T* component = game.GetECS().GetSystem<typename T::SYSTEM_TYPE>().GetComponent(entity))
+		if (T* component = engine.GetECS().GetSystem<typename T::SYSTEM_TYPE>().GetComponent(entity))
 		{
 			ImGui::PushID(name);
 			if (callback(*component))
 			{
-				game.GetECS().GetSystem<typename T::SYSTEM_TYPE>().RemoveComponent(entity);
+				engine.GetECS().GetSystem<typename T::SYSTEM_TYPE>().RemoveComponent(entity);
 			}
 			ImGui::PopID();
 		}
@@ -40,14 +40,14 @@ namespace ImGui {
 		{
 			if (ImGui::Button(name))
 			{
-				game.GetECS().GetEntityById(entity)->AddComponent<T>();
+				engine.GetECS().GetEntityById(entity)->AddComponent<T>();
 				ImGui::CloseCurrentPopup();
 			}
 			ImGui::EndPopup();
 		}
 	}
 	
-	void ShowComponentDebugWindow(erm::Game& game, erm::ecs::EntityId entity)
+	void ShowComponentDebugWindow(erm::Engine& engine, erm::ecs::EntityId entity)
 	{
 		if (!entity.IsValid()) return;
 		
@@ -58,12 +58,12 @@ namespace ImGui {
 		
 		ImGui::Separator();
 		
-		ShowComponentDebugWindow<erm::ecs::TransformComponent>(game, entity, [](erm::ecs::TransformComponent& component) { return ShowTransformComponentDebugWindow(component); }, "Transform");
-		ShowComponentDebugWindow<erm::ecs::ModelComponent>(game, entity, [&game](erm::ecs::ModelComponent& component) { return ShowModelComponentDebugWindow(game, component); }, "Model");
-		ShowComponentDebugWindow<erm::ecs::CameraComponent>(game, entity, [](erm::ecs::CameraComponent& component) { return ShowCameraComponentDebugWindow(component); }, "Camera");
-		ShowComponentDebugWindow<erm::ecs::LightComponent>(game, entity, [](erm::ecs::LightComponent& component) { return ShowLightComponentDebugWindow(component); }, "Light");
-		ShowComponentDebugWindow<erm::ecs::SkeletonComponent>(game, entity, [&game](erm::ecs::SkeletonComponent& component) { return ShowSkeletonComponentDebugWindow(game, component); }, "Skeleton");
-		ShowComponentDebugWindow<erm::ecs::AnimationComponent>(game, entity, [&game](erm::ecs::AnimationComponent& component) { return ShowAnimationComponentDebugWindow(game, component); }, "Animation");
+		ShowComponentDebugWindow<erm::ecs::TransformComponent>(engine, entity, [](erm::ecs::TransformComponent& component) { return ShowTransformComponentDebugWindow(component); }, "Transform");
+		ShowComponentDebugWindow<erm::ecs::ModelComponent>(engine, entity, [&engine](erm::ecs::ModelComponent& component) { return ShowModelComponentDebugWindow(engine, component); }, "Model");
+		ShowComponentDebugWindow<erm::ecs::CameraComponent>(engine, entity, [](erm::ecs::CameraComponent& component) { return ShowCameraComponentDebugWindow(component); }, "Camera");
+		ShowComponentDebugWindow<erm::ecs::LightComponent>(engine, entity, [](erm::ecs::LightComponent& component) { return ShowLightComponentDebugWindow(component); }, "Light");
+		ShowComponentDebugWindow<erm::ecs::SkeletonComponent>(engine, entity, [&engine](erm::ecs::SkeletonComponent& component) { return ShowSkeletonComponentDebugWindow(engine, component); }, "Skeleton");
+		ShowComponentDebugWindow<erm::ecs::AnimationComponent>(engine, entity, [&engine](erm::ecs::AnimationComponent& component) { return ShowAnimationComponentDebugWindow(engine, component); }, "Animation");
 	}
 	
 }

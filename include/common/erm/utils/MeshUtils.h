@@ -3,8 +3,10 @@
 #include "erm/math/vec.h"
 
 namespace erm {
-	
 	class Mesh;
+}
+
+namespace erm {
 	
 	class MeshUtils
 	{

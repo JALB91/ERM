@@ -1,7 +1,7 @@
 #pragma once
 
 namespace erm {
-	class Game;
+	class Engine;
 	namespace ecs {
 		struct EntityId;
 	}
@@ -9,6 +9,6 @@ namespace erm {
 
 namespace ImGui {
 	
-	extern void ShowComponentDebugWindow(erm::Game& game, erm::ecs::EntityId entity);
+	extern void ShowComponentDebugWindow(erm::Engine& engine, erm::ecs::EntityId entity);
 	
 }

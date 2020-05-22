@@ -10,40 +10,40 @@
 
 #include <vector>
 
-namespace erm {
-	namespace ecs {
+namespace erm::ecs {
+	class TransformSystem;
+}
+
+namespace erm::ecs {
+	
+	struct TransformComponent : public IComponent
+	{
+	public:
+		typedef TransformSystem SYSTEM_TYPE;
+		friend class TransformSystem;
 		
-		class TransformSystem;
+	public:
+		TransformComponent()
+			: mWorldTransform(glm::identity<math::mat4>())
+			, mLocalTransform(glm::identity<math::mat4>())
+			, mTranslation(0.0f)
+			, mRotation(0.0f)
+			, mScale(1.0f)
+		{}
 		
-		struct TransformComponent : public IComponent
-		{
-		public:
-			typedef TransformSystem SYSTEM_TYPE;
-			friend class TransformSystem;
-			
-		public:
-			TransformComponent()
-				: mWorldTransform(glm::identity<math::mat4>())
-				, mLocalTransform(glm::identity<math::mat4>())
-				, mTranslation(0.0f)
-				, mRotation(0.0f)
-				, mScale(1.0f)
-			{}
-			
-			inline EntityId GetParent() const { return mParent; }
-			inline const std::vector<EntityId>& GetChildren() const { return mChildren; }
-			
-			math::mat4 mWorldTransform;
-			math::mat4 mLocalTransform;
-			math::vec3 mTranslation;
-			math::vec3 mRotation;
-			math::vec3 mScale;
-			
-		private:
-			EntityId mParent;
-			std::vector<EntityId> mChildren;
-			
-		};
+		inline EntityId GetParent() const { return mParent; }
+		inline const std::vector<EntityId>& GetChildren() const { return mChildren; }
 		
-	}
+		math::mat4 mWorldTransform;
+		math::mat4 mLocalTransform;
+		math::vec3 mTranslation;
+		math::vec3 mRotation;
+		math::vec3 mScale;
+		
+	private:
+		EntityId mParent;
+		std::vector<EntityId> mChildren;
+		
+	};
+	
 }

@@ -11,8 +11,7 @@ namespace erm {
 		const char* childName,
 		const char* attributeName,
 		const char* attributeValue
-	)
-	{
+	) {
 		XMLElement* child = element.FirstChildElement(childName);
 		
 		while (child)
@@ -32,8 +31,7 @@ namespace erm {
 		std::vector<std::string>& values,
 		unsigned int offset,
 		math::mat4& matrix
-	)
-	{
+	) {
 		matrix[0][0] = static_cast<float>(std::atof(values[offset*16+0].c_str()));
 		matrix[1][0] = static_cast<float>(std::atof(values[offset*16+1].c_str()));
 		matrix[2][0] = static_cast<float>(std::atof(values[offset*16+2].c_str()));

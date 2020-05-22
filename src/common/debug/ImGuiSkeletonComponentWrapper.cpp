@@ -6,15 +6,15 @@
 
 #include "erm/managers/ResourcesManager.h"
 
-#include "erm/game/Game.h"
+#include "erm/engine/Engine.h"
 
 #include <imgui.h>
 
 namespace ImGui {
 	
-	void ShowPathOptions(erm::Game& game, erm::ecs::SkeletonComponent& skeletonComponent);
+	void ShowPathOptions(erm::Engine& engine, erm::ecs::SkeletonComponent& skeletonComponent);
 	
-	bool ShowSkeletonComponentDebugWindow(erm::Game& game, erm::ecs::SkeletonComponent& skeletonComponent)
+	bool ShowSkeletonComponentDebugWindow(erm::Engine& engine, erm::ecs::SkeletonComponent& skeletonComponent)
 	{
 		const bool headerOpen = ImGui::CollapsingHeader("Skeleton");
 		
@@ -40,7 +40,7 @@ namespace ImGui {
 		{
 			ImGui::Indent();
 			
-			ShowPathOptions(game, skeletonComponent);
+			ShowPathOptions(engine, skeletonComponent);
 			
 			if (erm::BonesTree* rootBone = skeletonComponent.GetRootBone())
 			{
@@ -72,9 +72,9 @@ namespace ImGui {
 		return shouldRemove;
 	}
 	
-	void ShowPathOptions(erm::Game& game, erm::ecs::SkeletonComponent& skeletonComponent)
+	void ShowPathOptions(erm::Engine& engine, erm::ecs::SkeletonComponent& skeletonComponent)
 	{
-		const erm::Skins& all = game.GetResourcesManager().GetLoadedSkins();
+		const erm::Skins& all = engine.GetResourcesManager().GetLoadedSkins();
 		
 		erm::BonesTree* rootBone = skeletonComponent.GetRootBone();
 		std::string currentPath = rootBone ? rootBone->GetPayload()->mName : "";
@@ -97,7 +97,7 @@ namespace ImGui {
 					if (currentPath != currentName)
 					{
 						currentPath = currentName;
-						skeletonComponent.SetRootBone(game.GetResourcesManager().GetSkin(currentPath.c_str()));
+						skeletonComponent.SetRootBone(engine.GetResourcesManager().GetSkin(currentPath.c_str()));
 					}
 				}
 			}

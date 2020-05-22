@@ -2,7 +2,7 @@
 
 #include "erm/debug/ImGuiWrapper.h"
 
-#include "erm/game/Game.h"
+#include "erm/engine/Engine.h"
 
 #include "erm/rendering/window/Window.h"
 
@@ -18,12 +18,12 @@ namespace {
 
 namespace erm {
 	
-	ImGuiHandle::ImGuiHandle(Game& game)
-		: mGame(game)
+	ImGuiHandle::ImGuiHandle(Engine& engine)
+		: mEngine(engine)
 	{
 		ImGui::CreateContext();
 		ImGui::StyleColorsDark();
-		ImGui_ImplGlfw_InitForOpenGL(mGame.GetWindow().GetWindow(), true);
+		ImGui_ImplGlfw_InitForOpenGL(mEngine.GetWindow().GetWindow(), true);
 		ImGui_ImplOpenGL3_Init(kGlslVersion);
 	}
 	
@@ -40,7 +40,7 @@ namespace erm {
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 		
-		ImGui::ShowGameDebug(mGame);
+		ImGui::ShowEngineDebug(mEngine);
 		
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

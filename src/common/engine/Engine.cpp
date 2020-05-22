@@ -1,4 +1,4 @@
-#include "erm/game/Game.h"
+#include "erm/engine/Engine.h"
 
 #include "erm/debug/ImGuiHandle.h"
 
@@ -44,7 +44,7 @@ namespace {
 
 namespace erm {
 	
-	Game::Game()
+	Engine::Engine()
 		: mWindow(std::make_unique<Window>())
 	{
 		UNUSED(kLamborghiniModelPath);
@@ -62,9 +62,9 @@ namespace erm {
 		mWindow->AddListener(static_cast<IWindowListener&>(*this));
 	}
 	
-	Game::~Game() = default;
+	Engine::~Engine() = default;
 	
-	bool Game::Init()
+	bool Engine::Init()
 	{
 		if (!mWindow || !mWindow->Init())
 		{
@@ -101,7 +101,7 @@ namespace erm {
 		return true;
 	}
 	
-	void Game::Run()
+	void Engine::Run()
 	{
 		while (mWindow && !mWindow->ShouldClose())
 		{
@@ -134,7 +134,7 @@ namespace erm {
 		}
 	}
 	
-	void Game::OnUpdate(float dt)
+	void Engine::OnUpdate(float dt)
 	{
 		PROFILE_FUNCTION();
 		
@@ -144,19 +144,19 @@ namespace erm {
 		mResourcesManager->OnUpdate();
 	}
 	
-	void Game::OnPostUpdate()
+	void Engine::OnPostUpdate()
 	{
 		PROFILE_FUNCTION();
 		
 		mECS->OnPostUpdate();
 	}
 	
-	void Game::OnPreRender()
+	void Engine::OnPreRender()
 	{
 		PROFILE_FUNCTION();
 	}
 	
-	void Game::OnRender()
+	void Engine::OnRender()
 	{
 		PROFILE_FUNCTION();
 		
@@ -167,7 +167,7 @@ namespace erm {
 		mWindow->OnRender();
 	}
 	
-	void Game::OnPostRender()
+	void Engine::OnPostRender()
 	{
 		PROFILE_FUNCTION();
 		
@@ -175,22 +175,22 @@ namespace erm {
 		mResourcesManager->OnPostRender();
 	}
 	
-	void Game::OnKeyPressed(Key /*keyCode*/)
+	void Engine::OnKeyPressed(Key /*keyCode*/)
 	{}
 	
-	void Game::OnKeyReleased(Key /*keyCode*/)
+	void Engine::OnKeyReleased(Key /*keyCode*/)
 	{}
 	
-	void Game::OnMouseButtonPressed(MouseButton /*mouseButton*/)
+	void Engine::OnMouseButtonPressed(MouseButton /*mouseButton*/)
 	{}
 	
-	void Game::OnMouseButtonReleased(MouseButton /*mouseButton*/)
+	void Engine::OnMouseButtonReleased(MouseButton /*mouseButton*/)
 	{}
 	
-	void Game::OnMouseMoved(double /*xPos*/, double /*yPos*/)
+	void Engine::OnMouseMoved(double /*xPos*/, double /*yPos*/)
 	{}
 	
-	void Game::OnSizeChanged(int /*width*/, int /*height*/)
+	void Engine::OnSizeChanged(int /*width*/, int /*height*/)
 	{}
 	
 }

@@ -22,8 +22,7 @@ namespace erm {
 	void ProcessSkeleton(
 		XMLDocument& document,
 		std::map<std::string, ColladaSkinData>& skinsData
-	)
-	{
+	) {
 		XMLElement* controllers = document.RootElement()->FirstChildElement("library_controllers");
 		if (!controllers) return;
 		XMLElement* controller = FindChildWithAttribute(*controllers, "controller", "name", "Armature");
@@ -77,8 +76,7 @@ namespace erm {
 		XMLElement& vertexWeights,
 		std::vector<float>& weights,
 		std::vector<std::string>& boneNames
-	)
-	{
+	) {
 		XMLElement* jointsInput = FindChildWithAttribute(vertexWeights, "input", "semantic", "JOINT");
 		XMLElement* weightsInput = FindChildWithAttribute(vertexWeights, "input", "semantic", "WEIGHT");
 		

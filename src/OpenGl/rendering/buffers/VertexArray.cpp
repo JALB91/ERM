@@ -4,7 +4,7 @@
 #include "erm/rendering/buffers/VertexBufferLayout.h"
 #include "erm/rendering/renderer/Renderer.h"
 
-#include "erm/utils/GlMacros.h"
+#include "erm/utils/GlUtils.h"
 
 #include <GL/glew.h>
 

@@ -7,7 +7,21 @@
 #include "erm/rendering/enums/CullFace.h"
 #include "erm/rendering/enums/FrontFace.h"
 
+#include "erm/utils/Utils.h"
+
+#include <GL/glew.h>
+
+#include <iostream>
+
+#define GL_CALL(x) \
+	erm::GLClearError();\
+	x;\
+	EXPECT(erm::GLLogCall(#x, __FILE__, __LINE__), "")
+
 namespace erm {
+	
+	extern bool GLLogCall(const char* function, const char* file, int line);
+	extern void GLClearError();
 
 	extern int DepthFunctionToInt(DepthFunction function);
 	extern DepthFunction IntToDepthFunction(int function);

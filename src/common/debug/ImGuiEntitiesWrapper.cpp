@@ -2,7 +2,7 @@
 #include "erm/debug/ImGuiEntityWrapper.h"
 #include "erm/debug/ImGuiComponentWrapper.h"
 
-#include "erm/game/Game.h"
+#include "erm/engine/Engine.h"
 
 #include "erm/rendering/window/Window.h"
 
@@ -14,9 +14,9 @@
 
 namespace ImGui {
 	
-	void ShowEntitiesDebugWindow(erm::Game& game)
+	void ShowEntitiesDebugWindow(erm::Engine& engine)
 	{
-		const erm::Window& window = game.GetWindow();
+		const erm::Window& window = engine.GetWindow();
 		const erm::math::vec2 winSize (window.GetWindowWidth(), window.GetWindowHeight());
 		const erm::math::vec2& viewport = window.GetViewport();
 		
@@ -26,7 +26,7 @@ namespace ImGui {
 		
 		if (ImGui::Begin("Scene", nullptr, flags))
 		{
-			active = ImGui::ShowEntityDebugWindow(game.GetECS(), active, erm::ecs::EntityId(erm::ecs::ROOT_ID));
+			active = ImGui::ShowEntityDebugWindow(engine.GetECS(), active, erm::ecs::EntityId(erm::ecs::ROOT_ID));
 		}
 		ImGui::SetWindowSize(ImVec2((winSize.x - viewport.x) * 0.5f, winSize.y - ImGui::GetFrameHeight()));
 		ImGui::SetWindowPos(ImVec2(0.0f, ImGui::GetFrameHeight()));
@@ -37,7 +37,7 @@ namespace ImGui {
 			ImGui::PushID(static_cast<int>(active()));
 			ImGui::Separator();
 			ImGui::Text("Components");
-			ImGui::ShowComponentDebugWindow(game, active);
+			ImGui::ShowComponentDebugWindow(engine, active);
 			ImGui::Separator();
 			ImGui::PopID();
 		}

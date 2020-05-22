@@ -1,12 +1,12 @@
 #pragma once
 
 namespace erm {
-	class Game;
+	class Engine;
 	class Mesh;
 }
 
 namespace ImGui {
 	
-	extern void ShowMeshDebugWindow(erm::Game& game, erm::Mesh& mesh, unsigned int meshId);
+	extern void ShowMeshDebugWindow(erm::Engine& engine, erm::Mesh& mesh, unsigned int meshId);
 	
 }

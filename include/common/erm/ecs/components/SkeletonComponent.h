@@ -4,26 +4,28 @@
 
 #include "erm/rendering/data_structs/Bone.h"
 
-namespace erm {
-	namespace ecs {
+namespace erm::ecs {
+	class SkeletonSystem;
+}
+
+namespace erm::ecs {
+	
+	struct SkeletonComponent : public IComponent
+	{
+	public:
+		typedef SkeletonSystem SYSTEM_TYPE;
+		friend class SkeletonSystem;
 		
-		class SkeletonSystem;
+	public:
+		SkeletonComponent(BonesTree* tree = nullptr)
+			: mRootBone(tree)
+		{}
 		
-		struct SkeletonComponent : public IComponent
-		{
-			typedef SkeletonSystem SYSTEM_TYPE;
-			friend class SkeletonSystem;
-			
-			SkeletonComponent(BonesTree* tree = nullptr)
-				: mRootBone(tree)
-			{}
-			
-			SENSIBLE_MEMBER(RootBone, BonesTree*, mRootBone);
-			
-		private:
-			BonesTree* mRootBone;
-			
-		};
+		SENSIBLE_MEMBER(RootBone, BonesTree*, mRootBone);
 		
-	}
+	private:
+		BonesTree* mRootBone;
+		
+	};
+	
 }

@@ -4,15 +4,15 @@
 
 #include "erm/managers/ResourcesManager.h"
 
-#include "erm/game/Game.h"
+#include "erm/engine/Engine.h"
 
 #include <imgui.h>
 
 namespace ImGui {
 	
-	void ShowPathOptions(erm::Game& game, erm::ecs::AnimationComponent& animationComponent);
+	void ShowPathOptions(erm::Engine& engine, erm::ecs::AnimationComponent& animationComponent);
 	
-	bool ShowAnimationComponentDebugWindow(erm::Game& game, erm::ecs::AnimationComponent& animationComponent)
+	bool ShowAnimationComponentDebugWindow(erm::Engine& engine, erm::ecs::AnimationComponent& animationComponent)
 	{
 		const bool headerOpen = ImGui::CollapsingHeader("Animation");
 		
@@ -38,7 +38,7 @@ namespace ImGui {
 		{
 			ImGui::Indent();
 			
-			ShowPathOptions(game, animationComponent);
+			ShowPathOptions(engine, animationComponent);
 			
 			if (animationComponent.mSkeletonAnimation)
 			{
@@ -54,9 +54,9 @@ namespace ImGui {
 		return shouldRemove;
 	}
 	
-	void ShowPathOptions(erm::Game& game, erm::ecs::AnimationComponent& animationComponent)
+	void ShowPathOptions(erm::Engine& engine, erm::ecs::AnimationComponent& animationComponent)
 	{
-		const erm::Animations& all = game.GetResourcesManager().GetLoadedAnimations();
+		const erm::Animations& all = engine.GetResourcesManager().GetLoadedAnimations();
 		
 		erm::SkeletonAnimation* skeletonAnimation = animationComponent.mSkeletonAnimation;
 		std::string currentPath = skeletonAnimation ? skeletonAnimation->mName : "";
@@ -79,7 +79,7 @@ namespace ImGui {
 					if (currentPath != currentName)
 					{
 						currentPath = currentName;
-						animationComponent.mSkeletonAnimation = game.GetResourcesManager().GetAnimation(currentPath.c_str());
+						animationComponent.mSkeletonAnimation = engine.GetResourcesManager().GetAnimation(currentPath.c_str());
 					}
 				}
 			}

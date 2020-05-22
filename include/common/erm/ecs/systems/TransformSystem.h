@@ -4,24 +4,22 @@
 #include "erm/ecs/EntityId.h"
 #include "erm/ecs/components/TransformComponent.h"
 
-namespace erm {
-	namespace ecs {
+namespace erm::ecs {
+	
+	class TransformSystem : public ISystem<TransformComponent>
+	{
+	public:
+		TransformSystem(ECS& ecs);
 		
-		class TransformSystem : public ISystem<TransformComponent>
-		{
-		public:
-			TransformSystem(ECS& ecs);
-			
-			void OnPostUpdate() override;
-			
-			void RemoveFromParent(EntityId id);
-			void AddChild(EntityId parent, EntityId child);
-			
-		private:
-			// ISystem
-			void OnComponentBeingRemoved(EntityId id) override;
-			
-		};
+		void OnPostUpdate() override;
 		
-	}
+		void RemoveFromParent(EntityId id);
+		void AddChild(EntityId parent, EntityId child);
+		
+	private:
+		// ISystem
+		void OnComponentBeingRemoved(EntityId id) override;
+		
+	};
+	
 }
