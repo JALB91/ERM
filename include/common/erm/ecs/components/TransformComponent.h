@@ -3,8 +3,8 @@
 #include "erm/ecs/EntityId.h"
 #include "erm/ecs/IComponent.h"
 
-#include "erm/math/vec.h"
 #include "erm/math/mat.h"
+#include "erm/math/vec.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -15,13 +15,13 @@ namespace erm::ecs {
 }
 
 namespace erm::ecs {
-	
+
 	struct TransformComponent : public IComponent
 	{
 	public:
 		typedef TransformSystem SYSTEM_TYPE;
 		friend class TransformSystem;
-		
+
 	public:
 		TransformComponent()
 			: mWorldTransform(glm::identity<math::mat4>())
@@ -30,20 +30,19 @@ namespace erm::ecs {
 			, mRotation(0.0f)
 			, mScale(1.0f)
 		{}
-		
+
 		inline EntityId GetParent() const { return mParent; }
 		inline const std::vector<EntityId>& GetChildren() const { return mChildren; }
-		
+
 		math::mat4 mWorldTransform;
 		math::mat4 mLocalTransform;
 		math::vec3 mTranslation;
 		math::vec3 mRotation;
 		math::vec3 mScale;
-		
+
 	private:
 		EntityId mParent;
 		std::vector<EntityId> mChildren;
-		
 	};
-	
-}
+
+} // namespace erm::ecs

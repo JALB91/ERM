@@ -1,11 +1,11 @@
 #pragma once
 
 #include "erm/rendering/enums/BlendFunction.h"
-#include "erm/rendering/enums/DepthFunction.h"
-#include "erm/rendering/enums/PolygonMode.h"
-#include "erm/rendering/enums/DrawMode.h"
 #include "erm/rendering/enums/CullFace.h"
+#include "erm/rendering/enums/DepthFunction.h"
+#include "erm/rendering/enums/DrawMode.h"
 #include "erm/rendering/enums/FrontFace.h"
+#include "erm/rendering/enums/PolygonMode.h"
 
 #include "erm/utils/Utils.h"
 
@@ -13,13 +13,13 @@
 
 #include <iostream>
 
-#define GL_CALL(x) \
-	erm::GLClearError();\
-	x;\
+#define GL_CALL(x)       \
+	erm::GLClearError(); \
+	x;                   \
 	EXPECT(erm::GLLogCall(#x, __FILE__, __LINE__), "")
 
 namespace erm {
-	
+
 	extern bool GLLogCall(const char* function, const char* file, int line);
 	extern void GLClearError();
 
@@ -41,4 +41,4 @@ namespace erm {
 	extern int FrontFaceToInt(FrontFace face);
 	extern FrontFace IntToFrontFace(int face);
 
-}
+} // namespace erm

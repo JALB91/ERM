@@ -5,7 +5,7 @@ namespace erm {
 }
 
 namespace ImGui {
-	
+
 	extern void ShowShadersDebug(erm::Engine& engine, bool& open);
-	
+
 }

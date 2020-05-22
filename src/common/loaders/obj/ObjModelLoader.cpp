@@ -2,62 +2,57 @@
 
 #include "erm/math/math.h"
 
-#include "erm/rendering/buffers/VertexData.h"
 #include "erm/rendering/buffers/IndexData.h"
+#include "erm/rendering/buffers/VertexData.h"
 
 #include "erm/utils/Utils.h"
 
 #include <algorithm>
 #include <fstream>
-#include <string>
 #include <iostream>
 #include <optional>
+#include <string>
 
 namespace erm {
-	
+
 	bool ParseMaterialsLib(
 		std::mutex& mutex,
 		std::atomic<bool>& stop,
 		const char* path,
-		Materials& materials
-	);
+		Materials& materials);
 
 	void ParseFace(
 		std::vector<VertexData>& oVertices,
 		const std::vector<PositionVertex>& pVertices,
 		const std::vector<NormalVertex>& nVertices,
 		const std::vector<UVVertex>& uvVertices,
-		const std::vector<std::string>& splitted
-	);
-	
+		const std::vector<std::string>& splitted);
+
 	void Triangulate(
 		const std::vector<VertexData>& vertices,
-		std::vector<IndexData>& oIndices
-	);
-	
+		std::vector<IndexData>& oIndices);
+
 	void AddMesh(
 		std::mutex& mutex,
 		Model& model,
 		std::vector<VertexData>& vertices,
 		std::vector<IndexData>& indices,
 		Material* material,
-		std::string& meshName
-	);
-	
+		std::string& meshName);
+
 	Mesh CreateMesh(
 		const std::vector<VertexData>& vertices,
 		const std::vector<IndexData>& indices,
 		Material* material,
-		const std::string& name
-	);
-	
+		const std::string& name);
+
 	void ParseObjModel(
 		std::mutex& mutex,
 		std::atomic<bool>& stop,
 		const char* path,
 		Model& model,
-		Materials& materials
-	) {
+		Materials& materials)
+	{
 		std::ifstream stream(path);
 
 		std::string line;
@@ -136,8 +131,7 @@ namespace erm {
 					pVertices.emplace_back(
 						std::atof(splitted[splitted.size() - 3].c_str()),
 						std::atof(splitted[splitted.size() - 2].c_str()),
-						std::atof(splitted[splitted.size() - 1].c_str())
-					);
+						std::atof(splitted[splitted.size() - 1].c_str()));
 				}
 				else if (splitted[0].compare("vn") == 0)
 				{
@@ -145,16 +139,14 @@ namespace erm {
 					nVertices.emplace_back(
 						std::atof(splitted[splitted.size() - 3].c_str()),
 						std::atof(splitted[splitted.size() - 2].c_str()),
-						std::atof(splitted[splitted.size() - 1].c_str())
-					);
+						std::atof(splitted[splitted.size() - 1].c_str()));
 				}
 				else if (splitted[0].compare("vt") == 0)
 				{
 					ASSERT(splitted.size() >= 3);
 					uvVertices.emplace_back(
 						std::atof(splitted[splitted.size() - 2].c_str()),
-						std::atof(splitted[splitted.size() - 1].c_str())
-					);
+						std::atof(splitted[splitted.size() - 1].c_str()));
 				}
 				else if (splitted[0].compare("usemtl") == 0)
 				{
@@ -216,33 +208,33 @@ namespace erm {
 			model.SetName(name);
 		}
 	}
-	
+
 	void ParseFace(
 		std::vector<VertexData>& oVertices,
 		const std::vector<PositionVertex>& pVertices,
 		const std::vector<NormalVertex>& nVertices,
 		const std::vector<UVVertex>& uvVertices,
-		const std::vector<std::string>& splitted
-	) {
+		const std::vector<std::string>& splitted)
+	{
 		static constexpr unsigned int kVertexIndex = 0;
 		static constexpr unsigned int kUVVertexIndex = 1;
 		static constexpr unsigned int kNormalVertexIndex = 2;
-		
-		for (const std::string& split: splitted)
+
+		for (const std::string& split : splitted)
 		{
 			if (split.empty() || split.compare("f") == 0)
 			{
 				continue;
 			}
-			
+
 			const std::vector<std::string> indices = Utils::SplitString(split, '/');
 			ASSERT(indices.size() <= 3);
 			VertexData vertex;
-			
+
 			const unsigned int positionIndex = std::atoi(indices[kVertexIndex].c_str()) - 1;
 			int nPositionIndex = -1;
 			int uvPositionIndex = -1;
-			
+
 			if (indices.size() == 2)
 			{
 				uvPositionIndex = std::atoi(indices[kUVVertexIndex].c_str()) - 1;
@@ -250,36 +242,36 @@ namespace erm {
 			else if (indices.size() == 3)
 			{
 				nPositionIndex = std::atoi(indices[kNormalVertexIndex].c_str()) - 1;
-				
+
 				if (!indices[kUVVertexIndex].empty())
 				{
 					uvPositionIndex = std::atoi(indices[kUVVertexIndex].c_str()) - 1;
 				}
 			}
-			
+
 			ASSERT(positionIndex < pVertices.size());
 			vertex.mPositionVertex = pVertices[positionIndex];
-			
+
 			if (nPositionIndex >= 0 && nPositionIndex < static_cast<int>(nVertices.size()))
 			{
 				ASSERT(nPositionIndex < static_cast<int>(nVertices.size()));
 				vertex.mNormalVertex = nVertices[nPositionIndex];
 			}
-			
+
 			if (uvPositionIndex >= 0 && uvPositionIndex < static_cast<int>(uvVertices.size()))
 			{
 				ASSERT(uvPositionIndex < static_cast<int>(uvVertices.size()));
 				vertex.mUVVertex = uvVertices[uvPositionIndex];
 			}
-			
+
 			oVertices.emplace_back(vertex);
 		}
 	}
-	
+
 	void Triangulate(
 		const std::vector<VertexData>& vertices,
-		std::vector<IndexData>& oIndices
-	) {
+		std::vector<IndexData>& oIndices)
+	{
 		if (vertices.size() < 3 || vertices.size() > 4)
 		{
 			return;
@@ -291,27 +283,27 @@ namespace erm {
 			oIndices.push_back(2);
 			return;
 		}
-		
+
 		const PositionVertex& a = vertices[0].mPositionVertex;
 		const PositionVertex& b = vertices[1].mPositionVertex;
 		const PositionVertex& c = vertices[2].mPositionVertex;
 		const PositionVertex& d = vertices[3].mPositionVertex;
-		
+
 		if ((a == b && d == c) ||
 			(a == d && b == c) ||
 			(a == c && d == b))
 		{
 			return;
 		}
-		
+
 		oIndices.push_back(0);
 		oIndices.push_back(1);
 		oIndices.push_back(3);
-		
+
 		PositionVertex d1 = c - a;
 		PositionVertex d2 = d - b;
 		PositionVertex intersection;
-		
+
 		if (math::VerticesIntersection(a, b, d1, d2, intersection))
 		{
 			oIndices.push_back(1);
@@ -319,10 +311,10 @@ namespace erm {
 			oIndices.push_back(3);
 			return;
 		}
-		
+
 		d1 = c - b;
 		d2 = d - a;
-		
+
 		if (math::VerticesIntersection(b, a, d1, d2, intersection))
 		{
 			oIndices.push_back(0);
@@ -330,67 +322,67 @@ namespace erm {
 			oIndices.push_back(3);
 			return;
 		}
-		
+
 		oIndices.push_back(0);
 		oIndices.push_back(1);
 		oIndices.push_back(2);
 	}
-	
+
 	void AddMesh(
 		std::mutex& mutex,
 		Model& model,
 		std::vector<VertexData>& vertices,
 		std::vector<IndexData>& indices,
 		Material* material,
-		std::string& meshName
-	) {
+		std::string& meshName)
+	{
 		mutex.lock();
 		model.AddMesh(CreateMesh(vertices, indices, material, meshName));
 		mutex.unlock();
 	}
-	
+
 	Mesh CreateMesh(
 		const std::vector<VertexData>& vertices,
 		const std::vector<IndexData>& indices,
 		Material* material,
-		const std::string& name
-	) {
+		const std::string& name)
+	{
 		const unsigned int verticesCount = static_cast<unsigned int>(vertices.size());
 		VertexData* verticesData = new VertexData[verticesCount];
 		for (unsigned int i = 0; i < verticesCount; ++i)
 		{
 			verticesData[i] = vertices[i];
 		}
-		
+
 		const unsigned int indicesCount = static_cast<unsigned int>(indices.size());
 		IndexData* indicesData = new IndexData[indicesCount];
 		for (unsigned int i = 0; i < indicesCount; ++i)
 		{
 			indicesData[i] = indices[i];
 		}
-		
+
 		return Mesh(DrawMode::TRIANGLES, verticesData, verticesCount, indicesData, indicesCount, material, name);
 	}
-	
+
 	bool ParseMaterialsLib(
 		std::mutex& mutex,
 		std::atomic<bool>& stop,
 		const char* path,
-		Materials& materials
-	) {
-		std::ifstream stream (path);
-		
+		Materials& materials)
+	{
+		std::ifstream stream(path);
+
 		if (!stream.is_open())
 		{
 			std::cout << "No such file: " << path << std::endl;
 			return false;
 		}
-		
+
 		std::string line;
-		
+
 		std::optional<Material> mat;
 		bool skip = false;
-		
+
 		while (std::getline(stream, line))
 		{
 			if (stop)
@@ -400,7 +392,7 @@ namespace erm {
 			}
 
 			const std::vector<std::string> splitted = Utils::SplitString(line, ' ');
-			
+
 			if (splitted.size() > 0)
 			{
 				if (splitted[0].compare("newmtl") == 0)
@@ -411,10 +403,10 @@ namespace erm {
 						materials.emplace_back(std::make_unique<Material>(std::move(mat.value())));
 						mutex.unlock();
 					}
-					
+
 					mat.reset();
 					skip = false;
-					
+
 					ASSERT(splitted.size() >= 2);
 					std::string name = splitted[splitted.size() - 1];
 					mutex.lock();
@@ -427,7 +419,7 @@ namespace erm {
 						skip = true;
 						continue;
 					}
-					
+
 					mat = Material::DEFAULT;
 					mat->mPath = path;
 					mat->mName = name;
@@ -442,8 +434,7 @@ namespace erm {
 					mat->mAmbient = math::vec3(
 						std::atof(splitted[splitted.size() - 3].c_str()),
 						std::atof(splitted[splitted.size() - 2].c_str()),
-						std::atof(splitted[splitted.size() - 1].c_str())
-					);
+						std::atof(splitted[splitted.size() - 1].c_str()));
 				}
 				else if (splitted[0].compare("Kd") == 0)
 				{
@@ -451,8 +442,7 @@ namespace erm {
 					mat->mDiffuse = math::vec3(
 						std::atof(splitted[splitted.size() - 3].c_str()),
 						std::atof(splitted[splitted.size() - 2].c_str()),
-						std::atof(splitted[splitted.size() - 1].c_str())
-					);
+						std::atof(splitted[splitted.size() - 1].c_str()));
 				}
 				else if (splitted[0].compare("Ks") == 0)
 				{
@@ -460,8 +450,7 @@ namespace erm {
 					mat->mSpecular = math::vec3(
 						std::atof(splitted[splitted.size() - 3].c_str()),
 						std::atof(splitted[splitted.size() - 2].c_str()),
-						std::atof(splitted[splitted.size() - 1].c_str())
-					);
+						std::atof(splitted[splitted.size() - 1].c_str()));
 				}
 				else if (splitted[0].compare("Ns") == 0)
 				{
@@ -472,15 +461,15 @@ namespace erm {
 		}
 
 		stream.close();
-		
+
 		if (!skip && mat)
 		{
 			mutex.lock();
 			materials.emplace_back(std::make_unique<Material>(std::move(mat.value())));
 			mutex.unlock();
 		}
-		
+
 		return true;
 	}
-	
-}
+
+} // namespace erm

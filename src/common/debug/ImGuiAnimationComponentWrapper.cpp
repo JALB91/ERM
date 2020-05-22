@@ -9,20 +9,20 @@
 #include <imgui.h>
 
 namespace ImGui {
-	
+
 	void ShowPathOptions(erm::Engine& engine, erm::ecs::AnimationComponent& animationComponent);
-	
+
 	bool ShowAnimationComponentDebugWindow(erm::Engine& engine, erm::ecs::AnimationComponent& animationComponent)
 	{
 		const bool headerOpen = ImGui::CollapsingHeader("Animation");
-		
+
 		if (ImGui::IsItemClicked(1))
 		{
 			ImGui::OpenPopup("AnimationPopup");
 		}
-		
+
 		bool shouldRemove = false;
-		
+
 		if (ImGui::BeginPopup("AnimationPopup"))
 		{
 			if (ImGui::Button("Remove..."))
@@ -30,16 +30,16 @@ namespace ImGui {
 				shouldRemove = true;
 				ImGui::CloseCurrentPopup();
 			}
-			
+
 			ImGui::EndPopup();
 		}
-		
+
 		if (headerOpen)
 		{
 			ImGui::Indent();
-			
+
 			ShowPathOptions(engine, animationComponent);
-			
+
 			if (animationComponent.mSkeletonAnimation)
 			{
 				ImGui::LabelText("Animation Name", "%s", animationComponent.mSkeletonAnimation->mName.c_str());
@@ -47,20 +47,20 @@ namespace ImGui {
 				ImGui::DragFloat("Time Scale", &animationComponent.mTimeScale, 0.05f);
 				ImGui::ProgressBar(animationComponent.mCurrentAnimationTime / animationComponent.mSkeletonAnimation->mTotalAnimationTime);
 			}
-			
+
 			ImGui::Unindent();
 		}
-		
+
 		return shouldRemove;
 	}
-	
+
 	void ShowPathOptions(erm::Engine& engine, erm::ecs::AnimationComponent& animationComponent)
 	{
 		const erm::Animations& all = engine.GetResourcesManager().GetLoadedAnimations();
-		
+
 		erm::SkeletonAnimation* skeletonAnimation = animationComponent.mSkeletonAnimation;
 		std::string currentPath = skeletonAnimation ? skeletonAnimation->mName : "";
-		
+
 		if (ImGui::BeginCombo("Path", currentPath.c_str()))
 		{
 			bool isSelected = currentPath == "";
@@ -69,7 +69,7 @@ namespace ImGui {
 				currentPath = "";
 				animationComponent.mSkeletonAnimation = nullptr;
 			}
-			
+
 			for (unsigned int i = 0; i < all.size(); ++i)
 			{
 				const std::string& currentName = all[i]->mName;
@@ -86,5 +86,5 @@ namespace ImGui {
 			ImGui::EndCombo();
 		}
 	}
-	
-}
+
+} // namespace ImGui

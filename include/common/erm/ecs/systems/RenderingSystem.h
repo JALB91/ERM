@@ -19,32 +19,30 @@ namespace erm {
 		class CameraSystem;
 		class LightSystem;
 		struct Entity;
-	}
-}
-	
+	} // namespace ecs
+} // namespace erm
+
 namespace erm::ecs {
-	
+
 	class RenderingSystem : public ISystem<RenderingComponent>
 	{
 	public:
 		RenderingSystem(ECS& ecs, ResourcesManager& resourcesManager);
 		~RenderingSystem();
-		
+
 		void OnRender(const Renderer& renderer) override;
-		
+
 	private:
 		void RenderGrid(
 			const Renderer& renderer,
-			const math::mat4& viewProjection
-		);
+			const math::mat4& viewProjection);
 		void RenderModel(
 			const Renderer& renderer,
 			const Entity& camera,
 			const math::mat4& viewProjection,
 			const std::vector<ID>& lights,
-			EntityId id
-		);
-		
+			EntityId id);
+
 		ResourcesManager& mResourcesManager;
 
 		TransformSystem& mTransformSystem;
@@ -52,14 +50,12 @@ namespace erm::ecs {
 		ModelSystem& mModelSystem;
 		CameraSystem& mCameraSystem;
 		LightSystem& mLightSystem;
-		
+
 		std::queue<ID> mModelsRenderingQueue;
-		
+
 		std::unique_ptr<Mesh> mGridMesh;
 		std::unique_ptr<Mesh> mDebugMesh;
 		ShaderProgram* mDebugShader;
-		
 	};
-	
-}
 
+} // namespace erm::ecs

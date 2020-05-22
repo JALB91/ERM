@@ -13,12 +13,11 @@ namespace tinyxml2 {
 }
 
 namespace erm {
-	
+
 	extern void ProcessScene(
 		std::mutex& mutex,
 		tinyxml2::XMLDocument& document,
 		Skins& skins,
-		const std::map<std::string, ColladaSkinData>& skinsData
-	);
-	
+		const std::map<std::string, ColladaSkinData>& skinsData);
+
 }

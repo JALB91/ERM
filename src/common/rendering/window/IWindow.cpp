@@ -1,7 +1,7 @@
 #include "erm/rendering/window/IWindow.h"
 
 namespace erm {
-	
+
 	IWindow::IWindow()
 		: mMousePosX(0.0)
 		, mPrevMousePosX(0.0)
@@ -12,12 +12,12 @@ namespace erm {
 		, mViewport(0.0f)
 		, mAspectRatio(0.0f)
 	{}
-	
+
 	void IWindow::AddListener(IWindowListener& listener)
 	{
 		mWindowListeners.insert(&listener);
 	}
-	
+
 	void IWindow::RemoveListener(IWindowListener& listener)
 	{
 		auto it = mWindowListeners.find(&listener);
@@ -26,5 +26,5 @@ namespace erm {
 			mWindowListeners.erase(it);
 		}
 	}
-	
-}
+
+} // namespace erm

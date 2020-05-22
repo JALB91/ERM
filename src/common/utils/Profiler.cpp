@@ -2,10 +2,10 @@
 #include "erm/utils/Utils.h"
 
 namespace erm {
-	
+
 	std::unique_ptr<Profiler::ProfilingTree> Profiler::sTree = nullptr;
 	Profiler::ProfilingTree* Profiler::sCurrentNode = nullptr;
-	
+
 	Profiler::Profiler(const std::string& id)
 	{
 		if (!sTree)
@@ -14,7 +14,7 @@ namespace erm {
 			sCurrentNode = sTree.get();
 			return;
 		}
-		
+
 		ProfilingTree* node = ProfilingTree::Find(*sCurrentNode, id);
 		if (node)
 		{
@@ -26,7 +26,7 @@ namespace erm {
 		}
 		sCurrentNode = node;
 	}
-	
+
 	Profiler::~Profiler()
 	{
 		const double prevTime = sCurrentNode->GetPayload().mTime;
@@ -38,10 +38,10 @@ namespace erm {
 			sCurrentNode = parent;
 		}
 	}
-	
+
 	const Profiler::ProfilingTree& Profiler::GetRoot()
 	{
 		return *sTree;
 	}
-	
-}
+
+} // namespace erm

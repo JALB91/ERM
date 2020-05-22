@@ -5,7 +5,7 @@
 #include <GL/glew.h>
 
 namespace erm {
-	
+
 	bool GLLogCall(const char* function, const char* file, int line)
 	{
 		while (GLenum error = glGetError())
@@ -15,10 +15,11 @@ namespace erm {
 		}
 		return true;
 	}
-	
+
 	void GLClearError()
 	{
-		while (glGetError() != GL_NO_ERROR);
+		while (glGetError() != GL_NO_ERROR)
+			;
 	}
 
 	int DepthFunctionToInt(DepthFunction function)
@@ -277,4 +278,4 @@ namespace erm {
 		}
 	}
 
-}
+} // namespace erm

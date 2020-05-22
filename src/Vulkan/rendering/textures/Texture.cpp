@@ -4,11 +4,11 @@
 
 #include <stb_image.h>
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
 
 namespace erm {
-	
+
 	Texture::Texture(const char* path)
 		: mRendererId(0)
 		, mLocalBuffer(nullptr)
@@ -18,23 +18,23 @@ namespace erm {
 		, mPath(path)
 	{
 		UNUSED(mRendererId);
-		
+
 		stbi_set_flip_vertically_on_load(1);
 		mLocalBuffer = stbi_load(path, &mWidth, &mHeight, &mBPP, 4);
-		
+
 		if (mLocalBuffer)
 		{
 			stbi_image_free(mLocalBuffer);
 		}
 	}
-	
+
 	Texture::~Texture()
 	{}
-	
+
 	void Texture::Bind(unsigned int /*slot*/ /* = 0 */) const
 	{}
-	
+
 	void Texture::Unbind() const
 	{}
-	
-}
+
+} // namespace erm

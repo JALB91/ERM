@@ -11,29 +11,30 @@
 using namespace tinyxml2;
 
 namespace erm {
-	
+
 	void ProcessAnimations(
 		std::mutex& mutex,
 		tinyxml2::XMLDocument& document,
 		const std::map<std::string, ColladaSkinData>& skinsData,
 		const char* path,
-		Animations& animations
-	) {
+		Animations& animations)
+	{
 		XMLElement* animationsLibrary = document.RootElement()->FirstChildElement("library_animations");
-		if (!animationsLibrary) return;
+		if (!animationsLibrary)
+			return;
 		XMLElement* animationSource = animationsLibrary->FirstChildElement("animation");
-		
+
 		std::vector<KeyFrame> keyFrames;
 		std::vector<float> timestamps;
-		
+
 		while (animationSource)
 		{
 			XMLElement* samplerElement = animationSource->FirstChildElement("sampler");
 			std::string boneId = animationSource->FirstChildElement("channel")->Attribute("target");
 			boneId = boneId.substr(0, boneId.find("/"));
-			
+
 			int targetBone = -1;
-			
+
 			for (const auto& entry : skinsData)
 			{
 				const std::vector<std::string>& boneNames = entry.second.mBoneNames;
@@ -46,37 +47,37 @@ namespace erm {
 					}
 				}
 			}
-			
+
 			if (targetBone < 0)
 			{
 				animationSource = animationSource->NextSiblingElement("animation");
 				continue;
 			}
-			
+
 			if (samplerElement)
 			{
 				std::vector<math::mat4> matrices;
-				
+
 				XMLElement* input = samplerElement->FirstChildElement("input");
-				
+
 				while (input)
 				{
 					bool isInput = std::strcmp(input->Attribute("semantic"), "INPUT") == 0;
 					bool isOutput = std::strcmp(input->Attribute("semantic"), "OUTPUT") == 0;
-					
+
 					if (isInput || isOutput)
 					{
 						std::string targetSource = input->Attribute("source");
 						targetSource = targetSource.substr(1);
-						
+
 						XMLElement* source = animationSource->FirstChildElement("source");
-						
+
 						while (source)
 						{
 							if (source->Attribute("id") == targetSource)
 							{
 								std::vector<std::string> values = Utils::SplitString(source->FirstChildElement("float_array")->GetText(), ' ');
-								
+
 								if (isInput && values.size() > timestamps.size())
 								{
 									for (unsigned int i = static_cast<unsigned int>(timestamps.size()); i < values.size(); ++i)
@@ -97,12 +98,12 @@ namespace erm {
 					}
 					input = input->NextSiblingElement("input");
 				}
-				
+
 				for (unsigned int i = static_cast<unsigned int>(keyFrames.size()); i < static_cast<unsigned int>(timestamps.size()); ++i)
 				{
 					keyFrames.emplace_back(KeyFrame(timestamps[i]));
 				}
-				
+
 				for (unsigned int i = 0; i < static_cast<unsigned int>(keyFrames.size()); ++i)
 				{
 					Pose& currentPose = keyFrames[i].mTransforms[targetBone];
@@ -110,13 +111,12 @@ namespace erm {
 						matrices[i],
 						currentPose.mTranslation,
 						currentPose.mRotation,
-						currentPose.mScale
-					);
+						currentPose.mScale);
 				}
 			}
 			animationSource = animationSource->NextSiblingElement("animation");
 		}
-		
+
 		if (keyFrames.size() > 0)
 		{
 			mutex.lock();
@@ -124,5 +124,5 @@ namespace erm {
 			mutex.unlock();
 		}
 	}
-	
-}
+
+} // namespace erm

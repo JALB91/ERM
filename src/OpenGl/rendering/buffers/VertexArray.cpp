@@ -9,24 +9,24 @@
 #include <GL/glew.h>
 
 namespace erm {
-	
+
 	VertexArray::VertexArray()
 	{
 		GL_CALL(glGenVertexArrays(1, &mRendererId));
 	}
-	
+
 	VertexArray::~VertexArray()
 	{
 		GL_CALL(glDeleteVertexArrays(1, &mRendererId));
 	}
-	
+
 	void VertexArray::AddBuffer(const VertexBuffer& vb, const VertexBufferLayout& vbl) const
 	{
 		Bind();
 		vb.Bind();
 		size_t offset = 0;
 		const std::vector<VertexBufferElement>& elements = vbl.GetElements();
-		
+
 		for (unsigned int i = 0; i < static_cast<unsigned int>(elements.size()); ++i)
 		{
 			const VertexBufferElement& element = elements[i];
@@ -45,19 +45,19 @@ namespace erm {
 					ASSERT(false);
 					break;
 			}
-			
+
 			offset += element.mCount * element.mOffset;
 		}
 	}
-	
+
 	void VertexArray::Bind() const
 	{
 		GL_CALL(glBindVertexArray(mRendererId));
 	}
-	
+
 	void VertexArray::Unbind() const
 	{
 		GL_CALL(glBindVertexArray(0));
 	}
-	
-}
+
+} // namespace erm

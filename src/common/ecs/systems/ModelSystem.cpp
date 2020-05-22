@@ -8,26 +8,28 @@
 #include "erm/rendering/data_structs/Model.h"
 
 namespace erm::ecs {
-	
+
 	ModelSystem::ModelSystem(ECS& ecs)
 		: ISystem<ModelComponent>(ecs)
 		, mTransformSystem(mECS.GetSystem<TransformSystem>())
 	{}
-	
+
 	void ModelSystem::OnPostUpdate()
 	{
 		PROFILE_FUNCTION();
-		
+
 		for (ID i = 0; i < MAX_ID; ++i)
 		{
 			ModelComponent* modelComponent = GetComponent(i);
-			
-			if (!modelComponent) continue;
-			
+
+			if (!modelComponent)
+				continue;
+
 			Model* model = modelComponent->mModel;
-			
-			if (!modelComponent->IsDirty() && model && !model->IsDirty()) continue;
-			
+
+			if (!modelComponent->IsDirty() && model && !model->IsDirty())
+				continue;
+
 			if (model)
 			{
 				TransformComponent* transformComponent = mTransformSystem.RequireComponent(i);
@@ -38,9 +40,9 @@ namespace erm::ecs {
 			{
 				modelComponent->mWorldBounds.Empty();
 			}
-			
+
 			modelComponent->SetDirty(false);
 		}
 	}
-	
-}
+
+} // namespace erm::ecs

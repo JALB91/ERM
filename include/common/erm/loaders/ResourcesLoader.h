@@ -12,12 +12,12 @@ namespace erm {
 }
 
 namespace erm {
-	
+
 	class ResourcesLoader
 	{
 	public:
 		~ResourcesLoader();
-		
+
 		void OnUpdate();
 		void OnRender();
 		void OnPostRender();
@@ -27,15 +27,13 @@ namespace erm {
 			Models& models,
 			Materials& materials,
 			Skins& skins,
-			Animations& animations
-		);
-		
+			Animations& animations);
+
 	private:
 		std::mutex mMutex;
 		std::atomic<bool> mStop;
 		std::deque<erm::Model*> mLoadingModels;
 		std::deque<std::future<void>> mFutures;
-		
 	};
-	
-}
+
+} // namespace erm

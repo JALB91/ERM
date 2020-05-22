@@ -11,20 +11,20 @@
 #include <imgui.h>
 
 namespace ImGui {
-	
+
 	void ShowShadersDebug(erm::Engine& engine, bool& open)
 	{
 		const std::vector<std::string>& shaders = engine.GetFileLocator().GetShaderPrograms();
 		static erm::ShaderProgram* selected = nullptr;
 		const erm::Window& window = engine.GetWindow();
-		
+
 		ImGui::SetNextWindowSize(ImVec2(600, 600), ImGuiCond_FirstUseEver);
 		ImGui::SetNextWindowPos(ImVec2(static_cast<float>(window.GetWindowWidth() / 2), static_cast<float>(window.GetWindowHeight() / 2)), ImGuiCond_FirstUseEver);
-		
+
 		if (ImGui::Begin("Shaders", &open, ImGuiWindowFlags_NoCollapse))
 		{
 			bool hasChanged = false;
-			
+
 			if (ImGui::BeginCombo("ShaderProgram", selected ? selected->GetPath().c_str() : ""))
 			{
 				bool isSelected = selected;
@@ -33,7 +33,7 @@ namespace ImGui {
 					hasChanged = selected;
 					selected = nullptr;
 				}
-				
+
 				for (unsigned int i = 0; i < shaders.size(); ++i)
 				{
 					isSelected = selected ? selected->GetPath() == shaders[i] : false;
@@ -45,10 +45,10 @@ namespace ImGui {
 				}
 				ImGui::EndCombo();
 			}
-			
+
 			static char vertexShader[1024 * 16] = "";
 			static char fragmentShader[1024 * 16] = "";
-			
+
 			if (selected && hasChanged)
 			{
 				std::strcpy(vertexShader, selected->GetVertexShader().c_str());
@@ -59,11 +59,11 @@ namespace ImGui {
 				std::strcpy(vertexShader, "");
 				std::strcpy(fragmentShader, "");
 			}
-			
+
 			ImGui::InputTextMultiline("Vertex", vertexShader, IM_ARRAYSIZE(vertexShader), ImVec2(-1.0f, ImGui::GetTextLineHeight() * 16), ImGuiInputTextFlags_AllowTabInput);
 			ImGui::Separator();
 			ImGui::InputTextMultiline("Fragment", fragmentShader, IM_ARRAYSIZE(fragmentShader), ImVec2(-1.0f, ImGui::GetTextLineHeight() * 16), ImGuiInputTextFlags_AllowTabInput);
-			
+
 			if (ImGui::Button("Save"))
 			{
 				if (selected)
@@ -76,8 +76,8 @@ namespace ImGui {
 				}
 			}
 		}
-		
+
 		ImGui::End();
 	}
-	
-}
+
+} // namespace ImGui
