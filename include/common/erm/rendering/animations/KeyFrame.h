@@ -6,15 +6,15 @@
 #include <array>
 
 namespace erm {
-	
+
 	struct KeyFrame
 	{
 		KeyFrame(float timestamp)
 			: mTimestamp(timestamp)
 		{}
-		
+
 		std::array<Pose, MAX_BONES> mTransforms;
 		float mTimestamp;
 	};
-	
-}
+
+} // namespace erm

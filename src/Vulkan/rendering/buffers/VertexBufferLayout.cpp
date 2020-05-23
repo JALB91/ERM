@@ -2,7 +2,7 @@
 #include "erm/utils/Utils.h"
 
 namespace erm {
-	
+
 	template<typename T>
 	void VertexBufferLayout::Push(unsigned int /*count*/)
 	{
@@ -16,7 +16,7 @@ namespace erm {
 		//mElements.push_back({ GL_FLOAT, count, offset, GL_FALSE });
 		mStride += count * offset;
 	}
-	
+
 	template<>
 	void VertexBufferLayout::Push<double>(unsigned int count)
 	{
@@ -40,5 +40,5 @@ namespace erm {
 		//mElements.push_back({ GL_UNSIGNED_BYTE, count, offset, GL_TRUE });
 		mStride += count * offset;
 	}
-	
-}
+
+} // namespace erm

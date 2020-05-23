@@ -9,13 +9,13 @@ namespace erm {
 }
 
 namespace erm {
-	
+
 	struct Material
 	{
 		static Material DEFAULT;
-		
+
 		Material() = delete;
-		
+
 		std::string mPath;
 		std::string mName;
 		math::vec3 mAmbient;
@@ -24,5 +24,5 @@ namespace erm {
 		float mShininess;
 		ShaderProgram* mShaderProgram;
 	};
-	
-}
+
+} // namespace erm

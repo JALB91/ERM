@@ -2,20 +2,20 @@
 
 #include "erm/debug/ImGuiHandle.h"
 
-#include "erm/rendering/window/Window.h"
 #include "erm/rendering/Device.h"
+#include "erm/rendering/data_structs/Model.h"
 #include "erm/rendering/renderer/RenderContext.h"
 #include "erm/rendering/renderer/Renderer.h"
-#include "erm/rendering/data_structs/Model.h"
+#include "erm/rendering/window/Window.h"
 
-#include "erm/utils/Utils.h"
 #include "erm/utils/Profiler.h"
+#include "erm/utils/Utils.h"
 
 #include "erm/ecs/Entity.h"
-#include "erm/ecs/systems/TransformSystem.h"
-#include "erm/ecs/systems/ModelSystem.h"
 #include "erm/ecs/systems/CameraSystem.h"
 #include "erm/ecs/systems/LightSystem.h"
+#include "erm/ecs/systems/ModelSystem.h"
+#include "erm/ecs/systems/TransformSystem.h"
 
 #include "erm/managers/ResourcesManager.h"
 
@@ -40,10 +40,10 @@ namespace {
 	const float kDefaultScale = 20.0f;
 	const int kEntities = 1;
 
-}
+} // namespace
 
 namespace erm {
-	
+
 	Engine::Engine()
 		: mWindow(std::make_unique<Window>())
 	{
@@ -61,23 +61,23 @@ namespace erm {
 		std::srand(static_cast<unsigned int>(time(NULL)));
 		mWindow->AddListener(static_cast<IWindowListener&>(*this));
 	}
-	
+
 	Engine::~Engine() = default;
-	
+
 	bool Engine::Init()
 	{
 		if (!mWindow || !mWindow->Init())
 		{
 			return false;
 		}
-		
+
 		mDevice = std::make_unique<Device>(mWindow->GetWindow());
 		mImGuiHandle = std::make_unique<ImGuiHandle>(*this);
 		mRenderContext = std::make_unique<RenderContext>();
 		mRenderer = std::make_unique<Renderer>(*mRenderContext);
 		mResourcesManager = std::make_unique<ResourcesManager>();
 		mECS = std::make_unique<ecs::ECS>(*this);
-		
+
 		mResourcesManager->LoadDefaultResources();
 
 		auto camera = mECS->GetOrCreateEntity("Camera");
@@ -97,33 +97,33 @@ namespace erm {
 			transform->mScale = math::vec3(kDefaultScale);
 			root->AddChild(*entity);
 		}
-		
+
 		return true;
 	}
-	
+
 	void Engine::Run()
 	{
 		while (mWindow && !mWindow->ShouldClose())
 		{
 			PROFILE_FUNCTION();
-			
+
 			static double elapsedTime = 0.0;
 			static unsigned int frameInSecond = 0;
-			
+
 			mTimer.Update();
-			
+
 			const double frameElapsedTime = mTimer.GetFrameElapsedTime();
 			elapsedTime += frameElapsedTime;
 			++frameInSecond;
-			
+
 			if (elapsedTime >= 1000.0)
 			{
 				mFPS = frameInSecond;
-				
+
 				elapsedTime = 0.0;
 				frameInSecond = 0;
 			}
-			
+
 			OnUpdate(static_cast<float>(frameElapsedTime * 0.001));
 			OnPostUpdate();
 
@@ -133,64 +133,65 @@ namespace erm {
 			OnPostRender();
 		}
 	}
-	
+
 	void Engine::OnUpdate(float dt)
 	{
 		PROFILE_FUNCTION();
-		
+
 		mECS->OnUpdate(dt);
 		mWindow->NewFrame();
-		if (mRenderContext) mRenderContext->Clear();
+		if (mRenderContext)
+			mRenderContext->Clear();
 		mResourcesManager->OnUpdate();
 	}
-	
+
 	void Engine::OnPostUpdate()
 	{
 		PROFILE_FUNCTION();
-		
+
 		mECS->OnPostUpdate();
 	}
-	
+
 	void Engine::OnPreRender()
 	{
 		PROFILE_FUNCTION();
 	}
-	
+
 	void Engine::OnRender()
 	{
 		PROFILE_FUNCTION();
-		
+
 		mResourcesManager->OnRender();
 		mECS->OnRender(*mRenderer.get());
 		mDevice->OnRender();
 		mImGuiHandle->OnRender();
 		mWindow->OnRender();
 	}
-	
+
 	void Engine::OnPostRender()
 	{
 		PROFILE_FUNCTION();
-		
+
 		mWindow->OnPostRender();
 		mResourcesManager->OnPostRender();
 	}
-	
+
 	void Engine::OnKeyPressed(Key /*keyCode*/)
 	{}
-	
+
 	void Engine::OnKeyReleased(Key /*keyCode*/)
 	{}
-	
+
 	void Engine::OnMouseButtonPressed(MouseButton /*mouseButton*/)
 	{}
-	
+
 	void Engine::OnMouseButtonReleased(MouseButton /*mouseButton*/)
 	{}
-	
+
 	void Engine::OnMouseMoved(double /*xPos*/, double /*yPos*/)
 	{}
-	
+
 	void Engine::OnSizeChanged(int /*width*/, int /*height*/)
 	{}
-	
-}
+
+} // namespace erm

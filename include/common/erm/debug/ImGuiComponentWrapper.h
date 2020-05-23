@@ -5,10 +5,10 @@ namespace erm {
 	namespace ecs {
 		struct EntityId;
 	}
-}
+} // namespace erm
 
 namespace ImGui {
-	
+
 	extern void ShowComponentDebugWindow(erm::Engine& engine, erm::ecs::EntityId entity);
-	
+
 }

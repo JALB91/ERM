@@ -5,7 +5,7 @@ namespace erm {
 }
 
 namespace ImGui {
-	
+
 	extern void ShowInfoWindow(erm::Engine& engine, bool& open);
-	
+
 }

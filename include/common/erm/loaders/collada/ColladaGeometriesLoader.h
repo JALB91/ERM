@@ -15,13 +15,12 @@ namespace erm {
 }
 
 namespace erm {
-	
+
 	extern void ProcessGeometries(
 		std::mutex& mutex,
 		std::atomic<bool>& stop,
 		tinyxml2::XMLDocument& document,
 		Model& model,
-		const std::map<std::string, ColladaSkinData>& skinsData
-	);
-	
+		const std::map<std::string, ColladaSkinData>& skinsData);
+
 }

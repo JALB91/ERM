@@ -1,19 +1,19 @@
 #include "erm/rendering/data_structs/Model.h"
-#include "erm/rendering/renderer/Renderer.h"
 #include "erm/rendering/buffers/VertexData.h"
+#include "erm/rendering/renderer/Renderer.h"
 
 #include "erm/utils/Utils.h"
 
 #include <iostream>
 
 namespace erm {
-	
+
 	Model::Model(const char* path, const char* name)
 		: mPath(path)
 		, mName(name)
 		, mIsDirty(false)
 	{}
-	
+
 	Model::~Model()
 	{}
 
@@ -39,5 +39,5 @@ namespace erm {
 		}
 		SetDirty(true);
 	}
-	
-}
+
+} // namespace erm

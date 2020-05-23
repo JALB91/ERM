@@ -1,7 +1,7 @@
 #pragma once
 
 namespace erm {
-	
+
 	typedef int Key;
 	extern const Key KEY_UNKNOWN;
 	extern const Key KEY_SPACE;
@@ -124,5 +124,5 @@ namespace erm {
 	extern const Key KEY_RIGHT_ALT;
 	extern const Key KEY_RIGHT_SUPER;
 	extern const Key KEY_MENU;
-	
-}
+
+} // namespace erm

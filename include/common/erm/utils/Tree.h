@@ -1,17 +1,17 @@
 #pragma once
 
+#include <functional>
 #include <memory>
 #include <vector>
-#include <functional>
 
 namespace erm {
-	
+
 	template<typename S, typename T>
 	class Tree
 	{
 	public:
 		typedef std::vector<std::unique_ptr<Tree>> Children;
-		
+
 	public:
 		Tree(S id, T payload)
 			: mParent(nullptr)
@@ -19,7 +19,7 @@ namespace erm {
 			, mPayload(std::forward<T>(payload))
 		{}
 		~Tree() = default;
-		
+
 		Tree(Tree&& other)
 			: mParent(std::move(other.mParent))
 			, mChildren(std::move(other.mChildren))
@@ -31,24 +31,25 @@ namespace erm {
 				child->mParent = this;
 			}
 		}
-		
+
 		Tree& operator=(Tree&& other)
 		{
-			if (&other == this) return *this;
-			
+			if (&other == this)
+				return *this;
+
 			mParent = std::move(other.mParent);
 			mChildren = std::move(other.mChildren);
 			mId = std::move(other.mId);
 			mPayload = std::move(other.mPayload);
-			
+
 			for (auto& child : mChildren)
 			{
 				child->mParent = this;
 			}
-			
+
 			return *this;
 		}
-		
+
 		Tree& GetRoot()
 		{
 			Tree* parent = mParent;
@@ -65,7 +66,7 @@ namespace erm {
 			}
 			return *this;
 		}
-		
+
 		Tree& AddChild(S id, T payload)
 		{
 			if (Tree* child = Tree::Find(GetRoot(), id))
@@ -77,17 +78,17 @@ namespace erm {
 			child->mParent = this;
 			return *child;
 		}
-		
+
 		inline void ForEachDo(const std::function<void(Tree&)>& before, const std::function<void(Tree&)>& after = nullptr)
 		{
 			ForEachDo(*this, before, after);
 		}
-		
+
 		inline void Find(S id)
 		{
 			return Find(*this, id);
 		}
-		
+
 		inline unsigned int GetSize()
 		{
 			unsigned int size = 0;
@@ -96,29 +97,32 @@ namespace erm {
 			});
 			return size;
 		}
-		
+
 		inline void SetPayload(T payload) { mPayload = std::forward<T>(payload); }
 		inline const T& GetPayload() const { return mPayload; }
 		inline T& GetPayload() { return mPayload; }
 		inline S GetId() const { return mId; }
 		inline Tree* GetParent() { return mParent; }
 		inline const Children& GetChildren() const { return mChildren; }
-		
+
 	public:
 		static void ForEachDo(Tree& node, const std::function<void(Tree&)>& before, const std::function<void(Tree&)>& after)
 		{
-			if (before) before(node);
+			if (before)
+				before(node);
 			for (auto& child : node.mChildren)
 			{
 				ForEachDo(*child, before, after);
 			}
-			if (after) after(node);
+			if (after)
+				after(node);
 		}
-		
+
 		static Tree* Find(Tree& node, S id)
 		{
-			if (node.mId == id) return &node;
-			
+			if (node.mId == id)
+				return &node;
+
 			for (auto& child : node.mChildren)
 			{
 				if (Tree* result = Find(*child, id))
@@ -126,16 +130,15 @@ namespace erm {
 					return result;
 				}
 			}
-			
+
 			return nullptr;
 		}
-		
+
 	private:
 		Tree* mParent;
 		Children mChildren;
 		S mId;
 		T mPayload;
-		
 	};
-	
-}
+
+} // namespace erm

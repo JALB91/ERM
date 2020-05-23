@@ -6,22 +6,21 @@ namespace erm {
 	class VertexArray;
 	class IndexBuffer;
 	class RenderContext;
-}
+} // namespace erm
 
 namespace erm {
-	
+
 	class Renderer
 	{
 	public:
 		Renderer(const RenderContext& renderContext);
-		
+
 		inline const RenderContext& GetRenderContext() const { return mRenderContext; }
-		
+
 		void Draw(DrawMode drawMode, const VertexArray& va, const IndexBuffer& ib) const;
-		
+
 	private:
 		const RenderContext& mRenderContext;
-		
 	};
-	
-}
+
+} // namespace erm

@@ -5,10 +5,10 @@ namespace erm {
 	namespace ecs {
 		struct SkeletonComponent;
 	}
-}
+} // namespace erm
 
 namespace ImGui {
-	
+
 	extern bool ShowSkeletonComponentDebugWindow(erm::Engine& engine, erm::ecs::SkeletonComponent& skeletonComponent);
-	
+
 }

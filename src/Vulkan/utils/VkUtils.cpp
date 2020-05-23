@@ -6,65 +6,65 @@
 #include <stdexcept>
 
 namespace erm {
-	
+
 	namespace Utils {
-		
+
 		QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface)
 		{
 			QueueFamilyIndices indices;
-			
+
 			uint32_t queueFamilyCount = 0;
 			vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
-			
+
 			std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
 			vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
-			
+
 			for (uint32_t i = 0; i < queueFamilyCount; ++i)
 			{
 				if (queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
 				{
 					indices.mGraphicsFamily = i;
 				}
-				
+
 				VkBool32 presentSupport = false;
 				vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
-				
+
 				if (presentSupport)
 				{
 					indices.mPresentFamily = i;
 				}
 			}
-			
+
 			return indices;
 		}
-		
+
 		SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface)
 		{
 			SwapChainSupportDetails details;
-			
+
 			vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &details.mCapabilities);
-			
+
 			uint32_t formatCount;
 			vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, nullptr);
-			
+
 			if (formatCount > 0)
 			{
 				details.mFormats.resize(formatCount);
 				vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, details.mFormats.data());
 			}
-			
+
 			uint32_t presentModeCount;
 			vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, nullptr);
-			
+
 			if (presentModeCount != 0)
 			{
 				details.mPresentModes.resize(presentModeCount);
 				vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, details.mPresentModes.data());
 			}
-			
+
 			return details;
 		}
-		
+
 		bool CheckDeviceExtensionSupport(VkPhysicalDevice device, const std::vector<const char*>& deviceExtensions)
 		{
 			uint32_t extensionCount;
@@ -75,13 +75,14 @@ namespace erm {
 
 			std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
 
-			for (const VkExtensionProperties& extension : availableExtensions) {
+			for (const VkExtensionProperties& extension : availableExtensions)
+			{
 				requiredExtensions.erase(extension.extensionName);
 			}
 
 			return requiredExtensions.empty();
 		}
-		
+
 		bool IsDeviceSuitable(VkPhysicalDevice device, VkSurfaceKHR surface, const std::vector<const char*>& deviceExtensions)
 		{
 			VkPhysicalDeviceProperties deviceProperties;
@@ -99,7 +100,7 @@ namespace erm {
 
 			return isSuitable && swapChainAdequate;
 		}
-		
+
 		VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)
 		{
 			for (const VkSurfaceFormatKHR& availableFormat : availableFormats)
@@ -111,7 +112,7 @@ namespace erm {
 			}
 			return availableFormats[0];
 		}
-		
+
 		VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes)
 		{
 			for (const VkPresentModeKHR& availablePresentMode : availablePresentModes)
@@ -123,12 +124,11 @@ namespace erm {
 			}
 			return VK_PRESENT_MODE_FIFO_KHR;
 		}
-		
+
 		VkExtent2D ChooseSwapExtent(
 			const VkSurfaceCapabilitiesKHR& capabilities,
 			int fallbackWidth,
-			int fallbackHeight
-		)
+			int fallbackHeight)
 		{
 			if (capabilities.currentExtent.width != UINT32_MAX)
 			{
@@ -138,8 +138,7 @@ namespace erm {
 			{
 				VkExtent2D actualExtent = {
 					static_cast<uint32_t>(fallbackWidth),
-					static_cast<uint32_t>(fallbackHeight)
-				};
+					static_cast<uint32_t>(fallbackHeight)};
 
 				actualExtent.width = std::max(capabilities.minImageExtent.width, std::min(capabilities.maxImageExtent.width, actualExtent.width));
 				actualExtent.height = std::max(capabilities.minImageExtent.height, std::min(capabilities.maxImageExtent.height, actualExtent.height));
@@ -147,16 +146,15 @@ namespace erm {
 				return actualExtent;
 			}
 		}
-		
+
 		uint32_t FindMemoryType(
 			VkPhysicalDevice physicalDevice,
 			uint32_t typeFilter,
-			VkMemoryPropertyFlags properties
-		)
+			VkMemoryPropertyFlags properties)
 		{
 			VkPhysicalDeviceMemoryProperties memProperties;
 			vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
-			
+
 			for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
 			{
 				if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties)
@@ -167,7 +165,7 @@ namespace erm {
 
 			throw std::runtime_error("Failed to find suitable memory type!");
 		}
-		
+
 		void CreateBuffer(
 			VkPhysicalDevice physicalDevice,
 			VkDevice device,
@@ -175,8 +173,7 @@ namespace erm {
 			VkBufferUsageFlags usage,
 			VkMemoryPropertyFlags properties,
 			VkBuffer& buffer,
-			VkDeviceMemory& bufferMemory
-		)
+			VkDeviceMemory& bufferMemory)
 		{
 			VkBufferCreateInfo bufferInfo = {};
 			bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -197,13 +194,14 @@ namespace erm {
 			allocInfo.allocationSize = memRequirements.size;
 			allocInfo.memoryTypeIndex = FindMemoryType(physicalDevice, memRequirements.memoryTypeBits, properties);
 
-			if (vkAllocateMemory(device, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS) {
+			if (vkAllocateMemory(device, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS)
+			{
 				throw std::runtime_error("Failed to allocate buffer memory!");
 			}
-			
+
 			vkBindBufferMemory(device, buffer, bufferMemory, 0);
 		}
-		
-	}
-	
-}
+
+	} // namespace Utils
+
+} // namespace erm

@@ -3,7 +3,7 @@
 #include <GLFW/glfw3.h>
 
 namespace erm {
-	
+
 	const Key KEY_UNKNOWN = GLFW_KEY_UNKNOWN;
 	const Key KEY_SPACE = GLFW_KEY_SPACE;
 	const Key KEY_APOSTROPHE = GLFW_KEY_APOSTROPHE;
@@ -125,5 +125,5 @@ namespace erm {
 	const Key KEY_RIGHT_ALT = GLFW_KEY_RIGHT_ALT;
 	const Key KEY_RIGHT_SUPER = GLFW_KEY_RIGHT_SUPER;
 	const Key KEY_MENU = GLFW_KEY_MENU;
-	
-}
+
+} // namespace erm
