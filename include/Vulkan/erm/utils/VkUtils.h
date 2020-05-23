@@ -8,7 +8,7 @@
 #include <vector>
 
 namespace erm::VkUtils {
-	
+
 	extern QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface);
 	extern SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface);
 	extern bool CheckDeviceExtensionSupport(VkPhysicalDevice device, VkSurfaceKHR surface, const std::vector<const char*>& deviceExtensions);
@@ -16,39 +16,34 @@ namespace erm::VkUtils {
 	extern VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
 	extern VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
 	extern VkDescriptorSetLayout CreateDescriptorSetLayout(VkDevice device);
-	
+
 	extern VkFormat FindSupportedDepthFormat(
 		VkPhysicalDevice physicalDevice,
 		const std::vector<VkFormat>& candidates,
 		VkImageTiling tiling,
-		VkFormatFeatureFlags features
-	);
+		VkFormatFeatureFlags features);
 	extern VkFormat FindDepthFormat(VkPhysicalDevice physicalDevice);
-	
+
 	extern VkExtent2D ChooseSwapExtent(
 		const VkSurfaceCapabilitiesKHR& capabilities,
 		int fallbackWidth,
-		int fallbackHeight
-	);
-	
+		int fallbackHeight);
+
 	extern uint32_t FindMemoryType(
 		VkPhysicalDevice physicalDevice,
 		uint32_t typeFilter,
-		VkMemoryPropertyFlags properties
-	);
-	
+		VkMemoryPropertyFlags properties);
+
 	extern VkCommandBuffer BeginSingleTimeCommands(
 		VkCommandPool commandPool,
-		VkDevice device
-	);
-	
+		VkDevice device);
+
 	extern void EndSingleTimeCommands(
 		VkQueue graphicsQueue,
 		VkCommandPool commandPool,
 		VkDevice device,
-		VkCommandBuffer commandBuffer
-	);
-	
+		VkCommandBuffer commandBuffer);
+
 	extern void CreateBuffer(
 		VkPhysicalDevice physicalDevice,
 		VkDevice device,
@@ -56,18 +51,16 @@ namespace erm::VkUtils {
 		VkBufferUsageFlags usage,
 		VkMemoryPropertyFlags properties,
 		VkBuffer& buffer,
-		VkDeviceMemory& bufferMemory
-	);
-	
+		VkDeviceMemory& bufferMemory);
+
 	extern void CopyBufferToBuffer(
 		VkCommandPool commandPool,
 		VkDevice device,
 		VkQueue graphicsQueue,
 		VkBuffer srcBuffer,
 		VkBuffer dstBuffer,
-		VkDeviceSize size
-	);
-	
+		VkDeviceSize size);
+
 	extern void CreateImage(
 		VkPhysicalDevice physicalDevice,
 		VkDevice device,
@@ -78,16 +71,14 @@ namespace erm::VkUtils {
 		VkImageUsageFlags usage,
 		VkMemoryPropertyFlags properties,
 		VkImage& image,
-		VkDeviceMemory& imageMemory
-	);
-	
+		VkDeviceMemory& imageMemory);
+
 	extern VkImageView CreateImageView(
 		VkDevice device,
 		VkImage image,
 		VkFormat format,
-		VkImageAspectFlags aspectFlags
-	);
-	
+		VkImageAspectFlags aspectFlags);
+
 	extern void TransitionImageLayout(
 		VkQueue graphicsQueue,
 		VkCommandPool commandPool,
@@ -95,9 +86,8 @@ namespace erm::VkUtils {
 		VkImage image,
 		VkFormat /*format*/,
 		VkImageLayout oldLayout,
-		VkImageLayout newLayout
-	);
-	
+		VkImageLayout newLayout);
+
 	extern void CopyBufferToImage(
 		VkQueue graphicsQueue,
 		VkCommandPool commandPool,
@@ -105,7 +95,6 @@ namespace erm::VkUtils {
 		VkBuffer buffer,
 		VkImage image,
 		uint32_t width,
-		uint32_t height
-	);
-	
-}
+		uint32_t height);
+
+} // namespace erm::VkUtils

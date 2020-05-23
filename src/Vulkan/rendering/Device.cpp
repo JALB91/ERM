@@ -35,8 +35,7 @@ namespace {
 */
 namespace {
 
-	const std::vector<const char*> kDeviceExtensions {
-		VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+	const std::vector<const char*> kDeviceExtensions {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
 	const int kMaxFramesInFlight = 2;
 
@@ -816,9 +815,7 @@ namespace erm {
 			swapChainFramebuffers.resize(swapChainImageViews.size());
 			for (size_t i = 0; i < swapChainImageViews.size(); i++)
 			{
-				std::array<VkImageView, 2> attachments = {
-					swapChainImageViews[i],
-					depthImageView};
+				std::array<VkImageView, 2> attachments = {swapChainImageViews[i], depthImageView};
 
 				VkFramebufferCreateInfo framebufferInfo = {};
 				framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;

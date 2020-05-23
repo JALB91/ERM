@@ -7,63 +7,63 @@
 #include <stdexcept>
 
 namespace erm::VkUtils {
-	
+
 	QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface)
 	{
 		QueueFamilyIndices indices;
-		
+
 		uint32_t queueFamilyCount = 0;
 		vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
-		
+
 		std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
 		vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
-		
+
 		for (uint32_t i = 0; i < queueFamilyCount; ++i)
 		{
 			if (queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
 			{
 				indices.mGraphicsFamily = i;
 			}
-			
+
 			VkBool32 presentSupport = false;
 			vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
-			
+
 			if (presentSupport)
 			{
 				indices.mPresentFamily = i;
 			}
 		}
-		
+
 		return indices;
 	}
-	
+
 	SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface)
 	{
 		SwapChainSupportDetails details;
-		
+
 		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &details.mCapabilities);
-		
+
 		uint32_t formatCount;
 		vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, nullptr);
-		
+
 		if (formatCount > 0)
 		{
 			details.mFormats.resize(formatCount);
 			vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, details.mFormats.data());
 		}
-		
+
 		uint32_t presentModeCount;
 		vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, nullptr);
-		
+
 		if (presentModeCount != 0)
 		{
 			details.mPresentModes.resize(presentModeCount);
 			vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, details.mPresentModes.data());
 		}
-		
+
 		return details;
 	}
-	
+
 	bool CheckDeviceExtensionSupport(VkPhysicalDevice device, const std::vector<const char*>& deviceExtensions)
 	{
 		uint32_t extensionCount;
@@ -74,13 +74,14 @@ namespace erm::VkUtils {
 
 		std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
 
-		for (const VkExtensionProperties& extension : availableExtensions) {
+		for (const VkExtensionProperties& extension : availableExtensions)
+		{
 			requiredExtensions.erase(extension.extensionName);
 		}
 
 		return requiredExtensions.empty();
 	}
-	
+
 	bool IsDeviceSuitable(VkPhysicalDevice device, VkSurfaceKHR surface, const std::vector<const char*>& deviceExtensions)
 	{
 		VkPhysicalDeviceProperties deviceProperties;
@@ -95,13 +96,13 @@ namespace erm::VkUtils {
 		}
 
 		std::cout << "Checking compatibility of: " << deviceProperties.deviceName << " -> " << std::boolalpha << (isSuitable && swapChainAdequate) << std::endl;
-		
+
 		VkPhysicalDeviceFeatures supportedFeatures;
 		vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
 
 		return isSuitable && swapChainAdequate && supportedFeatures.samplerAnisotropy;
 	}
-	
+
 	VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)
 	{
 		for (const VkSurfaceFormatKHR& availableFormat : availableFormats)
@@ -113,7 +114,7 @@ namespace erm::VkUtils {
 		}
 		return availableFormats[0];
 	}
-	
+
 	VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes)
 	{
 		for (const VkPresentModeKHR& availablePresentMode : availablePresentModes)
@@ -125,26 +126,26 @@ namespace erm::VkUtils {
 		}
 		return VK_PRESENT_MODE_FIFO_KHR;
 	}
-	
+
 	VkDescriptorSetLayout CreateDescriptorSetLayout(VkDevice device)
 	{
-		VkDescriptorSetLayoutBinding uboLayoutBinding{};
+		VkDescriptorSetLayoutBinding uboLayoutBinding {};
 		uboLayoutBinding.binding = 0;
 		uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 		uboLayoutBinding.descriptorCount = 1;
 		uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 		uboLayoutBinding.pImmutableSamplers = nullptr;
-		
-		VkDescriptorSetLayoutBinding samplerLayoutBinding{};
+
+		VkDescriptorSetLayoutBinding samplerLayoutBinding {};
 		samplerLayoutBinding.binding = 1;
 		samplerLayoutBinding.descriptorCount = 1;
 		samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		samplerLayoutBinding.pImmutableSamplers = nullptr;
 		samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-		
+
 		std::array<VkDescriptorSetLayoutBinding, 2> bindings = {uboLayoutBinding, samplerLayoutBinding};
 
-		VkDescriptorSetLayoutCreateInfo layoutInfo{};
+		VkDescriptorSetLayoutCreateInfo layoutInfo {};
 		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 		layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
 		layoutInfo.pBindings = bindings.data();
@@ -157,19 +158,18 @@ namespace erm::VkUtils {
 
 		return descriptorSetLayout;
 	}
-	
+
 	VkFormat FindSupportedDepthFormat(
 		VkPhysicalDevice physicalDevice,
 		const std::vector<VkFormat>& candidates,
 		VkImageTiling tiling,
-		VkFormatFeatureFlags features
-	)
+		VkFormatFeatureFlags features)
 	{
 		for (VkFormat format : candidates)
 		{
 			VkFormatProperties props;
 			vkGetPhysicalDeviceFormatProperties(physicalDevice, format, &props);
-			
+
 			if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features)
 			{
 				return format;
@@ -181,23 +181,21 @@ namespace erm::VkUtils {
 		}
 		throw std::runtime_error("Failed to find supported format");
 	}
-	
+
 	VkFormat FindDepthFormat(VkPhysicalDevice physicalDevice)
 	{
 		return FindSupportedDepthFormat(
 			physicalDevice,
 			{VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT},
 			VK_IMAGE_TILING_OPTIMAL,
-			VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
-		);
+			VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
 	}
-	
+
 	VkCommandBuffer BeginSingleTimeCommands(
 		VkCommandPool commandPool,
-		VkDevice device
-	)
+		VkDevice device)
 	{
-		VkCommandBufferAllocateInfo allocInfo{};
+		VkCommandBufferAllocateInfo allocInfo {};
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 		allocInfo.commandPool = commandPool;
@@ -206,7 +204,7 @@ namespace erm::VkUtils {
 		VkCommandBuffer commandBuffer;
 		vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer);
 
-		VkCommandBufferBeginInfo beginInfo{};
+		VkCommandBufferBeginInfo beginInfo {};
 		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
@@ -219,12 +217,11 @@ namespace erm::VkUtils {
 		VkQueue graphicsQueue,
 		VkCommandPool commandPool,
 		VkDevice device,
-		VkCommandBuffer commandBuffer
-	)
+		VkCommandBuffer commandBuffer)
 	{
 		vkEndCommandBuffer(commandBuffer);
 
-		VkSubmitInfo submitInfo{};
+		VkSubmitInfo submitInfo {};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 		submitInfo.commandBufferCount = 1;
 		submitInfo.pCommandBuffers = &commandBuffer;
@@ -234,12 +231,11 @@ namespace erm::VkUtils {
 
 		vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
 	}
-	
+
 	VkExtent2D ChooseSwapExtent(
 		const VkSurfaceCapabilitiesKHR& capabilities,
 		int fallbackWidth,
-		int fallbackHeight
-	)
+		int fallbackHeight)
 	{
 		if (capabilities.currentExtent.width != UINT32_MAX)
 		{
@@ -249,8 +245,7 @@ namespace erm::VkUtils {
 		{
 			VkExtent2D actualExtent = {
 				static_cast<uint32_t>(fallbackWidth),
-				static_cast<uint32_t>(fallbackHeight)
-			};
+				static_cast<uint32_t>(fallbackHeight)};
 
 			actualExtent.width = std::max(capabilities.minImageExtent.width, std::min(capabilities.maxImageExtent.width, actualExtent.width));
 			actualExtent.height = std::max(capabilities.minImageExtent.height, std::min(capabilities.maxImageExtent.height, actualExtent.height));
@@ -258,16 +253,15 @@ namespace erm::VkUtils {
 			return actualExtent;
 		}
 	}
-	
+
 	uint32_t FindMemoryType(
 		VkPhysicalDevice physicalDevice,
 		uint32_t typeFilter,
-		VkMemoryPropertyFlags properties
-	)
+		VkMemoryPropertyFlags properties)
 	{
 		VkPhysicalDeviceMemoryProperties memProperties;
 		vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
-		
+
 		for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
 		{
 			if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties)
@@ -278,7 +272,7 @@ namespace erm::VkUtils {
 
 		throw std::runtime_error("Failed to find suitable memory type");
 	}
-	
+
 	void CreateBuffer(
 		VkPhysicalDevice physicalDevice,
 		VkDevice device,
@@ -286,8 +280,7 @@ namespace erm::VkUtils {
 		VkBufferUsageFlags usage,
 		VkMemoryPropertyFlags properties,
 		VkBuffer& buffer,
-		VkDeviceMemory& bufferMemory
-	)
+		VkDeviceMemory& bufferMemory)
 	{
 		VkBufferCreateInfo bufferInfo = {};
 		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -315,25 +308,24 @@ namespace erm::VkUtils {
 
 		vkBindBufferMemory(device, buffer, bufferMemory, 0);
 	}
-	
+
 	void CopyBufferToBuffer(
 		VkCommandPool commandPool,
 		VkDevice device,
 		VkQueue graphicsQueue,
 		VkBuffer srcBuffer,
 		VkBuffer dstBuffer,
-		VkDeviceSize size
-	)
+		VkDeviceSize size)
 	{
 		VkCommandBuffer commandBuffer = BeginSingleTimeCommands(commandPool, device);
 
-		VkBufferCopy copyRegion{};
+		VkBufferCopy copyRegion {};
 		copyRegion.size = size;
 		vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
 
 		EndSingleTimeCommands(graphicsQueue, commandPool, device, commandBuffer);
 	}
-	
+
 	void CreateImage(
 		VkPhysicalDevice physicalDevice,
 		VkDevice device,
@@ -344,10 +336,9 @@ namespace erm::VkUtils {
 		VkImageUsageFlags usage,
 		VkMemoryPropertyFlags properties,
 		VkImage& image,
-		VkDeviceMemory& imageMemory
-	)
+		VkDeviceMemory& imageMemory)
 	{
-		VkImageCreateInfo imageInfo{};
+		VkImageCreateInfo imageInfo {};
 		imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
 		imageInfo.imageType = VK_IMAGE_TYPE_2D;
 		imageInfo.extent.width = width;
@@ -370,7 +361,7 @@ namespace erm::VkUtils {
 		VkMemoryRequirements memRequirements;
 		vkGetImageMemoryRequirements(device, image, &memRequirements);
 
-		VkMemoryAllocateInfo allocInfo{};
+		VkMemoryAllocateInfo allocInfo {};
 		allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 		allocInfo.allocationSize = memRequirements.size;
 		allocInfo.memoryTypeIndex = FindMemoryType(physicalDevice, memRequirements.memoryTypeBits, properties);
@@ -382,15 +373,14 @@ namespace erm::VkUtils {
 
 		vkBindImageMemory(device, image, imageMemory, 0);
 	}
-	
+
 	VkImageView CreateImageView(
 		VkDevice device,
 		VkImage image,
 		VkFormat format,
-		VkImageAspectFlags aspectFlags
-	)
+		VkImageAspectFlags aspectFlags)
 	{
-		VkImageViewCreateInfo viewInfo{};
+		VkImageViewCreateInfo viewInfo {};
 		viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 		viewInfo.image = image;
 		viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
@@ -409,7 +399,7 @@ namespace erm::VkUtils {
 
 		return imageView;
 	}
-	
+
 	void TransitionImageLayout(
 		VkQueue graphicsQueue,
 		VkCommandPool commandPool,
@@ -417,12 +407,11 @@ namespace erm::VkUtils {
 		VkImage image,
 		VkFormat /*format*/,
 		VkImageLayout oldLayout,
-		VkImageLayout newLayout
-	)
+		VkImageLayout newLayout)
 	{
 		VkCommandBuffer commandBuffer = BeginSingleTimeCommands(commandPool, device);
-		
-		VkImageMemoryBarrier barrier{};
+
+		VkImageMemoryBarrier barrier {};
 		barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
 		barrier.oldLayout = oldLayout;
 		barrier.newLayout = newLayout;
@@ -434,7 +423,7 @@ namespace erm::VkUtils {
 		barrier.subresourceRange.levelCount = 1;
 		barrier.subresourceRange.baseArrayLayer = 0;
 		barrier.subresourceRange.layerCount = 1;
-		
+
 		VkPipelineStageFlags sourceStage;
 		VkPipelineStageFlags destinationStage;
 
@@ -461,16 +450,19 @@ namespace erm::VkUtils {
 
 		vkCmdPipelineBarrier(
 			commandBuffer,
-			sourceStage, destinationStage,
+			sourceStage,
+			destinationStage,
 			0,
-			0, nullptr,
-			0, nullptr,
-			1, &barrier
-		);
+			0,
+			nullptr,
+			0,
+			nullptr,
+			1,
+			&barrier);
 
 		EndSingleTimeCommands(graphicsQueue, commandPool, device, commandBuffer);
 	}
-	
+
 	void CopyBufferToImage(
 		VkQueue graphicsQueue,
 		VkCommandPool commandPool,
@@ -478,12 +470,11 @@ namespace erm::VkUtils {
 		VkBuffer buffer,
 		VkImage image,
 		uint32_t width,
-		uint32_t height
-	)
+		uint32_t height)
 	{
 		VkCommandBuffer commandBuffer = BeginSingleTimeCommands(commandPool, device);
-		
-		VkBufferImageCopy region{};
+
+		VkBufferImageCopy region {};
 		region.bufferOffset = 0;
 		region.bufferRowLength = 0;
 		region.bufferImageHeight = 0;
@@ -495,19 +486,17 @@ namespace erm::VkUtils {
 		region.imageExtent = {
 			width,
 			height,
-			1
-		};
-		
+			1};
+
 		vkCmdCopyBufferToImage(
 			commandBuffer,
 			buffer,
 			image,
 			VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
 			1,
-			&region
-		);
+			&region);
 
 		EndSingleTimeCommands(graphicsQueue, commandPool, device, commandBuffer);
 	}
-	
-}
+
+} // namespace erm::VkUtils
