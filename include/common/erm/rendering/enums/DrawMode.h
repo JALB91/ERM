@@ -1,6 +1,6 @@
 #pragma once
 
-enum class DrawMode
+enum class DrawMode : short
 {
 	LINES,
 	LINE_STRIP,
