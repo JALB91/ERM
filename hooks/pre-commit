@@ -11,7 +11,7 @@ done
 
 FILES=$(git diff --cached --name-only)
 
-if [[ !$FILES ]]; then
+if [[ -z $FILES ]]; then
 	echo "Nothing to commit"
 	exit 1
 fi
