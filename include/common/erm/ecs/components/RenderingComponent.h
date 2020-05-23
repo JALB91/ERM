@@ -7,14 +7,12 @@ namespace erm::ecs {
 }
 
 namespace erm::ecs {
-	
+
 	struct RenderingComponent : public IComponent
 	{
 	public:
 		typedef RenderingSystem SYSTEM_TYPE;
 		friend class RenderingSystem;
-	
 	};
-	
-}
 
+} // namespace erm::ecs

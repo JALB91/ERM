@@ -5,7 +5,7 @@ namespace erm {
 }
 
 namespace ImGui {
-	
+
 	extern void ShowEntitiesDebugWindow(erm::Engine& engine);
-	
+
 }

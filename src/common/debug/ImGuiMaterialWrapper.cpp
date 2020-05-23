@@ -12,14 +12,14 @@
 #include <set>
 
 namespace ImGui {
-	
+
 	void ShowPathOptions(erm::Engine& engine, erm::Material& material)
 	{
 		const std::vector<std::string>& all = engine.GetFileLocator().GetShaderPrograms();
-		
+
 		erm::ShaderProgram* shader = material.mShaderProgram;
 		std::string currentPath = shader ? shader->GetPath() : "";
-		
+
 		if (ImGui::BeginCombo("Shader Path", currentPath.c_str()))
 		{
 			bool isSelected = currentPath == "";
@@ -28,7 +28,7 @@ namespace ImGui {
 				currentPath = "";
 				material.mShaderProgram = nullptr;
 			}
-			
+
 			for (unsigned int i = 0; i < all.size(); ++i)
 			{
 				isSelected = currentPath == all[i];
@@ -44,20 +44,20 @@ namespace ImGui {
 			ImGui::EndCombo();
 		}
 	}
-	
+
 	void ShowMaterialDebug(erm::Engine& engine, erm::Mesh& mesh)
 	{
 		if (ImGui::CollapsingHeader("Material"))
 		{
 			erm::Material* material = mesh.GetMaterial() ? mesh.GetMaterial() : &erm::Material::DEFAULT;
-			
+
 			ImGui::Indent();
-			
+
 			static erm::Materials& all = engine.GetResourcesManager().GetLoadedMaterials();
 			std::string currentPath = material->mPath;
 			std::string currentName = material->mName;
 			std::set<std::string> displayedPaths;
-			
+
 			if (ImGui::BeginCombo("Material Path", currentPath.c_str()))
 			{
 				bool isSelected = currentPath == "Default";
@@ -67,16 +67,16 @@ namespace ImGui {
 					currentName = "Default";
 					mesh.SetMaterial(&erm::Material::DEFAULT);
 				}
-				
+
 				for (unsigned int i = 0; i < all.size(); ++i)
 				{
 					if (std::find(displayedPaths.begin(), displayedPaths.end(), all[i]->mPath) != displayedPaths.end())
 					{
 						continue;
 					}
-					
+
 					displayedPaths.insert(all[i]->mPath);
-					
+
 					isSelected = currentPath == all[i]->mPath;
 					if (ImGui::Selectable(all[i]->mPath.c_str(), &isSelected))
 					{
@@ -90,7 +90,7 @@ namespace ImGui {
 				}
 				ImGui::EndCombo();
 			}
-			
+
 			if (ImGui::BeginCombo("Name", currentName.c_str()))
 			{
 				bool isSelected = currentName == "Default";
@@ -99,7 +99,7 @@ namespace ImGui {
 					currentName = "Default";
 					mesh.SetMaterial(&erm::Material::DEFAULT);
 				}
-				
+
 				for (unsigned int i = 0; i < all.size(); ++i)
 				{
 					if (currentPath == all[i]->mPath)
@@ -117,16 +117,16 @@ namespace ImGui {
 				}
 				ImGui::EndCombo();
 			}
-			
+
 			ImGui::SliderFloat3("Ambient", &material->mAmbient.x, 0.0f, 1.0f);
 			ImGui::SliderFloat3("Diffuse", &material->mDiffuse.x, 0.0f, 1.0f);
 			ImGui::SliderFloat3("Specular", &material->mSpecular.x, 0.0f, 1.0f);
 			ImGui::SliderFloat("Shininess", &material->mShininess, 0.0f, 1000.0f);
-			
+
 			ShowPathOptions(engine, *material);
-			
+
 			ImGui::Unindent();
 		}
 	}
-	
-}
+
+} // namespace ImGui

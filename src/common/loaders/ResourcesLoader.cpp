@@ -3,16 +3,16 @@
 #include "erm/rendering/data_structs/Mesh.h"
 #include "erm/rendering/data_structs/Model.h"
 
-#include "erm/loaders/obj/ObjModelLoader.h"
 #include "erm/loaders/collada/ColladaModelLoader.h"
+#include "erm/loaders/obj/ObjModelLoader.h"
 
-#include <iostream>
-#include <thread>
 #include <algorithm>
 #include <filesystem>
+#include <iostream>
+#include <thread>
 
 namespace erm {
-	
+
 	ResourcesLoader::~ResourcesLoader()
 	{
 		mStop = true;
@@ -56,24 +56,24 @@ namespace erm {
 			}
 		}
 	}
-	
+
 	void ResourcesLoader::OnRender()
 	{
 		mMutex.lock();
 	}
-	
+
 	void ResourcesLoader::OnPostRender()
 	{
 		mMutex.unlock();
 	}
-	
+
 	bool ResourcesLoader::ParseModel(
 		const char* path,
 		Models& models,
 		Materials& materials,
 		Skins& skins,
-		Animations& animations
-	) {
+		Animations& animations)
+	{
 		if (!std::filesystem::exists(path))
 		{
 			std::cout << "No such file: " << path << std::endl;
@@ -86,7 +86,7 @@ namespace erm {
 
 		Model& model = *models.emplace_back(std::make_unique<Model>(path, name.c_str()));
 		mLoadingModels.emplace_back(&model);
-		
+
 		if (std::strcmp(extension.c_str(), "obj") == 0)
 		{
 			mFutures.emplace_back(
@@ -97,9 +97,7 @@ namespace erm {
 					std::ref(mStop),
 					path,
 					std::ref(model),
-					std::ref(materials)
-				)
-			);
+					std::ref(materials)));
 		}
 		else if (std::strcmp(extension.c_str(), "dae") == 0)
 		{
@@ -113,12 +111,10 @@ namespace erm {
 					std::ref(model),
 					std::ref(materials),
 					std::ref(skins),
-					std::ref(animations)
-				)
-			);
+					std::ref(animations)));
 		}
 
 		return true;
 	}
 
-}
+} // namespace erm

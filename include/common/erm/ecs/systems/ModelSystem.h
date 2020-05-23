@@ -8,17 +8,16 @@ namespace erm::ecs {
 }
 
 namespace erm::ecs {
-	
+
 	class ModelSystem : public ISystem<ModelComponent>
 	{
 	public:
 		ModelSystem(ECS& ecs);
-		
+
 		void OnPostUpdate() override;
-		
+
 	private:
 		TransformSystem& mTransformSystem;
-		
 	};
-	
-}
+
+} // namespace erm::ecs

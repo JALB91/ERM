@@ -3,8 +3,8 @@
 
 #include "erm/engine/Engine.h"
 
-#include "erm/rendering/data_structs/Model.h"
 #include "erm/rendering/data_structs/Mesh.h"
+#include "erm/rendering/data_structs/Model.h"
 
 #include "erm/managers/ResourcesManager.h"
 
@@ -13,14 +13,14 @@
 #include <imgui.h>
 
 namespace ImGui {
-	
+
 	void ShowPathOptions(erm::Engine& engine, erm::ecs::ModelComponent& modelComponent)
 	{
 		const std::vector<std::string>& all = engine.GetFileLocator().GetModels();
-		
+
 		erm::Model* model = modelComponent.GetModel();
 		std::string currentPath = model ? model->GetPath() : "";
-		
+
 		if (ImGui::BeginCombo("Path", currentPath.c_str()))
 		{
 			bool isSelected = currentPath == "";
@@ -29,7 +29,7 @@ namespace ImGui {
 				currentPath = "";
 				modelComponent.SetModel(nullptr);
 			}
-			
+
 			for (unsigned int i = 0; i < all.size(); ++i)
 			{
 				isSelected = currentPath == all[i];
@@ -45,18 +45,18 @@ namespace ImGui {
 			ImGui::EndCombo();
 		}
 	}
-	
+
 	bool ShowModelComponentDebugWindow(erm::Engine& engine, erm::ecs::ModelComponent& modelComponent)
 	{
 		const bool headerOpen = ImGui::CollapsingHeader("Model");
-		
+
 		if (ImGui::IsItemClicked(1))
 		{
 			ImGui::OpenPopup("ModelPopup");
 		}
-		
+
 		bool shouldRemove = false;
-		
+
 		if (ImGui::BeginPopup("ModelPopup"))
 		{
 			if (ImGui::Button("Remove..."))
@@ -64,42 +64,42 @@ namespace ImGui {
 				shouldRemove = true;
 				ImGui::CloseCurrentPopup();
 			}
-			
+
 			ImGui::EndPopup();
 		}
-		
+
 		if (headerOpen)
 		{
 			ImGui::Indent();
-			
+
 			if (erm::Model* model = modelComponent.GetModel())
 			{
 				int vertices = 0;
 				int indices = 0;
 				std::vector<erm::Mesh>& meshes = model->GetMeshes();
-				
+
 				bool showMeshes = ImGui::CollapsingHeader("Meshes");
-				
+
 				ImGui::Indent();
 				for (unsigned int i = 0; i < meshes.size(); ++i)
 				{
 					erm::Mesh& mesh = meshes[i];
-					
+
 					if (showMeshes)
 					{
 						ImGui::ShowMeshDebugWindow(engine, mesh, i);
 					}
-					
+
 					vertices += mesh.GetVerticesDataCount();
 					indices += mesh.GetIndicesCount();
 				}
 				ImGui::Unindent();
-				
+
 				ShowPathOptions(engine, modelComponent);
 				ImGui::Text("Name: %s", model->GetName().c_str());
 				ImGui::Text("Vertices: %d", vertices);
 				ImGui::Text("Indices: %d", indices);
-				
+
 				bool shouldShowBoundingBox = modelComponent.GetShouldShowBoundingBox();
 				ImGui::Checkbox("Show Bounding Box", &shouldShowBoundingBox);
 				modelComponent.SetShouldShowBoundingBox(shouldShowBoundingBox);
@@ -108,11 +108,11 @@ namespace ImGui {
 			{
 				ShowPathOptions(engine, modelComponent);
 			}
-			
+
 			ImGui::Unindent();
 		}
-		
+
 		return shouldRemove;
 	}
-	
-}
+
+} // namespace ImGui

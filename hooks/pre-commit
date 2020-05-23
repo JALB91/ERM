@@ -1,0 +1,17 @@
+#!/bin/bash
+
+FILES=$(git diff --cached --name-only)
+
+for FILE in $FILES; do
+	if [[ $FILE =~ ^(include|src).*\.(h|cpp) ]]; then
+		clang-format -i -style=file $FILE
+		git add $FILE
+	fi
+done
+
+FILES=$(git diff --cached --name-only)
+
+if [[ -z $FILES ]]; then
+	echo "Nothing to commit"
+	exit 1
+fi

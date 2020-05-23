@@ -1,7 +1,7 @@
 #pragma once
 
 namespace erm {
-	
+
 	typedef int MouseButton;
 	extern const MouseButton MOUSE_BUTTON_1;
 	extern const MouseButton MOUSE_BUTTON_2;
@@ -14,5 +14,5 @@ namespace erm {
 	extern const MouseButton MOUSE_BUTTON_LEFT;
 	extern const MouseButton MOUSE_BUTTON_RIGHT;
 	extern const MouseButton MOUSE_BUTTON_MIDDLE;
-	
-}
+
+} // namespace erm

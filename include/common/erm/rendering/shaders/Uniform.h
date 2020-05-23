@@ -1,7 +1,7 @@
 #pragma once
 
 namespace erm {
-	
+
 	enum class Uniform
 	{
 		MVP = 0,
@@ -22,5 +22,5 @@ namespace erm {
 		VIEW_POS,
 		BONE_TRANSFORM_I
 	};
-	
+
 }

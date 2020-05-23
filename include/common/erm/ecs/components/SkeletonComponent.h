@@ -9,23 +9,22 @@ namespace erm::ecs {
 }
 
 namespace erm::ecs {
-	
+
 	struct SkeletonComponent : public IComponent
 	{
 	public:
 		typedef SkeletonSystem SYSTEM_TYPE;
 		friend class SkeletonSystem;
-		
+
 	public:
 		SkeletonComponent(BonesTree* tree = nullptr)
 			: mRootBone(tree)
 		{}
-		
+
 		SENSIBLE_MEMBER(RootBone, BonesTree*, mRootBone);
-		
+
 	private:
 		BonesTree* mRootBone;
-		
 	};
-	
-}
+
+} // namespace erm::ecs

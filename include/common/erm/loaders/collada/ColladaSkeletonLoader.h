@@ -9,10 +9,9 @@ namespace tinyxml2 {
 }
 
 namespace erm {
-	
+
 	void ProcessSkeleton(
 		tinyxml2::XMLDocument& document,
-		std::map<std::string, ColladaSkinData>& skinsData
-	);
-	
+		std::map<std::string, ColladaSkinData>& skinsData);
+
 }

@@ -5,14 +5,14 @@
 int main(int /*argc*/, char** /*argv*/)
 {
 	erm::Engine engine;
-	
+
 	if (engine.Init())
 	{
-		try 
+		try
 		{
 			engine.Run();
 		}
-		catch (const std::exception& e) 
+		catch (const std::exception& e)
 		{
 			std::cerr << e.what() << std::endl;
 			return EXIT_FAILURE;
@@ -22,6 +22,6 @@ int main(int /*argc*/, char** /*argv*/)
 	{
 		return EXIT_FAILURE;
 	}
-	
+
 	return EXIT_SUCCESS;
 }

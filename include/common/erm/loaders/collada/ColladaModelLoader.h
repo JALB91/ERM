@@ -2,11 +2,11 @@
 
 #include "erm/managers/ResourcesManager.h"
 
-#include <mutex>
 #include <atomic>
+#include <mutex>
 
 namespace erm {
-	
+
 	extern void ParseColladaModel(
 		std::mutex& mutex,
 		std::atomic<bool>& stop,
@@ -14,7 +14,6 @@ namespace erm {
 		Model& model,
 		Materials& materials,
 		Skins& skins,
-		Animations& animations
-	);
-	
+		Animations& animations);
+
 }

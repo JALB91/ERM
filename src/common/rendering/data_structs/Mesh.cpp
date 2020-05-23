@@ -1,13 +1,13 @@
 #include "erm/rendering/data_structs/Mesh.h"
 
-#include "erm/rendering/buffers/VertexData.h"
-#include "erm/rendering/buffers/VertexBuffer.h"
-#include "erm/rendering/buffers/VertexBufferLayout.h"
 #include "erm/rendering/buffers/IndexBuffer.h"
 #include "erm/rendering/buffers/VertexArray.h"
+#include "erm/rendering/buffers/VertexBuffer.h"
+#include "erm/rendering/buffers/VertexBufferLayout.h"
+#include "erm/rendering/buffers/VertexData.h"
 
 namespace erm {
-	
+
 	Mesh::Mesh(
 		DrawMode drawMode,
 		VertexData* vertices,
@@ -28,20 +28,20 @@ namespace erm {
 		, mIB(nullptr)
 		, mVA(nullptr)
 	{}
-	
+
 	Mesh::~Mesh()
 	{
 		if (mVerticesData && mVerticesDataCount > 0)
 		{
 			delete[] mVerticesData;
 		}
-		
+
 		if (mIndicesData && mIndicesDataCount > 0)
 		{
 			delete[] mIndicesData;
 		}
 	}
-	
+
 	Mesh::Mesh(Mesh&& other)
 		: mDrawMode(other.mDrawMode)
 		, mVerticesData(other.mVerticesData)
@@ -56,18 +56,18 @@ namespace erm {
 	{
 		other.mVerticesData = nullptr;
 		other.mVerticesDataCount = 0;
-		
+
 		other.mIndicesData = nullptr;
 		other.mIndicesDataCount = 0;
-		
+
 		other.mMaterial = nullptr;
 		other.mName.clear();
-		
+
 		other.mVB.reset();
 		other.mIB.reset();
 		other.mVA.reset();
 	}
-		
+
 	void Mesh::Setup()
 	{
 		if (
@@ -75,12 +75,11 @@ namespace erm {
 			!mVerticesData ||
 			mVerticesDataCount <= 0 ||
 			!mIndicesData ||
-			mIndicesDataCount <= 0
-		)
+			mIndicesDataCount <= 0)
 		{
 			return;
 		}
-		
+
 		mVB = std::make_unique<VertexBuffer>(
 			&mVerticesData[0].mPositionVertex[0],
 			static_cast<unsigned int>(
@@ -88,21 +87,19 @@ namespace erm {
 				sizeof(VertexType) * kNormalVectorsLenght * mVerticesDataCount +
 				sizeof(VertexType) * kUVVectorsLenght * mVerticesDataCount +
 				sizeof(VertexType) * kMaxBonesNumber * mVerticesDataCount +
-				sizeof(IdType) * kMaxBonesNumber * mVerticesDataCount
-			)
-		);
-		
+				sizeof(IdType) * kMaxBonesNumber * mVerticesDataCount));
+
 		mIB = std::make_unique<IndexBuffer>(mIndicesData, mIndicesDataCount);
-		
+
 		VertexBufferLayout vbl;
 		vbl.Push<VertexType>(kPositionVectorsLenght);
 		vbl.Push<VertexType>(kNormalVectorsLenght);
 		vbl.Push<VertexType>(kUVVectorsLenght);
 		vbl.Push<VertexType>(kMaxBonesNumber);
 		vbl.Push<IdType>(kMaxBonesNumber);
-		
+
 		mVA = std::make_unique<VertexArray>();
 		mVA->AddBuffer(*mVB, vbl);
 	}
-	
-}
+
+} // namespace erm

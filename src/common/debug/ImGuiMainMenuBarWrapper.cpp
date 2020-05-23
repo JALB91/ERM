@@ -8,13 +8,13 @@
 #include <imgui.h>
 
 namespace ImGui {
-	
+
 	void ShowMainMenuBar(erm::Engine& engine)
 	{
 		static bool showDemo = false;
 		static bool showInfos = false;
 		static bool showShaders = false;
-		
+
 		if (ImGui::BeginMainMenuBar())
 		{
 			showDemo |= ImGui::MenuItem("Demo");
@@ -22,12 +22,16 @@ namespace ImGui {
 			showShaders |= ImGui::MenuItem("Shaders");
 			ImGui::EndMainMenuBar();
 		}
-		
-		if (!showInfos) showInfos = ImGui::IsKeyPressed(erm::KEY_I);
-		
-		if (showDemo) ImGui::ShowDemoWindow(&showDemo);
-		if (showInfos) ImGui::ShowInfoWindow(engine, showInfos);
-		if (showShaders) ImGui::ShowShadersDebug(engine, showShaders);
+
+		if (!showInfos)
+			showInfos = ImGui::IsKeyPressed(erm::KEY_I);
+
+		if (showDemo)
+			ImGui::ShowDemoWindow(&showDemo);
+		if (showInfos)
+			ImGui::ShowInfoWindow(engine, showInfos);
+		if (showShaders)
+			ImGui::ShowShadersDebug(engine, showShaders);
 	}
-	
-}
+
+} // namespace ImGui

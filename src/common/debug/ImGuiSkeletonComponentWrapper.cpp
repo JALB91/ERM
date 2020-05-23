@@ -11,20 +11,20 @@
 #include <imgui.h>
 
 namespace ImGui {
-	
+
 	void ShowPathOptions(erm::Engine& engine, erm::ecs::SkeletonComponent& skeletonComponent);
-	
+
 	bool ShowSkeletonComponentDebugWindow(erm::Engine& engine, erm::ecs::SkeletonComponent& skeletonComponent)
 	{
 		const bool headerOpen = ImGui::CollapsingHeader("Skeleton");
-		
+
 		if (ImGui::IsItemClicked(1))
 		{
 			ImGui::OpenPopup("SkeletonPopup");
 		}
-		
+
 		bool shouldRemove = false;
-		
+
 		if (ImGui::BeginPopup("SkeletonPopup"))
 		{
 			if (ImGui::Button("Remove..."))
@@ -32,23 +32,24 @@ namespace ImGui {
 				shouldRemove = true;
 				ImGui::CloseCurrentPopup();
 			}
-			
+
 			ImGui::EndPopup();
 		}
-		
+
 		if (headerOpen)
 		{
 			ImGui::Indent();
-			
+
 			ShowPathOptions(engine, skeletonComponent);
-			
+
 			if (erm::BonesTree* rootBone = skeletonComponent.GetRootBone())
 			{
 				bool hasChanges = false;
 				rootBone->ForEachDo(
 					[&hasChanges](erm::BonesTree& node) {
 						ImGui::PushID(static_cast<int>(node.GetId()));
-						if (node.GetParent()) ImGui::Indent(ImGui::GetStyle().IndentSpacing * 0.75f);
+						if (node.GetParent())
+							ImGui::Indent(ImGui::GetStyle().IndentSpacing * 0.75f);
 						if (ImGui::TreeNode(node.GetPayload()->mName.c_str()))
 						{
 							hasChanges |= ImGui::ShowMatrixDebug(node.GetPayload()->mLocalTransform);
@@ -56,29 +57,29 @@ namespace ImGui {
 						}
 					},
 					[](erm::BonesTree& node) {
-						if (node.GetParent()) ImGui::Unindent(ImGui::GetStyle().IndentSpacing * 0.75f);
+						if (node.GetParent())
+							ImGui::Unindent(ImGui::GetStyle().IndentSpacing * 0.75f);
 						ImGui::PopID();
-					}
-				);
+					});
 				if (hasChanges)
 				{
 					skeletonComponent.SetDirty(true);
 				}
 			}
-			
+
 			ImGui::Unindent();
 		}
-		
+
 		return shouldRemove;
 	}
-	
+
 	void ShowPathOptions(erm::Engine& engine, erm::ecs::SkeletonComponent& skeletonComponent)
 	{
 		const erm::Skins& all = engine.GetResourcesManager().GetLoadedSkins();
-		
+
 		erm::BonesTree* rootBone = skeletonComponent.GetRootBone();
 		std::string currentPath = rootBone ? rootBone->GetPayload()->mName : "";
-		
+
 		if (ImGui::BeginCombo("Path", currentPath.c_str()))
 		{
 			bool isSelected = currentPath == "";
@@ -87,7 +88,7 @@ namespace ImGui {
 				currentPath = "";
 				skeletonComponent.SetRootBone(nullptr);
 			}
-			
+
 			for (unsigned int i = 0; i < all.size(); ++i)
 			{
 				const std::string& currentName = all[i]->GetPayload()->mName;
@@ -104,5 +105,5 @@ namespace ImGui {
 			ImGui::EndCombo();
 		}
 	}
-	
-}
+
+} // namespace ImGui

@@ -15,6 +15,8 @@ function print_help {
 	echo "    -f) Print CMake variables"
 }
 
+cp hooks/pre-commit .git/hooks/pre-commit
+
 if [[ "$OSTYPE" == "darwin"* ]]; then
 	_GENERATOR_NAME="Xcode"
 	_GENERATOR="Xcode"
