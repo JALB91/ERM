@@ -54,9 +54,8 @@ namespace erm {
 
 	ShaderProgram* ResourcesManager::GetOrCreateShaderProgram(const char* vertexShader, const char* fragmentShader)
 	{
-		return mLoadedShaderPrograms.emplace_back(
-										std::make_unique<ShaderProgram>(vertexShader, fragmentShader))
-			.get();
+		std::unique_ptr<ShaderProgram> shaderProgram = std::make_unique<ShaderProgram>(vertexShader, fragmentShader);
+		return mLoadedShaderPrograms.emplace_back(std::move(shaderProgram)).get();
 	}
 
 	ShaderProgram* ResourcesManager::GetOrCreateShaderProgram(const char* shaderProgramPath)
@@ -67,6 +66,7 @@ namespace erm {
 			[shaderProgramPath](Handle<ShaderProgram>& program) {
 				return program->GetPath().compare(shaderProgramPath) == 0;
 			});
+
 		if (it != mLoadedShaderPrograms.end())
 		{
 			return (*it).get();
@@ -96,9 +96,8 @@ namespace erm {
 		}
 		stream.close();
 
-		return mLoadedShaderPrograms.emplace_back(
-										std::make_unique<ShaderProgram>(shaderProgramPath))
-			.get();
+		std::unique_ptr<ShaderProgram> shaderProgram = std::make_unique<ShaderProgram>(shaderProgramPath);
+		return mLoadedShaderPrograms.emplace_back(std::move(shaderProgram)).get();
 	}
 
 	Material* ResourcesManager::GetOrCreateMaterial(const char* materialPath, const char* materialName)
@@ -109,6 +108,7 @@ namespace erm {
 			[materialPath, materialName](Handle<Material>& material) {
 				return (material->mPath.compare(materialPath) == 0 && material->mName.compare(materialName) == 0);
 			});
+
 		if (it != mLoadedMaterials.end())
 		{
 			return (*it).get();
@@ -125,6 +125,7 @@ namespace erm {
 			[texturePath](Handle<Texture>& texture) {
 				return texture->GetPath().compare(texturePath) == 0;
 			});
+
 		if (it != mLoadedTextures.end())
 		{
 			return (*it).get();
@@ -140,9 +141,8 @@ namespace erm {
 
 		stream.close();
 
-		return mLoadedTextures.emplace_back(
-								  std::make_unique<Texture>(texturePath))
-			.get();
+		std::unique_ptr<Texture> texture = std::make_unique<Texture>(texturePath);
+		return mLoadedTextures.emplace_back(std::move(texture)).get();
 	}
 
 	Model* ResourcesManager::GetOrCreateModel(const char* modelPath)
@@ -153,6 +153,7 @@ namespace erm {
 			[modelPath](Handle<Model>& model) {
 				return model->GetPath().compare(modelPath) == 0;
 			});
+
 		if (it != mLoadedModels.end())
 		{
 			return (*it).get();

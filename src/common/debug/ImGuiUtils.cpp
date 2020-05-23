@@ -4,8 +4,7 @@
 
 namespace ImGui {
 
-	bool ShowMatrixDebug(
-		erm::math::mat4& matrix)
+	bool ShowMatrixDebug(erm::math::mat4& matrix)
 	{
 		erm::math::vec3 translation;
 		erm::math::quat rotation;

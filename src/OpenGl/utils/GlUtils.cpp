@@ -19,7 +19,7 @@ namespace erm {
 	void GLClearError()
 	{
 		while (glGetError() != GL_NO_ERROR)
-			;
+		{}
 	}
 
 	int DepthFunctionToInt(DepthFunction function)

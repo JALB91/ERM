@@ -15,14 +15,12 @@
 
 namespace {
 
-	const std::vector<const char*> kDeviceExtensions {
-		VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+	const std::vector<const char*> kDeviceExtensions {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
 	const int kMaxFramesInFlight = 2;
 
 #ifndef NDEBUG
-	const std::vector<const char*> kValidationLayers {
-		"VK_LAYER_KHRONOS_validation"};
+	const std::vector<const char*> kValidationLayers {"VK_LAYER_KHRONOS_validation"};
 
 	VkDebugUtilsMessengerEXT debugMessenger;
 
@@ -110,21 +108,13 @@ namespace {
 		}
 	};
 
-	const std::vector<Vertex> vertices =
-		{
-			{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-			{{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-			{{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
-			{{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}};
+	const std::vector<Vertex> vertices {
+		{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+		{{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+		{{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+		{{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}};
 
-	const std::vector<uint16_t> indices =
-		{
-			0,
-			1,
-			2,
-			2,
-			3,
-			0};
+	const std::vector<uint16_t> indices {0, 1, 2, 2, 3, 0};
 
 } // namespace
 
@@ -852,9 +842,7 @@ namespace erm {
 			swapChainFramebuffers.resize(swapChainImageViews.size());
 			for (size_t i = 0; i < swapChainImageViews.size(); i++)
 			{
-				VkImageView attachments[] =
-					{
-						swapChainImageViews[i]};
+				VkImageView attachments[] = {swapChainImageViews[i]};
 
 				VkFramebufferCreateInfo framebufferInfo = {};
 				framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;

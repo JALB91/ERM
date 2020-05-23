@@ -30,7 +30,6 @@ namespace ImGui {
 		delete[] names;
 	}
 
-	extern bool ShowMatrixDebug(
-		erm::math::mat4& matrix);
+	extern bool ShowMatrixDebug(erm::math::mat4& matrix);
 
 } // namespace ImGui

@@ -45,9 +45,7 @@ namespace erm {
 	}
 
 	ShaderProgram::ShaderProgram(const std::string& shaderPath)
-		: ShaderProgram(
-			  ParseShader((shaderPath + ".vert").c_str()),
-			  ParseShader((shaderPath + ".frag").c_str()))
+		: ShaderProgram(ParseShader((shaderPath + ".vert").c_str()), ParseShader((shaderPath + ".frag").c_str()))
 	{
 		mPath = shaderPath;
 	}
