@@ -43,11 +43,14 @@ setup_api()
 message(STATUS "Using ${TARGET_API} APIs")
 
 # ADD DEPENDENCIES BASED ON TARGET API
-if ("${TARGET_API}" STREQUAL "OpenGl")
+if("${TARGET_API}" STREQUAL "OpenGl")
 	include(GLEWConfig)
 	add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/glew-cmake")
 	set(GLEW_LIBRARY libglew_static)
 	set(PUBLIC_DEPENDENCIES "${GLEW_LIBRARY}")
+elseif("${TARGET_API}" STREQUAL "Vulkan")
+	add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/Vulkan-Hpp")
+	set(VULKAN_HPP_INSTALL TRUE)
 endif()
 
 # INCLUDE CONFIGURATION FILES FOR DEPENDENCIES

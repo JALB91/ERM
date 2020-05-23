@@ -1,6 +1,6 @@
 #pragma once
 
-#include <vulkan/vulkan.h>
+#include <vulkan/vulkan.hpp>
 
 #include <vector>
 
@@ -8,9 +8,9 @@ namespace erm {
 
 	struct SwapChainSupportDetails
 	{
-		VkSurfaceCapabilitiesKHR mCapabilities;
-		std::vector<VkSurfaceFormatKHR> mFormats;
-		std::vector<VkPresentModeKHR> mPresentModes;
+		vk::SurfaceCapabilitiesKHR mCapabilities;
+		std::vector<vk::SurfaceFormatKHR> mFormats;
+		std::vector<vk::PresentModeKHR> mPresentModes;
 	};
 
 } // namespace erm

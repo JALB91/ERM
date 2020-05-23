@@ -3,97 +3,97 @@
 #include "erm/rendering/data_structs/QueueFamilyIndices.h"
 #include "erm/rendering/data_structs/SwapChainSupportDetails.h"
 
-#include <vulkan/vulkan.h>
+#include <vulkan/vulkan.hpp>
 
 #include <vector>
 
 namespace erm::VkUtils {
 
-	extern QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface);
-	extern SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface);
-	extern bool CheckDeviceExtensionSupport(VkPhysicalDevice device, VkSurfaceKHR surface, const std::vector<const char*>& deviceExtensions);
-	extern bool IsDeviceSuitable(VkPhysicalDevice device, VkSurfaceKHR surface, const std::vector<const char*>& deviceExtensions);
-	extern VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
-	extern VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
-	extern VkDescriptorSetLayout CreateDescriptorSetLayout(VkDevice device);
+	extern QueueFamilyIndices FindQueueFamilies(vk::PhysicalDevice device, vk::SurfaceKHR surface);
+	extern SwapChainSupportDetails QuerySwapChainSupport(vk::PhysicalDevice device, vk::SurfaceKHR surface);
+	extern bool CheckDeviceExtensionSupport(vk::PhysicalDevice device, vk::SurfaceKHR surface, const std::vector<const char*>& deviceExtensions);
+	extern bool IsDeviceSuitable(vk::PhysicalDevice device, vk::SurfaceKHR surface, const std::vector<const char*>& deviceExtensions);
+	extern vk::SurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& availableFormats);
+	extern vk::PresentModeKHR ChooseSwapPresentMode(const std::vector<vk::PresentModeKHR>& availablePresentModes);
+	extern vk::DescriptorSetLayout CreateDescriptorSetLayout(vk::Device device);
 
-	extern VkFormat FindSupportedDepthFormat(
-		VkPhysicalDevice physicalDevice,
-		const std::vector<VkFormat>& candidates,
-		VkImageTiling tiling,
-		VkFormatFeatureFlags features);
-	extern VkFormat FindDepthFormat(VkPhysicalDevice physicalDevice);
+	extern vk::Format FindSupportedDepthFormat(
+		vk::PhysicalDevice physicalDevice,
+		const std::vector<vk::Format>& candidates,
+		vk::ImageTiling tiling,
+		vk::FormatFeatureFlags features);
+	extern vk::Format FindDepthFormat(vk::PhysicalDevice physicalDevice);
 
-	extern VkExtent2D ChooseSwapExtent(
-		const VkSurfaceCapabilitiesKHR& capabilities,
+	extern vk::Extent2D ChooseSwapExtent(
+		const vk::SurfaceCapabilitiesKHR& capabilities,
 		int fallbackWidth,
 		int fallbackHeight);
 
 	extern uint32_t FindMemoryType(
-		VkPhysicalDevice physicalDevice,
+		vk::PhysicalDevice physicalDevice,
 		uint32_t typeFilter,
-		VkMemoryPropertyFlags properties);
+		vk::MemoryPropertyFlags properties);
 
-	extern VkCommandBuffer BeginSingleTimeCommands(
-		VkCommandPool commandPool,
-		VkDevice device);
+	extern vk::CommandBuffer BeginSingleTimeCommands(
+		vk::CommandPool commandPool,
+		vk::Device device);
 
 	extern void EndSingleTimeCommands(
-		VkQueue graphicsQueue,
-		VkCommandPool commandPool,
-		VkDevice device,
-		VkCommandBuffer commandBuffer);
+		vk::Queue graphicsQueue,
+		vk::CommandPool commandPool,
+		vk::Device device,
+		vk::CommandBuffer commandBuffer);
 
 	extern void CreateBuffer(
-		VkPhysicalDevice physicalDevice,
-		VkDevice device,
-		VkDeviceSize size,
-		VkBufferUsageFlags usage,
-		VkMemoryPropertyFlags properties,
-		VkBuffer& buffer,
-		VkDeviceMemory& bufferMemory);
+		vk::PhysicalDevice physicalDevice,
+		vk::Device device,
+		vk::DeviceSize size,
+		vk::BufferUsageFlags usage,
+		vk::MemoryPropertyFlags properties,
+		vk::Buffer& buffer,
+		vk::DeviceMemory& bufferMemory);
 
 	extern void CopyBufferToBuffer(
-		VkCommandPool commandPool,
-		VkDevice device,
-		VkQueue graphicsQueue,
-		VkBuffer srcBuffer,
-		VkBuffer dstBuffer,
-		VkDeviceSize size);
+		vk::CommandPool commandPool,
+		vk::Device device,
+		vk::Queue graphicsQueue,
+		vk::Buffer srcBuffer,
+		vk::Buffer dstBuffer,
+		vk::DeviceSize size);
 
 	extern void CreateImage(
-		VkPhysicalDevice physicalDevice,
-		VkDevice device,
+		vk::PhysicalDevice physicalDevice,
+		vk::Device device,
 		uint32_t width,
 		uint32_t height,
-		VkFormat format,
-		VkImageTiling tiling,
-		VkImageUsageFlags usage,
-		VkMemoryPropertyFlags properties,
-		VkImage& image,
-		VkDeviceMemory& imageMemory);
+		vk::Format format,
+		vk::ImageTiling tiling,
+		vk::ImageUsageFlags usage,
+		vk::MemoryPropertyFlags properties,
+		vk::Image& image,
+		vk::DeviceMemory& imageMemory);
 
-	extern VkImageView CreateImageView(
-		VkDevice device,
-		VkImage image,
-		VkFormat format,
-		VkImageAspectFlags aspectFlags);
+	extern vk::ImageView CreateImageView(
+		vk::Device device,
+		vk::Image image,
+		vk::Format format,
+		vk::ImageAspectFlags aspectFlags);
 
 	extern void TransitionImageLayout(
-		VkQueue graphicsQueue,
-		VkCommandPool commandPool,
-		VkDevice device,
-		VkImage image,
-		VkFormat /*format*/,
-		VkImageLayout oldLayout,
-		VkImageLayout newLayout);
+		vk::Queue graphicsQueue,
+		vk::CommandPool commandPool,
+		vk::Device device,
+		vk::Image image,
+		vk::Format /*format*/,
+		vk::ImageLayout oldLayout,
+		vk::ImageLayout newLayout);
 
 	extern void CopyBufferToImage(
-		VkQueue graphicsQueue,
-		VkCommandPool commandPool,
-		VkDevice device,
-		VkBuffer buffer,
-		VkImage image,
+		vk::Queue graphicsQueue,
+		vk::CommandPool commandPool,
+		vk::Device device,
+		vk::Buffer buffer,
+		vk::Image image,
 		uint32_t width,
 		uint32_t height);
 
