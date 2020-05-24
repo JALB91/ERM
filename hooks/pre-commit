@@ -3,7 +3,7 @@
 FILES=$(git diff --cached --name-only)
 
 for FILE in $FILES; do
-	if [[ $FILE =~ ^(include|src).*\.(h|cpp) ]]; then
+	if [[ $FILE =~ ^(include|src).*\.(h|cpp) && -e $FILE ]]; then
 		clang-format -i -style=file $FILE
 		git add $FILE
 	fi
