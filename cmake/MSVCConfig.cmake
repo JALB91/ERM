@@ -10,6 +10,7 @@ function(target_setup_project TARGET)
 		"${TARGET}"
 		PRIVATE 
 			_USE_MATH_DEFINES
+			NOMINMAX
 	)
 
 	target_compile_options(

@@ -14,7 +14,7 @@ namespace erm::VkUtils {
 
 		std::vector<vk::QueueFamilyProperties> queueFamilies = device.getQueueFamilyProperties();
 
-		for (size_t i = 0; i < queueFamilies.size(); ++i)
+		for (uint32_t i = 0; i < static_cast<uint32_t>(queueFamilies.size()); ++i)
 		{
 			if (queueFamilies[i].queueFlags & vk::QueueFlagBits::eGraphics)
 			{
@@ -202,9 +202,7 @@ namespace erm::VkUtils {
 		}
 		else
 		{
-			vk::Extent2D actualExtent = {
-				static_cast<uint32_t>(fallbackWidth),
-				static_cast<uint32_t>(fallbackHeight)};
+			vk::Extent2D actualExtent = {static_cast<uint32_t>(fallbackWidth), static_cast<uint32_t>(fallbackHeight)};
 
 			actualExtent.width = std::max(capabilities.minImageExtent.width, std::min(capabilities.maxImageExtent.width, actualExtent.width));
 			actualExtent.height = std::max(capabilities.minImageExtent.height, std::min(capabilities.maxImageExtent.height, actualExtent.height));
