@@ -1,23 +1,33 @@
 #include "erm/rendering/window/Window.h"
-
+#include "erm/rendering/shaders/ShaderProgram.h"
 #include "erm/rendering/window/IWindowListener.h"
 
-#include "erm/utils/GlUtils.h"
-
 #include "erm/utils/Profiler.h"
-
-#include <GL/glew.h>
-
-#include <GLFW/glfw3.h>
+#include "erm/utils/Utils.h"
+#ifdef OpenGl
+#	include "erm/utils/GlUtils.h"
+#endif
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#ifdef OpenGl
+#	include <GL/glew.h>
+#endif
+
+#include <GLFW/glfw3.h>
+
 #include <algorithm>
+#include <array>
+#include <fstream>
 #include <functional>
 #include <iostream>
+#include <optional>
 #include <string>
 
+/*
+	WINDOW STUFF
+*/
 namespace {
 
 	template<typename T>
@@ -31,6 +41,12 @@ namespace {
 		}
 	}
 
+#if defined(Vulkan)
+	const char* const kTitle = "ERM Vulkan";
+#elif defined(OpenGl)
+	const char* const kTitle = "ERM OpenGl";
+#endif
+
 	const float kImGuiSpaceUp = 0.0f;
 	const float kImGuiSpaceDown = 0.3f;
 	const float kImGuiSpaceLeft = 0.2f;
@@ -40,21 +56,14 @@ namespace {
 
 } // namespace
 
+/*
+	WINDOW CALLBACKS
+*/
 namespace internal {
 
 	void OnFocus(GLFWwindow* window, int /*focus*/)
 	{
 		static_cast<erm::Window*>(glfwGetWindowUserPointer(window))->OnFocus();
-	}
-
-	void OnMaximized(GLFWwindow* window, int maximised)
-	{
-		static_cast<erm::Window*>(glfwGetWindowUserPointer(window))->OnMaximised(maximised == GLFW_TRUE);
-	}
-
-	void OnSizeChanged(GLFWwindow* window, int width, int height)
-	{
-		static_cast<erm::Window*>(glfwGetWindowUserPointer(window))->OnSizeChanged(width, height);
 	}
 
 	void OnMouseButton(GLFWwindow* window, int button, int action, int mods)
@@ -72,19 +81,27 @@ namespace internal {
 		static_cast<erm::Window*>(glfwGetWindowUserPointer(window))->OnKey(key, scanCode, action, mods);
 	}
 
+	void OnFrameBufferResize(GLFWwindow* window, int width, int height)
+	{
+		static_cast<erm::Window*>(glfwGetWindowUserPointer(window))->OnSizeChanged(width, height);
+	}
+
 	void OnRefresh(GLFWwindow* window)
 	{
 		if (firstRefresh)
 		{
 			firstRefresh = false;
 			int width, height;
-			glfwGetWindowSize(window, &width, &height);
+			glfwGetFramebufferSize(window, &width, &height);
 			static_cast<erm::Window*>(glfwGetWindowUserPointer(window))->OnSizeChanged(width, height);
 		}
 	}
 
 } // namespace internal
 
+/*
+	WINDOW IMPL
+*/
 namespace erm {
 
 	Window::Window()
@@ -95,6 +112,7 @@ namespace erm {
 	Window::~Window()
 	{
 		mWindowListeners.clear();
+
 		glfwTerminate();
 	}
 
@@ -102,8 +120,7 @@ namespace erm {
 	{
 		if (!glfwInit())
 		{
-			std::cout << "GLFW initialization failed!" << std::endl;
-			return false;
+			throw std::runtime_error("GLFW initialization failed!");
 		}
 
 		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
@@ -117,38 +134,40 @@ namespace erm {
 		glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+#if defined(Vulkan)
+		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+#elif defined(OpenGl)
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
 
-		mWindow = glfwCreateWindow(mode->width, mode->height, "ERM", nullptr, nullptr);
+		mWindow = glfwCreateWindow(mode->width, mode->height, kTitle, nullptr, nullptr);
 
 		if (!mWindow)
 		{
-			std::cout << "GLFW Window creation failed!" << std::endl;
-			glfwTerminate();
-			return false;
+			throw std::runtime_error("GLFW Window creation failed!");
 		}
 
 		glfwMakeContextCurrent(mWindow);
 		glfwSwapInterval(1);
 
+#ifdef OpenGl
 		if (glewInit() != GLEW_OK)
 		{
 			std::cout << "GLEW initialization failed" << std::endl;
 			glfwTerminate();
 			return false;
 		}
+#endif
 
 		glfwSetWindowUserPointer(mWindow, this);
 
 		glfwSetWindowFocusCallback(mWindow, internal::OnFocus);
-		glfwSetWindowMaximizeCallback(mWindow, internal::OnMaximized);
-		glfwSetFramebufferSizeCallback(mWindow, internal::OnSizeChanged);
-		glfwSetWindowSizeCallback(mWindow, internal::OnSizeChanged);
 		glfwSetMouseButtonCallback(mWindow, internal::OnMouseButton);
 		glfwSetCursorPosCallback(mWindow, internal::OnMousePos);
 		glfwSetKeyCallback(mWindow, internal::OnKey);
 		glfwSetWindowRefreshCallback(mWindow, internal::OnRefresh);
+		glfwSetFramebufferSizeCallback(mWindow, internal::OnFrameBufferResize);
 
 		return true;
 	}
@@ -272,17 +291,16 @@ namespace erm {
 		int width, height;
 		glfwGetFramebufferSize(mWindow, &width, &height);
 
-		const float viewPortX = std::max(width * 0.1f, width - (width * kImGuiSpaceRight + width * kImGuiSpaceLeft));
-		const float viewPortY = std::max(height * 0.1f, height - (height * kImGuiSpaceUp + height * kImGuiSpaceDown));
+		mViewport.x = std::max(mWindowWidth * 0.1f, mWindowWidth - (mWindowWidth * kImGuiSpaceRight + mWindowWidth * kImGuiSpaceLeft));
+		mViewport.y = std::max(mWindowHeight * 0.1f, mWindowHeight - (mWindowHeight * kImGuiSpaceUp + mWindowHeight * kImGuiSpaceDown));
 
+#ifdef OpenGl
 		GL_CALL(glViewport(
 			static_cast<int>(width * kImGuiSpaceLeft),
 			static_cast<int>(height * kImGuiSpaceDown),
-			static_cast<int>(viewPortX),
-			static_cast<int>(viewPortY)));
-
-		mViewport.x = std::max(mWindowWidth * 0.1f, mWindowWidth - (mWindowWidth * kImGuiSpaceRight + mWindowWidth * kImGuiSpaceLeft));
-		mViewport.y = std::max(mWindowHeight * 0.1f, mWindowHeight - (mWindowHeight * kImGuiSpaceUp + mWindowHeight * kImGuiSpaceDown));
+			static_cast<int>(mViewport.x),
+			static_cast<int>(mViewport.y)));
+#endif
 	}
 
 	void Window::UpdateAspectRatio()

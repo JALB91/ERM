@@ -113,6 +113,7 @@ target_compile_definitions(
 	"${PROJECT_NAME}"
 	PUBLIC
 		$<$<STREQUAL:"${TARGET_API}","Vulkan">:GLM_FORCE_DEPTH_ZERO_TO_ONE>
+		${TARGET_API}
 	PRIVATE
 		$<$<STREQUAL:"${TARGET_API}","OpenGl">:GLEW_STATIC>
 )
