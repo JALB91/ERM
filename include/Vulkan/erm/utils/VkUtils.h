@@ -57,8 +57,8 @@ namespace erm::VkUtils {
 		vk::CommandPool commandPool,
 		vk::Device device,
 		vk::Queue graphicsQueue,
-		vk::Buffer srcBuffer,
-		vk::Buffer dstBuffer,
+		vk::Buffer& srcBuffer,
+		vk::Buffer& dstBuffer,
 		vk::DeviceSize size);
 
 	extern void CreateImage(
@@ -92,9 +92,20 @@ namespace erm::VkUtils {
 		vk::Queue graphicsQueue,
 		vk::CommandPool commandPool,
 		vk::Device device,
-		vk::Buffer buffer,
+		vk::Buffer& buffer,
 		vk::Image image,
 		uint32_t width,
 		uint32_t height);
+
+	extern void CreateDeviceLocalBuffer(
+		vk::Queue queue,
+		vk::CommandPool commandPool,
+		vk::PhysicalDevice physicalDevice,
+		vk::Device device,
+		vk::BufferUsageFlags bufferUsage,
+		vk::DeviceSize bufferSize,
+		void* bufferData,
+		vk::Buffer& dstBuffer,
+		vk::DeviceMemory& dstBufferMemory);
 
 } // namespace erm::VkUtils

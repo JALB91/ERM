@@ -263,8 +263,8 @@ namespace erm::VkUtils {
 		vk::CommandPool commandPool,
 		vk::Device device,
 		vk::Queue graphicsQueue,
-		vk::Buffer srcBuffer,
-		vk::Buffer dstBuffer,
+		vk::Buffer& srcBuffer,
+		vk::Buffer& dstBuffer,
 		vk::DeviceSize size)
 	{
 		vk::CommandBuffer commandBuffer = BeginSingleTimeCommands(commandPool, device);
@@ -392,7 +392,7 @@ namespace erm::VkUtils {
 		vk::Queue graphicsQueue,
 		vk::CommandPool commandPool,
 		vk::Device device,
-		vk::Buffer buffer,
+		vk::Buffer& buffer,
 		vk::Image image,
 		uint32_t width,
 		uint32_t height)
@@ -413,6 +413,54 @@ namespace erm::VkUtils {
 		commandBuffer.copyBufferToImage(buffer, image, vk::ImageLayout::eTransferDstOptimal, 1, &region);
 
 		EndSingleTimeCommands(graphicsQueue, commandPool, device, commandBuffer);
+	}
+
+	void CreateDeviceLocalBuffer(
+		vk::Queue queue,
+		vk::CommandPool commandPool,
+		vk::PhysicalDevice physicalDevice,
+		vk::Device device,
+		vk::BufferUsageFlags bufferUsage,
+		vk::DeviceSize bufferSize,
+		void* bufferData,
+		vk::Buffer& dstBuffer,
+		vk::DeviceMemory& dstBufferMemory)
+	{
+		vk::Buffer stagingBuffer;
+		vk::DeviceMemory stagingBufferMemory;
+		CreateBuffer(
+			physicalDevice,
+			device,
+			bufferSize,
+			vk::BufferUsageFlagBits::eTransferSrc,
+			vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+			stagingBuffer,
+			stagingBufferMemory);
+
+		void* data;
+		data = device.mapMemory(stagingBufferMemory, 0, bufferSize);
+		memcpy(data, bufferData, (size_t)bufferSize);
+		device.unmapMemory(stagingBufferMemory);
+
+		CreateBuffer(
+			physicalDevice,
+			device,
+			bufferSize,
+			vk::BufferUsageFlagBits::eTransferDst | bufferUsage,
+			vk::MemoryPropertyFlagBits::eDeviceLocal,
+			dstBuffer,
+			dstBufferMemory);
+
+		CopyBufferToBuffer(
+			commandPool,
+			device,
+			queue,
+			stagingBuffer,
+			dstBuffer,
+			bufferSize);
+
+		device.destroyBuffer(stagingBuffer);
+		device.freeMemory(stagingBufferMemory);
 	}
 
 } // namespace erm::VkUtils

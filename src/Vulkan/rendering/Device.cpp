@@ -906,82 +906,32 @@ namespace erm {
 		{
 			vk::DeviceSize bufferSize = sizeof(VertexData) * mModel->GetMeshes()[0].GetVerticesDataCount();
 
-			vk::Buffer stagingBuffer;
-			vk::DeviceMemory stagingBufferMemory;
-			VkUtils::CreateBuffer(
+			VkUtils::CreateDeviceLocalBuffer(
+				graphicsQueue,
+				commandPool,
 				physicalDevice,
 				device,
+				vk::BufferUsageFlagBits::eVertexBuffer,
 				bufferSize,
-				vk::BufferUsageFlagBits::eTransferSrc,
-				vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
-				stagingBuffer,
-				stagingBufferMemory);
-
-			void* data;
-			data = device.mapMemory(stagingBufferMemory, 0, bufferSize);
-			memcpy(data, mModel->GetMeshes()[0].GetVerticesData(), (size_t)bufferSize);
-			device.unmapMemory(stagingBufferMemory);
-
-			VkUtils::CreateBuffer(
-				physicalDevice,
-				device,
-				bufferSize,
-				vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer,
-				vk::MemoryPropertyFlagBits::eDeviceLocal,
+				(void*)mModel->GetMeshes()[0].GetVerticesData(),
 				vertexBuffer,
 				vertexBufferMemory);
-
-			VkUtils::CopyBufferToBuffer(
-				commandPool,
-				device,
-				graphicsQueue,
-				stagingBuffer,
-				vertexBuffer,
-				bufferSize);
-
-			device.destroyBuffer(stagingBuffer);
-			device.freeMemory(stagingBufferMemory);
 		}
 
 		void CreateIndexBuffer()
 		{
 			vk::DeviceSize bufferSize = sizeof(IndexData) * mModel->GetMeshes()[0].GetIndicesCount();
 
-			vk::Buffer stagingBuffer;
-			vk::DeviceMemory stagingBufferMemory;
-			VkUtils::CreateBuffer(
+			VkUtils::CreateDeviceLocalBuffer(
+				graphicsQueue,
+				commandPool,
 				physicalDevice,
 				device,
+				vk::BufferUsageFlagBits::eIndexBuffer,
 				bufferSize,
-				vk::BufferUsageFlagBits::eTransferSrc,
-				vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
-				stagingBuffer,
-				stagingBufferMemory);
-
-			void* data;
-			data = device.mapMemory(stagingBufferMemory, 0, bufferSize);
-			memcpy(data, mModel->GetMeshes()[0].GetIndicesData(), (size_t)bufferSize);
-			device.unmapMemory(stagingBufferMemory);
-
-			VkUtils::CreateBuffer(
-				physicalDevice,
-				device,
-				bufferSize,
-				vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer,
-				vk::MemoryPropertyFlagBits::eDeviceLocal,
+				(void*)mModel->GetMeshes()[0].GetIndicesData(),
 				indexBuffer,
 				indexBufferMemory);
-
-			VkUtils::CopyBufferToBuffer(
-				commandPool,
-				device,
-				graphicsQueue,
-				stagingBuffer,
-				indexBuffer,
-				bufferSize);
-
-			device.destroyBuffer(stagingBuffer);
-			device.freeMemory(stagingBufferMemory);
 		}
 
 		void CreateUniformBuffers()
