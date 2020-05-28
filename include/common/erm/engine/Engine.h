@@ -12,7 +12,6 @@ namespace erm {
 	class Window;
 	class Device;
 	class ImGuiHandle;
-	class RenderContext;
 	class Renderer;
 	namespace ecs {
 		class ECS;
@@ -49,7 +48,6 @@ namespace erm {
 		inline ResourcesManager& GetResourcesManager() const { return *mResourcesManager; }
 		inline Window& GetWindow() const { return *mWindow; }
 		inline Device& GetDevice() const { return *mDevice; }
-		inline RenderContext& GetRenderContext() const { return *mRenderContext; }
 		inline Renderer& GetRenderer() const { return *mRenderer; }
 		inline ecs::ECS& GetECS() const { return *mECS; }
 
@@ -70,7 +68,6 @@ namespace erm {
 		std::unique_ptr<Window> mWindow;
 		std::unique_ptr<Device> mDevice;
 		std::unique_ptr<ImGuiHandle> mImGuiHandle;
-		std::unique_ptr<RenderContext> mRenderContext;
 		std::unique_ptr<Renderer> mRenderer;
 		std::unique_ptr<ResourcesManager> mResourcesManager;
 		std::unique_ptr<ecs::ECS> mECS;

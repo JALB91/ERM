@@ -11,7 +11,6 @@
 #include "erm/rendering/enums/CullMode.h"
 #include "erm/rendering/enums/DepthFunction.h"
 #include "erm/rendering/enums/FrontFace.h"
-#include "erm/rendering/renderer/RenderContext.h"
 #include "erm/rendering/shaders/ShaderProgram.h"
 
 #include "erm/utils/Utils.h"

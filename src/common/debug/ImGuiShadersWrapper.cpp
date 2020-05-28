@@ -4,8 +4,6 @@
 
 #include "erm/rendering/window/Window.h"
 
-#include "erm/rendering/renderer/RenderContext.h"
-
 #include "erm/managers/ResourcesManager.h"
 
 #include "erm/utils/Utils.h"

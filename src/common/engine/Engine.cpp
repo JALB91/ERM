@@ -4,7 +4,6 @@
 
 #include "erm/rendering/Device.h"
 #include "erm/rendering/data_structs/Model.h"
-#include "erm/rendering/renderer/RenderContext.h"
 #include "erm/rendering/renderer/Renderer.h"
 #include "erm/rendering/window/Window.h"
 
@@ -78,7 +77,6 @@ namespace erm {
 
 		mDevice = std::make_unique<Device>(mWindow->GetWindow());
 		mImGuiHandle = std::make_unique<ImGuiHandle>(*this);
-		mRenderContext = std::make_unique<RenderContext>();
 		mRenderer = std::make_unique<Renderer>(mWindow->GetWindow(), *mDevice);
 		mResourcesManager = std::make_unique<ResourcesManager>(*mDevice);
 		mECS = std::make_unique<ecs::ECS>(*this);
@@ -146,8 +144,6 @@ namespace erm {
 
 		mECS->OnUpdate(dt);
 		mWindow->NewFrame();
-		if (mRenderContext)
-			mRenderContext->Clear();
 		mResourcesManager->OnUpdate();
 	}
 
