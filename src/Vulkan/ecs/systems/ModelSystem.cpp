@@ -46,7 +46,7 @@ namespace erm::ecs {
 		mCameraSystem = &mECS.GetSystem<CameraSystem>();
 		mLightSystem = &mECS.GetSystem<LightSystem>();
 
-		mTexture = mResourcesManager.GetOrCreateTexture("res/models/viking_room.png");
+		mTexture = mResourcesManager.GetOrCreateTexture("res/textures/viking_room.png");
 
 		vk::Extent2D extent = mRenderer.GetSwapChainExtent();
 

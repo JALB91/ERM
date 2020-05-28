@@ -172,7 +172,7 @@ namespace erm {
 
 		vk::Rect2D scissor = {};
 		scissor.offset = vk::Offset2D(static_cast<uint32_t>(mRenderConfigs.mViewport.mMin.x), static_cast<uint32_t>(mRenderConfigs.mViewport.mMin.y));
-		scissor.extent = vk::Extent2D(viewportSize.x, viewportSize.y);
+		scissor.extent = vk::Extent2D(static_cast<uint32_t>(viewportSize.x), static_cast<uint32_t>(viewportSize.y));
 
 		vk::PipelineViewportStateCreateInfo viewportState = {};
 		viewportState.viewportCount = 1;
@@ -310,8 +310,8 @@ namespace erm {
 		VkUtils::CreateImage(
 			mDevice.GetVkPhysicalDevice(),
 			mDevice.GetVkDevice(),
-			viewportSize.x,
-			viewportSize.y,
+			static_cast<uint32_t>(viewportSize.x),
+			static_cast<uint32_t>(viewportSize.y),
 			depthFormat,
 			vk::ImageTiling::eOptimal,
 			vk::ImageUsageFlagBits::eDepthStencilAttachment,
@@ -334,8 +334,8 @@ namespace erm {
 			framebufferInfo.renderPass = mRenderPass;
 			framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
 			framebufferInfo.pAttachments = attachments.data();
-			framebufferInfo.width = viewportSize.x;
-			framebufferInfo.height = viewportSize.y;
+			framebufferInfo.width = static_cast<uint32_t>(viewportSize.x);
+			framebufferInfo.height = static_cast<uint32_t>(viewportSize.y);
 			framebufferInfo.layers = 1;
 
 			mSwapChainFramebuffers[i] = mDevice->createFramebuffer(framebufferInfo);

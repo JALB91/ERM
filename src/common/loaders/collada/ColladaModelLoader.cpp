@@ -26,7 +26,7 @@ namespace erm {
 		Skins& skins,
 		Animations& animations)
 	{
-		XMLDocument document;
+		tinyxml2::XMLDocument document;
 		XMLError error = document.LoadFile(path);
 
 		if (error != XMLError::XML_SUCCESS)

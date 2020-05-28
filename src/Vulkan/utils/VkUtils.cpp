@@ -483,6 +483,7 @@ namespace erm::VkUtils {
 			case DrawMode::TRIANGLE_STRIP:
 				return vk::PrimitiveTopology::eTriangleStrip;
 			case DrawMode::TRIANGLES:
+			default:
 				return vk::PrimitiveTopology::eTriangleList;
 		}
 	}
@@ -497,6 +498,7 @@ namespace erm::VkUtils {
 			case PolygonMode::LINE:
 				return vk::PolygonMode::eLine;
 			case PolygonMode::FILL:
+			default:
 				return vk::PolygonMode::eFill;
 		}
 	}
