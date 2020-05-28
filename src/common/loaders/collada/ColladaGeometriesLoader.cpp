@@ -154,7 +154,7 @@ namespace erm {
 				}
 
 				mutex.lock();
-				model.AddMesh(Mesh(DrawMode::TRIANGLES, verticesData, indicesCount, indicesData, indicesCount, nullptr, name));
+				model.AddMesh(DrawMode::TRIANGLES, verticesData, indicesCount, indicesData, indicesCount, name);
 				mutex.unlock();
 
 				mesh = mesh->NextSiblingElement("mesh");

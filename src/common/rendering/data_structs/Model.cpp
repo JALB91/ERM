@@ -8,8 +8,9 @@
 
 namespace erm {
 
-	Model::Model(const char* path, const char* name)
-		: mPath(path)
+	Model::Model(Device& device, const char* path, const char* name)
+		: mDevice(device)
+		, mPath(path)
 		, mName(name)
 		, mIsDirty(false)
 	{}
@@ -21,6 +22,20 @@ namespace erm {
 	{
 		mMeshes.emplace_back(std::move(mesh));
 		UpdateLocalBound();
+	}
+
+	void Model::AddMesh(
+		DrawMode drawMode,
+		VertexData* vertices,
+		uint32_t verticesCount,
+		IndexData* indices,
+		uint32_t indicesCount,
+		const char* name /*= ""*/,
+		ShaderProgram* shaderProgram /*= nullptr*/,
+		Material* material /*= nullptr*/,
+		Texture* texture /*= nullptr*/)
+	{
+		AddMesh({mDevice, drawMode, vertices, verticesCount, indices, indicesCount, name, shaderProgram, material, texture});
 	}
 
 	void Model::UpdateLocalBound()

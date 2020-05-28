@@ -35,8 +35,9 @@ namespace {
 	const char* const kCubeModelPath = "res/models/cube.obj";
 	const char* const kHandgunModelPath = "res/models/Handgun.dae";
 	const char* const kModelModelPath = "res/models/model.dae";
+	const char* const kVikingRoomModelPath = "res/models/viking_room.obj";
 
-	const char* const kModelToUse = kModelModelPath;
+	const char* const kModelToUse = kVikingRoomModelPath;
 	const float kDefaultScale = 20.0f;
 	const int kEntities = 1;
 
@@ -57,12 +58,16 @@ namespace erm {
 		UNUSED(kCubeModelPath);
 		UNUSED(kHandgunModelPath);
 		UNUSED(kModelModelPath);
+		UNUSED(kVikingRoomModelPath);
 		UNUSED(kDefaultScale);
 		std::srand(static_cast<unsigned int>(time(NULL)));
 		mWindow->AddListener(static_cast<IWindowListener&>(*this));
 	}
 
-	Engine::~Engine() = default;
+	Engine::~Engine()
+	{
+		(*mDevice)->waitIdle();
+	}
 
 	bool Engine::Init()
 	{
@@ -74,8 +79,8 @@ namespace erm {
 		mDevice = std::make_unique<Device>(mWindow->GetWindow());
 		mImGuiHandle = std::make_unique<ImGuiHandle>(*this);
 		mRenderContext = std::make_unique<RenderContext>();
-		mRenderer = std::make_unique<Renderer>(*mRenderContext);
-		mResourcesManager = std::make_unique<ResourcesManager>();
+		mRenderer = std::make_unique<Renderer>(mWindow->GetWindow(), *mDevice);
+		mResourcesManager = std::make_unique<ResourcesManager>(*mDevice);
 		mECS = std::make_unique<ecs::ECS>(*this);
 
 		mResourcesManager->LoadDefaultResources();
@@ -91,7 +96,8 @@ namespace erm {
 		for (int i = 0; i < kEntities; ++i)
 		{
 			auto entity = mECS->GetOrCreateEntity();
-			entity->RequireComponent<ecs::ModelComponent>(mResourcesManager->GetOrCreateModel(kModelToUse));
+			Model* model = mResourcesManager->GetOrCreateModel(kModelToUse);
+			entity->RequireComponent<ecs::ModelComponent>(model);
 			auto transform = entity->RequireComponent<ecs::TransformComponent>();
 			transform->mRotation.x = -static_cast<float>(M_PI * 0.5);
 			transform->mScale = math::vec3(kDefaultScale);
@@ -155,6 +161,8 @@ namespace erm {
 	void Engine::OnPreRender()
 	{
 		PROFILE_FUNCTION();
+
+		mRenderer->OnPreRender();
 	}
 
 	void Engine::OnRender()
@@ -162,9 +170,9 @@ namespace erm {
 		PROFILE_FUNCTION();
 
 		mResourcesManager->OnRender();
-		mECS->OnRender(*mRenderer.get());
-		mDevice->OnRender();
+		mECS->OnRender();
 		mImGuiHandle->OnRender();
+		mRenderer->OnRender();
 		mWindow->OnRender();
 	}
 
@@ -172,6 +180,7 @@ namespace erm {
 	{
 		PROFILE_FUNCTION();
 
+		mRenderer->OnPostRender();
 		mWindow->OnPostRender();
 		mResourcesManager->OnPostRender();
 	}

@@ -28,7 +28,6 @@ namespace erm {
 		class AnimationSystem;
 		class ModelSystem;
 		class CameraSystem;
-		class RenderingSystem;
 	} // namespace ecs
 } // namespace erm
 
@@ -42,7 +41,7 @@ namespace erm::ecs {
 
 		void OnUpdate(float dt);
 		void OnPostUpdate();
-		void OnRender(const Renderer& renderer);
+		void OnRender();
 
 		template<typename T>
 		T& GetSystem() const;
@@ -66,7 +65,6 @@ namespace erm::ecs {
 		ADD_SYSTEM(AnimationSystem, mAnimationSystem)
 		ADD_SYSTEM(ModelSystem, mModelSystem)
 		ADD_SYSTEM(CameraSystem, mCameraSystem)
-		ADD_SYSTEM(RenderingSystem, mRenderingSystem)
 
 		std::array<std::unique_ptr<Entity>, MAX_ID> mEntities;
 	};

@@ -11,8 +11,9 @@
 
 namespace erm {
 
-	ResourcesManager::ResourcesManager()
-		: mResourcesLoader(std::make_unique<ResourcesLoader>())
+	ResourcesManager::ResourcesManager(Device& device)
+		: mDevice(device)
+		, mResourcesLoader(std::make_unique<ResourcesLoader>(mDevice))
 	{}
 
 	ResourcesManager::~ResourcesManager()
@@ -23,18 +24,18 @@ namespace erm {
 	void ResourcesManager::LoadDefaultResources()
 	{
 		mLoadedModels.reserve(10);
-		mLoadedModels.emplace_back(std::make_unique<Model>("Defaults/Triangle", "Triangle"));
-		mLoadedModels.back()->AddMesh(MeshUtils::CreateTriangle());
-		mLoadedModels.emplace_back(std::make_unique<Model>("Defaults/Square", "Square"));
-		mLoadedModels.back()->AddMesh(MeshUtils::CreateSquare());
-		mLoadedModels.emplace_back(std::make_unique<Model>("Defaults/Cube", "Cube"));
-		mLoadedModels.back()->AddMesh(MeshUtils::CreateCube());
-		mLoadedModels.emplace_back(std::make_unique<Model>("Defaults/Sphere", "Sphere"));
-		mLoadedModels.back()->AddMesh(MeshUtils::CreateSphere());
-		mLoadedModels.emplace_back(std::make_unique<Model>("Defaults/Spike", "Spike"));
-		mLoadedModels.back()->AddMesh(MeshUtils::CreateSpike());
-		mLoadedModels.emplace_back(std::make_unique<Model>("Defaults/Grid", "Grid"));
-		mLoadedModels.back()->AddMesh(MeshUtils::CreateGrid());
+		mLoadedModels.emplace_back(std::make_unique<Model>(mDevice, "Defaults/Triangle", "Triangle"));
+		mLoadedModels.back()->AddMesh(MeshUtils::CreateTriangle(mDevice));
+		mLoadedModels.emplace_back(std::make_unique<Model>(mDevice, "Defaults/Square", "Square"));
+		mLoadedModels.back()->AddMesh(MeshUtils::CreateSquare(mDevice));
+		mLoadedModels.emplace_back(std::make_unique<Model>(mDevice, "Defaults/Cube", "Cube"));
+		mLoadedModels.back()->AddMesh(MeshUtils::CreateCube(mDevice));
+		mLoadedModels.emplace_back(std::make_unique<Model>(mDevice, "Defaults/Sphere", "Sphere"));
+		mLoadedModels.back()->AddMesh(MeshUtils::CreateSphere(mDevice));
+		mLoadedModels.emplace_back(std::make_unique<Model>(mDevice, "Defaults/Spike", "Spike"));
+		mLoadedModels.back()->AddMesh(MeshUtils::CreateSpike(mDevice));
+		mLoadedModels.emplace_back(std::make_unique<Model>(mDevice, "Defaults/Grid", "Grid"));
+		mLoadedModels.back()->AddMesh(MeshUtils::CreateGrid(mDevice));
 	}
 
 	void ResourcesManager::OnUpdate()
@@ -54,8 +55,11 @@ namespace erm {
 
 	ShaderProgram* ResourcesManager::GetOrCreateShaderProgram(const char* vertexShader, const char* fragmentShader)
 	{
-		std::unique_ptr<ShaderProgram> shaderProgram = std::make_unique<ShaderProgram>(vertexShader, fragmentShader);
-		return mLoadedShaderPrograms.emplace_back(std::move(shaderProgram)).get();
+		UNUSED(vertexShader);
+		UNUSED(fragmentShader);
+		//		std::unique_ptr<ShaderProgram> shaderProgram = std::make_unique<ShaderProgram>(mDevice, vertexShader, fragmentShader);
+		//		return mLoadedShaderPrograms.emplace_back(std::move(shaderProgram)).get();
+		return nullptr;
 	}
 
 	ShaderProgram* ResourcesManager::GetOrCreateShaderProgram(const char* shaderProgramPath)
@@ -96,7 +100,7 @@ namespace erm {
 		}
 		stream.close();
 
-		std::unique_ptr<ShaderProgram> shaderProgram = std::make_unique<ShaderProgram>(shaderProgramPath);
+		std::unique_ptr<ShaderProgram> shaderProgram = std::make_unique<ShaderProgram>(mDevice, shaderProgramPath);
 		return mLoadedShaderPrograms.emplace_back(std::move(shaderProgram)).get();
 	}
 
@@ -141,7 +145,7 @@ namespace erm {
 
 		stream.close();
 
-		std::unique_ptr<Texture> texture = std::make_unique<Texture>(texturePath);
+		std::unique_ptr<Texture> texture = std::make_unique<Texture>(mDevice, texturePath);
 		return mLoadedTextures.emplace_back(std::move(texture)).get();
 	}
 

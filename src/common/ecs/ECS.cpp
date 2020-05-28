@@ -5,7 +5,6 @@
 #include "erm/ecs/systems/CameraSystem.h"
 #include "erm/ecs/systems/LightSystem.h"
 #include "erm/ecs/systems/ModelSystem.h"
-#include "erm/ecs/systems/RenderingSystem.h"
 #include "erm/ecs/systems/SkeletonSystem.h"
 #include "erm/ecs/systems/TransformSystem.h"
 
@@ -23,10 +22,12 @@ namespace erm::ecs {
 		, mLightSystem(std::make_unique<LightSystem>(*this))
 		, mSkeletonSystem(std::make_unique<SkeletonSystem>(*this))
 		, mAnimationSystem(std::make_unique<AnimationSystem>(*this))
-		, mModelSystem(std::make_unique<ModelSystem>(*this))
+		, mModelSystem(std::make_unique<ModelSystem>(*this, mEngine.GetRenderer(), mEngine.GetResourcesManager()))
 		, mCameraSystem(std::make_unique<CameraSystem>(*this, mEngine.GetWindow()))
-		, mRenderingSystem(std::make_unique<RenderingSystem>(*this, mEngine.GetResourcesManager()))
 	{
+		ForEachSystem([](auto& system) {
+			system.Init();
+		});
 		mEntities[ROOT_ID].reset(new Entity(ROOT_ID, *this, "Root"));
 	}
 
@@ -51,12 +52,12 @@ namespace erm::ecs {
 		});
 	}
 
-	void ECS::OnRender(const Renderer& renderer)
+	void ECS::OnRender()
 	{
 		PROFILE_FUNCTION();
 
-		ForEachSystem([&renderer](auto& system) {
-			system.OnRender(renderer);
+		ForEachSystem([](auto& system) {
+			system.OnRender();
 		});
 	}
 
@@ -112,7 +113,6 @@ namespace erm::ecs {
 		function(*mAnimationSystem);
 		function(*mModelSystem);
 		function(*mCameraSystem);
-		function(*mRenderingSystem);
 	}
 
 } // namespace erm::ecs

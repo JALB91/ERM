@@ -1,32 +1,33 @@
 #include "erm/rendering/data_structs/Mesh.h"
 
 #include "erm/rendering/buffers/IndexBuffer.h"
-#include "erm/rendering/buffers/VertexArray.h"
 #include "erm/rendering/buffers/VertexBuffer.h"
-#include "erm/rendering/buffers/VertexBufferLayout.h"
 #include "erm/rendering/buffers/VertexData.h"
 
 namespace erm {
 
 	Mesh::Mesh(
+		Device& device,
 		DrawMode drawMode,
 		VertexData* vertices,
-		unsigned int verticesCount,
+		uint32_t verticesCount,
 		IndexData* indices,
-		unsigned int indicesCount,
+		uint32_t indicesCount,
+		const char* name /*= ""*/,
+		ShaderProgram* shaderProgram /*= nullptr*/,
 		Material* material /*= nullptr*/,
-		const std::string& name /*= ""*/
+		Texture* texture /*= nullptr*/
 		)
-		: mDrawMode(drawMode)
+		: mDevice(device)
+		, mDrawMode(drawMode)
+		, mName(name)
 		, mVerticesData(vertices)
 		, mVerticesDataCount(verticesCount)
 		, mIndicesData(indices)
 		, mIndicesDataCount(indicesCount)
+		, mShaderProgram(shaderProgram)
 		, mMaterial(material)
-		, mName(name)
-		, mVB(nullptr)
-		, mIB(nullptr)
-		, mVA(nullptr)
+		, mTexture(texture)
 	{}
 
 	Mesh::~Mesh()
@@ -43,16 +44,18 @@ namespace erm {
 	}
 
 	Mesh::Mesh(Mesh&& other)
-		: mDrawMode(other.mDrawMode)
+		: mDevice(other.mDevice)
+		, mDrawMode(other.mDrawMode)
+		, mName(std::move(other.mName))
 		, mVerticesData(other.mVerticesData)
 		, mVerticesDataCount(other.mVerticesDataCount)
 		, mIndicesData(other.mIndicesData)
 		, mIndicesDataCount(other.mIndicesDataCount)
-		, mMaterial(std::move(other.mMaterial))
-		, mName(std::move(other.mName))
-		, mVB(std::move(other.mVB))
-		, mIB(std::move(other.mIB))
-		, mVA(std::move(other.mVA))
+		, mShaderProgram(other.mShaderProgram)
+		, mMaterial(other.mMaterial)
+		, mTexture(other.mTexture)
+		, mVertexBuffer(std::move(other.mVertexBuffer))
+		, mIndexBuffer(std::move(other.mIndexBuffer))
 	{
 		other.mVerticesData = nullptr;
 		other.mVerticesDataCount = 0;
@@ -60,12 +63,12 @@ namespace erm {
 		other.mIndicesData = nullptr;
 		other.mIndicesDataCount = 0;
 
+		other.mShaderProgram = nullptr;
 		other.mMaterial = nullptr;
-		other.mName.clear();
+		other.mTexture = nullptr;
 
-		other.mVB.reset();
-		other.mIB.reset();
-		other.mVA.reset();
+		other.mVertexBuffer.reset();
+		other.mIndexBuffer.reset();
 	}
 
 	void Mesh::Setup()
@@ -80,26 +83,16 @@ namespace erm {
 			return;
 		}
 
-		mVB = std::make_unique<VertexBuffer>(
+		mVertexBuffer = std::make_unique<VertexBuffer>(
+			mDevice,
 			&mVerticesData[0].mPositionVertex[0],
-			static_cast<unsigned int>(
-				sizeof(VertexType) * kPositionVectorsLenght * mVerticesDataCount +
-				sizeof(VertexType) * kNormalVectorsLenght * mVerticesDataCount +
-				sizeof(VertexType) * kUVVectorsLenght * mVerticesDataCount +
-				sizeof(VertexType) * kMaxBonesNumber * mVerticesDataCount +
-				sizeof(IdType) * kMaxBonesNumber * mVerticesDataCount));
+			sizeof(VertexData) * mVerticesDataCount);
 
-		mIB = std::make_unique<IndexBuffer>(mIndicesData, mIndicesDataCount);
-
-		VertexBufferLayout vbl;
-		vbl.Push<VertexType>(kPositionVectorsLenght);
-		vbl.Push<VertexType>(kNormalVectorsLenght);
-		vbl.Push<VertexType>(kUVVectorsLenght);
-		vbl.Push<VertexType>(kMaxBonesNumber);
-		vbl.Push<IdType>(kMaxBonesNumber);
-
-		mVA = std::make_unique<VertexArray>();
-		mVA->AddBuffer(*mVB, vbl);
+		mIndexBuffer = std::make_unique<IndexBuffer>(
+			mDevice,
+			mIndicesData,
+			mIndicesDataCount * sizeof(IndexData),
+			mIndicesDataCount);
 	}
 
 } // namespace erm

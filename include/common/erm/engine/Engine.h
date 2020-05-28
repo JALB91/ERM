@@ -10,7 +10,7 @@
 namespace erm {
 	class ResourcesManager;
 	class Window;
-	class IDevice;
+	class Device;
 	class ImGuiHandle;
 	class RenderContext;
 	class Renderer;
@@ -48,7 +48,7 @@ namespace erm {
 		inline const FileLocator& GetFileLocator() const { return mFileLocator; }
 		inline ResourcesManager& GetResourcesManager() const { return *mResourcesManager; }
 		inline Window& GetWindow() const { return *mWindow; }
-		inline IDevice& GetDevice() const { return *mDevice; }
+		inline Device& GetDevice() const { return *mDevice; }
 		inline RenderContext& GetRenderContext() const { return *mRenderContext; }
 		inline Renderer& GetRenderer() const { return *mRenderer; }
 		inline ecs::ECS& GetECS() const { return *mECS; }
@@ -68,7 +68,7 @@ namespace erm {
 		FileLocator mFileLocator;
 
 		std::unique_ptr<Window> mWindow;
-		std::unique_ptr<IDevice> mDevice;
+		std::unique_ptr<Device> mDevice;
 		std::unique_ptr<ImGuiHandle> mImGuiHandle;
 		std::unique_ptr<RenderContext> mRenderContext;
 		std::unique_ptr<Renderer> mRenderer;

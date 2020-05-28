@@ -30,6 +30,7 @@ namespace erm::ecs {
 		RenderingSystem(ECS& ecs, ResourcesManager& resourcesManager);
 		~RenderingSystem();
 
+		// ISystem
 		void OnRender(const Renderer& renderer) override;
 
 	private:

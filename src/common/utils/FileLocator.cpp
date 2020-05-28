@@ -7,23 +7,30 @@
 
 namespace {
 
+	const char* const kObjModelExtension = ".obj";
+	const char* const kColladaModelExtension = ".dae";
+	const char* const kObjMaterialExtension = ".mtl";
+	const char* const kVertexShaderExtension = ".vert";
+	const char* const kFragmentShaderExtension = ".frag";
+	const char* const kPngTextureExtension = ".png";
+
 	const char* const kModelsDir = "models/";
 	const char* const kShadersDir = "shaders/";
 	const char* const kMaterialsDir = "models/";
 	const char* const kTexturesDir = "textures/";
 
-	std::array<const char*, 2> kSupportedModelsExtensions {".obj", ".dae"};
-	std::array<const char*, 1> kSupportedMaterialsExtensions {".mtl"};
-	std::array<const char*, 1> kSupportedShadersExtensions {".vert"};
-	std::array<const char*, 1> kSupportedTexturesExtensions {".png"};
+	std::array<const char*, 2> kSupportedModelsExtensions {kObjMaterialExtension, kColladaModelExtension};
+	std::array<const char*, 1> kSupportedMaterialsExtensions {kObjMaterialExtension};
+	std::array<const char*, 1> kSupportedShadersExtensions {kVertexShaderExtension};
+	std::array<const char*, 1> kSupportedTexturesExtensions {kPngTextureExtension};
 
-	std::map<std::string, const char*> kFilesAssociations {
-		{".obj", kModelsDir},
-		{".dae", kModelsDir},
-		{".mtl", kMaterialsDir},
-		{".frag", kShadersDir},
-		{".vert", kShadersDir},
-		{".png", kTexturesDir}};
+	std::map<std::string, std::vector<const char*>> kFilesAssociations {
+		{kObjModelExtension, {kModelsDir}},
+		{kColladaModelExtension, {kModelsDir}},
+		{kObjMaterialExtension, {kMaterialsDir}},
+		{kFragmentShaderExtension, {kShadersDir}},
+		{kVertexShaderExtension, {kShadersDir}},
+		{kPngTextureExtension, {kTexturesDir, kModelsDir}}};
 
 } // namespace
 
@@ -54,12 +61,12 @@ namespace erm {
 		mMaterials.clear();
 		mShaderPrograms.clear();
 
-		mModels.emplace_back("Defaults/Triangle");
-		mModels.emplace_back("Defaults/Square");
-		mModels.emplace_back("Defaults/Cube");
-		mModels.emplace_back("Defaults/Sphere");
-		mModels.emplace_back("Defaults/Spike");
-		mModels.emplace_back("Defaults/Grid");
+		mModels.emplace_back("Default/Triangle");
+		mModels.emplace_back("Default/Square");
+		mModels.emplace_back("Default/Cube");
+		mModels.emplace_back("Default/Sphere");
+		mModels.emplace_back("Default/Spike");
+		mModels.emplace_back("Default/Grid");
 
 		for (const char* ext : kSupportedModelsExtensions)
 		{
@@ -101,13 +108,16 @@ namespace erm {
 
 		if (it != kFilesAssociations.end())
 		{
-			std::string basePath = mResourcesRoot + it->second;
-			for (auto file : std::filesystem::directory_iterator(basePath))
+			for (const char* dirPath : it->second)
 			{
-				std::string path = file.path().string();
-				if (path.find(extension) != std::string::npos)
+				std::string basePath = mResourcesRoot + dirPath;
+				for (auto file : std::filesystem::directory_iterator(basePath))
 				{
-					files.emplace_back(includeExtension ? path : path.substr(0, path.find(extension)));
+					std::string path = file.path().string();
+					if (path.find(extension) != std::string::npos)
+					{
+						files.emplace_back(includeExtension ? path : path.substr(0, path.find(extension)));
+					}
 				}
 			}
 		}

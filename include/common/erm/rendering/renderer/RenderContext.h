@@ -1,7 +1,7 @@
 #pragma once
 
 #include "erm/rendering/enums/BlendFunction.h"
-#include "erm/rendering/enums/CullFace.h"
+#include "erm/rendering/enums/CullMode.h"
 #include "erm/rendering/enums/DepthFunction.h"
 #include "erm/rendering/enums/DrawMode.h"
 #include "erm/rendering/enums/FrontFace.h"
@@ -32,10 +32,10 @@ namespace erm {
 		void SetBlendFunction(BlendFunction sFactor, BlendFunction dFactor) const;
 
 		bool IsCullFaceEnabled() const;
-		CullFace GetCullFace() const;
+		CullMode GetCullMode() const;
 		FrontFace GetFrontFace() const;
 		void SetCullFaceEnabled(bool enabled) const;
-		void SetCullFace(CullFace cullFace) const;
+		void SetCullMode(CullMode cullMode) const;
 		void SetFrontFace(FrontFace frontFace) const;
 
 		PolygonMode GetPolygonMode() const;

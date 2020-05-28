@@ -2,12 +2,18 @@
 
 #include "erm/rendering/buffers/IndexData.h"
 
+#include <memory>
+
+namespace erm {
+	class IDevice;
+}
+
 namespace erm {
 
 	class IndexBuffer
 	{
 	public:
-		IndexBuffer(const IndexData* data, unsigned int count);
+		IndexBuffer(IDevice& device, IndexData* data, uint64_t count);
 		~IndexBuffer();
 
 		IndexBuffer(IndexBuffer&&) = delete;
@@ -16,14 +22,15 @@ namespace erm {
 		IndexBuffer& operator=(IndexBuffer&&) = delete;
 		IndexBuffer& operator=(const IndexBuffer&) = delete;
 
-		void Bind() const;
+		template<typename T>
+		void Bind(T arg) const;
 		void Unbind() const;
 
-		inline unsigned int GetCount() const { return mCount; }
+		uint64_t GetCount() const;
 
 	private:
-		const unsigned int mCount;
-		unsigned int mRendererId;
+		class Impl;
+		std::unique_ptr<Impl> mImpl;
 	};
 
 } // namespace erm

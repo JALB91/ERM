@@ -1,11 +1,18 @@
 #pragma once
 
+#include <memory>
+
+namespace erm {
+	class IDevice;
+	class VertexBufferLayout;
+} // namespace erm
+
 namespace erm {
 
 	class VertexBuffer
 	{
 	public:
-		VertexBuffer(const void* data, unsigned int size);
+		VertexBuffer(IDevice& device, VertexBufferLayout&& layout, void* data, uint64_t size);
 		~VertexBuffer();
 
 		VertexBuffer(VertexBuffer&&) = delete;
@@ -14,11 +21,13 @@ namespace erm {
 		VertexBuffer& operator=(VertexBuffer&&) = delete;
 		VertexBuffer& operator=(const VertexBuffer&) = delete;
 
-		void Bind() const;
+		template<typename T>
+		void Bind(T arg) const;
 		void Unbind() const;
 
 	private:
-		unsigned int mRendererId;
+		class Impl;
+		std::unique_ptr<Impl> mImpl;
 	};
 
 } // namespace erm

@@ -15,7 +15,6 @@ namespace erm::VkUtils {
 	extern bool IsDeviceSuitable(vk::PhysicalDevice device, vk::SurfaceKHR surface, const std::vector<const char*>& deviceExtensions);
 	extern vk::SurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& availableFormats);
 	extern vk::PresentModeKHR ChooseSwapPresentMode(const std::vector<vk::PresentModeKHR>& availablePresentModes);
-	extern vk::DescriptorSetLayout CreateDescriptorSetLayout(vk::Device device);
 
 	extern vk::Format FindSupportedDepthFormat(
 		vk::PhysicalDevice physicalDevice,
@@ -107,5 +106,11 @@ namespace erm::VkUtils {
 		void* bufferData,
 		vk::Buffer& dstBuffer,
 		vk::DeviceMemory& dstBufferMemory);
+
+	extern vk::VertexInputBindingDescription GetVertexBindingDescription();
+	extern std::vector<vk::VertexInputAttributeDescription> GetVertexAttributeDescriptions();
+
+	template<typename T, typename S>
+	T ToVulkanValue(S s);
 
 } // namespace erm::VkUtils

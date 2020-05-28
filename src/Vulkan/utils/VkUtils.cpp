@@ -1,5 +1,9 @@
 #include "erm/utils/VkUtils.h"
 
+#include "erm/rendering/buffers/VertexData.h"
+#include "erm/rendering/enums/DrawMode.h"
+#include "erm/rendering/enums/PolygonMode.h"
+
 #include <algorithm>
 #include <array>
 #include <iostream>
@@ -95,31 +99,6 @@ namespace erm::VkUtils {
 			}
 		}
 		return vk::PresentModeKHR::eFifo;
-	}
-
-	vk::DescriptorSetLayout CreateDescriptorSetLayout(vk::Device device)
-	{
-		vk::DescriptorSetLayoutBinding uboLayoutBinding {};
-		uboLayoutBinding.binding = 0;
-		uboLayoutBinding.descriptorType = vk::DescriptorType::eUniformBuffer;
-		uboLayoutBinding.descriptorCount = 1;
-		uboLayoutBinding.stageFlags = vk::ShaderStageFlagBits::eVertex;
-		uboLayoutBinding.pImmutableSamplers = nullptr;
-
-		vk::DescriptorSetLayoutBinding samplerLayoutBinding {};
-		samplerLayoutBinding.binding = 1;
-		samplerLayoutBinding.descriptorCount = 1;
-		samplerLayoutBinding.descriptorType = vk::DescriptorType::eCombinedImageSampler;
-		samplerLayoutBinding.pImmutableSamplers = nullptr;
-		samplerLayoutBinding.stageFlags = vk::ShaderStageFlagBits::eFragment;
-
-		std::array<vk::DescriptorSetLayoutBinding, 2> bindings = {uboLayoutBinding, samplerLayoutBinding};
-
-		vk::DescriptorSetLayoutCreateInfo layoutInfo {};
-		layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
-		layoutInfo.pBindings = bindings.data();
-
-		return device.createDescriptorSetLayout(layoutInfo);
 	}
 
 	vk::Format FindSupportedDepthFormat(
@@ -435,9 +414,8 @@ namespace erm::VkUtils {
 			stagingBuffer,
 			stagingBufferMemory);
 
-		void* data;
-		data = device.mapMemory(stagingBufferMemory, 0, bufferSize);
-		memcpy(data, bufferData, (size_t)bufferSize);
+		void* data = device.mapMemory(stagingBufferMemory, 0, bufferSize);
+		memcpy(data, bufferData, static_cast<size_t>(bufferSize));
 		device.unmapMemory(stagingBufferMemory);
 
 		CreateBuffer(
@@ -459,6 +437,68 @@ namespace erm::VkUtils {
 
 		device.destroyBuffer(stagingBuffer);
 		device.freeMemory(stagingBufferMemory);
+	}
+
+	vk::VertexInputBindingDescription GetVertexBindingDescription()
+	{
+		vk::VertexInputBindingDescription bindingDescription = {};
+		bindingDescription.binding = 0;
+		bindingDescription.stride = sizeof(erm::VertexData);
+		bindingDescription.inputRate = vk::VertexInputRate::eVertex;
+		return bindingDescription;
+	}
+
+	std::vector<vk::VertexInputAttributeDescription> GetVertexAttributeDescriptions()
+	{
+		std::vector<vk::VertexInputAttributeDescription> attributeDescriptions(3);
+		attributeDescriptions[0].binding = 0;
+		attributeDescriptions[0].location = 0;
+		attributeDescriptions[0].format = vk::Format::eR32G32B32Sfloat;
+		attributeDescriptions[0].offset = offsetof(erm::VertexData, mPositionVertex);
+
+		attributeDescriptions[1].binding = 0;
+		attributeDescriptions[1].location = 1;
+		attributeDescriptions[1].format = vk::Format::eR32G32B32Sfloat;
+		attributeDescriptions[1].offset = offsetof(erm::VertexData, mNormalVertex);
+
+		attributeDescriptions[2].binding = 0;
+		attributeDescriptions[2].location = 2;
+		attributeDescriptions[2].format = vk::Format::eR32G32Sfloat;
+		attributeDescriptions[2].offset = offsetof(erm::VertexData, mUVVertex);
+
+		return attributeDescriptions;
+	}
+
+	template<>
+	vk::PrimitiveTopology ToVulkanValue(DrawMode mode)
+	{
+		switch (mode)
+		{
+			case DrawMode::LINE_STRIP:
+				return vk::PrimitiveTopology::eLineStrip;
+			case DrawMode::LINES:
+				return vk::PrimitiveTopology::eLineList;
+			case DrawMode::TRIANGLE_FAN:
+				return vk::PrimitiveTopology::eTriangleFan;
+			case DrawMode::TRIANGLE_STRIP:
+				return vk::PrimitiveTopology::eTriangleStrip;
+			case DrawMode::TRIANGLES:
+				return vk::PrimitiveTopology::eTriangleList;
+		}
+	}
+
+	template<>
+	vk::PolygonMode ToVulkanValue(PolygonMode mode)
+	{
+		switch (mode)
+		{
+			case PolygonMode::POINT:
+				return vk::PolygonMode::ePoint;
+			case PolygonMode::LINE:
+				return vk::PolygonMode::eLine;
+			case PolygonMode::FILL:
+				return vk::PolygonMode::eFill;
+		}
 	}
 
 } // namespace erm::VkUtils

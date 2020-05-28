@@ -8,11 +8,15 @@
 #include <vector>
 
 namespace erm {
+	class Device;
+}
+
+namespace erm {
 
 	class Model
 	{
 	public:
-		Model(const char* path, const char* name);
+		Model(Device& device, const char* path, const char* name);
 		~Model();
 
 		Model(Model&&) = delete;
@@ -36,9 +40,20 @@ namespace erm {
 		inline void SetDirty(bool isDirty) { mIsDirty = isDirty; }
 
 		void AddMesh(Mesh&& mesh);
+		void AddMesh(
+			DrawMode drawMode,
+			VertexData* vertices,
+			uint32_t verticesCount,
+			IndexData* indices,
+			uint32_t indicesCount,
+			const char* name = "",
+			ShaderProgram* shaderProgram = nullptr,
+			Material* material = nullptr,
+			Texture* texture = nullptr);
 		void UpdateLocalBound();
 
 	private:
+		Device& mDevice;
 		const std::string mPath;
 		std::string mName;
 		std::vector<Mesh> mMeshes;

@@ -8,14 +8,16 @@
 #include <mutex>
 
 namespace erm {
+	class Device;
 	class Model;
-}
+} // namespace erm
 
 namespace erm {
 
 	class ResourcesLoader
 	{
 	public:
+		ResourcesLoader(Device& device);
 		~ResourcesLoader();
 
 		void OnUpdate();
@@ -30,6 +32,7 @@ namespace erm {
 			Animations& animations);
 
 	private:
+		Device& mDevice;
 		std::mutex mMutex;
 		std::atomic<bool> mStop;
 		std::deque<erm::Model*> mLoadingModels;

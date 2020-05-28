@@ -2,7 +2,7 @@
 
 namespace erm {
 
-	enum class CullFace : short
+	enum class CullMode : short
 	{
 		FRONT,
 		BACK,

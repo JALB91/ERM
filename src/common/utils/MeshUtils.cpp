@@ -3,9 +3,10 @@
 #include "erm/rendering/buffers/VertexData.h"
 #include "erm/rendering/data_structs/Mesh.h"
 
-namespace erm {
+namespace erm::MeshUtils {
 
-	Mesh MeshUtils::CreateTriangle(
+	Mesh CreateTriangle(
+		Device& device,
 		const math::vec3& a /* = math::vec3(-1.0f, -1.0f, 0.0f) */,
 		const math::vec3& b /* = math::vec3(1.0f, -1.0f, 0.0f) */,
 		const math::vec3& c /* = math::vec3(-1.0f, 1.0f, 0.0f) */
@@ -26,12 +27,13 @@ namespace erm {
 		indices[1] = 1;
 		indices[2] = 2;
 
-		Mesh mesh(DrawMode::TRIANGLES, vertices, verticesCount, indices, indicesCount);
+		Mesh mesh(device, DrawMode::TRIANGLES, vertices, verticesCount, indices, indicesCount);
 		mesh.Setup();
 		return mesh;
 	}
 
-	Mesh MeshUtils::CreateSquare(
+	Mesh CreateSquare(
+		Device& device,
 		float width /* = 1.0f */,
 		float height /* = 1.0f */
 	)
@@ -59,12 +61,13 @@ namespace erm {
 		indices[4] = 1;
 		indices[5] = 3;
 
-		Mesh mesh(DrawMode::TRIANGLES, vertices, verticesCount, indices, indicesCount);
+		Mesh mesh(device, DrawMode::TRIANGLES, vertices, verticesCount, indices, indicesCount);
 		mesh.Setup();
 		return mesh;
 	}
 
-	Mesh MeshUtils::CreateCube(
+	Mesh CreateCube(
+		Device& device,
 		float sizeX /* = 1.0f */,
 		float sizeY /* = 1.0f */,
 		float sizeZ /* = 1.0f */
@@ -178,12 +181,13 @@ namespace erm {
 			indices[(i * 6) + 5] = offset + 2;
 		}
 
-		Mesh mesh(DrawMode::TRIANGLES, vertices, verticesCount, indices, indicesCount);
+		Mesh mesh(device, DrawMode::TRIANGLES, vertices, verticesCount, indices, indicesCount);
 		mesh.Setup();
 		return mesh;
 	}
 
-	Mesh MeshUtils::CreateSpike(
+	Mesh CreateSpike(
+		Device& device,
 		float sizeX /* = 1.0f */,
 		float sizeY /* = 1.0f */,
 		float sizeZ /* = 1.0f */
@@ -263,12 +267,13 @@ namespace erm {
 		indices[16] = 14;
 		indices[17] = 15;
 
-		Mesh mesh(DrawMode::TRIANGLES, vertices, verticesCount, indices, indicesCount);
+		Mesh mesh(device, DrawMode::TRIANGLES, vertices, verticesCount, indices, indicesCount);
 		mesh.Setup();
 		return mesh;
 	}
 
-	Mesh MeshUtils::CreateSphere(
+	Mesh CreateSphere(
+		Device& device,
 		float radius /* = 1.0f */,
 		unsigned int sectors /* = 10 */,
 		unsigned int rings /* = 10 */
@@ -330,12 +335,13 @@ namespace erm {
 			}
 		}
 
-		Mesh mesh(DrawMode::TRIANGLES, vertices, verticesCount, indices, indicesCount);
+		Mesh mesh(device, DrawMode::TRIANGLES, vertices, verticesCount, indices, indicesCount);
 		mesh.Setup();
 		return mesh;
 	}
 
-	Mesh MeshUtils::CreateGrid(
+	Mesh CreateGrid(
+		Device& device,
 		unsigned int sizeX /*= 100*/,
 		unsigned int sizeY /*= 100*/,
 		float width /*= 1.0f*/,
@@ -398,9 +404,9 @@ namespace erm {
 			++index;
 		}
 
-		Mesh mesh(DrawMode::LINES, vertices, verticesCount, indices, indicesCount);
+		Mesh mesh(device, DrawMode::TRIANGLES, vertices, verticesCount, indices, indicesCount);
 		mesh.Setup();
 		return mesh;
 	}
 
-} // namespace erm
+} // namespace erm::MeshUtils

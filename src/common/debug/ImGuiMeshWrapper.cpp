@@ -16,8 +16,8 @@ namespace ImGui {
 		{
 			ImGui::Indent();
 
-			ImGui::Text("Vertices: %d", mesh.GetVerticesDataCount());
-			ImGui::Text("Indices: %d", mesh.GetIndicesCount());
+			ImGui::Text("Vertices: %u", mesh.GetVerticesDataCount());
+			ImGui::Text("Indices: %u", mesh.GetIndicesCount());
 			ImGui::ShowMaterialDebug(engine, mesh);
 
 			ImGui::Unindent();

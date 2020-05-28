@@ -4,7 +4,7 @@
 #include "erm/engine/Engine.h"
 
 #include "erm/rendering/enums/BlendFunction.h"
-#include "erm/rendering/enums/CullFace.h"
+#include "erm/rendering/enums/CullMode.h"
 #include "erm/rendering/enums/DepthFunction.h"
 #include "erm/rendering/enums/DrawMode.h"
 #include "erm/rendering/enums/FrontFace.h"
@@ -44,16 +44,16 @@ namespace {
 		{"CONSTANT_ALPHA", erm::BlendFunction::CONSTANT_ALPHA},
 		{"ONE_MINUS_CONSTANT_ALPHA", erm::BlendFunction::ONE_MINUS_CONSTANT_ALPHA}};
 
-	const std::vector<std::pair<const char*, erm::CullFace>> kCullFace {
-		{"FRONT", erm::CullFace::FRONT},
-		{"BACK", erm::CullFace::BACK},
-		{"FRONT_AND_BACK", erm::CullFace::FRONT_AND_BACK}};
+	const std::vector<std::pair<const char*, erm::CullMode>> kCullModes {
+		{"FRONT", erm::CullMode::FRONT},
+		{"BACK", erm::CullMode::BACK},
+		{"FRONT_AND_BACK", erm::CullMode::FRONT_AND_BACK}};
 
-	const std::vector<std::pair<const char*, erm::FrontFace>> kFrontFace {
+	const std::vector<std::pair<const char*, erm::FrontFace>> kFrontFaces {
 		{"CW", erm::FrontFace::CW},
 		{"CCW", erm::FrontFace::CCW}};
 
-	const std::vector<std::pair<const char*, erm::PolygonMode>> kPolygonMode {
+	const std::vector<std::pair<const char*, erm::PolygonMode>> kPolygonModes {
 		{"POINT", erm::PolygonMode::POINT},
 		{"LINE", erm::PolygonMode::LINE},
 		{"FILL", erm::PolygonMode::FILL}};
@@ -87,16 +87,16 @@ namespace ImGui {
 			ImGui::Separator();
 
 			bool isCullFaceEnabled = renderContext.IsCullFaceEnabled();
-			erm::CullFace cullFace = renderContext.GetCullFace();
+			erm::CullMode cullMode = renderContext.GetCullMode();
 			erm::FrontFace frontFace = renderContext.GetFrontFace();
 			ImGui::Checkbox("Cull face enabled", &isCullFaceEnabled);
-			ImGui::ShowComboOf(kCullFace, "Cull Face", cullFace);
-			ImGui::ShowComboOf(kFrontFace, "Front Face", frontFace);
+			ImGui::ShowComboOf(kCullModes, "Cull Mode", cullMode);
+			ImGui::ShowComboOf(kFrontFaces, "Front Face", frontFace);
 
 			ImGui::Separator();
 
 			erm::PolygonMode polygonMode = renderContext.GetPolygonMode();
-			ImGui::ShowComboOf(kPolygonMode, "Polygon Mode", polygonMode);
+			ImGui::ShowComboOf(kPolygonModes, "Polygon Mode", polygonMode);
 
 			ImGui::Separator();
 
@@ -110,7 +110,7 @@ namespace ImGui {
 			renderContext.SetBlendFunction(blendSrc, blendDst);
 
 			renderContext.SetCullFaceEnabled(isCullFaceEnabled);
-			renderContext.SetCullFace(cullFace);
+			renderContext.SetCullMode(cullMode);
 			renderContext.SetFrontFace(frontFace);
 
 			renderContext.SetPolygonMode(polygonMode);

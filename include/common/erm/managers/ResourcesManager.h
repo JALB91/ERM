@@ -11,8 +11,9 @@
 #include <vector>
 
 namespace erm {
+	class Device;
 	class ResourcesLoader;
-}
+} // namespace erm
 
 namespace erm {
 
@@ -29,7 +30,7 @@ namespace erm {
 	class ResourcesManager
 	{
 	public:
-		ResourcesManager();
+		ResourcesManager(Device& device);
 		~ResourcesManager();
 
 		void LoadDefaultResources();
@@ -58,6 +59,7 @@ namespace erm {
 		SkeletonAnimation* GetAnimation(const char* name);
 
 	private:
+		Device& mDevice;
 		std::unique_ptr<ResourcesLoader> mResourcesLoader;
 
 		Shaders mLoadedShaderPrograms;
