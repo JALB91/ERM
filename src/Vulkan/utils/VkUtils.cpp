@@ -1,7 +1,10 @@
 #include "erm/utils/VkUtils.h"
 
 #include "erm/rendering/buffers/VertexData.h"
+#include "erm/rendering/enums/CullMode.h"
+#include "erm/rendering/enums/DepthFunction.h"
 #include "erm/rendering/enums/DrawMode.h"
+#include "erm/rendering/enums/FrontFace.h"
 #include "erm/rendering/enums/PolygonMode.h"
 
 #include <algorithm>
@@ -500,6 +503,61 @@ namespace erm::VkUtils {
 			case PolygonMode::FILL:
 			default:
 				return vk::PolygonMode::eFill;
+		}
+	}
+
+	template<>
+	vk::CompareOp ToVulkanValue(DepthFunction function)
+	{
+		switch (function)
+		{
+			case DepthFunction::ALWAYS:
+				return vk::CompareOp::eAlways;
+			case DepthFunction::NEVER:
+				return vk::CompareOp::eNever;
+			case DepthFunction::EQUAL:
+				return vk::CompareOp::eEqual;
+			case DepthFunction::GEQUAL:
+				return vk::CompareOp::eGreaterOrEqual;
+			case DepthFunction::GREATER:
+				return vk::CompareOp::eGreater;
+			case DepthFunction::LEQUAL:
+				return vk::CompareOp::eLessOrEqual;
+			case DepthFunction::NOT_EQUAL:
+				return vk::CompareOp::eNotEqual;
+			default:
+			case DepthFunction::LESS:
+				return vk::CompareOp::eLess;
+		}
+	}
+
+	template<>
+	vk::CullModeFlagBits ToVulkanValue(CullMode mode)
+	{
+		switch (mode)
+		{
+			case CullMode::BACK:
+				return vk::CullModeFlagBits::eBack;
+			case CullMode::FRONT:
+				return vk::CullModeFlagBits::eFront;
+			case CullMode::FRONT_AND_BACK:
+				return vk::CullModeFlagBits::eFrontAndBack;
+			default:
+			case CullMode::NONE:
+				return vk::CullModeFlagBits::eNone;
+		}
+	}
+
+	template<>
+	vk::FrontFace ToVulkanValue(FrontFace frontFace)
+	{
+		switch (frontFace)
+		{
+			case FrontFace::CCW:
+				return vk::FrontFace::eCounterClockwise;
+			default:
+			case FrontFace::CW:
+				return vk::FrontFace::eClockwise;
 		}
 	}
 

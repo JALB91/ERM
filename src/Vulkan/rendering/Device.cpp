@@ -311,7 +311,7 @@ namespace erm {
 
 		vk::CommandPoolCreateInfo poolInfo = {};
 		poolInfo.queueFamilyIndex = queueFamilyIndices.mGraphicsFamily.value();
-		poolInfo.flags = {}; // Optional
+		poolInfo.flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
 
 		mCommandPool = mDevice->createCommandPool(poolInfo);
 	}

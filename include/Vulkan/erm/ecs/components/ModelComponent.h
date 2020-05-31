@@ -24,9 +24,10 @@ namespace erm::ecs {
 		friend class ModelSystem;
 
 	public:
-		ModelComponent(Model* model = nullptr)
+		ModelComponent(Model* model = nullptr, const RenderConfigs& renderConfigs = {})
 			: mModel(model)
 			, mShouldShowBoundingBox(false)
+			, mRenderData(renderConfigs)
 		{}
 
 		SENSIBLE_MEMBER(Model, Model*, mModel)

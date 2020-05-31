@@ -3,6 +3,7 @@
 #include "erm/rendering/buffers/UniformBuffer.h"
 #include "erm/rendering/data_structs/RenderConfigs.h"
 
+#include <optional>
 #include <vector>
 
 namespace erm {
@@ -21,8 +22,9 @@ namespace erm {
 
 		RenderConfigs mRenderConfigs;
 
-		UniformBuffer mUniformBuffer;
+		UniformBufferObject mUBO;
 		std::vector<Mesh*> mMehses;
+		std::optional<uint32_t> mRenderingId;
 	};
 
 } // namespace erm

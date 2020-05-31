@@ -1,16 +1,17 @@
 #pragma once
 
+#include "erm/rendering/data_structs/BindingResources.h"
 #include "erm/rendering/data_structs/RenderConfigs.h"
 
 #include <vulkan/vulkan.hpp>
 
-#include <map>
 #include <vector>
 
 namespace erm {
 	class Device;
+	class Renderer;
 	struct RenderConfigs;
-	struct UniformBuffer;
+	struct RenderData;
 } // namespace erm
 
 namespace erm {
@@ -20,52 +21,36 @@ namespace erm {
 	public:
 		RenderingResources(
 			Device& device,
-			const RenderConfigs& renderConfigs,
-			const std::vector<vk::ImageView>& swapChainImageViews,
-			vk::Format swapChainImageFormat,
-			vk::Sampler textureSampler);
+			Renderer& renderer,
+			const RenderConfigs& renderConfigs);
 		~RenderingResources();
 
-		inline const RenderConfigs& GetRenderConfigs() const { return mRenderConfigs; }
-		inline const std::vector<vk::CommandBuffer>& GetCommandBuffers() const { return mCommandBuffers; }
-
-		void UpdateUniformBuffer(uint32_t index, const UniformBuffer& ub) const;
+		void CreateDescriptorPool(vk::DescriptorPoolCreateInfo& info);
+		void UpdateRenderingResources(std::vector<RenderData*>& renderData, uint32_t imageIndex);
 
 	private:
 		void CreateRenderPass();
 		void CreatePipeline();
 		void CreateDepthResources();
 		void CreateFramebuffers();
-		void CreateUniformBuffers();
 		void CreateDescriptorPool();
-		void CreateDescriptorSets();
 		void CreateCommandBuffers();
 
 	public:
 		Device& mDevice;
+		Renderer& mRenderer;
 		const RenderConfigs mRenderConfigs;
-
-		const std::vector<vk::ImageView>& mSwapChainImageViews;
-		vk::Format mSwapChainImageFormat;
-		vk::Sampler mTextureSampler;
 
 		vk::RenderPass mRenderPass;
 		vk::PipelineLayout mPipelineLayout;
 		vk::Pipeline mPipeline;
 
-		vk::Image mDepthImage;
-		vk::DeviceMemory mDepthImageMemory;
-		vk::ImageView mDepthImageView;
-
 		std::vector<vk::Framebuffer> mSwapChainFramebuffers;
-
-		std::vector<vk::Buffer> mUniformBuffers;
-		std::vector<vk::DeviceMemory> mUniformBuffersMemory;
 
 		vk::DescriptorPool mDescriptorPool;
 		vk::DescriptorSetLayout mDescriptorSetLayout;
-		std::vector<vk::DescriptorSet> mDescriptorSets;
 
+		std::vector<BindingResources> mBindingResources;
 		std::vector<vk::CommandBuffer> mCommandBuffers;
 	};
 

@@ -30,14 +30,7 @@ namespace erm::ecs {
 		: ISystem<ModelComponent>(ecs)
 		, mRenderer(renderer)
 		, mResourcesManager(resourcesManager)
-	{
-		mRenderer.AddSwapChainListener(this);
-	}
-
-	ModelSystem::~ModelSystem()
-	{
-		mRenderer.RemoveSwapChainListener(this);
-	}
+	{}
 
 	void ModelSystem::Init()
 	{
@@ -48,11 +41,7 @@ namespace erm::ecs {
 
 		mTexture = mResourcesManager.GetOrCreateTexture("res/textures/viking_room.png");
 
-		vk::Extent2D extent = mRenderer.GetSwapChainExtent();
-
 		mDefaultRenderConfigs.mShaderProgram = mResourcesManager.GetOrCreateShaderProgram(kDefaultModelShaderPath);
-		mDefaultRenderConfigs.mViewport.mMin = {0.0f, 0.0f};
-		mDefaultRenderConfigs.mViewport.mMax = {extent.width, extent.height};
 		mDefaultRenderConfigs.mDrawMode = DrawMode::TRIANGLES;
 		mDefaultRenderConfigs.mPolygonMode = PolygonMode::FILL;
 		mDefaultRenderConfigs.mTexture = mTexture;
@@ -91,6 +80,7 @@ namespace erm::ecs {
 			if (!component.mModel || component.mModel->GetMeshes().empty())
 				return;
 
+			vk::Extent2D extent = mRenderer.GetSwapChainExtent();
 			static auto startTime = std::chrono::high_resolution_clock::now();
 
 			auto currentTime = std::chrono::high_resolution_clock::now();
@@ -103,13 +93,13 @@ namespace erm::ecs {
 			view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 
 			math::mat4 proj = glm::identity<math::mat4>();
-			proj = glm::perspective(glm::radians(45.0f), mDefaultRenderConfigs.mViewport.GetSize().x / mDefaultRenderConfigs.mViewport.GetSize().y, 0.1f, 10.0f);
+			proj = glm::perspective(glm::radians(45.0f), static_cast<float>(extent.width) / static_cast<float>(extent.height), 0.1f, 10.0f);
 			proj[1][1] *= -1;
 
-			UniformBuffer ubo;
+			UniformBufferObject ubo;
 			ubo.mMVP = proj * view * model;
 
-			component.mRenderData.mUniformBuffer = std::move(ubo);
+			component.mRenderData.mUBO = std::move(ubo);
 			SubmitRenderData(component);
 		});
 	}
@@ -117,19 +107,10 @@ namespace erm::ecs {
 	void ModelSystem::OnComponentAdded(EntityId id)
 	{
 		ModelComponent* component = GetComponent(id);
+		Texture* tex = component->mRenderData.mRenderConfigs.mTexture;
 		component->mRenderData.mRenderConfigs = mDefaultRenderConfigs;
-	}
-
-	void ModelSystem::SwapChainCleanup()
-	{}
-
-	void ModelSystem::SwapChainCreated()
-	{
-		ForEachComponent([this](ModelComponent& component) {
-			if (!component.mModel || component.mModel->GetMeshes().empty())
-				return;
-			SubmitRenderData(component);
-		});
+		if (tex)
+			component->mRenderData.mRenderConfigs.mTexture = tex;
 	}
 
 	void ModelSystem::SubmitRenderData(ModelComponent& component)
@@ -144,18 +125,6 @@ namespace erm::ecs {
 		if (component.mRenderData.mMehses.empty())
 			return;
 		mRenderer.SubmitRenderData(component.mRenderData);
-	}
-
-	RenderConfigs ModelSystem::GetRenderConfigsForMesh(const Mesh& mesh)
-	{
-		RenderConfigs config = mDefaultRenderConfigs;
-
-		(void)mesh;
-		//		config.mDrawMode = mesh.GetDrawMode();
-		//		config.mShaderProgram = mesh.GetShaderProgram();
-		//		config.mMaterial = mesh.GetMaterial();
-
-		return config;
 	}
 
 } // namespace erm::ecs

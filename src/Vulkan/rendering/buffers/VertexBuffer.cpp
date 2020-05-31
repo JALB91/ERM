@@ -2,7 +2,6 @@
 
 #include "erm/rendering/Device.h"
 
-#include "erm/utils/Utils.h"
 #include "erm/utils/VkUtils.h"
 
 namespace erm {
@@ -11,24 +10,18 @@ namespace erm {
 		Device& device,
 		void* data,
 		size_t size)
-		: mDevice(device)
+		: Buffer(device, size)
 	{
 		VkUtils::CreateDeviceLocalBuffer(
-			mDevice.GetTransferQueue(),
-			mDevice.GetCommandPool(),
-			mDevice.GetVkPhysicalDevice(),
-			mDevice.GetVkDevice(),
+			device.GetTransferQueue(),
+			device.GetCommandPool(),
+			device.GetVkPhysicalDevice(),
+			device.GetVkDevice(),
 			vk::BufferUsageFlagBits::eVertexBuffer,
 			size,
 			data,
 			mBuffer,
 			mBufferMemory);
-	}
-
-	VertexBuffer::~VertexBuffer()
-	{
-		mDevice->freeMemory(mBufferMemory);
-		mDevice->destroyBuffer(mBuffer);
 	}
 
 	void VertexBuffer::Bind(const vk::CommandBuffer& commandBuffer) const

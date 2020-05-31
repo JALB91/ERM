@@ -1,5 +1,7 @@
 #include "erm/rendering/renderer/Renderer.h"
 
+#include "erm/debug/ImGuiWrapper.h"
+
 #include "erm/rendering/Device.h"
 #include "erm/rendering/buffers/IndexBuffer.h"
 #include "erm/rendering/buffers/UniformBuffer.h"
@@ -33,11 +35,14 @@ namespace erm {
 		, mDevice(device)
 		, mCurrentFrame(0)
 		, mCurrentImageIndex(0)
+		, mMinImageCount(0)
+		, mImageCount(0)
 		, mIsImageIndexValid(false)
 		, mFramebufferResized(true)
 	{
 		CreateSwapChain();
 		CreateImageViews();
+		CreateDepthResources();
 		CreateTextureSampler();
 		CreateSyncObjects();
 	}
@@ -65,6 +70,9 @@ namespace erm {
 
 	void Renderer::OnPreRender()
 	{
+		if (mRenderingResources.empty())
+			return;
+
 		mDevice->waitForFences(1, &mInFlightFences[mCurrentFrame], VK_TRUE, UINT64_MAX);
 
 		vk::Result result = mDevice->acquireNextImageKHR(mSwapChain, UINT64_MAX, mImageAvailableSemaphores[mCurrentFrame], {}, &mCurrentImageIndex);
@@ -95,27 +103,39 @@ namespace erm {
 		if (!mIsImageIndexValid)
 			return;
 
-		for (const auto& resources : mRenderingResources)
+		RegisterCommandBuffers();
+
+		std::vector<vk::CommandBuffer> commandBuffers(mRenderingResources.size());
+
+		for (size_t i = 0; i < mRenderingResources.size(); ++i)
 		{
-			const std::vector<vk::CommandBuffer>& cmdBuffers = resources->GetCommandBuffers();
-
-			vk::PipelineStageFlags waitStages[] = {vk::PipelineStageFlagBits::eColorAttachmentOutput};
-			vk::SubmitInfo submitInfo = {};
-			submitInfo.waitSemaphoreCount = 1;
-			submitInfo.pWaitSemaphores = &mImageAvailableSemaphores[mCurrentFrame];
-			submitInfo.pWaitDstStageMask = waitStages;
-			submitInfo.commandBufferCount = 1;
-			submitInfo.pCommandBuffers = &cmdBuffers[GetCurrentImageIndex()];
-			submitInfo.signalSemaphoreCount = 1;
-			submitInfo.pSignalSemaphores = &mRenderFinishedSemaphores[mCurrentFrame];
-
-			mDevice->resetFences(1, &mInFlightFences[mCurrentFrame]);
-
-			if (mDevice.GetGraphicsQueue().submit(1, &submitInfo, mInFlightFences[mCurrentFrame]) != vk::Result::eSuccess)
-			{
-				throw std::runtime_error("Failed to submit draw command buffer");
-			}
+			commandBuffers[i] = mRenderingResources[i]->mCommandBuffers[mCurrentImageIndex];
 		}
+
+		vk::PipelineStageFlags waitStages[] = {vk::PipelineStageFlagBits::eColorAttachmentOutput};
+		vk::SubmitInfo submitInfo = {};
+		submitInfo.waitSemaphoreCount = 1;
+		submitInfo.pWaitSemaphores = &mImageAvailableSemaphores[mCurrentFrame];
+		submitInfo.pWaitDstStageMask = waitStages;
+		submitInfo.commandBufferCount = commandBuffers.size();
+		submitInfo.pCommandBuffers = commandBuffers.data();
+		submitInfo.signalSemaphoreCount = 1;
+		submitInfo.pSignalSemaphores = &mRenderFinishedSemaphores[mCurrentFrame];
+
+		mDevice->resetFences(1, &mInFlightFences[mCurrentFrame]);
+
+		if (mDevice.GetGraphicsQueue().submit(1, &submitInfo, mInFlightFences[mCurrentFrame]) != vk::Result::eSuccess)
+		{
+			throw std::runtime_error("Failed to submit draw command buffer");
+		}
+	}
+
+	void Renderer::OnPostRender()
+	{
+		mRenderData.clear();
+
+		if (!mIsImageIndexValid)
+			return;
 
 		vk::PresentInfoKHR presentInfo = {};
 		presentInfo.waitSemaphoreCount = 1;
@@ -139,18 +159,8 @@ namespace erm {
 		}
 
 		mCurrentFrame = (mCurrentFrame + 1) % kMaxFramesInFlight;
-	}
 
-	void Renderer::OnPostRender()
-	{
 		mIsImageIndexValid = false;
-		for (const auto& resources : mRenderingResources)
-		{
-			for (const vk::CommandBuffer& buffer : resources->GetCommandBuffers())
-			{
-				buffer.reset({});
-			}
-		}
 	}
 
 	void Renderer::AddSwapChainListener(ISwapChainListener* listener)
@@ -167,84 +177,22 @@ namespace erm {
 		}
 	}
 
-	size_t Renderer::GetCurrentFrame() const
-	{
-		return mCurrentFrame;
-	}
-
-	uint32_t Renderer::GetCurrentImageIndex() const
-	{
-		return mCurrentImageIndex;
-	}
-
-	vk::Extent2D Renderer::GetSwapChainExtent() const
-	{
-		return mSwapChainExtent;
-	}
-
-	vk::Sampler Renderer::GetTextureSampler() const
-	{
-		return mTextureSampler;
-	}
-
-	void Renderer::SubmitRenderData(const RenderData& data)
+	void Renderer::SubmitRenderData(RenderData& data)
 	{
 		ASSERT(!data.mMehses.empty());
 
-		const RenderingResources* resources = GetOrCreateRenderingResources(data.mRenderConfigs);
+		RenderingResources* resources = GetOrCreateRenderingResources(data.mRenderConfigs);
 		if (!resources)
 			return;
 
-		resources->UpdateUniformBuffer(GetCurrentImageIndex(), data.mUniformBuffer);
-
-		const std::vector<vk::CommandBuffer>& commandBuffers = resources->GetCommandBuffers();
-
-		for (size_t i = 0; i < commandBuffers.size(); ++i)
-		{
-			const vk::CommandBuffer& commandBuffer = commandBuffers[i];
-
-			vk::CommandBufferBeginInfo beginInfo = {};
-			beginInfo.flags = {}; // Optional
-			beginInfo.pInheritanceInfo = nullptr; // Optional
-
-			commandBuffer.begin(beginInfo);
-
-			std::array<vk::ClearValue, 2> clearValues {};
-			clearValues[0].color.float32[0] = 0.0f;
-			clearValues[0].color.float32[1] = 0.0f;
-			clearValues[0].color.float32[2] = 0.0f;
-			clearValues[0].color.float32[3] = 1.0f;
-			clearValues[1].setDepthStencil({1.0f, 0});
-
-			vk::RenderPassBeginInfo renderPassInfo = {};
-			renderPassInfo.renderPass = resources->mRenderPass;
-			renderPassInfo.framebuffer = resources->mSwapChainFramebuffers[i];
-			renderPassInfo.renderArea.offset = vk::Offset2D {0, 0};
-			renderPassInfo.renderArea.extent = mSwapChainExtent;
-			renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-			renderPassInfo.pClearValues = clearValues.data();
-
-			commandBuffer.beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
-			commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, resources->mPipeline);
-
-			for (const Mesh* mesh : data.mMehses)
-			{
-				mesh->GetVertexBuffer().Bind(commandBuffer);
-				mesh->GetIndexBuffer().Bind(commandBuffer);
-				commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, resources->mPipelineLayout, 0, 1, &resources->mDescriptorSets[i], 0, nullptr);
-				commandBuffer.drawIndexed(mesh->GetIndexBuffer().GetCount(), 1, 0, 0, 0);
-			}
-
-			commandBuffer.endRenderPass();
-			commandBuffer.end();
-		}
+		mRenderData[resources].emplace_back(&data);
 	}
 
-	const RenderingResources* Renderer::GetOrCreateRenderingResources(const RenderConfigs& renderConfigs)
+	RenderingResources* Renderer::GetOrCreateRenderingResources(const RenderConfigs& renderConfigs)
 	{
 		for (const auto& resources : mRenderingResources)
 		{
-			if (resources->GetRenderConfigs() == renderConfigs)
+			if (renderConfigs.IsRenderPassLevelCompatible(resources->mRenderConfigs) && renderConfigs.IsPipelineLevelCompatible(resources->mRenderConfigs))
 			{
 				return resources.get();
 			}
@@ -253,9 +201,17 @@ namespace erm {
 		if (!renderConfigs.mShaderProgram)
 			return nullptr;
 
-		mRenderingResources.emplace_back(std::make_unique<RenderingResources>(mDevice, renderConfigs, mSwapChainImageViews, mSwapChainImageFormat, mTextureSampler));
+		mRenderingResources.emplace_back(std::make_unique<RenderingResources>(mDevice, *this, renderConfigs));
 
 		return mRenderingResources.back().get();
+	}
+
+	void Renderer::RegisterCommandBuffers()
+	{
+		for (auto& pair : mRenderData)
+		{
+			pair.first->UpdateRenderingResources(pair.second, mCurrentImageIndex);
+		}
 	}
 
 	void Renderer::RecreateSwapChain()
@@ -267,24 +223,33 @@ namespace erm {
 			listener->SwapChainCleanup();
 		}
 
+		ImGuiWrapper::Cleanup();
+
 		CleanupSwapChain();
 
 		CreateSwapChain();
 		CreateImageViews();
+		CreateDepthResources();
 
 		for (ISwapChainListener* listener : mSwapChainListeners)
 		{
 			listener->SwapChainCreated();
 		}
+
+		ImGuiWrapper::Create();
 	}
 
 	void Renderer::CleanupSwapChain()
 	{
+		mRenderData.clear();
 		mRenderingResources.clear();
 		for (size_t i = 0; i < mSwapChainImageViews.size(); ++i)
 		{
 			mDevice->destroyImageView(mSwapChainImageViews[i], nullptr);
 		}
+		mDevice->destroyImageView(mDepthImageView);
+		mDevice->destroyImage(mDepthImage);
+		mDevice->freeMemory(mDepthImageMemory);
 		mDevice->destroySwapchainKHR(mSwapChain, nullptr);
 	}
 
@@ -301,15 +266,16 @@ namespace erm {
 		mSwapChainExtent = VkUtils::ChooseSwapExtent(swapChainSupport.mCapabilities, width, height);
 		mSwapChainImageFormat = surfaceFormat.format;
 
-		uint32_t imageCount = swapChainSupport.mCapabilities.minImageCount + 1;
-		if (swapChainSupport.mCapabilities.maxImageCount > 0 && imageCount > swapChainSupport.mCapabilities.maxImageCount)
+		mMinImageCount = swapChainSupport.mCapabilities.minImageCount;
+		mImageCount = mMinImageCount + 1;
+		if (swapChainSupport.mCapabilities.maxImageCount > 0 && mImageCount > swapChainSupport.mCapabilities.maxImageCount)
 		{
-			imageCount = swapChainSupport.mCapabilities.maxImageCount;
+			mImageCount = swapChainSupport.mCapabilities.maxImageCount;
 		}
 
 		vk::SwapchainCreateInfoKHR swapChainCreateInfo = {};
 		swapChainCreateInfo.surface = mDevice.GetVkSurface();
-		swapChainCreateInfo.minImageCount = imageCount;
+		swapChainCreateInfo.minImageCount = mImageCount;
 		swapChainCreateInfo.imageFormat = mSwapChainImageFormat;
 		swapChainCreateInfo.imageColorSpace = surfaceFormat.colorSpace;
 		swapChainCreateInfo.imageExtent = mSwapChainExtent;
@@ -348,6 +314,23 @@ namespace erm {
 		{
 			mSwapChainImageViews[i] = VkUtils::CreateImageView(mDevice.GetVkDevice(), mSwapChainImages[i], mSwapChainImageFormat, vk::ImageAspectFlagBits::eColor);
 		}
+	}
+
+	void Renderer::CreateDepthResources()
+	{
+		vk::Format depthFormat = VkUtils::FindDepthFormat(mDevice.GetVkPhysicalDevice());
+		VkUtils::CreateImage(
+			mDevice.GetVkPhysicalDevice(),
+			mDevice.GetVkDevice(),
+			mSwapChainExtent.width,
+			mSwapChainExtent.height,
+			depthFormat,
+			vk::ImageTiling::eOptimal,
+			vk::ImageUsageFlagBits::eDepthStencilAttachment,
+			vk::MemoryPropertyFlagBits::eDeviceLocal,
+			mDepthImage,
+			mDepthImageMemory);
+		mDepthImageView = VkUtils::CreateImageView(mDevice.GetVkDevice(), mDepthImage, depthFormat, vk::ImageAspectFlagBits::eDepth);
 	}
 
 	void Renderer::CreateTextureSampler()

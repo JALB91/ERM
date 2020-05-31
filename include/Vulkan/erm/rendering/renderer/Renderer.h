@@ -33,21 +33,30 @@ namespace erm {
 		void AddSwapChainListener(ISwapChainListener* listener);
 		void RemoveSwapChainListener(ISwapChainListener* listener);
 
-		size_t GetCurrentFrame() const;
-		uint32_t GetCurrentImageIndex() const;
-		vk::Extent2D GetSwapChainExtent() const;
-		vk::Sampler GetTextureSampler() const;
+		inline size_t GetCurrentFrame() const { return mCurrentFrame; }
+		inline uint32_t GetCurrentImageIndex() const { return mCurrentImageIndex; }
+		inline uint32_t GetMinImageCount() const { return mMinImageCount; }
+		inline uint32_t GetImageCount() const { return mImageCount; }
+		inline vk::Extent2D GetSwapChainExtent() const { return mSwapChainExtent; }
+		inline vk::Sampler GetTextureSampler() const { return mTextureSampler; }
+		inline vk::Format GetSwapChainImageFormat() const { return mSwapChainImageFormat; }
+		inline const std::vector<vk::ImageView>& GetSwapChainImageViews() const { return mSwapChainImageViews; }
+		inline const vk::ImageView& GetDepthImageView() const { return mDepthImageView; }
 
-		void SubmitRenderData(const RenderData& data);
-		const RenderingResources* GetOrCreateRenderingResources(const RenderConfigs& renderConfigs);
+		void SubmitRenderData(RenderData& data);
 
 	private:
+		RenderingResources* GetOrCreateRenderingResources(const RenderConfigs& renderConfigs);
+
+		void RegisterCommandBuffers();
+
 		void RecreateSwapChain();
 
 		void CleanupSwapChain();
 
 		void CreateSwapChain();
 		void CreateImageViews();
+		void CreateDepthResources();
 		void CreateTextureSampler();
 		void CreateSyncObjects();
 
@@ -63,6 +72,10 @@ namespace erm {
 		std::vector<vk::Image> mSwapChainImages;
 		std::vector<vk::ImageView> mSwapChainImageViews;
 
+		vk::Image mDepthImage;
+		vk::DeviceMemory mDepthImageMemory;
+		vk::ImageView mDepthImageView;
+
 		vk::Sampler mTextureSampler;
 
 		std::vector<vk::Semaphore> mImageAvailableSemaphores;
@@ -71,9 +84,12 @@ namespace erm {
 		std::vector<vk::Fence> mImagesInFlight;
 
 		std::vector<std::unique_ptr<RenderingResources>> mRenderingResources;
+		std::map<RenderingResources*, std::vector<RenderData*>> mRenderData;
 		std::set<ISwapChainListener*> mSwapChainListeners;
 		size_t mCurrentFrame;
 		uint32_t mCurrentImageIndex;
+		uint32_t mMinImageCount;
+		uint32_t mImageCount;
 		bool mIsImageIndexValid;
 		bool mFramebufferResized;
 	};

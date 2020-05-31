@@ -27,6 +27,10 @@ namespace erm {
 		bool operator!=(const RenderConfigs& other) const;
 		bool operator<(const RenderConfigs& other) const;
 
+		bool IsRenderPassLevelCompatible(const RenderConfigs& other) const;
+		bool IsPipelineLevelCompatible(const RenderConfigs& other) const;
+		bool IsResourcesBindingCompatible(const RenderConfigs& other) const;
+
 		bool IsBlendCompatible(const RenderConfigs& other) const;
 		bool IsDepthCompatible(const RenderConfigs& other) const;
 		bool IsCullCompatible(const RenderConfigs& other) const;
@@ -38,10 +42,10 @@ namespace erm {
 
 		BoundingBox2D mViewport;
 		bool mDepthTestEnabled;
+		bool mDepthWriteEnabled;
 		DepthFunction mDepthFunction;
 		bool mBlendEnabled;
 		BlendFunction mBlendFunction;
-		bool mCullEnabled;
 		CullMode mCullMode;
 		FrontFace mFrontFace;
 		PolygonMode mPolygonMode;

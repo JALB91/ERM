@@ -3,7 +3,6 @@
 #include "erm/ecs/ISystem.h"
 #include "erm/ecs/components/ModelComponent.h"
 
-#include "erm/rendering/ISwapChainListener.h"
 #include "erm/rendering/data_structs/RenderConfigs.h"
 
 #include <memory>
@@ -23,16 +22,13 @@ namespace erm {
 
 namespace erm::ecs {
 
-	class ModelSystem
-		: public ISystem<ModelComponent>
-		, private ISwapChainListener
+	class ModelSystem : public ISystem<ModelComponent>
 	{
 	public:
 		ModelSystem(
 			ECS& ecs,
 			Renderer& renderer,
 			ResourcesManager& resourcesManager);
-		~ModelSystem();
 
 		// ISystem
 		void Init() override;
@@ -43,13 +39,7 @@ namespace erm::ecs {
 		// ISystem
 		void OnComponentAdded(EntityId id) override;
 
-		// ISwapChainListener
-		void SwapChainCleanup() override;
-		void SwapChainCreated() override;
-
-		void SubmitRenderData() const;
 		void SubmitRenderData(ModelComponent& component);
-		RenderConfigs GetRenderConfigsForMesh(const Mesh& mesh);
 
 		Renderer& mRenderer;
 		ResourcesManager& mResourcesManager;
