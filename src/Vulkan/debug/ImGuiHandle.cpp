@@ -76,7 +76,7 @@ namespace erm {
 		info.renderPass = mRenderPass;
 		info.framebuffer = mSwapChainFramebuffers[mRenderer.GetCurrentImageIndex()];
 		info.renderArea.extent = mRenderer.GetSwapChainExtent();
-		info.clearValueCount = clearValues.size();
+		info.clearValueCount = static_cast<uint32_t>(clearValues.size());
 		info.pClearValues = clearValues.data();
 		cmd.beginRenderPass(info, vk::SubpassContents::eInline);
 
@@ -130,7 +130,7 @@ namespace erm {
 	{
 		ImGui_ImplVulkan_Shutdown();
 
-		mDevice->freeCommandBuffers(mDevice.GetCommandPool(), mCommandBuffers.size(), mCommandBuffers.data());
+		mDevice->freeCommandBuffers(mDevice.GetCommandPool(), static_cast<uint32_t>(mCommandBuffers.size()), mCommandBuffers.data());
 		mDevice->destroyDescriptorPool(mDescriptorPool);
 		for (size_t i = 0; i < mSwapChainFramebuffers.size(); ++i)
 		{
@@ -220,9 +220,9 @@ namespace erm {
 				{vk::DescriptorType::eInputAttachment, 1000}};
 
 		vk::DescriptorPoolCreateInfo info;
-		info.setPoolSizeCount(pool_sizes.size());
+		info.setPoolSizeCount(static_cast<uint32_t>(pool_sizes.size()));
 		info.setPPoolSizes(pool_sizes.data());
-		info.setMaxSets(1000 * pool_sizes.size());
+		info.setMaxSets(1000 * static_cast<uint32_t>(pool_sizes.size()));
 		info.setFlags(vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet);
 
 		mDescriptorPool = mDevice->createDescriptorPool(info);
@@ -231,7 +231,7 @@ namespace erm {
 	void ImGuiHandle::CreateCommandBuffers()
 	{
 		vk::CommandBufferAllocateInfo info;
-		info.commandBufferCount = mRenderer.GetSwapChainImageViews().size();
+		info.commandBufferCount = static_cast<uint32_t>(mRenderer.GetSwapChainImageViews().size());
 		info.commandPool = mDevice.GetCommandPool();
 		info.level = vk::CommandBufferLevel::ePrimary;
 

@@ -41,7 +41,7 @@ namespace erm {
 		Device& device = mRenderingResources.mDevice;
 
 		if (!mDescriptorSets.empty())
-			device->freeDescriptorSets(mRenderingResources.mDescriptorPool, mDescriptorSets.size(), mDescriptorSets.data());
+			device->freeDescriptorSets(mRenderingResources.mDescriptorPool, static_cast<uint32_t>(mDescriptorSets.size()), mDescriptorSets.data());
 	}
 
 	BindingResources::BindingResources(BindingResources&& other)

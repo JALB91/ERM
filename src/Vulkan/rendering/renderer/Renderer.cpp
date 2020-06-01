@@ -115,7 +115,7 @@ namespace erm {
 		submitInfo.waitSemaphoreCount = 1;
 		submitInfo.pWaitSemaphores = &mImageAvailableSemaphores[mCurrentFrame];
 		submitInfo.pWaitDstStageMask = waitStages;
-		submitInfo.commandBufferCount = mCommandBuffers.size();
+		submitInfo.commandBufferCount = static_cast<uint32_t>(mCommandBuffers.size());
 		submitInfo.pCommandBuffers = mCommandBuffers.data();
 		submitInfo.signalSemaphoreCount = 1;
 		submitInfo.pSignalSemaphores = &mRenderFinishedSemaphores[mCurrentFrame];

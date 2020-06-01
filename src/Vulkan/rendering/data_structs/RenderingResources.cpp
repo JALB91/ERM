@@ -39,7 +39,7 @@ namespace erm {
 			mDevice->destroyFramebuffer(mSwapChainFramebuffers[i]);
 		}
 		mBindingResources.clear();
-		mDevice->freeCommandBuffers(mDevice.GetCommandPool(), mCommandBuffers.size(), mCommandBuffers.data());
+		mDevice->freeCommandBuffers(mDevice.GetCommandPool(), static_cast<uint32_t>(mCommandBuffers.size()), mCommandBuffers.data());
 		mDevice->destroyPipeline(mPipeline);
 		mDevice->destroyPipelineLayout(mPipelineLayout);
 		mDevice->destroyRenderPass(mRenderPass);
@@ -102,9 +102,9 @@ namespace erm {
 		{
 			RenderData* data = renderData[i];
 
-			if (!data->mRenderingId.has_value() || data->mRenderingId.value() >= mBindingResources.size())
+			if (!data->mRenderingId.has_value() || data->mRenderingId.value() >= static_cast<uint32_t>(mBindingResources.size()))
 			{
-				data->mRenderingId = mBindingResources.size();
+				data->mRenderingId = static_cast<uint32_t>(mBindingResources.size());
 				mBindingResources.emplace_back(*this, data->mRenderConfigs);
 			}
 
