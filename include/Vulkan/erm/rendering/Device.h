@@ -14,14 +14,15 @@ namespace erm {
 
 		vk::Device* operator->();
 
-		vk::Instance GetVkInstance();
-		vk::SurfaceKHR GetVkSurface();
-		vk::PhysicalDevice GetVkPhysicalDevice();
-		vk::Device GetVkDevice();
-		vk::Queue GetTransferQueue();
-		vk::Queue GetGraphicsQueue();
-		vk::Queue GetPresentQueue();
-		vk::CommandPool GetCommandPool();
+		inline vk::Instance GetVkInstance() const { return mInstance.get(); }
+		inline vk::SurfaceKHR GetVkSurface() const { return mSurface.get(); }
+		inline vk::PhysicalDevice GetVkPhysicalDevice() const { return mPhysicalDevice; }
+		inline vk::Device GetVkDevice() const { return mDevice.get(); }
+		inline vk::Queue GetTransferQueue() const { return mGraphicsQueue; }
+		inline vk::Queue GetGraphicsQueue() const { return mGraphicsQueue; }
+		inline vk::Queue GetPresentQueue() const { return mPresentQueue; }
+		inline vk::PipelineCache GetPipelineCache() const { return mPipelineCache.get(); }
+		inline vk::CommandPool GetCommandPool() const { return mCommandPool.get(); }
 
 	private:
 		void CreateInstance();
@@ -29,6 +30,7 @@ namespace erm {
 		void CreateSurface();
 		void PickPhysicalDevice();
 		void CreateLogicalDevice();
+		void CreatePipelineCache();
 		void CreateCommandPool();
 
 		GLFWwindow* mWindow;
@@ -39,7 +41,8 @@ namespace erm {
 		vk::UniqueDevice mDevice;
 		vk::Queue mGraphicsQueue;
 		vk::Queue mPresentQueue;
-		vk::CommandPool mCommandPool;
+		vk::UniquePipelineCache mPipelineCache;
+		vk::UniqueCommandPool mCommandPool;
 	};
 
 } // namespace erm

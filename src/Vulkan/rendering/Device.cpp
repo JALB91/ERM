@@ -85,8 +85,6 @@ namespace erm {
 	Device::~Device()
 	{
 		mDevice->waitIdle();
-
-		mDevice->destroyCommandPool(mCommandPool);
 #ifndef NDEBUG
 		DestroyDebugUtilsMessengerEXT(VkInstance(mInstance.get()), mDebugMessenger, nullptr);
 #endif
@@ -95,46 +93,6 @@ namespace erm {
 	vk::Device* Device::operator->()
 	{
 		return &mDevice.get();
-	}
-
-	vk::Instance Device::GetVkInstance()
-	{
-		return mInstance.get();
-	}
-
-	vk::SurfaceKHR Device::GetVkSurface()
-	{
-		return mSurface.get();
-	}
-
-	vk::PhysicalDevice Device::GetVkPhysicalDevice()
-	{
-		return mPhysicalDevice;
-	}
-
-	vk::Device Device::GetVkDevice()
-	{
-		return mDevice.get();
-	}
-
-	vk::Queue Device::GetTransferQueue()
-	{
-		return mGraphicsQueue;
-	}
-
-	vk::Queue Device::GetGraphicsQueue()
-	{
-		return mGraphicsQueue;
-	}
-
-	vk::Queue Device::GetPresentQueue()
-	{
-		return mPresentQueue;
-	}
-
-	vk::CommandPool Device::GetCommandPool()
-	{
-		return mCommandPool;
 	}
 
 	void Device::CreateInstance()
@@ -305,6 +263,11 @@ namespace erm {
 		mDevice->getQueue(indices.mPresentFamily.value(), 0, &mPresentQueue);
 	}
 
+	void Device::CreatePipelineCache()
+	{
+		mPipelineCache = mDevice->createPipelineCacheUnique({});
+	}
+
 	void Device::CreateCommandPool()
 	{
 		QueueFamilyIndices queueFamilyIndices = VkUtils::FindQueueFamilies(mPhysicalDevice, mSurface.get());
@@ -313,7 +276,7 @@ namespace erm {
 		poolInfo.queueFamilyIndex = queueFamilyIndices.mGraphicsFamily.value();
 		poolInfo.flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
 
-		mCommandPool = mDevice->createCommandPool(poolInfo);
+		mCommandPool = mDevice->createCommandPoolUnique(poolInfo);
 	}
 
 } // namespace erm

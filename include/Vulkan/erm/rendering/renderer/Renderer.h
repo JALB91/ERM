@@ -33,6 +33,7 @@ namespace erm {
 		void AddSwapChainListener(ISwapChainListener* listener);
 		void RemoveSwapChainListener(ISwapChainListener* listener);
 
+		inline bool IsImageIndexValid() const { return mIsImageIndexValid; }
 		inline size_t GetCurrentFrame() const { return mCurrentFrame; }
 		inline uint32_t GetCurrentImageIndex() const { return mCurrentImageIndex; }
 		inline uint32_t GetMinImageCount() const { return mMinImageCount; }
@@ -44,6 +45,7 @@ namespace erm {
 		inline const vk::ImageView& GetDepthImageView() const { return mDepthImageView; }
 
 		void SubmitRenderData(RenderData& data);
+		void SubmitCommandBuffer(const vk::CommandBuffer& commandBuffer);
 
 	private:
 		RenderingResources* GetOrCreateRenderingResources(const RenderConfigs& renderConfigs);
@@ -86,6 +88,7 @@ namespace erm {
 		std::vector<std::unique_ptr<RenderingResources>> mRenderingResources;
 		std::map<RenderingResources*, std::vector<RenderData*>> mRenderData;
 		std::set<ISwapChainListener*> mSwapChainListeners;
+		std::vector<vk::CommandBuffer> mCommandBuffers;
 		size_t mCurrentFrame;
 		uint32_t mCurrentImageIndex;
 		uint32_t mMinImageCount;

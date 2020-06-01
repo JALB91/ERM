@@ -11,8 +11,8 @@ namespace erm {
 	class ResourcesManager;
 	class Window;
 	class Device;
-	class ImGuiHandle;
 	class Renderer;
+	class ImGuiHandle;
 	namespace ecs {
 		class ECS;
 		struct Entity;
@@ -67,8 +67,8 @@ namespace erm {
 
 		std::unique_ptr<Window> mWindow;
 		std::unique_ptr<Device> mDevice;
-		std::unique_ptr<ImGuiHandle> mImGuiHandle;
 		std::unique_ptr<Renderer> mRenderer;
+		std::unique_ptr<ImGuiHandle> mImGuiHandle;
 		std::unique_ptr<ResourcesManager> mResourcesManager;
 		std::unique_ptr<ecs::ECS> mECS;
 	};

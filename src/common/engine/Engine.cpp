@@ -76,8 +76,8 @@ namespace erm {
 		}
 
 		mDevice = std::make_unique<Device>(mWindow->GetWindow());
-		mImGuiHandle = std::make_unique<ImGuiHandle>(*this);
 		mRenderer = std::make_unique<Renderer>(mWindow->GetWindow(), *mDevice);
+		mImGuiHandle = std::make_unique<ImGuiHandle>(*this);
 		mResourcesManager = std::make_unique<ResourcesManager>(*mDevice);
 		mECS = std::make_unique<ecs::ECS>(*this);
 
@@ -101,6 +101,13 @@ namespace erm {
 			transform->mScale = math::vec3(kDefaultScale);
 			root->AddChild(*entity);
 		}
+
+		auto entity = mECS->GetOrCreateEntity();
+		Model* model = mResourcesManager->GetOrCreateModel("Defaults/Cube");
+		RenderConfigs rc {};
+		rc.mTexture = mResourcesManager->GetOrCreateTexture("res/textures/smile.png");
+		entity->RequireComponent<ecs::ModelComponent>(model, rc);
+		root->AddChild(*entity);
 
 		return true;
 	}

@@ -134,7 +134,8 @@ namespace erm {
 		colorAttachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
 		colorAttachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
 		colorAttachment.initialLayout = vk::ImageLayout::eUndefined;
-		colorAttachment.finalLayout = vk::ImageLayout::ePresentSrcKHR;
+		//		colorAttachment.finalLayout = vk::ImageLayout::ePresentSrcKHR;
+		colorAttachment.finalLayout = vk::ImageLayout::eColorAttachmentOptimal;
 
 		vk::AttachmentReference colorAttachmentRef = {};
 		colorAttachmentRef.attachment = 0;
@@ -359,7 +360,7 @@ namespace erm {
 		pipelineInfo.basePipelineHandle = nullptr;
 		pipelineInfo.basePipelineIndex = -1;
 
-		mPipeline = mDevice->createGraphicsPipeline(nullptr, pipelineInfo, nullptr);
+		mPipeline = mDevice->createGraphicsPipeline(mDevice.GetPipelineCache(), pipelineInfo);
 
 		mDevice->destroyShaderModule(vertShaderModule);
 		mDevice->destroyShaderModule(fragShaderModule);

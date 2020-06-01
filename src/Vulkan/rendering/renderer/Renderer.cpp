@@ -105,11 +105,9 @@ namespace erm {
 
 		RegisterCommandBuffers();
 
-		std::vector<vk::CommandBuffer> commandBuffers(mRenderingResources.size());
-
 		for (size_t i = 0; i < mRenderingResources.size(); ++i)
 		{
-			commandBuffers[i] = mRenderingResources[i]->mCommandBuffers[mCurrentImageIndex];
+			mCommandBuffers.insert(mCommandBuffers.begin(), mRenderingResources[i]->mCommandBuffers[mCurrentImageIndex]);
 		}
 
 		vk::PipelineStageFlags waitStages[] = {vk::PipelineStageFlagBits::eColorAttachmentOutput};
@@ -117,8 +115,8 @@ namespace erm {
 		submitInfo.waitSemaphoreCount = 1;
 		submitInfo.pWaitSemaphores = &mImageAvailableSemaphores[mCurrentFrame];
 		submitInfo.pWaitDstStageMask = waitStages;
-		submitInfo.commandBufferCount = commandBuffers.size();
-		submitInfo.pCommandBuffers = commandBuffers.data();
+		submitInfo.commandBufferCount = mCommandBuffers.size();
+		submitInfo.pCommandBuffers = mCommandBuffers.data();
 		submitInfo.signalSemaphoreCount = 1;
 		submitInfo.pSignalSemaphores = &mRenderFinishedSemaphores[mCurrentFrame];
 
@@ -133,6 +131,7 @@ namespace erm {
 	void Renderer::OnPostRender()
 	{
 		mRenderData.clear();
+		mCommandBuffers.clear();
 
 		if (!mIsImageIndexValid)
 			return;
@@ -188,6 +187,11 @@ namespace erm {
 		mRenderData[resources].emplace_back(&data);
 	}
 
+	void Renderer::SubmitCommandBuffer(const vk::CommandBuffer& commandBuffer)
+	{
+		mCommandBuffers.emplace_back(commandBuffer);
+	}
+
 	RenderingResources* Renderer::GetOrCreateRenderingResources(const RenderConfigs& renderConfigs)
 	{
 		for (const auto& resources : mRenderingResources)
@@ -223,8 +227,6 @@ namespace erm {
 			listener->SwapChainCleanup();
 		}
 
-		ImGuiWrapper::Cleanup();
-
 		CleanupSwapChain();
 
 		CreateSwapChain();
@@ -235,8 +237,6 @@ namespace erm {
 		{
 			listener->SwapChainCreated();
 		}
-
-		ImGuiWrapper::Create();
 	}
 
 	void Renderer::CleanupSwapChain()
