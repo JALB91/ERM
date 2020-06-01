@@ -1,6 +1,8 @@
 #include "erm/rendering/renderer/Renderer.h"
 
-#include "erm/debug/ImGuiWrapper.h"
+#include "erm/debug/ImGuiHandle.h"
+
+#include "erm/engine/Engine.h"
 
 #include "erm/rendering/Device.h"
 #include "erm/rendering/buffers/IndexBuffer.h"
@@ -14,7 +16,9 @@
 #include "erm/rendering/enums/DepthFunction.h"
 #include "erm/rendering/enums/FrontFace.h"
 #include "erm/rendering/shaders/ShaderProgram.h"
+#include "erm/rendering/window/Window.h"
 
+#include "erm/utils/Profiler.h"
 #include "erm/utils/Utils.h"
 #include "erm/utils/VkUtils.h"
 
@@ -30,9 +34,10 @@ namespace {
 
 namespace erm {
 
-	Renderer::Renderer(GLFWwindow* window, Device& device)
-		: mWindow(window)
-		, mDevice(device)
+	Renderer::Renderer(Engine& engine)
+		: mEngine(engine)
+		, mWindow(engine.GetWindow().GetWindow())
+		, mDevice(engine.GetDevice())
 		, mCurrentFrame(0)
 		, mCurrentImageIndex(0)
 		, mMinImageCount(0)
@@ -70,7 +75,9 @@ namespace erm {
 
 	void Renderer::OnPreRender()
 	{
-		if (mRenderingResources.empty())
+		PROFILE_FUNCTION();
+
+		if (mFramesDatas.empty())
 			return;
 
 		mDevice->waitForFences(1, &mInFlightFences[mCurrentFrame], VK_TRUE, UINT64_MAX);
@@ -100,23 +107,21 @@ namespace erm {
 
 	void Renderer::OnRender()
 	{
+		PROFILE_FUNCTION();
+
 		if (!mIsImageIndexValid)
 			return;
 
 		RegisterCommandBuffers();
-
-		for (size_t i = 0; i < mRenderingResources.size(); ++i)
-		{
-			mCommandBuffers.insert(mCommandBuffers.begin(), mRenderingResources[i]->mCommandBuffers[mCurrentImageIndex]);
-		}
+		std::vector<vk::CommandBuffer> commandBuffers = RetrieveCommandBuffers();
 
 		vk::PipelineStageFlags waitStages[] = {vk::PipelineStageFlagBits::eColorAttachmentOutput};
 		vk::SubmitInfo submitInfo = {};
 		submitInfo.waitSemaphoreCount = 1;
 		submitInfo.pWaitSemaphores = &mImageAvailableSemaphores[mCurrentFrame];
 		submitInfo.pWaitDstStageMask = waitStages;
-		submitInfo.commandBufferCount = static_cast<uint32_t>(mCommandBuffers.size());
-		submitInfo.pCommandBuffers = mCommandBuffers.data();
+		submitInfo.commandBufferCount = static_cast<uint32_t>(commandBuffers.size());
+		submitInfo.pCommandBuffers = commandBuffers.data();
 		submitInfo.signalSemaphoreCount = 1;
 		submitInfo.pSignalSemaphores = &mRenderFinishedSemaphores[mCurrentFrame];
 
@@ -130,8 +135,12 @@ namespace erm {
 
 	void Renderer::OnPostRender()
 	{
-		mRenderData.clear();
-		mCommandBuffers.clear();
+		PROFILE_FUNCTION();
+
+		for (FramesData::value_type& data : mFramesDatas)
+		{
+			data.second.clear();
+		}
 
 		if (!mIsImageIndexValid)
 			return;
@@ -180,42 +189,52 @@ namespace erm {
 	{
 		ASSERT(!data.mMehses.empty());
 
-		RenderingResources* resources = GetOrCreateRenderingResources(data.mRenderConfigs);
-		if (!resources)
-			return;
+		FramesData::value_type& framesData = GetOrCreateFramesData(data.mRenderConfigs);
 
-		mRenderData[resources].emplace_back(&data);
+		framesData.second.emplace_back(&data);
 	}
 
-	void Renderer::SubmitCommandBuffer(const vk::CommandBuffer& commandBuffer)
+	Renderer::FramesData::value_type& Renderer::GetOrCreateFramesData(const RenderConfigs& renderConfigs)
 	{
-		mCommandBuffers.emplace_back(commandBuffer);
-	}
-
-	RenderingResources* Renderer::GetOrCreateRenderingResources(const RenderConfigs& renderConfigs)
-	{
-		for (const auto& resources : mRenderingResources)
+		for (FramesData::value_type& data : mFramesDatas)
 		{
-			if (renderConfigs.IsRenderPassLevelCompatible(resources->mRenderConfigs) && renderConfigs.IsPipelineLevelCompatible(resources->mRenderConfigs))
+			if (renderConfigs.IsRenderPassLevelCompatible(data.first->mRenderConfigs) && renderConfigs.IsPipelineLevelCompatible(data.first->mRenderConfigs))
 			{
-				return resources.get();
+				return data;
 			}
 		}
 
-		if (!renderConfigs.mShaderProgram)
-			return nullptr;
+		auto it = mFramesDatas.insert(std::make_pair<FramesData::key_type, FramesData::mapped_type>(std::make_unique<RenderingResources>(mDevice, *this, renderConfigs), {}));
 
-		mRenderingResources.emplace_back(std::make_unique<RenderingResources>(mDevice, *this, renderConfigs));
-
-		return mRenderingResources.back().get();
+		return *it.first;
 	}
 
 	void Renderer::RegisterCommandBuffers()
 	{
-		for (auto& pair : mRenderData)
+		PROFILE_FUNCTION();
+
+		for (FramesData::value_type& data : mFramesDatas)
 		{
-			pair.first->UpdateRenderingResources(pair.second, mCurrentImageIndex);
+			data.first->UpdateRenderingResources(data.second, mCurrentImageIndex);
 		}
+	}
+
+	std::vector<vk::CommandBuffer> Renderer::RetrieveCommandBuffers()
+	{
+		PROFILE_FUNCTION();
+
+		std::vector<vk::CommandBuffer> commandBuffers(mFramesDatas.size() + 1);
+
+		size_t index = 0;
+
+		for (const FramesData::value_type& data : mFramesDatas)
+		{
+			commandBuffers[index++] = data.first->mCommandBuffers[mCurrentImageIndex];
+		}
+
+		commandBuffers[index] = mEngine.GetImGuiHandle().GetCommandBuffer(mCurrentImageIndex);
+
+		return commandBuffers;
 	}
 
 	void Renderer::RecreateSwapChain()
@@ -241,8 +260,7 @@ namespace erm {
 
 	void Renderer::CleanupSwapChain()
 	{
-		mRenderData.clear();
-		mRenderingResources.clear();
+		mFramesDatas.clear();
 		for (size_t i = 0; i < mSwapChainImageViews.size(); ++i)
 		{
 			mDevice->destroyImageView(mSwapChainImageViews[i], nullptr);

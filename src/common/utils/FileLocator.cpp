@@ -19,7 +19,7 @@ namespace {
 	const char* const kMaterialsDir = "models/";
 	const char* const kTexturesDir = "textures/";
 
-	std::array<const char*, 2> kSupportedModelsExtensions {kObjMaterialExtension, kColladaModelExtension};
+	std::array<const char*, 2> kSupportedModelsExtensions {kObjModelExtension, kColladaModelExtension};
 	std::array<const char*, 1> kSupportedMaterialsExtensions {kObjMaterialExtension};
 	std::array<const char*, 1> kSupportedShadersExtensions {kVertexShaderExtension};
 	std::array<const char*, 1> kSupportedTexturesExtensions {kPngTextureExtension};
@@ -61,38 +61,34 @@ namespace erm {
 		mMaterials.clear();
 		mShaderPrograms.clear();
 
-		mModels.emplace_back("Default/Triangle");
-		mModels.emplace_back("Default/Square");
-		mModels.emplace_back("Default/Cube");
-		mModels.emplace_back("Default/Sphere");
-		mModels.emplace_back("Default/Spike");
-		mModels.emplace_back("Default/Grid");
+		mModels.emplace_back("Defaults/Triangle");
+		mModels.emplace_back("Defaults/Square");
+		mModels.emplace_back("Defaults/Cube");
+		mModels.emplace_back("Defaults/Sphere");
+		mModels.emplace_back("Defaults/Spike");
+		mModels.emplace_back("Defaults/Grid");
 
 		for (const char* ext : kSupportedModelsExtensions)
 		{
 			std::vector<std::string> result = GetResourcesWithExtension(ext);
-			mModels.reserve(mModels.size() + result.size());
 			mModels.insert(mModels.end(), result.begin(), result.end());
 		}
 
 		for (const char* ext : kSupportedTexturesExtensions)
 		{
 			std::vector<std::string> result = GetResourcesWithExtension(ext);
-			mTextures.reserve(mTextures.size() + result.size());
 			mTextures.insert(mTextures.end(), result.begin(), result.end());
 		}
 
 		for (const char* ext : kSupportedMaterialsExtensions)
 		{
 			std::vector<std::string> result = GetResourcesWithExtension(ext);
-			mMaterials.reserve(mMaterials.size() + result.size());
 			mMaterials.insert(mMaterials.end(), result.begin(), result.end());
 		}
 
 		for (const char* ext : kSupportedShadersExtensions)
 		{
 			std::vector<std::string> result = GetResourcesWithExtension(ext, false);
-			mShaderPrograms.reserve(mShaderPrograms.size() + result.size());
 			mShaderPrograms.insert(mShaderPrograms.end(), result.begin(), result.end());
 		}
 	}

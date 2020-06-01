@@ -177,7 +177,7 @@ namespace erm {
 		return glfwWindowShouldClose(mWindow) || IsKeyDown(KEY_ESCAPE);
 	}
 
-	void Window::NewFrame()
+	void Window::OnUpdate()
 	{
 		PROFILE_FUNCTION();
 

@@ -26,7 +26,7 @@ namespace erm {
 
 		bool Init();
 		bool ShouldClose();
-		void NewFrame();
+		void OnUpdate();
 		void OnRender();
 		void OnPostRender();
 

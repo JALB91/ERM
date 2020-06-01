@@ -13,6 +13,7 @@
 
 struct GLFWwindow;
 namespace erm {
+	class Engine;
 	class Device;
 	class RenderingResources;
 	struct RenderData;
@@ -23,7 +24,7 @@ namespace erm {
 	class Renderer
 	{
 	public:
-		Renderer(GLFWwindow* window, Device& device);
+		Renderer(Engine& engine);
 		~Renderer();
 
 		void OnPreRender();
@@ -45,12 +46,15 @@ namespace erm {
 		inline const vk::ImageView& GetDepthImageView() const { return mDepthImageView; }
 
 		void SubmitRenderData(RenderData& data);
-		void SubmitCommandBuffer(const vk::CommandBuffer& commandBuffer);
 
 	private:
-		RenderingResources* GetOrCreateRenderingResources(const RenderConfigs& renderConfigs);
+		using FramesData = std::map<std::unique_ptr<RenderingResources>, std::vector<RenderData*>>;
+
+	private:
+		FramesData::value_type& GetOrCreateFramesData(const RenderConfigs& renderConfigs);
 
 		void RegisterCommandBuffers();
+		std::vector<vk::CommandBuffer> RetrieveCommandBuffers();
 
 		void RecreateSwapChain();
 
@@ -64,6 +68,7 @@ namespace erm {
 
 		void GetFrameBufferSize(int& width, int& height);
 
+		Engine& mEngine;
 		GLFWwindow* mWindow;
 		Device& mDevice;
 
@@ -85,10 +90,8 @@ namespace erm {
 		std::vector<vk::Fence> mInFlightFences;
 		std::vector<vk::Fence> mImagesInFlight;
 
-		std::vector<std::unique_ptr<RenderingResources>> mRenderingResources;
-		std::map<RenderingResources*, std::vector<RenderData*>> mRenderData;
+		FramesData mFramesDatas;
 		std::set<ISwapChainListener*> mSwapChainListeners;
-		std::vector<vk::CommandBuffer> mCommandBuffers;
 		size_t mCurrentFrame;
 		uint32_t mCurrentImageIndex;
 		uint32_t mMinImageCount;

@@ -28,7 +28,7 @@ namespace ImGui {
 		{
 			active = ImGui::ShowEntityDebugWindow(engine.GetECS(), active, erm::ecs::EntityId(erm::ecs::ROOT_ID));
 		}
-		ImGui::SetWindowSize(ImVec2((winSize.x - viewport.x) * 0.5f, winSize.y - ImGui::GetFrameHeight()));
+		ImGui::SetWindowSize(ImVec2((winSize.x - viewport.x) * 0.5f, winSize.y - (winSize.y - viewport.y) - ImGui::GetFrameHeight()));
 		ImGui::SetWindowPos(ImVec2(0.0f, ImGui::GetFrameHeight()));
 		ImGui::End();
 
@@ -41,7 +41,7 @@ namespace ImGui {
 			ImGui::Separator();
 			ImGui::PopID();
 		}
-		ImGui::SetWindowSize(ImVec2((winSize.x - viewport.x) * 0.5f, winSize.y - ImGui::GetFrameHeight()));
+		ImGui::SetWindowSize(ImVec2((winSize.x - viewport.x) * 0.5f, winSize.y - (winSize.y - viewport.y) - ImGui::GetFrameHeight()));
 		ImGui::SetWindowPos(ImVec2(winSize.x - ((winSize.x - viewport.x) * 0.5f), ImGui::GetFrameHeight()));
 		ImGui::End();
 	}

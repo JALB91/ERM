@@ -47,15 +47,19 @@ namespace erm {
 		ImGui::DestroyContext();
 	}
 
-	void ImGuiHandle::OnRender()
+	void ImGuiHandle::OnUpdate()
 	{
-		if (!mRenderer.IsImageIndexValid())
-			return;
-
 		ImGui_ImplVulkan_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
+		ImGui::ShowEngineDebug(mEngine);
+
+		ImGui::Render();
+	}
+
+	vk::CommandBuffer& ImGuiHandle::GetCommandBuffer(uint32_t imageIndex)
+	{
 		std::array<vk::ClearValue, 2> clearValues {};
 		clearValues[0].color.float32[0] = 0.0f;
 		clearValues[0].color.float32[1] = 0.0f;
@@ -63,7 +67,7 @@ namespace erm {
 		clearValues[0].color.float32[3] = 1.0f;
 		clearValues[1].setDepthStencil({1.0f, 0});
 
-		vk::CommandBuffer& cmd = mCommandBuffers[mRenderer.GetCurrentImageIndex()];
+		vk::CommandBuffer& cmd = mCommandBuffers[imageIndex];
 		cmd.reset({});
 
 		vk::CommandBufferBeginInfo beginInfo = {};
@@ -74,21 +78,18 @@ namespace erm {
 
 		vk::RenderPassBeginInfo info = {};
 		info.renderPass = mRenderPass;
-		info.framebuffer = mSwapChainFramebuffers[mRenderer.GetCurrentImageIndex()];
+		info.framebuffer = mSwapChainFramebuffers[imageIndex];
 		info.renderArea.extent = mRenderer.GetSwapChainExtent();
 		info.clearValueCount = static_cast<uint32_t>(clearValues.size());
 		info.pClearValues = clearValues.data();
 		cmd.beginRenderPass(info, vk::SubpassContents::eInline);
 
-		ImGui::ShowEngineDebug(mEngine);
-
-		ImGui::Render();
 		ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmd);
 
 		cmd.endRenderPass();
 		cmd.end();
 
-		mRenderer.SubmitCommandBuffer(cmd);
+		return cmd;
 	}
 
 	void ImGuiHandle::SwapChainCreated()

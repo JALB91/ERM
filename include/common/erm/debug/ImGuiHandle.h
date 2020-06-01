@@ -22,7 +22,9 @@ namespace erm {
 		ImGuiHandle(Engine& engine);
 		~ImGuiHandle();
 
-		void OnRender();
+		void OnUpdate();
+
+		vk::CommandBuffer& GetCommandBuffer(uint32_t imageIndex);
 
 	private:
 		// ISwapChainListener

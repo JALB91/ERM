@@ -25,6 +25,13 @@ namespace erm {
 			const RenderConfigs& renderConfigs);
 		~RenderingResources();
 
+		RenderingResources(RenderingResources&& other);
+
+		RenderingResources(const RenderingResources&) = delete;
+
+		RenderingResources& operator=(const RenderingResources&) = delete;
+		RenderingResources& operator=(RenderingResources&&) = delete;
+
 		void CreateDescriptorPool(vk::DescriptorPoolCreateInfo& info);
 		void UpdateRenderingResources(std::vector<RenderData*>& renderData, uint32_t imageIndex);
 

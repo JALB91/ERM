@@ -46,6 +46,26 @@ namespace erm {
 		mDevice->destroyDescriptorPool(mDescriptorPool);
 	}
 
+	RenderingResources::RenderingResources(RenderingResources&& other)
+		: mDevice(other.mDevice)
+		, mRenderer(other.mRenderer)
+		, mRenderConfigs(other.mRenderConfigs)
+		, mRenderPass(other.mRenderPass)
+		, mPipelineLayout(other.mPipelineLayout)
+		, mPipeline(other.mPipeline)
+		, mSwapChainFramebuffers(std::move(other.mSwapChainFramebuffers))
+		, mDescriptorPool(other.mDescriptorPool)
+		, mDescriptorSetLayout(other.mDescriptorSetLayout)
+		, mBindingResources(std::move(other.mBindingResources))
+		, mCommandBuffers(std::move(other.mCommandBuffers))
+	{
+		mRenderPass = nullptr;
+		mPipelineLayout = nullptr;
+		mPipeline = nullptr;
+		mDescriptorPool = nullptr;
+		mDescriptorSetLayout = nullptr;
+	}
+
 	void RenderingResources::CreateDescriptorPool(vk::DescriptorPoolCreateInfo& info)
 	{
 		if (mDescriptorPool)

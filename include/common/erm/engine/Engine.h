@@ -49,6 +49,7 @@ namespace erm {
 		inline Window& GetWindow() const { return *mWindow; }
 		inline Device& GetDevice() const { return *mDevice; }
 		inline Renderer& GetRenderer() const { return *mRenderer; }
+		inline ImGuiHandle& GetImGuiHandle() const { return *mImGuiHandle; }
 		inline ecs::ECS& GetECS() const { return *mECS; }
 
 	private:

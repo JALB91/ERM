@@ -76,7 +76,7 @@ namespace erm {
 		}
 
 		mDevice = std::make_unique<Device>(mWindow->GetWindow());
-		mRenderer = std::make_unique<Renderer>(mWindow->GetWindow(), *mDevice);
+		mRenderer = std::make_unique<Renderer>(*this);
 		mImGuiHandle = std::make_unique<ImGuiHandle>(*this);
 		mResourcesManager = std::make_unique<ResourcesManager>(*mDevice);
 		mECS = std::make_unique<ecs::ECS>(*this);
@@ -103,7 +103,7 @@ namespace erm {
 		}
 
 		auto entity = mECS->GetOrCreateEntity();
-		Model* model = mResourcesManager->GetOrCreateModel("Defaults/Cube");
+		Model* model = mResourcesManager->GetOrCreateModel("Defaults/Sphere");
 		RenderConfigs rc {};
 		rc.mTexture = mResourcesManager->GetOrCreateTexture("res/textures/smile.png");
 		entity->RequireComponent<ecs::ModelComponent>(model, rc);
@@ -149,8 +149,9 @@ namespace erm {
 	{
 		PROFILE_FUNCTION();
 
+		mImGuiHandle->OnUpdate();
 		mECS->OnUpdate(dt);
-		mWindow->NewFrame();
+		mWindow->OnUpdate();
 		mResourcesManager->OnUpdate();
 	}
 
@@ -174,7 +175,6 @@ namespace erm {
 
 		mResourcesManager->OnRender();
 		mECS->OnRender();
-		mImGuiHandle->OnRender();
 		mRenderer->OnRender();
 		mWindow->OnRender();
 	}
