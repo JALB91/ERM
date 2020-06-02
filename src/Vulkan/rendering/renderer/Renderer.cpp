@@ -22,8 +22,6 @@
 #include "erm/utils/Utils.h"
 #include "erm/utils/VkUtils.h"
 
-#include <GLFW/glfw3.h>
-
 #include <iostream>
 
 namespace {
@@ -36,7 +34,7 @@ namespace erm {
 
 	Renderer::Renderer(Engine& engine)
 		: mEngine(engine)
-		, mWindow(engine.GetWindow().GetWindow())
+		, mWindow(engine.GetWindow())
 		, mDevice(engine.GetDevice())
 		, mCurrentFrame(0)
 		, mCurrentImageIndex(0)
@@ -273,15 +271,14 @@ namespace erm {
 
 	void Renderer::CreateSwapChain()
 	{
-		int width, height;
-		GetFrameBufferSize(width, height);
+		const math::vec<2, int>& frameBufferSize = mWindow.GetFrameBufferSize();
 
 		SwapChainSupportDetails swapChainSupport = VkUtils::QuerySwapChainSupport(mDevice.GetVkPhysicalDevice(), mDevice.GetVkSurface());
 		QueueFamilyIndices indices = VkUtils::FindQueueFamilies(mDevice.GetVkPhysicalDevice(), mDevice.GetVkSurface());
 
 		vk::SurfaceFormatKHR surfaceFormat = VkUtils::ChooseSwapSurfaceFormat(swapChainSupport.mFormats);
 		vk::PresentModeKHR presentMode = VkUtils::ChooseSwapPresentMode(swapChainSupport.mPresentModes);
-		mSwapChainExtent = VkUtils::ChooseSwapExtent(swapChainSupport.mCapabilities, width, height);
+		mSwapChainExtent = VkUtils::ChooseSwapExtent(swapChainSupport.mCapabilities, frameBufferSize.x, frameBufferSize.y);
 		mSwapChainImageFormat = surfaceFormat.format;
 
 		mMinImageCount = swapChainSupport.mCapabilities.minImageCount;
@@ -390,16 +387,6 @@ namespace erm {
 			mImageAvailableSemaphores[i] = mDevice->createSemaphore(semaphoreInfo);
 			mRenderFinishedSemaphores[i] = mDevice->createSemaphore(semaphoreInfo);
 			mInFlightFences[i] = mDevice->createFence(fenceInfo);
-		}
-	}
-
-	void Renderer::GetFrameBufferSize(int& width, int& height)
-	{
-		glfwGetFramebufferSize(mWindow, &width, &height);
-		while (width == 0 || height == 0)
-		{
-			glfwGetFramebufferSize(mWindow, &width, &height);
-			glfwWaitEvents();
 		}
 	}
 

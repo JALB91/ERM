@@ -11,9 +11,9 @@
 #include <set>
 #include <vector>
 
-struct GLFWwindow;
 namespace erm {
 	class Engine;
+	class Window;
 	class Device;
 	class RenderingResources;
 	struct RenderData;
@@ -39,7 +39,7 @@ namespace erm {
 		inline uint32_t GetCurrentImageIndex() const { return mCurrentImageIndex; }
 		inline uint32_t GetMinImageCount() const { return mMinImageCount; }
 		inline uint32_t GetImageCount() const { return mImageCount; }
-		inline vk::Extent2D GetSwapChainExtent() const { return mSwapChainExtent; }
+		inline const vk::Extent2D& GetSwapChainExtent() const { return mSwapChainExtent; }
 		inline vk::Sampler GetTextureSampler() const { return mTextureSampler; }
 		inline vk::Format GetSwapChainImageFormat() const { return mSwapChainImageFormat; }
 		inline const std::vector<vk::ImageView>& GetSwapChainImageViews() const { return mSwapChainImageViews; }
@@ -66,10 +66,8 @@ namespace erm {
 		void CreateTextureSampler();
 		void CreateSyncObjects();
 
-		void GetFrameBufferSize(int& width, int& height);
-
 		Engine& mEngine;
-		GLFWwindow* mWindow;
+		Window& mWindow;
 		Device& mDevice;
 
 		vk::Format mSwapChainImageFormat;

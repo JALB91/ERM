@@ -118,9 +118,10 @@ namespace ImGui {
 		}
 
 		const erm::math::vec2 winSize(window.GetWindowWidth(), window.GetWindowHeight());
-		const erm::math::vec2 viewport = window.GetViewport();
-		ImGui::SetWindowSize(ImVec2(winSize.x, winSize.y - viewport.y));
-		ImGui::SetWindowPos(ImVec2(0.0f, winSize.y - (winSize.y - viewport.y)));
+		const erm::BoundingBox2D& viewport = window.GetViewport();
+		const erm::math::vec2 viewportSize = viewport.GetSize();
+		ImGui::SetWindowSize(ImVec2(winSize.x, winSize.y - viewportSize.y));
+		ImGui::SetWindowPos(ImVec2(0.0f, viewport.mMax.y));
 		ImGui::End();
 	}
 

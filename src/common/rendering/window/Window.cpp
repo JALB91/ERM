@@ -81,9 +81,14 @@ namespace internal {
 		static_cast<erm::Window*>(glfwGetWindowUserPointer(window))->OnKey(key, scanCode, action, mods);
 	}
 
-	void OnFrameBufferResize(GLFWwindow* window, int width, int height)
+	void OnFrameBufferResize(GLFWwindow* window, int /*width*/, int /*height*/)
 	{
-		static_cast<erm::Window*>(glfwGetWindowUserPointer(window))->OnSizeChanged(width, height);
+		static_cast<erm::Window*>(glfwGetWindowUserPointer(window))->OnSizeChanged();
+	}
+
+	void OnWindowSizeChanged(GLFWwindow* window, int /*width*/, int /*height*/)
+	{
+		static_cast<erm::Window*>(glfwGetWindowUserPointer(window))->OnSizeChanged();
 	}
 
 	void OnRefresh(GLFWwindow* window)
@@ -93,7 +98,7 @@ namespace internal {
 			firstRefresh = false;
 			int width, height;
 			glfwGetFramebufferSize(window, &width, &height);
-			static_cast<erm::Window*>(glfwGetWindowUserPointer(window))->OnSizeChanged(width, height);
+			static_cast<erm::Window*>(glfwGetWindowUserPointer(window))->OnSizeChanged();
 		}
 	}
 
@@ -168,6 +173,7 @@ namespace erm {
 		glfwSetKeyCallback(mWindow, internal::OnKey);
 		glfwSetWindowRefreshCallback(mWindow, internal::OnRefresh);
 		glfwSetFramebufferSizeCallback(mWindow, internal::OnFrameBufferResize);
+		glfwSetWindowSizeCallback(mWindow, internal::OnWindowSizeChanged);
 
 		return true;
 	}
@@ -255,24 +261,22 @@ namespace erm {
 		});
 	}
 
-	void Window::OnSizeChanged(int width, int height)
+	void Window::OnSizeChanged()
 	{
 		PROFILE_FUNCTION();
 
-		mWindowWidth = width;
-		mWindowHeight = height;
+		glfwGetWindowSize(mWindow, &mWindowSize.x, &mWindowSize.y);
+		glfwGetFramebufferSize(mWindow, &mFrameBufferSize.x, &mFrameBufferSize.y);
 		UpdateViewport();
 		UpdateAspectRatio();
 		SafeForEach<IWindowListener>(mWindowListeners, [this](IWindowListener* listener) {
-			listener->OnSizeChanged(mWindowWidth, mWindowHeight);
+			listener->OnSizeChanged(mWindowSize.x, mWindowSize.y);
 		});
 	}
 
 	void Window::OnMaximised(bool /*wasMaximised*/)
 	{
-		int width, height;
-		glfwGetWindowSize(mWindow, &width, &height);
-		OnSizeChanged(width, height);
+		OnSizeChanged();
 	}
 
 	void Window::OnFocus()
@@ -280,34 +284,41 @@ namespace erm {
 		int width, height;
 		glfwGetWindowSize(mWindow, &width, &height);
 
-		if (mWindowWidth == width && mWindowHeight == height)
+		if (mWindowSize.x == width && mWindowSize.y == height)
 			return;
 
-		OnSizeChanged(width, height);
+		OnSizeChanged();
+	}
+
+	BoundingBox2D Window::GetNormalizedViewport() const
+	{
+		return BoundingBox2D({kImGuiSpaceLeft, kImGuiSpaceUp}, {1.0f - kImGuiSpaceRight, 1.0f - kImGuiSpaceDown});
 	}
 
 	void Window::UpdateViewport()
 	{
-		int width, height;
-		glfwGetFramebufferSize(mWindow, &width, &height);
-
-		mViewport.x = std::max(mWindowWidth * 0.1f, mWindowWidth - (mWindowWidth * kImGuiSpaceRight + mWindowWidth * kImGuiSpaceLeft));
-		mViewport.y = std::max(mWindowHeight * 0.1f, mWindowHeight - (mWindowHeight * kImGuiSpaceUp + mWindowHeight * kImGuiSpaceDown));
+		mViewport.mMin.x = mWindowSize.x * kImGuiSpaceLeft;
+		mViewport.mMin.y = mWindowSize.y * kImGuiSpaceUp;
+		mViewport.mMax.x = mWindowSize.x - (mWindowSize.x * kImGuiSpaceRight);
+		mViewport.mMax.y = mWindowSize.y - (mWindowSize.y * kImGuiSpaceDown);
 
 #ifdef OpenGl
+		const math::vec2 size = mViewport.GetSize();
+
 		GL_CALL(glViewport(
-			static_cast<int>(width * kImGuiSpaceLeft),
-			static_cast<int>(height * kImGuiSpaceDown),
-			static_cast<int>(mViewport.x),
-			static_cast<int>(mViewport.y)));
+			static_cast<int>(mViewport.mMin.x),
+			static_cast<int>(mViewport.mMin.y),
+			static_cast<int>(size.x),
+			static_cast<int>(size.y)));
 #endif
 	}
 
 	void Window::UpdateAspectRatio()
 	{
-		if (mViewport.y > 0.0f)
+		const math::vec2 size = mViewport.GetSize();
+		if (size.y > 0.0f)
 		{
-			mAspectRatio = mViewport.x / mViewport.y;
+			mAspectRatio = size.x / size.y;
 		}
 		else
 		{

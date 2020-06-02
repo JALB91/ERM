@@ -203,7 +203,9 @@ namespace erm {
 
 	void RenderingResources::CreatePipeline()
 	{
-		const vk::Extent2D extent = mRenderer.GetSwapChainExtent();
+		const BoundingBox2D& normViewport = mRenderConfigs.GetNormViewport();
+		const math::vec2 normViewportSize = normViewport.GetSize();
+		const vk::Extent2D& extent = mRenderer.GetSwapChainExtent();
 
 		/*
 			LOAD SHADERS
@@ -246,10 +248,10 @@ namespace erm {
 			SETUP VIEWPORT AND SCISSOR
 		*/
 		vk::Viewport viewport = {};
-		viewport.x = mRenderConfigs.mViewport.mMin.x * extent.width;
-		viewport.y = mRenderConfigs.mViewport.mMin.y * extent.height;
-		viewport.width = mRenderConfigs.mViewport.mMax.x * extent.width;
-		viewport.height = mRenderConfigs.mViewport.mMax.y * extent.height;
+		viewport.x = extent.width * normViewport.mMin.x;
+		viewport.y = extent.height * normViewport.mMin.y;
+		viewport.width = extent.width * normViewportSize.x;
+		viewport.height = extent.height * normViewportSize.y;
 		viewport.minDepth = 0.0f;
 		viewport.maxDepth = 1.0f;
 
@@ -389,7 +391,6 @@ namespace erm {
 	void RenderingResources::CreateFramebuffers()
 	{
 		const std::vector<vk::ImageView>& swapChainImageViews = mRenderer.GetSwapChainImageViews();
-		const math::vec2 viewportSize = mRenderConfigs.mViewport.GetSize();
 		vk::Extent2D swapChainExtent = mRenderer.GetSwapChainExtent();
 
 		mSwapChainFramebuffers.resize(swapChainImageViews.size());
@@ -401,8 +402,8 @@ namespace erm {
 			framebufferInfo.renderPass = mRenderPass;
 			framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
 			framebufferInfo.pAttachments = attachments.data();
-			framebufferInfo.width = static_cast<uint32_t>(viewportSize.x * swapChainExtent.width);
-			framebufferInfo.height = static_cast<uint32_t>(viewportSize.y * swapChainExtent.height);
+			framebufferInfo.width = static_cast<uint32_t>(swapChainExtent.width);
+			framebufferInfo.height = static_cast<uint32_t>(swapChainExtent.height);
 			framebufferInfo.layers = 1;
 
 			mSwapChainFramebuffers[i] = mDevice->createFramebuffer(framebufferInfo);

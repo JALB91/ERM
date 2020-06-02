@@ -40,7 +40,13 @@ namespace erm {
 		bool IsMaterialCompatible(const RenderConfigs& other) const;
 		bool IsTextureCompatible(const RenderConfigs& other) const;
 
-		BoundingBox2D mViewport;
+		void SetNormViewport(const BoundingBox2D& normViewport);
+		inline const BoundingBox2D& GetNormViewport() const { return mNormViewport; }
+
+	private:
+		BoundingBox2D mNormViewport;
+
+	public:
 		bool mDepthTestEnabled;
 		bool mDepthWriteEnabled;
 		DepthFunction mDepthFunction;

@@ -3,6 +3,8 @@
 #include "erm/ecs/ECS.h"
 #include "erm/ecs/systems/TransformSystem.h"
 
+#include "erm/engine/Engine.h"
+
 #include "erm/managers/ResourcesManager.h"
 
 #include "erm/rendering/buffers/IndexBuffer.h"
@@ -12,6 +14,7 @@
 #include "erm/rendering/data_structs/RenderData.h"
 #include "erm/rendering/data_structs/RenderingResources.h"
 #include "erm/rendering/renderer/Renderer.h"
+#include "erm/rendering/window/Window.h"
 
 #include "erm/utils/Profiler.h"
 
@@ -23,13 +26,11 @@ namespace {
 
 namespace erm::ecs {
 
-	ModelSystem::ModelSystem(
-		ECS& ecs,
-		Renderer& renderer,
-		ResourcesManager& resourcesManager)
+	ModelSystem::ModelSystem(ECS& ecs, Engine& engine)
 		: ISystem<ModelComponent>(ecs)
-		, mRenderer(renderer)
-		, mResourcesManager(resourcesManager)
+		, mWindow(engine.GetWindow())
+		, mRenderer(engine.GetRenderer())
+		, mResourcesManager(engine.GetResourcesManager())
 	{}
 
 	void ModelSystem::Init()
@@ -80,7 +81,6 @@ namespace erm::ecs {
 			if (!component.mModel || component.mModel->GetMeshes().empty())
 				return;
 
-			vk::Extent2D extent = mRenderer.GetSwapChainExtent();
 			static auto startTime = std::chrono::high_resolution_clock::now();
 
 			auto currentTime = std::chrono::high_resolution_clock::now();
@@ -93,7 +93,7 @@ namespace erm::ecs {
 			view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 
 			math::mat4 proj = glm::identity<math::mat4>();
-			proj = glm::perspective(glm::radians(45.0f), static_cast<float>(extent.width) / static_cast<float>(extent.height), 0.1f, 10.0f);
+			proj = glm::perspective(glm::radians(45.0f), mWindow.GetAspectRatio(), 0.1f, 10.0f);
 			proj[1][1] *= -1;
 
 			UniformBufferObject ubo;
@@ -111,6 +111,7 @@ namespace erm::ecs {
 		component->mRenderData.mRenderConfigs = mDefaultRenderConfigs;
 		if (tex)
 			component->mRenderData.mRenderConfigs.mTexture = tex;
+		component->mRenderData.mRenderConfigs.SetNormViewport(mWindow.GetNormalizedViewport());
 	}
 
 	void ModelSystem::SubmitRenderData(ModelComponent& component)

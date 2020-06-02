@@ -1,9 +1,11 @@
 #include "erm/rendering/data_structs/RenderConfigs.h"
 
+#include "erm/utils/Utils.h"
+
 namespace erm {
 
 	RenderConfigs::RenderConfigs()
-		: mViewport(math::vec2(0.0f, 0.0f), math::vec2(1.0f, 1.0f))
+		: mNormViewport({0.0f, 0.0f}, {1.0f, 1.0f})
 		, mDepthTestEnabled(true)
 		, mDepthWriteEnabled(true)
 		, mDepthFunction(DepthFunction::LESS)
@@ -66,8 +68,7 @@ namespace erm {
 
 	bool RenderConfigs::IsDepthCompatible(const RenderConfigs& other) const
 	{
-		return ((!mDepthTestEnabled && !other.mDepthTestEnabled) ||
-				(mDepthTestEnabled == other.mDepthTestEnabled && mDepthFunction == other.mDepthFunction)) &&
+		return ((!mDepthTestEnabled && !other.mDepthTestEnabled) || (mDepthTestEnabled == other.mDepthTestEnabled && mDepthFunction == other.mDepthFunction)) &&
 			mDepthWriteEnabled == other.mDepthWriteEnabled;
 	}
 
@@ -99,6 +100,24 @@ namespace erm {
 	bool RenderConfigs::IsTextureCompatible(const RenderConfigs& other) const
 	{
 		return (!mTexture && !other.mTexture) || (mTexture && other.mTexture);
+	}
+
+	void RenderConfigs::SetNormViewport(const BoundingBox2D& normViewport)
+	{
+		const bool areValuesBetweenZeroAndOne =
+			normViewport.mMin.x >= 0.0f && normViewport.mMin.x <= 1.0f &&
+			normViewport.mMin.y >= 0.0f && normViewport.mMin.y <= 1.0f &&
+			normViewport.mMax.x >= 0.0f && normViewport.mMax.x <= 1.0f &&
+			normViewport.mMax.y >= 0.0f && normViewport.mMax.y <= 1.0f;
+		const bool areMinsLessThanMaxs =
+			normViewport.mMin.x <= normViewport.mMax.x &&
+			normViewport.mMin.y <= normViewport.mMax.y;
+		const bool areValuesValid = areValuesBetweenZeroAndOne && areMinsLessThanMaxs;
+
+		if (EXPECT(areValuesValid, "Invalid viewport values"))
+		{
+			mNormViewport = normViewport;
+		}
 	}
 
 } // namespace erm

@@ -28,9 +28,11 @@ namespace erm {
 		, mRenderer(engine.GetRenderer())
 	{
 		ImGui::CreateContext();
-		ImGui::GetIO();
 		ImGui::StyleColorsDark();
-		ImGui_ImplGlfw_InitForVulkan(engine.GetWindow().GetWindow(), true);
+		ImGuiIO& io = ImGui::GetIO();
+
+		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
 		SwapChainCreated();
 
@@ -56,6 +58,8 @@ namespace erm {
 		ImGui::ShowEngineDebug(mEngine);
 
 		ImGui::Render();
+
+		ImGui::UpdatePlatformWindows();
 	}
 
 	vk::CommandBuffer& ImGuiHandle::GetCommandBuffer(uint32_t imageIndex)
@@ -100,6 +104,8 @@ namespace erm {
 		}
 
 		gFirst = false;
+
+		ImGui_ImplGlfw_InitForVulkan(mEngine.GetWindow().GetWindow(), false);
 
 		CreateRenderPass();
 		CreateFrameBuffers();

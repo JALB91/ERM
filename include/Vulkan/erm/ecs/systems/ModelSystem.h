@@ -9,6 +9,8 @@
 
 namespace erm {
 	class Mesh;
+	class Engine;
+	class Window;
 	class Renderer;
 	class ResourcesManager;
 	class Texture;
@@ -25,10 +27,7 @@ namespace erm::ecs {
 	class ModelSystem : public ISystem<ModelComponent>
 	{
 	public:
-		ModelSystem(
-			ECS& ecs,
-			Renderer& renderer,
-			ResourcesManager& resourcesManager);
+		ModelSystem(ECS& ecs, Engine& engine);
 
 		// ISystem
 		void Init() override;
@@ -41,6 +40,7 @@ namespace erm::ecs {
 
 		void SubmitRenderData(ModelComponent& component);
 
+		Window& mWindow;
 		Renderer& mRenderer;
 		ResourcesManager& mResourcesManager;
 
