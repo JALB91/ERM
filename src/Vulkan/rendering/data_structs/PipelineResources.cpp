@@ -59,6 +59,22 @@ namespace erm {
 	{
 		cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, mPipeline);
 
+#ifdef ERM_FLIP_VIEWPORT
+		const BoundingBox2D& normViewport = mRenderConfigs.GetNormViewport();
+		const math::vec2 normViewportSize = normViewport.GetSize();
+		const vk::Extent2D& extent = mRenderer.GetSwapChainExtent();
+
+		vk::Viewport viewport = {};
+		viewport.x = static_cast<float>(extent.width) * normViewport.mMin.x;
+		viewport.y = (static_cast<float>(extent.height) * normViewportSize.y) - (static_cast<float>(extent.height) * normViewport.mMin.y);
+		viewport.width = static_cast<float>(extent.width) * normViewportSize.x;
+		viewport.height = -(static_cast<float>(extent.height) * normViewportSize.y);
+		viewport.minDepth = 0.0f;
+		viewport.maxDepth = 1.0f;
+
+		cmd.setViewport(0, 1, &viewport);
+#endif
+
 		vk::DescriptorSet* descriptorSet = nullptr;
 
 		if (mDescriptorSetLayout)
@@ -247,8 +263,9 @@ namespace erm {
 			DYNAMIC STATES
 		*/
 		std::vector<vk::DynamicState> dynamicStates {
-			//			vk::DynamicState::eViewport,
-			//			vk::DynamicState::eScissor
+#ifdef ERM_FLIP_VIEWPORT
+			vk::DynamicState::eViewport
+#endif
 		};
 
 		vk::PipelineDynamicStateCreateInfo dynamicInfo;

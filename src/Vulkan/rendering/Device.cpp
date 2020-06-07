@@ -14,7 +14,12 @@
 */
 namespace {
 
-	const std::vector<const char*> kDeviceExtensions {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+	const std::vector<const char*> kDeviceExtensions {
+		VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+#ifdef ERM_FLIP_VIEWPORT
+		VK_KHR_MAINTENANCE1_EXTENSION_NAME
+#endif
+	};
 
 #ifndef NDEBUG
 	const std::vector<const char*> kValidationLayers {"VK_LAYER_KHRONOS_validation"};

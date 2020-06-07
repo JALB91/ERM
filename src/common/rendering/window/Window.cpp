@@ -4,14 +4,14 @@
 
 #include "erm/utils/Profiler.h"
 #include "erm/utils/Utils.h"
-#ifdef OpenGl
+#ifdef ERM_OPENGL
 #	include "erm/utils/GlUtils.h"
 #endif
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#ifdef OpenGl
+#ifdef ERM_OPENGL
 #	include <GL/glew.h>
 #endif
 
@@ -41,9 +41,9 @@ namespace {
 		}
 	}
 
-#if defined(Vulkan)
+#if defined(ERM_VULKAN)
 	const char* const kTitle = "ERM Vulkan";
-#elif defined(OpenGl)
+#elif defined(ERM_OPENGL)
 	const char* const kTitle = "ERM OpenGl";
 #endif
 
@@ -139,9 +139,9 @@ namespace erm {
 		glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-#if defined(Vulkan)
+#if defined(ERM_VULKAN)
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-#elif defined(OpenGl)
+#elif defined(ERM_OPENGL)
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
@@ -156,7 +156,7 @@ namespace erm {
 		glfwMakeContextCurrent(mWindow);
 		glfwSwapInterval(1);
 
-#ifdef OpenGl
+#ifdef ERM_OPENGL
 		if (glewInit() != GLEW_OK)
 		{
 			std::cout << "GLEW initialization failed" << std::endl;
@@ -302,7 +302,7 @@ namespace erm {
 		mViewport.mMax.x = mWindowSize.x - (mWindowSize.x * kImGuiSpaceRight);
 		mViewport.mMax.y = mWindowSize.y - (mWindowSize.y * kImGuiSpaceDown);
 
-#ifdef OpenGl
+#ifdef ERM_OPENGL
 		const math::vec2 size = mViewport.GetSize();
 
 		GL_CALL(glViewport(

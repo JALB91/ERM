@@ -125,7 +125,7 @@ namespace erm::ecs {
 				camera->mZNear,
 				camera->mZFar);
 
-#ifdef Vulkan
+#ifdef ERM_FLIP_PROJECTION
 			camera->mProjectionMatrix[1][1] *= -1.0f;
 #endif
 
