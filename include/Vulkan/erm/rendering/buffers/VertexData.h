@@ -12,7 +12,7 @@ namespace erm {
 	static const unsigned int kMaxBonesNumber = 4;
 
 	typedef float VertexType;
-	typedef unsigned int IdType;
+	typedef uint32_t IdType;
 
 	typedef math::vec<kPositionVectorsLenght, VertexType> PositionVertex;
 	typedef math::vec<kNormalVectorsLenght, VertexType> NormalVertex;

@@ -185,7 +185,7 @@ namespace erm {
 
 	void Renderer::SubmitRenderData(RenderData& data)
 	{
-		ASSERT(!data.mMehses.empty());
+		ASSERT(!data.mMeshes.empty());
 
 		FramesData::value_type& framesData = GetOrCreateFramesData(data.mRenderConfigs);
 
@@ -196,13 +196,14 @@ namespace erm {
 	{
 		for (FramesData::value_type& data : mFramesDatas)
 		{
-			if (renderConfigs.IsRenderPassLevelCompatible(data.first->mRenderConfigs) && renderConfigs.IsPipelineLevelCompatible(data.first->mRenderConfigs))
-			{
+			if (data.first->IsSubpassCompatible(renderConfigs.mSubpassData))
 				return data;
-			}
 		}
 
-		auto it = mFramesDatas.insert(std::make_pair<FramesData::key_type, FramesData::mapped_type>(std::make_unique<RenderingResources>(mDevice, *this, renderConfigs), {}));
+		std::vector<SubpassData> data = {renderConfigs.mSubpassData};
+		auto it = mFramesDatas.insert(std::make_pair<FramesData::key_type, FramesData::mapped_type>(
+			std::make_unique<RenderingResources>(mDevice, *this, data),
+			{}));
 
 		return *it.first;
 	}
@@ -213,7 +214,7 @@ namespace erm {
 
 		for (FramesData::value_type& data : mFramesDatas)
 		{
-			data.first->UpdateRenderingResources(data.second, mCurrentImageIndex);
+			data.first->Update(data.second, mCurrentImageIndex);
 		}
 	}
 

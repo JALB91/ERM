@@ -31,6 +31,11 @@ namespace erm::ecs {
 		, mWindow(engine.GetWindow())
 		, mRenderer(engine.GetRenderer())
 		, mResourcesManager(engine.GetResourcesManager())
+		, mTransformSystem(nullptr)
+		, mSkeletonSystem(nullptr)
+		, mCameraSystem(nullptr)
+		, mLightSystem(nullptr)
+		, mDefaultRenderConfigs(RenderConfigs::MODELS_RENDER_CONFIGS)
 	{}
 
 	void ModelSystem::Init()
@@ -40,12 +45,8 @@ namespace erm::ecs {
 		mCameraSystem = &mECS.GetSystem<CameraSystem>();
 		mLightSystem = &mECS.GetSystem<LightSystem>();
 
-		mTexture = mResourcesManager.GetOrCreateTexture("res/textures/viking_room.png");
-
 		mDefaultRenderConfigs.mShaderProgram = mResourcesManager.GetOrCreateShaderProgram(kDefaultModelShaderPath);
-		mDefaultRenderConfigs.mDrawMode = DrawMode::TRIANGLES;
-		mDefaultRenderConfigs.mPolygonMode = PolygonMode::FILL;
-		mDefaultRenderConfigs.mTexture = mTexture;
+		mDefaultRenderConfigs.mTexture = mResourcesManager.GetOrCreateTexture("res/textures/viking_room.png");
 	}
 
 	void ModelSystem::OnPostUpdate()
@@ -73,37 +74,6 @@ namespace erm::ecs {
 		});
 	}
 
-	void ModelSystem::OnRender()
-	{
-		PROFILE_FUNCTION();
-
-		ForEachComponent([this](ModelComponent& component) {
-			if (!component.mModel || component.mModel->GetMeshes().empty())
-				return;
-
-			static auto startTime = std::chrono::high_resolution_clock::now();
-
-			auto currentTime = std::chrono::high_resolution_clock::now();
-			float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
-
-			math::mat4 model = glm::identity<math::mat4>();
-			model = glm::rotate(model, time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-
-			math::mat4 view = glm::identity<math::mat4>();
-			view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-
-			math::mat4 proj = glm::identity<math::mat4>();
-			proj = glm::perspective(glm::radians(45.0f), mWindow.GetAspectRatio(), 0.1f, 10.0f);
-			proj[1][1] *= -1;
-
-			UniformBufferObject ubo;
-			ubo.mMVP = proj * view * model;
-
-			component.mRenderData.mUBO = std::move(ubo);
-			SubmitRenderData(component);
-		});
-	}
-
 	void ModelSystem::OnComponentAdded(EntityId id)
 	{
 		ModelComponent* component = GetComponent(id);
@@ -112,20 +82,6 @@ namespace erm::ecs {
 		if (tex)
 			component->mRenderData.mRenderConfigs.mTexture = tex;
 		component->mRenderData.mRenderConfigs.SetNormViewport(mWindow.GetNormalizedViewport());
-	}
-
-	void ModelSystem::SubmitRenderData(ModelComponent& component)
-	{
-		std::vector<Mesh>& meshes = component.mModel->GetMeshes();
-		component.mRenderData.mMehses.clear();
-		for (size_t i = 0; i < meshes.size(); ++i)
-		{
-			if (meshes[i].IsReady())
-				component.mRenderData.mMehses.emplace_back(&meshes[i]);
-		}
-		if (component.mRenderData.mMehses.empty())
-			return;
-		mRenderer.SubmitRenderData(component.mRenderData);
 	}
 
 } // namespace erm::ecs

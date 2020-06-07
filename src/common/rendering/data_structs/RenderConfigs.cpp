@@ -4,22 +4,63 @@
 
 namespace erm {
 
-	RenderConfigs::RenderConfigs()
-		: mNormViewport({0.0f, 0.0f}, {1.0f, 1.0f})
-		, mDepthTestEnabled(true)
-		, mDepthWriteEnabled(true)
-		, mDepthFunction(DepthFunction::LESS)
-		, mBlendEnabled(false)
-		, mBlendFunction(BlendFunction::ZERO)
-		, mCullMode(CullMode::NONE)
-		, mFrontFace(FrontFace::CCW)
-		, mPolygonMode(PolygonMode::FILL)
-		, mDrawMode(DrawMode::TRIANGLES)
-		, mShaderProgram(nullptr)
-		, mMaterial(nullptr)
-		, mTexture(nullptr)
-	{
-	}
+	const RenderConfigs RenderConfigs::MODELS_RENDER_CONFIGS {
+		SubpassData {
+			AttachmentData(
+				AttachmentLoadOp::CLEAR,
+				AttachmentStoreOp::STORE,
+				ImageLayout::UNDEFINED,
+				ImageLayout::COLOR_ATTACHMENT_OPTIMAL),
+			AttachmentData(
+				AttachmentLoadOp::CLEAR,
+				AttachmentStoreOp::DONT_CARE,
+				ImageLayout::UNDEFINED,
+				ImageLayout::DEPTH_STENCIL_ATTACHMENT_OPTIMAL)},
+		{}, // NormViewport
+		{}, // DepthTestEnabled
+		{}, // DepthWriteEnabled
+		{}, // DepthFunction
+		{}, // BlendEnabled
+		{}, // BlendFunction
+		{}, // CullMode
+		{}, // FrontFace
+		{}, // PolygonMode
+		{}, // DrawMode
+		nullptr, // ShaderProgram
+		nullptr, // Material
+		nullptr // Texture
+	};
+
+	RenderConfigs::RenderConfigs(
+		const SubpassData& subpassData,
+		std::optional<BoundingBox2D> normViewport /*= {}*/,
+		std::optional<bool> depthTestEnabled /*= {}*/,
+		std::optional<bool> depthWriteEnabled /*= {}*/,
+		std::optional<DepthFunction> depthFunction /*= {}*/,
+		std::optional<bool> blendEnabled /*= {}*/,
+		std::optional<BlendFunction> blendFunction /*= {}*/,
+		std::optional<CullMode> cullMode /*= {}*/,
+		std::optional<FrontFace> frontFace /*= {}*/,
+		std::optional<PolygonMode> polygonMode /*= {}*/,
+		std::optional<DrawMode> drawMode /*= {}*/,
+		ShaderProgram* shaderProgram /*= nullptr*/,
+		Material* material /*= nullptr*/,
+		Texture* texture /*= nullptr*/)
+		: mSubpassData(subpassData)
+		, mNormViewport(normViewport)
+		, mDepthTestEnabled(depthTestEnabled)
+		, mDepthWriteEnabled(depthWriteEnabled)
+		, mDepthFunction(depthFunction)
+		, mBlendEnabled(blendEnabled)
+		, mBlendFunction(blendFunction)
+		, mCullMode(cullMode)
+		, mFrontFace(frontFace)
+		, mPolygonMode(polygonMode)
+		, mDrawMode(drawMode)
+		, mShaderProgram(shaderProgram)
+		, mMaterial(material)
+		, mTexture(texture)
+	{}
 
 	bool RenderConfigs::operator==(const RenderConfigs& other) const
 	{
@@ -33,31 +74,30 @@ namespace erm {
 		return !(*this == other);
 	}
 
-	bool RenderConfigs::operator<(const RenderConfigs& other) const
-	{
-		const uint64_t total = static_cast<int>(mDepthFunction) + static_cast<int>(mBlendFunction) + static_cast<int>(mCullMode) + static_cast<int>(mFrontFace) + static_cast<int>(mPolygonMode) + static_cast<int>(mDrawMode);
-		const uint64_t otherTotal = static_cast<int>(other.mDepthFunction) + static_cast<int>(other.mBlendFunction) + static_cast<int>(other.mCullMode) + static_cast<int>(other.mFrontFace) + static_cast<int>(other.mPolygonMode) + static_cast<int>(other.mDrawMode);
-		return total < otherTotal;
-	}
-
 	bool RenderConfigs::IsRenderPassLevelCompatible(const RenderConfigs& other) const
 	{
-		return IsBlendCompatible(other) &&
+		return IsSubpassCompatible(other);
+	}
+
+	bool RenderConfigs::IsPipelineLevelCompatible(const RenderConfigs& other) const
+	{
+		return IsShaderCompatible(other) &&
+			IsBlendCompatible(other) &&
 			IsDepthCompatible(other) &&
 			IsCullCompatible(other) &&
 			IsDrawModeCompatible(other) &&
 			IsPolyModeCompatible(other);
 	}
 
-	bool RenderConfigs::IsPipelineLevelCompatible(const RenderConfigs& other) const
-	{
-		return IsShaderCompatible(other);
-	}
-
 	bool RenderConfigs::IsResourcesBindingCompatible(const RenderConfigs& other) const
 	{
 		return IsMaterialCompatible(other) &&
 			IsTextureCompatible(other);
+	}
+
+	bool RenderConfigs::IsSubpassCompatible(const RenderConfigs& other) const
+	{
+		return mSubpassData == other.mSubpassData;
 	}
 
 	bool RenderConfigs::IsBlendCompatible(const RenderConfigs& other) const
@@ -100,24 +140,6 @@ namespace erm {
 	bool RenderConfigs::IsTextureCompatible(const RenderConfigs& other) const
 	{
 		return (!mTexture && !other.mTexture) || (mTexture && other.mTexture);
-	}
-
-	void RenderConfigs::SetNormViewport(const BoundingBox2D& normViewport)
-	{
-		const bool areValuesBetweenZeroAndOne =
-			normViewport.mMin.x >= 0.0f && normViewport.mMin.x <= 1.0f &&
-			normViewport.mMin.y >= 0.0f && normViewport.mMin.y <= 1.0f &&
-			normViewport.mMax.x >= 0.0f && normViewport.mMax.x <= 1.0f &&
-			normViewport.mMax.y >= 0.0f && normViewport.mMax.y <= 1.0f;
-		const bool areMinsLessThanMaxs =
-			normViewport.mMin.x <= normViewport.mMax.x &&
-			normViewport.mMin.y <= normViewport.mMax.y;
-		const bool areValuesValid = areValuesBetweenZeroAndOne && areMinsLessThanMaxs;
-
-		if (EXPECT(areValuesValid, "Invalid viewport values"))
-		{
-			mNormViewport = normViewport;
-		}
 	}
 
 } // namespace erm

@@ -37,7 +37,7 @@ namespace {
 	const char* const kVikingRoomModelPath = "res/models/viking_room.obj";
 
 	const char* const kModelToUse = kVikingRoomModelPath;
-	const float kDefaultScale = 20.0f;
+	const float kDefaultScale = 100.0f;
 	const int kEntities = 1;
 
 } // namespace
@@ -104,7 +104,7 @@ namespace erm {
 
 		auto entity = mECS->GetOrCreateEntity();
 		Model* model = mResourcesManager->GetOrCreateModel("Defaults/Sphere");
-		RenderConfigs rc {};
+		RenderConfigs rc = RenderConfigs::MODELS_RENDER_CONFIGS;
 		rc.mTexture = mResourcesManager->GetOrCreateTexture("res/textures/smile.png");
 		entity->RequireComponent<ecs::ModelComponent>(model, rc);
 		root->AddChild(*entity);

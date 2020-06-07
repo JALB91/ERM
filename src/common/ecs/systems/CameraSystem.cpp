@@ -86,9 +86,8 @@ namespace erm::ecs {
 			rotationMatrix = glm::rotate(rotationMatrix, transform.mRotation.x, math::vec3(1.0f, 0.0f, 0.0f));
 
 			translation = rotationMatrix * math::vec4(translation, 1.0f);
-			translation = transform.mTranslation + translation;
 
-			transform.mTranslation = translation;
+			transform.mTranslation += translation;
 		}
 	}
 
@@ -125,6 +124,10 @@ namespace erm::ecs {
 				mWindow.GetAspectRatio(),
 				camera->mZNear,
 				camera->mZFar);
+
+#ifdef Vulkan
+			camera->mProjectionMatrix[1][1] *= -1.0f;
+#endif
 
 			camera->SetDirty(false);
 		}

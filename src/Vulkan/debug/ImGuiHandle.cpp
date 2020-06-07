@@ -45,7 +45,6 @@ namespace erm {
 
 		Cleanup();
 
-		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();
 	}
 
@@ -105,7 +104,7 @@ namespace erm {
 
 		gFirst = false;
 
-		ImGui_ImplGlfw_InitForVulkan(mEngine.GetWindow().GetWindow(), false);
+		ImGui_ImplGlfw_InitForVulkan(mEngine.GetWindow().GetWindow(), true);
 
 		CreateRenderPass();
 		CreateFrameBuffers();
@@ -136,6 +135,7 @@ namespace erm {
 	void ImGuiHandle::Cleanup()
 	{
 		ImGui_ImplVulkan_Shutdown();
+		ImGui_ImplGlfw_Shutdown();
 
 		mDevice->freeCommandBuffers(mDevice.GetCommandPool(), static_cast<uint32_t>(mCommandBuffers.size()), mCommandBuffers.data());
 		mDevice->destroyDescriptorPool(mDescriptorPool);

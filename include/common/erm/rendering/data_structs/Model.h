@@ -41,15 +41,12 @@ namespace erm {
 
 		void AddMesh(Mesh&& mesh);
 		void AddMesh(
-			DrawMode drawMode,
 			VertexData* vertices,
 			uint32_t verticesCount,
 			IndexData* indices,
 			uint32_t indicesCount,
-			const char* name = "",
-			ShaderProgram* shaderProgram = nullptr,
-			Material* material = nullptr,
-			Texture* texture = nullptr);
+			const RenderConfigs& configs = RenderConfigs::MODELS_RENDER_CONFIGS,
+			const char* name = "");
 		void UpdateLocalBound();
 
 	private:

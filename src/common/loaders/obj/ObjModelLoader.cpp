@@ -344,8 +344,11 @@ namespace erm {
 			indicesData[i] = indices[i];
 		}
 
+		RenderConfigs configs = RenderConfigs::MODELS_RENDER_CONFIGS;
+		configs.mMaterial = material;
+
 		mutex.lock();
-		model.AddMesh(DrawMode::TRIANGLES, verticesData, verticesCount, indicesData, indicesCount, meshName.c_str(), nullptr, material);
+		model.AddMesh(verticesData, verticesCount, indicesData, indicesCount, configs, meshName.c_str());
 		mutex.unlock();
 	}
 

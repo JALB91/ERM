@@ -36,9 +36,9 @@ namespace ImGui {
 
 			ImGui::Indent();
 			bool reset = ImGui::Button("Reset");
-			//			ImGui::InputFloat3("Translation", &translation.x, 1);
+			ImGui::InputFloat3("Translation", &translation.x);
 			ImGui::SliderFloat3("Rotation", &rotation.x, -static_cast<float>(M_PI), static_cast<float>(M_PI));
-			//			ImGui::InputFloat3("Scale", &scale.x, 1);
+			ImGui::InputFloat3("Scale", &scale.x);
 			ImGui::Unindent();
 
 			if (reset)

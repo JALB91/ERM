@@ -2,23 +2,33 @@
 
 #include "erm/rendering/buffers/UniformBuffer.h"
 #include "erm/rendering/data_structs/RenderConfigs.h"
+#include "erm/rendering/data_structs/UniformBufferObject.h"
 
 #include <vulkan/vulkan.hpp>
 
+#include <map>
 #include <memory>
 #include <vector>
 
 namespace erm {
-	class RenderingResources;
+	class Device;
+	class Renderer;
 	struct RenderData;
 } // namespace erm
 
 namespace erm {
 
+	using UniformBuffers = std::vector<std::map<UboId, UniformBuffer>>;
+
 	class BindingResources
 	{
 	public:
-		BindingResources(RenderingResources& renderingResources, const RenderConfigs& renderConfigs);
+		BindingResources(
+			Device& device,
+			Renderer& renderer,
+			const vk::DescriptorPool& descriptorPool,
+			const vk::DescriptorSetLayout& descriptorSetLayout,
+			const RenderConfigs& renderConfigs);
 		~BindingResources();
 
 		BindingResources(const BindingResources&) = delete;
@@ -32,10 +42,13 @@ namespace erm {
 		inline vk::DescriptorSet* GetDescriptorSet(uint32_t index) { return &mDescriptorSets[index]; }
 
 	private:
-		RenderingResources& mRenderingResources;
+		Device& mDevice;
+		Renderer& mRenderer;
+		const vk::DescriptorPool& mDescriptorPool;
 		const RenderConfigs mRenderConfigs;
 		std::vector<vk::DescriptorSet> mDescriptorSets;
-		std::vector<UniformBuffer> mUniformBuffers;
+		UniformBuffers mVertUniformBuffers;
+		UniformBuffers mFragUniformBuffers;
 	};
 
 } // namespace erm

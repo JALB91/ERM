@@ -50,6 +50,7 @@ if("${TARGET_API}" STREQUAL "OpenGl")
 	set(PUBLIC_DEPENDENCIES "${GLEW_LIBRARY}")
 elseif("${TARGET_API}" STREQUAL "Vulkan")
 	add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/Vulkan-Hpp")
+	add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/SPIRV-Cross")
 	set(VULKAN_HPP_INSTALL TRUE)
 endif()
 
@@ -89,6 +90,7 @@ target_link_libraries(
 		"${PRIVATE_DEPENDENCIES}"
 		glfw
 		stb_image
+		spirv-cross-cpp
 	PUBLIC 
 		"${PUBLIC_DEPENDENCIES}"
 		glm

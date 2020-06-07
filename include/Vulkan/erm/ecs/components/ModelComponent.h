@@ -24,7 +24,7 @@ namespace erm::ecs {
 		friend class ModelSystem;
 
 	public:
-		ModelComponent(Model* model = nullptr, const RenderConfigs& renderConfigs = {})
+		ModelComponent(Model* model = nullptr, const RenderConfigs& renderConfigs = RenderConfigs::MODELS_RENDER_CONFIGS)
 			: mModel(model)
 			, mShouldShowBoundingBox(false)
 			, mRenderData(renderConfigs)
@@ -41,6 +41,7 @@ namespace erm::ecs {
 		BoundingBox3D mWorldBounds;
 		bool mShouldShowBoundingBox;
 
+	public:
 		RenderData mRenderData;
 	};
 

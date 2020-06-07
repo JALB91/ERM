@@ -6,16 +6,16 @@
 #include <array>
 #include <memory>
 
-#define ADD_SYSTEM(NAME, VAR)      \
+#define ADD_SYSTEM(NAME)           \
 public:                            \
 	template<>                     \
 	inline NAME& GetSystem() const \
 	{                              \
-		return *VAR;               \
+		return *m##NAME;           \
 	}                              \
                                    \
 private:                           \
-	std::unique_ptr<NAME> VAR;
+	std::unique_ptr<NAME> m##NAME;
 
 namespace erm {
 	class Engine;
@@ -28,6 +28,7 @@ namespace erm {
 		class AnimationSystem;
 		class ModelSystem;
 		class CameraSystem;
+		class RenderingSystem;
 	} // namespace ecs
 } // namespace erm
 
@@ -59,12 +60,13 @@ namespace erm::ecs {
 
 		Engine& mEngine;
 
-		ADD_SYSTEM(TransformSystem, mTransformSystem)
-		ADD_SYSTEM(LightSystem, mLightSystem)
-		ADD_SYSTEM(SkeletonSystem, mSkeletonSystem)
-		ADD_SYSTEM(AnimationSystem, mAnimationSystem)
-		ADD_SYSTEM(ModelSystem, mModelSystem)
-		ADD_SYSTEM(CameraSystem, mCameraSystem)
+		ADD_SYSTEM(TransformSystem)
+		ADD_SYSTEM(LightSystem)
+		ADD_SYSTEM(SkeletonSystem)
+		ADD_SYSTEM(AnimationSystem)
+		ADD_SYSTEM(ModelSystem)
+		ADD_SYSTEM(CameraSystem)
+		ADD_SYSTEM(RenderingSystem)
 
 		std::array<std::unique_ptr<Entity>, MAX_ID> mEntities;
 	};

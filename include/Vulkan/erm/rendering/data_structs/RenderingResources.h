@@ -1,6 +1,7 @@
 #pragma once
 
 #include "erm/rendering/data_structs/BindingResources.h"
+#include "erm/rendering/data_structs/PipelineResources.h"
 #include "erm/rendering/data_structs/RenderConfigs.h"
 
 #include <vulkan/vulkan.hpp>
@@ -10,7 +11,6 @@
 namespace erm {
 	class Device;
 	class Renderer;
-	struct RenderConfigs;
 	struct RenderData;
 } // namespace erm
 
@@ -22,7 +22,7 @@ namespace erm {
 		RenderingResources(
 			Device& device,
 			Renderer& renderer,
-			const RenderConfigs& renderConfigs);
+			const std::vector<SubpassData>& renderConfigs);
 		~RenderingResources();
 
 		RenderingResources(RenderingResources&& other);
@@ -32,32 +32,31 @@ namespace erm {
 		RenderingResources& operator=(const RenderingResources&) = delete;
 		RenderingResources& operator=(RenderingResources&&) = delete;
 
-		void CreateDescriptorPool(vk::DescriptorPoolCreateInfo& info);
-		void UpdateRenderingResources(std::vector<RenderData*>& renderData, uint32_t imageIndex);
+		void AddSubpass(const SubpassData& data);
+		bool IsSubpassCompatible(const SubpassData& subpass) const;
+		void Update(std::vector<RenderData*>& renderData, uint32_t imageIndex);
 
 	private:
+		vk::AttachmentDescription CreateAttachmentDescription(const erm::AttachmentData& data, vk::Format format) const;
+		PipelineResources& GetOrCreatePipelineResources(const RenderConfigs& renderConfigs);
+
+		void Reload();
+		void Cleanup();
+
 		void CreateRenderPass();
-		void CreatePipeline();
-		void CreateDepthResources();
 		void CreateFramebuffers();
 		void CreateDescriptorPool();
 		void CreateCommandBuffers();
 
-	public:
 		Device& mDevice;
 		Renderer& mRenderer;
-		const RenderConfigs mRenderConfigs;
+		std::vector<SubpassData> mSubpassData;
 
+	public:
 		vk::RenderPass mRenderPass;
-		vk::PipelineLayout mPipelineLayout;
-		vk::Pipeline mPipeline;
-
 		std::vector<vk::Framebuffer> mSwapChainFramebuffers;
-
 		vk::DescriptorPool mDescriptorPool;
-		vk::DescriptorSetLayout mDescriptorSetLayout;
-
-		std::vector<BindingResources> mBindingResources;
+		std::vector<PipelineResources> mPipelineResources;
 		std::vector<vk::CommandBuffer> mCommandBuffers;
 	};
 

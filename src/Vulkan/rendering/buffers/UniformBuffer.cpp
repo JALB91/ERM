@@ -21,6 +21,19 @@ namespace erm {
 		Update(data);
 	}
 
+	UniformBuffer::UniformBuffer(Device& device, size_t size)
+		: Buffer(device, size)
+	{
+		VkUtils::CreateBuffer(
+			device.GetVkPhysicalDevice(),
+			device.GetVkDevice(),
+			size,
+			vk::BufferUsageFlagBits::eUniformBuffer,
+			vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+			mBuffer,
+			mBufferMemory);
+	}
+
 	void UniformBuffer::Update(void* data) const
 	{
 		void* mappedData = mDevice->mapMemory(mBufferMemory, 0, mBufferSize);

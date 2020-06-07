@@ -1,10 +1,13 @@
 #include "erm/utils/VkUtils.h"
 
 #include "erm/rendering/buffers/VertexData.h"
+#include "erm/rendering/enums/AttachmentLoadOp.h"
+#include "erm/rendering/enums/AttachmentStoreOp.h"
 #include "erm/rendering/enums/CullMode.h"
 #include "erm/rendering/enums/DepthFunction.h"
 #include "erm/rendering/enums/DrawMode.h"
 #include "erm/rendering/enums/FrontFace.h"
+#include "erm/rendering/enums/ImageLayout.h"
 #include "erm/rendering/enums/PolygonMode.h"
 
 #include <algorithm>
@@ -77,7 +80,7 @@ namespace erm::VkUtils {
 
 		vk::PhysicalDeviceFeatures supportedFeatures = device.getFeatures();
 
-		return isSuitable && swapChainAdequate && supportedFeatures.samplerAnisotropy;
+		return isSuitable && swapChainAdequate && supportedFeatures.samplerAnisotropy && supportedFeatures.fillModeNonSolid;
 	}
 
 	vk::SurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& availableFormats)
@@ -558,6 +561,60 @@ namespace erm::VkUtils {
 			default:
 			case FrontFace::CW:
 				return vk::FrontFace::eClockwise;
+		}
+	}
+
+	template<>
+	vk::AttachmentLoadOp ToVulkanValue(AttachmentLoadOp op)
+	{
+		switch (op)
+		{
+			case AttachmentLoadOp::CLEAR:
+				return vk::AttachmentLoadOp::eClear;
+			case AttachmentLoadOp::LOAD:
+				return vk::AttachmentLoadOp::eLoad;
+			default:
+			case AttachmentLoadOp::DONT_CARE:
+				return vk::AttachmentLoadOp::eDontCare;
+		}
+	}
+
+	template<>
+	vk::AttachmentStoreOp ToVulkanValue(AttachmentStoreOp op)
+	{
+		switch (op)
+		{
+			case AttachmentStoreOp::STORE:
+				return vk::AttachmentStoreOp::eStore;
+			default:
+			case AttachmentStoreOp::DONT_CARE:
+				return vk::AttachmentStoreOp::eDontCare;
+		}
+	}
+
+	template<>
+	vk::ImageLayout ToVulkanValue(ImageLayout layout)
+	{
+		switch (layout)
+		{
+			case ImageLayout::UNDEFINED:
+				return vk::ImageLayout::eUndefined;
+			case ImageLayout::COLOR_ATTACHMENT_OPTIMAL:
+				return vk::ImageLayout::eColorAttachmentOptimal;
+			case ImageLayout::DEPTH_ATTACHMMENT_OPTIMAL:
+				return vk::ImageLayout::eDepthAttachmentOptimal;
+			case ImageLayout::DEPTH_READONLY_OPTIMAL:
+				return vk::ImageLayout::eDepthReadOnlyOptimal;
+			case ImageLayout::STENCIL_ATTACHMENT_OPTIMAL:
+				return vk::ImageLayout::eStencilAttachmentOptimal;
+			case ImageLayout::STENCIL_READONLY_OPTIMAL:
+				return vk::ImageLayout::eStencilReadOnlyOptimal;
+			case ImageLayout::DEPTH_STENCIL_ATTACHMENT_OPTIMAL:
+				return vk::ImageLayout::eDepthStencilAttachmentOptimal;
+			case ImageLayout::DEPTH_STENCIL_READONLY_OPTIMAL:
+				return vk::ImageLayout::eDepthStencilReadOnlyOptimal;
+			case ImageLayout::PRESENT_SRC:
+				return vk::ImageLayout::ePresentSrcKHR;
 		}
 	}
 

@@ -8,26 +8,20 @@ namespace erm {
 
 	Mesh::Mesh(
 		Device& device,
-		DrawMode drawMode,
 		VertexData* vertices,
 		uint32_t verticesCount,
 		IndexData* indices,
 		uint32_t indicesCount,
-		const char* name /*= ""*/,
-		ShaderProgram* shaderProgram /*= nullptr*/,
-		Material* material /*= nullptr*/,
-		Texture* texture /*= nullptr*/
+		const RenderConfigs& configs /*= {}*/,
+		const char* name /*= ""*/
 		)
 		: mDevice(device)
-		, mDrawMode(drawMode)
+		, mRenderConfigs(configs)
 		, mName(name)
 		, mVerticesData(vertices)
 		, mVerticesDataCount(verticesCount)
 		, mIndicesData(indices)
 		, mIndicesDataCount(indicesCount)
-		, mShaderProgram(shaderProgram)
-		, mMaterial(material)
-		, mTexture(texture)
 	{}
 
 	Mesh::~Mesh()
@@ -45,15 +39,12 @@ namespace erm {
 
 	Mesh::Mesh(Mesh&& other)
 		: mDevice(other.mDevice)
-		, mDrawMode(other.mDrawMode)
+		, mRenderConfigs(std::move(other.mRenderConfigs))
 		, mName(std::move(other.mName))
 		, mVerticesData(other.mVerticesData)
 		, mVerticesDataCount(other.mVerticesDataCount)
 		, mIndicesData(other.mIndicesData)
 		, mIndicesDataCount(other.mIndicesDataCount)
-		, mShaderProgram(other.mShaderProgram)
-		, mMaterial(other.mMaterial)
-		, mTexture(other.mTexture)
 		, mVertexBuffer(std::move(other.mVertexBuffer))
 		, mIndexBuffer(std::move(other.mIndexBuffer))
 	{
@@ -62,10 +53,6 @@ namespace erm {
 
 		other.mIndicesData = nullptr;
 		other.mIndicesDataCount = 0;
-
-		other.mShaderProgram = nullptr;
-		other.mMaterial = nullptr;
-		other.mTexture = nullptr;
 
 		other.mVertexBuffer.reset();
 		other.mIndexBuffer.reset();

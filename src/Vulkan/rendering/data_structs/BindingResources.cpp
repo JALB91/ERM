@@ -4,87 +4,168 @@
 #include "erm/rendering/data_structs/RenderData.h"
 #include "erm/rendering/data_structs/RenderingResources.h"
 #include "erm/rendering/renderer/Renderer.h"
+#include "erm/rendering/shaders/ShaderProgram.h"
 #include "erm/rendering/textures/Texture.h"
+
+namespace {
+
+	void CreateUniformBuffers(
+		erm::Device& device,
+		const std::vector<erm::UboData>& ubosData,
+		erm::UniformBuffers& buffers)
+	{
+		for (const erm::UboData& data : ubosData)
+		{
+			for (std::map<erm::UboId, erm::UniformBuffer>& buffs : buffers)
+			{
+				buffs.emplace(std::make_pair<erm::UboId, erm::UniformBuffer>(
+					erm::UboId(data.mUboId),
+					erm::UniformBuffer(device, data.mSize)));
+			}
+		}
+	}
+
+	void CreateUniformBuffersDescriptorWrites(
+		std::vector<vk::WriteDescriptorSet>& writes,
+		std::vector<vk::DescriptorBufferInfo>& infos,
+		const std::vector<erm::UboData>& ubosData,
+		std::map<erm::UboId, erm::UniformBuffer>& buffers,
+		vk::DescriptorSet& descriptorSet)
+	{
+		for (size_t i = 0; i < ubosData.size(); ++i)
+		{
+			const erm::UboData& data = ubosData[i];
+			const erm::UniformBuffer& buffer = buffers.at(data.mUboId);
+
+			vk::DescriptorBufferInfo bufferInfo {};
+			bufferInfo.buffer = buffer.GetBuffer();
+			bufferInfo.offset = data.mOffset;
+			bufferInfo.range = buffer.GetBufferSize();
+
+			infos.emplace_back(bufferInfo);
+
+			vk::WriteDescriptorSet descriptorWrite;
+			descriptorWrite.dstSet = descriptorSet;
+			descriptorWrite.dstBinding = data.mBinding;
+			descriptorWrite.dstArrayElement = 0;
+			descriptorWrite.descriptorType = vk::DescriptorType::eUniformBuffer;
+			descriptorWrite.descriptorCount = 1;
+			descriptorWrite.pBufferInfo = &infos.back();
+
+			writes.emplace_back(descriptorWrite);
+		}
+	}
+
+} // namespace
 
 namespace erm {
 
-	BindingResources::BindingResources(RenderingResources& renderingResources, const RenderConfigs& renderConfigs)
-		: mRenderingResources(renderingResources)
+	BindingResources::BindingResources(
+		Device& device,
+		Renderer& renderer,
+		const vk::DescriptorPool& descriptorPool,
+		const vk::DescriptorSetLayout& descriptorSetLayout,
+		const RenderConfigs& renderConfigs)
+		: mDevice(device)
+		, mRenderer(renderer)
+		, mDescriptorPool(descriptorPool)
 		, mRenderConfigs(renderConfigs)
 	{
-		Device& device = mRenderingResources.mDevice;
-		Renderer& renderer = mRenderingResources.mRenderer;
 		const std::vector<vk::ImageView>& swapChainImageViews = renderer.GetSwapChainImageViews();
 
+		// CREATE UNIFORM BUFFERS
+		mVertUniformBuffers.resize(swapChainImageViews.size());
+		mFragUniformBuffers.resize(swapChainImageViews.size());
+
+		ShaderProgram* shader = mRenderConfigs.mShaderProgram;
+		CreateUniformBuffers(mDevice, shader->GetVertUbosData(), mVertUniformBuffers);
+		CreateUniformBuffers(mDevice, shader->GetFragUbosData(), mFragUniformBuffers);
+
 		// CREATE DESCRIPTOR SETS
-		std::vector<vk::DescriptorSetLayout> layouts(swapChainImageViews.size(), mRenderingResources.mDescriptorSetLayout);
+		std::vector<vk::DescriptorSetLayout> layouts(swapChainImageViews.size(), descriptorSetLayout);
 
 		vk::DescriptorSetAllocateInfo info {};
-		info.setDescriptorPool(mRenderingResources.mDescriptorPool);
-		info.setDescriptorSetCount(renderer.GetImageCount());
+		info.setDescriptorPool(mDescriptorPool);
+		info.setDescriptorSetCount(mRenderer.GetImageCount());
 		info.setPSetLayouts(layouts.data());
 
 		mDescriptorSets.resize(swapChainImageViews.size());
-		mDescriptorSets = device->allocateDescriptorSets(info);
-
-		// CREATE UNIFORM BUFFERS
-		UniformBufferObject ubo {};
-
-		for (size_t i = 0; i < swapChainImageViews.size(); i++)
-		{
-			mUniformBuffers.emplace_back(device, &ubo, sizeof(UniformBufferObject));
-		}
+		mDescriptorSets = mDevice->allocateDescriptorSets(info);
 	}
 
 	BindingResources::~BindingResources()
 	{
-		Device& device = mRenderingResources.mDevice;
-
 		if (!mDescriptorSets.empty())
-			device->freeDescriptorSets(mRenderingResources.mDescriptorPool, static_cast<uint32_t>(mDescriptorSets.size()), mDescriptorSets.data());
+			mDevice->freeDescriptorSets(mDescriptorPool, static_cast<uint32_t>(mDescriptorSets.size()), mDescriptorSets.data());
 	}
 
 	BindingResources::BindingResources(BindingResources&& other)
-		: mRenderingResources(other.mRenderingResources)
+		: mDevice(other.mDevice)
+		, mRenderer(other.mRenderer)
+		, mDescriptorPool(other.mDescriptorPool)
 		, mRenderConfigs(other.mRenderConfigs)
 		, mDescriptorSets(std::move(other.mDescriptorSets))
-		, mUniformBuffers(std::move(other.mUniformBuffers))
+		, mVertUniformBuffers(std::move(other.mVertUniformBuffers))
+		, mFragUniformBuffers(std::move(other.mFragUniformBuffers))
 	{}
 
 	void BindingResources::UpdateResources(RenderData& data, uint32_t index)
 	{
-		Device& device = mRenderingResources.mDevice;
-		Renderer& renderer = mRenderingResources.mRenderer;
+		ASSERT(data.mRenderConfigs.IsResourcesBindingCompatible(mRenderConfigs));
 
-		vk::DescriptorBufferInfo bufferInfo {};
-		bufferInfo.buffer = mUniformBuffers[index].GetBuffer();
-		bufferInfo.offset = 0;
-		bufferInfo.range = mUniformBuffers[index].GetBufferSize();
+		ShaderProgram* shader = mRenderConfigs.mShaderProgram;
+		std::vector<vk::DescriptorBufferInfo> descriptorBuffers;
+		std::vector<vk::DescriptorImageInfo> descriptorImage;
+		std::vector<vk::WriteDescriptorSet> descriptorWrites;
 
-		vk::DescriptorImageInfo imageInfo {};
-		imageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
-		imageInfo.imageView = mRenderConfigs.mTexture->GetImageView();
-		imageInfo.sampler = renderer.GetTextureSampler();
+		CreateUniformBuffersDescriptorWrites(
+			descriptorWrites,
+			descriptorBuffers,
+			shader->GetVertUbosData(),
+			mVertUniformBuffers[index],
+			mDescriptorSets[index]);
 
-		std::array<vk::WriteDescriptorSet, 2> descriptorWrites {};
+		CreateUniformBuffersDescriptorWrites(
+			descriptorWrites,
+			descriptorBuffers,
+			shader->GetFragUbosData(),
+			mFragUniformBuffers[index],
+			mDescriptorSets[index]);
 
-		descriptorWrites[0].dstSet = mDescriptorSets[index];
-		descriptorWrites[0].dstBinding = 0;
-		descriptorWrites[0].dstArrayElement = 0;
-		descriptorWrites[0].descriptorType = vk::DescriptorType::eUniformBuffer;
-		descriptorWrites[0].descriptorCount = 1;
-		descriptorWrites[0].pBufferInfo = &bufferInfo;
+		if (mRenderConfigs.mTexture)
+		{
+			vk::DescriptorImageInfo imageInfo {};
+			imageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+			imageInfo.imageView = mRenderConfigs.mTexture->GetImageView();
+			imageInfo.sampler = mRenderer.GetTextureSampler();
 
-		descriptorWrites[1].dstSet = mDescriptorSets[index];
-		descriptorWrites[1].dstBinding = 1;
-		descriptorWrites[1].dstArrayElement = 0;
-		descriptorWrites[1].descriptorType = vk::DescriptorType::eCombinedImageSampler;
-		descriptorWrites[1].descriptorCount = 1;
-		descriptorWrites[1].pImageInfo = &imageInfo;
+			descriptorImage.emplace_back(imageInfo);
+		}
 
-		device->updateDescriptorSets(static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+		for (size_t i = 0; i < descriptorImage.size(); ++i)
+		{
+			vk::WriteDescriptorSet descriptorWrite;
+			descriptorWrite.dstSet = mDescriptorSets[index];
+			descriptorWrite.dstBinding = 1;
+			descriptorWrite.dstArrayElement = 0;
+			descriptorWrite.descriptorType = vk::DescriptorType::eCombinedImageSampler;
+			descriptorWrite.descriptorCount = 1;
+			descriptorWrite.pImageInfo = &descriptorImage[i];
 
-		mUniformBuffers[index].Update(&data.mUBO);
+			descriptorWrites.emplace_back(descriptorWrite);
+		}
+
+		mDevice->updateDescriptorSets(static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+
+		for (auto& pair : mVertUniformBuffers[index])
+		{
+			pair.second.Update(data.mUbos[pair.first].get());
+		}
+
+		for (auto& pair : mFragUniformBuffers[index])
+		{
+			pair.second.Update(data.mUbos[pair.first].get());
+		}
 	}
 
 } // namespace erm

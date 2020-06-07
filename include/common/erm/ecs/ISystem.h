@@ -86,13 +86,6 @@ namespace erm::ecs {
 			OnComponentRemoved(id);
 		}
 
-	protected:
-		virtual void OnComponentBeingAdded(EntityId /*id*/) {}
-		virtual void OnComponentAdded(EntityId /*id*/) {}
-
-		virtual void OnComponentBeingRemoved(EntityId /*id*/) {}
-		virtual void OnComponentRemoved(EntityId /*id*/) {}
-
 		template<typename F>
 		void ForEachComponent(F f)
 		{
@@ -140,6 +133,13 @@ namespace erm::ecs {
 				}
 			}
 		}
+
+	protected:
+		virtual void OnComponentBeingAdded(EntityId /*id*/) {}
+		virtual void OnComponentAdded(EntityId /*id*/) {}
+
+		virtual void OnComponentBeingRemoved(EntityId /*id*/) {}
+		virtual void OnComponentRemoved(EntityId /*id*/) {}
 
 		ECS& mECS;
 		std::array<T, MAX_ID> mComponents;

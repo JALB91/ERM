@@ -13,7 +13,6 @@ namespace erm {
 	class Window;
 	class Renderer;
 	class ResourcesManager;
-	class Texture;
 	namespace ecs {
 		class TransformSystem;
 		class SkeletonSystem;
@@ -32,7 +31,6 @@ namespace erm::ecs {
 		// ISystem
 		void Init() override;
 		void OnPostUpdate() override;
-		void OnRender() override;
 
 	private:
 		// ISystem
@@ -50,7 +48,6 @@ namespace erm::ecs {
 		LightSystem* mLightSystem;
 
 		RenderConfigs mDefaultRenderConfigs;
-		Texture* mTexture;
 	};
 
 } // namespace erm::ecs

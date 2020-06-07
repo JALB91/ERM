@@ -25,17 +25,14 @@ namespace erm {
 	}
 
 	void Model::AddMesh(
-		DrawMode drawMode,
 		VertexData* vertices,
 		uint32_t verticesCount,
 		IndexData* indices,
 		uint32_t indicesCount,
-		const char* name /*= ""*/,
-		ShaderProgram* shaderProgram /*= nullptr*/,
-		Material* material /*= nullptr*/,
-		Texture* texture /*= nullptr*/)
+		const RenderConfigs& configs /*= RenderConfigs::MODELS_RENDER_CONFIGS*/,
+		const char* name /*= ""*/)
 	{
-		AddMesh({mDevice, drawMode, vertices, verticesCount, indices, indicesCount, name, shaderProgram, material, texture});
+		AddMesh({mDevice, vertices, verticesCount, indices, indicesCount, configs, name});
 	}
 
 	void Model::UpdateLocalBound()

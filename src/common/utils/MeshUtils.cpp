@@ -27,7 +27,7 @@ namespace erm::MeshUtils {
 		indices[1] = 1;
 		indices[2] = 2;
 
-		Mesh mesh(device, DrawMode::TRIANGLES, vertices, verticesCount, indices, indicesCount);
+		Mesh mesh(device, vertices, verticesCount, indices, indicesCount, RenderConfigs::MODELS_RENDER_CONFIGS);
 		mesh.Setup();
 		return mesh;
 	}
@@ -61,7 +61,7 @@ namespace erm::MeshUtils {
 		indices[4] = 1;
 		indices[5] = 3;
 
-		Mesh mesh(device, DrawMode::TRIANGLES, vertices, verticesCount, indices, indicesCount);
+		Mesh mesh(device, vertices, verticesCount, indices, indicesCount, RenderConfigs::MODELS_RENDER_CONFIGS);
 		mesh.Setup();
 		return mesh;
 	}
@@ -181,7 +181,7 @@ namespace erm::MeshUtils {
 			indices[(i * 6) + 5] = offset + 2;
 		}
 
-		Mesh mesh(device, DrawMode::TRIANGLES, vertices, verticesCount, indices, indicesCount);
+		Mesh mesh(device, vertices, verticesCount, indices, indicesCount, RenderConfigs::MODELS_RENDER_CONFIGS);
 		mesh.Setup();
 		return mesh;
 	}
@@ -267,7 +267,7 @@ namespace erm::MeshUtils {
 		indices[16] = 14;
 		indices[17] = 15;
 
-		Mesh mesh(device, DrawMode::TRIANGLES, vertices, verticesCount, indices, indicesCount);
+		Mesh mesh(device, vertices, verticesCount, indices, indicesCount, RenderConfigs::MODELS_RENDER_CONFIGS);
 		mesh.Setup();
 		return mesh;
 	}
@@ -335,7 +335,7 @@ namespace erm::MeshUtils {
 			}
 		}
 
-		Mesh mesh(device, DrawMode::TRIANGLES, vertices, verticesCount, indices, indicesCount);
+		Mesh mesh(device, vertices, verticesCount, indices, indicesCount, RenderConfigs::MODELS_RENDER_CONFIGS);
 		mesh.Setup();
 		return mesh;
 	}
@@ -359,28 +359,24 @@ namespace erm::MeshUtils {
 		for (int i = 0; i < static_cast<int>(sizeX + 1); ++i)
 		{
 			vertices[index].mPositionVertex = PositionVertex(-halfSizeX * width, 0.0f, height * (i - halfSizeY));
-			vertices[index].mNormalVertex = NormalVertex(0.0f, 0.0f, 0.0f);
 			++index;
 		}
 
 		for (int i = 0; i < static_cast<int>(sizeX + 1); ++i)
 		{
 			vertices[index].mPositionVertex = PositionVertex(halfSizeX * width, 0.0f, height * (i - halfSizeY));
-			vertices[index].mNormalVertex = NormalVertex(0.0f, 0.0f, 0.0f);
 			++index;
 		}
 
 		for (int i = 0; i < static_cast<int>(sizeY + 1); ++i)
 		{
 			vertices[index].mPositionVertex = PositionVertex(width * (i - halfSizeX), 0.0f, -halfSizeY * height);
-			vertices[index].mNormalVertex = NormalVertex(0.0f, 0.0f, 0.0f);
 			++index;
 		}
 
 		for (int i = 0; i < static_cast<int>(sizeY + 1); ++i)
 		{
 			vertices[index].mPositionVertex = PositionVertex(width * (i - halfSizeX), 0.0f, halfSizeY * height);
-			vertices[index].mNormalVertex = NormalVertex(0.0f, 0.0f, 0.0f);
 			++index;
 		}
 
@@ -404,7 +400,12 @@ namespace erm::MeshUtils {
 			++index;
 		}
 
-		Mesh mesh(device, DrawMode::TRIANGLES, vertices, verticesCount, indices, indicesCount);
+		RenderConfigs configs = RenderConfigs::MODELS_RENDER_CONFIGS;
+		configs.SetPolygonMode(PolygonMode::LINE);
+		configs.SetDrawMode(DrawMode::LINES);
+		configs.SetCullMode(CullMode::NONE);
+
+		Mesh mesh(device, vertices, verticesCount, indices, indicesCount, configs);
 		mesh.Setup();
 		return mesh;
 	}
