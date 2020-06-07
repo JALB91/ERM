@@ -6,6 +6,7 @@
 #include "erm/utils/Utils.h"
 
 #include <algorithm>
+#include <cctype>
 #include <fstream>
 #include <iostream>
 
@@ -48,12 +49,6 @@ namespace {
 		memcpy(buffer.data(), file.data(), file.size());
 
 		return buffer;
-	}
-
-	spirv_cross::CompilerGLSL GetShaderCompiler(const char* path)
-	{
-		std::vector<uint32_t> file = LoadSpirvFile(path);
-		return spirv_cross::CompilerGLSL(std::move(file));
 	}
 
 	void GatherDescriptorSetLayoutBindings(std::vector<vk::DescriptorSetLayoutBinding>& bindings, spirv_cross::CompilerGLSL& compiler, vk::ShaderStageFlagBits flags)
@@ -100,6 +95,8 @@ namespace {
 		}
 
 		ASSERT(false);
+
+		return {erm::UboBasic::ID, sizeof(erm::UboBasic), 0, 0};
 	}
 
 	std::vector<erm::UboData> GetUbosData(spirv_cross::CompilerGLSL& compiler)
@@ -123,8 +120,8 @@ namespace erm {
 		, mPath(shaderPath)
 		, mVertex(ReadShader((mPath + ".vert").c_str()))
 		, mFragment(ReadShader((mPath + ".frag").c_str()))
-		, mVertCompiler(GetShaderCompiler((mPath + ".vert").c_str()))
-		, mFragCompiler(GetShaderCompiler((mPath + ".frag").c_str()))
+		, mVertCompiler(LoadSpirvFile((mPath + ".vert").c_str()))
+		, mFragCompiler(LoadSpirvFile((mPath + ".frag").c_str()))
 		, mVertUbosData(::GetUbosData(mVertCompiler))
 		, mFragUbosData(::GetUbosData(mFragCompiler))
 	{}

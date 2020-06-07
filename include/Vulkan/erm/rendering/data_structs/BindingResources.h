@@ -6,6 +6,7 @@
 
 #include <vulkan/vulkan.hpp>
 
+#include <deque>
 #include <map>
 #include <memory>
 #include <vector>
@@ -18,7 +19,8 @@ namespace erm {
 
 namespace erm {
 
-	using UniformBuffers = std::vector<std::map<UboId, UniformBuffer>>;
+	using UniformBuffers = std::map<UboId, UniformBuffer>;
+	using SwapChainsUniformBuffers = std::deque<UniformBuffers>;
 
 	class BindingResources
 	{
@@ -47,8 +49,8 @@ namespace erm {
 		const vk::DescriptorPool& mDescriptorPool;
 		const RenderConfigs mRenderConfigs;
 		std::vector<vk::DescriptorSet> mDescriptorSets;
-		UniformBuffers mVertUniformBuffers;
-		UniformBuffers mFragUniformBuffers;
+		SwapChainsUniformBuffers mVertUniformBuffers;
+		SwapChainsUniformBuffers mFragUniformBuffers;
 	};
 
 } // namespace erm

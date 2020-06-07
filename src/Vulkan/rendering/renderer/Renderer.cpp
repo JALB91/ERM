@@ -201,9 +201,11 @@ namespace erm {
 		}
 
 		std::vector<SubpassData> data = {renderConfigs.mSubpassData};
-		auto it = mFramesDatas.insert(std::make_pair<FramesData::key_type, FramesData::mapped_type>(
-			std::make_unique<RenderingResources>(mDevice, *this, data),
-			{}));
+
+		auto it = mFramesDatas.emplace(
+			std::piecewise_construct,
+			std::forward_as_tuple(std::make_unique<RenderingResources>(mDevice, *this, data)),
+			std::forward_as_tuple());
 
 		return *it.first;
 	}

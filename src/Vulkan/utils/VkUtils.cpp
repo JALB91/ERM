@@ -613,6 +613,7 @@ namespace erm::VkUtils {
 				return vk::ImageLayout::eDepthStencilAttachmentOptimal;
 			case ImageLayout::DEPTH_STENCIL_READONLY_OPTIMAL:
 				return vk::ImageLayout::eDepthStencilReadOnlyOptimal;
+			default:
 			case ImageLayout::PRESENT_SRC:
 				return vk::ImageLayout::ePresentSrcKHR;
 		}

@@ -71,7 +71,7 @@ namespace erm {
 
 	void RenderingResources::Update(std::vector<RenderData*>& renderData, uint32_t imageIndex)
 	{
-		std::sort(renderData.begin(), renderData.end(), [](RenderData* a, RenderData* b) {
+		std::sort(renderData.begin(), renderData.end(), [](RenderData* a, RenderData* b) -> bool {
 			const bool aHasId = a->mRenderingId.has_value();
 			const bool bHasId = b->mRenderingId.has_value();
 			if (aHasId && !bHasId)
@@ -79,8 +79,8 @@ namespace erm {
 			else if (!aHasId && bHasId)
 				return false;
 			else if (aHasId && bHasId)
-				return a->mRenderingId.value() <= b->mRenderingId.value();
-			return true;
+				return a->mRenderingId.value() < b->mRenderingId.value();
+			return false;
 		});
 
 		vk::CommandBuffer& cmd = mCommandBuffers[imageIndex];
@@ -204,8 +204,8 @@ namespace erm {
 			}
 
 			vk::SubpassDependency dependency = {};
-			dependency.srcSubpass = (i == 0) ? VK_SUBPASS_EXTERNAL : i - 1;
-			dependency.dstSubpass = (i == (mSubpassData.size() - 1) && mSubpassData.size() > 1) ? VK_SUBPASS_EXTERNAL : i;
+			dependency.srcSubpass = static_cast<uint32_t>((i == 0) ? VK_SUBPASS_EXTERNAL : i - 1);
+			dependency.dstSubpass = static_cast<uint32_t>((i == (mSubpassData.size() - 1) && mSubpassData.size() > 1) ? VK_SUBPASS_EXTERNAL : i);
 			dependency.srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
 			dependency.srcAccessMask = {};
 			dependency.dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput;

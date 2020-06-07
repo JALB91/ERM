@@ -11,6 +11,15 @@ namespace erm {
 		, mBufferSize(size)
 	{}
 
+	Buffer::~Buffer()
+	{
+		if (mBufferMemory && mBuffer)
+		{
+			mDevice->freeMemory(mBufferMemory);
+			mDevice->destroyBuffer(mBuffer);
+		}
+	}
+
 	Buffer::Buffer(Buffer&& other)
 		: mDevice(other.mDevice)
 		, mBufferSize(other.mBufferSize)
@@ -19,15 +28,6 @@ namespace erm {
 	{
 		other.mBuffer = nullptr;
 		other.mBufferMemory = nullptr;
-	}
-
-	Buffer::~Buffer()
-	{
-		if (mBufferMemory && mBuffer)
-		{
-			mDevice->freeMemory(mBufferMemory);
-			mDevice->destroyBuffer(mBuffer);
-		}
 	}
 
 } // namespace erm

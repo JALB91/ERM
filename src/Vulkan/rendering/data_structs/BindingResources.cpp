@@ -12,15 +12,16 @@ namespace {
 	void CreateUniformBuffers(
 		erm::Device& device,
 		const std::vector<erm::UboData>& ubosData,
-		erm::UniformBuffers& buffers)
+		erm::SwapChainsUniformBuffers& buffers)
 	{
 		for (const erm::UboData& data : ubosData)
 		{
-			for (std::map<erm::UboId, erm::UniformBuffer>& buffs : buffers)
+			for (erm::UniformBuffers& buffs : buffers)
 			{
-				buffs.emplace(std::make_pair<erm::UboId, erm::UniformBuffer>(
-					erm::UboId(data.mUboId),
-					erm::UniformBuffer(device, data.mSize)));
+				buffs.emplace(
+					std::piecewise_construct,
+					std::forward_as_tuple(data.mUboId),
+					std::forward_as_tuple(device, data.mSize));
 			}
 		}
 	}
@@ -29,7 +30,7 @@ namespace {
 		std::vector<vk::WriteDescriptorSet>& writes,
 		std::vector<vk::DescriptorBufferInfo>& infos,
 		const std::vector<erm::UboData>& ubosData,
-		std::map<erm::UboId, erm::UniformBuffer>& buffers,
+		erm::UniformBuffers& buffers,
 		vk::DescriptorSet& descriptorSet)
 	{
 		for (size_t i = 0; i < ubosData.size(); ++i)
