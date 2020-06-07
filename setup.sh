@@ -12,7 +12,7 @@ function print_help {
 	echo "    -c) Compile the project"
 	echo "    -o) Open in the editor"
 	echo "    -f) Fast run the project"
-	echo "    -f) Print CMake variables"
+	echo "    -v) Print CMake variables"
 }
 
 cp hooks/pre-commit .git/hooks/pre-commit
