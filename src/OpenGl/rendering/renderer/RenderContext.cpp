@@ -9,9 +9,9 @@ namespace erm {
 	RenderContext::RenderContext()
 	{}
 
-	void RenderContext::Draw(DrawMode drawMode, unsigned int count) const
+	void RenderContext::Draw(DrawMode drawMode, uint64_t count) const
 	{
-		GL_CALL(glDrawElements(DrawModeToInt(drawMode), count, GL_UNSIGNED_INT, nullptr));
+		GL_CALL(glDrawElements(DrawModeToInt(drawMode), static_cast<unsigned int>(count), GL_UNSIGNED_INT, nullptr));
 	}
 
 	void RenderContext::Clear() const

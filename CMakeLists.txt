@@ -50,7 +50,6 @@ if("${TARGET_API}" STREQUAL "OpenGl")
 	set(PUBLIC_DEPENDENCIES "${GLEW_LIBRARY}")
 elseif("${TARGET_API}" STREQUAL "Vulkan")
 	add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/Vulkan-Hpp")
-	add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/SPIRV-Cross")
 	set(VULKAN_HPP_INSTALL TRUE)
 endif()
 
@@ -65,6 +64,7 @@ add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/glfw")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/imgui")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/tinyxml")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/stb_image")
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/SPIRV-Cross")
 
 # GATHER SOURCES
 file(GLOB_RECURSE SOURCES 
