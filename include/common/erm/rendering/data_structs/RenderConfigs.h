@@ -3,7 +3,6 @@
 #include "erm/math/BoundingBox.h"
 
 #include "erm/rendering/data_structs/SubpassData.h"
-
 #include "erm/rendering/enums/BlendFunction.h"
 #include "erm/rendering/enums/CullMode.h"
 #include "erm/rendering/enums/DepthFunction.h"

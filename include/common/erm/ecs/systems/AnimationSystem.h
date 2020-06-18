@@ -16,11 +16,12 @@ namespace erm::ecs {
 		AnimationSystem(ECS& ecs);
 
 		// ISystem
+		void Init() override;
 		void OnUpdate(float dt) override;
 		void OnPostUpdate() override;
 
 	private:
-		SkeletonSystem& mSkeletonSystem;
+		SkeletonSystem* mSkeletonSystem;
 		float mFrameTime;
 	};
 

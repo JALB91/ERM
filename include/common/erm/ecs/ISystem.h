@@ -30,7 +30,7 @@ namespace erm::ecs {
 		{}
 		virtual ~ISystem() = default;
 
-		virtual void Init() {}
+		virtual void Init() = 0;
 
 		virtual void OnUpdate(float /*dt*/) {}
 		virtual void OnPostUpdate() {}

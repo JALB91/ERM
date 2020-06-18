@@ -10,12 +10,16 @@
 #include <vector>
 
 namespace erm {
+	class Device;
+}
+
+namespace erm {
 
 	class ShaderProgram
 	{
 	public:
-		ShaderProgram(const std::string& vertexShader, const std::string& fragmentShader);
-		ShaderProgram(const std::string& shaderPath);
+		ShaderProgram(Device& device, const std::string& vertexShader, const std::string& fragmentShader);
+		ShaderProgram(Device& device, const std::string& shaderPath);
 		~ShaderProgram();
 
 		ShaderProgram(ShaderProgram&&) = delete;

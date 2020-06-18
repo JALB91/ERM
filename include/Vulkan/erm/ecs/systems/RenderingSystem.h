@@ -34,17 +34,18 @@ namespace erm::ecs {
 		~RenderingSystem();
 
 		// ISystem
+		void Init() override;
 		void OnRender() override;
 
 	private:
 		Engine& mEngine;
 		ResourcesManager& mResourcesManager;
 
-		TransformSystem& mTransformSystem;
-		SkeletonSystem& mSkeletonSystem;
-		ModelSystem& mModelSystem;
-		CameraSystem& mCameraSystem;
-		LightSystem& mLightSystem;
+		TransformSystem* mTransformSystem;
+		SkeletonSystem* mSkeletonSystem;
+		ModelSystem* mModelSystem;
+		CameraSystem* mCameraSystem;
+		LightSystem* mLightSystem;
 
 		std::queue<ID> mModelsRenderingQueue;
 

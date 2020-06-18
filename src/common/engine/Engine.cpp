@@ -64,9 +64,7 @@ namespace erm {
 	}
 
 	Engine::~Engine()
-	{
-		(*mDevice)->waitIdle();
-	}
+	{}
 
 	bool Engine::Init()
 	{
@@ -167,6 +165,7 @@ namespace erm {
 		PROFILE_FUNCTION();
 
 		mRenderer->OnPreRender();
+		mImGuiHandle->OnPreRender();
 	}
 
 	void Engine::OnRender()
@@ -176,6 +175,7 @@ namespace erm {
 		mResourcesManager->OnRender();
 		mECS->OnRender();
 		mRenderer->OnRender();
+		mImGuiHandle->OnRender();
 		mWindow->OnRender();
 	}
 
@@ -184,6 +184,7 @@ namespace erm {
 		PROFILE_FUNCTION();
 
 		mRenderer->OnPostRender();
+		mImGuiHandle->OnPostRender();
 		mWindow->OnPostRender();
 		mResourcesManager->OnPostRender();
 	}

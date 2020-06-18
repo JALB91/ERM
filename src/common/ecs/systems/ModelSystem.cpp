@@ -8,11 +8,9 @@
 #include "erm/managers/ResourcesManager.h"
 
 #include "erm/rendering/buffers/IndexBuffer.h"
-#include "erm/rendering/buffers/UniformBuffer.h"
 #include "erm/rendering/buffers/VertexBuffer.h"
 #include "erm/rendering/data_structs/Model.h"
 #include "erm/rendering/data_structs/RenderData.h"
-#include "erm/rendering/data_structs/RenderingResources.h"
 #include "erm/rendering/renderer/Renderer.h"
 #include "erm/rendering/window/Window.h"
 
@@ -20,9 +18,13 @@
 
 namespace {
 
+#if defined(ERM_OPENGL)
+	const char* const kDefaultModelShaderPath("res/shaders/skeleton_model");
+#elif defined(ERM_VULKAN)
 	const char* const kDefaultModelShaderPath("res/shaders/vk_test");
+#endif
 
-}
+} // namespace
 
 namespace erm::ecs {
 

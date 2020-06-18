@@ -35,7 +35,6 @@ namespace erm {
 	{
 		mDevice->destroyDescriptorSetLayout(mDescriptorSetLayout);
 		mBindingResources.clear();
-		mDevice->destroyPipeline(mPipeline);
 		mDevice->destroyPipelineLayout(mPipelineLayout);
 	}
 
@@ -46,18 +45,17 @@ namespace erm {
 		, mDescriptorPool(other.mDescriptorPool)
 		, mRenderConfigs(other.mRenderConfigs)
 		, mPipelineLayout(other.mPipelineLayout)
-		, mPipeline(other.mPipeline)
+		, mPipeline(std::move(other.mPipeline))
 		, mDescriptorSetLayout(other.mDescriptorSetLayout)
 		, mBindingResources(std::move(other.mBindingResources))
 	{
 		other.mPipelineLayout = nullptr;
-		other.mPipeline = nullptr;
 		other.mDescriptorSetLayout = nullptr;
 	}
 
 	void PipelineResources::Update(vk::CommandBuffer& cmd, RenderData& renderData, uint32_t imageIndex)
 	{
-		cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, mPipeline);
+		cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, mPipeline.get());
 
 #ifdef ERM_FLIP_VIEWPORT
 		const BoundingBox2D& normViewport = mRenderConfigs.GetNormViewport();
@@ -292,7 +290,7 @@ namespace erm {
 		pipelineInfo.basePipelineHandle = nullptr;
 		pipelineInfo.basePipelineIndex = -1;
 
-		mPipeline = mDevice->createGraphicsPipeline(mDevice.GetPipelineCache(), pipelineInfo);
+		mPipeline = mDevice->createGraphicsPipelineUnique(mDevice.GetPipelineCache(), pipelineInfo);
 
 		mDevice->destroyShaderModule(vertShaderModule);
 		mDevice->destroyShaderModule(fragShaderModule);

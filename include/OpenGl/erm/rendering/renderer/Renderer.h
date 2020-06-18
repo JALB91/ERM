@@ -1,11 +1,12 @@
 #pragma once
 
 #include "erm/rendering/enums/DrawMode.h"
+#include "erm/rendering/renderer/RenderContext.h"
 
 namespace erm {
-	class VertexArray;
+	class Engine;
+	class VertexBuffer;
 	class IndexBuffer;
-	class RenderContext;
 } // namespace erm
 
 namespace erm {
@@ -13,14 +14,19 @@ namespace erm {
 	class Renderer
 	{
 	public:
-		Renderer(const RenderContext& renderContext);
+		Renderer(Engine& engine);
 
 		inline const RenderContext& GetRenderContext() const { return mRenderContext; }
 
-		void Draw(DrawMode drawMode, const VertexArray& va, const IndexBuffer& ib) const;
+		void OnPreRender();
+		void OnRender();
+		void OnPostRender();
+
+		void Draw(DrawMode drawMode, const VertexBuffer& vb, const IndexBuffer& ib) const;
 
 	private:
-		const RenderContext& mRenderContext;
+		Engine& mEngine;
+		RenderContext mRenderContext;
 	};
 
 } // namespace erm

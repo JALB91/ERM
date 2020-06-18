@@ -36,23 +36,28 @@ namespace {
 
 namespace erm::ecs {
 
-	RenderingSystem::RenderingSystem(ECS& ecs, ResourcesManager& resourcesManager)
+	RenderingSystem::RenderingSystem(ECS& ecs, Engine& engine)
 		: ISystem<RenderingComponent>(ecs)
-		, mResourcesManager(resourcesManager)
-		, mTransformSystem(mECS.GetSystem<TransformSystem>())
-		, mSkeletonSystem(mECS.GetSystem<SkeletonSystem>())
-		, mModelSystem(mECS.GetSystem<ModelSystem>())
-		, mCameraSystem(mECS.GetSystem<CameraSystem>())
-		, mLightSystem(mECS.GetSystem<LightSystem>())
-		, mGridMesh(std::make_unique<Mesh>(MeshUtils::CreateGrid(1000, 1000, 100.0f, 100.0f)))
-		, mDebugMesh(std::make_unique<Mesh>(MeshUtils::CreateCube()))
+		, mResourcesManager(engine.GetResourcesManager())
+		, mRenderer(engine.GetRenderer())
+		, mGridMesh(std::make_unique<Mesh>(MeshUtils::CreateGrid(engine.GetDevice(), 1000, 1000, 100.0f, 100.0f)))
+		, mDebugMesh(std::make_unique<Mesh>(MeshUtils::CreateCube(engine.GetDevice())))
 		, mDebugShader(mResourcesManager.GetOrCreateShaderProgram(kDebugShaderPath))
 	{}
 
 	RenderingSystem::~RenderingSystem()
 	{}
 
-	void RenderingSystem::OnRender(const Renderer& renderer)
+	void RenderingSystem::Init()
+	{
+		mTransformSystem = &mECS.GetSystem<TransformSystem>();
+		mSkeletonSystem = &mECS.GetSystem<SkeletonSystem>();
+		mModelSystem = &mECS.GetSystem<ModelSystem>();
+		mCameraSystem = &mECS.GetSystem<CameraSystem>();
+		mLightSystem = &mECS.GetSystem<LightSystem>();
+	}
+
+	void RenderingSystem::OnRender()
 	{
 		PROFILE_FUNCTION();
 
@@ -61,20 +66,20 @@ namespace erm::ecs {
 
 		for (ID i = ROOT_ID; i < MAX_ID; ++i)
 		{
-			if (!mTransformSystem.GetComponent(i))
+			if (!mTransformSystem->GetComponent(i))
 				continue;
 
-			if (!camera && mCameraSystem.GetComponent(i))
+			if (!camera && mCameraSystem->GetComponent(i))
 			{
 				camera = mECS.GetEntityById(i);
 			}
 
-			if (mModelSystem.GetComponent(i))
+			if (mModelSystem->GetComponent(i))
 			{
 				mModelsRenderingQueue.push(i);
 			}
 
-			if (mLightSystem.GetComponent(i))
+			if (mLightSystem->GetComponent(i))
 			{
 				lights.emplace_back(i);
 			}
@@ -92,36 +97,33 @@ namespace erm::ecs {
 		const math::mat4& projection = cameraComponent->GetProjectionMatrix();
 		const math::mat4 viewProjection = projection * glm::inverse(view);
 
-		RenderGrid(renderer, viewProjection);
+		RenderGrid(viewProjection);
 
 		while (!mModelsRenderingQueue.empty())
 		{
-			RenderModel(renderer, *camera, viewProjection, lights, mModelsRenderingQueue.front());
+			RenderModel(*camera, viewProjection, lights, mModelsRenderingQueue.front());
 			mModelsRenderingQueue.pop();
 		}
 	}
 
-	void RenderingSystem::RenderGrid(
-		const Renderer& renderer,
-		const math::mat4& viewProjection)
+	void RenderingSystem::RenderGrid(const math::mat4& viewProjection)
 	{
 		PROFILE_FUNCTION();
 
-		const PolygonMode polygonMode = renderer.GetRenderContext().GetPolygonMode();
-		const bool wasCullFaceEnabled = renderer.GetRenderContext().IsCullFaceEnabled();
+		const PolygonMode polygonMode = mRenderer.GetRenderContext().GetPolygonMode();
+		const bool wasCullFaceEnabled = mRenderer.GetRenderContext().IsCullFaceEnabled();
 
-		renderer.GetRenderContext().SetCullFaceEnabled(false);
-		renderer.GetRenderContext().SetPolygonMode(PolygonMode::LINE);
+		mRenderer.GetRenderContext().SetCullFaceEnabled(false);
+		mRenderer.GetRenderContext().SetPolygonMode(PolygonMode::LINE);
 		mDebugShader->Bind();
 		mDebugShader->SetUniformMat4f(Uniform::VIEW_PROJECTION, viewProjection);
 		mDebugShader->SetUniformMat4f(Uniform::MODEL, glm::identity<math::mat4>());
-		renderer.Draw(mGridMesh->GetDrawMode(), mGridMesh->GetVA(), mGridMesh->GetIB());
-		renderer.GetRenderContext().SetPolygonMode(polygonMode);
-		renderer.GetRenderContext().SetCullFaceEnabled(wasCullFaceEnabled);
+		mRenderer.Draw(mGridMesh->GetRenderConfigs().GetDrawMode(), mGridMesh->GetVertexBuffer(), mGridMesh->GetIndexBuffer());
+		mRenderer.GetRenderContext().SetPolygonMode(polygonMode);
+		mRenderer.GetRenderContext().SetCullFaceEnabled(wasCullFaceEnabled);
 	}
 
 	void RenderingSystem::RenderModel(
-		const Renderer& renderer,
 		const Entity& camera,
 		const math::mat4& viewProjection,
 		const std::vector<ID>& lights,
@@ -129,10 +131,10 @@ namespace erm::ecs {
 	{
 		PROFILE_FUNCTION();
 
-		const TransformComponent* transformComponent = mTransformSystem.GetComponent(id);
-		const ModelComponent* modelComponent = mModelSystem.GetComponent(id);
+		const TransformComponent* transformComponent = mTransformSystem->GetComponent(id);
+		const ModelComponent* modelComponent = mModelSystem->GetComponent(id);
 		const CameraComponent* cameraComponent = camera.GetComponent<CameraComponent>();
-		SkeletonComponent* skeletonComponent = mSkeletonSystem.GetComponent(id);
+		SkeletonComponent* skeletonComponent = mSkeletonSystem->GetComponent(id);
 
 		const Model* modelPtr = modelComponent->GetModel();
 
@@ -154,7 +156,7 @@ namespace erm::ecs {
 		for (unsigned int i = 0; i < meshes.size(); ++i)
 		{
 			const Mesh& mesh = meshes[i];
-			Material& material = mesh.GetMaterial() ? *mesh.GetMaterial() : Material::DEFAULT;
+			Material& material = mesh.GetRenderConfigs().mMaterial ? *mesh.GetRenderConfigs().mMaterial : Material::DEFAULT;
 
 			if (hasBone)
 			{
@@ -181,7 +183,7 @@ namespace erm::ecs {
 			if (!mesh.IsReady())
 				continue;
 
-			Material& material = mesh.GetMaterial() ? *mesh.GetMaterial() : Material::DEFAULT;
+			Material& material = mesh.GetRenderConfigs().mMaterial ? *mesh.GetRenderConfigs().mMaterial : Material::DEFAULT;
 
 			material.mShaderProgram->Bind();
 			material.mShaderProgram->SetUniformMat4f(Uniform::MODEL, model);
@@ -200,8 +202,8 @@ namespace erm::ecs {
 			{
 				for (ID light : lights)
 				{
-					LightComponent* lightComponent = mLightSystem.GetComponent(light);
-					TransformComponent* lightTransform = mTransformSystem.GetComponent(light);
+					LightComponent* lightComponent = mLightSystem->GetComponent(light);
+					TransformComponent* lightTransform = mTransformSystem->GetComponent(light);
 
 					material.mShaderProgram->SetUniform3f(Uniform::LIGHT_AMBIENT, lightComponent->mAmbient);
 					material.mShaderProgram->SetUniform3f(Uniform::LIGHT_DIFFUSE, lightComponent->mDiffuse);
@@ -217,7 +219,7 @@ namespace erm::ecs {
 			material.mShaderProgram->SetUniform3f(Uniform::MATERIAL_SPECULAR, material.mSpecular);
 			material.mShaderProgram->SetUniform1f(Uniform::MATERIAL_SHININESS, material.mShininess);
 
-			renderer.Draw(mesh.GetDrawMode(), mesh.GetVA(), mesh.GetIB());
+			mRenderer.Draw(mesh.GetRenderConfigs().GetDrawMode(), mesh.GetVertexBuffer(), mesh.GetIndexBuffer());
 		}
 
 		if (modelComponent->GetShouldShowBoundingBox())
@@ -227,17 +229,17 @@ namespace erm::ecs {
 			bBTransform = glm::translate(bBTransform, (objBBox.mMax + objBBox.mMin) * 0.5f);
 			bBTransform = glm::scale(bBTransform, objBBox.GetSize());
 
-			const PolygonMode polygonMode = renderer.GetRenderContext().GetPolygonMode();
-			const bool wasCullFaceEnabled = renderer.GetRenderContext().IsCullFaceEnabled();
+			const PolygonMode polygonMode = mRenderer.GetRenderContext().GetPolygonMode();
+			const bool wasCullFaceEnabled = mRenderer.GetRenderContext().IsCullFaceEnabled();
 
-			renderer.GetRenderContext().SetCullFaceEnabled(false);
-			renderer.GetRenderContext().SetPolygonMode(PolygonMode::LINE);
+			mRenderer.GetRenderContext().SetCullFaceEnabled(false);
+			mRenderer.GetRenderContext().SetPolygonMode(PolygonMode::LINE);
 			mDebugShader->Bind();
 			mDebugShader->SetUniformMat4f(Uniform::VIEW_PROJECTION, viewProjection);
 			mDebugShader->SetUniformMat4f(Uniform::MODEL, bBTransform);
-			renderer.Draw(mDebugMesh->GetDrawMode(), mDebugMesh->GetVA(), mDebugMesh->GetIB());
-			renderer.GetRenderContext().SetPolygonMode(polygonMode);
-			renderer.GetRenderContext().SetCullFaceEnabled(wasCullFaceEnabled);
+			mRenderer.Draw(mDebugMesh->GetRenderConfigs().GetDrawMode(), mDebugMesh->GetVertexBuffer(), mDebugMesh->GetIndexBuffer());
+			mRenderer.GetRenderContext().SetPolygonMode(polygonMode);
+			mRenderer.GetRenderContext().SetCullFaceEnabled(wasCullFaceEnabled);
 		}
 	}
 

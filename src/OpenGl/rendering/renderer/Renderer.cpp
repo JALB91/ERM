@@ -1,12 +1,14 @@
 #include "erm/rendering/renderer/Renderer.h"
 
 #include "erm/rendering/buffers/IndexBuffer.h"
-#include "erm/rendering/buffers/VertexArray.h"
+#include "erm/rendering/buffers/VertexBuffer.h"
 #include "erm/rendering/enums/BlendFunction.h"
 #include "erm/rendering/enums/CullMode.h"
 #include "erm/rendering/enums/DepthFunction.h"
 #include "erm/rendering/enums/FrontFace.h"
 #include "erm/rendering/renderer/RenderContext.h"
+
+#include "erm/utils/Utils.h"
 
 #include <GL/glew.h>
 
@@ -14,9 +16,11 @@
 
 namespace erm {
 
-	Renderer::Renderer(const RenderContext& renderContext)
-		: mRenderContext(renderContext)
+	Renderer::Renderer(Engine& engine)
+		: mEngine(engine)
 	{
+		UNUSED(mEngine);
+
 		mRenderContext.SetDepthEnabled(true);
 		mRenderContext.SetDepthFunction(DepthFunction::LESS);
 
@@ -37,9 +41,20 @@ namespace erm {
 		std::cout << "GLSL " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
 	}
 
-	void Renderer::Draw(DrawMode drawMode, const VertexArray& va, const IndexBuffer& ib) const
+	void Renderer::OnPreRender()
 	{
-		va.Bind();
+		mRenderContext.Clear();
+	}
+
+	void Renderer::OnRender()
+	{}
+
+	void Renderer::OnPostRender()
+	{}
+
+	void Renderer::Draw(DrawMode drawMode, const VertexBuffer& vb, const IndexBuffer& ib) const
+	{
+		vb.BindVA();
 		ib.Bind();
 		mRenderContext.Draw(drawMode, ib.GetCount());
 	}

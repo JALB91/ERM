@@ -2,6 +2,7 @@
 
 #include "erm/rendering/buffers/IndexBuffer.h"
 #include "erm/rendering/buffers/VertexBuffer.h"
+#include "erm/rendering/buffers/VertexBufferLayout.h"
 #include "erm/rendering/buffers/VertexData.h"
 
 namespace erm {
@@ -70,13 +71,19 @@ namespace erm {
 			return;
 		}
 
+		VertexBufferLayout vbl;
+		vbl.Push<VertexType>(kPositionVectorsLenght);
+		vbl.Push<VertexType>(kNormalVectorsLenght);
+		vbl.Push<VertexType>(kUVVectorsLenght);
+		vbl.Push<VertexType>(kMaxBonesNumber);
+		vbl.Push<IdType>(kMaxBonesNumber);
+
 		mVertexBuffer = std::make_unique<VertexBuffer>(
-			mDevice,
+			std::move(vbl),
 			&mVerticesData[0].mPositionVertex[0],
 			sizeof(VertexData) * mVerticesDataCount);
 
 		mIndexBuffer = std::make_unique<IndexBuffer>(
-			mDevice,
 			mIndicesData,
 			mIndicesDataCount * sizeof(IndexData),
 			mIndicesDataCount);

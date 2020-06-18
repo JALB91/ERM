@@ -298,11 +298,10 @@ namespace erm {
 	void Window::UpdateViewport()
 	{
 		mViewport.mMin.x = mWindowSize.x * kImGuiSpaceLeft;
-		mViewport.mMin.y = mWindowSize.y * kImGuiSpaceUp;
+		mViewport.mMin.y = mWindowSize.y * kImGuiSpaceDown;
 		mViewport.mMax.x = mWindowSize.x - (mWindowSize.x * kImGuiSpaceRight);
-		mViewport.mMax.y = mWindowSize.y - (mWindowSize.y * kImGuiSpaceDown);
-
-#ifdef ERM_OPENGL
+		mViewport.mMax.y = mWindowSize.y - (mWindowSize.y * kImGuiSpaceUp);
+#if defined(ERM_OPENGL)
 		const math::vec2 size = mViewport.GetSize();
 
 		GL_CALL(glViewport(

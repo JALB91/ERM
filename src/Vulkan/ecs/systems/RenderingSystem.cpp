@@ -38,11 +38,6 @@ namespace erm::ecs {
 		: ISystem<RenderingComponent>(ecs)
 		, mEngine(engine)
 		, mResourcesManager(engine.GetResourcesManager())
-		, mTransformSystem(mECS.GetSystem<TransformSystem>())
-		, mSkeletonSystem(mECS.GetSystem<SkeletonSystem>())
-		, mModelSystem(mECS.GetSystem<ModelSystem>())
-		, mCameraSystem(mECS.GetSystem<CameraSystem>())
-		, mLightSystem(mECS.GetSystem<LightSystem>())
 		, mGridMesh(std::make_unique<Mesh>(MeshUtils::CreateGrid(engine.GetDevice(), 1000, 1000, 50.0f, 50.0f)))
 		, mDebugMesh(std::make_unique<Mesh>(MeshUtils::CreateCube(engine.GetDevice())))
 		, mDebugShader(mResourcesManager.GetOrCreateShaderProgram(kDebugShaderPath))
@@ -59,6 +54,15 @@ namespace erm::ecs {
 	RenderingSystem::~RenderingSystem()
 	{}
 
+	void RenderingSystem::Init()
+	{
+		mTransformSystem = &mECS.GetSystem<TransformSystem>();
+		mSkeletonSystem = &mECS.GetSystem<SkeletonSystem>();
+		mModelSystem = &mECS.GetSystem<ModelSystem>();
+		mCameraSystem = &mECS.GetSystem<CameraSystem>();
+		mLightSystem = &mECS.GetSystem<LightSystem>();
+	}
+
 	void RenderingSystem::OnRender()
 	{
 		PROFILE_FUNCTION();
@@ -69,9 +73,9 @@ namespace erm::ecs {
 		CameraComponent* camera = nullptr;
 		for (ID i = 0; i < MAX_ID; ++i)
 		{
-			if ((camera = mCameraSystem.GetComponent(i)))
+			if ((camera = mCameraSystem->GetComponent(i)))
 			{
-				transform = mTransformSystem.RequireComponent(i);
+				transform = mTransformSystem->RequireComponent(i);
 				break;
 			}
 		}
@@ -85,11 +89,11 @@ namespace erm::ecs {
 		mRenderData.SetUbo(ubo);
 		r.SubmitRenderData(mRenderData);
 
-		mModelSystem.ForEachComponentIndexed([this, &viewProj, &r](ModelComponent& component, ID id) {
+		mModelSystem->ForEachComponentIndexed([this, &viewProj, &r](ModelComponent& component, ID id) {
 			if (!component.GetModel())
 				return;
 
-			TransformComponent* modelTransform = mTransformSystem.GetComponent(id);
+			TransformComponent* modelTransform = mTransformSystem->GetComponent(id);
 
 			UboBasic ubo;
 			ubo.mMVP = viewProj * modelTransform->mWorldTransform;

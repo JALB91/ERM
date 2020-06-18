@@ -12,6 +12,8 @@ namespace erm::ecs {
 			: ISystem(ecs)
 		{}
 
+		// ISystem
+		void Init() override {}
 		void OnPostUpdate() override;
 	};
 

@@ -23,6 +23,9 @@ namespace erm {
 		~ImGuiHandle();
 
 		void OnUpdate();
+		void OnPreRender();
+		void OnRender();
+		void OnPostRender();
 
 		vk::CommandBuffer& GetCommandBuffer(uint32_t imageIndex);
 

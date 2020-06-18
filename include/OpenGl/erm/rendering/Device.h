@@ -1,18 +1,13 @@
 #pragma once
 
-#include "erm/rendering/IDevice.h"
-
 struct GLFWwindow;
 
 namespace erm {
 
-	class Device : public IDevice
+	class Device
 	{
 	public:
 		Device(GLFWwindow* window);
-
-		// IDevice
-		void OnRender() override;
 	};
 
 } // namespace erm

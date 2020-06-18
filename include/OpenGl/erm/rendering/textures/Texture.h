@@ -4,11 +4,15 @@
 #include <vector>
 
 namespace erm {
+	class Device;
+}
+
+namespace erm {
 
 	class Texture
 	{
 	public:
-		Texture(const char* path);
+		Texture(Device& device, const char* path);
 		~Texture();
 
 		Texture(Texture&&) = delete;

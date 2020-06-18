@@ -9,7 +9,4 @@ namespace erm {
 		UNUSED(window);
 	}
 
-	void Device::OnRender()
-	{}
-
 } // namespace erm

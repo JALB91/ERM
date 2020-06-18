@@ -1,7 +1,7 @@
 #pragma once
 
 #include "erm/ecs/IComponent.h"
-#include "erm/rendering/RenderPassConfig.h"
+#include "erm/rendering/data_structs/RenderConfigs.h"
 
 namespace erm::ecs {
 	class RenderingSystem;
@@ -14,11 +14,6 @@ namespace erm::ecs {
 	public:
 		typedef RenderingSystem SYSTEM_TYPE;
 		friend class RenderingSystem;
-
-		SENSIBLE_MEMBER(RenderPassConfig, RenderPassConfig, mRenderPassConfig);
-
-	private:
-		RenderPassConfig mRenderPassConfig;
 	};
 
 } // namespace erm::ecs

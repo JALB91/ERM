@@ -13,8 +13,12 @@ namespace erm::ecs {
 
 	AnimationSystem::AnimationSystem(ECS& ecs)
 		: ISystem(ecs)
-		, mSkeletonSystem(mECS.GetSystem<SkeletonSystem>())
 	{}
+
+	void AnimationSystem::Init()
+	{
+		mSkeletonSystem = &mECS.GetSystem<SkeletonSystem>();
+	}
 
 	void AnimationSystem::OnUpdate(float dt)
 	{
@@ -28,7 +32,7 @@ namespace erm::ecs {
 		for (ID i = ROOT_ID; i < MAX_ID; ++i)
 		{
 			AnimationComponent* animationComponent = GetComponent(i);
-			SkeletonComponent* skeletonComponent = mSkeletonSystem.GetComponent(i);
+			SkeletonComponent* skeletonComponent = mSkeletonSystem->GetComponent(i);
 
 			if (!animationComponent || !animationComponent->mPlaying || !skeletonComponent)
 				continue;

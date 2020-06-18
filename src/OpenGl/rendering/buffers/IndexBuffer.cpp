@@ -6,14 +6,14 @@
 
 namespace erm {
 
-	IndexBuffer::IndexBuffer(const IndexData* data, unsigned int count)
+	IndexBuffer::IndexBuffer(void* data, size_t size, uint64_t count)
 		: mCount(count)
 	{
-		ASSERT(sizeof(IndexData) == sizeof(GLuint));
+		ASSERT((size / count) == sizeof(GLuint));
 
 		GL_CALL(glGenBuffers(1, &mRendererId));
 		GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mRendererId));
-		GL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(IndexData), data, GL_STATIC_DRAW));
+		GL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, data, GL_STATIC_DRAW));
 	}
 
 	IndexBuffer::~IndexBuffer()

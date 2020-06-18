@@ -311,8 +311,8 @@ namespace erm {
 		else
 		{
 			swapChainCreateInfo.imageSharingMode = vk::SharingMode::eExclusive;
-			swapChainCreateInfo.queueFamilyIndexCount = 0; // Optional
-			swapChainCreateInfo.pQueueFamilyIndices = nullptr; // Optional
+			swapChainCreateInfo.queueFamilyIndexCount = 0;
+			swapChainCreateInfo.pQueueFamilyIndices = nullptr;
 		}
 
 		swapChainCreateInfo.preTransform = swapChainSupport.mCapabilities.currentTransform;

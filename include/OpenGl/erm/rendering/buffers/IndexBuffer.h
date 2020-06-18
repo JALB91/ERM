@@ -1,19 +1,14 @@
 #pragma once
 
-#include "erm/rendering/buffers/IndexData.h"
-
-#include <memory>
-
-namespace erm {
-	class IDevice;
-}
+#include <cstddef>
+#include <cstdint>
 
 namespace erm {
 
 	class IndexBuffer
 	{
 	public:
-		IndexBuffer(IDevice& device, IndexData* data, uint64_t count);
+		IndexBuffer(void* data, size_t size, uint64_t count);
 		~IndexBuffer();
 
 		IndexBuffer(IndexBuffer&&) = delete;
@@ -22,15 +17,14 @@ namespace erm {
 		IndexBuffer& operator=(IndexBuffer&&) = delete;
 		IndexBuffer& operator=(const IndexBuffer&) = delete;
 
-		template<typename T>
-		void Bind(T arg) const;
+		void Bind() const;
 		void Unbind() const;
 
-		uint64_t GetCount() const;
+		inline uint64_t GetCount() const { return mCount; }
 
 	private:
-		class Impl;
-		std::unique_ptr<Impl> mImpl;
+		const uint64_t mCount;
+		unsigned int mRendererId;
 	};
 
 } // namespace erm

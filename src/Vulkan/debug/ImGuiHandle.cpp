@@ -57,8 +57,19 @@ namespace erm {
 		ImGui::ShowEngineDebug(mEngine);
 
 		ImGui::Render();
-
 		ImGui::UpdatePlatformWindows();
+	}
+
+	void ImGuiHandle::OnPreRender()
+	{
+	}
+
+	void ImGuiHandle::OnRender()
+	{
+	}
+
+	void ImGuiHandle::OnPostRender()
+	{
 	}
 
 	vk::CommandBuffer& ImGuiHandle::GetCommandBuffer(uint32_t imageIndex)

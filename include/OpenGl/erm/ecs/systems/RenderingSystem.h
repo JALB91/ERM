@@ -9,6 +9,7 @@
 
 namespace erm {
 	class Mesh;
+	class Engine;
 	class Renderer;
 	class ShaderProgram;
 	class ResourcesManager;
@@ -27,30 +28,29 @@ namespace erm::ecs {
 	class RenderingSystem : public ISystem<RenderingComponent>
 	{
 	public:
-		RenderingSystem(ECS& ecs, ResourcesManager& resourcesManager);
+		RenderingSystem(ECS& ecs, Engine& engine);
 		~RenderingSystem();
 
 		// ISystem
-		void OnRender(const Renderer& renderer) override;
+		void Init() override;
+		void OnRender() override;
 
 	private:
-		void RenderGrid(
-			const Renderer& renderer,
-			const math::mat4& viewProjection);
+		void RenderGrid(const math::mat4& viewProjection);
 		void RenderModel(
-			const Renderer& renderer,
 			const Entity& camera,
 			const math::mat4& viewProjection,
 			const std::vector<ID>& lights,
 			EntityId id);
 
 		ResourcesManager& mResourcesManager;
+		Renderer& mRenderer;
 
-		TransformSystem& mTransformSystem;
-		SkeletonSystem& mSkeletonSystem;
-		ModelSystem& mModelSystem;
-		CameraSystem& mCameraSystem;
-		LightSystem& mLightSystem;
+		TransformSystem* mTransformSystem;
+		SkeletonSystem* mSkeletonSystem;
+		ModelSystem* mModelSystem;
+		CameraSystem* mCameraSystem;
+		LightSystem* mLightSystem;
 
 		std::queue<ID> mModelsRenderingQueue;
 

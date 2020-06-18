@@ -34,7 +34,7 @@ namespace erm {
 
 	unsigned int ShaderProgram::sShaderId = 0;
 
-	ShaderProgram::ShaderProgram(const std::string& vertexShader, const std::string& fragmentShader)
+	ShaderProgram::ShaderProgram(Device& /*device*/, const std::string& vertexShader, const std::string& fragmentShader)
 		: mRendererId(CreateShaderProgram(vertexShader, fragmentShader))
 		, mPath("TEMP_" + std::to_string(sShaderId))
 		, mVertex(vertexShader)
@@ -44,8 +44,8 @@ namespace erm {
 		CacheUniformsLocations();
 	}
 
-	ShaderProgram::ShaderProgram(const std::string& shaderPath)
-		: ShaderProgram(ParseShader((shaderPath + ".vert").c_str()), ParseShader((shaderPath + ".frag").c_str()))
+	ShaderProgram::ShaderProgram(Device& device, const std::string& shaderPath)
+		: ShaderProgram(device, ParseShader((shaderPath + ".vert").c_str()), ParseShader((shaderPath + ".frag").c_str()))
 	{
 		mPath = shaderPath;
 	}
