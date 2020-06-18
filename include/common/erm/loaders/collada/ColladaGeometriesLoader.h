@@ -11,7 +11,6 @@ namespace tinyxml2 {
 	class XMLDocument;
 }
 namespace erm {
-	class Device;
 	class Model;
 } // namespace erm
 
