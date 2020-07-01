@@ -23,5 +23,7 @@ namespace erm::Utils {
 	extern bool LogCall(bool cond, const char* msg, const char* function, const char* file, int line);
 	extern std::vector<std::string> SplitString(const std::string& str, char ch);
 	extern std::string StripFunctionName(const char* fn);
+	extern std::string ReadFromFile(const char* path);
+	extern void WriteToFile(const char* path, const std::string& data);
 
 } // namespace erm::Utils

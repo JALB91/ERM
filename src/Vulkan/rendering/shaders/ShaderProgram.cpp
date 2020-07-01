@@ -12,7 +12,7 @@
 
 namespace {
 
-	std::vector<char> ReadShader(const char* path)
+	std::vector<char> ReadShaderCompiled(const char* path)
 	{
 		std::ifstream stream(path, std::ios::ate | std::ios::binary);
 
@@ -43,7 +43,7 @@ namespace {
 
 	std::vector<uint32_t> LoadSpirvFile(const char* path)
 	{
-		std::vector<char> file = ReadShader(path);
+		std::vector<char> file = ReadShaderCompiled(path);
 
 		std::vector<uint32_t> buffer(file.size() / sizeof(uint32_t));
 		memcpy(buffer.data(), file.data(), file.size());
@@ -51,7 +51,7 @@ namespace {
 		return buffer;
 	}
 
-	void GatherDescriptorSetLayoutBindings(std::vector<vk::DescriptorSetLayoutBinding>& bindings, spirv_cross::CompilerGLSL& compiler, vk::ShaderStageFlagBits flags)
+	void GatherDescriptorSetLayoutBindings(std::vector<vk::DescriptorSetLayoutBinding>& bindings, spirv_cross::CompilerCPP& compiler, vk::ShaderStageFlagBits flags)
 	{
 		spirv_cross::ShaderResources resources = compiler.get_shader_resources();
 
@@ -76,37 +76,37 @@ namespace {
 		}
 	}
 
-	erm::UboData GetUboData(spirv_cross::CompilerGLSL& compiler, const spirv_cross::Resource& resource)
+	erm::UboData GetUboData(spirv_cross::CompilerCPP& compiler, const spirv_cross::Resource& resource)
 	{
-		const spirv_cross::SmallVector<spirv_cross::BufferRange>& ranges = compiler.get_active_buffer_ranges(resource.id);
-
-		if (ranges.size() == 1)
-		{
-			const spirv_cross::BufferRange& range = ranges[0];
-
-			std::string name = compiler.get_member_name(resource.base_type_id, range.index);
-
-			std::transform(name.begin(), name.end(), name.begin(), [](unsigned char c) {
-				return std::tolower(c);
-			});
-
-			if (name.find("mvp") != std::string::npos && range.range == sizeof(erm::UboBasic))
-				return {erm::UboBasic::ID, sizeof(erm::UboBasic), compiler.get_decoration(resource.id, spv::Decoration::DecorationOffset), compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding)};
-		}
+		if (resource.name.compare("UniformBufferObject") == 0)
+			return {erm::UboBasic::ID, sizeof(erm::UboBasic), compiler.get_decoration(resource.id, spv::Decoration::DecorationOffset), compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding)};
+		else if (resource.name.compare("ModelViewProj") == 0)
+			return {erm::UboModelViewProj::ID, sizeof(erm::UboModelViewProj), compiler.get_decoration(resource.id, spv::Decoration::DecorationOffset), compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding)};
+		else if (resource.name.compare("Material") == 0)
+			return {erm::UboMaterial::ID, sizeof(erm::UboMaterial), compiler.get_decoration(resource.id, spv::Decoration::DecorationOffset), compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding)};
+		else if (resource.name.compare("Light") == 0)
+			return {erm::UboLight::ID, sizeof(erm::UboLight), compiler.get_decoration(resource.id, spv::Decoration::DecorationOffset), compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding)};
+		else if (resource.name.compare("View") == 0)
+			return {erm::UboView::ID, sizeof(erm::UboView), compiler.get_decoration(resource.id, spv::Decoration::DecorationOffset), compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding)};
 
 		ASSERT(false);
 
 		return {erm::UboBasic::ID, sizeof(erm::UboBasic), 0, 0};
 	}
 
-	std::vector<erm::UboData> GetUbosData(spirv_cross::CompilerGLSL& compiler)
+	std::vector<erm::UboData> GetUbosData(spirv_cross::CompilerCPP& vertCompiler, spirv_cross::CompilerCPP& fragCompiler)
 	{
 		std::vector<erm::UboData> data;
 
-		spirv_cross::ShaderResources resources = compiler.get_shader_resources();
+		spirv_cross::ShaderResources resources = vertCompiler.get_shader_resources();
 
 		for (const spirv_cross::Resource& res : resources.uniform_buffers)
-			data.emplace_back(GetUboData(compiler, res));
+			data.emplace_back(GetUboData(vertCompiler, res));
+
+		resources = fragCompiler.get_shader_resources();
+
+		for (const spirv_cross::Resource& res : resources.uniform_buffers)
+			data.emplace_back(GetUboData(fragCompiler, res));
 
 		return data;
 	}
@@ -118,13 +118,52 @@ namespace erm {
 	ShaderProgram::ShaderProgram(Device& device, const std::string& shaderPath)
 		: mDevice(device)
 		, mPath(shaderPath)
-		, mVertex(ReadShader((mPath + ".vert").c_str()))
-		, mFragment(ReadShader((mPath + ".frag").c_str()))
-		, mVertCompiler(LoadSpirvFile((mPath + ".vert").c_str()))
-		, mFragCompiler(LoadSpirvFile((mPath + ".frag").c_str()))
-		, mVertUbosData(::GetUbosData(mVertCompiler))
-		, mFragUbosData(::GetUbosData(mFragCompiler))
+		, mVertexSource(Utils::ReadFromFile((mPath + ".vert").c_str()))
+		, mFragmentSource(Utils::ReadFromFile((mPath + ".frag").c_str()))
+		, mVertex(ReadShaderCompiled((mPath + ".vert.cmp").c_str()))
+		, mFragment(ReadShaderCompiled((mPath + ".frag.cmp").c_str()))
+		, mVertCompiler(std::make_unique<spirv_cross::CompilerCPP>(LoadSpirvFile((mPath + ".vert.cmp").c_str())))
+		, mFragCompiler(std::make_unique<spirv_cross::CompilerCPP>(LoadSpirvFile((mPath + ".frag.cmp").c_str())))
+		, mUbosData(::GetUbosData(*mVertCompiler, *mFragCompiler))
+		, mNeedsReload(true)
 	{}
+
+	void ShaderProgram::SetShaderSources(const std::string& vertex, const std::string& fragment)
+	{
+		// VERTEX SHADER
+		mVertexSource = vertex;
+		mVertex.clear();
+
+		Utils::WriteToFile((mPath + "_tmp.vert").c_str(), mVertexSource);
+
+		{
+			std::string compilationCommand = ERM_SHADER_COMPILER;
+			compilationCommand += " " + mPath + "_tmp.vert -o " + mPath + ".vert.cmp";
+			system(compilationCommand.c_str());
+		}
+
+		mVertex = ReadShaderCompiled((mPath + ".vert.cmp").c_str());
+		mVertCompiler = std::make_unique<spirv_cross::CompilerCPP>(LoadSpirvFile((mPath + ".vert.cmp").c_str()));
+
+		// FRAGMENT SHADER
+		mFragmentSource = fragment;
+		mFragment.clear();
+
+		Utils::WriteToFile((mPath + "_tmp.frag").c_str(), mFragmentSource);
+
+		{
+			std::string compilationCommand = ERM_SHADER_COMPILER;
+			compilationCommand += " " + mPath + "_tmp.frag -o " + mPath + ".frag.cmp";
+			system(compilationCommand.c_str());
+		}
+
+		mFragment = ReadShaderCompiled((mPath + ".frag.cmp").c_str());
+		mFragCompiler = std::make_unique<spirv_cross::CompilerCPP>(LoadSpirvFile((mPath + ".frag.cmp").c_str()));
+
+		mUbosData = ::GetUbosData(*mVertCompiler, *mFragCompiler);
+
+		mNeedsReload = true;
+	}
 
 	vk::ShaderModule ShaderProgram::CreateVertexShaderModule() const
 	{
@@ -138,7 +177,7 @@ namespace erm {
 
 	vk::VertexInputBindingDescription ShaderProgram::GetVertexBindingDescription()
 	{
-		spirv_cross::ShaderResources resources = mVertCompiler.get_shader_resources();
+		spirv_cross::ShaderResources resources = mVertCompiler->get_shader_resources();
 
 		vk::VertexInputBindingDescription bindingDescription = {};
 
@@ -154,7 +193,7 @@ namespace erm {
 
 	std::vector<vk::VertexInputAttributeDescription> ShaderProgram::GetVertexAttributeDescriptions()
 	{
-		spirv_cross::ShaderResources resources = mVertCompiler.get_shader_resources();
+		spirv_cross::ShaderResources resources = mVertCompiler->get_shader_resources();
 
 		std::vector<vk::VertexInputAttributeDescription> attributeDescriptions;
 
@@ -162,8 +201,8 @@ namespace erm {
 		{
 			vk::VertexInputAttributeDescription description;
 
-			description.binding = mVertCompiler.get_decoration(res.id, spv::Decoration::DecorationBinding);
-			description.location = mVertCompiler.get_decoration(res.id, spv::Decoration::DecorationLocation);
+			description.binding = mVertCompiler->get_decoration(res.id, spv::Decoration::DecorationBinding);
+			description.location = mVertCompiler->get_decoration(res.id, spv::Decoration::DecorationLocation);
 
 			if (res.name.compare("inPosition") == 0)
 			{
@@ -191,8 +230,8 @@ namespace erm {
 	{
 		std::vector<vk::DescriptorSetLayoutBinding> bindings;
 
-		GatherDescriptorSetLayoutBindings(bindings, mVertCompiler, vk::ShaderStageFlagBits::eVertex);
-		GatherDescriptorSetLayoutBindings(bindings, mFragCompiler, vk::ShaderStageFlagBits::eFragment);
+		GatherDescriptorSetLayoutBindings(bindings, *mVertCompiler, vk::ShaderStageFlagBits::eVertex);
+		GatherDescriptorSetLayoutBindings(bindings, *mFragCompiler, vk::ShaderStageFlagBits::eFragment);
 
 		return bindings;
 	}

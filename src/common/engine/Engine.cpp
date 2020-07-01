@@ -36,8 +36,10 @@ namespace {
 	const char* const kModelModelPath = "res/models/model.dae";
 	const char* const kVikingRoomModelPath = "res/models/viking_room.obj";
 
-	const char* const kModelToUse = kVikingRoomModelPath;
-	const float kDefaultScale = 100.0f;
+	const char* const kModelToUse = kIronManModelPath;
+	//	const float kDefaultRotX = -static_cast<float>(M_PI * 0.5);
+	const float kDefaultRotX = 0.0f;
+	const float kDefaultScale = 1.0f;
 	const int kEntities = 1;
 
 } // namespace
@@ -95,7 +97,7 @@ namespace erm {
 			Model* model = mResourcesManager->GetOrCreateModel(kModelToUse);
 			entity->RequireComponent<ecs::ModelComponent>(model);
 			auto transform = entity->RequireComponent<ecs::TransformComponent>();
-			transform->mRotation.x = -static_cast<float>(M_PI * 0.5);
+			transform->mRotation.x = kDefaultRotX;
 			transform->mScale = math::vec3(kDefaultScale);
 			root->AddChild(*entity);
 		}
@@ -104,7 +106,8 @@ namespace erm {
 		Model* model = mResourcesManager->GetOrCreateModel("Defaults/Sphere");
 		RenderConfigs rc = RenderConfigs::MODELS_RENDER_CONFIGS;
 		rc.mTexture = mResourcesManager->GetOrCreateTexture("res/textures/smile.png");
-		entity->RequireComponent<ecs::ModelComponent>(model, rc);
+		model->GetMeshes()[0].SetRenderConfigs(rc);
+		entity->RequireComponent<ecs::ModelComponent>(model);
 		root->AddChild(*entity);
 
 		return true;

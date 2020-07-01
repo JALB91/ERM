@@ -78,6 +78,11 @@ namespace erm {
 		if (mFramesDatas.empty())
 			return;
 
+		for (const auto& [renderingResources, renderData] : mFramesDatas)
+		{
+			renderingResources->Refresh();
+		}
+
 		mDevice->waitForFences(1, &mInFlightFences[mCurrentFrame], VK_TRUE, UINT64_MAX);
 
 		vk::Result result = mDevice->acquireNextImageKHR(mSwapChain, UINT64_MAX, mImageAvailableSemaphores[mCurrentFrame], {}, &mCurrentImageIndex);

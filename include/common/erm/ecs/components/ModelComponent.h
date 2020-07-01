@@ -4,10 +4,6 @@
 
 #include "erm/math/BoundingBox.h"
 
-#include "erm/rendering/data_structs/RenderData.h"
-
-#include <vector>
-
 namespace erm {
 	class Model;
 	namespace ecs {
@@ -24,10 +20,9 @@ namespace erm::ecs {
 		friend class ModelSystem;
 
 	public:
-		ModelComponent(Model* model = nullptr, const RenderConfigs& renderConfigs = RenderConfigs::MODELS_RENDER_CONFIGS)
+		ModelComponent(Model* model = nullptr)
 			: mModel(model)
 			, mShouldShowBoundingBox(false)
-			, mRenderData(renderConfigs)
 		{}
 
 		SENSIBLE_MEMBER(Model, Model*, mModel)
@@ -40,9 +35,6 @@ namespace erm::ecs {
 		Model* mModel;
 		BoundingBox3D mWorldBounds;
 		bool mShouldShowBoundingBox;
-
-	public:
-		RenderData mRenderData;
 	};
 
 } // namespace erm::ecs

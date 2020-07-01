@@ -2,9 +2,16 @@
 
 #include "erm/ecs/IComponent.h"
 
-namespace erm::ecs {
-	class RenderingSystem;
-}
+#include "erm/rendering/data_structs/RenderData.h"
+
+#include <vector>
+
+namespace erm {
+	struct Material;
+	namespace ecs {
+		class RenderingSystem;
+	}
+} // namespace erm
 
 namespace erm::ecs {
 
@@ -13,6 +20,9 @@ namespace erm::ecs {
 	public:
 		typedef RenderingSystem SYSTEM_TYPE;
 		friend class RenderingSystem;
+
+		std::vector<RenderData> mRenderData;
+		std::map<Material*, size_t> mMaterialIndices;
 	};
 
 } // namespace erm::ecs

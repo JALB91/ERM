@@ -11,6 +11,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <imgui.h>
+
 #ifdef ERM_OPENGL
 #	include <GL/glew.h>
 #endif
@@ -210,6 +212,9 @@ namespace erm {
 	{
 		PROFILE_FUNCTION();
 
+		if (ImGui::GetIO().WantCaptureKeyboard)
+			return;
+
 		if (action == GLFW_PRESS)
 		{
 			mPressedKeys.insert(key);
@@ -234,6 +239,9 @@ namespace erm {
 	{
 		PROFILE_FUNCTION();
 
+		if (ImGui::GetIO().WantCaptureMouse)
+			return;
+
 		if (action == GLFW_PRESS)
 		{
 			mPressedButtons.insert(button);
@@ -256,6 +264,9 @@ namespace erm {
 
 	void Window::OnMousePos(double xPos, double yPos)
 	{
+		if (ImGui::GetIO().WantCaptureMouse)
+			return;
+
 		SafeForEach<IWindowListener>(mWindowListeners, [xPos, yPos](IWindowListener* listener) {
 			listener->OnMouseMoved(xPos, yPos);
 		});
@@ -302,11 +313,16 @@ namespace erm {
 		mViewport.mMax.x = mWindowSize.x - (mWindowSize.x * kImGuiSpaceRight);
 		mViewport.mMax.y = mWindowSize.y - (mWindowSize.y * kImGuiSpaceUp);
 #if defined(ERM_OPENGL)
-		const math::vec2 size = mViewport.GetSize();
+		BoundingBox2D frameBufferBounds;
+		frameBufferBounds.mMin.x = mFrameBufferSize.x * kImGuiSpaceLeft;
+		frameBufferBounds.mMin.y = mFrameBufferSize.y * kImGuiSpaceDown;
+		frameBufferBounds.mMax.x = mFrameBufferSize.x - (mFrameBufferSize.x * kImGuiSpaceRight);
+		frameBufferBounds.mMax.y = mFrameBufferSize.y - (mFrameBufferSize.y * kImGuiSpaceUp);
+		const math::vec2 size = frameBufferBounds.GetSize();
 
 		GL_CALL(glViewport(
-			static_cast<int>(mViewport.mMin.x),
-			static_cast<int>(mViewport.mMin.y),
+			static_cast<int>(frameBufferBounds.mMin.x),
+			static_cast<int>(frameBufferBounds.mMin.y),
 			static_cast<int>(size.x),
 			static_cast<int>(size.y)));
 #endif

@@ -32,8 +32,8 @@ namespace erm {
 		void Unbind() const;
 
 		const std::string& GetPath() const { return mPath; }
-		const std::string& GetVertexShader() const { return mVertex; }
-		const std::string& GetFragmentShader() const { return mFragment; }
+		const std::string& GetVertexSource() const { return mVertex; }
+		const std::string& GetFragmentSource() const { return mFragment; }
 
 		void SetShaderSources(const std::string& vertexShader, const std::string& fragmentShader);
 

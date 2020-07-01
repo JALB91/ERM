@@ -14,7 +14,7 @@ namespace erm {
 		uint32_t verticesCount,
 		IndexData* indices,
 		uint32_t indicesCount,
-		const RenderConfigs& configs /*= {}*/,
+		const RenderConfigs& configs /*= RenderConfigs::MODELS_RENDER_CONFIGS*/,
 		const char* name /*= ""*/
 		)
 		: mDevice(device)

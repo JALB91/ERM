@@ -21,17 +21,16 @@ namespace erm {
 		PipelineResources(
 			Device& device,
 			Renderer& renderer,
-			const vk::RenderPass& renderPass,
-			const vk::DescriptorPool& descriptorPool,
+			const vk::RenderPass* renderPass,
+			const vk::DescriptorPool* descriptorPool,
 			const RenderConfigs& renderConfigs);
 		~PipelineResources();
 
-		PipelineResources(PipelineResources&& other);
+		PipelineResources(PipelineResources&&) = delete;
+		PipelineResources& operator=(PipelineResources&&) = delete;
 
 		PipelineResources(const PipelineResources&) = delete;
-
 		PipelineResources& operator=(const PipelineResources&) = delete;
-		PipelineResources& operator=(PipelineResources&&) = delete;
 
 		void Update(vk::CommandBuffer& cmd, RenderData& renderData, uint32_t imageIndex);
 
@@ -40,8 +39,8 @@ namespace erm {
 
 		Device& mDevice;
 		Renderer& mRenderer;
-		const vk::RenderPass& mRenderPass;
-		const vk::DescriptorPool& mDescriptorPool;
+		const vk::RenderPass* mRenderPass;
+		const vk::DescriptorPool* mDescriptorPool;
 
 	public:
 		const RenderConfigs mRenderConfigs;

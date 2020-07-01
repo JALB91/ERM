@@ -33,9 +33,6 @@ namespace erm::ecs {
 		void OnPostUpdate() override;
 
 	private:
-		// ISystem
-		void OnComponentAdded(EntityId id) override;
-
 		void SubmitRenderData(ModelComponent& component);
 
 		Window& mWindow;

@@ -119,6 +119,34 @@ namespace erm {
 		cmd.end();
 	}
 
+	void RenderingResources::Refresh()
+	{
+		std::vector<RenderConfigs> configsToRecreate;
+		for (int i = 0; i < static_cast<int>(mPipelineResources.size()); ++i)
+		{
+			const PipelineResources& res = *mPipelineResources[i];
+			if (res.mRenderConfigs.mShaderProgram->NeedsReload())
+			{
+				if (configsToRecreate.empty())
+					mDevice->waitIdle();
+
+				configsToRecreate.emplace_back(res.mRenderConfigs);
+				mPipelineResources.erase(mPipelineResources.begin() + i);
+				i--;
+			}
+		}
+
+		for (const RenderConfigs& config : configsToRecreate)
+		{
+			mPipelineResources.emplace_back(std::make_unique<PipelineResources>(mDevice, mRenderer, &mRenderPass, &mDescriptorPool, config));
+		}
+
+		for (const RenderConfigs& config : configsToRecreate)
+		{
+			config.mShaderProgram->OnReloaded();
+		}
+	}
+
 	vk::AttachmentDescription RenderingResources::CreateAttachmentDescription(const erm::AttachmentData& data, vk::Format format) const
 	{
 		vk::AttachmentDescription attachment = {};
@@ -135,15 +163,15 @@ namespace erm {
 
 	PipelineResources& RenderingResources::GetOrCreatePipelineResources(const RenderConfigs& renderConfigs)
 	{
-		for (PipelineResources& resources : mPipelineResources)
+		for (const std::unique_ptr<PipelineResources>& resources : mPipelineResources)
 		{
-			if (resources.mRenderConfigs.IsPipelineLevelCompatible(renderConfigs))
+			if (resources->mRenderConfigs.IsPipelineLevelCompatible(renderConfigs))
 			{
-				return resources;
+				return *resources;
 			}
 		}
 
-		return mPipelineResources.emplace_back(mDevice, mRenderer, mRenderPass, mDescriptorPool, renderConfigs);
+		return *mPipelineResources.emplace_back(std::make_unique<PipelineResources>(mDevice, mRenderer, &mRenderPass, &mDescriptorPool, renderConfigs));
 	}
 
 	void RenderingResources::Reload()
@@ -253,7 +281,7 @@ namespace erm {
 
 		std::array<vk::DescriptorPoolSize, 2> poolSizes {};
 		poolSizes[0].type = vk::DescriptorType::eUniformBuffer;
-		poolSizes[0].descriptorCount = static_cast<uint32_t>(swapChainImageViews.size() * 100);
+		poolSizes[0].descriptorCount = static_cast<uint32_t>(swapChainImageViews.size() * 1000);
 		poolSizes[1].type = vk::DescriptorType::eCombinedImageSampler;
 		poolSizes[1].descriptorCount = static_cast<uint32_t>(swapChainImageViews.size() * 100);
 

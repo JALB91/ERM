@@ -21,7 +21,7 @@ namespace {
 #if defined(ERM_OPENGL)
 	const char* const kDefaultModelShaderPath("res/shaders/skeleton_model");
 #elif defined(ERM_VULKAN)
-	const char* const kDefaultModelShaderPath("res/shaders/vk_test");
+	const char* const kDefaultModelShaderPath("res/shaders/vk_model");
 #endif
 
 } // namespace
@@ -74,16 +74,6 @@ namespace erm::ecs {
 
 			component.SetDirty(false);
 		});
-	}
-
-	void ModelSystem::OnComponentAdded(EntityId id)
-	{
-		ModelComponent* component = GetComponent(id);
-		Texture* tex = component->mRenderData.mRenderConfigs.mTexture;
-		component->mRenderData.mRenderConfigs = mDefaultRenderConfigs;
-		if (tex)
-			component->mRenderData.mRenderConfigs.mTexture = tex;
-		component->mRenderData.mRenderConfigs.SetNormViewport(mWindow.GetNormalizedViewport());
 	}
 
 } // namespace erm::ecs

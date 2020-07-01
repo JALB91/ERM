@@ -44,7 +44,7 @@ namespace erm {
 		}
 
 		template<typename T>
-		inline void SetUbo(T& ubo)
+		inline void SetUbo(T ubo)
 		{
 			if (mUbos.find(T::ID) == mUbos.end())
 				mUbos[T::ID] = std::make_unique<T>();

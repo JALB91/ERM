@@ -19,8 +19,8 @@ namespace erm {
 	PipelineResources::PipelineResources(
 		Device& device,
 		Renderer& renderer,
-		const vk::RenderPass& renderPass,
-		const vk::DescriptorPool& descriptorPool,
+		const vk::RenderPass* renderPass,
+		const vk::DescriptorPool* descriptorPool,
 		const RenderConfigs& renderConfigs)
 		: mDevice(device)
 		, mRenderer(renderer)
@@ -36,21 +36,6 @@ namespace erm {
 		mDevice->destroyDescriptorSetLayout(mDescriptorSetLayout);
 		mBindingResources.clear();
 		mDevice->destroyPipelineLayout(mPipelineLayout);
-	}
-
-	PipelineResources::PipelineResources(PipelineResources&& other)
-		: mDevice(other.mDevice)
-		, mRenderer(other.mRenderer)
-		, mRenderPass(other.mRenderPass)
-		, mDescriptorPool(other.mDescriptorPool)
-		, mRenderConfigs(other.mRenderConfigs)
-		, mPipelineLayout(other.mPipelineLayout)
-		, mPipeline(std::move(other.mPipeline))
-		, mDescriptorSetLayout(other.mDescriptorSetLayout)
-		, mBindingResources(std::move(other.mBindingResources))
-	{
-		other.mPipelineLayout = nullptr;
-		other.mDescriptorSetLayout = nullptr;
 	}
 
 	void PipelineResources::Update(vk::CommandBuffer& cmd, RenderData& renderData, uint32_t imageIndex)
@@ -80,7 +65,7 @@ namespace erm {
 			if (!renderData.mRenderingId.has_value() || renderData.mRenderingId.value() >= static_cast<uint32_t>(mBindingResources.size()))
 			{
 				renderData.mRenderingId = static_cast<uint32_t>(mBindingResources.size());
-				mBindingResources.emplace_back(mDevice, mRenderer, mDescriptorPool, mDescriptorSetLayout, renderData.mRenderConfigs);
+				mBindingResources.emplace_back(mDevice, mRenderer, *mDescriptorPool, mDescriptorSetLayout, renderData.mRenderConfigs);
 			}
 
 			BindingResources& resources = mBindingResources[renderData.mRenderingId.value()];
@@ -199,8 +184,8 @@ namespace erm {
 		vk::PipelineColorBlendAttachmentState colorBlendAttachment = {};
 		colorBlendAttachment.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
 		colorBlendAttachment.blendEnable = mRenderConfigs.GetBlendEnabled() ? VK_TRUE : VK_FALSE;
-		colorBlendAttachment.srcColorBlendFactor = vk::BlendFactor::eOne;
-		colorBlendAttachment.dstColorBlendFactor = vk::BlendFactor::eZero;
+		colorBlendAttachment.srcColorBlendFactor = vk::BlendFactor::eSrcAlpha;
+		colorBlendAttachment.dstColorBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha;
 		colorBlendAttachment.colorBlendOp = vk::BlendOp::eAdd;
 		colorBlendAttachment.srcAlphaBlendFactor = vk::BlendFactor::eOne;
 		colorBlendAttachment.dstAlphaBlendFactor = vk::BlendFactor::eZero;
@@ -285,7 +270,7 @@ namespace erm {
 		pipelineInfo.pColorBlendState = &colorBlending;
 		pipelineInfo.pDynamicState = &dynamicInfo;
 		pipelineInfo.layout = mPipelineLayout;
-		pipelineInfo.renderPass = mRenderPass;
+		pipelineInfo.renderPass = *mRenderPass;
 		pipelineInfo.subpass = 0;
 		pipelineInfo.basePipelineHandle = nullptr;
 		pipelineInfo.basePipelineIndex = -1;

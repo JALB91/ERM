@@ -27,7 +27,7 @@ namespace erm {
 			uint32_t verticesCount,
 			IndexData* indices,
 			uint32_t indicesCount,
-			const RenderConfigs& configs,
+			const RenderConfigs& configs = RenderConfigs::MODELS_RENDER_CONFIGS,
 			const char* name = "");
 		~Mesh();
 
@@ -51,6 +51,7 @@ namespace erm {
 		inline const std::string& GetName() const { return mName; }
 		inline void SetName(const char* name) { mName = name; }
 
+		inline RenderConfigs& GetRenderConfigs() { return mRenderConfigs; }
 		inline const RenderConfigs& GetRenderConfigs() const { return mRenderConfigs; }
 		inline void SetRenderConfigs(const RenderConfigs& configs) { mRenderConfigs = configs; }
 

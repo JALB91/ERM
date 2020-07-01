@@ -49,8 +49,7 @@ namespace erm {
 		const vk::DescriptorPool& mDescriptorPool;
 		const RenderConfigs mRenderConfigs;
 		std::vector<vk::DescriptorSet> mDescriptorSets;
-		SwapChainsUniformBuffers mVertUniformBuffers;
-		SwapChainsUniformBuffers mFragUniformBuffers;
+		SwapChainsUniformBuffers mUniformBuffers;
 	};
 
 } // namespace erm

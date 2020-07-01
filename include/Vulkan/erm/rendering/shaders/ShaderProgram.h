@@ -2,10 +2,11 @@
 
 #include "erm/rendering/data_structs/UniformBufferData.h"
 
-#include <spirv_glsl.hpp>
+#include <spirv_cpp.hpp>
 
 #include <vulkan/vulkan.hpp>
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -26,6 +27,8 @@ namespace erm {
 		ShaderProgram& operator=(ShaderProgram&&) = delete;
 		ShaderProgram& operator=(const ShaderProgram&) = delete;
 
+		void SetShaderSources(const std::string& vertex, const std::string& fragment);
+
 		vk::ShaderModule CreateVertexShaderModule() const;
 		vk::ShaderModule CreateFragmentShaderModule() const;
 
@@ -35,21 +38,25 @@ namespace erm {
 		std::vector<vk::VertexInputAttributeDescription> GetVertexAttributeDescriptions();
 		std::vector<vk::DescriptorSetLayoutBinding> GetDescriptorSetLayoutBindings();
 
-		inline const spirv_cross::CompilerGLSL& GetVertCompiler() const { return mVertCompiler; }
-		inline const spirv_cross::CompilerGLSL& GetFragCompiler() const { return mFragCompiler; }
+		inline const std::string& GetVertexSource() const { return mVertexSource; }
+		inline const std::string& GetFragmentSource() const { return mFragmentSource; }
 
-		inline const std::vector<UboData>& GetVertUbosData() const { return mVertUbosData; }
-		inline const std::vector<UboData>& GetFragUbosData() const { return mFragUbosData; }
+		inline const std::vector<UboData>& GetUbosData() const { return mUbosData; }
+
+		inline bool NeedsReload() const { return mNeedsReload; }
+		inline void OnReloaded() { mNeedsReload = false; }
 
 	private:
 		Device& mDevice;
 		std::string mPath;
+		std::string mVertexSource;
+		std::string mFragmentSource;
 		std::vector<char> mVertex;
 		std::vector<char> mFragment;
-		spirv_cross::CompilerGLSL mVertCompiler;
-		spirv_cross::CompilerGLSL mFragCompiler;
-		std::vector<UboData> mVertUbosData;
-		std::vector<UboData> mFragUbosData;
+		std::unique_ptr<spirv_cross::CompilerCPP> mVertCompiler;
+		std::unique_ptr<spirv_cross::CompilerCPP> mFragCompiler;
+		std::vector<UboData> mUbosData;
+		bool mNeedsReload;
 	};
 
 } // namespace erm

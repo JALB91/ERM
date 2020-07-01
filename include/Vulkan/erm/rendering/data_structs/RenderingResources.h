@@ -6,6 +6,7 @@
 
 #include <vulkan/vulkan.hpp>
 
+#include <memory>
 #include <vector>
 
 namespace erm {
@@ -35,6 +36,7 @@ namespace erm {
 		void AddSubpass(const SubpassData& data);
 		bool IsSubpassCompatible(const SubpassData& subpass) const;
 		void Update(std::vector<RenderData*>& renderData, uint32_t imageIndex);
+		void Refresh();
 
 	private:
 		vk::AttachmentDescription CreateAttachmentDescription(const erm::AttachmentData& data, vk::Format format) const;
@@ -56,7 +58,7 @@ namespace erm {
 		vk::RenderPass mRenderPass;
 		std::vector<vk::Framebuffer> mSwapChainFramebuffers;
 		vk::DescriptorPool mDescriptorPool;
-		std::vector<PipelineResources> mPipelineResources;
+		std::vector<std::unique_ptr<PipelineResources>> mPipelineResources;
 		std::vector<vk::CommandBuffer> mCommandBuffers;
 	};
 

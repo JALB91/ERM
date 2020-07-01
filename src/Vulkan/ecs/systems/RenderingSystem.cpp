@@ -67,49 +67,133 @@ namespace erm::ecs {
 	{
 		PROFILE_FUNCTION();
 
-		Renderer& r = mEngine.GetRenderer();
+		Renderer& renderer = mEngine.GetRenderer();
 
-		TransformComponent* transform = nullptr;
+		TransformComponent* cameraTransform = nullptr;
 		CameraComponent* camera = nullptr;
 		for (ID i = 0; i < MAX_ID; ++i)
 		{
 			if ((camera = mCameraSystem->GetComponent(i)))
 			{
-				transform = mTransformSystem->RequireComponent(i);
+				cameraTransform = mTransformSystem->RequireComponent(i);
 				break;
 			}
 		}
 
 		math::mat4 proj = camera->GetProjectionMatrix();
-		math::mat4 viewProj = proj * glm::inverse(transform->mWorldTransform);
+		math::mat4 viewProj = proj * glm::inverse(cameraTransform->mWorldTransform);
 
 		UboBasic ubo;
 		ubo.mMVP = viewProj * glm::identity<math::mat4>();
 
-		mRenderData.SetUbo(ubo);
-		r.SubmitRenderData(mRenderData);
+		mRenderData.SetUbo(std::move(ubo));
+		renderer.SubmitRenderData(mRenderData);
 
-		mModelSystem->ForEachComponentIndexed([this, &viewProj, &r](ModelComponent& component, ID id) {
+		LightComponent* light = nullptr;
+		math::vec3 lightPos = math::vec3(0.0f);
+		for (ID i = 0; i < MAX_ID; ++i)
+		{
+			if ((light = mLightSystem->GetComponent(i)))
+			{
+				lightPos = mTransformSystem->GetComponent(i)->mTranslation;
+				break;
+			}
+		}
+
+		mModelSystem->ForEachComponentIndexed([this, &viewProj, &renderer, light, &lightPos, cameraTransform](ModelComponent& component, ID id) {
 			if (!component.GetModel())
 				return;
 
 			TransformComponent* modelTransform = mTransformSystem->GetComponent(id);
 
-			UboBasic ubo;
-			ubo.mMVP = viewProj * modelTransform->mWorldTransform;
-			component.mRenderData.SetUbo(ubo);
-
 			std::vector<Mesh>& meshes = component.GetModel()->GetMeshes();
-			component.mRenderData.mMeshes.clear();
+
+			RenderingComponent* renderingComponent = RequireComponent(id);
+
+			for (RenderData& data : renderingComponent->mRenderData)
+				data.mMeshes.clear();
+
 			for (size_t i = 0; i < meshes.size(); ++i)
 			{
-				if (meshes[i].IsReady())
-					component.mRenderData.mMeshes.emplace_back(&meshes[i]);
-			}
-			if (component.mRenderData.mMeshes.empty())
-				return;
+				if (!meshes[i].IsReady())
+					continue;
 
-			r.SubmitRenderData(component.mRenderData);
+				Mesh& mesh = meshes[i];
+
+				RenderData* data = nullptr;
+
+				if (renderingComponent->mMaterialIndices.find(mesh.GetRenderConfigs().mMaterial) == renderingComponent->mMaterialIndices.end())
+				{
+					renderingComponent->mMaterialIndices[mesh.GetRenderConfigs().mMaterial] = renderingComponent->mRenderData.size();
+					data = &renderingComponent->mRenderData.emplace_back(mesh.GetRenderConfigs());
+				}
+				else
+				{
+					data = &renderingComponent->mRenderData[renderingComponent->mMaterialIndices[mesh.GetRenderConfigs().mMaterial]];
+				}
+
+				if (!data->mRenderConfigs.mShaderProgram)
+				{
+					data->mRenderConfigs.mShaderProgram = mResourcesManager.GetOrCreateShaderProgram("res/shaders/vk_model");
+				}
+
+				if (light)
+				{
+					{
+						UboLight ubo;
+						ubo.mAmbient = light->mAmbient;
+						ubo.mDiffuse = light->mDiffuse;
+						ubo.mSpecular = light->mSpecular;
+						ubo.mPosition = lightPos;
+
+						data->SetUbo(std::move(ubo));
+					}
+
+					{
+						UboModelViewProj ubo;
+						ubo.mModel = modelTransform->mLocalTransform;
+						ubo.mViewProj = viewProj;
+
+						data->SetUbo(std::move(ubo));
+					}
+
+					{
+						UboView ubo;
+						ubo.mPosition = cameraTransform->mTranslation;
+
+						data->SetUbo(std::move(ubo));
+					}
+				}
+				else
+				{
+					UboBasic ubo;
+					ubo.mMVP = viewProj * modelTransform->mWorldTransform;
+					data->SetUbo(std::move(ubo));
+				}
+
+				data->mMeshes.emplace_back(&mesh);
+
+				data->mRenderConfigs.SetNormViewport(mEngine.GetWindow().GetNormalizedViewport());
+
+				Material& material = mesh.GetRenderConfigs().mMaterial ? *mesh.GetRenderConfigs().mMaterial : Material::DEFAULT;
+
+				{
+					UboMaterial ubo;
+					ubo.mShininess = material.mShininess;
+					ubo.mSpecular = material.mSpecular;
+					ubo.mDiffuse = material.mDiffuse;
+					ubo.mAmbient = material.mAmbient;
+
+					data->SetUbo(std::move(ubo));
+				}
+			}
+
+			for (RenderData& data : renderingComponent->mRenderData)
+			{
+				if (data.mMeshes.empty())
+					continue;
+				renderer.SubmitRenderData(data);
+			}
 		});
 	}
 
