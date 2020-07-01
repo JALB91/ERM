@@ -82,21 +82,20 @@ else()
 	add_library("${PROJECT_NAME}" "${SOURCES}")
 endif("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_SOURCE_DIR}")
 
-# LINK LIBRARIES
-target_link_libraries(
-	"${PROJECT_NAME}"
-	PRIVATE 
-		"${TARGET_API_LIB}"
-		"${PRIVATE_DEPENDENCIES}"
-		glfw
-		stb_image
-		spirv-cross-cpp
-	PUBLIC 
-		"${PUBLIC_DEPENDENCIES}"
-		glm
-		imgui
-		tinyxml2
-)
+# SETUP PLATFORM SPECIFIC OPTIONS
+if(MSVC OR WIN)
+	include(MSVCConfig)
+elseif(XCODE OR APPLE)
+	include(OSXConfig)
+else()
+	message(FATAL_ERROR "Unsupported Platform")
+endif()
+target_setup_project("${PROJECT_NAME}")
+
+# CUSTOM PROPERTIES
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(RES_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/res")
+set(RES_DEST "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/res")
 
 # TARGET INCLUDE DIRECTORIES
 target_include_directories(
@@ -121,6 +120,7 @@ target_compile_definitions(
 		${TARGET_API_COMPILE_DEF}
 	PRIVATE
 		$<$<STREQUAL:"${TARGET_API}","OpenGl">:GLEW_STATIC>
+		$<$<STREQUAL:"${TARGET_API}","Vulkan">:ERM_SHADER_COMPILER="${SHADERS_COMPILER}">
 )
 
 # TARGET COMMON FEATURES
@@ -141,38 +141,45 @@ set_target_properties(
 		RUNTIME_OUTPUT_DIRECTORY "${CMAKE_INSTALL_PREFIX}/bin"
 )
 
-# SETUP PLATFORM SPECIFIC OPTIONS
-if(MSVC OR WIN)
-	include(MSVCConfig)
-elseif(XCODE OR APPLE)
-	include(OSXConfig)
-else()
-	message(FATAL_ERROR "Unsupported Platform")
-endif()
-target_setup_project("${PROJECT_NAME}")
-
-# CUSTOM PROPERTIES
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(RES_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/res/")
-set(RES_DEST "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/res/")
+# LINK LIBRARIES
+target_link_libraries(
+	"${PROJECT_NAME}"
+	PRIVATE 
+		"${TARGET_API_LIB}"
+		"${PRIVATE_DEPENDENCIES}"
+		glfw
+		stb_image
+		spirv-cross-cpp
+	PUBLIC 
+		"${PUBLIC_DEPENDENCIES}"
+		glm
+		imgui
+		tinyxml2
+)
 
 # CUSTOM COMMANDS
 add_custom_command(
-	TARGET "${PROJECT_NAME}" PRE_BUILD
+	TARGET "${PROJECT_NAME}" POST_BUILD
+	COMMAND "${CMAKE_COMMAND}" -E remove_directory "${RES_DEST}"
+	COMMENT "Remove resources folder ${RES_DEST}"
+)
+add_custom_command(
+	TARGET "${PROJECT_NAME}" POST_BUILD
  	COMMAND "${CMAKE_COMMAND}" -E copy_directory "${RES_SOURCE}" "${RES_DEST}"
- 	DEPENDS "${RES_DEST}"
  	COMMENT "Copy resources folder from ${RES_SOURCE} to ${RES_DEST}"
 )
 
 if("${TARGET_API}" STREQUAL "Vulkan")
 	file(GLOB SHADERS
-		"${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/res/shaders/vk_*"
+		"${RES_SOURCE}/shaders/vk_*.vert"
+		"${RES_SOURCE}/shaders/vk_*.frag"
 	)
 
 	foreach(SHADER ${SHADERS})
+		get_filename_component(SHADER_FILENAME "${SHADER}" NAME)
 		add_custom_command(
-			TARGET "${PROJECT_NAME}" PRE_BUILD
-			COMMAND "${SHADERS_COMPILER}" "${SHADER}" -o "${SHADER}"
+			TARGET "${PROJECT_NAME}" POST_BUILD
+			COMMAND "${SHADERS_COMPILER}" "${SHADER}" -o "${RES_DEST}/shaders/${SHADER_FILENAME}.cmp"
 			COMMENT "Compiling shader ${SHADER}"
 		)
 	endforeach(SHADER)
