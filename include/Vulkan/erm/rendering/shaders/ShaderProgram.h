@@ -20,6 +20,7 @@ namespace erm {
 	{
 	public:
 		ShaderProgram(Device& device, const std::string& shaderPath);
+		ShaderProgram(Device& device, const char* vertShader, const char* fragShader);
 
 		ShaderProgram(ShaderProgram&&) = delete;
 		ShaderProgram(const ShaderProgram&) = delete;
@@ -47,6 +48,8 @@ namespace erm {
 		inline void OnReloaded() { mNeedsReload = false; }
 
 	private:
+		static unsigned int sShaderId;
+
 		Device& mDevice;
 		std::string mPath;
 		std::string mVertexSource;

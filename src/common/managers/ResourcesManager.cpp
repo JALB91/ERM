@@ -55,11 +55,8 @@ namespace erm {
 
 	ShaderProgram* ResourcesManager::GetOrCreateShaderProgram(const char* vertexShader, const char* fragmentShader)
 	{
-		UNUSED(vertexShader);
-		UNUSED(fragmentShader);
-		//		std::unique_ptr<ShaderProgram> shaderProgram = std::make_unique<ShaderProgram>(mDevice, vertexShader, fragmentShader);
-		//		return mLoadedShaderPrograms.emplace_back(std::move(shaderProgram)).get();
-		return nullptr;
+		std::unique_ptr<ShaderProgram> shaderProgram = std::make_unique<ShaderProgram>(mDevice, vertexShader, fragmentShader);
+		return mLoadedShaderPrograms.emplace_back(std::move(shaderProgram)).get();
 	}
 
 	ShaderProgram* ResourcesManager::GetOrCreateShaderProgram(const char* shaderProgramPath)

@@ -115,6 +115,8 @@ namespace {
 
 namespace erm {
 
+	unsigned int ShaderProgram::sShaderId = 0;
+
 	ShaderProgram::ShaderProgram(Device& device, const std::string& shaderPath)
 		: mDevice(device)
 		, mPath(shaderPath)
@@ -127,6 +129,13 @@ namespace erm {
 		, mUbosData(::GetUbosData(*mVertCompiler, *mFragCompiler))
 		, mNeedsReload(true)
 	{}
+
+	ShaderProgram::ShaderProgram(Device& device, const char* vertShader, const char* fragShader)
+		: mDevice(device)
+		, mPath("TEMP_" + std::to_string(sShaderId++))
+	{
+		SetShaderSources(vertShader, fragShader);
+	}
 
 	void ShaderProgram::SetShaderSources(const std::string& vertex, const std::string& fragment)
 	{

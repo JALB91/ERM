@@ -100,17 +100,18 @@ namespace erm {
 
 		std::vector<std::string> files;
 
-		auto it = kFilesAssociations.find(extension);
+		const auto it = kFilesAssociations.find(extension);
 
 		if (it != kFilesAssociations.end())
 		{
 			for (const char* dirPath : it->second)
 			{
-				std::string basePath = mResourcesRoot + dirPath;
+				const std::string basePath = mResourcesRoot + dirPath;
 				for (auto file : std::filesystem::directory_iterator(basePath))
 				{
-					std::string path = file.path().string();
-					if (path.find(extension) != std::string::npos)
+					const std::string path = file.path().string();
+					const std::string fileExtension = file.path().extension().string();
+					if (fileExtension.compare(extension) == 0)
 					{
 						files.emplace_back(includeExtension ? path : path.substr(0, path.find(extension)));
 					}
