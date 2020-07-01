@@ -8,8 +8,9 @@
 
 namespace erm {
 
-	Model::Model(const char* path, const char* name)
-		: mPath(path)
+	Model::Model(Device& device, const char* path, const char* name)
+		: mDevice(device)
+		, mPath(path)
 		, mName(name)
 		, mIsDirty(false)
 	{}
@@ -21,6 +22,17 @@ namespace erm {
 	{
 		mMeshes.emplace_back(std::move(mesh));
 		UpdateLocalBound();
+	}
+
+	void Model::AddMesh(
+		VertexData* vertices,
+		uint32_t verticesCount,
+		IndexData* indices,
+		uint32_t indicesCount,
+		const RenderConfigs& configs /*= RenderConfigs::MODELS_RENDER_CONFIGS*/,
+		const char* name /*= ""*/)
+	{
+		AddMesh({mDevice, vertices, verticesCount, indices, indicesCount, configs, name});
 	}
 
 	void Model::UpdateLocalBound()

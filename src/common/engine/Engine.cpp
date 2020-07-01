@@ -4,7 +4,6 @@
 
 #include "erm/rendering/Device.h"
 #include "erm/rendering/data_structs/Model.h"
-#include "erm/rendering/renderer/RenderContext.h"
 #include "erm/rendering/renderer/Renderer.h"
 #include "erm/rendering/window/Window.h"
 
@@ -35,9 +34,12 @@ namespace {
 	const char* const kCubeModelPath = "res/models/cube.obj";
 	const char* const kHandgunModelPath = "res/models/Handgun.dae";
 	const char* const kModelModelPath = "res/models/model.dae";
+	const char* const kVikingRoomModelPath = "res/models/viking_room.obj";
 
-	const char* const kModelToUse = kModelModelPath;
-	const float kDefaultScale = 20.0f;
+	const char* const kModelToUse = kIronManModelPath;
+	//	const float kDefaultRotX = -static_cast<float>(M_PI * 0.5);
+	const float kDefaultRotX = 0.0f;
+	const float kDefaultScale = 1.0f;
 	const int kEntities = 1;
 
 } // namespace
@@ -57,12 +59,14 @@ namespace erm {
 		UNUSED(kCubeModelPath);
 		UNUSED(kHandgunModelPath);
 		UNUSED(kModelModelPath);
+		UNUSED(kVikingRoomModelPath);
 		UNUSED(kDefaultScale);
 		std::srand(static_cast<unsigned int>(time(NULL)));
 		mWindow->AddListener(static_cast<IWindowListener&>(*this));
 	}
 
-	Engine::~Engine() = default;
+	Engine::~Engine()
+	{}
 
 	bool Engine::Init()
 	{
@@ -72,10 +76,9 @@ namespace erm {
 		}
 
 		mDevice = std::make_unique<Device>(mWindow->GetWindow());
+		mRenderer = std::make_unique<Renderer>(*this);
 		mImGuiHandle = std::make_unique<ImGuiHandle>(*this);
-		mRenderContext = std::make_unique<RenderContext>();
-		mRenderer = std::make_unique<Renderer>(*mRenderContext);
-		mResourcesManager = std::make_unique<ResourcesManager>();
+		mResourcesManager = std::make_unique<ResourcesManager>(*mDevice);
 		mECS = std::make_unique<ecs::ECS>(*this);
 
 		mResourcesManager->LoadDefaultResources();
@@ -91,12 +94,21 @@ namespace erm {
 		for (int i = 0; i < kEntities; ++i)
 		{
 			auto entity = mECS->GetOrCreateEntity();
-			entity->RequireComponent<ecs::ModelComponent>(mResourcesManager->GetOrCreateModel(kModelToUse));
+			Model* model = mResourcesManager->GetOrCreateModel(kModelToUse);
+			entity->RequireComponent<ecs::ModelComponent>(model);
 			auto transform = entity->RequireComponent<ecs::TransformComponent>();
-			transform->mRotation.x = -static_cast<float>(M_PI * 0.5);
+			transform->mRotation.x = kDefaultRotX;
 			transform->mScale = math::vec3(kDefaultScale);
 			root->AddChild(*entity);
 		}
+
+		auto entity = mECS->GetOrCreateEntity();
+		Model* model = mResourcesManager->GetOrCreateModel("Defaults/Sphere");
+		RenderConfigs rc = RenderConfigs::MODELS_RENDER_CONFIGS;
+		rc.mTexture = mResourcesManager->GetOrCreateTexture("res/textures/smile.png");
+		model->GetMeshes()[0].SetRenderConfigs(rc);
+		entity->RequireComponent<ecs::ModelComponent>(model);
+		root->AddChild(*entity);
 
 		return true;
 	}
@@ -138,10 +150,9 @@ namespace erm {
 	{
 		PROFILE_FUNCTION();
 
+		mImGuiHandle->OnUpdate();
 		mECS->OnUpdate(dt);
-		mWindow->NewFrame();
-		if (mRenderContext)
-			mRenderContext->Clear();
+		mWindow->OnUpdate();
 		mResourcesManager->OnUpdate();
 	}
 
@@ -155,6 +166,9 @@ namespace erm {
 	void Engine::OnPreRender()
 	{
 		PROFILE_FUNCTION();
+
+		mRenderer->OnPreRender();
+		mImGuiHandle->OnPreRender();
 	}
 
 	void Engine::OnRender()
@@ -162,8 +176,8 @@ namespace erm {
 		PROFILE_FUNCTION();
 
 		mResourcesManager->OnRender();
-		mECS->OnRender(*mRenderer.get());
-		mDevice->OnRender();
+		mECS->OnRender();
+		mRenderer->OnRender();
 		mImGuiHandle->OnRender();
 		mWindow->OnRender();
 	}
@@ -172,6 +186,8 @@ namespace erm {
 	{
 		PROFILE_FUNCTION();
 
+		mRenderer->OnPostRender();
+		mImGuiHandle->OnPostRender();
 		mWindow->OnPostRender();
 		mResourcesManager->OnPostRender();
 	}

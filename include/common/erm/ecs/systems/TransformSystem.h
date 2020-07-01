@@ -11,6 +11,8 @@ namespace erm::ecs {
 	public:
 		TransformSystem(ECS& ecs);
 
+		// ISystem
+		void Init() override {}
 		void OnPostUpdate() override;
 
 		void RemoveFromParent(EntityId id);

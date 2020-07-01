@@ -19,6 +19,7 @@ namespace erm::ecs {
 		typedef ModelSystem SYSTEM_TYPE;
 		friend class ModelSystem;
 
+	public:
 		ModelComponent(Model* model = nullptr)
 			: mModel(model)
 			, mShouldShowBoundingBox(false)

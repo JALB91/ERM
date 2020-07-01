@@ -13,6 +13,11 @@
 
 namespace erm {
 
+	ResourcesLoader::ResourcesLoader(Device& device)
+		: mDevice(device)
+		, mStop(false)
+	{}
+
 	ResourcesLoader::~ResourcesLoader()
 	{
 		mStop = true;
@@ -84,7 +89,7 @@ namespace erm {
 		std::string name = pathStr.substr(pathStr.rfind("/") + 1, pathStr.rfind("."));
 		std::string extension = pathStr.substr(pathStr.rfind(".") + 1);
 
-		Model& model = *models.emplace_back(std::make_unique<Model>(path, name.c_str()));
+		Model& model = *models.emplace_back(std::make_unique<Model>(mDevice, path, name.c_str()));
 		mLoadingModels.emplace_back(&model);
 
 		if (std::strcmp(extension.c_str(), "obj") == 0)

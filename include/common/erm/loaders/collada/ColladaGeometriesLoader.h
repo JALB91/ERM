@@ -12,7 +12,7 @@ namespace tinyxml2 {
 }
 namespace erm {
 	class Model;
-}
+} // namespace erm
 
 namespace erm {
 

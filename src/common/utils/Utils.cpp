@@ -1,5 +1,6 @@
 #include "erm/utils/Utils.h"
 
+#include <fstream>
 #include <iostream>
 #include <math.h>
 #include <sstream>
@@ -38,6 +39,32 @@ namespace erm::Utils {
 		result = result.substr(0, result.find("("));
 
 		return result;
+	}
+
+	std::string ReadFromFile(const char* path)
+	{
+		std::ifstream stream(path);
+
+		if (!EXPECT(stream.is_open(), "Failed to open file"))
+			return "";
+
+		std::string result;
+		std::string line;
+
+		while (getline(stream, line))
+		{
+			result += line + "\n";
+		}
+
+		return result;
+	}
+
+	void WriteToFile(const char* path, const std::string& data)
+	{
+		std::ofstream stream(path);
+
+		if (EXPECT(stream.is_open(), "Failed to open file"))
+			stream.write(data.c_str(), data.size());
 	}
 
 } // namespace erm::Utils

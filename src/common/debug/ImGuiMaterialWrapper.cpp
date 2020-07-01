@@ -7,6 +7,8 @@
 #include "erm/rendering/data_structs/Material.h"
 #include "erm/rendering/data_structs/Mesh.h"
 
+#include "erm/utils/Utils.h"
+
 #include <imgui.h>
 
 #include <set>
@@ -49,7 +51,7 @@ namespace ImGui {
 	{
 		if (ImGui::CollapsingHeader("Material"))
 		{
-			erm::Material* material = mesh.GetMaterial() ? mesh.GetMaterial() : &erm::Material::DEFAULT;
+			erm::Material* material = mesh.GetRenderConfigs().mMaterial ? mesh.GetRenderConfigs().mMaterial : &erm::Material::DEFAULT;
 
 			ImGui::Indent();
 
@@ -65,7 +67,7 @@ namespace ImGui {
 				{
 					currentPath = "Default";
 					currentName = "Default";
-					mesh.SetMaterial(&erm::Material::DEFAULT);
+					mesh.GetRenderConfigs().mMaterial = &erm::Material::DEFAULT;
 				}
 
 				for (unsigned int i = 0; i < all.size(); ++i)
@@ -84,7 +86,7 @@ namespace ImGui {
 						{
 							currentPath = all[i]->mPath;
 							currentName = all[i]->mName;
-							mesh.SetMaterial(all[i].get());
+							mesh.GetRenderConfigs().mMaterial = all[i].get();
 						}
 					}
 				}
@@ -97,7 +99,7 @@ namespace ImGui {
 				if (ImGui::Selectable("Default", &isSelected))
 				{
 					currentName = "Default";
-					mesh.SetMaterial(&erm::Material::DEFAULT);
+					mesh.GetRenderConfigs().mMaterial = &erm::Material::DEFAULT;
 				}
 
 				for (unsigned int i = 0; i < all.size(); ++i)
@@ -110,7 +112,7 @@ namespace ImGui {
 							if (currentName != all[i]->mName)
 							{
 								currentName = all[i]->mName;
-								mesh.SetMaterial(all[i].get());
+								mesh.GetRenderConfigs().mMaterial = all[i].get();
 							}
 						}
 					}

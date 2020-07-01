@@ -4,19 +4,14 @@
 
 #include <GL/glew.h>
 
-#include <iostream>
-
 namespace erm {
 
 	RenderContext::RenderContext()
-	{
-		std::cout << "OpenGL " << glGetString(GL_VERSION) << std::endl;
-		std::cout << "GLSL " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
-	}
+	{}
 
-	void RenderContext::Draw(DrawMode drawMode, unsigned int count) const
+	void RenderContext::Draw(DrawMode drawMode, uint64_t count) const
 	{
-		GL_CALL(glDrawElements(DrawModeToInt(drawMode), count, GL_UNSIGNED_INT, nullptr));
+		GL_CALL(glDrawElements(DrawModeToInt(drawMode), static_cast<unsigned int>(count), GL_UNSIGNED_INT, nullptr));
 	}
 
 	void RenderContext::Clear() const
@@ -83,11 +78,11 @@ namespace erm {
 		return result;
 	}
 
-	CullFace RenderContext::GetCullFace() const
+	CullMode RenderContext::GetCullMode() const
 	{
 		int result;
 		GL_CALL(glGetIntegerv(GL_CULL_FACE_MODE, &result));
-		return IntToCullFace(result);
+		return IntToCullMode(result);
 	}
 
 	FrontFace RenderContext::GetFrontFace() const
@@ -102,9 +97,9 @@ namespace erm {
 		GL_CALL(enabled ? glEnable(GL_CULL_FACE) : glDisable(GL_CULL_FACE));
 	}
 
-	void RenderContext::SetCullFace(CullFace cullFace) const
+	void RenderContext::SetCullMode(CullMode cullMode) const
 	{
-		GL_CALL(glCullFace(CullFaceToInt(cullFace)));
+		GL_CALL(glCullFace(CullModeToInt(cullMode)));
 	}
 
 	void RenderContext::SetFrontFace(FrontFace frontFace) const

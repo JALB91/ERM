@@ -4,9 +4,9 @@
 
 #include "erm/rendering/window/Window.h"
 
-#include "erm/rendering/renderer/RenderContext.h"
-
 #include "erm/managers/ResourcesManager.h"
+
+#include "erm/utils/Utils.h"
 
 #include <imgui.h>
 
@@ -51,8 +51,8 @@ namespace ImGui {
 
 			if (selected && hasChanged)
 			{
-				std::strcpy(vertexShader, selected->GetVertexShader().c_str());
-				std::strcpy(fragmentShader, selected->GetFragmentShader().c_str());
+				std::strcpy(vertexShader, selected->GetVertexSource().c_str());
+				std::strcpy(fragmentShader, selected->GetFragmentSource().c_str());
 			}
 			else if (hasChanged)
 			{

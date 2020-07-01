@@ -19,9 +19,55 @@ namespace erm::ecs {
 
 	CameraSystem::CameraSystem(ECS& ecs, const IWindow& window)
 		: ISystem<CameraComponent>(ecs)
-		, mTransformSystem(mECS.GetSystem<TransformSystem>())
 		, mWindow(window)
 	{}
+
+	void CameraSystem::Init()
+	{
+		mTransformSystem = &mECS.GetSystem<TransformSystem>();
+	}
+
+	void CameraSystem::OnUpdate(float /*dt*/)
+	{
+		PROFILE_FUNCTION();
+
+		for (ID i = 0; i < MAX_ID; ++i)
+		{
+			CameraComponent* camera = GetComponent(i);
+
+			if (!camera)
+				continue;
+
+			TransformComponent* transform = mTransformSystem->RequireComponent(i);
+
+			UpdateCameraComponent(*camera, *transform);
+		}
+	}
+
+	void CameraSystem::OnPostUpdate()
+	{
+		PROFILE_FUNCTION();
+
+		for (ID i = 0; i < MAX_ID; ++i)
+		{
+			CameraComponent* camera = GetComponent(i);
+
+			if (!camera)
+				continue;
+
+			camera->mProjectionMatrix = glm::perspective(
+				glm::radians(camera->mFOV),
+				mWindow.GetAspectRatio(),
+				camera->mZNear,
+				camera->mZFar);
+
+#ifdef ERM_FLIP_PROJECTION
+			camera->mProjectionMatrix[1][1] *= -1.0f;
+#endif
+
+			camera->SetDirty(false);
+		}
+	}
 
 	void CameraSystem::UpdateCameraComponent(CameraComponent& camera, TransformComponent& transform)
 	{
@@ -86,47 +132,8 @@ namespace erm::ecs {
 			rotationMatrix = glm::rotate(rotationMatrix, transform.mRotation.x, math::vec3(1.0f, 0.0f, 0.0f));
 
 			translation = rotationMatrix * math::vec4(translation, 1.0f);
-			translation = transform.mTranslation + translation;
 
-			transform.mTranslation = translation;
-		}
-	}
-
-	void CameraSystem::OnUpdate(float /*dt*/)
-	{
-		PROFILE_FUNCTION();
-
-		for (ID i = 0; i < MAX_ID; ++i)
-		{
-			CameraComponent* camera = GetComponent(i);
-
-			if (!camera)
-				continue;
-
-			TransformComponent* transform = mTransformSystem.RequireComponent(i);
-
-			UpdateCameraComponent(*camera, *transform);
-		}
-	}
-
-	void CameraSystem::OnPostUpdate()
-	{
-		PROFILE_FUNCTION();
-
-		for (ID i = 0; i < MAX_ID; ++i)
-		{
-			CameraComponent* camera = GetComponent(i);
-
-			if (!camera)
-				continue;
-
-			camera->mProjectionMatrix = glm::perspective(
-				glm::radians(camera->mFOV),
-				mWindow.GetAspectRatio(),
-				camera->mZNear,
-				camera->mZFar);
-
-			camera->SetDirty(false);
+			transform.mTranslation += translation;
 		}
 	}
 

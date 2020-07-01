@@ -11,7 +11,7 @@
 
 namespace erm {
 
-	Texture::Texture(const char* path)
+	Texture::Texture(Device& /*device*/, const char* path)
 		: mRendererId(0)
 		, mLocalBuffer(nullptr)
 		, mWidth(0)

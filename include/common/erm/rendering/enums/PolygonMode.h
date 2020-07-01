@@ -2,7 +2,7 @@
 
 namespace erm {
 
-	enum class PolygonMode
+	enum class PolygonMode : short
 	{
 		POINT,
 		LINE,

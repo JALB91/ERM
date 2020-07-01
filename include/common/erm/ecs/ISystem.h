@@ -30,9 +30,13 @@ namespace erm::ecs {
 		{}
 		virtual ~ISystem() = default;
 
+		virtual void Init() = 0;
+
 		virtual void OnUpdate(float /*dt*/) {}
 		virtual void OnPostUpdate() {}
-		virtual void OnRender(const Renderer& /*renderer*/) {}
+		virtual void OnPreRender() {}
+		virtual void OnRender() {}
+		virtual void OnPostRender() {}
 
 		virtual bool HasComponent(EntityId id) const final
 		{
@@ -78,7 +82,56 @@ namespace erm::ecs {
 
 			OnComponentBeingRemoved(id);
 			mComponentsBitmask[id()] = false;
+			mComponents[id()] = {};
 			OnComponentRemoved(id);
+		}
+
+		template<typename F>
+		void ForEachComponent(F f)
+		{
+			for (ID i = 0; i < MAX_ID; ++i)
+			{
+				if (T* component = GetComponent(i))
+				{
+					f(*component);
+				}
+			}
+		}
+
+		template<typename F>
+		void ForEachComponent(F f) const
+		{
+			for (ID i = 0; i < MAX_ID; ++i)
+			{
+				if (const T* component = GetComponent(i))
+				{
+					f(*component);
+				}
+			}
+		}
+
+		template<typename F>
+		void ForEachComponentIndexed(F f)
+		{
+			for (ID i = 0; i < MAX_ID; ++i)
+			{
+				if (T* component = GetComponent(i))
+				{
+					f(*component, i);
+				}
+			}
+		}
+
+		template<typename F>
+		void ForEachComponentIndexed(F f) const
+		{
+			for (ID i = 0; i < MAX_ID; ++i)
+			{
+				if (const T* component = GetComponent(i))
+				{
+					f(*component, i);
+				}
+			}
 		}
 
 	protected:

@@ -40,12 +40,6 @@ namespace erm {
 		Material* material,
 		std::string& meshName);
 
-	Mesh CreateMesh(
-		const std::vector<VertexData>& vertices,
-		const std::vector<IndexData>& indices,
-		Material* material,
-		const std::string& name);
-
 	void ParseObjModel(
 		std::mutex& mutex,
 		std::atomic<bool>& stop,
@@ -336,17 +330,6 @@ namespace erm {
 		Material* material,
 		std::string& meshName)
 	{
-		mutex.lock();
-		model.AddMesh(CreateMesh(vertices, indices, material, meshName));
-		mutex.unlock();
-	}
-
-	Mesh CreateMesh(
-		const std::vector<VertexData>& vertices,
-		const std::vector<IndexData>& indices,
-		Material* material,
-		const std::string& name)
-	{
 		const unsigned int verticesCount = static_cast<unsigned int>(vertices.size());
 		VertexData* verticesData = new VertexData[verticesCount];
 		for (unsigned int i = 0; i < verticesCount; ++i)
@@ -361,7 +344,12 @@ namespace erm {
 			indicesData[i] = indices[i];
 		}
 
-		return Mesh(DrawMode::TRIANGLES, verticesData, verticesCount, indicesData, indicesCount, material, name);
+		RenderConfigs configs = RenderConfigs::MODELS_RENDER_CONFIGS;
+		configs.mMaterial = material;
+
+		mutex.lock();
+		model.AddMesh(verticesData, verticesCount, indicesData, indicesCount, configs, meshName.c_str());
+		mutex.unlock();
 	}
 
 	bool ParseMaterialsLib(

@@ -34,6 +34,12 @@ namespace erm {
 		ImGui::DestroyContext();
 	}
 
+	void ImGuiHandle::OnUpdate()
+	{}
+
+	void ImGuiHandle::OnPreRender()
+	{}
+
 	void ImGuiHandle::OnRender()
 	{
 		ImGui_ImplOpenGL3_NewFrame();
@@ -45,5 +51,8 @@ namespace erm {
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 	}
+
+	void ImGuiHandle::OnPostRender()
+	{}
 
 } // namespace erm

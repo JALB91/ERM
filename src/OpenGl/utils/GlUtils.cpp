@@ -1,8 +1,8 @@
 #include "erm/utils/GlUtils.h"
 
-#include "erm/utils/Utils.h"
-
 #include <GL/glew.h>
+
+#include <iostream>
 
 namespace erm {
 
@@ -218,15 +218,15 @@ namespace erm {
 		}
 	}
 
-	int CullFaceToInt(CullFace face)
+	int CullModeToInt(CullMode mode)
 	{
-		switch (face)
+		switch (mode)
 		{
-			case CullFace::BACK:
+			case CullMode::BACK:
 				return GL_BACK;
-			case CullFace::FRONT:
+			case CullMode::FRONT:
 				return GL_FRONT;
-			case CullFace::FRONT_AND_BACK:
+			case CullMode::FRONT_AND_BACK:
 				return GL_FRONT_AND_BACK;
 			default:
 				ASSERT(false);
@@ -234,19 +234,19 @@ namespace erm {
 		}
 	}
 
-	CullFace IntToCullFace(int face)
+	CullMode IntToCullMode(int mode)
 	{
-		switch (face)
+		switch (mode)
 		{
 			case GL_BACK:
-				return CullFace::BACK;
+				return CullMode::BACK;
 			case GL_FRONT:
-				return CullFace::FRONT;
+				return CullMode::FRONT;
 			case GL_FRONT_AND_BACK:
-				return CullFace::FRONT_AND_BACK;
+				return CullMode::FRONT_AND_BACK;
 			default:
 				ASSERT(false);
-				return CullFace::BACK;
+				return CullMode::BACK;
 		}
 	}
 

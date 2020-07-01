@@ -26,16 +26,18 @@ namespace erm {
 
 		bool Init();
 		bool ShouldClose();
-		void NewFrame();
+		void OnUpdate();
 		void OnRender();
 		void OnPostRender();
 
+		// IWindow
 		void OnKey(int key, int scanCode, int action, int mods) override;
 		void OnMouseButton(int button, int action, int mods) override;
 		void OnMousePos(double xPos, double yPos) override;
-		void OnSizeChanged(int width, int height) override;
+		void OnSizeChanged() override;
 		void OnMaximised(bool wasMaximised) override;
 		void OnFocus() override;
+		BoundingBox2D GetNormalizedViewport() const override;
 
 	private:
 		void UpdateViewport();

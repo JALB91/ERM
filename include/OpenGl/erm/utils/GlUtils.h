@@ -1,17 +1,13 @@
 #pragma once
 
 #include "erm/rendering/enums/BlendFunction.h"
-#include "erm/rendering/enums/CullFace.h"
+#include "erm/rendering/enums/CullMode.h"
 #include "erm/rendering/enums/DepthFunction.h"
 #include "erm/rendering/enums/DrawMode.h"
 #include "erm/rendering/enums/FrontFace.h"
 #include "erm/rendering/enums/PolygonMode.h"
 
 #include "erm/utils/Utils.h"
-
-#include <GL/glew.h>
-
-#include <iostream>
 
 #define GL_CALL(x)       \
 	erm::GLClearError(); \
@@ -35,8 +31,8 @@ namespace erm {
 	extern int DrawModeToInt(DrawMode mode);
 	extern DrawMode IntToDrawMode(int mode);
 
-	extern int CullFaceToInt(CullFace face);
-	extern CullFace IntToCullFace(int face);
+	extern int CullModeToInt(CullMode mode);
+	extern CullMode IntToCullMode(int mode);
 
 	extern int FrontFaceToInt(FrontFace face);
 	extern FrontFace IntToFrontFace(int face);

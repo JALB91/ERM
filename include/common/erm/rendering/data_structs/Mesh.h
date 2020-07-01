@@ -1,20 +1,19 @@
 #pragma once
 
 #include "erm/rendering/buffers/IndexData.h"
-#include "erm/rendering/data_structs/Material.h"
-#include "erm/rendering/enums/DrawMode.h"
+#include "erm/rendering/data_structs/RenderConfigs.h"
 
-#include <glm/glm.hpp>
-
-#include <functional>
 #include <memory>
+#include <string>
 
 namespace erm {
-	struct VertexData;
-	struct Material;
+	class ShaderProgram;
+	class Texture;
 	class VertexBuffer;
 	class IndexBuffer;
-	class VertexArray;
+	class Device;
+	struct VertexData;
+	struct Material;
 } // namespace erm
 
 namespace erm {
@@ -23,13 +22,13 @@ namespace erm {
 	{
 	public:
 		Mesh(
-			DrawMode drawMode,
+			Device& device,
 			VertexData* vertices,
-			unsigned int verticesCount,
+			uint32_t verticesCount,
 			IndexData* indices,
-			unsigned int indicesCount,
-			Material* material = nullptr,
-			const std::string& name = "");
+			uint32_t indicesCount,
+			const RenderConfigs& configs = RenderConfigs::MODELS_RENDER_CONFIGS,
+			const char* name = "");
 		~Mesh();
 
 		Mesh(Mesh&& other);
@@ -40,41 +39,38 @@ namespace erm {
 
 		void Setup();
 
-		inline Material* GetMaterial() const { return mMaterial; }
-		inline void SetMaterial(Material* material) { mMaterial = material; }
-
-		inline const IndexBuffer& GetIB() const { return *mIB; }
-		inline const VertexArray& GetVA() const { return *mVA; }
+		inline const VertexBuffer& GetVertexBuffer() const { return *mVertexBuffer; }
+		inline const IndexBuffer& GetIndexBuffer() const { return *mIndexBuffer; }
 
 		inline const VertexData* GetVerticesData() const { return mVerticesData; }
-		inline unsigned int GetVerticesDataCount() const { return mVerticesDataCount; }
+		inline uint32_t GetVerticesDataCount() const { return mVerticesDataCount; }
 
 		inline const IndexData* GetIndicesData() const { return mIndicesData; }
-		inline unsigned int GetIndicesCount() const { return mIndicesDataCount; }
-
-		inline DrawMode GetDrawMode() const { return mDrawMode; }
+		inline uint32_t GetIndicesCount() const { return mIndicesDataCount; }
 
 		inline const std::string& GetName() const { return mName; }
-		inline void SetName(const std::string& name) { mName = name; }
+		inline void SetName(const char* name) { mName = name; }
 
-		inline bool IsReady() const { return mVerticesData && mIndicesData && mVerticesDataCount > 0 && mIndicesDataCount > 0 && mIB && mVA && mVB; }
+		inline RenderConfigs& GetRenderConfigs() { return mRenderConfigs; }
+		inline const RenderConfigs& GetRenderConfigs() const { return mRenderConfigs; }
+		inline void SetRenderConfigs(const RenderConfigs& configs) { mRenderConfigs = configs; }
+
+		inline bool IsReady() const { return mVerticesData && mIndicesData && mVerticesDataCount > 0 && mIndicesDataCount > 0 && mVertexBuffer && mIndexBuffer; }
 
 	private:
-		const DrawMode mDrawMode;
-
-		VertexData* mVerticesData;
-		unsigned int mVerticesDataCount;
-
-		IndexData* mIndicesData;
-		unsigned int mIndicesDataCount;
-
-		Material* mMaterial;
+		Device& mDevice;
+		RenderConfigs mRenderConfigs;
 
 		std::string mName;
 
-		std::unique_ptr<VertexBuffer> mVB;
-		std::unique_ptr<IndexBuffer> mIB;
-		std::unique_ptr<VertexArray> mVA;
+		VertexData* mVerticesData;
+		uint32_t mVerticesDataCount;
+
+		IndexData* mIndicesData;
+		uint32_t mIndicesDataCount;
+
+		std::unique_ptr<VertexBuffer> mVertexBuffer;
+		std::unique_ptr<IndexBuffer> mIndexBuffer;
 	};
 
 } // namespace erm

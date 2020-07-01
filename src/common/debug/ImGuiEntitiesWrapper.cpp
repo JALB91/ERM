@@ -18,7 +18,8 @@ namespace ImGui {
 	{
 		const erm::Window& window = engine.GetWindow();
 		const erm::math::vec2 winSize(window.GetWindowWidth(), window.GetWindowHeight());
-		const erm::math::vec2& viewport = window.GetViewport();
+		const erm::BoundingBox2D& viewport = window.GetViewport();
+		const erm::math::vec2 viewportSize = viewport.GetSize();
 
 		static erm::ecs::EntityId active;
 
@@ -28,7 +29,7 @@ namespace ImGui {
 		{
 			active = ImGui::ShowEntityDebugWindow(engine.GetECS(), active, erm::ecs::EntityId(erm::ecs::ROOT_ID));
 		}
-		ImGui::SetWindowSize(ImVec2((winSize.x - viewport.x) * 0.5f, winSize.y - ImGui::GetFrameHeight()));
+		ImGui::SetWindowSize(ImVec2((winSize.x - viewportSize.x) * 0.5f, viewportSize.y - ImGui::GetFrameHeight()));
 		ImGui::SetWindowPos(ImVec2(0.0f, ImGui::GetFrameHeight()));
 		ImGui::End();
 
@@ -41,8 +42,8 @@ namespace ImGui {
 			ImGui::Separator();
 			ImGui::PopID();
 		}
-		ImGui::SetWindowSize(ImVec2((winSize.x - viewport.x) * 0.5f, winSize.y - ImGui::GetFrameHeight()));
-		ImGui::SetWindowPos(ImVec2(winSize.x - ((winSize.x - viewport.x) * 0.5f), ImGui::GetFrameHeight()));
+		ImGui::SetWindowSize(ImVec2((winSize.x - viewportSize.x) * 0.5f, viewportSize.y - ImGui::GetFrameHeight()));
+		ImGui::SetWindowPos(ImVec2(viewport.mMax.x, ImGui::GetFrameHeight()));
 		ImGui::End();
 	}
 

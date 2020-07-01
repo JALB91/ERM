@@ -18,13 +18,15 @@ namespace erm::ecs {
 	public:
 		CameraSystem(ECS& ecs, const IWindow& window);
 
+		// ISystem
+		void Init() override;
 		void OnUpdate(float dt) override;
 		void OnPostUpdate() override;
 
 	private:
 		void UpdateCameraComponent(CameraComponent& camera, TransformComponent& transform);
 
-		TransformSystem& mTransformSystem;
+		TransformSystem* mTransformSystem;
 		const IWindow& mWindow;
 	};
 

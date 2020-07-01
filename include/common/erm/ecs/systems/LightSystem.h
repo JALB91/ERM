@@ -12,6 +12,9 @@ namespace erm::ecs {
 			: ISystem(ecs)
 		{}
 		~LightSystem() = default;
+
+		// ISystem
+		void Init() override {}
 	};
 
 } // namespace erm::ecs

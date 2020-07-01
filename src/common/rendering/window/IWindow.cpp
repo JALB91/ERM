@@ -7,9 +7,9 @@ namespace erm {
 		, mPrevMousePosX(0.0)
 		, mMousePosY(0.0)
 		, mPrevMousePosY(0.0)
-		, mWindowWidth(0)
-		, mWindowHeight(0)
-		, mViewport(0.0f)
+		, mFrameBufferSize()
+		, mWindowSize()
+		, mViewport({0.0f, 0.0f}, {0.0f, 0.0f})
 		, mAspectRatio(0.0f)
 	{}
 

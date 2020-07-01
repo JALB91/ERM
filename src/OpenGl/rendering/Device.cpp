@@ -4,18 +4,9 @@
 
 namespace erm {
 
-	class Device::Impl
-	{};
-
 	Device::Device(GLFWwindow* window)
 	{
 		UNUSED(window);
-		UNUSED(mImpl);
 	}
-
-	Device::~Device() = default;
-
-	void Device::OnRender()
-	{}
 
 } // namespace erm
