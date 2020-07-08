@@ -15,7 +15,7 @@ function(target_setup_project TARGET)
 	target_compile_options(
 		"${TARGET}"
 		PRIVATE
-			$<$<STREQUAL:"${CMAKE_BUILD_TYPE}","Debug">:-Wall -Werror -Wextra -pedantic-errors>
+			$<$<STREQUAL:"${CMAKE_BUILD_TYPE}","Debug">:-Wall -Werror -Wextra -pedantic-errors -Wno-gnu>
 	)
 
 	if("${TARGET_API}" STREQUAL "Vulkan")

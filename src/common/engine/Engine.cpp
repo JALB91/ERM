@@ -65,8 +65,7 @@ namespace erm {
 		mWindow->AddListener(static_cast<IWindowListener&>(*this));
 	}
 
-	Engine::~Engine()
-	{}
+	Engine::~Engine() = default;
 
 	bool Engine::Init()
 	{

@@ -57,6 +57,12 @@ endif()
 include(GLMConfig)
 include(GLFWConfig)
 include(TinyXmlConfig)
+include(FindFbx)
+
+find_package(Fbx)
+if(NOT ${FBX_FOUND})
+	message(FATAL_ERROR "Cannot find FBX libraries")
+endif(NOT ${FBX_FOUND})
 
 # ADDS COMMON EXTERNALS DEPENDENCIES
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/glm")
@@ -105,6 +111,7 @@ target_include_directories(
 		"${PRIVATE_INCLUDES}"
 		"${CMAKE_CURRENT_SOURCE_DIR}/include/common/"
 		"${CMAKE_CURRENT_SOURCE_DIR}/include/${TARGET_API}/"
+		"${FBX_INCLUDE_DIRS}"
 	PUBLIC 
 		"${PUBLIC_INCLUDES}"
 )
@@ -147,6 +154,7 @@ target_link_libraries(
 	PRIVATE 
 		"${TARGET_API_LIB}"
 		"${PRIVATE_DEPENDENCIES}"
+		"${FBX_LIBRARIES_DEBUG}"
 		glfw
 		stb_image
 		spirv-cross-cpp
