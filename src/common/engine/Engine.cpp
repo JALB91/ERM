@@ -16,6 +16,8 @@
 #include "erm/ecs/systems/ModelSystem.h"
 #include "erm/ecs/systems/TransformSystem.h"
 
+#include "erm/loaders/fbx/FBXModelLoader.h"
+
 #include "erm/managers/ResourcesManager.h"
 
 #include "erm/math/vec.h"
@@ -72,6 +74,14 @@ namespace erm {
 		if (!mWindow || !mWindow->Init())
 		{
 			return false;
+		}
+
+		{
+			std::mutex mut;
+			std::atomic<bool> atom;
+			Model* mod = nullptr;
+			Materials mat;
+			ParseFBXModel(mut, atom, kModelModelPath, *mod, mat);
 		}
 
 		mDevice = std::make_unique<Device>(mWindow->GetWindow());
