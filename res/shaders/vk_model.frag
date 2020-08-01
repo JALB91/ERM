@@ -43,5 +43,5 @@ void main()
 	vec3 specular = light.specular * material.specular * spec;
 
 	outColor.rgb += Ndl * light.ambient * lit(l, n, v);
-	outColor.rgb *= specular;
+	outColor.rgb += specular;
 }

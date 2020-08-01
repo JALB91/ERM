@@ -32,7 +32,7 @@ namespace erm {
 		alignas(16) math::vec3 mAmbient;
 		alignas(16) math::vec3 mDiffuse;
 		alignas(16) math::vec3 mSpecular;
-		alignas(16) float mShininess;
+		alignas(4) float mShininess;
 	};
 
 	struct UboLight : public IUbo
