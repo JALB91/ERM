@@ -36,12 +36,10 @@ namespace {
 			const erm::UboData& data = ubosData[i];
 			const erm::UniformBuffer& buffer = buffers.at(data.mUboId);
 
-			vk::DescriptorBufferInfo bufferInfo {};
+			vk::DescriptorBufferInfo& bufferInfo = infos[i];
 			bufferInfo.buffer = buffer.GetBuffer();
 			bufferInfo.offset = data.mOffset;
 			bufferInfo.range = buffer.GetBufferSize();
-
-			infos.emplace_back(bufferInfo);
 		}
 	}
 
@@ -55,15 +53,13 @@ namespace {
 		{
 			const erm::UboData& data = ubosData[i];
 
-			vk::WriteDescriptorSet descriptorWrite;
+			vk::WriteDescriptorSet& descriptorWrite = writes[i];
 			descriptorWrite.dstSet = descriptorSet;
 			descriptorWrite.dstBinding = data.mBinding;
 			descriptorWrite.dstArrayElement = 0;
 			descriptorWrite.descriptorType = vk::DescriptorType::eUniformBuffer;
 			descriptorWrite.descriptorCount = 1;
 			descriptorWrite.pBufferInfo = &infos[i];
-
-			writes.emplace_back(descriptorWrite);
 		}
 	}
 
@@ -122,19 +118,20 @@ namespace erm {
 		ASSERT(data.mRenderConfigs.IsResourcesBindingCompatible(mRenderConfigs));
 
 		ShaderProgram* shader = mRenderConfigs.mShaderProgram;
-		std::vector<vk::DescriptorBufferInfo> descriptorBuffers;
+		const std::vector<UboData>& ubosData = shader->GetUbosData();
+		std::vector<vk::DescriptorBufferInfo> descriptorBuffers(ubosData.size());
+		std::vector<vk::WriteDescriptorSet> descriptorWrites(ubosData.size());
 		std::vector<vk::DescriptorImageInfo> descriptorImage;
-		std::vector<vk::WriteDescriptorSet> descriptorWrites;
 
 		CreateUniformBuffersDescriptorInfos(
 			descriptorBuffers,
-			shader->GetUbosData(),
+			ubosData,
 			mUniformBuffers[index]);
 
 		CreateUniformBuffersDescriptorWrites(
 			descriptorWrites,
 			descriptorBuffers,
-			shader->GetUbosData(),
+			ubosData,
 			mDescriptorSets[index]);
 
 		/*
