@@ -62,11 +62,13 @@ namespace erm {
 		UNUSED(kVikingRoomModelPath);
 		UNUSED(kDefaultScale);
 		std::srand(static_cast<unsigned int>(time(NULL)));
-		mWindow->AddListener(static_cast<IWindowListener&>(*this));
+		mWindow->AddListener(*this);
 	}
 
 	Engine::~Engine()
-	{}
+	{
+		mWindow->RemoveListener(*this);
+	}
 
 	bool Engine::Init()
 	{
