@@ -17,6 +17,13 @@ function(target_setup_project TARGET)
 		"${TARGET}"
 		PRIVATE 
 			$<$<STREQUAL:"${CMAKE_BUILD_TYPE}","Debug">:/W3 /WX>
+			$<$<STREQUAL:"${CMAKE_BUILD_TYPE}","Release">:/Z7 /INCREMENTAL:NO>
+	)
+
+	target_link_options(
+		"${TARGET}"
+		PRIVATE
+			$<$<STREQUAL:"${CMAKE_BUILD_TYPE}","Release">:/DEBUG /OPT:REF /OPT:ICF>
 	)
 
 	if("${TARGET_API}" STREQUAL "Vulkan")
