@@ -23,7 +23,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
 	_OS="OSX"
 elif [[ "$OSTYPE" == "cygwin" || "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
 	_GENERATOR_NAME="MSVC"
-	_GENERATOR="Visual Studio 15 2017"
+	_GENERATOR="Visual Studio 16 2019"
 	_ARCHITECTURE="x64"
 	_OS="WIN32"
 else
