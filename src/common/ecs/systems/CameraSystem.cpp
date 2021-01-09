@@ -27,7 +27,7 @@ namespace erm::ecs {
 		mTransformSystem = &mECS.GetSystem<TransformSystem>();
 	}
 
-	void CameraSystem::OnUpdate(float /*dt*/)
+	void CameraSystem::OnUpdate(float dt)
 	{
 		PROFILE_FUNCTION();
 
@@ -40,7 +40,7 @@ namespace erm::ecs {
 
 			TransformComponent* transform = mTransformSystem->RequireComponent(i);
 
-			UpdateCameraComponent(*camera, *transform);
+			UpdateCameraComponent(*camera, *transform, dt);
 		}
 	}
 
@@ -69,7 +69,7 @@ namespace erm::ecs {
 		}
 	}
 
-	void CameraSystem::UpdateCameraComponent(CameraComponent& camera, TransformComponent& transform)
+	void CameraSystem::UpdateCameraComponent(CameraComponent& camera, TransformComponent& transform, float dt)
 	{
 		math::vec3 translation(0.0f);
 
@@ -101,27 +101,27 @@ namespace erm::ecs {
 
 		if (mWindow.IsKeyDown(KEY_W))
 		{
-			translation.z -= camera.mMovementSpeed;
+			translation.z -= camera.mMovementSpeed * dt;
 		}
 		if (mWindow.IsKeyDown(KEY_D))
 		{
-			translation.x += camera.mMovementSpeed;
+			translation.x += camera.mMovementSpeed * dt;
 		}
 		if (mWindow.IsKeyDown(KEY_S))
 		{
-			translation.z += camera.mMovementSpeed;
+			translation.z += camera.mMovementSpeed * dt;
 		}
 		if (mWindow.IsKeyDown(KEY_A))
 		{
-			translation.x -= camera.mMovementSpeed;
+			translation.x -= camera.mMovementSpeed * dt;
 		}
 		if (mWindow.IsKeyDown(KEY_SPACE))
 		{
-			translation.y += camera.mMovementSpeed;
+			translation.y += camera.mMovementSpeed * dt;
 		}
 		if (mWindow.IsKeyDown(KEY_LEFT_SHIFT))
 		{
-			translation.y -= camera.mMovementSpeed;
+			translation.y -= camera.mMovementSpeed * dt;
 		}
 
 		if (translation.x != 0.0f || translation.z != 0.0f || translation.y != 0.0f)

@@ -24,7 +24,7 @@ namespace erm::ecs {
 		void OnPostUpdate() override;
 
 	private:
-		void UpdateCameraComponent(CameraComponent& camera, TransformComponent& transform);
+		void UpdateCameraComponent(CameraComponent& camera, TransformComponent& transform, float dt);
 
 		TransformSystem* mTransformSystem;
 		const IWindow& mWindow;
