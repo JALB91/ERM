@@ -38,7 +38,7 @@ namespace erm::ecs {
 		: ISystem<RenderingComponent>(ecs)
 		, mEngine(engine)
 		, mResourcesManager(engine.GetResourcesManager())
-		, mGridMesh(std::make_unique<Mesh>(MeshUtils::CreateGrid(engine.GetDevice(), 1000, 1000, 50.0f, 50.0f)))
+		, mGridMesh(std::make_unique<Mesh>(MeshUtils::CreateGrid(engine.GetDevice(), 1000, 1000, 1.0f, 1.0f)))
 		, mDebugMesh(std::make_unique<Mesh>(MeshUtils::CreateCube(engine.GetDevice())))
 		, mDebugShader(mResourcesManager.GetOrCreateShaderProgram(kDebugShaderPath))
 		, mRenderData(RenderConfigs::MODELS_RENDER_CONFIGS)
@@ -109,6 +109,7 @@ namespace erm::ecs {
 			std::vector<Mesh>& meshes = component.GetModel()->GetMeshes();
 
 			RenderingComponent* renderingComponent = RequireComponent(id);
+			SkeletonComponent* skeletonComponent = mSkeletonSystem->GetComponent(id);
 
 			for (RenderData& data : renderingComponent->mRenderData)
 				data.mMeshes.clear();
@@ -132,7 +133,11 @@ namespace erm::ecs {
 					data = &renderingComponent->mRenderData[renderingComponent->mMaterialIndices[mesh.GetRenderConfigs().mMaterial]];
 				}
 
-				if (!data->mRenderConfigs.mShaderProgram)
+				if (skeletonComponent && skeletonComponent->GetRootBone())
+				{
+					data->mRenderConfigs.mShaderProgram = mResourcesManager.GetOrCreateShaderProgram("res/shaders/vk_skeleton");
+				}
+				else if (!data->mRenderConfigs.mShaderProgram)
 				{
 					data->mRenderConfigs.mShaderProgram = mResourcesManager.GetOrCreateShaderProgram("res/shaders/vk_model");
 				}
@@ -149,6 +154,24 @@ namespace erm::ecs {
 						data->SetUbo(std::move(ubo));
 					}
 
+					if (skeletonComponent && skeletonComponent->GetRootBone())
+					{
+						UboSkeleton ubo;
+						ubo.mModel = modelTransform->mLocalTransform;
+						ubo.mViewProj = viewProj;
+
+						int count = 0;
+						skeletonComponent->GetRootBone()->ForEachDo([&ubo, &count](BonesTree& bone) {
+							if (count >= 100)
+								return;
+
+							ubo.mBonesTransforms[count] = bone.GetPayload()->mAnimatedTransform;
+							++count;
+						});
+
+						data->SetUbo(std::move(ubo));
+					}
+					else
 					{
 						UboModelViewProj ubo;
 						ubo.mModel = modelTransform->mLocalTransform;
@@ -169,6 +192,8 @@ namespace erm::ecs {
 					UboBasic ubo;
 					ubo.mMVP = viewProj * modelTransform->mWorldTransform;
 					data->SetUbo(std::move(ubo));
+
+					data->mRenderConfigs.mShaderProgram = mResourcesManager.GetOrCreateShaderProgram("res/shaders/vk_basic");
 				}
 
 				data->mMeshes.emplace_back(&mesh);
@@ -176,6 +201,11 @@ namespace erm::ecs {
 				data->mRenderConfigs.SetNormViewport(mEngine.GetWindow().GetNormalizedViewport());
 
 				Material& material = mesh.GetRenderConfigs().mMaterial ? *mesh.GetRenderConfigs().mMaterial : Material::DEFAULT;
+
+				if (material.mShaderProgram)
+				{
+					data->mRenderConfigs.mShaderProgram = material.mShaderProgram;
+				}
 
 				{
 					UboMaterial ubo;
