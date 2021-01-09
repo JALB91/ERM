@@ -157,33 +157,21 @@ target_link_libraries(
 		tinyxml2
 )
 
-# CUSTOM COMMANDS
-add_custom_command(
-	TARGET "${PROJECT_NAME}" POST_BUILD
-	COMMAND "${CMAKE_COMMAND}" -E remove_directory "${RES_DEST}"
-	COMMENT "Remove resources folder ${RES_DEST}"
-)
-add_custom_command(
-	TARGET "${PROJECT_NAME}" POST_BUILD
- 	COMMAND "${CMAKE_COMMAND}" -E copy_directory "${RES_SOURCE}" "${RES_DEST}"
- 	COMMENT "Copy resources folder from ${RES_SOURCE} to ${RES_DEST}"
-)
+# CUSTOM TARGETS
+set(PIPELINE_ARGS --res-dest ${RES_DEST} --res-src ${RES_SOURCE})
 
 if("${TARGET_API}" STREQUAL "Vulkan")
-	file(GLOB SHADERS
-		"${RES_SOURCE}/shaders/vk_*.vert"
-		"${RES_SOURCE}/shaders/vk_*.frag"
-	)
-
-	foreach(SHADER ${SHADERS})
-		get_filename_component(SHADER_FILENAME "${SHADER}" NAME)
-		add_custom_command(
-			TARGET "${PROJECT_NAME}" POST_BUILD
-			COMMAND "${SHADERS_COMPILER}" "${SHADER}" -o "${RES_DEST}/shaders/${SHADER_FILENAME}.cmp"
-			COMMENT "Compiling shader ${SHADER}"
-		)
-	endforeach(SHADER)
+	list(APPEND PIPELINE_ARGS --shaders-compiler ${SHADERS_COMPILER})
 endif("${TARGET_API}" STREQUAL "Vulkan")
+
+set(PIPELINE_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/scripts/resources_pipeline.py")
+
+add_custom_target(
+	PIPELINE
+	COMMAND ${PYTHON_EXECUTABLE} ${PIPELINE_SCRIPT} ${PIPELINE_ARGS}
+	COMMENT "Resources Pipeline"
+)
+add_dependencies("${PROJECT_NAME}" PIPELINE)
 
 # DEBUG PRINT VARIABLES
 if("${PRINT_VARIABLES}")
