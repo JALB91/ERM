@@ -34,8 +34,17 @@ namespace ImGui {
 		{
 			ImGui::Text("Current Time: %f", timer.GetCurrentTime());
 			ImGui::Text("Total Elapsed Time %f", timer.GetElapsedTime());
-			ImGui::Text("Frame Elapsed Time: %f", timer.GetFrameElapsedTime());
+			ImGui::Text("Update Elapsed Time: %f", timer.GetUpdateElapsedTime());
+
+			ImGui::Separator();
+
 			ImGui::Text("FPS: %d", engine.GetFPS());
+
+			ImGui::SameLine();
+
+			int maxFPS = engine.GetMaxFPS();
+			ImGui::SliderInt("Max FPS", &maxFPS, 30, 144);
+			engine.SetMaxFPS(maxFPS);
 
 			ImGui::Separator();
 
@@ -80,7 +89,7 @@ namespace ImGui {
 
 		const bool nodeOpen = ImGui::TreeNodeEx(node.GetId().c_str(), flags);
 		ImGui::SameLine(ImGui::GetWindowSize().x - 50.0f);
-		ImGui::Text("%.2f", node.GetPayload().mTime);
+		ImGui::Text("%.4f", node.GetPayload().mTime);
 		if (nodeOpen)
 		{
 			std::for_each(children.cbegin(), children.cend(), [operation](auto& child) {

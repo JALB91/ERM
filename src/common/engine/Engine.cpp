@@ -36,7 +36,7 @@ namespace {
 	const char* const kModelModelPath = "res/models/model.dae";
 	const char* const kVikingRoomModelPath = "res/models/viking_room.obj";
 
-	const char* const kModelToUse = kIronManModelPath;
+	const char* const kModelToUse = kModelModelPath;
 	//	const float kDefaultRotX = -static_cast<float>(M_PI * 0.5);
 	const float kDefaultRotX = 0.0f;
 	const float kDefaultScale = 1.0f;
@@ -48,6 +48,7 @@ namespace erm {
 
 	Engine::Engine()
 		: mWindow(std::make_unique<Window>())
+		, mMaxFPS(144)
 	{
 		UNUSED(kLamborghiniModelPath);
 		UNUSED(kSpaceshipModelPath);
@@ -88,7 +89,7 @@ namespace erm {
 		auto camera = mECS->GetOrCreateEntity("Camera");
 		camera->AddComponent<ecs::LightComponent>();
 		camera->RequireComponent<ecs::CameraComponent>();
-		camera->GetComponent<ecs::TransformComponent>()->mTranslation = math::vec3(0.0f, 145.0f, 400.0f);
+		camera->GetComponent<ecs::TransformComponent>()->mTranslation = math::vec3(0.0f, 1.0f, 10.0f);
 
 		auto root = mECS->GetRoot();
 		root->AddChild(*camera);
@@ -121,30 +122,38 @@ namespace erm {
 		{
 			PROFILE_FUNCTION();
 
+			static double frameElapsedTime = 0.0;
 			static double elapsedTime = 0.0;
-			static unsigned int frameInSecond = 0;
+			static unsigned int framesInSecond = 0;
 
 			mTimer.Update();
 
-			const double frameElapsedTime = mTimer.GetFrameElapsedTime();
-			elapsedTime += frameElapsedTime;
-			++frameInSecond;
+			const double targetFrameSeconds = 1.0 / static_cast<double>(mMaxFPS);
+			const double updateElapsedTime = mTimer.GetUpdateElapsedTime();
+			frameElapsedTime += updateElapsedTime;
 
-			if (elapsedTime >= 1000.0)
+			if (frameElapsedTime < targetFrameSeconds)
+				continue;
+
+			elapsedTime += frameElapsedTime;
+			++framesInSecond;
+
+			if (elapsedTime >= 1.0)
 			{
-				mFPS = frameInSecond;
+				mFPS = framesInSecond;
 
 				elapsedTime = 0.0;
-				frameInSecond = 0;
+				framesInSecond = 0;
 			}
 
-			OnUpdate(static_cast<float>(frameElapsedTime * 0.001));
+			OnUpdate(static_cast<float>(frameElapsedTime));
 			OnPostUpdate();
 
 			OnPreRender();
 			OnRender();
-
 			OnPostRender();
+
+			frameElapsedTime = 0.0;
 		}
 	}
 
