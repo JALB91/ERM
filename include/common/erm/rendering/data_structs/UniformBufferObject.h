@@ -52,4 +52,13 @@ namespace erm {
 		alignas(16) math::vec3 mPosition;
 	};
 
+	struct UboSkeleton : public IUbo
+	{
+		static constexpr UboId ID = 5;
+
+		alignas(16) math::mat4 mModel;
+		alignas(16) math::mat4 mViewProj;
+		alignas(16) math::mat4 mBonesTransforms[100];
+	};
+
 } // namespace erm

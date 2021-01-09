@@ -88,6 +88,8 @@ namespace {
 			return {erm::UboLight::ID, sizeof(erm::UboLight), compiler.get_decoration(resource.id, spv::Decoration::DecorationOffset), compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding)};
 		else if (resource.name.compare("View") == 0)
 			return {erm::UboView::ID, sizeof(erm::UboView), compiler.get_decoration(resource.id, spv::Decoration::DecorationOffset), compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding)};
+		else if (resource.name.compare("Skeleton") == 0)
+			return {erm::UboSkeleton::ID, sizeof(erm::UboSkeleton), compiler.get_decoration(resource.id, spv::Decoration::DecorationOffset), compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding)};
 
 		ASSERT(false);
 
@@ -227,6 +229,16 @@ namespace erm {
 			{
 				description.format = vk::Format::eR32G32Sfloat;
 				description.offset = offsetof(VertexData, mUVVertex);
+			}
+			else if (res.name.compare("inBoneWeights") == 0)
+			{
+				description.format = vk::Format::eR32G32B32A32Sfloat;
+				description.offset = offsetof(VertexData, mBoneWeights);
+			}
+			else if (res.name.compare("inBoneIds") == 0)
+			{
+				description.format = vk::Format::eR32G32B32A32Uint;
+				description.offset = offsetof(VertexData, mBoneIds);
 			}
 
 			attributeDescriptions.emplace_back(std::move(description));
