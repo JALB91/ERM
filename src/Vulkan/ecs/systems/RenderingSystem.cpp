@@ -142,6 +142,12 @@ namespace erm::ecs {
 					data->mRenderConfigs.mShaderProgram = mResourcesManager.GetOrCreateShaderProgram("res/shaders/vk_model");
 				}
 
+				{
+					UboBasic ubo;
+					ubo.mMVP = viewProj * modelTransform->mWorldTransform;
+					data->SetUbo(std::move(ubo));
+				}
+
 				if (light)
 				{
 					{
@@ -189,10 +195,6 @@ namespace erm::ecs {
 				}
 				else
 				{
-					UboBasic ubo;
-					ubo.mMVP = viewProj * modelTransform->mWorldTransform;
-					data->SetUbo(std::move(ubo));
-
 					data->mRenderConfigs.mShaderProgram = mResourcesManager.GetOrCreateShaderProgram("res/shaders/vk_basic");
 				}
 
