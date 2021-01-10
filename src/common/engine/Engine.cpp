@@ -14,6 +14,7 @@
 #include "erm/ecs/systems/CameraSystem.h"
 #include "erm/ecs/systems/LightSystem.h"
 #include "erm/ecs/systems/ModelSystem.h"
+#include "erm/ecs/systems/SkeletonSystem.h"
 #include "erm/ecs/systems/TransformSystem.h"
 
 #include "erm/managers/ResourcesManager.h"
@@ -36,9 +37,9 @@ namespace {
 	const char* const kModelModelPath = "res/models/model.dae";
 	const char* const kVikingRoomModelPath = "res/models/viking_room.obj";
 
-	const char* const kModelToUse = kModelModelPath;
-	//	const float kDefaultRotX = -static_cast<float>(M_PI * 0.5);
-	const float kDefaultRotX = 0.0f;
+	const char* const kModelToUse = kVikingRoomModelPath;
+	const float kDefaultRotX = -static_cast<float>(M_PI * 0.5);
+	//const float kDefaultRotX = 0.0f;
 	const float kDefaultScale = 1.0f;
 	const int kEntities = 1;
 
@@ -104,14 +105,6 @@ namespace erm {
 			transform->mScale = math::vec3(kDefaultScale);
 			root->AddChild(*entity);
 		}
-
-		auto entity = mECS->GetOrCreateEntity();
-		Model* model = mResourcesManager->GetOrCreateModel("Defaults/Sphere");
-		RenderConfigs rc = RenderConfigs::MODELS_RENDER_CONFIGS;
-		rc.mTexture = mResourcesManager->GetOrCreateTexture("res/textures/smile.png");
-		model->GetMeshes()[0].SetRenderConfigs(rc);
-		entity->RequireComponent<ecs::ModelComponent>(model);
-		root->AddChild(*entity);
 
 		return true;
 	}
