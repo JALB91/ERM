@@ -51,7 +51,7 @@ namespace {
 		return buffer;
 	}
 
-	void GatherDescriptorSetLayoutBindings(std::vector<vk::DescriptorSetLayoutBinding>& bindings, spirv_cross::CompilerCPP& compiler, vk::ShaderStageFlagBits flags)
+	void GatherDescriptorSetLayoutBindings(std::vector<vk::DescriptorSetLayoutBinding>& bindings, const spirv_cross::CompilerCPP& compiler, vk::ShaderStageFlagBits flags)
 	{
 		spirv_cross::ShaderResources resources = compiler.get_shader_resources();
 
@@ -76,7 +76,7 @@ namespace {
 		}
 	}
 
-	erm::UboData GetUboData(spirv_cross::CompilerCPP& compiler, const spirv_cross::Resource& resource)
+	erm::UboData GetUboData(const spirv_cross::CompilerCPP& compiler, const spirv_cross::Resource& resource)
 	{
 		if (resource.name.compare("UniformBufferObject") == 0)
 			return {erm::UboBasic::ID, sizeof(erm::UboBasic), compiler.get_decoration(resource.id, spv::Decoration::DecorationOffset), compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding)};
@@ -96,21 +96,23 @@ namespace {
 		return {erm::UboBasic::ID, sizeof(erm::UboBasic), 0, 0};
 	}
 
-	std::vector<erm::UboData> GetUbosData(spirv_cross::CompilerCPP& vertCompiler, spirv_cross::CompilerCPP& fragCompiler)
+	void GetBindingData(spirv_cross::CompilerCPP& vertCompiler, spirv_cross::CompilerCPP& fragCompiler, std::vector<erm::UboData>& ubosData, std::vector<erm::SamplerData>& samplerData)
 	{
-		std::vector<erm::UboData> data;
-
 		spirv_cross::ShaderResources resources = vertCompiler.get_shader_resources();
 
 		for (const spirv_cross::Resource& res : resources.uniform_buffers)
-			data.emplace_back(GetUboData(vertCompiler, res));
+			ubosData.emplace_back(GetUboData(vertCompiler, res));
+
+		for (const spirv_cross::Resource& res : resources.sampled_images)
+			samplerData.emplace_back(vertCompiler.get_decoration(res.id, spv::Decoration::DecorationBinding));
 
 		resources = fragCompiler.get_shader_resources();
 
 		for (const spirv_cross::Resource& res : resources.uniform_buffers)
-			data.emplace_back(GetUboData(fragCompiler, res));
+			ubosData.emplace_back(GetUboData(fragCompiler, res));
 
-		return data;
+		for (const spirv_cross::Resource& res : resources.sampled_images)
+			samplerData.emplace_back(fragCompiler.get_decoration(res.id, spv::Decoration::DecorationBinding));
 	}
 
 } // namespace
@@ -128,9 +130,10 @@ namespace erm {
 		, mFragment(ReadShaderCompiled((mPath + ".frag.cmp").c_str()))
 		, mVertCompiler(std::make_unique<spirv_cross::CompilerCPP>(LoadSpirvFile((mPath + ".vert.cmp").c_str())))
 		, mFragCompiler(std::make_unique<spirv_cross::CompilerCPP>(LoadSpirvFile((mPath + ".frag.cmp").c_str())))
-		, mUbosData(::GetUbosData(*mVertCompiler, *mFragCompiler))
 		, mNeedsReload(true)
-	{}
+	{
+		::GetBindingData(*mVertCompiler, *mFragCompiler, mUbosData, mSamplerData);
+	}
 
 	ShaderProgram::ShaderProgram(Device& device, const char* vertShader, const char* fragShader)
 		: mDevice(device)
@@ -171,7 +174,10 @@ namespace erm {
 		mFragment = ReadShaderCompiled((mPath + ".frag.cmp").c_str());
 		mFragCompiler = std::make_unique<spirv_cross::CompilerCPP>(LoadSpirvFile((mPath + ".frag.cmp").c_str()));
 
-		mUbosData = ::GetUbosData(*mVertCompiler, *mFragCompiler);
+		mUbosData.clear();
+		mSamplerData.clear();
+
+		::GetBindingData(*mVertCompiler, *mFragCompiler, mUbosData, mSamplerData);
 
 		mNeedsReload = true;
 	}

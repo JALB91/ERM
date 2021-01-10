@@ -4,12 +4,35 @@
 
 namespace erm {
 
-	struct UboData
+	struct IBindingData
 	{
+		IBindingData(uint32_t binding)
+			: mBinding(binding)
+		{}
+		virtual ~IBindingData() = default;
+
+		uint32_t mBinding;
+	};
+
+	struct UboData : IBindingData
+	{
+		UboData(UboId uboId, size_t size, uint32_t offset, uint32_t binding)
+			: IBindingData(binding)
+			, mUboId(uboId)
+			, mSize(size)
+			, mOffset(offset)
+		{}
+
 		UboId mUboId;
 		size_t mSize;
 		uint32_t mOffset;
-		uint32_t mBinding;
+	};
+
+	struct SamplerData : IBindingData
+	{
+		SamplerData(uint32_t binding)
+			: IBindingData(binding)
+		{}
 	};
 
 } // namespace erm

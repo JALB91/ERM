@@ -115,13 +115,14 @@ namespace erm {
 
 	void BindingResources::UpdateResources(RenderData& data, uint32_t index)
 	{
-		ASSERT(data.mRenderConfigs.IsResourcesBindingCompatible(mRenderConfigs));
-
 		ShaderProgram* shader = mRenderConfigs.mShaderProgram;
+
 		const std::vector<UboData>& ubosData = shader->GetUbosData();
 		std::vector<vk::DescriptorBufferInfo> descriptorBuffers(ubosData.size());
-		std::vector<vk::WriteDescriptorSet> descriptorWrites(ubosData.size());
-		std::vector<vk::DescriptorImageInfo> descriptorImage;
+
+		const std::vector<SamplerData>& samplerData = shader->GetSamplerData();
+
+		std::vector<vk::WriteDescriptorSet> descriptorWrites(ubosData.size() + samplerData.size());
 
 		CreateUniformBuffersDescriptorInfos(
 			descriptorBuffers,
@@ -134,30 +135,22 @@ namespace erm {
 			ubosData,
 			mDescriptorSets[index]);
 
-		/*
-		TODO: Find a proper way to handle textures
-		 */
-		if (mRenderConfigs.mTexture && false)
+		for (size_t i = 0; i < samplerData.size(); ++i)
 		{
 			vk::DescriptorImageInfo imageInfo {};
 			imageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
-			imageInfo.imageView = mRenderConfigs.mTexture->GetImageView();
+			imageInfo.imageView = mRenderConfigs.mTexture ? mRenderConfigs.mTexture->GetImageView() : mRenderer.GetFallbackTexture()->GetImageView();
 			imageInfo.sampler = mRenderer.GetTextureSampler();
 
-			descriptorImage.emplace_back(imageInfo);
-		}
-
-		for (size_t i = 0; i < descriptorImage.size(); ++i)
-		{
 			vk::WriteDescriptorSet descriptorWrite;
 			descriptorWrite.dstSet = mDescriptorSets[index];
-			descriptorWrite.dstBinding = 1;
+			descriptorWrite.dstBinding = shader->GetSamplerData()[i].mBinding;
 			descriptorWrite.dstArrayElement = 0;
 			descriptorWrite.descriptorType = vk::DescriptorType::eCombinedImageSampler;
 			descriptorWrite.descriptorCount = 1;
-			descriptorWrite.pImageInfo = &descriptorImage[i];
+			descriptorWrite.pImageInfo = &imageInfo;
 
-			descriptorWrites.emplace_back(descriptorWrite);
+			descriptorWrites[ubosData.size() + i] = std::move(descriptorWrite);
 		}
 
 		mDevice->updateDescriptorSets(static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
