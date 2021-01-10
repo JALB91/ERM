@@ -83,9 +83,9 @@ namespace erm {
 			renderingResources->Refresh();
 		}
 
-		mDevice->waitForFences(1, &mInFlightFences[mCurrentFrame], VK_TRUE, UINT64_MAX);
+		vk::Result result = mDevice->waitForFences(1, &mInFlightFences[mCurrentFrame], VK_TRUE, UINT64_MAX);
 
-		vk::Result result = mDevice->acquireNextImageKHR(mSwapChain, UINT64_MAX, mImageAvailableSemaphores[mCurrentFrame], {}, &mCurrentImageIndex);
+		result = mDevice->acquireNextImageKHR(mSwapChain, UINT64_MAX, mImageAvailableSemaphores[mCurrentFrame], {}, &mCurrentImageIndex);
 
 		if (result == vk::Result::eErrorOutOfDateKHR)
 		{
@@ -100,7 +100,7 @@ namespace erm {
 		// Check if a previous frame is using this image (i.e. there is its fence to wait on)
 		if (mImagesInFlight[mCurrentImageIndex])
 		{
-			mDevice->waitForFences(1, &mImagesInFlight[mCurrentImageIndex], VK_TRUE, UINT64_MAX);
+			vk::Result result = mDevice->waitForFences(1, &mImagesInFlight[mCurrentImageIndex], VK_TRUE, UINT64_MAX);
 		}
 		// Mark the image as now being in use by this frame
 		mImagesInFlight[mCurrentImageIndex] = mInFlightFences[mCurrentFrame];
@@ -128,7 +128,7 @@ namespace erm {
 		submitInfo.signalSemaphoreCount = 1;
 		submitInfo.pSignalSemaphores = &mRenderFinishedSemaphores[mCurrentFrame];
 
-		mDevice->resetFences(1, &mInFlightFences[mCurrentFrame]);
+		vk::Result result = mDevice->resetFences(1, &mInFlightFences[mCurrentFrame]);
 
 		if (mDevice.GetGraphicsQueue().submit(1, &submitInfo, mInFlightFences[mCurrentFrame]) != vk::Result::eSuccess)
 		{

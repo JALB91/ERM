@@ -148,7 +148,7 @@ namespace erm::VkUtils {
 		allocInfo.commandBufferCount = 1;
 
 		vk::CommandBuffer commandBuffer;
-		device.allocateCommandBuffers(&allocInfo, &commandBuffer);
+		vk::Result result = device.allocateCommandBuffers(&allocInfo, &commandBuffer);
 
 		vk::CommandBufferBeginInfo beginInfo {};
 		beginInfo.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit;
@@ -170,7 +170,7 @@ namespace erm::VkUtils {
 		submitInfo.commandBufferCount = 1;
 		submitInfo.pCommandBuffers = &commandBuffer;
 
-		graphicsQueue.submit(1, &submitInfo, nullptr);
+		vk::Result result = graphicsQueue.submit(1, &submitInfo, nullptr);
 		vkQueueWaitIdle(graphicsQueue);
 
 		device.freeCommandBuffers(commandPool, 1, &commandBuffer);
