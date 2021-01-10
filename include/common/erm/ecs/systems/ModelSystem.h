@@ -33,8 +33,6 @@ namespace erm::ecs {
 		void OnPostUpdate() override;
 
 	private:
-		void SubmitRenderData(ModelComponent& component);
-
 		Window& mWindow;
 		Renderer& mRenderer;
 		ResourcesManager& mResourcesManager;
