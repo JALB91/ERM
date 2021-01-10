@@ -79,9 +79,9 @@ namespace erm {
 		}
 
 		mDevice = std::make_unique<Device>(mWindow->GetWindow());
+		mResourcesManager = std::make_unique<ResourcesManager>(*mDevice);
 		mRenderer = std::make_unique<Renderer>(*this);
 		mImGuiHandle = std::make_unique<ImGuiHandle>(*this);
-		mResourcesManager = std::make_unique<ResourcesManager>(*mDevice);
 		mECS = std::make_unique<ecs::ECS>(*this);
 
 		mResourcesManager->LoadDefaultResources();
