@@ -15,6 +15,7 @@ namespace erm {
 	class Engine;
 	class Window;
 	class Device;
+	class ResourcesManager;
 	class RenderingResources;
 	struct RenderData;
 } // namespace erm
@@ -47,6 +48,8 @@ namespace erm {
 
 		void SubmitRenderData(RenderData& data);
 
+		Texture* GetFallbackTexture() const;
+
 	private:
 		using FramesData = std::map<std::unique_ptr<RenderingResources>, std::vector<RenderData*>>;
 
@@ -69,6 +72,7 @@ namespace erm {
 		Engine& mEngine;
 		Window& mWindow;
 		Device& mDevice;
+		ResourcesManager& mResourcesManager;
 
 		vk::Format mSwapChainImageFormat;
 		vk::Extent2D mSwapChainExtent;

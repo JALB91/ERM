@@ -4,6 +4,8 @@
 
 #include "erm/engine/Engine.h"
 
+#include "erm/managers/ResourcesManager.h"
+
 #include "erm/rendering/Device.h"
 #include "erm/rendering/buffers/IndexBuffer.h"
 #include "erm/rendering/buffers/UniformBuffer.h"
@@ -36,6 +38,7 @@ namespace erm {
 		: mEngine(engine)
 		, mWindow(engine.GetWindow())
 		, mDevice(engine.GetDevice())
+		, mResourcesManager(engine.GetResourcesManager())
 		, mCurrentFrame(0)
 		, mCurrentImageIndex(0)
 		, mMinImageCount(0)
@@ -396,6 +399,11 @@ namespace erm {
 			mRenderFinishedSemaphores[i] = mDevice->createSemaphore(semaphoreInfo);
 			mInFlightFences[i] = mDevice->createFence(fenceInfo);
 		}
+	}
+
+	Texture* Renderer::GetFallbackTexture() const
+	{
+		return mResourcesManager.GetOrCreateTexture("res/textures/viking_room.png");
 	}
 
 } // namespace erm
