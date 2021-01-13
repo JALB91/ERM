@@ -401,7 +401,12 @@ namespace erm {
 		}
 	}
 
-	Texture* Renderer::GetFallbackTexture() const
+	Texture* Renderer::GetFallbackDiffuseMap() const
+	{
+		return mResourcesManager.GetOrCreateTexture("res/textures/viking_room.png");
+	}
+
+	Texture* Renderer::GetFallbackNormalMap() const
 	{
 		return mResourcesManager.GetOrCreateTexture("res/textures/viking_room.png");
 	}

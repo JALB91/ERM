@@ -17,6 +17,7 @@ namespace erm {
 	class Device;
 	class ResourcesManager;
 	class RenderingResources;
+	class Texture;
 	struct RenderData;
 } // namespace erm
 
@@ -48,7 +49,8 @@ namespace erm {
 
 		void SubmitRenderData(RenderData& data);
 
-		Texture* GetFallbackTexture() const;
+		Texture* GetFallbackDiffuseMap() const;
+		Texture* GetFallbackNormalMap() const;
 
 	private:
 		using FramesData = std::map<std::unique_ptr<RenderingResources>, std::vector<RenderData*>>;

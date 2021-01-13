@@ -125,6 +125,11 @@ namespace erm::ecs {
 				if (!configs.mMaterial)
 					configs.mMaterial = &Material::DEFAULT;
 
+				Material& mat = *configs.mMaterial;
+
+				Texture* diffuseMap = configs.mDiffuseMap ? configs.mDiffuseMap : mat.mDiffuseMap;
+				Texture* normalMap = configs.mNormalMap ? configs.mNormalMap : mat.mNormalMap;
+
 				if (!light)
 				{
 					configs.mShaderProgram = mResourcesManager.GetOrCreateShaderProgram("res/shaders/vk_basic");
@@ -133,11 +138,11 @@ namespace erm::ecs {
 				{
 					configs.mShaderProgram = mResourcesManager.GetOrCreateShaderProgram("res/shaders/vk_skeleton");
 				}
-				else if (configs.mDiffuse && configs.mNormal)
+				else if (diffuseMap && normalMap)
 				{
 					configs.mShaderProgram = mResourcesManager.GetOrCreateShaderProgram("res/shaders/vk_model_tex_norm");
 				}
-				else if (configs.mDiffuse)
+				else if (diffuseMap)
 				{
 					configs.mShaderProgram = mResourcesManager.GetOrCreateShaderProgram("res/shaders/vk_model_tex");
 				}

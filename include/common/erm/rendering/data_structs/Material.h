@@ -5,6 +5,10 @@
 #include <string>
 
 namespace erm {
+	class Texture;
+}
+
+namespace erm {
 
 	struct Material
 	{
@@ -18,6 +22,8 @@ namespace erm {
 		math::vec3 mDiffuse;
 		math::vec3 mSpecular;
 		float mShininess;
+		Texture* mDiffuseMap;
+		Texture* mNormalMap;
 	};
 
 } // namespace erm

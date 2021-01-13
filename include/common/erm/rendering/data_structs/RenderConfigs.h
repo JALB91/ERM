@@ -38,8 +38,8 @@ namespace erm {
 			std::optional<DrawMode> drawMode = {},
 			ShaderProgram* shaderProgram = nullptr,
 			Material* material = nullptr,
-			Texture* diffuse = nullptr,
-			Texture* normal = nullptr);
+			Texture* diffuseMap = nullptr,
+			Texture* normalMap = nullptr);
 
 		bool operator==(const RenderConfigs& other) const;
 		bool operator!=(const RenderConfigs& other) const;
@@ -71,8 +71,8 @@ namespace erm {
 		DECL_SET_GET_OPT_WITH_DEFAULT(DrawMode, DrawMode, DrawMode::TRIANGLES);
 		ShaderProgram* mShaderProgram;
 		Material* mMaterial;
-		Texture* mDiffuse;
-		Texture* mNormal;
+		Texture* mDiffuseMap;
+		Texture* mNormalMap;
 	};
 
 } // namespace erm

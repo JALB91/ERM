@@ -31,8 +31,8 @@ namespace erm {
 		std::optional<DrawMode> drawMode /*= {}*/,
 		ShaderProgram* shaderProgram /*= nullptr*/,
 		Material* material /*= nullptr*/,
-		Texture* diffuse /*= nullptr*/,
-		Texture* normal /*= nullptr*/)
+		Texture* diffuseMap /*= nullptr*/,
+		Texture* normalMap /*= nullptr*/)
 		: mSubpassData(subpassData)
 		, mNormViewport(normViewport)
 		, mDepthTestEnabled(depthTestEnabled)
@@ -46,8 +46,8 @@ namespace erm {
 		, mDrawMode(drawMode)
 		, mShaderProgram(shaderProgram)
 		, mMaterial(material)
-		, mDiffuse(diffuse)
-		, mNormal(normal)
+		, mDiffuseMap(diffuseMap)
+		, mNormalMap(normalMap)
 	{}
 
 	bool RenderConfigs::operator==(const RenderConfigs& other) const
@@ -126,7 +126,7 @@ namespace erm {
 
 	bool RenderConfigs::AreTexturesCompatible(const RenderConfigs& other) const
 	{
-		return mDiffuse == other.mDiffuse && mNormal == other.mNormal;
+		return mDiffuseMap == other.mDiffuseMap && mNormalMap == other.mNormalMap;
 	}
 
 } // namespace erm

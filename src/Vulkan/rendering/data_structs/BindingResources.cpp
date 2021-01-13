@@ -1,6 +1,7 @@
 #include "erm/rendering/data_structs/BindingResources.h"
 
 #include "erm/rendering/Device.h"
+#include "erm/rendering/data_structs/Material.h"
 #include "erm/rendering/data_structs/RenderData.h"
 #include "erm/rendering/data_structs/RenderingResources.h"
 #include "erm/rendering/renderer/Renderer.h"
@@ -144,15 +145,26 @@ namespace erm {
 
 			if (i == 0)
 			{
-				texture = mRenderConfigs.mDiffuse ? mRenderConfigs.mDiffuse : mRenderer.GetFallbackTexture();
+				if (mRenderConfigs.mDiffuseMap)
+					texture = mRenderConfigs.mDiffuseMap;
+				else if (mRenderConfigs.mMaterial->mDiffuseMap)
+					texture = mRenderConfigs.mMaterial->mDiffuseMap;
+				else
+					texture = mRenderer.GetFallbackDiffuseMap();
 			}
 			else if (i == 1)
 			{
-				texture = mRenderConfigs.mNormal ? mRenderConfigs.mNormal : mRenderer.GetFallbackTexture();
+				if (mRenderConfigs.mNormalMap)
+					texture = mRenderConfigs.mNormalMap;
+				else if (mRenderConfigs.mMaterial->mNormalMap)
+					texture = mRenderConfigs.mMaterial->mNormalMap;
+				else
+					texture = mRenderer.GetFallbackNormalMap();
 			}
 			else
 			{
-				texture = mRenderer.GetFallbackTexture();
+				ASSERT(false);
+				texture = mRenderer.GetFallbackDiffuseMap();
 			}
 
 			vk::DescriptorImageInfo& imageInfo = imagesInfo[i];
