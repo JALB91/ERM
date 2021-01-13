@@ -37,7 +37,6 @@ namespace erm::ecs {
 		, mSkeletonSystem(nullptr)
 		, mCameraSystem(nullptr)
 		, mLightSystem(nullptr)
-		, mDefaultRenderConfigs(RenderConfigs::MODELS_RENDER_CONFIGS)
 	{}
 
 	void ModelSystem::Init()
@@ -46,9 +45,6 @@ namespace erm::ecs {
 		mSkeletonSystem = &mECS.GetSystem<SkeletonSystem>();
 		mCameraSystem = &mECS.GetSystem<CameraSystem>();
 		mLightSystem = &mECS.GetSystem<LightSystem>();
-
-		mDefaultRenderConfigs.mShaderProgram = mResourcesManager.GetOrCreateShaderProgram(kDefaultModelShaderPath);
-		mDefaultRenderConfigs.mTexture = mResourcesManager.GetOrCreateTexture("res/textures/viking_room.png");
 	}
 
 	void ModelSystem::OnPostUpdate()

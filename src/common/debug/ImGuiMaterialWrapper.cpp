@@ -55,7 +55,7 @@ namespace ImGui {
 
 			ImGui::Indent();
 
-			static erm::Materials& all = engine.GetResourcesManager().GetLoadedMaterials();
+			static erm::Materials& all = engine.GetResourcesManager().GetMaterials();
 			std::string currentPath = material->mPath;
 			std::string currentName = material->mName;
 			std::set<std::string> displayedPaths;

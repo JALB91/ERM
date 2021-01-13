@@ -3,10 +3,6 @@
 #include "erm/ecs/ISystem.h"
 #include "erm/ecs/components/ModelComponent.h"
 
-#include "erm/rendering/data_structs/RenderConfigs.h"
-
-#include <memory>
-
 namespace erm {
 	class Mesh;
 	class Engine;
@@ -41,8 +37,6 @@ namespace erm::ecs {
 		SkeletonSystem* mSkeletonSystem;
 		CameraSystem* mCameraSystem;
 		LightSystem* mLightSystem;
-
-		RenderConfigs mDefaultRenderConfigs;
 	};
 
 } // namespace erm::ecs
