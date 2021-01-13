@@ -16,6 +16,7 @@ function print_help {
 }
 
 cp hooks/pre-commit .git/hooks/pre-commit
+cp hooks/post-commit .git/hooks/post-commit
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
 	_GENERATOR_NAME="Xcode"

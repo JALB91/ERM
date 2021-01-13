@@ -1,22 +1,4 @@
 #!/bin/bash
 
-FILES=$(git diff --cached --name-only)
-
-git stash --keep-index --include-untracked &> /dev/null
-
-for FILE in $FILES; do
-	if [[ $FILE =~ ^(include|src).*\.(h|cpp) && -e $FILE ]]; then
-		clang-format -i -style=file $FILE
-		git add $FILE
-	fi
-done
-
-git stash apply &> /dev/null
-git stash drop &> /dev/null
-
-FILES=$(git diff --cached --name-only)
-
-if [[ -z $FILES ]]; then
-	echo "Nothing to commit"
-	exit 1
-fi
+python scripts/pre-commit.py
+exit $?
