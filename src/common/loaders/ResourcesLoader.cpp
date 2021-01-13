@@ -74,10 +74,7 @@ namespace erm {
 
 	bool ResourcesLoader::ParseModel(
 		const char* path,
-		Models& models,
-		Materials& materials,
-		Skins& skins,
-		Animations& animations)
+		ResourcesManager& resourcesManager)
 	{
 		if (!std::filesystem::exists(path))
 		{
@@ -89,7 +86,7 @@ namespace erm {
 		std::string name = pathStr.substr(pathStr.rfind("/") + 1, pathStr.rfind("."));
 		std::string extension = pathStr.substr(pathStr.rfind(".") + 1);
 
-		Model& model = *models.emplace_back(std::make_unique<Model>(mDevice, path, name.c_str()));
+		Model& model = *resourcesManager.GetModels().emplace_back(std::make_unique<Model>(mDevice, path, name.c_str()));
 		mLoadingModels.emplace_back(&model);
 
 		if (std::strcmp(extension.c_str(), "obj") == 0)
@@ -102,7 +99,7 @@ namespace erm {
 					std::ref(mStop),
 					path,
 					std::ref(model),
-					std::ref(materials)));
+					std::ref(resourcesManager)));
 		}
 		else if (std::strcmp(extension.c_str(), "dae") == 0)
 		{
@@ -114,9 +111,9 @@ namespace erm {
 					std::ref(mStop),
 					path,
 					std::ref(model),
-					std::ref(materials),
-					std::ref(skins),
-					std::ref(animations)));
+					std::ref(resourcesManager.GetMaterials()),
+					std::ref(resourcesManager.GetSkins()),
+					std::ref(resourcesManager.GetAnimations())));
 		}
 
 		return true;

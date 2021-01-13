@@ -5,10 +5,6 @@
 #include <string>
 
 namespace erm {
-	class ShaderProgram;
-}
-
-namespace erm {
 
 	struct Material
 	{
@@ -22,7 +18,6 @@ namespace erm {
 		math::vec3 mDiffuse;
 		math::vec3 mSpecular;
 		float mShininess;
-		ShaderProgram* mShaderProgram;
 	};
 
 } // namespace erm

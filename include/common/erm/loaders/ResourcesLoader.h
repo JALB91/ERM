@@ -26,10 +26,7 @@ namespace erm {
 
 		bool ParseModel(
 			const char* path,
-			Models& models,
-			Materials& materials,
-			Skins& skins,
-			Animations& animations);
+			ResourcesManager& resourcesManager);
 
 	private:
 		Device& mDevice;

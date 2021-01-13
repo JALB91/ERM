@@ -1,11 +1,77 @@
 #include "erm/debug/ImGuiMeshWrapper.h"
 #include "erm/debug/ImGuiMaterialWrapper.h"
 
+#include "erm/engine/Engine.h"
+
+#include "erm/managers/ResourcesManager.h"
+
 #include "erm/rendering/data_structs/Mesh.h"
+#include "erm/rendering/shaders/ShaderProgram.h"
 
 #include <imgui.h>
 
 namespace ImGui {
+
+	void ShowShaderPathOptions(erm::Engine& engine, erm::Mesh& mesh)
+	{
+		const std::vector<std::string>& all = engine.GetFileLocator().GetShaderPrograms();
+
+		erm::ShaderProgram* shader = mesh.GetRenderConfigs().mShaderProgram;
+		std::string currentPath = shader ? shader->GetPath() : "";
+
+		if (ImGui::BeginCombo("Shader", currentPath.c_str()))
+		{
+			bool isSelected = currentPath == "";
+			if (ImGui::Selectable("", &isSelected))
+			{
+				currentPath = "";
+				mesh.GetRenderConfigs().mShaderProgram = nullptr;
+			}
+			for (unsigned int i = 0; i < all.size(); ++i)
+			{
+				isSelected = currentPath == all[i];
+				if (ImGui::Selectable(all[i].c_str(), &isSelected))
+				{
+					if (currentPath != all[i])
+					{
+						currentPath = all[i];
+						mesh.GetRenderConfigs().mShaderProgram = engine.GetResourcesManager().GetOrCreateShaderProgram(all[i].c_str());
+					}
+				}
+			}
+			ImGui::EndCombo();
+		}
+	}
+
+	void ShowTexturePathOptions(erm::Engine& engine, erm::Texture** texture, const char* name)
+	{
+		const std::vector<std::string>& all = engine.GetFileLocator().GetTextures();
+
+		std::string currentPath = *texture ? (*texture)->GetPath() : "";
+
+		if (ImGui::BeginCombo(name, currentPath.c_str()))
+		{
+			bool isSelected = currentPath == "";
+			if (ImGui::Selectable("", &isSelected))
+			{
+				currentPath = "";
+				*texture = nullptr;
+			}
+			for (unsigned int i = 0; i < all.size(); ++i)
+			{
+				isSelected = currentPath == all[i];
+				if (ImGui::Selectable(all[i].c_str(), &isSelected))
+				{
+					if (currentPath != all[i])
+					{
+						currentPath = all[i];
+						*texture = engine.GetResourcesManager().GetOrCreateTexture(all[i].c_str());
+					}
+				}
+			}
+			ImGui::EndCombo();
+		}
+	}
 
 	void ShowMeshDebugWindow(erm::Engine& engine, erm::Mesh& mesh, unsigned int meshId)
 	{
@@ -19,6 +85,10 @@ namespace ImGui {
 			ImGui::Text("Vertices: %u", mesh.GetVerticesDataCount());
 			ImGui::Text("Indices: %u", mesh.GetIndicesCount());
 			ImGui::ShowMaterialDebug(engine, mesh);
+
+			ShowShaderPathOptions(engine, mesh);
+			ShowTexturePathOptions(engine, &mesh.GetRenderConfigs().mDiffuse, "Diffuse");
+			ShowTexturePathOptions(engine, &mesh.GetRenderConfigs().mNormal, "Normal");
 
 			ImGui::Unindent();
 		}

@@ -160,7 +160,7 @@ namespace erm {
 			return (*it).get();
 		}
 
-		if (mResourcesLoader->ParseModel(modelPath, mModels, mMaterials, mSkins, mAnimations))
+		if (mResourcesLoader->ParseModel(modelPath, *this))
 		{
 			return mModels.back().get();
 		}

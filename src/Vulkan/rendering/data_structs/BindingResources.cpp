@@ -115,12 +115,15 @@ namespace erm {
 
 	void BindingResources::UpdateResources(RenderData& data, uint32_t index)
 	{
+		ASSERT(data.mRenderConfigs.IsResourcesBindingCompatible(mRenderConfigs));
+
 		ShaderProgram* shader = mRenderConfigs.mShaderProgram;
 
 		const std::vector<UboData>& ubosData = shader->GetUbosData();
 		std::vector<vk::DescriptorBufferInfo> descriptorBuffers(ubosData.size());
 
 		const std::vector<SamplerData>& samplerData = shader->GetSamplerData();
+		std::vector<vk::DescriptorImageInfo> imagesInfo(samplerData.size());
 
 		std::vector<vk::WriteDescriptorSet> descriptorWrites(ubosData.size() + samplerData.size());
 
@@ -137,9 +140,24 @@ namespace erm {
 
 		for (size_t i = 0; i < samplerData.size(); ++i)
 		{
-			vk::DescriptorImageInfo imageInfo {};
+			Texture* texture = nullptr;
+
+			if (i == 0)
+			{
+				texture = mRenderConfigs.mDiffuse ? mRenderConfigs.mDiffuse : mRenderer.GetFallbackTexture();
+			}
+			else if (i == 1)
+			{
+				texture = mRenderConfigs.mNormal ? mRenderConfigs.mNormal : mRenderer.GetFallbackTexture();
+			}
+			else
+			{
+				texture = mRenderer.GetFallbackTexture();
+			}
+
+			vk::DescriptorImageInfo& imageInfo = imagesInfo[i];
 			imageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
-			imageInfo.imageView = mRenderConfigs.mTexture ? mRenderConfigs.mTexture->GetImageView() : mRenderer.GetFallbackTexture()->GetImageView();
+			imageInfo.imageView = texture->GetImageView();
 			imageInfo.sampler = mRenderer.GetTextureSampler();
 
 			vk::WriteDescriptorSet descriptorWrite;

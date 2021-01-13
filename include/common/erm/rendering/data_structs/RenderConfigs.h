@@ -38,7 +38,8 @@ namespace erm {
 			std::optional<DrawMode> drawMode = {},
 			ShaderProgram* shaderProgram = nullptr,
 			Material* material = nullptr,
-			Texture* texture = nullptr);
+			Texture* diffuse = nullptr,
+			Texture* normal = nullptr);
 
 		bool operator==(const RenderConfigs& other) const;
 		bool operator!=(const RenderConfigs& other) const;
@@ -55,7 +56,7 @@ namespace erm {
 		bool IsPolyModeCompatible(const RenderConfigs& other) const;
 		bool IsShaderCompatible(const RenderConfigs& other) const;
 		bool IsMaterialCompatible(const RenderConfigs& other) const;
-		bool IsTextureCompatible(const RenderConfigs& other) const;
+		bool AreTexturesCompatible(const RenderConfigs& other) const;
 
 		SubpassData mSubpassData;
 		DECL_SET_GET_OPT_WITH_DEFAULT(NormViewport, BoundingBox2D, BoundingBox2D({0.0f, 0.0f}, {1.0f, 1.0f}));
@@ -70,7 +71,8 @@ namespace erm {
 		DECL_SET_GET_OPT_WITH_DEFAULT(DrawMode, DrawMode, DrawMode::TRIANGLES);
 		ShaderProgram* mShaderProgram;
 		Material* mMaterial;
-		Texture* mTexture;
+		Texture* mDiffuse;
+		Texture* mNormal;
 	};
 
 } // namespace erm

@@ -99,10 +99,11 @@ namespace erm {
 		{
 			auto entity = mECS->GetOrCreateEntity();
 			Model* model = mResourcesManager->GetOrCreateModel(kModelToUse);
-			entity->RequireComponent<ecs::ModelComponent>(model);
+			//Model* model = mResourcesManager->GetOrCreateModel("res/models/home_1.obj");
+			auto comp = entity->RequireComponent<ecs::ModelComponent>(model);
 			auto transform = entity->RequireComponent<ecs::TransformComponent>();
-			transform->mRotation.x = kDefaultRotX;
-			transform->mScale = math::vec3(kDefaultScale);
+			//transform->mRotation.x = kDefaultRotX;
+			transform->mScale = math::vec3(0.1f);
 			root->AddChild(*entity);
 		}
 

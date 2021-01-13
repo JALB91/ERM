@@ -120,26 +120,47 @@ namespace erm::ecs {
 					continue;
 
 				Mesh& mesh = meshes[i];
+				RenderConfigs& configs = mesh.GetRenderConfigs();
+
+				if (!configs.mMaterial)
+					configs.mMaterial = &Material::DEFAULT;
+
+				if (!light)
+				{
+					configs.mShaderProgram = mResourcesManager.GetOrCreateShaderProgram("res/shaders/vk_basic");
+				}
+				else if (skeletonComponent && skeletonComponent->GetRootBone())
+				{
+					configs.mShaderProgram = mResourcesManager.GetOrCreateShaderProgram("res/shaders/vk_skeleton");
+				}
+				else if (configs.mDiffuse && configs.mNormal)
+				{
+					configs.mShaderProgram = mResourcesManager.GetOrCreateShaderProgram("res/shaders/vk_model_tex_norm");
+				}
+				else if (configs.mDiffuse)
+				{
+					configs.mShaderProgram = mResourcesManager.GetOrCreateShaderProgram("res/shaders/vk_model_tex");
+				}
+				else if (!configs.mShaderProgram)
+				{
+					configs.mShaderProgram = mResourcesManager.GetOrCreateShaderProgram("res/shaders/vk_model");
+				}
+
+				configs.SetNormViewport(mEngine.GetWindow().GetNormalizedViewport());
 
 				RenderData* data = nullptr;
 
-				if (renderingComponent->mMaterialIndices.find(mesh.GetRenderConfigs().mMaterial) == renderingComponent->mMaterialIndices.end())
+				auto it = std::find_if(renderingComponent->mRenderData.begin(), renderingComponent->mRenderData.end(), [&configs](const RenderData& data) {
+					return data.mRenderConfigs == configs;
+				});
+
+				if (it == renderingComponent->mRenderData.end())
 				{
-					renderingComponent->mMaterialIndices[mesh.GetRenderConfigs().mMaterial] = renderingComponent->mRenderData.size();
 					data = &renderingComponent->mRenderData.emplace_back(mesh.GetRenderConfigs());
 				}
 				else
 				{
-					data = &renderingComponent->mRenderData[renderingComponent->mMaterialIndices[mesh.GetRenderConfigs().mMaterial]];
-				}
-
-				if (skeletonComponent && skeletonComponent->GetRootBone())
-				{
-					data->mRenderConfigs.mShaderProgram = mResourcesManager.GetOrCreateShaderProgram("res/shaders/vk_skeleton");
-				}
-				else if (!data->mRenderConfigs.mShaderProgram)
-				{
-					data->mRenderConfigs.mShaderProgram = mResourcesManager.GetOrCreateShaderProgram("res/shaders/vk_model");
+					data = &(*it);
 				}
 
 				{
@@ -148,68 +169,9 @@ namespace erm::ecs {
 					data->SetUbo(std::move(ubo));
 				}
 
-				if (light)
 				{
-					{
-						UboLight ubo;
-						ubo.mAmbient = light->mAmbient;
-						ubo.mDiffuse = light->mDiffuse;
-						ubo.mSpecular = light->mSpecular;
-						ubo.mPosition = lightPos;
+					Material& material = *configs.mMaterial;
 
-						data->SetUbo(std::move(ubo));
-					}
-
-					if (skeletonComponent && skeletonComponent->GetRootBone())
-					{
-						UboSkeleton ubo;
-						ubo.mModel = modelTransform->mLocalTransform;
-						ubo.mViewProj = viewProj;
-
-						int count = 0;
-						skeletonComponent->GetRootBone()->ForEachDo([&ubo, &count](BonesTree& bone) {
-							if (count >= 100)
-								return;
-
-							ubo.mBonesTransforms[count] = bone.GetPayload()->mAnimatedTransform;
-							++count;
-						});
-
-						data->SetUbo(std::move(ubo));
-					}
-					else
-					{
-						UboModelViewProj ubo;
-						ubo.mModel = modelTransform->mLocalTransform;
-						ubo.mViewProj = viewProj;
-
-						data->SetUbo(std::move(ubo));
-					}
-
-					{
-						UboView ubo;
-						ubo.mPosition = cameraTransform->mTranslation;
-
-						data->SetUbo(std::move(ubo));
-					}
-				}
-				else
-				{
-					data->mRenderConfigs.mShaderProgram = mResourcesManager.GetOrCreateShaderProgram("res/shaders/vk_basic");
-				}
-
-				data->mMeshes.emplace_back(&mesh);
-
-				data->mRenderConfigs.SetNormViewport(mEngine.GetWindow().GetNormalizedViewport());
-
-				Material& material = mesh.GetRenderConfigs().mMaterial ? *mesh.GetRenderConfigs().mMaterial : Material::DEFAULT;
-
-				if (material.mShaderProgram)
-				{
-					data->mRenderConfigs.mShaderProgram = material.mShaderProgram;
-				}
-
-				{
 					UboMaterial ubo;
 					ubo.mShininess = material.mShininess;
 					ubo.mSpecular = material.mSpecular;
@@ -218,13 +180,57 @@ namespace erm::ecs {
 
 					data->SetUbo(std::move(ubo));
 				}
+
+				{
+					UboLight ubo;
+					ubo.mAmbient = light->mAmbient;
+					ubo.mDiffuse = light->mDiffuse;
+					ubo.mSpecular = light->mSpecular;
+					ubo.mPosition = lightPos;
+
+					data->SetUbo(std::move(ubo));
+				}
+
+				if (skeletonComponent && skeletonComponent->GetRootBone())
+				{
+					UboSkeleton ubo;
+					ubo.mModel = modelTransform->mLocalTransform;
+					ubo.mViewProj = viewProj;
+
+					int count = 0;
+					skeletonComponent->GetRootBone()->ForEachDo([&ubo, &count](BonesTree& bone) {
+						if (count >= 100)
+							return;
+
+						ubo.mBonesTransforms[count] = bone.GetPayload()->mAnimatedTransform;
+						++count;
+					});
+
+					data->SetUbo(std::move(ubo));
+				}
+
+				{
+					UboModelViewProj ubo;
+					ubo.mModel = modelTransform->mLocalTransform;
+					ubo.mViewProj = viewProj;
+
+					data->SetUbo(std::move(ubo));
+				}
+
+				{
+					UboView ubo;
+					ubo.mPosition = cameraTransform->mTranslation;
+
+					data->SetUbo(std::move(ubo));
+				}
+
+				data->mMeshes.emplace_back(&mesh);
 			}
 
 			for (RenderData& data : renderingComponent->mRenderData)
 			{
-				if (data.mMeshes.empty())
-					continue;
-				renderer.SubmitRenderData(data);
+				if (!data.mMeshes.empty())
+					renderer.SubmitRenderData(data);
 			}
 		});
 	}

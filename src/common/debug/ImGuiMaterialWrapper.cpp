@@ -15,38 +15,6 @@
 
 namespace ImGui {
 
-	void ShowPathOptions(erm::Engine& engine, erm::Material& material)
-	{
-		const std::vector<std::string>& all = engine.GetFileLocator().GetShaderPrograms();
-
-		erm::ShaderProgram* shader = material.mShaderProgram;
-		std::string currentPath = shader ? shader->GetPath() : "";
-
-		if (ImGui::BeginCombo("Shader Path", currentPath.c_str()))
-		{
-			bool isSelected = currentPath == "";
-			if (ImGui::Selectable("", &isSelected))
-			{
-				currentPath = "";
-				material.mShaderProgram = nullptr;
-			}
-
-			for (unsigned int i = 0; i < all.size(); ++i)
-			{
-				isSelected = currentPath == all[i];
-				if (ImGui::Selectable(all[i].c_str(), &isSelected))
-				{
-					if (currentPath != all[i])
-					{
-						currentPath = all[i];
-						material.mShaderProgram = engine.GetResourcesManager().GetOrCreateShaderProgram(all[i].c_str());
-					}
-				}
-			}
-			ImGui::EndCombo();
-		}
-	}
-
 	void ShowMaterialDebug(erm::Engine& engine, erm::Mesh& mesh)
 	{
 		if (ImGui::CollapsingHeader("Material"))
@@ -124,8 +92,6 @@ namespace ImGui {
 			ImGui::SliderFloat3("Diffuse", &material->mDiffuse.x, 0.0f, 1.0f);
 			ImGui::SliderFloat3("Specular", &material->mSpecular.x, 0.0f, 1.0f);
 			ImGui::SliderFloat("Shininess", &material->mShininess, 0.0f, 1000.0f);
-
-			ShowPathOptions(engine, *material);
 
 			ImGui::Unindent();
 		}

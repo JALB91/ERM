@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <fstream>
 #include <iostream>
+#include <map>
 #include <optional>
 #include <string>
 
@@ -19,7 +20,8 @@ namespace erm {
 		std::mutex& mutex,
 		std::atomic<bool>& stop,
 		const char* path,
-		Materials& materials);
+		ResourcesManager& resourcesManager,
+		std::map<Material*, Texture*>& texturesMap);
 
 	void ParseFace(
 		std::vector<VertexData>& oVertices,
@@ -38,6 +40,7 @@ namespace erm {
 		std::vector<VertexData>& vertices,
 		std::vector<IndexData>& indices,
 		Material* material,
+		Texture* texture,
 		std::string& meshName);
 
 	void ParseObjModel(
@@ -45,7 +48,7 @@ namespace erm {
 		std::atomic<bool>& stop,
 		const char* path,
 		Model& model,
-		Materials& materials)
+		ResourcesManager& resourcesManager)
 	{
 		std::ifstream stream(path);
 
@@ -58,6 +61,7 @@ namespace erm {
 		std::vector<VertexData> verticesData;
 		std::vector<IndexData> indicesData;
 		Material* material = nullptr;
+		std::map<Material*, Texture*> texturesMap {{nullptr, nullptr}};
 
 		bool wasLooping = false;
 		bool noMat = false;
@@ -81,8 +85,7 @@ namespace erm {
 
 					if (!verticesData.empty() && !indicesData.empty())
 					{
-						AddMesh(mutex, model, verticesData, indicesData, material, meshName);
-						material = nullptr;
+						AddMesh(mutex, model, verticesData, indicesData, material, texturesMap[material], meshName);
 						verticesData.clear();
 						indicesData.clear();
 						meshName.clear();
@@ -90,25 +93,9 @@ namespace erm {
 				}
 				else if (splitted[0].compare("g") == 0)
 				{
-					if (splitted.size() >= 2)
+					if (!verticesData.empty() && !indicesData.empty())
 					{
-						meshName = splitted[splitted.size() - 1];
-					}
-				}
-				else if (splitted[0].compare("mtllib") == 0)
-				{
-					std::string pathStr(path);
-					pathStr = pathStr.substr(0, pathStr.rfind("/"));
-					pathStr.append("/");
-					pathStr.append(splitted[1]);
-					noMat = !ParseMaterialsLib(mutex, stop, pathStr.c_str(), materials);
-				}
-				else if (splitted[0].compare("v") == 0)
-				{
-					if (!verticesData.empty() && !indicesData.empty() && material)
-					{
-						AddMesh(mutex, model, verticesData, indicesData, material, meshName);
-						material = nullptr;
+						AddMesh(mutex, model, verticesData, indicesData, material, texturesMap[material], meshName);
 						verticesData.clear();
 						indicesData.clear();
 					}
@@ -116,7 +103,35 @@ namespace erm {
 					if (wasLooping)
 					{
 						wasLooping = false;
-						material = nullptr;
+						verticesData.clear();
+						indicesData.clear();
+					}
+
+					if (splitted.size() >= 2)
+					{
+						meshName = splitted[splitted.size() - 1];
+					}
+				}
+				else if (splitted[0].compare("mtllib") == 0)
+				{
+					std::string pathStr("res/materials/");
+					pathStr = pathStr.substr(0, pathStr.rfind("/"));
+					pathStr.append("/");
+					pathStr.append(splitted[1]);
+					noMat = !ParseMaterialsLib(mutex, stop, pathStr.c_str(), resourcesManager, texturesMap);
+				}
+				else if (splitted[0].compare("v") == 0)
+				{
+					if (!verticesData.empty() && !indicesData.empty() && material)
+					{
+						AddMesh(mutex, model, verticesData, indicesData, material, texturesMap[material], meshName);
+						verticesData.clear();
+						indicesData.clear();
+					}
+
+					if (wasLooping)
+					{
+						wasLooping = false;
 						verticesData.clear();
 						indicesData.clear();
 					}
@@ -146,7 +161,7 @@ namespace erm {
 				{
 					if (!verticesData.empty() && !indicesData.empty())
 					{
-						AddMesh(mutex, model, verticesData, indicesData, material, meshName);
+						AddMesh(mutex, model, verticesData, indicesData, material, texturesMap[material], meshName);
 					}
 					if (noMat)
 					{
@@ -156,6 +171,7 @@ namespace erm {
 					ASSERT(splitted.size() >= 2);
 					std::string materialName = splitted[splitted.size() - 1];
 					mutex.lock();
+					const Materials& materials = resourcesManager.GetMaterials();
 					auto it = std::find_if(materials.begin(), materials.end(), [materialName](const std::unique_ptr<Material>& material) {
 						return material->mName.compare(materialName) == 0;
 					});
@@ -194,7 +210,7 @@ namespace erm {
 
 		if (meshName.find("Collider") == std::string::npos && !verticesData.empty() && !indicesData.empty())
 		{
-			AddMesh(mutex, model, verticesData, indicesData, material, meshName);
+			AddMesh(mutex, model, verticesData, indicesData, material, texturesMap[material], meshName);
 		}
 
 		if (!name.empty())
@@ -328,6 +344,7 @@ namespace erm {
 		std::vector<VertexData>& vertices,
 		std::vector<IndexData>& indices,
 		Material* material,
+		Texture* texture,
 		std::string& meshName)
 	{
 		const unsigned int verticesCount = static_cast<unsigned int>(vertices.size());
@@ -345,7 +362,8 @@ namespace erm {
 		}
 
 		RenderConfigs configs = RenderConfigs::MODELS_RENDER_CONFIGS;
-		configs.mMaterial = material;
+		configs.mMaterial = material ? material : &Material::DEFAULT;
+		configs.mDiffuse = texture;
 
 		mutex.lock();
 		model.AddMesh(verticesData, verticesCount, indicesData, indicesCount, configs, meshName.c_str());
@@ -356,7 +374,8 @@ namespace erm {
 		std::mutex& mutex,
 		std::atomic<bool>& stop,
 		const char* path,
-		Materials& materials)
+		ResourcesManager& resourcesManager,
+		std::map<Material*, Texture*>& texturesMap)
 	{
 		std::ifstream stream(path);
 
@@ -369,6 +388,7 @@ namespace erm {
 		std::string line;
 
 		std::optional<Material> mat;
+		Texture* texture = nullptr;
 		bool skip = false;
 
 		while (std::getline(stream, line))
@@ -388,7 +408,9 @@ namespace erm {
 					if (!skip && mat)
 					{
 						mutex.lock();
-						materials.emplace_back(std::make_unique<Material>(std::move(mat.value())));
+						Material* material = &(*resourcesManager.GetMaterials().emplace_back(std::make_unique<Material>(std::move(mat.value()))));
+						texturesMap[material] = texture;
+						texture = nullptr;
 						mutex.unlock();
 					}
 
@@ -398,15 +420,16 @@ namespace erm {
 					ASSERT(splitted.size() >= 2);
 					std::string name = splitted[splitted.size() - 1];
 					mutex.lock();
-					const auto& it = std::find_if(materials.begin(), materials.end(), [name](const std::unique_ptr<Material>& mat) {
+					const auto& it = std::find_if(resourcesManager.GetMaterials().begin(), resourcesManager.GetMaterials().end(), [name](const std::unique_ptr<Material>& mat) {
 						return mat->mName.compare(name) == 0;
 					});
-					mutex.unlock();
-					if (it != materials.end())
+					if (it != resourcesManager.GetMaterials().end())
 					{
 						skip = true;
+						mutex.unlock();
 						continue;
 					}
+					mutex.unlock();
 
 					mat = Material::DEFAULT;
 					mat->mPath = path;
@@ -445,6 +468,14 @@ namespace erm {
 					ASSERT(splitted.size() >= 2);
 					mat->mShininess = static_cast<float>(std::atof(splitted[splitted.size() - 1].c_str()));
 				}
+				else if (splitted[0].compare("map_Kd") == 0)
+				{
+					if (splitted.size() != 2)
+						continue;
+					mutex.lock();
+					texture = resourcesManager.GetOrCreateTexture((std::string("res/textures/") + splitted[1]).c_str());
+					mutex.unlock();
+				}
 			}
 		}
 
@@ -453,7 +484,9 @@ namespace erm {
 		if (!skip && mat)
 		{
 			mutex.lock();
-			materials.emplace_back(std::make_unique<Material>(std::move(mat.value())));
+			Material* material = &(*resourcesManager.GetMaterials().emplace_back(std::make_unique<Material>(std::move(mat.value()))));
+			texturesMap[material] = texture;
+			texture = nullptr;
 			mutex.unlock();
 		}
 

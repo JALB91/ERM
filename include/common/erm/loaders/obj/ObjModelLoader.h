@@ -12,6 +12,6 @@ namespace erm {
 		std::atomic<bool>& stop,
 		const char* path,
 		Model& model,
-		Materials& materials);
+		ResourcesManager& resourcesManager);
 
 }
