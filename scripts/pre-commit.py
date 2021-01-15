@@ -12,13 +12,13 @@ def pre_commit():
     needStash = False
 
     for filePath in toCommit:
-        if filePath in localChanges:
+        if filePath in localChanges and (filePath.endswith(".h") or filePath.endswith(".cpp")):
             needStash = True
             stash_with_options(['--keep-index', '--include-untracked', '-m PRE_COMMIT_STASH'])
             break
 
     for filePath in toCommit:
-        if filePath and (filePath.find('include/') != -1 or filePath.find('src/') != -1):
+        if filePath and (filePath.endswith('.h') or filePath.endswith('.cpp')):
             format_file(filePath)
             add_to_index(filePath)
 
