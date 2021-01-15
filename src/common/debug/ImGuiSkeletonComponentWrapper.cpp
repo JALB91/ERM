@@ -75,7 +75,7 @@ namespace ImGui {
 
 	void ShowPathOptions(erm::Engine& engine, erm::ecs::SkeletonComponent& skeletonComponent)
 	{
-		const erm::Skins& all = engine.GetResourcesManager().GetLoadedSkins();
+		const erm::Skins& all = engine.GetResourcesManager().GetSkins();
 
 		erm::BonesTree* rootBone = skeletonComponent.GetRootBone();
 		std::string currentPath = rootBone ? rootBone->GetPayload()->mName : "";

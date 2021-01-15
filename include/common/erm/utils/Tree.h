@@ -1,5 +1,7 @@
 #pragma once
 
+#include "erm/utils/Utils.h"
+
 #include <functional>
 #include <memory>
 #include <vector>
@@ -19,6 +21,9 @@ namespace erm {
 			, mPayload(std::forward<T>(payload))
 		{}
 		~Tree() = default;
+
+		Tree(const Tree&) = delete;
+		Tree& operator=(const Tree&) = delete;
 
 		Tree(Tree&& other)
 			: mParent(std::move(other.mParent))
@@ -48,6 +53,22 @@ namespace erm {
 			}
 
 			return *this;
+		}
+
+		Tree Clone()
+		{
+			Tree tree(Utils::Clone(mId), Utils::Clone(mPayload));
+
+			Tree* currentNode = &tree;
+
+			ForEachChildDo([&currentNode](Tree& node) mutable {
+				currentNode = &(currentNode->AddChild(Utils::Clone(node.GetId()), Utils::Clone(node.GetPayload())));
+			},
+						   [&currentNode](Tree& node) mutable {
+							   currentNode = currentNode->GetParent();
+						   });
+
+			return tree;
 		}
 
 		Tree& GetRoot()
@@ -84,6 +105,11 @@ namespace erm {
 			ForEachDo(*this, before, after);
 		}
 
+		inline void ForEachChildDo(const std::function<void(Tree&)>& before, const std::function<void(Tree&)>& after = nullptr)
+		{
+			ForEachChildDo(*this, before, after);
+		}
+
 		inline void Find(S id)
 		{
 			return Find(*this, id);
@@ -105,6 +131,24 @@ namespace erm {
 		inline Tree* GetParent() { return mParent; }
 		inline const Children& GetChildren() const { return mChildren; }
 
+		inline bool Equal(Tree& other)
+		{
+			if (GetId() != other.GetId() || GetPayload() != other.GetPayload())
+				return false;
+			if (mChildren.size() != other.mChildren.size() || GetSize() != other.GetSize())
+				return false;
+
+			bool equals = true;
+			for (size_t i = 0; i < mChildren.size(); ++i)
+			{
+				equals &= mChildren[i]->Equal(*other.mChildren[i]);
+				if (!equals)
+					break;
+			}
+
+			return equals;
+		}
+
 	public:
 		static void ForEachDo(Tree& node, const std::function<void(Tree&)>& before, const std::function<void(Tree&)>& after)
 		{
@@ -116,6 +160,18 @@ namespace erm {
 			}
 			if (after)
 				after(node);
+		}
+
+		static void ForEachChildDo(Tree& node, const std::function<void(Tree&)>& before, const std::function<void(Tree&)>& after)
+		{
+			for (auto& child : node.mChildren)
+			{
+				if (before)
+					before(*child);
+				ForEachChildDo(*child, before, after);
+				if (after)
+					after(*child);
+			}
 		}
 
 		static Tree* Find(Tree& node, S id)

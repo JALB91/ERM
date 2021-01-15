@@ -56,7 +56,7 @@ namespace ImGui {
 
 	void ShowPathOptions(erm::Engine& engine, erm::ecs::AnimationComponent& animationComponent)
 	{
-		const erm::Animations& all = engine.GetResourcesManager().GetLoadedAnimations();
+		const erm::Animations& all = engine.GetResourcesManager().GetAnimations();
 
 		erm::SkeletonAnimation* skeletonAnimation = animationComponent.mSkeletonAnimation;
 		std::string currentPath = skeletonAnimation ? skeletonAnimation->mName : "";

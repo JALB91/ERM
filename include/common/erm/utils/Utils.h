@@ -1,6 +1,7 @@
 #pragma once
 
 #include <assert.h>
+#include <memory>
 #include <optional>
 #include <string>
 #include <vector>
@@ -25,5 +26,22 @@ namespace erm::Utils {
 	extern std::string StripFunctionName(const char* fn);
 	extern std::string ReadFromFile(const char* path);
 	extern void WriteToFile(const char* path, const std::string& data);
+
+	template<
+		typename T,
+		typename Enable = std::enable_if_t<std::is_copy_constructible_v<T> && !std::is_pointer_v<T>>>
+	T Clone(const T& value)
+	{
+		return T(value);
+	}
+
+	template<
+		typename T,
+		typename Enable = std::enable_if_t<std::is_copy_constructible_v<T> && !std::is_pointer_v<T>>>
+	std::unique_ptr<T> Clone(const std::unique_ptr<T>& value)
+	{
+		ASSERT(value);
+		return std::make_unique<T>(*value.get());
+	}
 
 } // namespace erm::Utils

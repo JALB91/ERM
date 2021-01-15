@@ -4,6 +4,8 @@
 
 #include "erm/engine/Engine.h"
 
+#include "erm/managers/ResourcesManager.h"
+
 #include "erm/rendering/Device.h"
 #include "erm/rendering/buffers/IndexBuffer.h"
 #include "erm/rendering/buffers/UniformBuffer.h"
@@ -36,6 +38,7 @@ namespace erm {
 		: mEngine(engine)
 		, mWindow(engine.GetWindow())
 		, mDevice(engine.GetDevice())
+		, mResourcesManager(engine.GetResourcesManager())
 		, mCurrentFrame(0)
 		, mCurrentImageIndex(0)
 		, mMinImageCount(0)
@@ -83,9 +86,9 @@ namespace erm {
 			renderingResources->Refresh();
 		}
 
-		mDevice->waitForFences(1, &mInFlightFences[mCurrentFrame], VK_TRUE, UINT64_MAX);
+		vk::Result result = mDevice->waitForFences(1, &mInFlightFences[mCurrentFrame], VK_TRUE, UINT64_MAX);
 
-		vk::Result result = mDevice->acquireNextImageKHR(mSwapChain, UINT64_MAX, mImageAvailableSemaphores[mCurrentFrame], {}, &mCurrentImageIndex);
+		result = mDevice->acquireNextImageKHR(mSwapChain, UINT64_MAX, mImageAvailableSemaphores[mCurrentFrame], {}, &mCurrentImageIndex);
 
 		if (result == vk::Result::eErrorOutOfDateKHR)
 		{
@@ -100,7 +103,7 @@ namespace erm {
 		// Check if a previous frame is using this image (i.e. there is its fence to wait on)
 		if (mImagesInFlight[mCurrentImageIndex])
 		{
-			mDevice->waitForFences(1, &mImagesInFlight[mCurrentImageIndex], VK_TRUE, UINT64_MAX);
+			vk::Result result = mDevice->waitForFences(1, &mImagesInFlight[mCurrentImageIndex], VK_TRUE, UINT64_MAX);
 		}
 		// Mark the image as now being in use by this frame
 		mImagesInFlight[mCurrentImageIndex] = mInFlightFences[mCurrentFrame];
@@ -128,7 +131,7 @@ namespace erm {
 		submitInfo.signalSemaphoreCount = 1;
 		submitInfo.pSignalSemaphores = &mRenderFinishedSemaphores[mCurrentFrame];
 
-		mDevice->resetFences(1, &mInFlightFences[mCurrentFrame]);
+		vk::Result result = mDevice->resetFences(1, &mInFlightFences[mCurrentFrame]);
 
 		if (mDevice.GetGraphicsQueue().submit(1, &submitInfo, mInFlightFences[mCurrentFrame]) != vk::Result::eSuccess)
 		{
@@ -396,6 +399,16 @@ namespace erm {
 			mRenderFinishedSemaphores[i] = mDevice->createSemaphore(semaphoreInfo);
 			mInFlightFences[i] = mDevice->createFence(fenceInfo);
 		}
+	}
+
+	Texture* Renderer::GetFallbackDiffuseMap() const
+	{
+		return mResourcesManager.GetOrCreateTexture("res/textures/viking_room.png");
+	}
+
+	Texture* Renderer::GetFallbackNormalMap() const
+	{
+		return mResourcesManager.GetOrCreateTexture("res/textures/viking_room.png");
 	}
 
 } // namespace erm

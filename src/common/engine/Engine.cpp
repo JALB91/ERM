@@ -14,6 +14,7 @@
 #include "erm/ecs/systems/CameraSystem.h"
 #include "erm/ecs/systems/LightSystem.h"
 #include "erm/ecs/systems/ModelSystem.h"
+#include "erm/ecs/systems/SkeletonSystem.h"
 #include "erm/ecs/systems/TransformSystem.h"
 
 #include "erm/loaders/fbx/FBXModelLoader.h"
@@ -38,9 +39,9 @@ namespace {
 	const char* const kModelModelPath = "res/models/model.dae";
 	const char* const kVikingRoomModelPath = "res/models/viking_room.obj";
 
-	const char* const kModelToUse = kIronManModelPath;
-	//	const float kDefaultRotX = -static_cast<float>(M_PI * 0.5);
-	const float kDefaultRotX = 0.0f;
+	const char* const kModelToUse = kVikingRoomModelPath;
+	const float kDefaultRotX = -static_cast<float>(M_PI * 0.5);
+	//const float kDefaultRotX = 0.0f;
 	const float kDefaultScale = 1.0f;
 	const int kEntities = 1;
 
@@ -50,6 +51,7 @@ namespace erm {
 
 	Engine::Engine()
 		: mWindow(std::make_unique<Window>())
+		, mMaxFPS(144)
 	{
 		UNUSED(kLamborghiniModelPath);
 		UNUSED(kSpaceshipModelPath);
@@ -64,10 +66,13 @@ namespace erm {
 		UNUSED(kVikingRoomModelPath);
 		UNUSED(kDefaultScale);
 		std::srand(static_cast<unsigned int>(time(NULL)));
-		mWindow->AddListener(static_cast<IWindowListener&>(*this));
+		mWindow->AddListener(*this);
 	}
 
-	Engine::~Engine() = default;
+	Engine::~Engine()
+	{
+		mWindow->RemoveListener(*this);
+	}
 
 	bool Engine::Init()
 	{
@@ -85,9 +90,9 @@ namespace erm {
 		}
 
 		mDevice = std::make_unique<Device>(mWindow->GetWindow());
+		mResourcesManager = std::make_unique<ResourcesManager>(*mDevice);
 		mRenderer = std::make_unique<Renderer>(*this);
 		mImGuiHandle = std::make_unique<ImGuiHandle>(*this);
-		mResourcesManager = std::make_unique<ResourcesManager>(*mDevice);
 		mECS = std::make_unique<ecs::ECS>(*this);
 
 		mResourcesManager->LoadDefaultResources();
@@ -95,7 +100,7 @@ namespace erm {
 		auto camera = mECS->GetOrCreateEntity("Camera");
 		camera->AddComponent<ecs::LightComponent>();
 		camera->RequireComponent<ecs::CameraComponent>();
-		camera->GetComponent<ecs::TransformComponent>()->mTranslation = math::vec3(0.0f, 145.0f, 400.0f);
+		camera->GetComponent<ecs::TransformComponent>()->mTranslation = math::vec3(0.0f, 1.0f, 10.0f);
 
 		auto root = mECS->GetRoot();
 		root->AddChild(*camera);
@@ -104,20 +109,13 @@ namespace erm {
 		{
 			auto entity = mECS->GetOrCreateEntity();
 			Model* model = mResourcesManager->GetOrCreateModel(kModelToUse);
-			entity->RequireComponent<ecs::ModelComponent>(model);
+			//Model* model = mResourcesManager->GetOrCreateModel("res/models/home_1.obj");
+			auto comp = entity->RequireComponent<ecs::ModelComponent>(model);
 			auto transform = entity->RequireComponent<ecs::TransformComponent>();
-			transform->mRotation.x = kDefaultRotX;
-			transform->mScale = math::vec3(kDefaultScale);
+			//transform->mRotation.x = kDefaultRotX;
+			transform->mScale = math::vec3(0.1f);
 			root->AddChild(*entity);
 		}
-
-		auto entity = mECS->GetOrCreateEntity();
-		Model* model = mResourcesManager->GetOrCreateModel("Defaults/Sphere");
-		RenderConfigs rc = RenderConfigs::MODELS_RENDER_CONFIGS;
-		rc.mTexture = mResourcesManager->GetOrCreateTexture("res/textures/smile.png");
-		model->GetMeshes()[0].SetRenderConfigs(rc);
-		entity->RequireComponent<ecs::ModelComponent>(model);
-		root->AddChild(*entity);
 
 		return true;
 	}
@@ -128,30 +126,38 @@ namespace erm {
 		{
 			PROFILE_FUNCTION();
 
+			static double frameElapsedTime = 0.0;
 			static double elapsedTime = 0.0;
-			static unsigned int frameInSecond = 0;
+			static unsigned int framesInSecond = 0;
 
 			mTimer.Update();
 
-			const double frameElapsedTime = mTimer.GetFrameElapsedTime();
-			elapsedTime += frameElapsedTime;
-			++frameInSecond;
+			const double targetFrameSeconds = 1.0 / static_cast<double>(mMaxFPS);
+			const double updateElapsedTime = mTimer.GetUpdateElapsedTime();
+			frameElapsedTime += updateElapsedTime;
 
-			if (elapsedTime >= 1000.0)
+			if (frameElapsedTime < targetFrameSeconds)
+				continue;
+
+			elapsedTime += frameElapsedTime;
+			++framesInSecond;
+
+			if (elapsedTime >= 1.0)
 			{
-				mFPS = frameInSecond;
+				mFPS = framesInSecond;
 
 				elapsedTime = 0.0;
-				frameInSecond = 0;
+				framesInSecond = 0;
 			}
 
-			OnUpdate(static_cast<float>(frameElapsedTime * 0.001));
+			OnUpdate(static_cast<float>(frameElapsedTime));
 			OnPostUpdate();
 
 			OnPreRender();
 			OnRender();
-
 			OnPostRender();
+
+			frameElapsedTime = 0.0;
 		}
 	}
 

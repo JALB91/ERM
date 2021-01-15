@@ -39,35 +39,35 @@ namespace erm {
 		void OnRender();
 		void OnPostRender();
 
-		inline Shaders& GetLoadedShaderPrograms() { return mLoadedShaderPrograms; }
+		inline Shaders& GetShaderPrograms() { return mShaderPrograms; }
 		ShaderProgram* GetOrCreateShaderProgram(const char* vertexShader, const char* fragmentShader);
 		ShaderProgram* GetOrCreateShaderProgram(const char* shaderProgramPath);
 
-		inline Materials& GetLoadedMaterials() { return mLoadedMaterials; }
+		inline Materials& GetMaterials() { return mMaterials; }
 		Material* GetOrCreateMaterial(const char* materialPath, const char* materialName);
 
-		inline Textures& GetLoadedTextures() { return mLoadedTextures; }
+		inline Textures& GetTextures() { return mTextures; }
 		Texture* GetOrCreateTexture(const char* texturePath);
 
-		inline Models& GetLoadedModels() { return mLoadedModels; }
+		inline Models& GetModels() { return mModels; }
 		Model* GetOrCreateModel(const char* modelPath);
 
-		inline Skins& GetLoadedSkins() { return mLoadedSkins; }
+		inline Skins& GetSkins() { return mSkins; }
 		BonesTree* GetSkin(const char* name);
 
-		inline Animations& GetLoadedAnimations() { return mLoadedAnimations; }
+		inline Animations& GetAnimations() { return mAnimations; }
 		SkeletonAnimation* GetAnimation(const char* name);
 
 	private:
 		Device& mDevice;
 		std::unique_ptr<ResourcesLoader> mResourcesLoader;
 
-		Shaders mLoadedShaderPrograms;
-		Materials mLoadedMaterials;
-		Textures mLoadedTextures;
-		Models mLoadedModels;
-		Skins mLoadedSkins;
-		Animations mLoadedAnimations;
+		Shaders mShaderPrograms;
+		Materials mMaterials;
+		Textures mTextures;
+		Models mModels;
+		Skins mSkins;
+		Animations mAnimations;
 	};
 
 } // namespace erm

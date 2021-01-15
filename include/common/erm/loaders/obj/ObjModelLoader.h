@@ -1,9 +1,12 @@
 #pragma once
 
-#include "erm/managers/ResourcesManager.h"
-
 #include <atomic>
 #include <mutex>
+
+namespace erm {
+	class Model;
+	class ResourcesManager;
+} // namespace erm
 
 namespace erm {
 
@@ -12,6 +15,6 @@ namespace erm {
 		std::atomic<bool>& stop,
 		const char* path,
 		Model& model,
-		Materials& materials);
+		ResourcesManager& resourcesManager);
 
 }

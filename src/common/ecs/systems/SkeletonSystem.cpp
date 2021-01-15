@@ -14,7 +14,7 @@ namespace erm::ecs {
 			if (!skeletonComponent || !skeletonComponent->IsDirty())
 				continue;
 
-			BonesTree* rootBone = skeletonComponent->mRootBone;
+			BonesTree* rootBone = skeletonComponent->GetRootBone();
 			if (!rootBone)
 				continue;
 

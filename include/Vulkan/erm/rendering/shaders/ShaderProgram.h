@@ -43,6 +43,7 @@ namespace erm {
 		inline const std::string& GetFragmentSource() const { return mFragmentSource; }
 
 		inline const std::vector<UboData>& GetUbosData() const { return mUbosData; }
+		inline const std::vector<SamplerData>& GetSamplerData() const { return mSamplerData; }
 
 		inline bool NeedsReload() const { return mNeedsReload; }
 		inline void OnReloaded() { mNeedsReload = false; }
@@ -59,6 +60,7 @@ namespace erm {
 		std::unique_ptr<spirv_cross::CompilerCPP> mVertCompiler;
 		std::unique_ptr<spirv_cross::CompilerCPP> mFragCompiler;
 		std::vector<UboData> mUbosData;
+		std::vector<SamplerData> mSamplerData;
 		bool mNeedsReload;
 	};
 

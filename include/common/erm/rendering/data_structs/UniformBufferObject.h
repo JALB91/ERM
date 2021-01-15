@@ -32,7 +32,7 @@ namespace erm {
 		alignas(16) math::vec3 mAmbient;
 		alignas(16) math::vec3 mDiffuse;
 		alignas(16) math::vec3 mSpecular;
-		alignas(16) float mShininess;
+		alignas(4) float mShininess;
 	};
 
 	struct UboLight : public IUbo
@@ -50,6 +50,15 @@ namespace erm {
 		static constexpr UboId ID = 4;
 
 		alignas(16) math::vec3 mPosition;
+	};
+
+	struct UboSkeleton : public IUbo
+	{
+		static constexpr UboId ID = 5;
+
+		alignas(16) math::mat4 mModel;
+		alignas(16) math::mat4 mViewProj;
+		alignas(16) math::mat4 mBonesTransforms[100];
 	};
 
 } // namespace erm

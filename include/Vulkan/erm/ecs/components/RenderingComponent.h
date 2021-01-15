@@ -6,12 +6,9 @@
 
 #include <vector>
 
-namespace erm {
-	struct Material;
-	namespace ecs {
-		class RenderingSystem;
-	}
-} // namespace erm
+namespace erm::ecs {
+	class RenderingSystem;
+} // namespace erm::ecs
 
 namespace erm::ecs {
 
@@ -21,8 +18,10 @@ namespace erm::ecs {
 		typedef RenderingSystem SYSTEM_TYPE;
 		friend class RenderingSystem;
 
+	public:
+		RenderingComponent() = default;
+
 		std::vector<RenderData> mRenderData;
-		std::map<Material*, size_t> mMaterialIndices;
 	};
 
 } // namespace erm::ecs

@@ -1,6 +1,7 @@
 #include "erm/rendering/data_structs/BindingResources.h"
 
 #include "erm/rendering/Device.h"
+#include "erm/rendering/data_structs/Material.h"
 #include "erm/rendering/data_structs/RenderData.h"
 #include "erm/rendering/data_structs/RenderingResources.h"
 #include "erm/rendering/renderer/Renderer.h"
@@ -36,12 +37,10 @@ namespace {
 			const erm::UboData& data = ubosData[i];
 			const erm::UniformBuffer& buffer = buffers.at(data.mUboId);
 
-			vk::DescriptorBufferInfo bufferInfo {};
+			vk::DescriptorBufferInfo& bufferInfo = infos[i];
 			bufferInfo.buffer = buffer.GetBuffer();
 			bufferInfo.offset = data.mOffset;
 			bufferInfo.range = buffer.GetBufferSize();
-
-			infos.emplace_back(bufferInfo);
 		}
 	}
 
@@ -55,15 +54,13 @@ namespace {
 		{
 			const erm::UboData& data = ubosData[i];
 
-			vk::WriteDescriptorSet descriptorWrite;
+			vk::WriteDescriptorSet& descriptorWrite = writes[i];
 			descriptorWrite.dstSet = descriptorSet;
 			descriptorWrite.dstBinding = data.mBinding;
 			descriptorWrite.dstArrayElement = 0;
 			descriptorWrite.descriptorType = vk::DescriptorType::eUniformBuffer;
 			descriptorWrite.descriptorCount = 1;
 			descriptorWrite.pBufferInfo = &infos[i];
-
-			writes.emplace_back(descriptorWrite);
 		}
 	}
 
@@ -122,45 +119,68 @@ namespace erm {
 		ASSERT(data.mRenderConfigs.IsResourcesBindingCompatible(mRenderConfigs));
 
 		ShaderProgram* shader = mRenderConfigs.mShaderProgram;
-		std::vector<vk::DescriptorBufferInfo> descriptorBuffers;
-		std::vector<vk::DescriptorImageInfo> descriptorImage;
-		std::vector<vk::WriteDescriptorSet> descriptorWrites;
+
+		const std::vector<UboData>& ubosData = shader->GetUbosData();
+		std::vector<vk::DescriptorBufferInfo> descriptorBuffers(ubosData.size());
+
+		const std::vector<SamplerData>& samplerData = shader->GetSamplerData();
+		std::vector<vk::DescriptorImageInfo> imagesInfo(samplerData.size());
+
+		std::vector<vk::WriteDescriptorSet> descriptorWrites(ubosData.size() + samplerData.size());
 
 		CreateUniformBuffersDescriptorInfos(
 			descriptorBuffers,
-			shader->GetUbosData(),
+			ubosData,
 			mUniformBuffers[index]);
 
 		CreateUniformBuffersDescriptorWrites(
 			descriptorWrites,
 			descriptorBuffers,
-			shader->GetUbosData(),
+			ubosData,
 			mDescriptorSets[index]);
 
-		/*
-		TODO: Find a proper way to handle textures
-		 */
-		if (mRenderConfigs.mTexture && false)
+		for (size_t i = 0; i < samplerData.size(); ++i)
 		{
-			vk::DescriptorImageInfo imageInfo {};
+			Texture* texture = nullptr;
+
+			if (i == 0)
+			{
+				if (mRenderConfigs.mDiffuseMap)
+					texture = mRenderConfigs.mDiffuseMap;
+				else if (mRenderConfigs.mMaterial->mDiffuseMap)
+					texture = mRenderConfigs.mMaterial->mDiffuseMap;
+				else
+					texture = mRenderer.GetFallbackDiffuseMap();
+			}
+			else if (i == 1)
+			{
+				if (mRenderConfigs.mNormalMap)
+					texture = mRenderConfigs.mNormalMap;
+				else if (mRenderConfigs.mMaterial->mNormalMap)
+					texture = mRenderConfigs.mMaterial->mNormalMap;
+				else
+					texture = mRenderer.GetFallbackNormalMap();
+			}
+			else
+			{
+				ASSERT(false);
+				texture = mRenderer.GetFallbackDiffuseMap();
+			}
+
+			vk::DescriptorImageInfo& imageInfo = imagesInfo[i];
 			imageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
-			imageInfo.imageView = mRenderConfigs.mTexture->GetImageView();
+			imageInfo.imageView = texture->GetImageView();
 			imageInfo.sampler = mRenderer.GetTextureSampler();
 
-			descriptorImage.emplace_back(imageInfo);
-		}
-
-		for (size_t i = 0; i < descriptorImage.size(); ++i)
-		{
 			vk::WriteDescriptorSet descriptorWrite;
 			descriptorWrite.dstSet = mDescriptorSets[index];
-			descriptorWrite.dstBinding = 1;
+			descriptorWrite.dstBinding = shader->GetSamplerData()[i].mBinding;
 			descriptorWrite.dstArrayElement = 0;
 			descriptorWrite.descriptorType = vk::DescriptorType::eCombinedImageSampler;
 			descriptorWrite.descriptorCount = 1;
-			descriptorWrite.pImageInfo = &descriptorImage[i];
+			descriptorWrite.pImageInfo = &imageInfo;
 
-			descriptorWrites.emplace_back(descriptorWrite);
+			descriptorWrites[ubosData.size() + i] = std::move(descriptorWrite);
 		}
 
 		mDevice->updateDescriptorSets(static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);

@@ -5,7 +5,7 @@
 #include <string>
 
 namespace erm {
-	class ShaderProgram;
+	class Texture;
 }
 
 namespace erm {
@@ -22,7 +22,8 @@ namespace erm {
 		math::vec3 mDiffuse;
 		math::vec3 mSpecular;
 		float mShininess;
-		ShaderProgram* mShaderProgram;
+		Texture* mDiffuseMap;
+		Texture* mNormalMap;
 	};
 
 } // namespace erm

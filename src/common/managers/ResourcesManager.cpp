@@ -23,19 +23,19 @@ namespace erm {
 
 	void ResourcesManager::LoadDefaultResources()
 	{
-		mLoadedModels.reserve(10);
-		mLoadedModels.emplace_back(std::make_unique<Model>(mDevice, "Defaults/Triangle", "Triangle"));
-		mLoadedModels.back()->AddMesh(MeshUtils::CreateTriangle(mDevice));
-		mLoadedModels.emplace_back(std::make_unique<Model>(mDevice, "Defaults/Square", "Square"));
-		mLoadedModels.back()->AddMesh(MeshUtils::CreateSquare(mDevice));
-		mLoadedModels.emplace_back(std::make_unique<Model>(mDevice, "Defaults/Cube", "Cube"));
-		mLoadedModels.back()->AddMesh(MeshUtils::CreateCube(mDevice));
-		mLoadedModels.emplace_back(std::make_unique<Model>(mDevice, "Defaults/Sphere", "Sphere"));
-		mLoadedModels.back()->AddMesh(MeshUtils::CreateSphere(mDevice));
-		mLoadedModels.emplace_back(std::make_unique<Model>(mDevice, "Defaults/Spike", "Spike"));
-		mLoadedModels.back()->AddMesh(MeshUtils::CreateSpike(mDevice));
-		mLoadedModels.emplace_back(std::make_unique<Model>(mDevice, "Defaults/Grid", "Grid"));
-		mLoadedModels.back()->AddMesh(MeshUtils::CreateGrid(mDevice));
+		mModels.reserve(10);
+		mModels.emplace_back(std::make_unique<Model>(mDevice, "Defaults/Triangle", "Triangle"));
+		mModels.back()->AddMesh(MeshUtils::CreateTriangle(mDevice));
+		mModels.emplace_back(std::make_unique<Model>(mDevice, "Defaults/Square", "Square"));
+		mModels.back()->AddMesh(MeshUtils::CreateSquare(mDevice));
+		mModels.emplace_back(std::make_unique<Model>(mDevice, "Defaults/Cube", "Cube"));
+		mModels.back()->AddMesh(MeshUtils::CreateCube(mDevice));
+		mModels.emplace_back(std::make_unique<Model>(mDevice, "Defaults/Sphere", "Sphere"));
+		mModels.back()->AddMesh(MeshUtils::CreateSphere(mDevice));
+		mModels.emplace_back(std::make_unique<Model>(mDevice, "Defaults/Spike", "Spike"));
+		mModels.back()->AddMesh(MeshUtils::CreateSpike(mDevice));
+		mModels.emplace_back(std::make_unique<Model>(mDevice, "Defaults/Grid", "Grid"));
+		mModels.back()->AddMesh(MeshUtils::CreateGrid(mDevice));
 	}
 
 	void ResourcesManager::OnUpdate()
@@ -56,19 +56,19 @@ namespace erm {
 	ShaderProgram* ResourcesManager::GetOrCreateShaderProgram(const char* vertexShader, const char* fragmentShader)
 	{
 		std::unique_ptr<ShaderProgram> shaderProgram = std::make_unique<ShaderProgram>(mDevice, vertexShader, fragmentShader);
-		return mLoadedShaderPrograms.emplace_back(std::move(shaderProgram)).get();
+		return mShaderPrograms.emplace_back(std::move(shaderProgram)).get();
 	}
 
 	ShaderProgram* ResourcesManager::GetOrCreateShaderProgram(const char* shaderProgramPath)
 	{
 		auto it = std::find_if(
-			mLoadedShaderPrograms.begin(),
-			mLoadedShaderPrograms.end(),
+			mShaderPrograms.begin(),
+			mShaderPrograms.end(),
 			[shaderProgramPath](Handle<ShaderProgram>& program) {
 				return program->GetPath().compare(shaderProgramPath) == 0;
 			});
 
-		if (it != mLoadedShaderPrograms.end())
+		if (it != mShaderPrograms.end())
 		{
 			return (*it).get();
 		}
@@ -98,19 +98,19 @@ namespace erm {
 		stream.close();
 
 		std::unique_ptr<ShaderProgram> shaderProgram = std::make_unique<ShaderProgram>(mDevice, shaderProgramPath);
-		return mLoadedShaderPrograms.emplace_back(std::move(shaderProgram)).get();
+		return mShaderPrograms.emplace_back(std::move(shaderProgram)).get();
 	}
 
 	Material* ResourcesManager::GetOrCreateMaterial(const char* materialPath, const char* materialName)
 	{
 		auto it = std::find_if(
-			mLoadedMaterials.begin(),
-			mLoadedMaterials.end(),
+			mMaterials.begin(),
+			mMaterials.end(),
 			[materialPath, materialName](Handle<Material>& material) {
 				return (material->mPath.compare(materialPath) == 0 && material->mName.compare(materialName) == 0);
 			});
 
-		if (it != mLoadedMaterials.end())
+		if (it != mMaterials.end())
 		{
 			return (*it).get();
 		}
@@ -121,13 +121,13 @@ namespace erm {
 	Texture* ResourcesManager::GetOrCreateTexture(const char* texturePath)
 	{
 		auto it = std::find_if(
-			mLoadedTextures.begin(),
-			mLoadedTextures.end(),
+			mTextures.begin(),
+			mTextures.end(),
 			[texturePath](Handle<Texture>& texture) {
 				return texture->GetPath().compare(texturePath) == 0;
 			});
 
-		if (it != mLoadedTextures.end())
+		if (it != mTextures.end())
 		{
 			return (*it).get();
 		}
@@ -143,26 +143,26 @@ namespace erm {
 		stream.close();
 
 		std::unique_ptr<Texture> texture = std::make_unique<Texture>(mDevice, texturePath);
-		return mLoadedTextures.emplace_back(std::move(texture)).get();
+		return mTextures.emplace_back(std::move(texture)).get();
 	}
 
 	Model* ResourcesManager::GetOrCreateModel(const char* modelPath)
 	{
 		auto it = std::find_if(
-			mLoadedModels.begin(),
-			mLoadedModels.end(),
+			mModels.begin(),
+			mModels.end(),
 			[modelPath](Handle<Model>& model) {
 				return model->GetPath().compare(modelPath) == 0;
 			});
 
-		if (it != mLoadedModels.end())
+		if (it != mModels.end())
 		{
 			return (*it).get();
 		}
 
-		if (mResourcesLoader->ParseModel(modelPath, mLoadedModels, mLoadedMaterials, mLoadedSkins, mLoadedAnimations))
+		if (mResourcesLoader->ParseModel(modelPath, *this))
 		{
-			return mLoadedModels.back().get();
+			return mModels.back().get();
 		}
 
 		return nullptr;
@@ -170,20 +170,20 @@ namespace erm {
 
 	BonesTree* ResourcesManager::GetSkin(const char* name)
 	{
-		auto it = std::find_if(mLoadedSkins.begin(), mLoadedSkins.end(), [name](Handle<BonesTree>& bone) {
+		auto it = std::find_if(mSkins.begin(), mSkins.end(), [name](Handle<BonesTree>& bone) {
 			return bone->GetPayload()->mName == name;
 		});
 
-		return (it != mLoadedSkins.end() ? (*it).get() : nullptr);
+		return (it != mSkins.end() ? (*it).get() : nullptr);
 	}
 
 	SkeletonAnimation* ResourcesManager::GetAnimation(const char* name)
 	{
-		auto it = std::find_if(mLoadedAnimations.begin(), mLoadedAnimations.end(), [name](Handle<SkeletonAnimation>& animation) {
+		auto it = std::find_if(mAnimations.begin(), mAnimations.end(), [name](Handle<SkeletonAnimation>& animation) {
 			return animation->mName == name;
 		});
 
-		return (it != mLoadedAnimations.end() ? (*it).get() : nullptr);
+		return (it != mAnimations.end() ? (*it).get() : nullptr);
 	}
 
 } // namespace erm

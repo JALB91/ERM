@@ -15,21 +15,7 @@ namespace erm {
 				AttachmentLoadOp::CLEAR,
 				AttachmentStoreOp::DONT_CARE,
 				ImageLayout::UNDEFINED,
-				ImageLayout::DEPTH_STENCIL_ATTACHMENT_OPTIMAL)},
-		{}, // NormViewport
-		{}, // DepthTestEnabled
-		{}, // DepthWriteEnabled
-		{}, // DepthFunction
-		{}, // BlendEnabled
-		{}, // BlendFunction
-		{}, // CullMode
-		{}, // FrontFace
-		{}, // PolygonMode
-		{}, // DrawMode
-		nullptr, // ShaderProgram
-		nullptr, // Material
-		nullptr // Texture
-	};
+				ImageLayout::DEPTH_STENCIL_ATTACHMENT_OPTIMAL)}};
 
 	RenderConfigs::RenderConfigs(
 		const SubpassData& subpassData,
@@ -45,7 +31,8 @@ namespace erm {
 		std::optional<DrawMode> drawMode /*= {}*/,
 		ShaderProgram* shaderProgram /*= nullptr*/,
 		Material* material /*= nullptr*/,
-		Texture* texture /*= nullptr*/)
+		Texture* diffuseMap /*= nullptr*/,
+		Texture* normalMap /*= nullptr*/)
 		: mSubpassData(subpassData)
 		, mNormViewport(normViewport)
 		, mDepthTestEnabled(depthTestEnabled)
@@ -59,7 +46,8 @@ namespace erm {
 		, mDrawMode(drawMode)
 		, mShaderProgram(shaderProgram)
 		, mMaterial(material)
-		, mTexture(texture)
+		, mDiffuseMap(diffuseMap)
+		, mNormalMap(normalMap)
 	{}
 
 	bool RenderConfigs::operator==(const RenderConfigs& other) const
@@ -91,8 +79,7 @@ namespace erm {
 
 	bool RenderConfigs::IsResourcesBindingCompatible(const RenderConfigs& other) const
 	{
-		return IsMaterialCompatible(other) &&
-			IsTextureCompatible(other);
+		return IsMaterialCompatible(other) && AreTexturesCompatible(other);
 	}
 
 	bool RenderConfigs::IsSubpassCompatible(const RenderConfigs& other) const
@@ -134,12 +121,12 @@ namespace erm {
 
 	bool RenderConfigs::IsMaterialCompatible(const RenderConfigs& other) const
 	{
-		return (!mMaterial && !other.mMaterial) || (mMaterial && other.mMaterial);
+		return mMaterial == other.mMaterial;
 	}
 
-	bool RenderConfigs::IsTextureCompatible(const RenderConfigs& other) const
+	bool RenderConfigs::AreTexturesCompatible(const RenderConfigs& other) const
 	{
-		return (!mTexture && !other.mTexture) || (mTexture && other.mTexture);
+		return mDiffuseMap == other.mDiffuseMap && mNormalMap == other.mNormalMap;
 	}
 
 } // namespace erm

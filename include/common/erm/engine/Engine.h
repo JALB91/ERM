@@ -42,6 +42,9 @@ namespace erm {
 		void OnPostRender();
 
 		inline unsigned int GetFPS() const { return mFPS; }
+		inline unsigned int GetMaxFPS() const { return mMaxFPS; }
+
+		inline void SetMaxFPS(unsigned int maxFPS) { mMaxFPS = maxFPS; }
 
 		inline const Timer& GetTimer() const { return mTimer; }
 		inline const FileLocator& GetFileLocator() const { return mFileLocator; }
@@ -63,14 +66,15 @@ namespace erm {
 
 		Timer mTimer;
 		unsigned int mFPS;
+		unsigned int mMaxFPS;
 
 		FileLocator mFileLocator;
 
 		std::unique_ptr<Window> mWindow;
 		std::unique_ptr<Device> mDevice;
+		std::unique_ptr<ResourcesManager> mResourcesManager;
 		std::unique_ptr<Renderer> mRenderer;
 		std::unique_ptr<ImGuiHandle> mImGuiHandle;
-		std::unique_ptr<ResourcesManager> mResourcesManager;
 		std::unique_ptr<ecs::ECS> mECS;
 	};
 

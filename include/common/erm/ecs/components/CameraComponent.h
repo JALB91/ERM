@@ -4,6 +4,8 @@
 
 #include "erm/math/mat.h"
 
+#include <glm/gtc/matrix_transform.hpp>
+
 namespace erm::ecs {
 	class CameraSystem;
 }
@@ -18,7 +20,7 @@ namespace erm::ecs {
 
 	public:
 		CameraComponent()
-			: mMovementSpeed(1.0f)
+			: mMovementSpeed(10.0f)
 			, mMouseSensibility(0.25f)
 			, mAngleLimit(static_cast<float>(M_PI) * 0.35f)
 			, mFOV(45.0f)

@@ -1,5 +1,9 @@
 #include "erm/loaders/obj/ObjModelLoader.h"
 
+#include "erm/loaders/obj/ObjMaterialLoader.h"
+
+#include "erm/managers/ResourcesManager.h"
+
 #include "erm/math/math.h"
 
 #include "erm/rendering/buffers/IndexData.h"
@@ -14,12 +18,6 @@
 #include <string>
 
 namespace erm {
-
-	bool ParseMaterialsLib(
-		std::mutex& mutex,
-		std::atomic<bool>& stop,
-		const char* path,
-		Materials& materials);
 
 	void ParseFace(
 		std::vector<VertexData>& oVertices,
@@ -45,7 +43,7 @@ namespace erm {
 		std::atomic<bool>& stop,
 		const char* path,
 		Model& model,
-		Materials& materials)
+		ResourcesManager& resourcesManager)
 	{
 		std::ifstream stream(path);
 
@@ -82,7 +80,6 @@ namespace erm {
 					if (!verticesData.empty() && !indicesData.empty())
 					{
 						AddMesh(mutex, model, verticesData, indicesData, material, meshName);
-						material = nullptr;
 						verticesData.clear();
 						indicesData.clear();
 						meshName.clear();
@@ -90,25 +87,9 @@ namespace erm {
 				}
 				else if (splitted[0].compare("g") == 0)
 				{
-					if (splitted.size() >= 2)
-					{
-						meshName = splitted[splitted.size() - 1];
-					}
-				}
-				else if (splitted[0].compare("mtllib") == 0)
-				{
-					std::string pathStr(path);
-					pathStr = pathStr.substr(0, pathStr.rfind("/"));
-					pathStr.append("/");
-					pathStr.append(splitted[1]);
-					noMat = !ParseMaterialsLib(mutex, stop, pathStr.c_str(), materials);
-				}
-				else if (splitted[0].compare("v") == 0)
-				{
-					if (!verticesData.empty() && !indicesData.empty() && material)
+					if (!verticesData.empty() && !indicesData.empty())
 					{
 						AddMesh(mutex, model, verticesData, indicesData, material, meshName);
-						material = nullptr;
 						verticesData.clear();
 						indicesData.clear();
 					}
@@ -116,7 +97,33 @@ namespace erm {
 					if (wasLooping)
 					{
 						wasLooping = false;
-						material = nullptr;
+						verticesData.clear();
+						indicesData.clear();
+					}
+
+					if (splitted.size() >= 2)
+					{
+						meshName = splitted[splitted.size() - 1];
+					}
+				}
+				else if (splitted[0].compare("mtllib") == 0)
+				{
+					std::string pathStr("res/materials/");
+					pathStr.append(splitted[1]);
+					noMat = !ParseMaterialsLib(mutex, stop, pathStr.c_str(), resourcesManager);
+				}
+				else if (splitted[0].compare("v") == 0)
+				{
+					if (!verticesData.empty() && !indicesData.empty() && material)
+					{
+						AddMesh(mutex, model, verticesData, indicesData, material, meshName);
+						verticesData.clear();
+						indicesData.clear();
+					}
+
+					if (wasLooping)
+					{
+						wasLooping = false;
 						verticesData.clear();
 						indicesData.clear();
 					}
@@ -156,6 +163,7 @@ namespace erm {
 					ASSERT(splitted.size() >= 2);
 					std::string materialName = splitted[splitted.size() - 1];
 					mutex.lock();
+					const Materials& materials = resourcesManager.GetMaterials();
 					auto it = std::find_if(materials.begin(), materials.end(), [materialName](const std::unique_ptr<Material>& material) {
 						return material->mName.compare(materialName) == 0;
 					});
@@ -345,119 +353,11 @@ namespace erm {
 		}
 
 		RenderConfigs configs = RenderConfigs::MODELS_RENDER_CONFIGS;
-		configs.mMaterial = material;
+		configs.mMaterial = material ? material : &Material::DEFAULT;
 
 		mutex.lock();
 		model.AddMesh(verticesData, verticesCount, indicesData, indicesCount, configs, meshName.c_str());
 		mutex.unlock();
-	}
-
-	bool ParseMaterialsLib(
-		std::mutex& mutex,
-		std::atomic<bool>& stop,
-		const char* path,
-		Materials& materials)
-	{
-		std::ifstream stream(path);
-
-		if (!stream.is_open())
-		{
-			std::cout << "No such file: " << path << std::endl;
-			return false;
-		}
-
-		std::string line;
-
-		std::optional<Material> mat;
-		bool skip = false;
-
-		while (std::getline(stream, line))
-		{
-			if (stop)
-			{
-				stream.close();
-				return false;
-			}
-
-			const std::vector<std::string> splitted = Utils::SplitString(line, ' ');
-
-			if (splitted.size() > 0)
-			{
-				if (splitted[0].compare("newmtl") == 0)
-				{
-					if (!skip && mat)
-					{
-						mutex.lock();
-						materials.emplace_back(std::make_unique<Material>(std::move(mat.value())));
-						mutex.unlock();
-					}
-
-					mat.reset();
-					skip = false;
-
-					ASSERT(splitted.size() >= 2);
-					std::string name = splitted[splitted.size() - 1];
-					mutex.lock();
-					const auto& it = std::find_if(materials.begin(), materials.end(), [name](const std::unique_ptr<Material>& mat) {
-						return mat->mName.compare(name) == 0;
-					});
-					mutex.unlock();
-					if (it != materials.end())
-					{
-						skip = true;
-						continue;
-					}
-
-					mat = Material::DEFAULT;
-					mat->mPath = path;
-					mat->mName = name;
-				}
-				else if (skip)
-				{
-					continue;
-				}
-				else if (splitted[0].compare("Ka") == 0)
-				{
-					ASSERT(splitted.size() >= 4);
-					mat->mAmbient = math::vec3(
-						std::atof(splitted[splitted.size() - 3].c_str()),
-						std::atof(splitted[splitted.size() - 2].c_str()),
-						std::atof(splitted[splitted.size() - 1].c_str()));
-				}
-				else if (splitted[0].compare("Kd") == 0)
-				{
-					ASSERT(splitted.size() >= 4);
-					mat->mDiffuse = math::vec3(
-						std::atof(splitted[splitted.size() - 3].c_str()),
-						std::atof(splitted[splitted.size() - 2].c_str()),
-						std::atof(splitted[splitted.size() - 1].c_str()));
-				}
-				else if (splitted[0].compare("Ks") == 0)
-				{
-					ASSERT(splitted.size() >= 4);
-					mat->mSpecular = math::vec3(
-						std::atof(splitted[splitted.size() - 3].c_str()),
-						std::atof(splitted[splitted.size() - 2].c_str()),
-						std::atof(splitted[splitted.size() - 1].c_str()));
-				}
-				else if (splitted[0].compare("Ns") == 0)
-				{
-					ASSERT(splitted.size() >= 2);
-					mat->mShininess = static_cast<float>(std::atof(splitted[splitted.size() - 1].c_str()));
-				}
-			}
-		}
-
-		stream.close();
-
-		if (!skip && mat)
-		{
-			mutex.lock();
-			materials.emplace_back(std::make_unique<Material>(std::move(mat.value())));
-			mutex.unlock();
-		}
-
-		return true;
 	}
 
 } // namespace erm

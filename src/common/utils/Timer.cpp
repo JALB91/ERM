@@ -6,16 +6,16 @@ namespace erm {
 
 	Timer::Timer()
 		: mStartingTime(GetCurrentTime())
-		, mCurrentFrameTime(mStartingTime)
-		, mPreviousFrameTime(mStartingTime)
+		, mCurrentUpdateTime(mStartingTime)
+		, mPreviousUpdateTime(mStartingTime)
 		, mSystemClock(clock())
 		, mAppClock(0)
 	{}
 
 	void Timer::Update()
 	{
-		mPreviousFrameTime = mCurrentFrameTime;
-		mCurrentFrameTime = GetCurrentTime();
+		mPreviousUpdateTime = mCurrentUpdateTime;
+		mCurrentUpdateTime = GetCurrentTime();
 
 		mSystemClock = clock();
 		++mAppClock;

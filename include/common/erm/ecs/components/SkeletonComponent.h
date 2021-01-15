@@ -4,6 +4,8 @@
 
 #include "erm/rendering/data_structs/Bone.h"
 
+#include <memory>
+
 namespace erm::ecs {
 	class SkeletonSystem;
 }
@@ -17,14 +19,25 @@ namespace erm::ecs {
 		friend class SkeletonSystem;
 
 	public:
-		SkeletonComponent(BonesTree* tree = nullptr)
-			: mRootBone(tree)
+		SkeletonComponent(BonesTree* rootBone = nullptr)
+			: mRootBone(rootBone ? std::make_unique<BonesTree>(rootBone->Clone()) : nullptr)
 		{}
 
-		SENSIBLE_MEMBER(RootBone, BonesTree*, mRootBone);
+		inline void SetRootBone(BonesTree* rootBone)
+		{
+			if ((!rootBone && !mRootBone) || (rootBone && mRootBone && mRootBone->Equal(*rootBone)))
+				return;
+			mRootBone = rootBone ? std::make_unique<BonesTree>(rootBone->Clone()) : nullptr;
+			SetDirty(true);
+		}
+
+		inline BonesTree* GetRootBone()
+		{
+			return mRootBone.get();
+		}
 
 	private:
-		BonesTree* mRootBone;
+		std::unique_ptr<BonesTree> mRootBone;
 	};
 
 } // namespace erm::ecs
