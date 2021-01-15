@@ -1,35 +1,35 @@
 import sys, subprocess
+from git_utils import cleanup_pre_commit_stashes, stash_with_options, add_to_index, pop_pre_commit_stash_if_valid, get_files_to_commit, get_files_with_local_changes
+
+def format_file(filePath):
+    subprocess.run(['clang-format', '-i', '-style=file', filePath], stdout=subprocess.PIPE)
 
 def pre_commit():
-    result = subprocess.run(['git', 'diff', '--cached', '--name-only'], stdout=subprocess.PIPE)
-    index = result.stdout.decode('utf-8').split('\n')
+    cleanup_pre_commit_stashes()
+    toCommit = get_files_to_commit()
+    localChanges = get_files_with_local_changes()
 
-    result = subprocess.run(['git', 'diff', '--name-only'], stdout=subprocess.PIPE)
-    local = result.stdout.decode('utf-8').split('\n')
+    needStash = False
 
-    need_stash = False
-
-    for diff in index:
-        if diff in local:
-            need_stash = True
-            subprocess.run(['git', 'stash', 'push', '--keep-index', '--include-untracked', '-m PRE_COMMIT_STASH'], stdout=subprocess.PIPE)
+    for filePath in toCommit:
+        if filePath in localChanges:
+            needStash = True
+            stash_with_options(['--keep-index', '--include-untracked', '-m PRE_COMMIT_STASH'])
             break
 
-    for diff in index:
-        if diff.count('include/') > 0 or diff.count('src/') > 0:
-            subprocess.run(['clang-format', '-i', '-style=file', diff], stdout=subprocess.PIPE)
-            subprocess.run(['git', 'add', diff], stdout=subprocess.PIPE)
+    for filePath in toCommit:
+        if filePath and (filePath.find('include/') != -1 or filePath.find('src/') != -1):
+            format_file(filePath)
+            add_to_index(filePath)
 
-    result = subprocess.run(['git', 'diff', '--cached', '--name-only'], stdout=subprocess.PIPE)
-    index = result.stdout.decode('utf-8')
+    toCommit = get_files_to_commit()
 
-    if not index:
-        if need_stash:
-            subprocess.run(['git', 'stash', 'pop'], stdout=subprocess.PIPE)
+    if not toCommit:
+        if needStash:
+            pop_pre_commit_stash_if_valid()
         print("Nothing to commit")
         sys.exit(1)
         
-
 if (__name__ == '__main__'):
     pre_commit()
     sys.exit(0)
