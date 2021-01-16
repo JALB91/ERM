@@ -22,11 +22,11 @@ namespace erm {
 
 	struct VertexData
 	{
-		PositionVertex mPositionVertex;
-		NormalVertex mNormalVertex;
-		UVVertex mUVVertex;
-		BoneWeights mBoneWeights;
-		BoneIds mBoneIds;
+		PositionVertex mPositionVertex = PositionVertex(0.0f);
+		NormalVertex mNormalVertex = NormalVertex(0.0f);
+		UVVertex mUVVertex = UVVertex(0.0f);
+		BoneWeights mBoneWeights = BoneWeights(0.0f);
+		BoneIds mBoneIds = BoneIds(0);
 	};
 
 } // namespace erm
