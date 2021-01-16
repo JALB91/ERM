@@ -38,6 +38,8 @@ namespace {
 	const char* const kHandgunModelPath = "res/models/Handgun.dae";
 	const char* const kModelModelPath = "res/models/model.dae";
 	const char* const kVikingRoomModelPath = "res/models/viking_room.obj";
+	const char* const kRoyalGuardPath = "res/models/RoyalGuard_POSED.fbx";
+	const char* const kTreeModelPath = "res/models/Lowpoly_tree_sample.fbx";
 
 	const char* const kModelToUse = kVikingRoomModelPath;
 	const float kDefaultRotX = -static_cast<float>(M_PI * 0.5);
@@ -81,14 +83,6 @@ namespace erm {
 			return false;
 		}
 
-		{
-			std::mutex mut;
-			std::atomic<bool> atom;
-			Model* mod = nullptr;
-			Materials mat;
-			ParseFBXModel(mut, atom, kModelModelPath, *mod, mat);
-		}
-
 		mDevice = std::make_unique<Device>(mWindow->GetWindow());
 		mResourcesManager = std::make_unique<ResourcesManager>(*mDevice);
 		mRenderer = std::make_unique<Renderer>(*this);
@@ -108,12 +102,12 @@ namespace erm {
 		for (int i = 0; i < kEntities; ++i)
 		{
 			auto entity = mECS->GetOrCreateEntity();
-			Model* model = mResourcesManager->GetOrCreateModel(kModelToUse);
+			Model* model = mResourcesManager->GetOrCreateModel(kRoyalGuardPath);
 			//Model* model = mResourcesManager->GetOrCreateModel("res/models/home_1.obj");
 			auto comp = entity->RequireComponent<ecs::ModelComponent>(model);
 			auto transform = entity->RequireComponent<ecs::TransformComponent>();
 			//transform->mRotation.x = kDefaultRotX;
-			transform->mScale = math::vec3(0.1f);
+			transform->mScale = math::vec3(1.0f);
 			root->AddChild(*entity);
 		}
 
