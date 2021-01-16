@@ -38,7 +38,7 @@ void main()
 {
 	outColor = texture(diffuseSampler, TexCoord);
 
-	vec3 n = normalize(vec3(texture(normalSampler, Normal.xy)));
+	vec3 n = normalize(vec3(texture(normalSampler, TexCoord)));
 	vec3 v = normalize(view.position - FragPos);
 	vec3 l = normalize(light.position - FragPos);
 
