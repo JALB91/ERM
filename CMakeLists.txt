@@ -61,7 +61,10 @@ include(FindFbx)
 
 find_package(Fbx)
 if(NOT ${FBX_FOUND})
-	message(FATAL_ERROR "Cannot find FBX libraries")
+	message(WARNING "Cannot find FBX libraries")
+else()
+	set(ERM_FBX_ENABLED TRUE)
+	list(APPEND PRIVATE_DEPENDENCIES "${FBX_LIBRARIES_DEBUG}")
 endif(NOT ${FBX_FOUND})
 
 # ADDS COMMON EXTERNALS DEPENDENCIES
@@ -111,7 +114,7 @@ target_include_directories(
 		"${PRIVATE_INCLUDES}"
 		"${CMAKE_CURRENT_SOURCE_DIR}/include/common/"
 		"${CMAKE_CURRENT_SOURCE_DIR}/include/${TARGET_API}/"
-		"${FBX_INCLUDE_DIRS}"
+		$<$<BOOL:${ERM_FBX_ENABLED}>:${FBX_INCLUDE_DIRS}>
 	PUBLIC 
 		"${PUBLIC_INCLUDES}"
 )
@@ -124,6 +127,7 @@ target_compile_definitions(
 		$<$<STREQUAL:"${TARGET_API}","Vulkan">:IMGUI_DISABLE_OBSOLETE_FUNCTIONS>
 		$<$<BOOL:${ERM_FLIP_PROJECTION}>:ERM_FLIP_PROJECTION>
 		$<$<BOOL:${ERM_FLIP_VIEWPORT}>:ERM_FLIP_VIEWPORT>
+		$<$<BOOL:${ERM_FBX_ENABLED}>:ERM_FBX_ENABLED>
 		${TARGET_API_COMPILE_DEF}
 	PRIVATE
 		$<$<STREQUAL:"${TARGET_API}","OpenGl">:GLEW_STATIC>
@@ -154,7 +158,6 @@ target_link_libraries(
 	PRIVATE 
 		"${TARGET_API_LIB}"
 		"${PRIVATE_DEPENDENCIES}"
-		"${FBX_LIBRARIES_DEBUG}"
 		glfw
 		stb_image
 		spirv-cross-cpp

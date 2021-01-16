@@ -4,7 +4,9 @@
 #include "erm/rendering/data_structs/Model.h"
 
 #include "erm/loaders/collada/ColladaModelLoader.h"
-#include "erm/loaders/fbx/FBXModelLoader.h"
+#ifdef ERM_FBX_ENABLED
+#	include "erm/loaders/fbx/FBXModelLoader.h"
+#endif
 #include "erm/loaders/obj/ObjModelLoader.h"
 
 #include <algorithm>
@@ -85,12 +87,12 @@ namespace erm {
 
 		std::string pathStr = path;
 		std::string name = pathStr.substr(pathStr.rfind("/") + 1, pathStr.rfind("."));
-		std::string extension = pathStr.substr(pathStr.rfind(".") + 1);
+		std::string extension = pathStr.substr(pathStr.rfind("."));
 
 		Model& model = *resourcesManager.GetModels().emplace_back(std::make_unique<Model>(mDevice, path, name.c_str()));
 		mLoadingModels.emplace_back(&model);
 
-		if (std::strcmp(extension.c_str(), "obj") == 0)
+		if (Utils::CompareNoCaseSensitive(extension, ".obj"))
 		{
 			mFutures.emplace_back(
 				std::async(
@@ -101,8 +103,10 @@ namespace erm {
 					path,
 					std::ref(model),
 					std::ref(resourcesManager)));
+
+			return true;
 		}
-		else if (std::strcmp(extension.c_str(), "dae") == 0)
+		else if (Utils::CompareNoCaseSensitive(extension, ".dae"))
 		{
 			mFutures.emplace_back(
 				std::async(
@@ -115,8 +119,11 @@ namespace erm {
 					std::ref(resourcesManager.GetMaterials()),
 					std::ref(resourcesManager.GetSkins()),
 					std::ref(resourcesManager.GetAnimations())));
+
+			return true;
 		}
-		else if (std::strcmp(extension.c_str(), "fbx") == 0)
+#ifdef ERM_FBX_ENABLED
+		else if (Utils::CompareNoCaseSensitive(extension, ".fbx"))
 		{
 			mFutures.emplace_back(
 				std::async(
@@ -127,9 +134,12 @@ namespace erm {
 					path,
 					std::ref(model),
 					std::ref(resourcesManager)));
-		}
 
-		return true;
+			return true;
+		}
+#endif
+
+		return false;
 	}
 
 } // namespace erm

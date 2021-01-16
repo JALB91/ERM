@@ -1,9 +1,11 @@
 #pragma once
 
-#include "erm/loaders/fbx/FBXInclude.h"
+#ifdef ERM_FBX_ENABLED
 
-#include <atomic>
-#include <mutex>
+#	include "erm/loaders/fbx/FBXInclude.h"
+
+#	include <atomic>
+#	include <mutex>
 
 namespace erm {
 	class ResourcesManager;
@@ -20,3 +22,5 @@ namespace erm {
 		ResourcesManager& resourcesManager);
 
 }
+
+#endif

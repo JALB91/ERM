@@ -1,16 +1,18 @@
-#include "erm/loaders/fbx/FBXModelLoader.h"
+#ifdef ERM_FBX_ENABLED
 
-#include "erm/loaders/fbx/FBXInclude.h"
-#include "erm/loaders/fbx/FBXMaterialLoader.h"
+#	include "erm/loaders/fbx/FBXModelLoader.h"
 
-#include "erm/math/vec.h"
+#	include "erm/loaders/fbx/FBXInclude.h"
+#	include "erm/loaders/fbx/FBXMaterialLoader.h"
 
-#include "erm/rendering/buffers/IndexData.h"
-#include "erm/rendering/buffers/VertexData.h"
-#include "erm/rendering/data_structs/Model.h"
-#include "erm/rendering/data_structs/RenderConfigs.h"
+#	include "erm/math/vec.h"
 
-#include <vector>
+#	include "erm/rendering/buffers/IndexData.h"
+#	include "erm/rendering/buffers/VertexData.h"
+#	include "erm/rendering/data_structs/Model.h"
+#	include "erm/rendering/data_structs/RenderConfigs.h"
+
+#	include <vector>
 
 namespace erm {
 
@@ -24,13 +26,6 @@ namespace erm {
 		return math::vec2(vec.mData[0], vec.mData[1]);
 	}
 
-	void ProcessNode(
-		std::mutex& mutex,
-		std::atomic<bool>& stop,
-		const char* path,
-		Model& model,
-		ResourcesManager& resourcesManager,
-		FbxNode* pNode);
 	void ProcessMesh(
 		std::mutex& mutex,
 		std::atomic<bool>& stop,
@@ -248,3 +243,5 @@ namespace erm {
 	}
 
 } // namespace erm
+
+#endif

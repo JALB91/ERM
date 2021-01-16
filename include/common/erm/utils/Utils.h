@@ -26,6 +26,7 @@ namespace erm::Utils {
 	extern std::string StripFunctionName(const char* fn);
 	extern std::string ReadFromFile(const char* path);
 	extern void WriteToFile(const char* path, const std::string& data);
+	extern bool CompareNoCaseSensitive(const std::string& a, const std::string& b);
 
 	template<
 		typename T,

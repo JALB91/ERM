@@ -1,7 +1,9 @@
 #pragma once
 
-#include <atomic>
-#include <mutex>
+#ifdef ERM_FBX_ENABLED
+
+#	include <atomic>
+#	include <mutex>
 
 namespace erm {
 	class Model;
@@ -18,3 +20,5 @@ namespace erm {
 		ResourcesManager& resourcesManager);
 
 }
+
+#endif

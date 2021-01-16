@@ -1,5 +1,7 @@
 #include "erm/utils/Utils.h"
 
+#include <algorithm>
+#include <cctype>
 #include <fstream>
 #include <iostream>
 #include <math.h>
@@ -65,6 +67,24 @@ namespace erm::Utils {
 
 		if (EXPECT(stream.is_open(), "Failed to open file"))
 			stream.write(data.c_str(), data.size());
+	}
+
+	bool CompareNoCaseSensitive(const std::string& a, const std::string& b)
+	{
+		if (a == b)
+			return true;
+
+		std::string buffA = a;
+		std::transform(a.begin(), a.end(), buffA.begin(), [](unsigned char c) {
+			return std::tolower(c);
+		});
+
+		std::string buffB = b;
+		std::transform(b.begin(), b.end(), buffB.begin(), [](unsigned char c) {
+			return std::tolower(c);
+		});
+
+		return buffA == buffB;
 	}
 
 } // namespace erm::Utils

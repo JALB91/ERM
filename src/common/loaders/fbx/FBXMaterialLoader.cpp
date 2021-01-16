@@ -1,6 +1,8 @@
-#include "erm/loaders/fbx/FBXMaterialLoader.h"
+#ifdef ERM_FBX_ENABLED
 
-#include "erm/managers/ResourcesManager.h"
+#	include "erm/loaders/fbx/FBXMaterialLoader.h"
+
+#	include "erm/managers/ResourcesManager.h"
 
 namespace erm {
 
@@ -89,3 +91,5 @@ namespace erm {
 	}
 
 } // namespace erm
+
+#endif

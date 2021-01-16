@@ -1,9 +1,10 @@
 #include "erm/utils/FileLocator.h"
 
+#include "erm/utils/Utils.h"
+
 #include <array>
 #include <filesystem>
 #include <map>
-#include <unordered_map>
 
 namespace {
 
@@ -21,15 +22,23 @@ namespace {
 	const char* const kTexturesDir = "textures/";
 	const char* const kMaterialsDir = "materials/";
 
-	std::array<const char*, 3> kSupportedModelsExtensions {kObjModelExtension, kColladaModelExtension, kFbxModelExtension};
-	std::array<const char*, 1> kSupportedMaterialsExtensions {kObjMaterialExtension};
-	std::array<const char*, 1> kSupportedShadersExtensions {kVertexShaderExtension};
-	std::array<const char*, 2> kSupportedTexturesExtensions {kPngTextureExtension, kJpegTextureExtension};
+	std::array kSupportedModelsExtensions {
+		kObjModelExtension,
+		kColladaModelExtension,
+#ifdef ERM_FBX_ENABLED
+		kFbxModelExtension
+#endif
+	};
+	std::array kSupportedMaterialsExtensions {kObjMaterialExtension};
+	std::array kSupportedShadersExtensions {kVertexShaderExtension};
+	std::array kSupportedTexturesExtensions {kPngTextureExtension, kJpegTextureExtension};
 
 	std::map<std::string, std::vector<const char*>> kFilesAssociations {
 		{kObjModelExtension, {kModelsDir}},
 		{kColladaModelExtension, {kModelsDir}},
+#ifdef ERM_FBX_ENABLED
 		{kFbxModelExtension, {kModelsDir}},
+#endif
 		{kObjMaterialExtension, {kMaterialsDir}},
 		{kFragmentShaderExtension, {kShadersDir}},
 		{kVertexShaderExtension, {kShadersDir}},
@@ -115,7 +124,7 @@ namespace erm {
 				{
 					const std::string path = file.path().string();
 					const std::string fileExtension = file.path().extension().string();
-					if (fileExtension.compare(extension) == 0)
+					if (Utils::CompareNoCaseSensitive(fileExtension, extension))
 					{
 						files.emplace_back(includeExtension ? path : path.substr(0, path.find(extension)));
 					}
