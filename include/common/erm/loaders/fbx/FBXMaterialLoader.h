@@ -1,20 +1,22 @@
 #pragma once
 
+#include "erm/loaders/fbx/FBXInclude.h"
+
 #include <atomic>
 #include <mutex>
 
 namespace erm {
-	class Model;
 	class ResourcesManager;
+	struct Material;
 } // namespace erm
 
 namespace erm {
 
-	extern void ParseFBXModel(
+	Material* ParseFBXMaterial(
 		std::mutex& mutex,
 		std::atomic<bool>& stop,
 		const char* path,
-		Model& model,
+		FbxMesh* pMesh,
 		ResourcesManager& resourcesManager);
 
 }

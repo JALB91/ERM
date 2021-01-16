@@ -4,6 +4,7 @@
 #include "erm/rendering/data_structs/Model.h"
 
 #include "erm/loaders/collada/ColladaModelLoader.h"
+#include "erm/loaders/fbx/FBXModelLoader.h"
 #include "erm/loaders/obj/ObjModelLoader.h"
 
 #include <algorithm>
@@ -114,6 +115,18 @@ namespace erm {
 					std::ref(resourcesManager.GetMaterials()),
 					std::ref(resourcesManager.GetSkins()),
 					std::ref(resourcesManager.GetAnimations())));
+		}
+		else if (std::strcmp(extension.c_str(), "fbx") == 0)
+		{
+			mFutures.emplace_back(
+				std::async(
+					std::launch::async,
+					&ParseFBXModel,
+					std::ref(mMutex),
+					std::ref(mStop),
+					path,
+					std::ref(model),
+					std::ref(resourcesManager)));
 		}
 
 		return true;
