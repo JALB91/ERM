@@ -24,6 +24,7 @@ namespace erm {
 		float mShininess;
 		Texture* mDiffuseMap;
 		Texture* mNormalMap;
+		Texture* mSpecularMap;
 	};
 
 } // namespace erm

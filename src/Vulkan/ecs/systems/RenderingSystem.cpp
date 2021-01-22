@@ -134,6 +134,7 @@ namespace erm::ecs {
 
 				Texture* diffuseMap = configs.mDiffuseMap ? configs.mDiffuseMap : mat.mDiffuseMap;
 				Texture* normalMap = configs.mNormalMap ? configs.mNormalMap : mat.mNormalMap;
+				Texture* specularMap = configs.mSpecularMap ? configs.mSpecularMap : mat.mSpecularMap;
 
 				if (!light)
 				{
@@ -142,6 +143,10 @@ namespace erm::ecs {
 				else if (skeletonComponent && skeletonComponent->GetRootBone())
 				{
 					configs.mShaderProgram = mResourcesManager.GetOrCreateShaderProgram("res/shaders/vk_skeleton");
+				}
+				else if (diffuseMap && normalMap && specularMap)
+				{
+					configs.mShaderProgram = mResourcesManager.GetOrCreateShaderProgram("res/shaders/vk_model_tex_norm_spec");
 				}
 				else if (diffuseMap && normalMap)
 				{

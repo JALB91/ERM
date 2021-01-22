@@ -39,7 +39,8 @@ namespace erm {
 			ShaderProgram* shaderProgram = nullptr,
 			Material* material = nullptr,
 			Texture* diffuseMap = nullptr,
-			Texture* normalMap = nullptr);
+			Texture* normalMap = nullptr,
+			Texture* specularMap = nullptr);
 
 		bool operator==(const RenderConfigs& other) const;
 		bool operator!=(const RenderConfigs& other) const;
@@ -73,6 +74,7 @@ namespace erm {
 		Material* mMaterial;
 		Texture* mDiffuseMap;
 		Texture* mNormalMap;
+		Texture* mSpecularMap;
 	};
 
 } // namespace erm

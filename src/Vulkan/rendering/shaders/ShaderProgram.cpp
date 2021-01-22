@@ -102,6 +102,8 @@ namespace {
 			return {compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding), erm::TextureType::DIFFUSE};
 		else if (resource.name.compare("normalSampler") == 0)
 			return {compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding), erm::TextureType::NORMAL};
+		else if (resource.name.compare("specularSampler") == 0)
+			return {compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding), erm::TextureType::SPECULAR};
 
 		ASSERT(false);
 

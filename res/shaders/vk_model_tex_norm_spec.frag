@@ -20,6 +20,8 @@ layout(binding = 3) uniform View {
 } view;
 
 layout(binding = 4) uniform sampler2D diffuseSampler;
+layout(binding = 5) uniform sampler2D normalSampler;
+layout(binding = 6) uniform sampler2D specularSampler;
 
 layout(location = 0) in vec3 FragPos;
 layout(location = 1) in vec3 Normal;
@@ -37,14 +39,14 @@ void main()
 {
 	outColor = texture(diffuseSampler, TexCoord);
 
-	vec3 n = normalize(Normal);
+	vec3 n = normalize(vec3(texture(normalSampler, TexCoord)));
 	vec3 v = normalize(view.position - FragPos);
 	vec3 l = normalize(light.position - FragPos);
 
 	float Ndl = clamp(dot(n, l), 0.0, 1.0);
 
 	float spec = pow(max(dot(n, l), 0.0), material.shininess);
-	vec3 specular = light.specular * material.specular * spec;
+	vec3 specular = light.specular * vec3(texture(specularSampler, TexCoord)) * spec;
 
 	outColor.rgb += Ndl * light.ambient * lit(l, n, v);
 	outColor.rgb += specular;

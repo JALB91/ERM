@@ -6,6 +6,7 @@ namespace erm {
 	{
 		DIFFUSE = 0,
 		NORMAL,
+		SPECULAR,
 		COUNT
 	};
 

@@ -51,6 +51,7 @@ namespace erm {
 
 		Texture* GetFallbackDiffuseMap() const;
 		Texture* GetFallbackNormalMap() const;
+		Texture* GetFallbackSpecularMap() const;
 
 	private:
 		using FramesData = std::map<std::unique_ptr<RenderingResources>, std::vector<RenderData*>>;

@@ -12,6 +12,7 @@ namespace erm {
 		math::vec3(0.2f),
 		50.0f,
 		nullptr,
+		nullptr,
 		nullptr};
 
 }

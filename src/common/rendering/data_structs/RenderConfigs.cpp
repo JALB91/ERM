@@ -32,7 +32,8 @@ namespace erm {
 		ShaderProgram* shaderProgram /*= nullptr*/,
 		Material* material /*= nullptr*/,
 		Texture* diffuseMap /*= nullptr*/,
-		Texture* normalMap /*= nullptr*/)
+		Texture* normalMap /*= nullptr*/,
+		Texture* specularMap /*= nullptr*/)
 		: mSubpassData(subpassData)
 		, mNormViewport(normViewport)
 		, mDepthTestEnabled(depthTestEnabled)
@@ -48,6 +49,7 @@ namespace erm {
 		, mMaterial(material)
 		, mDiffuseMap(diffuseMap)
 		, mNormalMap(normalMap)
+		, mSpecularMap(specularMap)
 	{}
 
 	bool RenderConfigs::operator==(const RenderConfigs& other) const
@@ -126,7 +128,7 @@ namespace erm {
 
 	bool RenderConfigs::AreTexturesCompatible(const RenderConfigs& other) const
 	{
-		return mDiffuseMap == other.mDiffuseMap && mNormalMap == other.mNormalMap;
+		return mDiffuseMap == other.mDiffuseMap && mNormalMap == other.mNormalMap && mSpecularMap == other.mSpecularMap;
 	}
 
 } // namespace erm

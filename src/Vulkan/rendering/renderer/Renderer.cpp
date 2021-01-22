@@ -411,4 +411,9 @@ namespace erm {
 		return mResourcesManager.GetOrCreateTexture("res/textures/viking_room.png");
 	}
 
+	Texture* Renderer::GetFallbackSpecularMap() const
+	{
+		return mResourcesManager.GetOrCreateTexture("res/textures/viking_room.png");
+	}
+
 } // namespace erm

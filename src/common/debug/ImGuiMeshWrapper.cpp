@@ -89,6 +89,7 @@ namespace ImGui {
 			ShowShaderPathOptions(engine, mesh);
 			ShowTexturePathOptions(engine, &mesh.GetRenderConfigs().mDiffuseMap, "Diffuse Map");
 			ShowTexturePathOptions(engine, &mesh.GetRenderConfigs().mNormalMap, "Normal Map");
+			ShowTexturePathOptions(engine, &mesh.GetRenderConfigs().mSpecularMap, "Specular Map");
 
 			ImGui::Unindent();
 		}

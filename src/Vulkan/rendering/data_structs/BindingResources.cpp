@@ -166,6 +166,16 @@ namespace erm {
 						texture = mRenderer.GetFallbackNormalMap();
 					break;
 				}
+				case TextureType::SPECULAR:
+				{
+					if (mRenderConfigs.mSpecularMap)
+						texture = mRenderConfigs.mSpecularMap;
+					else if (mRenderConfigs.mMaterial->mSpecularMap)
+						texture = mRenderConfigs.mMaterial->mSpecularMap;
+					else
+						texture = mRenderer.GetFallbackSpecularMap();
+					break;
+				}
 				default:
 				{
 					ASSERT(false);
