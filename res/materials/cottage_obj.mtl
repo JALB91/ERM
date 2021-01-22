@@ -9,6 +9,8 @@ Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
+map_Kd cottage_diffuse.png
+map_Kn cottage_normal.png
 illum 2
 
 newmtl ground
