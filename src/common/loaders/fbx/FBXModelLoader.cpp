@@ -1,18 +1,20 @@
 #ifdef ERM_FBX_ENABLED
 
-#	include "erm/loaders/fbx/FBXModelLoader.h"
+// clang-format off
+#include "erm/loaders/fbx/FBXModelLoader.h"
 
-#	include "erm/loaders/fbx/FBXInclude.h"
-#	include "erm/loaders/fbx/FBXMaterialLoader.h"
+#include "erm/loaders/fbx/FBXInclude.h"
+#include "erm/loaders/fbx/FBXMaterialLoader.h"
 
-#	include "erm/math/vec.h"
+#include "erm/math/vec.h"
 
-#	include "erm/rendering/buffers/IndexData.h"
-#	include "erm/rendering/buffers/VertexData.h"
-#	include "erm/rendering/data_structs/Model.h"
-#	include "erm/rendering/data_structs/RenderConfigs.h"
+#include "erm/rendering/buffers/IndexData.h"
+#include "erm/rendering/buffers/VertexData.h"
+#include "erm/rendering/data_structs/Model.h"
+#include "erm/rendering/data_structs/RenderConfigs.h"
 
-#	include <vector>
+#include <vector>
+// clang-format on
 
 namespace erm {
 
