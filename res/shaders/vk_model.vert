@@ -2,8 +2,8 @@
 #extension GL_ARB_separate_shader_objects : enable
 
 layout(binding = 0) uniform ModelViewProj {
-	mat4 model;
-	mat4 viewProj;
+	mat4 modelView;
+	mat4 projection;
 } ubo;
 
 layout(location = 0) in vec3 inPosition;
@@ -15,7 +15,7 @@ layout(location = 1) out vec3 outNormal;
 
 void main()
 {
-	outFragPos = vec3(ubo.model * vec4(inPosition, 1.0));
-	outNormal = mat3(ubo.model) * inNormal;
-	gl_Position = ubo.viewProj * vec4(outFragPos, 1.0);
+	outFragPos = vec3(ubo.modelView * vec4(inPosition, 1.0));
+	outNormal = mat3(ubo.modelView) * inNormal;
+	gl_Position = ubo.projection * vec4(outFragPos, 1.0);
 }

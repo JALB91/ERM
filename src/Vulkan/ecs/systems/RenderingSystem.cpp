@@ -80,32 +80,37 @@ namespace erm::ecs {
 			}
 		}
 
-		math::mat4 proj = camera->GetProjectionMatrix();
-		math::mat4 viewProj = proj * glm::inverse(cameraTransform->mWorldTransform);
+		const math::mat4& proj = camera->GetProjectionMatrix();
+		const math::mat4 view = glm::inverse(cameraTransform->mWorldTransform);
 
-		UboBasic ubo;
-		ubo.mMVP = viewProj * glm::identity<math::mat4>();
+		{
+			UboBasic ubo;
+			ubo.mMVP = proj * view;
 
-		mRenderData.SetUbo(std::move(ubo));
+			mRenderData.SetUbo(std::move(ubo));
+		}
+
 		renderer.SubmitRenderData(mRenderData);
 
 		LightComponent* light = nullptr;
 		math::vec3 lightPos = math::vec3(0.0f);
 		for (ID i = 0; i < MAX_ID; ++i)
 		{
-			if ((light = mLightSystem->GetComponent(i)))
+			if (light = mLightSystem->GetComponent(i))
 			{
-				lightPos = mTransformSystem->GetComponent(i)->mTranslation;
+				TransformComponent* lTransform = mTransformSystem->GetComponent(i);
+				lightPos = view * math::vec4(lTransform->mTranslation, 1.0f);
 				break;
 			}
 		}
 
-		mModelSystem->ForEachComponentIndexed([this, &viewProj, &renderer, light, &lightPos, cameraTransform](ModelComponent& component, ID id) {
+		mModelSystem->ForEachComponentIndexed([this, &proj, &view, &renderer, light, &lightPos, cameraTransform](ModelComponent& component, ID id) {
 			if (!component.GetModel())
 				return;
 
 			TransformComponent* modelTransform = mTransformSystem->GetComponent(id);
 
+			const math::mat4 modelView = view * modelTransform->mWorldTransform;
 			std::vector<Mesh>& meshes = component.GetModel()->GetMeshes();
 
 			RenderingComponent* renderingComponent = RequireComponent(id);
@@ -170,7 +175,7 @@ namespace erm::ecs {
 
 				{
 					UboBasic ubo;
-					ubo.mMVP = viewProj * modelTransform->mWorldTransform;
+					ubo.mMVP = proj * modelView;
 					data->SetUbo(std::move(ubo));
 				}
 
@@ -199,8 +204,8 @@ namespace erm::ecs {
 				if (skeletonComponent && skeletonComponent->GetRootBone())
 				{
 					UboSkeleton ubo;
-					ubo.mModel = modelTransform->mLocalTransform;
-					ubo.mViewProj = viewProj;
+					ubo.mModelView = modelView;
+					ubo.mProjection = proj;
 
 					int count = 0;
 					skeletonComponent->GetRootBone()->ForEachDo([&ubo, &count](BonesTree& bone) {
@@ -216,8 +221,8 @@ namespace erm::ecs {
 
 				{
 					UboModelViewProj ubo;
-					ubo.mModel = modelTransform->mLocalTransform;
-					ubo.mViewProj = viewProj;
+					ubo.mModelView = modelView;
+					ubo.mProjection = proj;
 
 					data->SetUbo(std::move(ubo));
 				}

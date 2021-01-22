@@ -21,8 +21,8 @@ namespace erm {
 	{
 		static constexpr UboId ID = 1;
 
-		alignas(16) math::mat4 mModel;
-		alignas(16) math::mat4 mViewProj;
+		alignas(16) math::mat4 mModelView;
+		alignas(16) math::mat4 mProjection;
 	};
 
 	struct UboMaterial : public IUbo
@@ -56,8 +56,8 @@ namespace erm {
 	{
 		static constexpr UboId ID = 5;
 
-		alignas(16) math::mat4 mModel;
-		alignas(16) math::mat4 mViewProj;
+		alignas(16) math::mat4 mModelView;
+		alignas(16) math::mat4 mProjection;
 		alignas(16) math::mat4 mBonesTransforms[100];
 	};
 
