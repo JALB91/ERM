@@ -96,6 +96,18 @@ namespace {
 		return {erm::UboBasic::ID, sizeof(erm::UboBasic), 0, 0};
 	}
 
+	erm::SamplerData GetSamplerData(const spirv_cross::CompilerCPP& compiler, const spirv_cross::Resource& resource)
+	{
+		if (resource.name.compare("diffuseSampler") == 0)
+			return {compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding), erm::TextureType::DIFFUSE};
+		else if (resource.name.compare("normalSampler") == 0)
+			return {compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding), erm::TextureType::NORMAL};
+
+		ASSERT(false);
+
+		return {0, erm::TextureType::DIFFUSE};
+	}
+
 	void GetBindingData(spirv_cross::CompilerCPP& vertCompiler, spirv_cross::CompilerCPP& fragCompiler, std::vector<erm::UboData>& ubosData, std::vector<erm::SamplerData>& samplerData)
 	{
 		spirv_cross::ShaderResources resources = vertCompiler.get_shader_resources();
@@ -104,7 +116,7 @@ namespace {
 			ubosData.emplace_back(GetUboData(vertCompiler, res));
 
 		for (const spirv_cross::Resource& res : resources.sampled_images)
-			samplerData.emplace_back(vertCompiler.get_decoration(res.id, spv::Decoration::DecorationBinding));
+			samplerData.emplace_back(GetSamplerData(vertCompiler, res));
 
 		resources = fragCompiler.get_shader_resources();
 
@@ -112,7 +124,7 @@ namespace {
 			ubosData.emplace_back(GetUboData(fragCompiler, res));
 
 		for (const spirv_cross::Resource& res : resources.sampled_images)
-			samplerData.emplace_back(fragCompiler.get_decoration(res.id, spv::Decoration::DecorationBinding));
+			samplerData.emplace_back(GetSamplerData(fragCompiler, res));
 	}
 
 } // namespace

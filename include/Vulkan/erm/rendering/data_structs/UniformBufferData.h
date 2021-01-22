@@ -1,6 +1,7 @@
 #pragma once
 
 #include "erm/rendering/data_structs/UniformBufferObject.h"
+#include "erm/rendering/enums/TextureType.h"
 
 namespace erm {
 
@@ -30,9 +31,12 @@ namespace erm {
 
 	struct SamplerData : IBindingData
 	{
-		SamplerData(uint32_t binding)
+		SamplerData(uint32_t binding, TextureType textureType)
 			: IBindingData(binding)
+			, mTextureType(textureType)
 		{}
+
+		TextureType mTextureType;
 	};
 
 } // namespace erm

@@ -132,7 +132,7 @@ namespace erm {
 
 				configsToRecreate.emplace_back(res.mRenderConfigs);
 				mPipelineResources.erase(mPipelineResources.begin() + i);
-				i--;
+				--i;
 			}
 		}
 

@@ -40,6 +40,9 @@ namespace erm {
 
 	void PipelineResources::Update(vk::CommandBuffer& cmd, RenderData& renderData, uint32_t imageIndex)
 	{
+		if (!mDescriptorSetLayout)
+			return;
+
 		cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, mPipeline.get());
 
 #ifdef ERM_FLIP_VIEWPORT
@@ -58,26 +61,12 @@ namespace erm {
 		cmd.setViewport(0, 1, &viewport);
 #endif
 
-		vk::DescriptorSet* descriptorSet = nullptr;
-
-		if (mDescriptorSetLayout)
-		{
-			if (!renderData.mRenderingId.has_value() || renderData.mRenderingId.value() >= static_cast<uint32_t>(mBindingResources.size()))
-			{
-				renderData.mRenderingId = static_cast<uint32_t>(mBindingResources.size());
-				mBindingResources.emplace_back(mDevice, mRenderer, *mDescriptorPool, mDescriptorSetLayout, renderData.mRenderConfigs);
-			}
-
-			BindingResources& resources = mBindingResources[renderData.mRenderingId.value()];
-			resources.UpdateResources(renderData, imageIndex);
-
-			descriptorSet = resources.GetDescriptorSet(imageIndex);
-		}
+		BindingResources& resources = GetOrCreateBindingResources(renderData);
+		resources.UpdateResources(renderData, imageIndex);
 
 		for (const Mesh* mesh : renderData.mMeshes)
 		{
-			if (descriptorSet)
-				cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, mPipelineLayout, 0, 1, descriptorSet, 0, nullptr);
+			cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, mPipelineLayout, 0, 1, resources.GetDescriptorSet(imageIndex), 0, nullptr);
 			mesh->GetVertexBuffer().Bind(cmd);
 			mesh->GetIndexBuffer().Bind(cmd);
 			cmd.drawIndexed(mesh->GetIndexBuffer().GetCount(), 1, 0, 0, 0);
@@ -279,6 +268,17 @@ namespace erm {
 
 		mDevice->destroyShaderModule(vertShaderModule);
 		mDevice->destroyShaderModule(fragShaderModule);
+	}
+
+	BindingResources& PipelineResources::GetOrCreateBindingResources(RenderData& renderData)
+	{
+		if (!renderData.mRenderingId.has_value() || renderData.mRenderingId.value() >= static_cast<uint32_t>(mBindingResources.size()))
+		{
+			renderData.mRenderingId = static_cast<uint32_t>(mBindingResources.size());
+			mBindingResources.emplace_back(mDevice, mRenderer, *mDescriptorPool, mDescriptorSetLayout, renderData.mRenderConfigs);
+		}
+
+		return mBindingResources[renderData.mRenderingId.value()];
 	}
 
 } // namespace erm

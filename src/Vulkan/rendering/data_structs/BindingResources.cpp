@@ -84,11 +84,11 @@ namespace erm {
 		// CREATE UNIFORM BUFFERS
 		mUniformBuffers.resize(swapChainImageViews.size());
 
-		ShaderProgram* shader = mRenderConfigs.mShaderProgram;
+		const ShaderProgram* shader = mRenderConfigs.mShaderProgram;
 		CreateUniformBuffers(mDevice, shader->GetUbosData(), mUniformBuffers);
 
 		// CREATE DESCRIPTOR SETS
-		std::vector<vk::DescriptorSetLayout> layouts(swapChainImageViews.size(), descriptorSetLayout);
+		const std::vector<vk::DescriptorSetLayout> layouts(swapChainImageViews.size(), descriptorSetLayout);
 
 		vk::DescriptorSetAllocateInfo info {};
 		info.setDescriptorPool(mDescriptorPool);
@@ -118,7 +118,7 @@ namespace erm {
 	{
 		ASSERT(data.mRenderConfigs.IsResourcesBindingCompatible(mRenderConfigs));
 
-		ShaderProgram* shader = mRenderConfigs.mShaderProgram;
+		const ShaderProgram* shader = mRenderConfigs.mShaderProgram;
 
 		const std::vector<UboData>& ubosData = shader->GetUbosData();
 		std::vector<vk::DescriptorBufferInfo> descriptorBuffers(ubosData.size());
@@ -141,30 +141,37 @@ namespace erm {
 
 		for (size_t i = 0; i < samplerData.size(); ++i)
 		{
+			const SamplerData& sData = samplerData[i];
 			Texture* texture = nullptr;
 
-			if (i == 0)
+			switch (sData.mTextureType)
 			{
-				if (mRenderConfigs.mDiffuseMap)
-					texture = mRenderConfigs.mDiffuseMap;
-				else if (mRenderConfigs.mMaterial->mDiffuseMap)
-					texture = mRenderConfigs.mMaterial->mDiffuseMap;
-				else
+				case TextureType::DIFFUSE:
+				{
+					if (mRenderConfigs.mDiffuseMap)
+						texture = mRenderConfigs.mDiffuseMap;
+					else if (mRenderConfigs.mMaterial->mDiffuseMap)
+						texture = mRenderConfigs.mMaterial->mDiffuseMap;
+					else
+						texture = mRenderer.GetFallbackDiffuseMap();
+					break;
+				}
+				case TextureType::NORMAL:
+				{
+					if (mRenderConfigs.mNormalMap)
+						texture = mRenderConfigs.mNormalMap;
+					else if (mRenderConfigs.mMaterial->mNormalMap)
+						texture = mRenderConfigs.mMaterial->mNormalMap;
+					else
+						texture = mRenderer.GetFallbackNormalMap();
+					break;
+				}
+				default:
+				{
+					ASSERT(false);
 					texture = mRenderer.GetFallbackDiffuseMap();
-			}
-			else if (i == 1)
-			{
-				if (mRenderConfigs.mNormalMap)
-					texture = mRenderConfigs.mNormalMap;
-				else if (mRenderConfigs.mMaterial->mNormalMap)
-					texture = mRenderConfigs.mMaterial->mNormalMap;
-				else
-					texture = mRenderer.GetFallbackNormalMap();
-			}
-			else
-			{
-				ASSERT(false);
-				texture = mRenderer.GetFallbackDiffuseMap();
+					break;
+				}
 			}
 
 			vk::DescriptorImageInfo& imageInfo = imagesInfo[i];

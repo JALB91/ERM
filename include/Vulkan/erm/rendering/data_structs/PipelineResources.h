@@ -36,6 +36,7 @@ namespace erm {
 
 	private:
 		void CreatePipeline();
+		BindingResources& GetOrCreateBindingResources(RenderData& renderData);
 
 		Device& mDevice;
 		Renderer& mRenderer;
