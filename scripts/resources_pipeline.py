@@ -1,24 +1,29 @@
 import sys, argparse, shutil, os
 
-def clean_shaders(root, shaders):
-    for shader in shaders:
-        if shader.find("_tmp"):
-            os.remove(os.path.join(root, shader))
-        elif shader.endswith(".cmp"):
-            source_path = os.path.join(root, shader[:-4])
-            shader_path = os.path.join(root, shader)
-            source_time = os.path.getmtime(source_path)
-            shader_time = os.path.getmtime(shader_path)
-            if not os.path.exists(source_path) or source_time > shader_time:
-                os.remove(shader_path)
+def update_asset(src_folder, dest_folder, subdir, asset):
+    dest_path = os.path.join(dest_folder, subdir, asset)
+    if "_tmp" in asset:
+        os.remove(dest_path)
+        return
+    src_path = os.path.join(src_folder, subdir, asset)
+    if src_path.endswith(".cmp"):
+        src_path = src_path[:-4]
+    if not os.path.exists(src_path):
+        os.remove(dest_path)
+        return
+    src_time = os.path.getmtime(src_path)
+    dest_time = os.path.getmtime(dest_path)
+    if not os.path.exists(src_path) or src_time > dest_time:
+        os.remove(dest_path)
 
-def clean_resources(res_folder):
-    shaders_path = os.path.join(res_folder, "shaders")
-    for root, subdir, files in os.walk(shaders_path):
-        clean_shaders(root, files)
-
-def copy_resources(res_src, res_dest):
-    shutil.copytree(res_src, res_dest, dirs_exist_ok=True)
+def update_resources(src_folder, dest_folder):
+    for root, subdir, files in os.walk(dest_folder):
+        for asset in files:
+            subdir = ""
+            if len(root) > len(dest_folder):
+                subdir = root[len(dest_folder) + 1:]
+            update_asset(src_folder, dest_folder, subdir, asset)
+    shutil.copytree(src_folder, dest_folder, dirs_exist_ok=True)
 
 def compile_shaders(shaders_compiler, res_folder):
     for root, subdir, files in os.walk(os.path.join(res_folder, "shaders")):
@@ -39,8 +44,7 @@ if __name__ == "__main__":
         parser.print_help()
         exit(1)
 
-    clean_resources(args.res_dest)
-    copy_resources(args.res_src, args.res_dest)
+    update_resources(args.res_src, args.res_dest)
 
     if (args.shaders_compiler):
         compile_shaders(args.shaders_compiler, args.res_dest)
