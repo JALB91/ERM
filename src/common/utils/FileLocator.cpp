@@ -15,6 +15,7 @@ namespace {
 	const char* const kVertexShaderExtension = ".vert";
 	const char* const kFragmentShaderExtension = ".frag";
 	const char* const kPngTextureExtension = ".png";
+	const char* const kJpgTextureExtension = ".jpg";
 	const char* const kJpegTextureExtension = ".jpeg";
 
 	const char* const kModelsDir = "models/";
@@ -31,7 +32,7 @@ namespace {
 	};
 	std::array kSupportedMaterialsExtensions {kObjMaterialExtension};
 	std::array kSupportedShadersExtensions {kVertexShaderExtension};
-	std::array kSupportedTexturesExtensions {kPngTextureExtension, kJpegTextureExtension};
+	std::array kSupportedTexturesExtensions {kPngTextureExtension, kJpgTextureExtension, kJpegTextureExtension};
 
 	std::map<std::string, std::vector<const char*>> kFilesAssociations {
 		{kObjModelExtension, {kModelsDir}},
@@ -42,8 +43,9 @@ namespace {
 		{kObjMaterialExtension, {kMaterialsDir}},
 		{kFragmentShaderExtension, {kShadersDir}},
 		{kVertexShaderExtension, {kShadersDir}},
-		{kPngTextureExtension, {kTexturesDir, kModelsDir}},
-		{kJpegTextureExtension, {kTexturesDir}}};
+		{kPngTextureExtension, {kTexturesDir}},
+		{kJpegTextureExtension, {kTexturesDir}},
+		{kJpgTextureExtension, {kTexturesDir}}};
 
 } // namespace
 
