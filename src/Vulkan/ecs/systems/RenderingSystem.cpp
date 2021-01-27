@@ -16,6 +16,7 @@
 #include "erm/rendering/data_structs/Material.h"
 #include "erm/rendering/data_structs/Mesh.h"
 #include "erm/rendering/data_structs/Model.h"
+#include "erm/rendering/data_structs/PBMaterial.h"
 #include "erm/rendering/renderer/Renderer.h"
 #include "erm/rendering/shaders/ShaderProgram.h"
 #include "erm/rendering/shaders/Uniform.h"
@@ -30,7 +31,36 @@ namespace {
 
 	const char* const kDebugShaderPath("res/shaders/vk_basic");
 
-}
+	std::string GetShaderForConfig(const erm::RenderConfigs& config, const erm::ecs::LightComponent* light, const erm::ecs::SkeletonComponent* skeleton)
+	{
+		if (!light)
+			return "res/shaders/vk_basic";
+
+		const erm::PBMaterial* pbMat = config.mPBMaterial;
+		const erm::Material* mat = config.mMaterial;
+		const erm::Texture* diffuseMap = config.mDiffuseMap ? config.mDiffuseMap : mat->mDiffuseMap;
+		const erm::Texture* normalMap = config.mNormalMap ? config.mNormalMap : mat->mNormalMap;
+		const erm::Texture* specularMap = config.mSpecularMap ? config.mSpecularMap : mat->mSpecularMap;
+
+		std::string result = "res/shaders/";
+		result += skeleton && skeleton->GetRootBone() ? "vk_skeleton" : "vk_model";
+
+		if (pbMat && (!skeleton || !skeleton->GetRootBone()))
+			result += "_pb";
+		else if (mat)
+			result += "_mat";
+
+		if (diffuseMap)
+			result += "_tex";
+		if (normalMap)
+			result += "_norm";
+		if (specularMap)
+			result += "_spec";
+
+		return result;
+	}
+
+} // namespace
 
 namespace erm::ecs {
 
@@ -99,7 +129,10 @@ namespace erm::ecs {
 			if (light = mLightSystem->GetComponent(i))
 			{
 				TransformComponent* lTransform = mTransformSystem->GetComponent(i);
-				lightPos = view * math::vec4(lTransform->mTranslation, 1.0f);
+				if (EntityId parent = lTransform->GetParent(); parent.IsValid())
+					lightPos = mTransformSystem->GetComponent(parent)->mWorldTransform * math::vec4(lTransform->mTranslation, 1.0f);
+				else
+					lightPos = lTransform->mTranslation;
 				break;
 			}
 		}
@@ -110,7 +143,7 @@ namespace erm::ecs {
 
 			TransformComponent* modelTransform = mTransformSystem->GetComponent(id);
 
-			const math::mat4 modelView = view * modelTransform->mWorldTransform;
+			const math::mat4 model = modelTransform->mWorldTransform;
 			std::vector<Mesh>& meshes = component.GetModel()->GetMeshes();
 
 			RenderingComponent* renderingComponent = RequireComponent(id);
@@ -127,40 +160,12 @@ namespace erm::ecs {
 				Mesh& mesh = meshes[i];
 				RenderConfigs& configs = mesh.GetRenderConfigs();
 
+				if (!configs.mPBMaterial)
+					configs.mPBMaterial = &PBMaterial::DEFAULT;
 				if (!configs.mMaterial)
 					configs.mMaterial = &Material::DEFAULT;
 
-				Material& mat = *configs.mMaterial;
-
-				Texture* diffuseMap = configs.mDiffuseMap ? configs.mDiffuseMap : mat.mDiffuseMap;
-				Texture* normalMap = configs.mNormalMap ? configs.mNormalMap : mat.mNormalMap;
-				Texture* specularMap = configs.mSpecularMap ? configs.mSpecularMap : mat.mSpecularMap;
-
-				if (!light)
-				{
-					configs.mShaderProgram = mResourcesManager.GetOrCreateShaderProgram("res/shaders/vk_basic");
-				}
-				else if (skeletonComponent && skeletonComponent->GetRootBone())
-				{
-					configs.mShaderProgram = mResourcesManager.GetOrCreateShaderProgram("res/shaders/vk_skeleton");
-				}
-				else if (diffuseMap && normalMap && specularMap)
-				{
-					configs.mShaderProgram = mResourcesManager.GetOrCreateShaderProgram("res/shaders/vk_model_tex_norm_spec");
-				}
-				else if (diffuseMap && normalMap)
-				{
-					configs.mShaderProgram = mResourcesManager.GetOrCreateShaderProgram("res/shaders/vk_model_tex_norm");
-				}
-				else if (diffuseMap)
-				{
-					configs.mShaderProgram = mResourcesManager.GetOrCreateShaderProgram("res/shaders/vk_model_tex");
-				}
-				else if (!configs.mShaderProgram)
-				{
-					configs.mShaderProgram = mResourcesManager.GetOrCreateShaderProgram("res/shaders/vk_model");
-				}
-
+				configs.mShaderProgram = mResourcesManager.GetOrCreateShaderProgram(GetShaderForConfig(configs, light, skeletonComponent).c_str());
 				configs.SetNormViewport(mEngine.GetWindow().GetNormalizedViewport());
 
 				RenderData* data = nullptr;
@@ -180,7 +185,19 @@ namespace erm::ecs {
 
 				{
 					UboBasic ubo;
-					ubo.mMVP = proj * modelView;
+					ubo.mMVP = proj * view * model;
+					data->SetUbo(std::move(ubo));
+				}
+
+				{
+					PBMaterial& pbMaterial = *configs.mPBMaterial;
+
+					UboPBMaterial ubo;
+					ubo.mAlbedo = pbMaterial.mAlbedo;
+					ubo.mMetallic = pbMaterial.mMetallic;
+					ubo.mRoughness = pbMaterial.mRoughness;
+					ubo.mAO = pbMaterial.mAO;
+
 					data->SetUbo(std::move(ubo));
 				}
 
@@ -206,10 +223,19 @@ namespace erm::ecs {
 					data->SetUbo(std::move(ubo));
 				}
 
+				{
+					UboPBLight ubo;
+					ubo.mPosition = lightPos;
+					ubo.mColor = light->mAmbient;
+
+					data->SetUbo(std::move(ubo));
+				}
+
 				if (skeletonComponent && skeletonComponent->GetRootBone())
 				{
 					UboSkeleton ubo;
-					ubo.mModelView = modelView;
+					ubo.mModel = model;
+					ubo.mView = view;
 					ubo.mProjection = proj;
 
 					int count = 0;
@@ -226,7 +252,8 @@ namespace erm::ecs {
 
 				{
 					UboModelViewProj ubo;
-					ubo.mModelView = modelView;
+					ubo.mModel = model;
+					ubo.mView = view;
 					ubo.mProjection = proj;
 
 					data->SetUbo(std::move(ubo));
@@ -234,7 +261,10 @@ namespace erm::ecs {
 
 				{
 					UboView ubo;
-					ubo.mPosition = cameraTransform->mTranslation;
+					if (EntityId parent = cameraTransform->GetParent(); parent.IsValid())
+						ubo.mPosition = mTransformSystem->GetComponent(parent)->mWorldTransform * math::vec4(cameraTransform->mTranslation, 1.0f);
+					else
+						ubo.mPosition = cameraTransform->mTranslation;
 
 					data->SetUbo(std::move(ubo));
 				}

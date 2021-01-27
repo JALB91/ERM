@@ -15,7 +15,9 @@ namespace erm {
 		FbxMesh* pMesh,
 		ResourcesManager& resourcesManager)
 	{
+		int matCount = pMesh->GetElementMaterialCount();
 		FbxGeometryElementMaterial* lMaterialElement = pMesh->GetElementMaterial(0);
+		int indCoutn = lMaterialElement->GetIndexArray().GetCount();
 		FbxSurfaceMaterial* lMaterial = pMesh->GetNode()->GetMaterial(lMaterialElement->GetIndexArray().GetAt(0));
 		int lMatId = lMaterialElement->GetIndexArray().GetAt(0);
 
@@ -71,20 +73,15 @@ namespace erm {
 		}
 		else
 		{
-			//no layered texture simply get on the property
-			int lNbTextures = pProperty.GetSrcObjectCount<FbxTexture>();
+			const int texturesCount = pProperty.GetSrcObjectCount<FbxTexture>();
+			for (int j = 0; j < texturesCount; ++j)
+				if (FbxTexture* lTexture = pProperty.GetSrcObject<FbxTexture>(j))
+					return lTexture->GetName();
 
-			if (lNbTextures > 0)
-			{
-				for (int j = 0; j < lNbTextures; ++j)
-				{
-					FbxTexture* lTexture = pProperty.GetSrcObject<FbxTexture>(j);
-					if (lTexture)
-					{
-						return lTexture->GetName();
-					}
-				}
-			}
+			const int fileTexturesCount = pProperty.GetSrcObjectCount<FbxFileTexture>();
+			for (int j = 0; j < fileTexturesCount; ++j)
+				if (FbxFileTexture* lTex = pProperty.GetSrcObject<FbxFileTexture>(j))
+					return lTex->GetFileName();
 		}
 
 		return nullptr;

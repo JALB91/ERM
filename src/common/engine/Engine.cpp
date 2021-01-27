@@ -47,6 +47,8 @@ namespace {
 	const float kDefaultScale = 1.0f;
 	const int kEntities = 1;
 
+	erm::ecs::Entity* light;
+
 } // namespace
 
 namespace erm {
@@ -92,16 +94,24 @@ namespace erm {
 		mResourcesManager->LoadDefaultResources();
 
 		auto camera = mECS->GetOrCreateEntity("Camera");
-		camera->AddComponent<ecs::LightComponent>();
+		//camera->AddComponent<ecs::LightComponent>();
 		camera->RequireComponent<ecs::CameraComponent>();
 		camera->GetComponent<ecs::TransformComponent>()->mTranslation = math::vec3(0.0f, 1.0f, 10.0f);
+
+		light = mECS->GetOrCreateEntity("Light");
+		auto entity = mECS->GetOrCreateEntity();
+		entity->AddComponent<ecs::LightComponent>();
+		entity->AddComponent<ecs::ModelComponent>(mResourcesManager->GetOrCreateModel("Defaults/Cube"));
+		entity->GetComponent<ecs::TransformComponent>()->mTranslation.z = 5.0f;
+		entity->GetComponent<ecs::TransformComponent>()->mTranslation.y = 1.0f;
+		light->AddChild(*entity);
 
 		auto root = mECS->GetRoot();
 		root->AddChild(*camera);
 
 		for (int i = 0; i < kEntities; ++i)
 		{
-			auto entity = mECS->GetOrCreateEntity();
+			auto entity = mECS->GetOrCreateEntity("Model");
 			Model* model = mResourcesManager->GetOrCreateModel(kRoyalGuardPath);
 			//Model* model = mResourcesManager->GetOrCreateModel("res/models/home_1.obj");
 			auto comp = entity->RequireComponent<ecs::ModelComponent>(model);
@@ -123,6 +133,8 @@ namespace erm {
 			static double frameElapsedTime = 0.0;
 			static double elapsedTime = 0.0;
 			static unsigned int framesInSecond = 0;
+
+			light->GetComponent<ecs::TransformComponent>()->mRotation.y = 360.0f * static_cast<float>(sin(mTimer.GetElapsedTime() * 0.01));
 
 			mTimer.Update();
 

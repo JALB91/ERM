@@ -1,5 +1,6 @@
 #include "erm/debug/ImGuiMeshWrapper.h"
 #include "erm/debug/ImGuiMaterialWrapper.h"
+#include "erm/debug/ImGuiPBMaterialWrapper.h"
 
 #include "erm/engine/Engine.h"
 
@@ -84,6 +85,7 @@ namespace ImGui {
 
 			ImGui::Text("Vertices: %u", mesh.GetVerticesDataCount());
 			ImGui::Text("Indices: %u", mesh.GetIndicesCount());
+			ImGui::ShowPBMaterialDebug(engine, mesh);
 			ImGui::ShowMaterialDebug(engine, mesh);
 
 			ShowShaderPathOptions(engine, mesh);

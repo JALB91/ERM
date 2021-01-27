@@ -5,11 +5,15 @@
 
 #include "erm/loaders/fbx/FBXInclude.h"
 #include "erm/loaders/fbx/FBXMaterialLoader.h"
+#include "erm/loaders/fbx/FBXSkeletonLoader.h"
+
+#include "erm/managers/ResourcesManager.h"
 
 #include "erm/math/vec.h"
 
 #include "erm/rendering/buffers/IndexData.h"
 #include "erm/rendering/buffers/VertexData.h"
+#include "erm/rendering/data_structs/Bone.h"
 #include "erm/rendering/data_structs/Model.h"
 #include "erm/rendering/data_structs/RenderConfigs.h"
 
@@ -27,6 +31,16 @@ namespace erm {
 	{
 		return math::vec2(vec.mData[0], vec.mData[1]);
 	}
+
+	void ProcessNode(
+		std::mutex& mutex,
+		std::atomic<bool>& stop,
+		const char* path,
+		Model& model,
+		ResourcesManager& resourcesManager,
+		std::unique_ptr<BonesTree>& bonesTree,
+		BonesTree* head,
+		FbxNode* node);
 
 	void ProcessMesh(
 		std::mutex& mutex,
@@ -61,19 +75,46 @@ namespace erm {
 		lImporter->Import(lScene);
 		lImporter->Destroy();
 
-		FbxNode* lRootNode = lScene->GetRootNode();
-		if (lRootNode)
+		std::unique_ptr<BonesTree> bonesTree = std::make_unique<BonesTree>(0, std::make_unique<Bone>(glm::identity<math::mat4>(), glm::identity<math::mat4>(), path));
+
+		if (FbxNode* lRootNode = lScene->GetRootNode())
 		{
-			for (int i = 0; i < lRootNode->GetChildCount(); ++i)
-			{
-				if (stop)
-					break;
-				if (FbxMesh* pMesh = lRootNode->GetChild(i)->GetMesh())
-					ProcessMesh(mutex, stop, path, model, resourcesManager, pMesh);
-			}
+			ProcessNode(mutex, stop, path, model, resourcesManager, bonesTree, &bonesTree->GetRoot(), lRootNode);
+		}
+
+		if (bonesTree)
+		{
+			resourcesManager.GetSkins().emplace_back(std::move(bonesTree));
 		}
 
 		lSdkManager->Destroy();
+	}
+
+	void ProcessNode(
+		std::mutex& mutex,
+		std::atomic<bool>& stop,
+		const char* path,
+		Model& model,
+		ResourcesManager& resourcesManager,
+		std::unique_ptr<BonesTree>& bonesTree,
+		BonesTree* head,
+		FbxNode* node)
+	{
+		BonesTree* tmpHead = head;
+		for (int i = 0; i < node->GetChildCount(); ++i)
+		{
+			if (stop)
+				break;
+			FbxNode* child = node->GetChild(i);
+			if (FbxMesh* mesh = child->GetMesh())
+				ProcessMesh(mutex, stop, path, model, resourcesManager, mesh);
+			if (FbxSkeleton* skeleton = child->GetSkeleton())
+				ParseSkeleton(mutex, stop, bonesTree, &head, skeleton, child->GetTransform());
+
+			ProcessNode(mutex, stop, path, model, resourcesManager, bonesTree, head, child);
+
+			head = tmpHead;
+		}
 	}
 
 	math::vec2 GetUV(FbxMesh* pMesh, int controlPointId, int polygonIndex, int positionInPolygon)
