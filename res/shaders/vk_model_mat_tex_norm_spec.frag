@@ -37,17 +37,23 @@ vec3 lit(vec3 l, vec3 n, vec3 v) {
 
 void main()
 {
-	outColor = texture(diffuseSampler, TexCoord);
+	// texture(diffuseSampler, TexCoord);
 
-	vec3 n = normalize(vec3(texture(normalSampler, TexCoord)));
-	vec3 v = normalize(view.position - FragPos);
-	vec3 l = normalize(light.position - FragPos);
-
-	float Ndl = clamp(dot(n, l), 0.0, 1.0);
-
-	float spec = pow(max(dot(n, l), 0.0), material.shininess);
-	vec3 specular = light.specular * vec3(texture(specularSampler, TexCoord)) * spec;
-
-	outColor.rgb += Ndl * light.ambient * lit(l, n, v);
-	outColor.rgb += specular;
+	// ambient
+    vec3 ambient = light.ambient * material.ambient;
+  	
+    // diffuse 
+    vec3 norm = normalize(vec3(texture(normalSampler, TexCoord)));
+    vec3 lightDir = normalize(light.position - FragPos);
+    float diff = max(dot(norm, lightDir), 0.0);
+    vec3 diffuse = light.diffuse * (diff * vec3(texture(diffuseSampler, TexCoord)));
+    
+    // specular
+    vec3 viewDir = normalize(view.position - FragPos);
+    vec3 reflectDir = reflect(-lightDir, norm);  
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+    vec3 specular = light.specular * (spec * vec3(texture(specularSampler, TexCoord)));  
+        
+    vec3 result = ambient + diffuse + specular;
+    outColor = vec4(result, 1.0);
 }

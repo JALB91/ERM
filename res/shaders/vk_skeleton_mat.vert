@@ -4,7 +4,8 @@
 const int MAX_BONES = 100;
 
 layout(binding = 0) uniform Skeleton {
-	mat4 modelView;
+	mat4 model;
+	mat4 view;
 	mat4 projection;
 	mat4 bonesTransforms[MAX_BONES];
 } ubo;
@@ -24,12 +25,12 @@ void main()
 	boneTransform += ubo.bonesTransforms[inBoneIds[1]] * inBoneWeights[1];
 	boneTransform += ubo.bonesTransforms[inBoneIds[2]] * inBoneWeights[2];
 	boneTransform += ubo.bonesTransforms[inBoneIds[3]] * inBoneWeights[3];
-	boneTransform = ubo.modelView * boneTransform;
+	boneTransform = ubo.model * boneTransform;
 
 	vec4 localPos = boneTransform * vec4(inPosition, 1.0);
 	vec4 localNormal = boneTransform * vec4(inNormal, 0.0);
 
 	outFragPos = vec3(localPos);
 	outNormal = vec3(localNormal);
-	gl_Position = ubo.projection * localPos;
+	gl_Position = ubo.projection * ubo.view * localPos;
 }

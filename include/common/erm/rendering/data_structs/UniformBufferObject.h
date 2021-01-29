@@ -21,7 +21,8 @@ namespace erm {
 	{
 		static constexpr UboId ID = 1;
 
-		alignas(16) math::mat4 mModelView;
+		alignas(16) math::mat4 mModel;
+		alignas(16) math::mat4 mView;
 		alignas(16) math::mat4 mProjection;
 	};
 
@@ -56,9 +57,28 @@ namespace erm {
 	{
 		static constexpr UboId ID = 5;
 
-		alignas(16) math::mat4 mModelView;
+		alignas(16) math::mat4 mModel;
+		alignas(16) math::mat4 mView;
 		alignas(16) math::mat4 mProjection;
 		alignas(16) math::mat4 mBonesTransforms[100];
+	};
+
+	struct UboPBMaterial : public IUbo
+	{
+		static constexpr UboId ID = 6;
+
+		alignas(16) math::vec3 mAlbedo;
+		alignas(4) float mMetallic;
+		alignas(4) float mRoughness;
+		alignas(4) float mAO;
+	};
+
+	struct UboPBLight : public IUbo
+	{
+		static constexpr UboId ID = 7;
+
+		alignas(16) math::vec3 mPosition;
+		alignas(16) math::vec3 mColor;
 	};
 
 } // namespace erm

@@ -30,6 +30,7 @@ namespace erm {
 		std::optional<PolygonMode> polygonMode /*= {}*/,
 		std::optional<DrawMode> drawMode /*= {}*/,
 		ShaderProgram* shaderProgram /*= nullptr*/,
+		PBMaterial* pBMaterial /*= nullptr*/,
 		Material* material /*= nullptr*/,
 		Texture* diffuseMap /*= nullptr*/,
 		Texture* normalMap /*= nullptr*/,
@@ -46,6 +47,7 @@ namespace erm {
 		, mPolygonMode(polygonMode)
 		, mDrawMode(drawMode)
 		, mShaderProgram(shaderProgram)
+		, mPBMaterial(pBMaterial)
 		, mMaterial(material)
 		, mDiffuseMap(diffuseMap)
 		, mNormalMap(normalMap)
@@ -123,7 +125,7 @@ namespace erm {
 
 	bool RenderConfigs::IsMaterialCompatible(const RenderConfigs& other) const
 	{
-		return mMaterial == other.mMaterial;
+		return mPBMaterial == other.mPBMaterial && mMaterial == other.mMaterial;
 	}
 
 	bool RenderConfigs::AreTexturesCompatible(const RenderConfigs& other) const

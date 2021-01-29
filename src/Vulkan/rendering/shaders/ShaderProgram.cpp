@@ -51,7 +51,7 @@ namespace {
 		return buffer;
 	}
 
-	void GatherDescriptorSetLayoutBindings(std::vector<vk::DescriptorSetLayoutBinding>& bindings, const spirv_cross::CompilerCPP& compiler, vk::ShaderStageFlagBits flags)
+	void GatherDescriptorSetLayoutBindings(std::vector<vk::DescriptorSetLayoutBinding>& bindings, const spirv_cross::Compiler& compiler, vk::ShaderStageFlagBits flags)
 	{
 		spirv_cross::ShaderResources resources = compiler.get_shader_resources();
 
@@ -76,7 +76,7 @@ namespace {
 		}
 	}
 
-	erm::UboData GetUboData(const spirv_cross::CompilerCPP& compiler, const spirv_cross::Resource& resource)
+	erm::UboData GetUboData(const spirv_cross::Compiler& compiler, const spirv_cross::Resource& resource)
 	{
 		if (resource.name.compare("UniformBufferObject") == 0)
 			return {erm::UboBasic::ID, sizeof(erm::UboBasic), compiler.get_decoration(resource.id, spv::Decoration::DecorationOffset), compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding)};
@@ -90,13 +90,17 @@ namespace {
 			return {erm::UboView::ID, sizeof(erm::UboView), compiler.get_decoration(resource.id, spv::Decoration::DecorationOffset), compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding)};
 		else if (resource.name.compare("Skeleton") == 0)
 			return {erm::UboSkeleton::ID, sizeof(erm::UboSkeleton), compiler.get_decoration(resource.id, spv::Decoration::DecorationOffset), compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding)};
+		else if (resource.name.compare("PBMaterial") == 0)
+			return {erm::UboPBMaterial::ID, sizeof(erm::UboPBMaterial), compiler.get_decoration(resource.id, spv::Decoration::DecorationOffset), compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding)};
+		else if (resource.name.compare("PBLight") == 0)
+			return {erm::UboPBLight::ID, sizeof(erm::UboPBLight), compiler.get_decoration(resource.id, spv::Decoration::DecorationOffset), compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding)};
 
 		ASSERT(false);
 
 		return {erm::UboBasic::ID, sizeof(erm::UboBasic), 0, 0};
 	}
 
-	erm::SamplerData GetSamplerData(const spirv_cross::CompilerCPP& compiler, const spirv_cross::Resource& resource)
+	erm::SamplerData GetSamplerData(const spirv_cross::Compiler& compiler, const spirv_cross::Resource& resource)
 	{
 		if (resource.name.compare("diffuseSampler") == 0)
 			return {compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding), erm::TextureType::DIFFUSE};
@@ -110,7 +114,7 @@ namespace {
 		return {0, erm::TextureType::DIFFUSE};
 	}
 
-	void GetBindingData(spirv_cross::CompilerCPP& vertCompiler, spirv_cross::CompilerCPP& fragCompiler, std::vector<erm::UboData>& ubosData, std::vector<erm::SamplerData>& samplerData)
+	void GetBindingData(spirv_cross::Compiler& vertCompiler, spirv_cross::Compiler& fragCompiler, std::vector<erm::UboData>& ubosData, std::vector<erm::SamplerData>& samplerData)
 	{
 		spirv_cross::ShaderResources resources = vertCompiler.get_shader_resources();
 
@@ -142,8 +146,8 @@ namespace erm {
 		, mFragmentSource(Utils::ReadFromFile((mPath + ".frag").c_str()))
 		, mVertex(ReadShaderCompiled((mPath + ".vert.cmp").c_str()))
 		, mFragment(ReadShaderCompiled((mPath + ".frag.cmp").c_str()))
-		, mVertCompiler(std::make_unique<spirv_cross::CompilerCPP>(LoadSpirvFile((mPath + ".vert.cmp").c_str())))
-		, mFragCompiler(std::make_unique<spirv_cross::CompilerCPP>(LoadSpirvFile((mPath + ".frag.cmp").c_str())))
+		, mVertCompiler(std::make_unique<spirv_cross::Compiler>(LoadSpirvFile((mPath + ".vert.cmp").c_str())))
+		, mFragCompiler(std::make_unique<spirv_cross::Compiler>(LoadSpirvFile((mPath + ".frag.cmp").c_str())))
 		, mNeedsReload(true)
 	{
 		::GetBindingData(*mVertCompiler, *mFragCompiler, mUbosData, mSamplerData);
@@ -171,7 +175,7 @@ namespace erm {
 		}
 
 		mVertex = ReadShaderCompiled((mPath + ".vert.cmp").c_str());
-		mVertCompiler = std::make_unique<spirv_cross::CompilerCPP>(LoadSpirvFile((mPath + ".vert.cmp").c_str()));
+		mVertCompiler = std::make_unique<spirv_cross::Compiler>(LoadSpirvFile((mPath + ".vert.cmp").c_str()));
 
 		// FRAGMENT SHADER
 		mFragmentSource = fragment;
@@ -186,7 +190,7 @@ namespace erm {
 		}
 
 		mFragment = ReadShaderCompiled((mPath + ".frag.cmp").c_str());
-		mFragCompiler = std::make_unique<spirv_cross::CompilerCPP>(LoadSpirvFile((mPath + ".frag.cmp").c_str()));
+		mFragCompiler = std::make_unique<spirv_cross::Compiler>(LoadSpirvFile((mPath + ".frag.cmp").c_str()));
 
 		mUbosData.clear();
 		mSamplerData.clear();

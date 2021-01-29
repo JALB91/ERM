@@ -16,6 +16,7 @@ namespace erm {
 	class ShaderProgram;
 	class Texture;
 	struct Material;
+	struct PBMaterial;
 } // namespace erm
 
 namespace erm {
@@ -37,6 +38,7 @@ namespace erm {
 			std::optional<PolygonMode> polygonMode = {},
 			std::optional<DrawMode> drawMode = {},
 			ShaderProgram* shaderProgram = nullptr,
+			PBMaterial* pBMaterial = nullptr,
 			Material* material = nullptr,
 			Texture* diffuseMap = nullptr,
 			Texture* normalMap = nullptr,
@@ -71,6 +73,7 @@ namespace erm {
 		DECL_SET_GET_OPT_WITH_DEFAULT(PolygonMode, PolygonMode, PolygonMode::FILL);
 		DECL_SET_GET_OPT_WITH_DEFAULT(DrawMode, DrawMode, DrawMode::TRIANGLES);
 		ShaderProgram* mShaderProgram;
+		PBMaterial* mPBMaterial;
 		Material* mMaterial;
 		Texture* mDiffuseMap;
 		Texture* mNormalMap;

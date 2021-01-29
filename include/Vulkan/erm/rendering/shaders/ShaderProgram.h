@@ -57,8 +57,8 @@ namespace erm {
 		std::string mFragmentSource;
 		std::vector<char> mVertex;
 		std::vector<char> mFragment;
-		std::unique_ptr<spirv_cross::CompilerCPP> mVertCompiler;
-		std::unique_ptr<spirv_cross::CompilerCPP> mFragCompiler;
+		std::unique_ptr<spirv_cross::Compiler> mVertCompiler;
+		std::unique_ptr<spirv_cross::Compiler> mFragCompiler;
 		std::vector<UboData> mUbosData;
 		std::vector<SamplerData> mSamplerData;
 		bool mNeedsReload;
