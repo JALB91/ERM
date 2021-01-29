@@ -36,6 +36,11 @@ namespace erm::ecs {
 			return mRootBone.get();
 		}
 
+		inline const BonesTree* GetRootBone() const
+		{
+			return mRootBone.get();
+		}
+
 	private:
 		std::unique_ptr<BonesTree> mRootBone;
 	};
