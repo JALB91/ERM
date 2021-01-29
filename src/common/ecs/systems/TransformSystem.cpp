@@ -1,5 +1,6 @@
 #include "erm/ecs/systems/TransformSystem.h"
 
+#include "erm/ecs/ECS.h"
 #include "erm/ecs/Entity.h"
 
 #include "erm/utils/Profiler.h"
@@ -11,6 +12,12 @@ namespace erm::ecs {
 	TransformSystem::TransformSystem(ECS& ecs)
 		: ISystem<TransformComponent>(ecs)
 	{}
+
+	void TransformSystem::OnComponentAdded(EntityId id)
+	{
+		if (id != ROOT_ID && GetComponent(id) && !GetComponent(id)->mParent.IsValid())
+			AddChild(ROOT_ID, id);
+	}
 
 	void TransformSystem::OnComponentBeingRemoved(EntityId id)
 	{

@@ -20,6 +20,7 @@ namespace erm::ecs {
 
 	private:
 		// ISystem
+		void OnComponentAdded(EntityId id) override;
 		void OnComponentBeingRemoved(EntityId id) override;
 	};
 
