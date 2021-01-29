@@ -6,6 +6,8 @@
 #include "erm/loaders/fbx/FBXInclude.h"
 #include "erm/loaders/fbx/FBXMaterialLoader.h"
 
+#include "erm/managers/ResourcesManager.h"
+
 #include "erm/math/vec.h"
 
 #include "erm/rendering/buffers/IndexData.h"
@@ -27,6 +29,14 @@ namespace erm {
 	{
 		return math::vec2(vec.mData[0], vec.mData[1]);
 	}
+
+	void ProcessNode(
+		std::mutex& mutex,
+		std::atomic<bool>& stop,
+		const char* path,
+		Model& model,
+		ResourcesManager& resourcesManager,
+		FbxNode* node);
 
 	void ProcessMesh(
 		std::mutex& mutex,
@@ -61,19 +71,32 @@ namespace erm {
 		lImporter->Import(lScene);
 		lImporter->Destroy();
 
-		FbxNode* lRootNode = lScene->GetRootNode();
-		if (lRootNode)
+		if (FbxNode* lRootNode = lScene->GetRootNode())
 		{
-			for (int i = 0; i < lRootNode->GetChildCount(); ++i)
-			{
-				if (stop)
-					break;
-				if (FbxMesh* pMesh = lRootNode->GetChild(i)->GetMesh())
-					ProcessMesh(mutex, stop, path, model, resourcesManager, pMesh);
-			}
+			ProcessNode(mutex, stop, path, model, resourcesManager, lRootNode);
 		}
 
 		lSdkManager->Destroy();
+	}
+
+	void ProcessNode(
+		std::mutex& mutex,
+		std::atomic<bool>& stop,
+		const char* path,
+		Model& model,
+		ResourcesManager& resourcesManager,
+		FbxNode* node)
+	{
+		for (int i = 0; i < node->GetChildCount(); ++i)
+		{
+			if (stop)
+				break;
+			FbxNode* child = node->GetChild(i);
+			if (FbxMesh* mesh = child->GetMesh())
+				ProcessMesh(mutex, stop, path, model, resourcesManager, mesh);
+
+			ProcessNode(mutex, stop, path, model, resourcesManager, child);
+		}
 	}
 
 	math::vec2 GetUV(FbxMesh* pMesh, int controlPointId, int polygonIndex, int positionInPolygon)
