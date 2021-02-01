@@ -17,8 +17,6 @@ layout(binding = 4) uniform View {
 	vec3 position;
 } view;
 
-layout(binding = 5) uniform sampler2D diffuseSampler;
-
 layout(location = 0) in vec3 FragPos;
 layout(location = 1) in vec3 Normal;
 layout(location = 2) in vec2 TexCoord;
@@ -128,5 +126,4 @@ void main()
     color = pow(color, vec3(1.0/2.2)); 
 
     outColor = vec4(color, 1.0);
-    outColor += texture(diffuseSampler, TexCoord);
 }

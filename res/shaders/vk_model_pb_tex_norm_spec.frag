@@ -1,24 +1,23 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
-layout(binding = 1) uniform PBMaterial {
+layout(binding = 2) uniform PBMaterial {
     vec3 albedo;
 	float metallic;
 	float roughness;
 	float ao;
 } material;
 
-layout(binding = 2) uniform PBLight {
+layout(binding = 3) uniform PBLight {
 	vec3 position;
 	vec3 color;
 } light;
 
-layout(binding = 3) uniform View {
+layout(binding = 4) uniform View {
 	vec3 position;
 } view;
 
-layout(binding = 4) uniform sampler2D diffuseSampler;
-layout(binding = 5) uniform sampler2D normalSampler;
+layout(binding = 5) uniform sampler2D diffuseSampler;
 layout(binding = 6) uniform sampler2D specularSampler;
 
 layout(location = 0) in vec3 FragPos;
@@ -72,7 +71,7 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
 // ----------------------------------------------------------------------------
 void main()
 {		
-    vec3 N = normalize(vec3(texture(normalSampler, TexCoord)));
+    vec3 N = normalize(Normal);
     vec3 V = normalize(view.position - FragPos);
     vec3 albedo = pow(vec3(texture(diffuseSampler, TexCoord)), vec3(2.2));
 

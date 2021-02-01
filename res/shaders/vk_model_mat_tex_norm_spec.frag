@@ -1,26 +1,25 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
-layout(binding = 1) uniform Material {
+layout(binding = 2) uniform Material {
 	vec3 ambient;
 	vec3 diffuse;
 	vec3 specular;
 	float shininess;
 } material;
 
-layout(binding = 2) uniform Light {
+layout(binding = 3) uniform Light {
 	vec3 position;
 	vec3 ambient;
 	vec3 diffuse;
 	vec3 specular;
 } light;
 
-layout(binding = 3) uniform View {
+layout(binding = 4) uniform View {
 	vec3 position;
 } view;
 
-layout(binding = 4) uniform sampler2D diffuseSampler;
-layout(binding = 5) uniform sampler2D normalSampler;
+layout(binding = 5) uniform sampler2D diffuseSampler;
 layout(binding = 6) uniform sampler2D specularSampler;
 
 layout(location = 0) in vec3 FragPos;
@@ -43,7 +42,7 @@ void main()
     vec3 ambient = light.ambient * material.ambient;
   	
     // diffuse 
-    vec3 norm = normalize(vec3(texture(normalSampler, TexCoord)));
+    vec3 norm = normalize(Normal);
     vec3 lightDir = normalize(light.position - FragPos);
     float diff = max(dot(norm, lightDir), 0.0);
     vec3 diffuse = light.diffuse * (diff * vec3(texture(diffuseSampler, TexCoord)));
