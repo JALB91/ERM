@@ -4,6 +4,7 @@
 #include "erm/rendering/data_structs/Bone.h"
 #include "erm/rendering/data_structs/Material.h"
 #include "erm/rendering/data_structs/Model.h"
+#include "erm/rendering/data_structs/PBMaterial.h"
 #include "erm/rendering/shaders/ShaderProgram.h"
 #include "erm/rendering/textures/Texture.h"
 
@@ -22,6 +23,7 @@ namespace erm {
 
 	using Shaders = std::vector<Handle<ShaderProgram>>;
 	using Materials = std::vector<Handle<Material>>;
+	using PBMaterials = std::vector<Handle<PBMaterial>>;
 	using Textures = std::vector<Handle<Texture>>;
 	using Models = std::vector<Handle<Model>>;
 	using Skins = std::vector<Handle<BonesTree>>;
@@ -46,6 +48,9 @@ namespace erm {
 		inline Materials& GetMaterials() { return mMaterials; }
 		Material* GetOrCreateMaterial(const char* materialPath, const char* materialName);
 
+		inline PBMaterials& GetPBMaterials() { return mPBMaterials; }
+		PBMaterial* GetOrCreatePBMaterial(const char* materialPath, const char* materialName);
+
 		inline Textures& GetTextures() { return mTextures; }
 		Texture* GetOrCreateTexture(const char* texturePath);
 
@@ -64,6 +69,7 @@ namespace erm {
 
 		Shaders mShaderPrograms;
 		Materials mMaterials;
+		PBMaterials mPBMaterials;
 		Textures mTextures;
 		Models mModels;
 		Skins mSkins;

@@ -118,6 +118,23 @@ namespace erm {
 		return nullptr;
 	}
 
+	PBMaterial* ResourcesManager::GetOrCreatePBMaterial(const char* materialPath, const char* materialName)
+	{
+		auto it = std::find_if(
+			mPBMaterials.begin(),
+			mPBMaterials.end(),
+			[materialPath, materialName](Handle<PBMaterial>& material) {
+				return (material->mPath.compare(materialPath) == 0 && material->mName.compare(materialName) == 0);
+			});
+
+		if (it != mPBMaterials.end())
+		{
+			return (*it).get();
+		}
+
+		return nullptr;
+	}
+
 	Texture* ResourcesManager::GetOrCreateTexture(const char* texturePath)
 	{
 		auto it = std::find_if(

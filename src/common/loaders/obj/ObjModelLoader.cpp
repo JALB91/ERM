@@ -108,7 +108,7 @@ namespace erm {
 				}
 				else if (splitted[0].compare("mtllib") == 0)
 				{
-					std::string pathStr("res/materials/");
+					std::string pathStr("res/models/");
 					pathStr.append(splitted[1]);
 					noMat = !ParseMaterialsLib(mutex, stop, pathStr.c_str(), resourcesManager);
 				}
