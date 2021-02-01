@@ -33,6 +33,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(macros)
 include(ERMConfig)
+include(AssimpConfig)
 
 # SETUP TARGET API
 setup_api()
@@ -55,7 +56,10 @@ include(GLFWConfig)
 include(TinyXmlConfig)
 include(FindFbx)
 
-find_package(Fbx)
+if(NOT ${ERM_ASSIMP_ENABLED})
+	find_package(Fbx)
+endif(NOT ${ERM_ASSIMP_ENABLED})
+
 if(NOT ${FBX_FOUND})
 	message(WARNING "Cannot find FBX libraries")
 else()
@@ -71,6 +75,10 @@ add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/imgui")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/tinyxml")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/stb_image")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/SPIRV-Cross")
+
+if(ERM_ASSIMP_ENABLED)
+	add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/assimp")
+endif(ERM_ASSIMP_ENABLED)
 
 # GATHER SOURCES
 file(GLOB_RECURSE SOURCES 
@@ -112,6 +120,7 @@ target_include_directories(
 		"${CMAKE_CURRENT_SOURCE_DIR}/include/common/"
 		"${CMAKE_CURRENT_SOURCE_DIR}/include/${TARGET_API}/"
 		$<$<BOOL:${ERM_FBX_ENABLED}>:${FBX_INCLUDE_DIRS}>
+		$<$<BOOL:${ERM_ASSIMP_ENABLED}>:${ASSIMP_INCLUDE_DIR}>
 	PUBLIC 
 		"${PUBLIC_INCLUDES}"
 )
@@ -125,6 +134,7 @@ target_compile_definitions(
 		$<$<BOOL:${ERM_FLIP_PROJECTION}>:ERM_FLIP_PROJECTION>
 		$<$<BOOL:${ERM_FLIP_VIEWPORT}>:ERM_FLIP_VIEWPORT>
 		$<$<BOOL:${ERM_FBX_ENABLED}>:ERM_FBX_ENABLED>
+		$<$<BOOL:${ERM_ASSIMP_ENABLED}>:ERM_ASSIMP_ENABLED>
 		${TARGET_API_COMPILE_DEF}
 	PRIVATE
 		$<$<STREQUAL:"${TARGET_API}","OpenGl">:GLEW_STATIC>
@@ -155,6 +165,7 @@ target_link_libraries(
 	PRIVATE 
 		"${TARGET_API_LIB}"
 		glfw
+		$<$<BOOL:${ERM_ASSIMP_ENABLED}>:assimp>
 		stb_image
 		spirv-cross-cpp
 		debug "${PRIVATE_DEBUG_DEPENDENCIES}"

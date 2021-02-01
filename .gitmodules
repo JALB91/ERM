@@ -19,3 +19,6 @@
 [submodule "externals/SPIRV-Cross"]
 	path = externals/SPIRV-Cross
 	url = https://github.com/KhronosGroup/SPIRV-Cross.git
+[submodule "externals/assimp"]
+	path = externals/assimp
+	url = https://github.com/assimp/assimp.git
