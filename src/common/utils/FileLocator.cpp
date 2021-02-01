@@ -10,7 +10,9 @@ namespace {
 
 	const char* const kObjModelExtension = ".obj";
 	const char* const kColladaModelExtension = ".dae";
+#if defined(ERM_FBX_ENABLED) || defined(ERM_ASSIMP_ENABLED)
 	const char* const kFbxModelExtension = ".fbx";
+#endif
 	const char* const kObjMaterialExtension = ".mtl";
 	const char* const kVertexShaderExtension = ".vert";
 	const char* const kFragmentShaderExtension = ".frag";
@@ -21,31 +23,35 @@ namespace {
 	const char* const kModelsDir = "models/";
 	const char* const kShadersDir = "shaders/";
 	const char* const kTexturesDir = "textures/";
-	const char* const kMaterialsDir = "materials/";
 
-	std::array kSupportedModelsExtensions {
+	std::array kSupportedModelsExtensions
+	{
 		kObjModelExtension,
-		kColladaModelExtension,
-#ifdef ERM_FBX_ENABLED
-		kFbxModelExtension
+			kColladaModelExtension,
+#if defined(ERM_FBX_ENABLED) || defined(ERM_ASSIMP_ENABLED)
+			kFbxModelExtension
 #endif
 	};
 	std::array kSupportedMaterialsExtensions {kObjMaterialExtension};
 	std::array kSupportedShadersExtensions {kVertexShaderExtension};
 	std::array kSupportedTexturesExtensions {kPngTextureExtension, kJpgTextureExtension, kJpegTextureExtension};
 
-	std::map<std::string, std::vector<const char*>> kFilesAssociations {
+	std::map<std::string, std::vector<const char*>> kFilesAssociations
+	{
 		{kObjModelExtension, {kModelsDir}},
-		{kColladaModelExtension, {kModelsDir}},
-#ifdef ERM_FBX_ENABLED
-		{kFbxModelExtension, {kModelsDir}},
+			{kColladaModelExtension, {kModelsDir}},
+#if defined(ERM_FBX_ENABLED) || defined(ERM_ASSIMP_ENABLED)
+			{kFbxModelExtension, {kModelsDir}},
 #endif
-		{kObjMaterialExtension, {kMaterialsDir}},
-		{kFragmentShaderExtension, {kShadersDir}},
-		{kVertexShaderExtension, {kShadersDir}},
-		{kPngTextureExtension, {kTexturesDir}},
-		{kJpegTextureExtension, {kTexturesDir}},
-		{kJpgTextureExtension, {kTexturesDir}}};
+			{kObjMaterialExtension, {kModelsDir}},
+			{kFragmentShaderExtension, {kShadersDir}},
+			{kVertexShaderExtension, {kShadersDir}},
+			{kPngTextureExtension, {kTexturesDir}},
+			{kJpegTextureExtension, {kTexturesDir}},
+		{
+			kJpgTextureExtension, { kTexturesDir }
+		}
+	};
 
 } // namespace
 

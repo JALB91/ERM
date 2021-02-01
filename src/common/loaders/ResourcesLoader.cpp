@@ -3,6 +3,7 @@
 #include "erm/rendering/data_structs/Mesh.h"
 #include "erm/rendering/data_structs/Model.h"
 
+#include "erm/loaders/assimp/AssimpModelLoader.h"
 #include "erm/loaders/collada/ColladaModelLoader.h"
 #ifdef ERM_FBX_ENABLED
 #	include "erm/loaders/fbx/FBXModelLoader.h"
@@ -92,6 +93,19 @@ namespace erm {
 		Model& model = *resourcesManager.GetModels().emplace_back(std::make_unique<Model>(mDevice, path, name.c_str()));
 		mLoadingModels.emplace_back(&model);
 
+#ifdef ERM_ASSIMP_ENABLED
+		mFutures.emplace_back(
+			std::async(
+				std::launch::async,
+				&AssimpParseModel,
+				std::ref(mMutex),
+				std::ref(mStop),
+				path,
+				std::ref(model),
+				std::ref(resourcesManager)));
+
+		return true;
+#else
 		if (Utils::CompareNoCaseSensitive(extension, ".obj"))
 		{
 			mFutures.emplace_back(
@@ -122,7 +136,7 @@ namespace erm {
 
 			return true;
 		}
-#ifdef ERM_FBX_ENABLED
+#	ifdef ERM_FBX_ENABLED
 		else if (Utils::CompareNoCaseSensitive(extension, ".fbx"))
 		{
 			mFutures.emplace_back(
@@ -137,9 +151,10 @@ namespace erm {
 
 			return true;
 		}
-#endif
+#	endif
 
 		return false;
+#endif
 	}
 
 } // namespace erm
