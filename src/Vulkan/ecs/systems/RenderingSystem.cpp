@@ -238,13 +238,11 @@ namespace erm::ecs {
 					ubo.mView = view;
 					ubo.mProjection = proj;
 
-					int count = 0;
-					skeletonComponent->GetRootBone()->ForEachDo([&ubo, &count](BonesTree& bone) {
-						if (count >= 100)
+					skeletonComponent->GetRootBone()->ForEachDo([&ubo](BonesTree& bone) {
+						if (bone.GetId() >= 100)
 							return;
 
-						ubo.mBonesTransforms[count] = bone.GetPayload()->mAnimatedTransform;
-						++count;
+						ubo.mBonesTransforms[bone.GetId()] = bone.GetPayload()->mAnimatedTransform;
 					});
 
 					data->SetUbo(std::move(ubo));

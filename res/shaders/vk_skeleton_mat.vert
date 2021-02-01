@@ -15,16 +15,20 @@ layout(location = 1) in vec3 inNormal;
 layout(location = 2) in vec2 inTexCoord;
 layout(location = 3) in vec4 inBoneWeights;
 layout(location = 4) in ivec4 inBoneIds;
+layout(location = 5) in int inBoneNum;
 
 layout(location = 0) out vec3 outFragPos;
 layout(location = 1) out vec3 outNormal;
 
 void main()
 {
-	mat4 boneTransform = ubo.bonesTransforms[inBoneIds[0]] * inBoneWeights[0];
-	boneTransform += ubo.bonesTransforms[inBoneIds[1]] * inBoneWeights[1];
-	boneTransform += ubo.bonesTransforms[inBoneIds[2]] * inBoneWeights[2];
-	boneTransform += ubo.bonesTransforms[inBoneIds[3]] * inBoneWeights[3];
+	mat4 boneTransform = mat4(1.0 - min(1.0, inBoneNum));
+
+	for (int i = 0; i < inBoneNum; ++i)
+	{
+		boneTransform += ubo.bonesTransforms[inBoneIds[i]] * inBoneWeights[i];
+	}
+
 	boneTransform = ubo.model * boneTransform;
 
 	vec4 localPos = boneTransform * vec4(inPosition, 1.0);

@@ -264,6 +264,11 @@ namespace erm {
 				description.format = vk::Format::eR32G32B32A32Uint;
 				description.offset = offsetof(VertexData, mBoneIds);
 			}
+			else if (res.name.compare("inBoneNum") == 0)
+			{
+				description.format = vk::Format::eR32Sint;
+				description.offset = offsetof(VertexData, mBoneNum);
+			}
 
 			attributeDescriptions.emplace_back(std::move(description));
 		}

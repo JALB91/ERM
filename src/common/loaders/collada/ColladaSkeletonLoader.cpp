@@ -61,13 +61,19 @@ namespace erm {
 		{
 			currentSkinData.mBoneIds.emplace_back(BoneIds(0));
 			currentSkinData.mBoneWeights.emplace_back(0.0f);
+			int boneIndex = 0;
 			for (unsigned int j = 0; j < counts[i]; ++j)
 			{
-				if (j > kMaxBonesNumber - 1)
+				const int idIndex = currentIndex + boneIndex * 2;
+				const int weightIndex = values[idIndex + 1];
+				if (weights[weightIndex] <= 0.0f)
+					continue;
+				if (boneIndex > kMaxBonesNumber - 1)
 					break;
 
-				currentSkinData.mBoneIds[i][j] = values[currentIndex + j * 2];
-				currentSkinData.mBoneWeights[i][j] = weights[values[currentIndex + j * 2 + 1]];
+				currentSkinData.mBoneIds[i][boneIndex] = values[idIndex];
+				currentSkinData.mBoneWeights[i][boneIndex] = weights[weightIndex];
+				++boneIndex;
 			}
 			currentIndex += counts[i] * 2;
 		}

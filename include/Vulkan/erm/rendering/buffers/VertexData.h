@@ -19,6 +19,7 @@ namespace erm {
 	typedef math::vec<kUVVectorsLenght, VertexType> UVVertex;
 	typedef math::vec<kMaxBonesNumber, VertexType> BoneWeights;
 	typedef math::vec<kMaxBonesNumber, IdType> BoneIds;
+	typedef int BoneNum;
 
 	struct VertexData
 	{
@@ -27,6 +28,7 @@ namespace erm {
 		UVVertex mUVVertex = UVVertex(0.0f);
 		BoneWeights mBoneWeights = BoneWeights(0.0f);
 		BoneIds mBoneIds = BoneIds(0);
+		BoneNum mBoneNum = BoneNum(0);
 	};
 
 } // namespace erm

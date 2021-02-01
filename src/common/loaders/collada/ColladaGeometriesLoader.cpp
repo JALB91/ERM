@@ -138,6 +138,9 @@ namespace erm {
 					vertexData.mBoneIds = (currentSkinData && currentSkinData->mBoneIds.size() > pIndex) ? currentSkinData->mBoneIds[pIndex] : BoneIds(0);
 					vertexData.mBoneWeights = (currentSkinData && currentSkinData->mBoneWeights.size() > pIndex) ? currentSkinData->mBoneWeights[pIndex] : BoneWeights(0.0f);
 
+					for (int j = 0; j < BoneWeights::length(); ++j)
+						vertexData.mBoneNum += vertexData.mBoneWeights[j] > 0.0f;
+
 					if (!nVertices.empty() && nOffset >= 0)
 					{
 						const IndexData nIndex = std::atoi(values[i + nOffset].c_str());
