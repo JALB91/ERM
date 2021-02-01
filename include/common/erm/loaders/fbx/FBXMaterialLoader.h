@@ -2,10 +2,12 @@
 
 #ifdef ERM_FBX_ENABLED
 
-#	include "erm/loaders/fbx/FBXInclude.h"
+// clang-format off
+#include "erm/loaders/fbx/FBXInclude.h"
 
-#	include <atomic>
-#	include <mutex>
+#include <atomic>
+#include <mutex>
+// clang-format on
 
 namespace erm {
 	class ResourcesManager;

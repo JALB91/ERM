@@ -1,8 +1,10 @@
 #ifdef ERM_FBX_ENABLED
 
-#	include "erm/loaders/fbx/FBXMaterialLoader.h"
+// clang-format off
+#include "erm/loaders/fbx/FBXMaterialLoader.h"
 
-#	include "erm/managers/ResourcesManager.h"
+#include "erm/managers/ResourcesManager.h"
+// clang-format on
 
 namespace erm {
 
