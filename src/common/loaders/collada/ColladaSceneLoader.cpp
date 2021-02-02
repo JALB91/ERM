@@ -15,7 +15,6 @@ namespace erm {
 		std::unique_ptr<BonesTree>& root,
 		BonesTree* tree,
 		math::mat4 parentBind,
-		math::mat4 parentInverseBind,
 		const std::map<std::string, ColladaSkinData>& skinsData);
 
 	void ProcessScene(
@@ -37,7 +36,7 @@ namespace erm {
 
 			while (node)
 			{
-				ProcessNode(*node, tree, tree.get(), glm::identity<math::mat4>(), glm::identity<math::mat4>(), skinsData);
+				ProcessNode(*node, tree, tree.get(), glm::identity<math::mat4>(), skinsData);
 				node = node->NextSiblingElement("node");
 			}
 
@@ -57,7 +56,6 @@ namespace erm {
 		std::unique_ptr<BonesTree>& root,
 		BonesTree* tree,
 		math::mat4 parentBind,
-		math::mat4 parentInverseBind,
 		const std::map<std::string, ColladaSkinData>& skinsData)
 	{
 		bool found = false;
@@ -78,7 +76,7 @@ namespace erm {
 						ParseMatrix(values, 0, bindMatrix);
 
 						parentBind *= bindMatrix;
-						parentInverseBind = glm::inverse(parentBind);
+						const math::mat4 parentInverseBind = glm::inverse(parentBind);
 
 						if (!root)
 						{
@@ -109,14 +107,13 @@ namespace erm {
 			}
 
 			parentBind *= bindMatrix;
-			parentInverseBind = glm::inverse(bindMatrix);
 		}
 
 		XMLElement* childNode = node.FirstChildElement("node");
 
 		while (childNode)
 		{
-			ProcessNode(*childNode, root, tree, parentBind, parentInverseBind, skinsData);
+			ProcessNode(*childNode, root, tree, parentBind, skinsData);
 			childNode = childNode->NextSiblingElement("node");
 		}
 	}
