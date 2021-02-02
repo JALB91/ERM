@@ -23,7 +23,7 @@ def update_resources(src_folder, dest_folder):
             if len(root) > len(dest_folder):
                 subdir = root[len(dest_folder) + 1:]
             update_asset(src_folder, dest_folder, subdir, asset)
-    shutil.copytree(src_folder, dest_folder, dirs_exist_ok=True)
+    shutil.copytree(src_folder, dest_folder)
 
 def compile_shaders(shaders_compiler, res_folder):
     for root, subdir, files in os.walk(os.path.join(res_folder, "shaders")):
@@ -44,6 +44,7 @@ if __name__ == "__main__":
         parser.print_help()
         exit(1)
 
+    shutil.rmtree(args.res_dest)
     update_resources(args.res_src, args.res_dest)
 
     if (args.shaders_compiler):
