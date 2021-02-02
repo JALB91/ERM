@@ -41,21 +41,19 @@ namespace erm {
 		FbxNode* node)
 	{
 		BonesTree* tmpHead = *head;
-		math::mat4 tmpBind = parentBind;
+
+		if (FbxSkeleton* bone = node->GetSkeleton())
+			ProcessBone(bonesTree, head, parentBind, bone);
+
 		for (int i = 0; i < node->GetChildCount(); ++i)
 		{
 			if (stop)
 				break;
 
-			FbxNode* child = node->GetChild(i);
-			if (FbxSkeleton* bone = child->GetSkeleton())
-				ProcessBone(bonesTree, head, parentBind, bone);
-
-			ProcessNode(mutex, stop, bonesTree, head, parentBind, child);
-
-			*head = tmpHead ? tmpHead : bonesTree.get();
-			parentBind = tmpBind;
+			ProcessNode(mutex, stop, bonesTree, head, parentBind, node->GetChild(i));
 		}
+
+		*head = tmpHead ? tmpHead : bonesTree.get();
 	}
 
 	void ProcessBone(
@@ -65,7 +63,8 @@ namespace erm {
 		FbxSkeleton* bone)
 	{
 		math::mat4 bindMatrix = ToMat4(bone->GetNode()->EvaluateLocalTransform());
-		math::mat4 inverseBind = glm::inverse(parentBind * bindMatrix);
+		parentBind *= bindMatrix;
+		math::mat4 inverseBind = glm::inverse(parentBind);
 
 		if (!bonesTree)
 		{
@@ -76,8 +75,6 @@ namespace erm {
 		{
 			*head = &(*head)->AddChild(bonesTree->GetSize(), std::make_unique<Bone>(bindMatrix, inverseBind, bone->GetName()));
 		}
-
-		parentBind *= bindMatrix;
 	}
 
 } // namespace erm

@@ -110,11 +110,6 @@ namespace erm {
 					if (!linkNode)
 						continue;
 
-					FbxAMatrix matA;
-					FbxAMatrix matB;
-					cluster->GetTransformMatrix(matA);
-					cluster->GetTransformLinkMatrix(matB);
-
 					const int associatedCtrlPointCount = cluster->GetControlPointIndicesCount();
 					const int* pCtrlPointIndices = cluster->GetControlPointIndices();
 					const double* pCtrlPointWeights = cluster->GetControlPointWeights();
@@ -124,10 +119,8 @@ namespace erm {
 						if (skeletonData[pCtrlPointIndices[k]].size() >= kMaxBonesNumber)
 							continue;
 						skeletonData[pCtrlPointIndices[k]].emplace_back(
-							linkNode->GetName(),
-							static_cast<float>(pCtrlPointWeights[k]),
-							ToMat4(matA),
-							ToMat4((matB * matA).Inverse()));
+							cluster->GetName(),
+							static_cast<float>(pCtrlPointWeights[k]));
 					}
 				}
 			}

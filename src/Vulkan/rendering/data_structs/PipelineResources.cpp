@@ -264,7 +264,7 @@ namespace erm {
 		pipelineInfo.basePipelineHandle = nullptr;
 		pipelineInfo.basePipelineIndex = -1;
 
-		mPipeline = mDevice->createGraphicsPipelineUnique(mDevice.GetPipelineCache(), pipelineInfo).value;
+		mPipeline = mDevice->createGraphicsPipelineUnique(mDevice.GetPipelineCache(), pipelineInfo);
 
 		mDevice->destroyShaderModule(vertShaderModule);
 		mDevice->destroyShaderModule(fragShaderModule);
