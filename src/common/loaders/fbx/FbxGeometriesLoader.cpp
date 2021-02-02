@@ -124,10 +124,10 @@ namespace erm {
 						if (skeletonData[pCtrlPointIndices[k]].size() >= kMaxBonesNumber)
 							continue;
 						skeletonData[pCtrlPointIndices[k]].emplace_back(
-							skin->GetName(),
+							linkNode->GetName(),
 							static_cast<float>(pCtrlPointWeights[k]),
 							ToMat4(matA),
-							ToMat4(matB));
+							ToMat4((matB * matA).Inverse()));
 					}
 				}
 			}
@@ -155,30 +155,21 @@ namespace erm {
 			data0.mPositionVertex = ToVec3(lControlPoints[lControlPointIndex0]);
 			data0.mNormalVertex = GetNormal(pMesh, static_cast<int>(vData.size()));
 			data0.mUVVertex = GetUV(pMesh, lControlPointIndex0, i, 0);
-
-			{
-				auto it = skeletonData.find(lControlPointIndex0);
-				if (it != skeletonData.end())
-				{
-					Bone* bone = nullptr;
-					bonesTree->ForEachDo([&bone, &it](BonesTree& node) {
-						if (node.GetPayload()->mName == it->second[0].mBoneName)
-							bone = node.GetPayload().get();
-					});
-				}
-			}
+			GetBonesData(skeletonData, bonesTree.get(), data0, lControlPointIndex0);
 
 			int lControlPointIndex1 = pMesh->GetPolygonVertex(i, 1);
 			VertexData data1;
 			data1.mPositionVertex = ToVec3(lControlPoints[lControlPointIndex1]);
 			data1.mNormalVertex = GetNormal(pMesh, static_cast<int>(vData.size() + 1));
 			data1.mUVVertex = GetUV(pMesh, lControlPointIndex1, i, 1);
+			GetBonesData(skeletonData, bonesTree.get(), data1, lControlPointIndex1);
 
 			int lControlPointIndex2 = pMesh->GetPolygonVertex(i, 2);
 			VertexData data2;
 			data2.mPositionVertex = ToVec3(lControlPoints[lControlPointIndex2]);
 			data2.mNormalVertex = GetNormal(pMesh, static_cast<int>(vData.size() + 2));
 			data2.mUVVertex = GetUV(pMesh, lControlPointIndex2, i, 2);
+			GetBonesData(skeletonData, bonesTree.get(), data2, lControlPointIndex2);
 
 			if (lPolygonSize == 4)
 			{
@@ -187,6 +178,7 @@ namespace erm {
 				data3.mPositionVertex = ToVec3(lControlPoints[lControlPointIndex3]);
 				data3.mNormalVertex = GetNormal(pMesh, static_cast<int>(vData.size() + 3));
 				data3.mUVVertex = GetUV(pMesh, lControlPointIndex3, i, 3);
+				GetBonesData(skeletonData, bonesTree.get(), data3, lControlPointIndex3);
 
 				iData.emplace_back(static_cast<uint32_t>(vData.size() + 2));
 				iData.emplace_back(static_cast<uint32_t>(vData.size() + 3));

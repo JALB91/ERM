@@ -15,18 +15,18 @@ namespace erm {
 		FbxSkeletonData(
 			const char* boneName,
 			float boneWeight,
-			const math::mat4& transformMatrix,
-			const math::mat4& matrix)
+			const math::mat4& localTransform,
+			const math::mat4& inverseBindTransform)
 			: mBoneName(boneName)
 			, mBoneWeight(boneWeight)
-			, mTransformMatrix(transformMatrix)
-			, mMatrix(matrix)
+			, mLocalTransform(localTransform)
+			, mInverseBindTransform(inverseBindTransform)
 		{}
 
 		const std::string mBoneName;
 		const float mBoneWeight;
-		const math::mat4 mTransformMatrix;
-		const math::mat4 mMatrix;
+		const math::mat4 mLocalTransform;
+		const math::mat4 mInverseBindTransform;
 	};
 
 } // namespace erm

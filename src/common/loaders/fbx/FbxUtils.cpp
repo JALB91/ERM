@@ -102,6 +102,41 @@ namespace erm {
 		return math::vec2(0.0f);
 	}
 
+	void GetBonesData(
+		const std::map<int, std::vector<FbxSkeletonData>>& skeletonData,
+		BonesTree* bonesTree,
+		VertexData& data,
+		int controlPointIndex)
+	{
+		auto it = skeletonData.find(controlPointIndex);
+		if (it != skeletonData.end())
+		{
+			BonesTree* bone = nullptr;
+			bonesTree->ForEachDo([&bone, &it](BonesTree& node) {
+				if (node.GetPayload()->mName == it->second[0].mBoneName)
+					if (bone)
+						return;
+				bone = &node;
+			});
+			if (bone)
+			{
+				bone->GetPayload()->mLocalTransform = it->second[0].mLocalTransform;
+				bone->GetPayload()->mInverseBindTransform = it->second[0].mInverseBindTransform;
+				data.mBoneNum = 0;
+				for (int j = 0; j < it->second.size(); ++j)
+				{
+					if (it->second[j].mBoneWeight <= 0.0f)
+						continue;
+					if (data.mBoneNum >= kMaxBonesNumber)
+						break;
+					data.mBoneIds[data.mBoneNum] = bone->GetId();
+					data.mBoneWeights[data.mBoneNum] = it->second[j].mBoneWeight;
+					data.mBoneNum++;
+				}
+			}
+		}
+	}
+
 } // namespace erm
 
 #endif

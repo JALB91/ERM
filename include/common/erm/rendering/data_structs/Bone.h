@@ -27,7 +27,7 @@ namespace erm {
 			, mName(name)
 		{}
 
-		const math::mat4 mInverseBindTransform;
+		math::mat4 mInverseBindTransform;
 		math::mat4 mAnimatedTransform;
 		math::mat4 mLocalTransform;
 		std::string mName;
