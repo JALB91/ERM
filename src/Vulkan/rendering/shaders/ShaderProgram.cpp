@@ -261,7 +261,7 @@ namespace erm {
 			}
 			else if (res.name.compare("inBoneIds") == 0)
 			{
-				description.format = vk::Format::eR32G32B32A32Uint;
+				description.format = vk::Format::eR32G32B32A32Sint;
 				description.offset = offsetof(VertexData, mBoneIds);
 			}
 			else if (res.name.compare("inBoneNum") == 0)
