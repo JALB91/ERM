@@ -21,6 +21,7 @@ namespace erm::ecs {
 	public:
 		RenderingComponent() = default;
 
+	private:
 		std::vector<RenderData> mRenderData;
 	};
 

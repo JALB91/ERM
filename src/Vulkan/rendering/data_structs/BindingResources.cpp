@@ -204,6 +204,7 @@ namespace erm {
 
 		for (auto& pair : mUniformBuffers[index])
 		{
+			ASSERT(data.HasUbo(pair.first));
 			pair.second.Update(data.mUbos[pair.first].get());
 		}
 	}

@@ -52,6 +52,16 @@ namespace erm {
 			*static_cast<T*>(mUbos[T::ID].get()) = ubo;
 		}
 
+		inline bool HasMesh(const Mesh* mesh) const
+		{
+			return std::find(mMeshes.cbegin(), mMeshes.cend(), mesh) != mMeshes.cend();
+		}
+
+		inline bool HasUbo(UboId id) const
+		{
+			return mUbos.find(id) != mUbos.cend();
+		}
+
 		RenderConfigs mRenderConfigs;
 
 		std::map<UboId, std::unique_ptr<IUbo>> mUbos;
