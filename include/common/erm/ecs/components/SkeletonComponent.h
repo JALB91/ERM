@@ -2,9 +2,7 @@
 
 #include "erm/ecs/IComponent.h"
 
-#include "erm/rendering/data_structs/Bone.h"
-
-#include <memory>
+#include "erm/rendering/data_structs/Skin.h"
 
 namespace erm::ecs {
 	class SkeletonSystem;
@@ -19,30 +17,14 @@ namespace erm::ecs {
 		friend class SkeletonSystem;
 
 	public:
-		SkeletonComponent(BonesTree* rootBone = nullptr)
-			: mRootBone(rootBone ? std::make_unique<BonesTree>(rootBone->Clone()) : nullptr)
+		SkeletonComponent(Skin* skin = nullptr)
+			: mSkin(skin)
 		{}
 
-		inline void SetRootBone(BonesTree* rootBone)
-		{
-			if ((!rootBone && !mRootBone) || (rootBone && mRootBone && mRootBone->Equal(*rootBone)))
-				return;
-			mRootBone = rootBone ? std::make_unique<BonesTree>(rootBone->Clone()) : nullptr;
-			SetDirty(true);
-		}
-
-		inline BonesTree* GetRootBone()
-		{
-			return mRootBone.get();
-		}
-
-		inline const BonesTree* GetRootBone() const
-		{
-			return mRootBone.get();
-		}
+		SENSIBLE_MEMBER(Skin, Skin*, mSkin);
 
 	private:
-		std::unique_ptr<BonesTree> mRootBone;
+		Skin* mSkin;
 	};
 
 } // namespace erm::ecs

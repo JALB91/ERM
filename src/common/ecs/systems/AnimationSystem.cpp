@@ -38,10 +38,12 @@ namespace erm::ecs {
 				continue;
 
 			SkeletonAnimation* currentAnimation = animationComponent->mSkeletonAnimation;
-			BonesTree* rootBone = skeletonComponent->GetRootBone();
+			Skin* skin = skeletonComponent->GetSkin();
 
-			if (!currentAnimation || !rootBone)
+			if (!currentAnimation || !skin)
 				continue;
+
+			BonesTree* rootBone = skin->mRootBone.get();
 
 			float& currentAnimationTime = animationComponent->mCurrentAnimationTime;
 			const std::vector<KeyFrame>& keyFrames = currentAnimation->mKeyFrames;

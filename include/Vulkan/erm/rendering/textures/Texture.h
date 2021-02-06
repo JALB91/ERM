@@ -1,5 +1,7 @@
 #pragma once
 
+#include "erm/rendering/data_structs/IAsset.h"
+
 #include <vulkan/vulkan.hpp>
 
 #include <string>
@@ -11,7 +13,7 @@ namespace erm {
 
 namespace erm {
 
-	class Texture
+	class Texture : public IAsset
 	{
 	public:
 		Texture(Device& device, const char* path);
@@ -26,8 +28,6 @@ namespace erm {
 		inline int GetWidth() const { return mWidth; }
 		inline int GetHeight() const { return mHeight; }
 
-		inline const std::string& GetPath() const { return mPath; }
-
 		inline vk::ImageView& GetImageView() { return mTextureImageView; }
 
 	private:
@@ -37,7 +37,6 @@ namespace erm {
 		Device& mDevice;
 		unsigned char* mLocalBuffer;
 		int mWidth, mHeight, mBPP;
-		const std::string mPath;
 
 		vk::Image mTextureImage;
 		vk::ImageView mTextureImageView;

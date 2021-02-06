@@ -43,9 +43,9 @@ namespace {
 		const erm::Texture* specularMap = config.mSpecularMap ? config.mSpecularMap : mat->mSpecularMap;
 
 		std::string result = "res/shaders/";
-		result += skeleton && skeleton->GetRootBone() ? "vk_skeleton" : "vk_model";
+		result += skeleton && skeleton->GetSkin() ? "vk_skeleton" : "vk_model";
 
-		if (pbMat && (!skeleton || !skeleton->GetRootBone()))
+		if (pbMat)
 			result += "_pb";
 		else if (mat)
 			result += "_mat";
@@ -231,14 +231,14 @@ namespace erm::ecs {
 					data->SetUbo(std::move(ubo));
 				}
 
-				if (skeletonComponent && skeletonComponent->GetRootBone())
+				if (skeletonComponent && skeletonComponent->GetSkin())
 				{
 					UboSkeleton ubo;
 					ubo.mModel = model;
 					ubo.mView = view;
 					ubo.mProjection = proj;
 
-					skeletonComponent->GetRootBone()->ForEachDo([&ubo](BonesTree& bone) {
+					skeletonComponent->GetSkin()->mRootBone->ForEachDo([&ubo, &data](BonesTree& bone) {
 						if (bone.GetId() >= 100)
 							return;
 

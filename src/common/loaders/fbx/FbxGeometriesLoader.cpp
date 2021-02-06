@@ -116,7 +116,7 @@ namespace erm {
 
 					for (int k = 0; k < associatedCtrlPointCount; ++k)
 					{
-						if (skeletonData[pCtrlPointIndices[k]].size() >= kMaxBonesNumber)
+						if (skeletonData[pCtrlPointIndices[k]].size() >= kMaxBonesNumber || pCtrlPointWeights[k] <= 0.0f)
 							continue;
 						skeletonData[pCtrlPointIndices[k]].emplace_back(
 							cluster->GetName(),

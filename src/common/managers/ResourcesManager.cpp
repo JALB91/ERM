@@ -65,7 +65,7 @@ namespace erm {
 			mShaderPrograms.begin(),
 			mShaderPrograms.end(),
 			[shaderProgramPath](Handle<ShaderProgram>& program) {
-				return program->GetPath().compare(shaderProgramPath) == 0;
+				return program->mPath.compare(shaderProgramPath) == 0;
 			});
 
 		if (it != mShaderPrograms.end())
@@ -141,7 +141,7 @@ namespace erm {
 			mTextures.begin(),
 			mTextures.end(),
 			[texturePath](Handle<Texture>& texture) {
-				return texture->GetPath().compare(texturePath) == 0;
+				return texture->mPath.compare(texturePath) == 0;
 			});
 
 		if (it != mTextures.end())
@@ -169,7 +169,7 @@ namespace erm {
 			mModels.begin(),
 			mModels.end(),
 			[modelPath](Handle<Model>& model) {
-				return model->GetPath().compare(modelPath) == 0;
+				return model->mPath.compare(modelPath) == 0;
 			});
 
 		if (it != mModels.end())
@@ -185,10 +185,10 @@ namespace erm {
 		return nullptr;
 	}
 
-	BonesTree* ResourcesManager::GetSkin(const char* name)
+	Skin* ResourcesManager::GetSkin(const char* path)
 	{
-		auto it = std::find_if(mSkins.begin(), mSkins.end(), [name](Handle<BonesTree>& bone) {
-			return bone->GetPayload()->mName == name;
+		auto it = std::find_if(mSkins.begin(), mSkins.end(), [path](Handle<Skin>& skin) {
+			return skin->mPath == path;
 		});
 
 		return (it != mSkins.end() ? (*it).get() : nullptr);

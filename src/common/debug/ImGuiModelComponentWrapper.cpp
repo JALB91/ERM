@@ -19,7 +19,7 @@ namespace ImGui {
 		const std::vector<std::string>& all = engine.GetFileLocator().GetModels();
 
 		erm::Model* model = modelComponent.GetModel();
-		std::string currentPath = model ? model->GetPath() : "";
+		std::string currentPath = model ? model->mPath : "";
 
 		if (ImGui::BeginCombo("Path", currentPath.c_str()))
 		{
@@ -96,7 +96,7 @@ namespace ImGui {
 				ImGui::Unindent();
 
 				ShowPathOptions(engine, modelComponent);
-				ImGui::Text("Name: %s", model->GetName().c_str());
+				ImGui::Text("Name: %s", model->mName.c_str());
 				ImGui::Text("Vertices: %d", vertices);
 				ImGui::Text("Indices: %d", indices);
 

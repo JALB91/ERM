@@ -18,7 +18,7 @@ namespace ImGui {
 		const std::vector<std::string>& all = engine.GetFileLocator().GetShaderPrograms();
 
 		erm::ShaderProgram* shader = mesh.GetRenderConfigs().mShaderProgram;
-		std::string currentPath = shader ? shader->GetPath() : "";
+		std::string currentPath = shader ? shader->mPath : "";
 
 		if (ImGui::BeginCombo("Shader", currentPath.c_str()))
 		{
@@ -48,7 +48,7 @@ namespace ImGui {
 	{
 		const std::vector<std::string>& all = engine.GetFileLocator().GetTextures();
 
-		std::string currentPath = *texture ? (*texture)->GetPath() : "";
+		std::string currentPath = *texture ? (*texture)->mPath : "";
 
 		if (ImGui::BeginCombo(name, currentPath.c_str()))
 		{

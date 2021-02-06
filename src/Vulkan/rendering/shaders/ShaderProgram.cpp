@@ -139,9 +139,9 @@ namespace erm {
 
 	unsigned int ShaderProgram::sShaderId = 0;
 
-	ShaderProgram::ShaderProgram(Device& device, const std::string& shaderPath)
-		: mDevice(device)
-		, mPath(shaderPath)
+	ShaderProgram::ShaderProgram(Device& device, const char* shaderPath)
+		: IAsset(shaderPath, "")
+		, mDevice(device)
 		, mVertexSource(Utils::ReadFromFile((mPath + ".vert").c_str()))
 		, mFragmentSource(Utils::ReadFromFile((mPath + ".frag").c_str()))
 		, mVertex(ReadShaderCompiled((mPath + ".vert.cmp").c_str()))
@@ -154,8 +154,8 @@ namespace erm {
 	}
 
 	ShaderProgram::ShaderProgram(Device& device, const char* vertShader, const char* fragShader)
-		: mDevice(device)
-		, mPath("TEMP_" + std::to_string(sShaderId++))
+		: IAsset(("TEMP_" + std::to_string(sShaderId++)).c_str(), "")
+		, mDevice(device)
 	{
 		SetShaderSources(vertShader, fragShader);
 	}

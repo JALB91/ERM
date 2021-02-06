@@ -9,9 +9,8 @@
 namespace erm {
 
 	Model::Model(Device& device, const char* path, const char* name)
-		: mDevice(device)
-		, mPath(path)
-		, mName(name)
+		: IAsset(path, name)
+		, mDevice(device)
 		, mIsDirty(false)
 	{}
 

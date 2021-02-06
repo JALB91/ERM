@@ -2,7 +2,7 @@
 
 #include "erm/math/vec.h"
 
-#include <string>
+#include "erm/rendering/data_structs/IAsset.h"
 
 namespace erm {
 	class Texture;
@@ -10,14 +10,30 @@ namespace erm {
 
 namespace erm {
 
-	struct Material
+	struct Material : public IAsset
 	{
 		static Material DEFAULT;
 
-		Material() = delete;
+		Material(
+			const char* path,
+			const char* name,
+			const math::vec3& ambient,
+			const math::vec3& diffuse,
+			const math::vec3& specular,
+			float shininess,
+			Texture* diffuseMap,
+			Texture* normalMap,
+			Texture* specularMap)
+			: IAsset(path, name)
+			, mAmbient(ambient)
+			, mDiffuse(diffuse)
+			, mSpecular(specular)
+			, mShininess(shininess)
+			, mDiffuseMap(diffuseMap)
+			, mNormalMap(normalMap)
+			, mSpecularMap(specularMap)
+		{}
 
-		std::string mPath;
-		std::string mName;
 		math::vec3 mAmbient;
 		math::vec3 mDiffuse;
 		math::vec3 mSpecular;

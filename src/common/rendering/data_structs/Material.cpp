@@ -2,7 +2,7 @@
 
 namespace erm {
 
-	Material Material::DEFAULT {
+	Material Material::DEFAULT(
 		"Default",
 		"Default",
 		math::vec3(0.2f),
@@ -11,6 +11,6 @@ namespace erm {
 		50.0f,
 		nullptr,
 		nullptr,
-		nullptr};
+		nullptr);
 
 }

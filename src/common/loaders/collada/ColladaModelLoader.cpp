@@ -39,7 +39,7 @@ namespace erm {
 
 		ProcessSkeleton(document, skinsData);
 		ProcessGeometries(mutex, stop, document, model, skinsData);
-		ProcessScene(mutex, document, skins, skinsData);
+		ProcessScene(mutex, path, document, skins, skinsData);
 		ProcessAnimations(mutex, document, skinsData, path, animations);
 	}
 

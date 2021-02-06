@@ -207,7 +207,7 @@ namespace erm {
 
 		if (!name.empty())
 		{
-			model.SetName(name);
+			model.mName = name;
 		}
 	}
 

@@ -13,12 +13,12 @@
 namespace erm {
 
 	Texture::Texture(Device& device, const char* path)
-		: mDevice(device)
+		: IAsset(path, "")
+		, mDevice(device)
 		, mLocalBuffer(nullptr)
 		, mWidth(0)
 		, mHeight(0)
 		, mBPP(0)
-		, mPath(path)
 	{
 		CreateTextureImage();
 		CreateTextureImageView();

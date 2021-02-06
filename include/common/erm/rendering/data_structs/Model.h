@@ -2,6 +2,7 @@
 
 #include "erm/math/BoundingBox.h"
 
+#include "erm/rendering/data_structs/IAsset.h"
 #include "erm/rendering/data_structs/Mesh.h"
 
 #include <string>
@@ -13,7 +14,7 @@ namespace erm {
 
 namespace erm {
 
-	class Model
+	class Model : public IAsset
 	{
 	public:
 		Model(Device& device, const char* path, const char* name);
@@ -24,11 +25,6 @@ namespace erm {
 
 		Model& operator=(Model&&) = delete;
 		Model& operator=(const Model&) = delete;
-
-		inline const std::string& GetPath() const { return mPath; }
-
-		inline const std::string& GetName() const { return mName; }
-		inline void SetName(const std::string& name) { mName = name; }
 
 		inline const std::vector<Mesh>& GetMeshes() const { return mMeshes; }
 		inline std::vector<Mesh>& GetMeshes() { return mMeshes; }
@@ -51,8 +47,6 @@ namespace erm {
 
 	private:
 		Device& mDevice;
-		const std::string mPath;
-		std::string mName;
 		std::vector<Mesh> mMeshes;
 		BoundingBox3D mLocalBounds;
 		bool mIsDirty;

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "erm/rendering/data_structs/IAsset.h"
 #include "erm/rendering/data_structs/UniformBufferData.h"
 
 #include <spirv_cpp.hpp>
@@ -16,10 +17,10 @@ namespace erm {
 
 namespace erm {
 
-	class ShaderProgram
+	class ShaderProgram : public IAsset
 	{
 	public:
-		ShaderProgram(Device& device, const std::string& shaderPath);
+		ShaderProgram(Device& device, const char* shaderPath);
 		ShaderProgram(Device& device, const char* vertShader, const char* fragShader);
 
 		ShaderProgram(ShaderProgram&&) = delete;
@@ -32,8 +33,6 @@ namespace erm {
 
 		vk::ShaderModule CreateVertexShaderModule() const;
 		vk::ShaderModule CreateFragmentShaderModule() const;
-
-		inline const std::string& GetPath() const { return mPath; }
 
 		vk::VertexInputBindingDescription GetVertexBindingDescription();
 		std::vector<vk::VertexInputAttributeDescription> GetVertexAttributeDescriptions();
@@ -52,7 +51,6 @@ namespace erm {
 		static unsigned int sShaderId;
 
 		Device& mDevice;
-		std::string mPath;
 		std::string mVertexSource;
 		std::string mFragmentSource;
 		std::vector<char> mVertex;

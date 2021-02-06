@@ -109,46 +109,46 @@ namespace erm {
 		int controlPointIndex)
 	{
 		auto it = skeletonData.find(controlPointIndex);
-		if (it != skeletonData.end())
+		if (it == skeletonData.end())
+			return;
+
+		auto& vec = it->second;
+
+		for (auto& val : vec)
 		{
-			auto& vec = it->second;
+			if (data.mBoneNum >= kMaxBonesNumber)
+				break;
 
-			for (auto& val : vec)
+			if (val.mBoneWeight <= 0.0f)
+				continue;
+
+			BonesTree* bone = nullptr;
+			bonesTree->ForEachDo([&bone, &val](BonesTree& node) {
+				if (!bone && val.mBoneName == node.GetPayload()->mName)
+					bone = &node;
+			});
+
+			if (!bone)
+				continue;
+
+			const auto id = bone->GetId();
+
+			bool skip = false;
+			for (int i = 0; i < kMaxBonesNumber; ++i)
 			{
-				if (data.mBoneNum >= kMaxBonesNumber)
-					break;
-
-				if (val.mBoneWeight <= 0.0f)
-					continue;
-
-				BonesTree* bone = nullptr;
-				bonesTree->ForEachDo([&bone, &val](BonesTree& node) {
-					if (!bone && val.mBoneName == node.GetPayload()->mName)
-						bone = &node;
-				});
-
-				if (!bone)
-					continue;
-
-				const auto id = bone->GetId();
-
-				bool skip = false;
-				for (int i = 0; i < kMaxBonesNumber; ++i)
+				if (data.mBoneIds[i] == id && data.mBoneWeights[i] > 0.0f)
 				{
-					if (data.mBoneIds[i] == id && data.mBoneWeights[i] > 0.0f)
-					{
-						skip = true;
-						break;
-					}
+					skip = true;
+					break;
 				}
-
-				if (skip)
-					continue;
-
-				data.mBoneIds[data.mBoneNum] = id;
-				data.mBoneWeights[data.mBoneNum] = val.mBoneWeight;
-				data.mBoneNum++;
 			}
+
+			if (skip)
+				continue;
+
+			data.mBoneIds[data.mBoneNum] = id;
+			data.mBoneWeights[data.mBoneNum] = val.mBoneWeight;
+			data.mBoneNum++;
 		}
 	}
 

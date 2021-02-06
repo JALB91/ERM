@@ -25,7 +25,7 @@ namespace ImGui {
 		{
 			bool hasChanged = false;
 
-			if (ImGui::BeginCombo("ShaderProgram", selected ? selected->GetPath().c_str() : ""))
+			if (ImGui::BeginCombo("ShaderProgram", selected ? selected->mPath.c_str() : ""))
 			{
 				bool isSelected = selected;
 				if (ImGui::Selectable("", &isSelected))
@@ -36,7 +36,7 @@ namespace ImGui {
 
 				for (unsigned int i = 0; i < shaders.size(); ++i)
 				{
-					isSelected = selected ? selected->GetPath() == shaders[i] : false;
+					isSelected = selected ? selected->mPath == shaders[i] : false;
 					if (ImGui::Selectable(shaders[i].c_str(), &isSelected))
 					{
 						hasChanged = true;

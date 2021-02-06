@@ -16,6 +16,7 @@ namespace erm {
 
 	extern void ProcessScene(
 		std::mutex& mutex,
+		const char* path,
 		tinyxml2::XMLDocument& document,
 		Skins& skins,
 		const std::map<std::string, ColladaSkinData>& skinsData);

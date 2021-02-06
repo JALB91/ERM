@@ -19,6 +19,7 @@ namespace erm {
 
 	void ProcessScene(
 		std::mutex& mutex,
+		const char* path,
 		tinyxml2::XMLDocument& document,
 		Skins& skins,
 		const std::map<std::string, ColladaSkinData>& skinsData)
@@ -46,7 +47,7 @@ namespace erm {
 		if (tree)
 		{
 			mutex.lock();
-			skins.emplace_back(std::move(tree));
+			skins.emplace_back(std::make_unique<Skin>(path, path, std::move(tree)));
 			mutex.unlock();
 		}
 	}

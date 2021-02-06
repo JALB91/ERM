@@ -42,8 +42,9 @@ namespace ImGui {
 
 			ShowPathOptions(engine, skeletonComponent);
 
-			if (erm::BonesTree* rootBone = skeletonComponent.GetRootBone())
+			if (erm::Skin* skin = skeletonComponent.GetSkin())
 			{
+				erm::BonesTree* rootBone = skin->mRootBone.get();
 				bool hasChanges = false;
 				rootBone->ForEachDo(
 					[&hasChanges](erm::BonesTree& node) {
@@ -77,8 +78,8 @@ namespace ImGui {
 	{
 		const erm::Skins& all = engine.GetResourcesManager().GetSkins();
 
-		erm::BonesTree* rootBone = skeletonComponent.GetRootBone();
-		std::string currentPath = rootBone ? rootBone->GetPayload()->mName : "";
+		erm::Skin* skin = skeletonComponent.GetSkin();
+		std::string currentPath = skin ? skin->mPath : "";
 
 		if (ImGui::BeginCombo("Path", currentPath.c_str()))
 		{
@@ -86,19 +87,19 @@ namespace ImGui {
 			if (ImGui::Selectable("", &isSelected))
 			{
 				currentPath = "";
-				skeletonComponent.SetRootBone(nullptr);
+				skeletonComponent.SetSkin(nullptr);
 			}
 
 			for (unsigned int i = 0; i < all.size(); ++i)
 			{
-				const std::string& currentName = all[i]->GetPayload()->mName;
+				const std::string& currentName = all[i]->mPath;
 				isSelected = currentPath == currentName;
 				if (ImGui::Selectable(currentName.c_str(), &isSelected))
 				{
 					if (currentPath != currentName)
 					{
 						currentPath = currentName;
-						skeletonComponent.SetRootBone(engine.GetResourcesManager().GetSkin(currentPath.c_str()));
+						skeletonComponent.SetSkin(engine.GetResourcesManager().GetSkin(currentPath.c_str()));
 					}
 				}
 			}
