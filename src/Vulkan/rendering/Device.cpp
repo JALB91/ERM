@@ -25,13 +25,14 @@ namespace {
 	const std::vector<const char*> kValidationLayers {"VK_LAYER_KHRONOS_validation"};
 
 	VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(
-		VkDebugUtilsMessageSeverityFlagBitsEXT /*messageSeverity*/,
+		VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
 		VkDebugUtilsMessageTypeFlagsEXT /*messageType*/,
 		const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
 		void* /*pUserData*/
 	)
 	{
-		std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
+		if (messageSeverity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT || messageSeverity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
+			std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
 		return VK_FALSE;
 	}
 
