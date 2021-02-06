@@ -65,7 +65,7 @@ namespace {
 namespace erm::ecs {
 
 	RenderingSystem::RenderingSystem(ECS& ecs, Engine& engine)
-		: ISystem<RenderingComponent>(ecs)
+		: ISystem(ecs)
 		, mEngine(engine)
 		, mResourcesManager(engine.GetResourcesManager())
 		, mGridMesh(std::make_unique<Mesh>(MeshUtils::CreateGrid(engine.GetDevice(), 1000, 1000, 1.0f, 1.0f)))

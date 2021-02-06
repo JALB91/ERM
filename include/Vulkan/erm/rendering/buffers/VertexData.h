@@ -6,19 +6,14 @@
 
 namespace erm {
 
-	static const unsigned int kPositionVectorsLenght = 3;
-	static const unsigned int kNormalVectorsLenght = 3;
-	static const unsigned int kUVVectorsLenght = 2;
-	static const unsigned int kMaxBonesNumber = 4;
-
 	typedef float VertexType;
 	typedef int IdType;
 
-	typedef math::vec<kPositionVectorsLenght, VertexType> PositionVertex;
-	typedef math::vec<kNormalVectorsLenght, VertexType> NormalVertex;
-	typedef math::vec<kUVVectorsLenght, VertexType> UVVertex;
-	typedef math::vec<kMaxBonesNumber, VertexType> BoneWeights;
-	typedef math::vec<kMaxBonesNumber, IdType> BoneIds;
+	typedef math::vec<3, VertexType> PositionVertex;
+	typedef math::vec<3, VertexType> NormalVertex;
+	typedef math::vec<2, VertexType> UVVertex;
+	typedef math::vec<4, VertexType> BoneWeights;
+	typedef math::vec<4, IdType> BoneIds;
 	typedef int BoneNum;
 
 	struct VertexData

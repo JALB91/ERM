@@ -62,6 +62,7 @@ namespace erm {
 				default:
 					break;
 				case FbxGeometryElement::eByControlPoint:
+				{
 					switch (leUV->GetReferenceMode())
 					{
 						case FbxGeometryElement::eDirect:
@@ -75,7 +76,7 @@ namespace erm {
 							break; // other reference modes not shown here!
 					}
 					break;
-
+				}
 				case FbxGeometryElement::eByPolygonVertex:
 				{
 					switch (leUV->GetReferenceMode())
@@ -89,13 +90,8 @@ namespace erm {
 						default:
 							break; // other reference modes not shown here!
 					}
-				}
-				break;
-
-				case FbxGeometryElement::eByPolygon: // doesn't make much sense for UVs
-				case FbxGeometryElement::eAllSame: // doesn't make much sense for UVs
-				case FbxGeometryElement::eNone: // doesn't make much sense for UVs
 					break;
+				}
 			}
 		}
 
@@ -116,7 +112,7 @@ namespace erm {
 
 		for (auto& val : vec)
 		{
-			if (data.mBoneNum >= kMaxBonesNumber)
+			if (data.mBoneNum >= BoneIds::length())
 				break;
 
 			if (val.mBoneWeight <= 0.0f)
@@ -134,7 +130,7 @@ namespace erm {
 			const auto id = bone->GetId();
 
 			bool skip = false;
-			for (int i = 0; i < kMaxBonesNumber; ++i)
+			for (int i = 0; i < BoneIds::length(); ++i)
 			{
 				if (data.mBoneIds[i] == id && data.mBoneWeights[i] > 0.0f)
 				{

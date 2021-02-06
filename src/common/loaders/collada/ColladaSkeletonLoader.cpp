@@ -68,7 +68,7 @@ namespace erm {
 				const int weightIndex = values[idIndex + 1];
 				if (weights[weightIndex] <= 0.0f)
 					continue;
-				if (boneIndex > kMaxBonesNumber - 1)
+				if (boneIndex > BoneIds::length() - 1)
 					break;
 
 				currentSkinData.mBoneIds[i][boneIndex] = values[idIndex];

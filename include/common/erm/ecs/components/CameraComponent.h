@@ -20,7 +20,8 @@ namespace erm::ecs {
 
 	public:
 		CameraComponent()
-			: mMovementSpeed(10.0f)
+			: mProjectionMatrix(glm::identity<math::mat4>())
+			, mMovementSpeed(10.0f)
 			, mMouseSensibility(0.25f)
 			, mAngleLimit(static_cast<float>(M_PI) * 0.35f)
 			, mFOV(45.0f)
