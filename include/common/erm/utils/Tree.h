@@ -110,7 +110,7 @@ namespace erm {
 			ForEachChildDo(*this, before, after);
 		}
 
-		inline void Find(S id)
+		inline Tree* Find(S id)
 		{
 			return Find(*this, id);
 		}
