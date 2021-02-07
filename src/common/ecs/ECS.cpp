@@ -3,6 +3,7 @@
 #include "erm/ecs/Entity.h"
 #include "erm/ecs/systems/AnimationSystem.h"
 #include "erm/ecs/systems/CameraSystem.h"
+#include "erm/ecs/systems/EditorSystem.h"
 #include "erm/ecs/systems/LightSystem.h"
 #include "erm/ecs/systems/ModelSystem.h"
 #include "erm/ecs/systems/RenderingSystem.h"
@@ -26,6 +27,7 @@ namespace erm::ecs {
 		, mModelSystem(std::make_unique<ModelSystem>(*this, mEngine))
 		, mCameraSystem(std::make_unique<CameraSystem>(*this, mEngine.GetWindow()))
 		, mRenderingSystem(std::make_unique<RenderingSystem>(*this, mEngine))
+		, mEditorSystem(std::make_unique<EditorSystem>(*this, mEngine))
 	{
 		ForEachSystem([](auto& system) {
 			system.Init();
@@ -116,6 +118,7 @@ namespace erm::ecs {
 		function(*mModelSystem);
 		function(*mCameraSystem);
 		function(*mRenderingSystem);
+		function(*mEditorSystem);
 	}
 
 } // namespace erm::ecs
