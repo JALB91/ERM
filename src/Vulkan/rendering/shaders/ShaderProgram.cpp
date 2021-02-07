@@ -94,6 +94,8 @@ namespace {
 			return {erm::UboPBMaterial::ID, sizeof(erm::UboPBMaterial), compiler.get_decoration(resource.id, spv::Decoration::DecorationOffset), compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding)};
 		else if (resource.name.compare("PBLight") == 0)
 			return {erm::UboPBLight::ID, sizeof(erm::UboPBLight), compiler.get_decoration(resource.id, spv::Decoration::DecorationOffset), compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding)};
+		else if (resource.name.compare("BonesDebug") == 0)
+			return {erm::UboBonesDebug::ID, sizeof(erm::UboBonesDebug), compiler.get_decoration(resource.id, spv::Decoration::DecorationOffset), compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding)};
 
 		ASSERT(false);
 
@@ -268,6 +270,11 @@ namespace erm {
 			{
 				description.format = vk::Format::eR32Sint;
 				description.offset = offsetof(VertexData, mBoneNum);
+			}
+			else if (res.name.compare("inDebugBoneId") == 0)
+			{
+				description.format = vk::Format::eR32Sint;
+				description.offset = offsetof(VertexData, mDebugBoneId);
 			}
 
 			attributeDescriptions.emplace_back(std::move(description));

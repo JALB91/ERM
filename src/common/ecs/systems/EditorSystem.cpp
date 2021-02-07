@@ -23,7 +23,6 @@ namespace erm::ecs {
 	static RenderConfigs GetArrowsRenderConfigs(Engine& engine)
 	{
 		RenderConfigs configs(RenderConfigs::MODELS_RENDER_CONFIGS);
-		configs.SetCullMode(CullMode::NONE);
 		configs.SetNormViewport(engine.GetWindow().GetNormalizedViewport());
 		configs.mShaderProgram = engine.GetResourcesManager().GetOrCreateShaderProgram("res/shaders/vk_basic");
 
@@ -41,11 +40,13 @@ namespace erm::ecs {
 		return configs;
 	}
 
-	static RenderConfigs GetBonesRenderConfigs(ResourcesManager& resourcesManager)
+	static RenderConfigs GetBonesRenderConfigs(Engine& engine)
 	{
-		RenderConfigs config = RenderConfigs::MODELS_RENDER_CONFIGS;
+		RenderConfigs configs = RenderConfigs::MODELS_RENDER_CONFIGS;
+		configs.SetNormViewport(engine.GetWindow().GetNormalizedViewport());
+		configs.mShaderProgram = engine.GetResourcesManager().GetOrCreateShaderProgram("res/shaders/vk_bones_debug");
 
-		return config;
+		return configs;
 	}
 
 	EditorSystem::EditorSystem(ECS& ecs, Engine& engine)
@@ -55,7 +56,7 @@ namespace erm::ecs {
 		, mResourcesManager(engine.GetResourcesManager())
 		, mBBoxRenderConfigs(GetBBoxRenderConfigs(mEngine))
 		, mArrowsRenderData(GetArrowsRenderConfigs(mEngine))
-		, mBoneRenderConfigs(RenderConfigs::MODELS_RENDER_CONFIGS)
+		, mBonesRenderConfigs(GetBonesRenderConfigs(mEngine))
 	{}
 
 	EditorSystem::~EditorSystem()
@@ -99,7 +100,7 @@ namespace erm::ecs {
 
 			if (!editorCmp && model)
 			{
-				editorCmp = RequireComponent(i);
+				editorCmp = RequireComponent(i, mBonesRenderConfigs);
 			}
 			else if ((editorCmp && !model) || (!editorCmp && !model))
 			{
@@ -132,12 +133,49 @@ namespace erm::ecs {
 
 				if (skeleton && skeleton->GetSkin())
 				{
-					auto& data = editorCmp->mBonesRenderData;
+					RenderData& data = editorCmp->mBonesRenderData;
+					data.mMeshes.clear();
+
 					std::unique_ptr<BonesTree>& root = skeleton->GetSkin()->mRootBone;
 
-					root->ForEachDo([&data, this](const BonesTree& node) {
+					UboBonesDebug ubo;
+					int index = 0;
 
+					std::vector<Mesh>& meshes = mBonesMeshes[i];
+
+					while (root->GetSize() < meshes.size())
+						meshes.pop_back();
+
+					root->ForEachDo([&data, &ubo, &index, &meshes, this](const BonesTree& node) {
+						ubo.mBonesModels[index] = node.GetPayload()->mWorldTransform;
+
+						Mesh* mesh = nullptr;
+						for (Mesh& m : meshes)
+						{
+							if (m.GetVerticesData()[0].mDebugBoneId == index)
+							{
+								mesh = &m;
+								break;
+							}
+						}
+
+						if (!mesh)
+							mesh = &meshes.emplace_back(MeshUtils::CreateSpike(mEngine.GetDevice(), 1.0f, 1.0f, 1.0f, index));
+
+						++index;
 					});
+
+					ubo.mModel = mTransformSystem->GetComponent(i)->mWorldTransform;
+					ubo.mView = view;
+					ubo.mProj = proj;
+
+					data.SetUbo(std::move(ubo));
+
+					for (Mesh& mesh : meshes)
+						data.mMeshes.emplace_back(&mesh);
+
+					if (!data.mMeshes.empty())
+						mRenderer.SubmitRenderData(data);
 				}
 			}
 		}
@@ -148,9 +186,17 @@ namespace erm::ecs {
 
 	void EditorSystem::OnComponentBeingRemoved(EntityId id)
 	{
-		auto it = mBBoxesRenderData.find(id);
-		if (it != mBBoxesRenderData.cend())
-			mBBoxesRenderData.erase(it);
+		{
+			auto it = mBBoxesRenderData.find(id);
+			if (it != mBBoxesRenderData.cend())
+				mBBoxesRenderData.erase(it);
+		}
+
+		{
+			auto it = mBonesMeshes.find(id);
+			if (it != mBonesMeshes.end())
+				mBonesMeshes.erase(it);
+		}
 	}
 
 	RenderData& EditorSystem::GetOrCreateRenderDataForBBox(EntityId id)

@@ -3,6 +3,7 @@
 #include "erm/debug/ImGuiHandle.h"
 
 #include "erm/rendering/Device.h"
+#include "erm/rendering/data_structs/Bone.h"
 #include "erm/rendering/data_structs/Model.h"
 #include "erm/rendering/renderer/Renderer.h"
 #include "erm/rendering/window/Window.h"
@@ -99,15 +100,21 @@ namespace erm {
 		auto root = mECS->GetRoot();
 		root->AddChild(*camera);
 
-		for (int i = 0; i < kEntities; ++i)
 		{
 			auto entity = mECS->GetOrCreateEntity();
-			Model* model = mResourcesManager->GetOrCreateModel(kRoyalGuardPath);
-			//Model* model = mResourcesManager->GetOrCreateModel("res/models/home_1.obj");
+			Model* model = mResourcesManager->GetOrCreateModel("res/models/untitled.fbx");
 			auto comp = entity->RequireComponent<ecs::ModelComponent>(model);
 			auto transform = entity->RequireComponent<ecs::TransformComponent>();
-			//transform->mRotation.x = kDefaultRotX;
-			transform->mScale = math::vec3(1.0f);
+			transform->mTranslation.x = -2.5f;
+			root->AddChild(*entity);
+		}
+
+		{
+			auto entity = mECS->GetOrCreateEntity();
+			Model* model = mResourcesManager->GetOrCreateModel("res/models/untitled.dae");
+			auto comp = entity->RequireComponent<ecs::ModelComponent>(model);
+			auto transform = entity->RequireComponent<ecs::TransformComponent>();
+			transform->mTranslation.x = 2.5f;
 			root->AddChild(*entity);
 		}
 

@@ -87,4 +87,16 @@ namespace erm::Utils {
 		return buffA == buffB;
 	}
 
+	bool EndsWith(const std::string& s, const std::string& c)
+	{
+		if (c.size() > s.size())
+			return false;
+
+		for (int i = static_cast<int>(c.size()); i > 0; --i)
+			if (s[s.size() - i] != c[c.size() - i])
+				return false;
+
+		return true;
+	}
+
 } // namespace erm::Utils

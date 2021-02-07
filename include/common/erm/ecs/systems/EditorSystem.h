@@ -61,7 +61,8 @@ namespace erm::ecs {
 		RenderData mArrowsRenderData;
 		std::vector<Mesh> mArrowsMeshes;
 
-		RenderConfigs mBoneRenderConfigs;
+		RenderConfigs mBonesRenderConfigs;
+		std::map<EntityId, std::vector<Mesh>> mBonesMeshes;
 	};
 
 } // namespace erm::ecs

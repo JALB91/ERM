@@ -6,6 +6,15 @@
 
 namespace erm {
 
+	math::mat4 ToMat4(const FbxMatrix& matrix)
+	{
+		math::mat4 result;
+		for (int x = 0; x < 4; ++x)
+			for (int y = 0; y < 4; ++y)
+				result[y][x] = static_cast<float>(matrix.Get(y, x));
+		return result;
+	}
+
 	math::mat4 ToMat4(const FbxAMatrix& matrix)
 	{
 		math::mat4 result;

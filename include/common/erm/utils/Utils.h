@@ -27,6 +27,7 @@ namespace erm::Utils {
 	extern std::string ReadFromFile(const char* path);
 	extern void WriteToFile(const char* path, const std::string& data);
 	extern bool CompareNoCaseSensitive(const std::string& a, const std::string& b);
+	extern bool EndsWith(const std::string& s, const std::string& c);
 
 	template<
 		typename T,

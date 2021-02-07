@@ -15,6 +15,7 @@ namespace erm {
 	typedef math::vec<4, VertexType> BoneWeights;
 	typedef math::vec<4, IdType> BoneIds;
 	typedef int BoneNum;
+	typedef int DebugBoneId;
 
 	struct VertexData
 	{
@@ -24,6 +25,7 @@ namespace erm {
 		BoneWeights mBoneWeights = BoneWeights(0.0f);
 		BoneIds mBoneIds = BoneIds(0);
 		BoneNum mBoneNum = BoneNum(0);
+		DebugBoneId mDebugBoneId = DebugBoneId(0);
 	};
 
 } // namespace erm

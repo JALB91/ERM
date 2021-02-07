@@ -81,4 +81,14 @@ namespace erm {
 		alignas(16) math::vec3 mColor;
 	};
 
+	struct UboBonesDebug : public IUbo
+	{
+		static constexpr UboId ID = 8;
+
+		alignas(16) math::mat4 mBonesModels[100];
+		alignas(16) math::mat4 mModel;
+		alignas(16) math::mat4 mView;
+		alignas(16) math::mat4 mProj;
+	};
+
 } // namespace erm

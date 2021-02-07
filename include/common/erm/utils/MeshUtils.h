@@ -27,7 +27,8 @@ namespace erm::MeshUtils {
 		Device& device,
 		float sizeX = 1.0f,
 		float sizeY = 1.0f,
-		float sizeZ = 1.0f);
+		float sizeZ = 1.0f,
+		int boneId = 0);
 	extern Mesh CreateSphere(
 		Device& device,
 		float radius = 1.0f,

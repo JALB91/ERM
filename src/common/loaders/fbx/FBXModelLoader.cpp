@@ -51,13 +51,12 @@ namespace erm {
 		lImporter->Import(lScene);
 		lImporter->Destroy();
 
-		std::unique_ptr<Bone> bone = std::make_unique<Bone>(glm::identity<math::mat4>(), glm::identity<math::mat4>(), path);
-		std::unique_ptr<BonesTree> bonesTree = std::make_unique<BonesTree>(0, std::move(bone));
+		std::unique_ptr<BonesTree> bonesTree;
 
 		ProcessSkeleton(mutex, stop, bonesTree, *lScene);
 		ProcessGeometries(mutex, stop, path, model, resourcesManager, bonesTree, *lScene);
 
-		if (bonesTree->GetSize() > 1)
+		if (bonesTree)
 		{
 			mutex.lock();
 			resourcesManager.GetSkins().emplace_back(std::make_unique<Skin>(path, path, std::move(bonesTree)));

@@ -190,7 +190,8 @@ namespace erm::MeshUtils {
 		Device& device,
 		float sizeX /* = 1.0f */,
 		float sizeY /* = 1.0f */,
-		float sizeZ /* = 1.0f */
+		float sizeZ /* = 1.0f */,
+		int boneId /* = 0 */
 	)
 	{
 		const float halfX = sizeX * 0.5f;
@@ -204,44 +205,60 @@ namespace erm::MeshUtils {
 
 		// Bottom
 		vertices[vertIndex].mPositionVertex = PositionVertex(-halfX, -halfY, halfZ);
+		vertices[vertIndex].mDebugBoneId = boneId;
 		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f);
 		vertices[vertIndex].mPositionVertex = PositionVertex(halfX, -halfY, halfZ);
+		vertices[vertIndex].mDebugBoneId = boneId;
 		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f);
 		vertices[vertIndex].mPositionVertex = PositionVertex(-halfX, -halfY, -halfZ);
+		vertices[vertIndex].mDebugBoneId = boneId;
 		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f);
 		vertices[vertIndex].mPositionVertex = PositionVertex(halfX, -halfY, -halfZ);
+		vertices[vertIndex].mDebugBoneId = boneId;
 		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f);
 
 		// Front
 		vertices[vertIndex].mPositionVertex = PositionVertex(-halfX, -halfY, -halfZ);
+		vertices[vertIndex].mDebugBoneId = boneId;
 		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f);
 		vertices[vertIndex].mPositionVertex = PositionVertex(halfX, -halfY, -halfZ);
+		vertices[vertIndex].mDebugBoneId = boneId;
 		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f);
 		vertices[vertIndex].mPositionVertex = PositionVertex(0.0f, halfY, 0.0f);
+		vertices[vertIndex].mDebugBoneId = boneId;
 		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f);
 
 		// Right
 		vertices[vertIndex].mPositionVertex = PositionVertex(halfX, -halfY, -halfZ);
+		vertices[vertIndex].mDebugBoneId = boneId;
 		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f);
 		vertices[vertIndex].mPositionVertex = PositionVertex(halfX, -halfY, halfZ);
+		vertices[vertIndex].mDebugBoneId = boneId;
 		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f);
 		vertices[vertIndex].mPositionVertex = PositionVertex(0.0f, halfY, 0.0f);
+		vertices[vertIndex].mDebugBoneId = boneId;
 		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f);
 
 		// Back
 		vertices[vertIndex].mPositionVertex = PositionVertex(halfX, -halfY, halfZ);
+		vertices[vertIndex].mDebugBoneId = boneId;
 		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f);
 		vertices[vertIndex].mPositionVertex = PositionVertex(-halfX, -halfY, halfZ);
+		vertices[vertIndex].mDebugBoneId = boneId;
 		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f);
 		vertices[vertIndex].mPositionVertex = PositionVertex(0.0f, halfY, 0.0f);
+		vertices[vertIndex].mDebugBoneId = boneId;
 		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f);
 
 		// Left
 		vertices[vertIndex].mPositionVertex = PositionVertex(-halfX, -halfY, halfZ);
+		vertices[vertIndex].mDebugBoneId = boneId;
 		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f);
 		vertices[vertIndex].mPositionVertex = PositionVertex(-halfX, -halfY, -halfZ);
+		vertices[vertIndex].mDebugBoneId = boneId;
 		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f);
 		vertices[vertIndex].mPositionVertex = PositionVertex(0.0f, halfY, 0.0f);
+		vertices[vertIndex].mDebugBoneId = boneId;
 		vertices[vertIndex++].mNormalVertex = NormalVertex(0.0f);
 
 		// Indices

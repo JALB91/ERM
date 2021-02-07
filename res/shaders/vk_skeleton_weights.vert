@@ -20,6 +20,8 @@ layout(location = 5) in int inBoneNum;
 layout(location = 0) out vec3 outFragPos;
 layout(location = 1) out vec3 outNormal;
 layout(location = 2) out vec4 outBoneWeights;
+layout(location = 3) flat out ivec4 outBoneIds;
+layout(location = 4) flat out int outBoneNum;
 
 void main()
 {
@@ -38,5 +40,7 @@ void main()
 	outFragPos = vec3(localPos);
 	outNormal = vec3(localNormal);
 	outBoneWeights = inBoneWeights;
+	outBoneIds = inBoneIds;
+	outBoneNum = inBoneNum;
 	gl_Position = ubo.projection * ubo.view * localPos;
 }

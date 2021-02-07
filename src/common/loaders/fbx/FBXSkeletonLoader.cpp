@@ -35,13 +35,24 @@ namespace erm {
 	{
 		if (FbxSkeleton* bone = node->GetSkeleton())
 		{
-			math::mat4 bindMatrix = ToMat4(bone->GetNode()->EvaluateLocalTransform());
-			parentBind *= bindMatrix;
-			math::mat4 inverseBind = glm::inverse(parentBind);
-
 			std::string boneName = bone->GetName();
 
-			head = &head->AddChild(bonesTree->GetSize(), std::make_unique<Bone>(bindMatrix, inverseBind, boneName.c_str()));
+			if (!Utils::EndsWith(boneName, "_end"))
+			{
+				math::mat4 bindMatrix = ToMat4(node->EvaluateLocalTransform());
+				parentBind *= bindMatrix;
+				const math::mat4 inverseBind = glm::inverse(parentBind);
+
+				if (!bonesTree)
+				{
+					bonesTree = std::make_unique<BonesTree>(0, std::make_unique<Bone>(bindMatrix, inverseBind, boneName.c_str()));
+					head = bonesTree.get();
+				}
+				else
+				{
+					head = &head->AddChild(bonesTree->GetSize(), std::make_unique<Bone>(bindMatrix, inverseBind, boneName.c_str()));
+				}
+			}
 		}
 
 		for (int i = 0; i < node->GetChildCount(); ++i)

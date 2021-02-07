@@ -24,12 +24,14 @@ namespace erm {
 			: mInverseBindTransform(inverseBindTransform)
 			, mAnimatedTransform(glm::identity<math::mat4>())
 			, mLocalTransform(localTransform)
+			, mWorldTransform(glm::identity<math::mat4>())
 			, mName(name)
 		{}
 
 		math::mat4 mInverseBindTransform;
 		math::mat4 mAnimatedTransform;
 		math::mat4 mLocalTransform;
+		math::mat4 mWorldTransform;
 		std::string mName;
 	};
 

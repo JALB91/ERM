@@ -18,6 +18,7 @@
 
 namespace erm {
 
+	extern math::mat4 ToMat4(const FbxMatrix& matrix);
 	extern math::mat4 ToMat4(const FbxAMatrix& matrix);
 	extern math::vec3 ToVec3(const FbxVector4& vec);
 	extern math::vec2 ToVec2(const FbxVector2& vec);
