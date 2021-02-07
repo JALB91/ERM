@@ -177,14 +177,6 @@ namespace erm {
 				}
 			}
 
-			VertexData* veData = new VertexData[vData.size()];
-			for (unsigned int j = 0; j < vData.size(); ++j)
-				veData[j] = vData[j];
-
-			IndexData* inData = new IndexData[iData.size()];
-			for (unsigned int j = 0; j < iData.size(); ++j)
-				inData[j] = iData[j];
-
 			RenderConfigs config = RenderConfigs::MODELS_RENDER_CONFIGS;
 
 			if (mesh->mMaterialIndex < pbMaterials.size())
@@ -193,7 +185,7 @@ namespace erm {
 				config.mMaterial = materials[mesh->mMaterialIndex];
 
 			mutex.lock();
-			model.AddMesh(veData, static_cast<uint32_t>(vData.size()), inData, static_cast<uint32_t>(iData.size()), config, mesh->mName.C_Str());
+			model.AddMesh(std::move(vData), std::move(iData), config, mesh->mName.C_Str());
 			mutex.unlock();
 		}
 	}

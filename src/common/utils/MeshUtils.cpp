@@ -13,7 +13,7 @@ namespace erm::MeshUtils {
 	)
 	{
 		const unsigned int verticesCount = 3;
-		VertexData* vertices = new VertexData[verticesCount];
+		std::vector<VertexData> vertices(verticesCount);
 		vertices[0].mPositionVertex = a;
 		vertices[0].mNormalVertex = NormalVertex(0.0f, 0.0f, -1.0f);
 		vertices[1].mPositionVertex = b;
@@ -22,12 +22,12 @@ namespace erm::MeshUtils {
 		vertices[2].mNormalVertex = NormalVertex(0.0f, 0.0f, -1.0f);
 
 		const unsigned int indicesCount = 3;
-		IndexData* indices = new IndexData[indicesCount];
+		std::vector<IndexData> indices(indicesCount);
 		indices[0] = 0;
 		indices[1] = 1;
 		indices[2] = 2;
 
-		Mesh mesh(device, vertices, verticesCount, indices, indicesCount, RenderConfigs::MODELS_RENDER_CONFIGS);
+		Mesh mesh(device, std::move(vertices), std::move(indices), RenderConfigs::MODELS_RENDER_CONFIGS);
 		mesh.Setup();
 		return mesh;
 	}
@@ -42,7 +42,7 @@ namespace erm::MeshUtils {
 		const float halfHeight = height * 0.5f;
 
 		const unsigned int verticesCount = 4;
-		VertexData* vertices = new VertexData[verticesCount];
+		std::vector<VertexData> vertices(verticesCount);
 		vertices[0].mPositionVertex = PositionVertex(-halfWidth, -halfHeight, 0.0f);
 		vertices[0].mNormalVertex = NormalVertex(0.0f, 0.0f, -1.0f);
 		vertices[1].mPositionVertex = PositionVertex(halfWidth, -halfHeight, 0.0f);
@@ -53,7 +53,7 @@ namespace erm::MeshUtils {
 		vertices[3].mNormalVertex = NormalVertex(0.0f, 0.0f, -1.0f);
 
 		const unsigned int indicesCount = 6;
-		IndexData* indices = new IndexData[indicesCount];
+		std::vector<IndexData> indices(indicesCount);
 		indices[0] = 0;
 		indices[1] = 1;
 		indices[2] = 2;
@@ -61,7 +61,7 @@ namespace erm::MeshUtils {
 		indices[4] = 1;
 		indices[5] = 3;
 
-		Mesh mesh(device, vertices, verticesCount, indices, indicesCount, RenderConfigs::MODELS_RENDER_CONFIGS);
+		Mesh mesh(device, std::move(vertices), std::move(indices), RenderConfigs::MODELS_RENDER_CONFIGS);
 		mesh.Setup();
 		return mesh;
 	}
@@ -78,7 +78,7 @@ namespace erm::MeshUtils {
 		const float halfZ = sizeZ * 0.5f;
 
 		const unsigned int verticesCount = 6 * 4;
-		VertexData* vertices = new VertexData[verticesCount];
+		std::vector<VertexData> vertices(verticesCount);
 
 		int vertIndex = 0;
 
@@ -168,7 +168,7 @@ namespace erm::MeshUtils {
 
 		// Indices
 		const unsigned int indicesCount = 36;
-		IndexData* indices = new IndexData[indicesCount];
+		std::vector<IndexData> indices(indicesCount);
 
 		for (int i = 0; i < 6; ++i)
 		{
@@ -181,7 +181,7 @@ namespace erm::MeshUtils {
 			indices[(i * 6) + 5] = offset + 2;
 		}
 
-		Mesh mesh(device, vertices, verticesCount, indices, indicesCount, RenderConfigs::MODELS_RENDER_CONFIGS);
+		Mesh mesh(device, std::move(vertices), std::move(indices), RenderConfigs::MODELS_RENDER_CONFIGS);
 		mesh.Setup();
 		return mesh;
 	}
@@ -198,7 +198,7 @@ namespace erm::MeshUtils {
 		const float halfZ = sizeZ * 0.5f;
 
 		const unsigned int verticesCount = 4 + 4 * 3;
-		VertexData* vertices = new VertexData[verticesCount];
+		std::vector<VertexData> vertices(verticesCount);
 
 		int vertIndex = 0;
 
@@ -246,7 +246,7 @@ namespace erm::MeshUtils {
 
 		// Indices
 		const unsigned int indicesCount = 18;
-		IndexData* indices = new IndexData[indicesCount];
+		std::vector<IndexData> indices(indicesCount);
 
 		indices[0] = 0;
 		indices[1] = 1;
@@ -267,7 +267,7 @@ namespace erm::MeshUtils {
 		indices[16] = 14;
 		indices[17] = 15;
 
-		Mesh mesh(device, vertices, verticesCount, indices, indicesCount, RenderConfigs::MODELS_RENDER_CONFIGS);
+		Mesh mesh(device, std::move(vertices), std::move(indices), RenderConfigs::MODELS_RENDER_CONFIGS);
 		mesh.Setup();
 		return mesh;
 	}
@@ -280,10 +280,10 @@ namespace erm::MeshUtils {
 	)
 	{
 		const unsigned int verticesCount = (sectors + 1) * (rings + 1);
-		VertexData* vertices = new VertexData[verticesCount];
+		std::vector<VertexData> vertices(verticesCount);
 
 		const unsigned int indicesCount = sectors * rings * 6 - sectors * 6;
-		IndexData* indices = new IndexData[indicesCount];
+		std::vector<IndexData> indices(indicesCount);
 
 		const float sectorStep = static_cast<float>(2.0f * M_PI / sectors);
 		const float stackStep = static_cast<float>(M_PI / rings);
@@ -335,7 +335,7 @@ namespace erm::MeshUtils {
 			}
 		}
 
-		Mesh mesh(device, vertices, verticesCount, indices, indicesCount, RenderConfigs::MODELS_RENDER_CONFIGS);
+		Mesh mesh(device, std::move(vertices), std::move(indices), RenderConfigs::MODELS_RENDER_CONFIGS);
 		mesh.Setup();
 		return mesh;
 	}
@@ -352,7 +352,7 @@ namespace erm::MeshUtils {
 		const int halfSizeY = sizeY / 2;
 
 		const unsigned int verticesCount = (sizeX + 1) * 2 + (sizeY + 1) * 2;
-		VertexData* vertices = new VertexData[verticesCount];
+		std::vector<VertexData> vertices(verticesCount);
 
 		unsigned int index = 0;
 
@@ -381,7 +381,7 @@ namespace erm::MeshUtils {
 		}
 
 		const unsigned int indicesCount = verticesCount;
-		IndexData* indices = new IndexData[indicesCount];
+		std::vector<IndexData> indices(indicesCount);
 
 		index = 0;
 
@@ -405,7 +405,7 @@ namespace erm::MeshUtils {
 		configs.SetDrawMode(DrawMode::LINES);
 		configs.SetCullMode(CullMode::NONE);
 
-		Mesh mesh(device, vertices, verticesCount, indices, indicesCount, configs);
+		Mesh mesh(device, std::move(vertices), std::move(indices), configs);
 		mesh.Setup();
 		return mesh;
 	}

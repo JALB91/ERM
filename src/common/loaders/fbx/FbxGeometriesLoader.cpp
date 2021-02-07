@@ -196,20 +196,11 @@ namespace erm {
 			mat = ParseFBXMaterial(mutex, stop, path, pMesh, resourcesManager);
 		}
 
-		unsigned int vCount = static_cast<unsigned int>(vData.size());
-		VertexData* verticesData = new VertexData[vCount];
-		for (unsigned int i = 0; i < vCount; ++i)
-			verticesData[i] = vData[i];
-
-		unsigned int iCount = static_cast<unsigned int>(iData.size());
-		IndexData* indicesData = new IndexData[iCount];
-		for (unsigned int i = 0; i < iCount; ++i)
-			indicesData[i] = iData[i];
-
 		RenderConfigs conf = RenderConfigs::MODELS_RENDER_CONFIGS;
 		conf.mMaterial = mat;
+
 		mutex.lock();
-		model.AddMesh(verticesData, static_cast<uint32_t>(vData.size()), indicesData, static_cast<uint32_t>(iData.size()), conf, pMesh->GetName());
+		model.AddMesh(std::move(vData), std::move(iData), conf, pMesh->GetName());
 		mutex.unlock();
 	}
 

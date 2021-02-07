@@ -74,8 +74,8 @@ namespace ImGui {
 
 			if (erm::Model* model = modelComponent.GetModel())
 			{
-				int vertices = 0;
-				int indices = 0;
+				size_t vertices = 0;
+				size_t indices = 0;
 				std::vector<erm::Mesh>& meshes = model->GetMeshes();
 
 				bool showMeshes = ImGui::CollapsingHeader("Meshes");
@@ -90,8 +90,8 @@ namespace ImGui {
 						ImGui::ShowMeshDebugWindow(engine, mesh, i);
 					}
 
-					vertices += mesh.GetVerticesDataCount();
-					indices += mesh.GetIndicesCount();
+					vertices += mesh.GetVerticesData().size();
+					indices += mesh.GetIndicesData().size();
 				}
 				ImGui::Unindent();
 

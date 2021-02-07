@@ -37,10 +37,8 @@ namespace erm {
 
 		void AddMesh(Mesh&& mesh);
 		void AddMesh(
-			VertexData* vertices,
-			uint32_t verticesCount,
-			IndexData* indices,
-			uint32_t indicesCount,
+			std::vector<VertexData>&& vertices,
+			std::vector<IndexData>&& indices,
 			const RenderConfigs& configs = RenderConfigs::MODELS_RENDER_CONFIGS,
 			const char* name = "");
 		void UpdateLocalBound();

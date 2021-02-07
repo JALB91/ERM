@@ -4,16 +4,13 @@
 
 #include "erm/rendering/buffers/IndexBuffer.h"
 #include "erm/rendering/buffers/VertexBuffer.h"
-#include "erm/rendering/buffers/VertexData.h"
 
 namespace erm {
 
 	Mesh::Mesh(
 		Device& device,
-		VertexData* vertices,
-		uint32_t verticesCount,
-		IndexData* indices,
-		uint32_t indicesCount,
+		std::vector<VertexData>&& vertices,
+		std::vector<IndexData>&& indices,
 		const RenderConfigs& configs /*= RenderConfigs::MODELS_RENDER_CONFIGS*/,
 		const char* name /*= ""*/
 		)
@@ -21,69 +18,44 @@ namespace erm {
 		, mRenderConfigs(configs)
 		, mName(name)
 		, mVerticesData(vertices)
-		, mVerticesDataCount(verticesCount)
 		, mIndicesData(indices)
-		, mIndicesDataCount(indicesCount)
 	{}
 
 	Mesh::~Mesh()
 	{
 		mDevice->waitIdle();
-
-		if (mVerticesData && mVerticesDataCount > 0)
-		{
-			delete[] mVerticesData;
-		}
-
-		if (mIndicesData && mIndicesDataCount > 0)
-		{
-			delete[] mIndicesData;
-		}
 	}
 
 	Mesh::Mesh(Mesh&& other)
 		: mDevice(other.mDevice)
 		, mRenderConfigs(std::move(other.mRenderConfigs))
 		, mName(std::move(other.mName))
-		, mVerticesData(other.mVerticesData)
-		, mVerticesDataCount(other.mVerticesDataCount)
-		, mIndicesData(other.mIndicesData)
-		, mIndicesDataCount(other.mIndicesDataCount)
+		, mVerticesData(std::move(other.mVerticesData))
+		, mIndicesData(std::move(other.mIndicesData))
 		, mVertexBuffer(std::move(other.mVertexBuffer))
 		, mIndexBuffer(std::move(other.mIndexBuffer))
-	{
-		other.mVerticesData = nullptr;
-		other.mVerticesDataCount = 0;
-
-		other.mIndicesData = nullptr;
-		other.mIndicesDataCount = 0;
-
-		other.mVertexBuffer.reset();
-		other.mIndexBuffer.reset();
-	}
+	{}
 
 	void Mesh::Setup()
 	{
 		if (
 			IsReady() ||
-			!mVerticesData ||
-			mVerticesDataCount <= 0 ||
-			!mIndicesData ||
-			mIndicesDataCount <= 0)
+			mVerticesData.empty() ||
+			mIndicesData.empty())
 		{
 			return;
 		}
 
 		mVertexBuffer = std::make_unique<VertexBuffer>(
 			mDevice,
-			&mVerticesData[0].mPositionVertex[0],
-			sizeof(VertexData) * mVerticesDataCount);
+			mVerticesData.data(),
+			mVerticesData.size() * sizeof(VertexData));
 
 		mIndexBuffer = std::make_unique<IndexBuffer>(
 			mDevice,
-			mIndicesData,
-			mIndicesDataCount * sizeof(IndexData),
-			mIndicesDataCount);
+			mIndicesData.data(),
+			mIndicesData.size() * sizeof(IndexData),
+			static_cast<uint32_t>(mIndicesData.size()));
 	}
 
 } // namespace erm

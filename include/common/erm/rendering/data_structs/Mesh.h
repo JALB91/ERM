@@ -1,10 +1,12 @@
 #pragma once
 
 #include "erm/rendering/buffers/IndexData.h"
+#include "erm/rendering/buffers/VertexData.h"
 #include "erm/rendering/data_structs/RenderConfigs.h"
 
 #include <memory>
 #include <string>
+#include <vector>
 
 namespace erm {
 	class ShaderProgram;
@@ -12,7 +14,6 @@ namespace erm {
 	class VertexBuffer;
 	class IndexBuffer;
 	class Device;
-	struct VertexData;
 	struct Material;
 } // namespace erm
 
@@ -23,10 +24,8 @@ namespace erm {
 	public:
 		Mesh(
 			Device& device,
-			VertexData* vertices,
-			uint32_t verticesCount,
-			IndexData* indices,
-			uint32_t indicesCount,
+			std::vector<VertexData>&& vertices,
+			std::vector<IndexData>&& indices,
 			const RenderConfigs& configs = RenderConfigs::MODELS_RENDER_CONFIGS,
 			const char* name = "");
 		~Mesh();
@@ -42,11 +41,8 @@ namespace erm {
 		inline const VertexBuffer& GetVertexBuffer() const { return *mVertexBuffer; }
 		inline const IndexBuffer& GetIndexBuffer() const { return *mIndexBuffer; }
 
-		inline const VertexData* GetVerticesData() const { return mVerticesData; }
-		inline uint32_t GetVerticesDataCount() const { return mVerticesDataCount; }
-
-		inline const IndexData* GetIndicesData() const { return mIndicesData; }
-		inline uint32_t GetIndicesCount() const { return mIndicesDataCount; }
+		inline const std::vector<VertexData>& GetVerticesData() const { return mVerticesData; }
+		inline const std::vector<IndexData>& GetIndicesData() const { return mIndicesData; }
 
 		inline const std::string& GetName() const { return mName; }
 		inline void SetName(const char* name) { mName = name; }
@@ -55,7 +51,7 @@ namespace erm {
 		inline const RenderConfigs& GetRenderConfigs() const { return mRenderConfigs; }
 		inline void SetRenderConfigs(const RenderConfigs& configs) { mRenderConfigs = configs; }
 
-		inline bool IsReady() const { return mVerticesData && mIndicesData && mVerticesDataCount > 0 && mIndicesDataCount > 0 && mVertexBuffer && mIndexBuffer; }
+		inline bool IsReady() const { return !mVerticesData.empty() && !mIndicesData.empty() && mVertexBuffer && mIndexBuffer; }
 
 	private:
 		Device& mDevice;
@@ -63,11 +59,8 @@ namespace erm {
 
 		std::string mName;
 
-		VertexData* mVerticesData;
-		uint32_t mVerticesDataCount;
-
-		IndexData* mIndicesData;
-		uint32_t mIndicesDataCount;
+		std::vector<VertexData> mVerticesData;
+		std::vector<IndexData> mIndicesData;
 
 		std::unique_ptr<VertexBuffer> mVertexBuffer;
 		std::unique_ptr<IndexBuffer> mIndexBuffer;

@@ -123,15 +123,15 @@ namespace erm {
 
 				const std::vector<std::string> values = Utils::SplitString(primitive->FirstChildElement("p")->GetText(), ' ');
 
-				IndexData* indicesData = new IndexData[indicesCount];
-				VertexData* verticesData = new VertexData[indicesCount];
+				std::vector<IndexData> indicesData(indicesCount);
+				std::vector<VertexData> verticesData(indicesCount);
 
 				for (unsigned int i = 0; i < static_cast<unsigned int>(values.size()); i += totalOffset)
 				{
 					const unsigned int index = i / totalOffset;
-					VertexData vertexData;
 
 					indicesData[index] = index;
+					VertexData& vertexData = verticesData[index];
 
 					const IndexData pIndex = std::atoi(values[i + pOffset].c_str());
 					vertexData.mPositionVertex = pVertices[pIndex];
@@ -152,12 +152,10 @@ namespace erm {
 						const IndexData uvIndex = std::atoi(values[i + uvOffset].c_str());
 						vertexData.mUVVertex = uvVertices[uvIndex];
 					}
-
-					verticesData[index] = vertexData;
 				}
 
 				mutex.lock();
-				model.AddMesh(verticesData, indicesCount, indicesData, indicesCount, RenderConfigs::MODELS_RENDER_CONFIGS, name);
+				model.AddMesh(std::move(verticesData), std::move(indicesData), RenderConfigs::MODELS_RENDER_CONFIGS, name);
 				mutex.unlock();
 
 				mesh = mesh->NextSiblingElement("mesh");

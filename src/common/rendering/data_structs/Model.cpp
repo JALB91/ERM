@@ -24,14 +24,12 @@ namespace erm {
 	}
 
 	void Model::AddMesh(
-		VertexData* vertices,
-		uint32_t verticesCount,
-		IndexData* indices,
-		uint32_t indicesCount,
+		std::vector<VertexData>&& vertices,
+		std::vector<IndexData>&& indices,
 		const RenderConfigs& configs /*= RenderConfigs::MODELS_RENDER_CONFIGS*/,
 		const char* name /*= ""*/)
 	{
-		AddMesh({mDevice, vertices, verticesCount, indices, indicesCount, configs, name});
+		AddMesh({mDevice, std::move(vertices), std::move(indices), configs, name});
 	}
 
 	void Model::UpdateLocalBound()
@@ -39,13 +37,10 @@ namespace erm {
 		mLocalBounds.Empty();
 		for (const Mesh& mesh : mMeshes)
 		{
-			if (const VertexData* verticesData = mesh.GetVerticesData())
+			for (const VertexData& data : mesh.GetVerticesData())
 			{
-				for (unsigned int i = 0; i < mesh.GetVerticesDataCount(); ++i)
-				{
-					const PositionVertex& vertex = verticesData[i].mPositionVertex;
-					mLocalBounds = mLocalBounds.Expand(vertex);
-				}
+				const PositionVertex& vertex = data.mPositionVertex;
+				mLocalBounds = mLocalBounds.Expand(vertex);
 			}
 		}
 		SetDirty(true);
