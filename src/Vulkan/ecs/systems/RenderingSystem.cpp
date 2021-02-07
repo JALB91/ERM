@@ -101,6 +101,7 @@ namespace erm::ecs {
 
 		TransformComponent* cameraTransform = nullptr;
 		CameraComponent* camera = nullptr;
+
 		for (ID i = 0; i < MAX_ID; ++i)
 		{
 			if ((camera = mCameraSystem->GetComponent(i)))
@@ -109,6 +110,9 @@ namespace erm::ecs {
 				break;
 			}
 		}
+
+		if (!cameraTransform || !camera)
+			return;
 
 		const math::mat4& proj = camera->GetProjectionMatrix();
 		const math::mat4 view = glm::inverse(cameraTransform->mWorldTransform);
@@ -154,10 +158,11 @@ namespace erm::ecs {
 
 			for (size_t i = 0; i < meshes.size(); ++i)
 			{
-				if (!meshes[i].IsReady())
+				Mesh& mesh = meshes[i];
+
+				if (!mesh.IsReady())
 					continue;
 
-				Mesh& mesh = meshes[i];
 				RenderConfigs& configs = mesh.GetRenderConfigs();
 
 				if (!configs.mPBMaterial)
