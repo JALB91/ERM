@@ -21,8 +21,35 @@ namespace erm {
 		std::unique_ptr<BonesTree>& bonesTree,
 		FbxScene& scene)
 	{
+		math::mat4 armature = glm::identity<math::mat4>();
+
+		bool poseFound = false;
+
+		for (int i = 0; i < scene.GetPoseCount(); ++i)
+		{
+			FbxPose* pose = scene.GetPose(i);
+			std::string name = pose->GetName();
+			for (int j = 0; j < pose->GetCount(); ++j)
+			{
+				std::string name = pose->GetNodeName(j).GetCurrentName();
+				if (Utils::CompareNoCaseSensitive(name, "armature"))
+				{
+					armature = glm::inverse(armature) * ToMat4(pose->GetMatrix(j));
+					poseFound = true;
+					break;
+				}
+				else
+				{
+					armature = ToMat4(pose->GetMatrix(j));
+				}
+			}
+
+			if (poseFound)
+				break;
+		}
+
 		if (FbxNode* node = scene.GetRootNode())
-			ProcessNode(mutex, stop, bonesTree, bonesTree.get(), glm::identity<math::mat4>(), node);
+			ProcessNode(mutex, stop, bonesTree, bonesTree.get(), armature, node);
 	}
 
 	void ProcessNode(
@@ -48,7 +75,7 @@ namespace erm {
 					bonesTree = std::make_unique<BonesTree>(0, std::make_unique<Bone>(bindMatrix, inverseBind, boneName.c_str()));
 					head = bonesTree.get();
 				}
-				else
+				else if (head)
 				{
 					head = &head->AddChild(bonesTree->GetSize(), std::make_unique<Bone>(bindMatrix, inverseBind, boneName.c_str()));
 				}
