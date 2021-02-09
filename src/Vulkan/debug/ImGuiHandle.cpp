@@ -32,7 +32,6 @@ namespace erm {
 		ImGuiIO& io = ImGui::GetIO();
 
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
 		SwapChainCreated();
 
@@ -57,7 +56,6 @@ namespace erm {
 		ImGui::ShowEngineDebug(mEngine);
 
 		ImGui::Render();
-		ImGui::UpdatePlatformWindows();
 	}
 
 	void ImGuiHandle::OnPreRender()
