@@ -127,10 +127,10 @@ namespace erm::ecs {
 				mRenderer.SubmitRenderData(data);
 			}
 
-			if (editorCmp->mShouldShowSkeleton)
-			{
-				SkeletonComponent* skeleton = mSkeletonSystem->GetComponent(i);
+			SkeletonComponent* skeleton = mSkeletonSystem->GetComponent(i);
 
+			if (skeleton && skeleton->GetDisplayBones())
+			{
 				if (skeleton && skeleton->GetSkin())
 				{
 					RenderData& data = editorCmp->mBonesRenderData;
@@ -147,6 +147,9 @@ namespace erm::ecs {
 						meshes.pop_back();
 
 					root->ForEachDo([&data, &ubo, &index, &meshes, this](const BonesTree& node) {
+						if (index >= MAX_BONES)
+							return;
+
 						ubo.mBonesModels[index] = node.GetPayload()->mWorldTransform;
 
 						Mesh* mesh = nullptr;

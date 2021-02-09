@@ -44,6 +44,10 @@ namespace ImGui {
 
 			if (erm::Skin* skin = skeletonComponent.GetSkin())
 			{
+				bool displayBones = skeletonComponent.GetDisplayBones();
+				ImGui::Checkbox("Display Bones: ", &displayBones);
+				skeletonComponent.SetDisplayBones(displayBones);
+
 				erm::BonesTree* rootBone = skin->mRootBone.get();
 				bool hasChanges = false;
 				rootBone->ForEachDo(

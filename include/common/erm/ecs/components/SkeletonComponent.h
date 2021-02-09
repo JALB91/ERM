@@ -19,12 +19,15 @@ namespace erm::ecs {
 	public:
 		SkeletonComponent(Skin* skin = nullptr)
 			: mSkin(skin)
+			, mDisplayBones(false)
 		{}
 
 		SENSIBLE_MEMBER(Skin, Skin*, mSkin);
+		SENSIBLE_MEMBER(DisplayBones, bool, mDisplayBones);
 
 	private:
 		Skin* mSkin;
+		bool mDisplayBones;
 	};
 
 } // namespace erm::ecs

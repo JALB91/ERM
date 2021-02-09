@@ -244,7 +244,7 @@ namespace erm::ecs {
 					ubo.mProjection = proj;
 
 					skeletonComponent->GetSkin()->mRootBone->ForEachDo([&ubo, &data](BonesTree& bone) {
-						if (bone.GetId() >= 100)
+						if (bone.GetId() >= MAX_BONES)
 							return;
 
 						ubo.mBonesTransforms[bone.GetId()] = bone.GetPayload()->mAnimatedTransform;

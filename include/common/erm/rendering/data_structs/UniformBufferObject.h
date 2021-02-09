@@ -3,6 +3,8 @@
 #include "erm/math/mat.h"
 #include "erm/math/vec.h"
 
+#include "erm/rendering/data_structs/Bone.h"
+
 namespace erm {
 
 	typedef uint8_t UboId;
@@ -60,7 +62,7 @@ namespace erm {
 		alignas(16) math::mat4 mModel;
 		alignas(16) math::mat4 mView;
 		alignas(16) math::mat4 mProjection;
-		alignas(16) math::mat4 mBonesTransforms[100];
+		alignas(16) math::mat4 mBonesTransforms[MAX_BONES];
 	};
 
 	struct UboPBMaterial : public IUbo
@@ -85,7 +87,7 @@ namespace erm {
 	{
 		static constexpr UboId ID = 8;
 
-		alignas(16) math::mat4 mBonesModels[100];
+		alignas(16) math::mat4 mBonesModels[MAX_BONES];
 		alignas(16) math::mat4 mModel;
 		alignas(16) math::mat4 mView;
 		alignas(16) math::mat4 mProj;

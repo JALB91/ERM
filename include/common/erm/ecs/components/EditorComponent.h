@@ -20,16 +20,13 @@ namespace erm::ecs {
 	public:
 		EditorComponent(const RenderConfigs& bonesRenderConfig = RenderConfigs::MODELS_RENDER_CONFIGS)
 			: mIsSelected(false)
-			, mShouldShowSkeleton(true)
 			, mBonesRenderData(bonesRenderConfig)
 		{}
 
 		SENSIBLE_MEMBER(IsSelected, bool, mIsSelected)
-		SENSIBLE_MEMBER(ShouldShowSkeleton, bool, mShouldShowSkeleton)
 
 	private:
 		bool mIsSelected;
-		bool mShouldShowSkeleton;
 		RenderData mBonesRenderData;
 	};
 
