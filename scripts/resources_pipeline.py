@@ -44,7 +44,11 @@ if __name__ == "__main__":
         parser.print_help()
         exit(1)
 
-    shutil.rmtree(args.res_dest)
+    try:
+        shutil.rmtree(args.res_dest)
+    except:
+        print("Failed to delete the resources destination folder")
+    
     update_resources(args.res_src, args.res_dest)
 
     if (args.shaders_compiler):
