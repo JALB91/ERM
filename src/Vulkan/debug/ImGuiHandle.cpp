@@ -5,7 +5,7 @@
 #include "erm/engine/Engine.h"
 
 #include "erm/rendering/Device.h"
-#include "erm/rendering/renderer/Renderer.h"
+#include "erm/rendering/renderer/IRenderer.h"
 #include "erm/rendering/window/Window.h"
 
 #include "erm/utils/VkUtils.h"

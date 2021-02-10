@@ -7,7 +7,7 @@ namespace erm {
 	class Mesh;
 	class Engine;
 	class Window;
-	class Renderer;
+	class IRenderer;
 	class ResourcesManager;
 	namespace ecs {
 		class TransformSystem;
@@ -30,7 +30,7 @@ namespace erm::ecs {
 
 	private:
 		Window& mWindow;
-		Renderer& mRenderer;
+		IRenderer& mRenderer;
 		ResourcesManager& mResourcesManager;
 
 		TransformSystem* mTransformSystem;

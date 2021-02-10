@@ -33,9 +33,10 @@ namespace erm {
 		RenderingResources& operator=(const RenderingResources&) = delete;
 		RenderingResources& operator=(RenderingResources&&) = delete;
 
+		vk::CommandBuffer UpdateCommandBuffer(std::vector<RenderData*>& renderData, uint32_t imageIndex);
+
 		void AddSubpass(const SubpassData& data);
 		bool IsSubpassCompatible(const SubpassData& subpass) const;
-		void Update(std::vector<RenderData*>& renderData, uint32_t imageIndex);
 		void Refresh();
 
 	private:
@@ -53,8 +54,6 @@ namespace erm {
 		Device& mDevice;
 		Renderer& mRenderer;
 		std::vector<SubpassData> mSubpassData;
-
-	public:
 		vk::RenderPass mRenderPass;
 		std::vector<vk::Framebuffer> mSwapChainFramebuffers;
 		vk::DescriptorPool mDescriptorPool;

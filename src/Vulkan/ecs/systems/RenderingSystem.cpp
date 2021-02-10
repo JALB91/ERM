@@ -17,7 +17,7 @@
 #include "erm/rendering/data_structs/Mesh.h"
 #include "erm/rendering/data_structs/Model.h"
 #include "erm/rendering/data_structs/PBMaterial.h"
-#include "erm/rendering/renderer/Renderer.h"
+#include "erm/rendering/renderer/IRenderer.h"
 #include "erm/rendering/shaders/ShaderProgram.h"
 #include "erm/rendering/shaders/Uniform.h"
 #include "erm/rendering/window/Window.h"
@@ -97,7 +97,7 @@ namespace erm::ecs {
 	{
 		PROFILE_FUNCTION();
 
-		Renderer& renderer = mEngine.GetRenderer();
+		IRenderer& renderer = mEngine.GetRenderer();
 
 		TransformComponent* cameraTransform = nullptr;
 		CameraComponent* camera = nullptr;

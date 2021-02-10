@@ -10,7 +10,7 @@
 namespace erm {
 	class Engine;
 	class Device;
-	class Renderer;
+	class IRenderer;
 	class RenderingResources;
 } // namespace erm
 
@@ -42,7 +42,7 @@ namespace erm {
 
 		Engine& mEngine;
 		Device& mDevice;
-		Renderer& mRenderer;
+		IRenderer& mRenderer;
 
 		vk::RenderPass mRenderPass;
 		std::vector<vk::Framebuffer> mSwapChainFramebuffers;

@@ -47,29 +47,7 @@ namespace erm {
 		other.mDescriptorPool = nullptr;
 	}
 
-	void RenderingResources::AddSubpass(const SubpassData& data)
-	{
-		for (const SubpassData& subpass : mSubpassData)
-		{
-			if (subpass == data)
-				return;
-		}
-
-		mSubpassData.emplace_back(data);
-		Reload();
-	}
-
-	bool RenderingResources::IsSubpassCompatible(const SubpassData& subpass) const
-	{
-		for (const SubpassData& data : mSubpassData)
-		{
-			if (data == subpass)
-				return true;
-		}
-		return false;
-	}
-
-	void RenderingResources::Update(std::vector<RenderData*>& renderData, uint32_t imageIndex)
+	vk::CommandBuffer RenderingResources::UpdateCommandBuffer(std::vector<RenderData*>& renderData, uint32_t imageIndex)
 	{
 		std::sort(renderData.begin(), renderData.end(), [](RenderData* a, RenderData* b) -> bool {
 			const bool aHasId = a->mRenderingId.has_value();
@@ -117,6 +95,30 @@ namespace erm {
 
 		cmd.endRenderPass();
 		cmd.end();
+
+		return cmd;
+	}
+
+	void RenderingResources::AddSubpass(const SubpassData& data)
+	{
+		for (const SubpassData& subpass : mSubpassData)
+		{
+			if (subpass == data)
+				return;
+		}
+
+		mSubpassData.emplace_back(data);
+		Reload();
+	}
+
+	bool RenderingResources::IsSubpassCompatible(const SubpassData& subpass) const
+	{
+		for (const SubpassData& data : mSubpassData)
+		{
+			if (data == subpass)
+				return true;
+		}
+		return false;
 	}
 
 	void RenderingResources::Refresh()
