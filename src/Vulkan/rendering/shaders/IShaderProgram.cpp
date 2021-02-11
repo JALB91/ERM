@@ -189,9 +189,9 @@ namespace erm {
 		return bindings;
 	}
 
-	ShaderData IShaderProgram::GatherShaderData(ShaderType shaderType)
+	void IShaderProgram::UpdateShaderData(ShaderType shaderType)
 	{
-		ShaderData data;
+		ShaderData& data = mShadersData[shaderType];
 
 		const std::string shaderPath = mPath + GetExtensionForShaderType(shaderType);
 		const std::string compiledShaderPath = shaderPath + ".cmp";
@@ -199,8 +199,6 @@ namespace erm {
 		data.mShaderSource = Utils::ReadFromFile(shaderPath.c_str());
 		data.mShaderByteCode = ReadShaderCompiled(compiledShaderPath.c_str());
 		data.mShaderCompiler = std::make_unique<spirv_cross::Compiler>(LoadSpirvFile(compiledShaderPath.c_str()));
-
-		return data;
 	}
 
 	void IShaderProgram::CompileShaderSource(ShaderType shaderType) const

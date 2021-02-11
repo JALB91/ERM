@@ -8,8 +8,8 @@ namespace erm {
 	ShaderProgram::ShaderProgram(Device& device, const char* shaderPath)
 		: IShaderProgram(device, shaderPath)
 	{
-		mShadersData[ShaderType::VERTEX] = GatherShaderData(ShaderType::VERTEX);
-		mShadersData[ShaderType::FRAGMENT] = GatherShaderData(ShaderType::FRAGMENT);
+		UpdateShaderData(ShaderType::VERTEX);
+		UpdateShaderData(ShaderType::FRAGMENT);
 		UpdateBindingData();
 	}
 
@@ -22,8 +22,8 @@ namespace erm {
 		CompileShaderSource(ShaderType::FRAGMENT);
 
 		mShadersData.clear();
-		mShadersData[ShaderType::VERTEX] = GatherShaderData(ShaderType::VERTEX);
-		mShadersData[ShaderType::FRAGMENT] = GatherShaderData(ShaderType::FRAGMENT);
+		UpdateShaderData(ShaderType::VERTEX);
+		UpdateShaderData(ShaderType::FRAGMENT);
 
 		UpdateBindingData();
 

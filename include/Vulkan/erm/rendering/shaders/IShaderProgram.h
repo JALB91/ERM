@@ -44,7 +44,7 @@ namespace erm {
 	protected:
 		void CompileShaderSource(ShaderType shaderType) const;
 
-		ShaderData GatherShaderData(ShaderType shaderType);
+		void UpdateShaderData(ShaderType shaderType);
 		void UpdateBindingData();
 
 		Device& mDevice;
