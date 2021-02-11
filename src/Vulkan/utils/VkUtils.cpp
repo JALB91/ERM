@@ -9,6 +9,9 @@
 #include "erm/rendering/enums/FrontFace.h"
 #include "erm/rendering/enums/ImageLayout.h"
 #include "erm/rendering/enums/PolygonMode.h"
+#include "erm/rendering/enums/ShaderType.h"
+
+#include "erm/utils/Utils.h"
 
 #include <algorithm>
 #include <array>
@@ -445,36 +448,6 @@ namespace erm::VkUtils {
 		device.freeMemory(stagingBufferMemory);
 	}
 
-	vk::VertexInputBindingDescription GetVertexBindingDescription()
-	{
-		vk::VertexInputBindingDescription bindingDescription = {};
-		bindingDescription.binding = 0;
-		bindingDescription.stride = sizeof(erm::VertexData);
-		bindingDescription.inputRate = vk::VertexInputRate::eVertex;
-		return bindingDescription;
-	}
-
-	std::vector<vk::VertexInputAttributeDescription> GetVertexAttributeDescriptions()
-	{
-		std::vector<vk::VertexInputAttributeDescription> attributeDescriptions(3);
-		attributeDescriptions[0].binding = 0;
-		attributeDescriptions[0].location = 0;
-		attributeDescriptions[0].format = vk::Format::eR32G32B32Sfloat;
-		attributeDescriptions[0].offset = offsetof(erm::VertexData, mPositionVertex);
-
-		attributeDescriptions[1].binding = 0;
-		attributeDescriptions[1].location = 1;
-		attributeDescriptions[1].format = vk::Format::eR32G32B32Sfloat;
-		attributeDescriptions[1].offset = offsetof(erm::VertexData, mNormalVertex);
-
-		attributeDescriptions[2].binding = 0;
-		attributeDescriptions[2].location = 2;
-		attributeDescriptions[2].format = vk::Format::eR32G32Sfloat;
-		attributeDescriptions[2].offset = offsetof(erm::VertexData, mUVVertex);
-
-		return attributeDescriptions;
-	}
-
 	template<>
 	vk::PrimitiveTopology ToVulkanValue(DrawMode mode)
 	{
@@ -616,6 +589,33 @@ namespace erm::VkUtils {
 			default:
 			case ImageLayout::PRESENT_SRC:
 				return vk::ImageLayout::ePresentSrcKHR;
+		}
+	}
+
+	template<>
+	vk::ShaderStageFlagBits ToVulkanValue(ShaderType shaderType)
+	{
+		switch (shaderType)
+		{
+			case erm::ShaderType::VERTEX:
+				return vk::ShaderStageFlagBits::eVertex;
+			case erm::ShaderType::FRAGMENT:
+				return vk::ShaderStageFlagBits::eFragment;
+			case erm::ShaderType::RT_ANY_HIT:
+				return vk::ShaderStageFlagBits::eAnyHitKHR;
+			case erm::ShaderType::RT_CALLABLE:
+				return vk::ShaderStageFlagBits::eCallableKHR;
+			case erm::ShaderType::RT_CLOSEST_HIT:
+				return vk::ShaderStageFlagBits::eClosestHitKHR;
+			case erm::ShaderType::RT_INTERSECTION:
+				return vk::ShaderStageFlagBits::eIntersectionKHR;
+			case erm::ShaderType::RT_MISS:
+				return vk::ShaderStageFlagBits::eMissKHR;
+			case erm::ShaderType::RT_RAY_GEN:
+				return vk::ShaderStageFlagBits::eRaygenKHR;
+			default:
+				ASSERT(false);
+				return vk::ShaderStageFlagBits::eAll;
 		}
 	}
 

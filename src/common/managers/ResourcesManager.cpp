@@ -53,12 +53,6 @@ namespace erm {
 		mResourcesLoader->OnPostRender();
 	}
 
-	ShaderProgram* ResourcesManager::GetOrCreateShaderProgram(const char* vertexShader, const char* fragmentShader)
-	{
-		std::unique_ptr<ShaderProgram> shaderProgram = std::make_unique<ShaderProgram>(mDevice, vertexShader, fragmentShader);
-		return mShaderPrograms.emplace_back(std::move(shaderProgram)).get();
-	}
-
 	ShaderProgram* ResourcesManager::GetOrCreateShaderProgram(const char* shaderProgramPath)
 	{
 		auto it = std::find_if(

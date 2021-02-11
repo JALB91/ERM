@@ -51,8 +51,8 @@ namespace ImGui {
 
 			if (selected && hasChanged)
 			{
-				std::strcpy(vertexShader, selected->GetVertexSource().c_str());
-				std::strcpy(fragmentShader, selected->GetFragmentSource().c_str());
+				std::strcpy(vertexShader, selected->GetShaderData(erm::ShaderType::VERTEX).mShaderSource.c_str());
+				std::strcpy(fragmentShader, selected->GetShaderData(erm::ShaderType::FRAGMENT).mShaderSource.c_str());
 			}
 			else if (hasChanged)
 			{
@@ -72,7 +72,7 @@ namespace ImGui {
 				}
 				else
 				{
-					engine.GetResourcesManager().GetOrCreateShaderProgram(vertexShader, fragmentShader);
+					//engine.GetResourcesManager().GetOrCreateShaderProgram(vertexShader, fragmentShader);
 				}
 			}
 		}

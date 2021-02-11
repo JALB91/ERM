@@ -35,7 +35,6 @@ namespace erm {
 	{
 		mDevice->destroyDescriptorSetLayout(mDescriptorSetLayout);
 		mBindingResources.clear();
-		mDevice->destroyPipelineLayout(mPipelineLayout);
 	}
 
 	void PipelineResources::Update(vk::CommandBuffer& cmd, RenderData& renderData, uint32_t imageIndex)
@@ -66,7 +65,7 @@ namespace erm {
 
 		for (const Mesh* mesh : renderData.mMeshes)
 		{
-			cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, mPipelineLayout, 0, 1, resources.GetDescriptorSet(imageIndex), 0, nullptr);
+			cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, mPipelineLayout.get(), 0, 1, resources.GetDescriptorSet(imageIndex), 0, nullptr);
 			mesh->GetVertexBuffer().Bind(cmd);
 			mesh->GetIndexBuffer().Bind(cmd);
 			cmd.drawIndexed(mesh->GetIndexBuffer().GetCount(), 1, 0, 0, 0);
@@ -86,8 +85,8 @@ namespace erm {
 		/*
 			LOAD SHADERS
 		*/
-		vk::ShaderModule vertShaderModule = shader->CreateVertexShaderModule();
-		vk::ShaderModule fragShaderModule = shader->CreateFragmentShaderModule();
+		vk::ShaderModule vertShaderModule = shader->CreateShaderModule(ShaderType::VERTEX);
+		vk::ShaderModule fragShaderModule = shader->CreateShaderModule(ShaderType::FRAGMENT);
 
 		vk::PipelineShaderStageCreateInfo vertShaderStageInfo = {};
 		vertShaderStageInfo.stage = vk::ShaderStageFlagBits::eVertex;
@@ -217,7 +216,7 @@ namespace erm {
 		pipelineLayoutInfo.pushConstantRangeCount = 0;
 		pipelineLayoutInfo.pPushConstantRanges = nullptr;
 
-		mPipelineLayout = mDevice->createPipelineLayout(pipelineLayoutInfo);
+		mPipelineLayout = mDevice->createPipelineLayoutUnique(pipelineLayoutInfo);
 
 		/*
 			SETUP STENCIL AND DEPTH TESTS
@@ -258,7 +257,7 @@ namespace erm {
 		pipelineInfo.pDepthStencilState = &depthStencil;
 		pipelineInfo.pColorBlendState = &colorBlending;
 		pipelineInfo.pDynamicState = &dynamicInfo;
-		pipelineInfo.layout = mPipelineLayout;
+		pipelineInfo.layout = mPipelineLayout.get();
 		pipelineInfo.renderPass = *mRenderPass;
 		pipelineInfo.subpass = 0;
 		pipelineInfo.basePipelineHandle = nullptr;

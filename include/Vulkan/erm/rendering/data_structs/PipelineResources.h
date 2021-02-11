@@ -45,7 +45,7 @@ namespace erm {
 
 	public:
 		const RenderConfigs mRenderConfigs;
-		vk::PipelineLayout mPipelineLayout;
+		vk::UniquePipelineLayout mPipelineLayout;
 		vk::UniquePipeline mPipeline;
 
 		vk::DescriptorSetLayout mDescriptorSetLayout;

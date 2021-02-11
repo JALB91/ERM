@@ -11,7 +11,7 @@ namespace erm::VkUtils {
 
 	extern QueueFamilyIndices FindQueueFamilies(vk::PhysicalDevice device, vk::SurfaceKHR surface);
 	extern SwapChainSupportDetails QuerySwapChainSupport(vk::PhysicalDevice device, vk::SurfaceKHR surface);
-	extern bool CheckDeviceExtensionSupport(vk::PhysicalDevice device, vk::SurfaceKHR surface, const std::vector<const char*>& deviceExtensions);
+	extern bool CheckDeviceExtensionSupport(vk::PhysicalDevice device, const std::vector<const char*>& deviceExtensions);
 	extern bool IsDeviceSuitable(vk::PhysicalDevice device, vk::SurfaceKHR surface, const std::vector<const char*>& deviceExtensions);
 	extern vk::SurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& availableFormats);
 	extern vk::PresentModeKHR ChooseSwapPresentMode(const std::vector<vk::PresentModeKHR>& availablePresentModes);
@@ -106,9 +106,6 @@ namespace erm::VkUtils {
 		void* bufferData,
 		vk::Buffer& dstBuffer,
 		vk::DeviceMemory& dstBufferMemory);
-
-	extern vk::VertexInputBindingDescription GetVertexBindingDescription();
-	extern std::vector<vk::VertexInputAttributeDescription> GetVertexAttributeDescriptions();
 
 	template<typename T, typename S>
 	T ToVulkanValue(S s);
