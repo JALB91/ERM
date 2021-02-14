@@ -21,17 +21,17 @@ namespace {
 			case erm::ShaderType::FRAGMENT:
 				return ".frag";
 			case erm::ShaderType::RT_ANY_HIT:
-				return ".rtah";
+				return ".rahit";
 			case erm::ShaderType::RT_CALLABLE:
-				return ".rtc";
+				return ".rcall";
 			case erm::ShaderType::RT_CLOSEST_HIT:
-				return ".rtch";
+				return ".rchit";
 			case erm::ShaderType::RT_INTERSECTION:
-				return ".rti";
+				return ".rint";
 			case erm::ShaderType::RT_MISS:
-				return ".rtm";
+				return ".rmiss";
 			case erm::ShaderType::RT_RAY_GEN:
-				return ".rtrg";
+				return ".rgen";
 			default:
 				ASSERT(false);
 				return "";
