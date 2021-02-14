@@ -191,7 +191,7 @@ namespace erm {
 
 			vk::WriteDescriptorSet descriptorWrite;
 			descriptorWrite.dstSet = mDescriptorSets[index];
-			descriptorWrite.dstBinding = shader->GetSamplerData()[i].mBinding;
+			descriptorWrite.dstBinding = sData.mBinding;
 			descriptorWrite.dstArrayElement = 0;
 			descriptorWrite.descriptorType = vk::DescriptorType::eCombinedImageSampler;
 			descriptorWrite.descriptorCount = 1;

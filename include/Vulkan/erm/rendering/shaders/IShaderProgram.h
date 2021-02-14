@@ -31,6 +31,7 @@ namespace erm {
 
 		inline const std::vector<UboData>& GetUbosData() const { return mUbosData; }
 		inline const std::vector<SamplerData>& GetSamplerData() const { return mSamplerData; }
+		inline const std::vector<StorageImageData>& GetStorageImageData() const { return mStorageImageData; }
 
 		inline bool NeedsReload() const { return mNeedsReload; }
 		inline void OnReloaded() { mNeedsReload = false; }
@@ -50,6 +51,7 @@ namespace erm {
 		Device& mDevice;
 		std::vector<UboData> mUbosData;
 		std::vector<SamplerData> mSamplerData;
+		std::vector<StorageImageData> mStorageImageData;
 		std::map<ShaderType, ShaderData> mShadersData;
 		bool mNeedsReload;
 	};

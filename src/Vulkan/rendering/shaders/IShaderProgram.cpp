@@ -91,6 +91,16 @@ namespace {
 			binding.stageFlags = flags;
 			bindings.emplace_back(std::move(binding));
 		}
+
+		for (const spirv_cross::Resource& storageImage : resources.storage_images)
+		{
+			vk::DescriptorSetLayoutBinding binding;
+			binding.binding = compiler.get_decoration(storageImage.id, spv::Decoration::DecorationBinding);
+			binding.descriptorCount = 1;
+			binding.descriptorType = vk::DescriptorType::eStorageImage;
+			binding.stageFlags = flags;
+			bindings.emplace_back(std::move(binding));
+		}
 	}
 
 	erm::UboData GetUboData(const spirv_cross::Compiler& compiler, const spirv_cross::Resource& resource)
@@ -133,6 +143,16 @@ namespace {
 		return {0, erm::TextureType::DIFFUSE};
 	}
 
+	erm::StorageImageData GetStorageImageData(const spirv_cross::Compiler& compiler, const spirv_cross::Resource& resource)
+	{
+		if (resource.name.compare("imageStore") == 0)
+			return {compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding)};
+
+		ASSERT(false);
+
+		return {0};
+	}
+
 } // namespace
 
 namespace erm {
@@ -162,6 +182,7 @@ namespace erm {
 	{
 		mUbosData.clear();
 		mSamplerData.clear();
+		mStorageImageData.clear();
 
 		for (const auto& [shaderType, data] : mShadersData)
 		{
@@ -174,6 +195,9 @@ namespace erm {
 
 			for (const spirv_cross::Resource& res : resources.sampled_images)
 				mSamplerData.emplace_back(::GetSamplerData(*data.mShaderCompiler, res));
+
+			for (const spirv_cross::Resource& res : resources.storage_images)
+				mStorageImageData.emplace_back(::GetStorageImageData(*data.mShaderCompiler, res));
 		}
 	}
 

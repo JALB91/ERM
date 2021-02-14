@@ -39,4 +39,6 @@ namespace erm {
 		TextureType mTextureType;
 	};
 
+	using StorageImageData = IBindingData;
+
 } // namespace erm
