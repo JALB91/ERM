@@ -1,8 +1,6 @@
 #pragma once
 
-#ifdef ERM_RAY_TRACING_ENABLED
-
-#	include "erm/rendering/shaders/IShaderProgram.h"
+#include "erm/rendering/shaders/IShaderProgram.h"
 
 namespace erm {
 
@@ -13,5 +11,3 @@ namespace erm {
 	};
 
 } // namespace erm
-
-#endif

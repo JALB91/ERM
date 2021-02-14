@@ -1,5 +1,4 @@
-#ifdef ERM_RAY_TRACING_ENABLED
-#	include "erm/rendering/shaders/RTShaderProgram.h"
+#include "erm/ray_tracing/RTShaderProgram.h"
 
 namespace erm {
 
@@ -15,5 +14,3 @@ namespace erm {
 	}
 
 } // namespace erm
-
-#endif
