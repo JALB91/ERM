@@ -45,10 +45,7 @@ if("${TARGET_API}" STREQUAL "OpenGl")
 	add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/glew-cmake")
 	set(GLEW_LIBRARY libglew_static)
 	set(PUBLIC_DEPENDENCIES "${GLEW_LIBRARY}")
-elseif("${TARGET_API}" STREQUAL "Vulkan")
-	add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/Vulkan-Hpp")
-	set(VULKAN_HPP_INSTALL TRUE)
-endif()
+endif("${TARGET_API}" STREQUAL "OpenGl")
 
 # INCLUDE CONFIGURATION FILES FOR DEPENDENCIES
 include(GLMConfig)
@@ -87,6 +84,9 @@ file(GLOB_RECURSE SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/common/*.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/${TARGET_API}/*.cpp"
 )
+if(NOT ERM_RAY_TRACING_ENABLED)
+	list(FILTER SOURCES EXCLUDE REGEX ".*/ray_tracing/.*")
+endif(NOT ERM_RAY_TRACING_ENABLED)
 create_groups("${SOURCES}")
 
 # CREATE EXECUTABLE IF STANDALONE, LIBRARY OTHERWISE
