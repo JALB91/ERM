@@ -43,6 +43,16 @@ namespace erm {
 		vk::Queue mPresentQueue;
 		vk::UniquePipelineCache mPipelineCache;
 		vk::UniqueCommandPool mCommandPool;
+
+#ifdef ERM_RAY_TRACING_ENABLED
+	public:
+		inline const vk::PhysicalDeviceRayTracingPipelinePropertiesKHR&
+			GetRayTracingProperties() const { return mRtProperties; }
+
+	private:
+		void InitRayTracing();
+		vk::PhysicalDeviceRayTracingPipelinePropertiesKHR mRtProperties;
+#endif
 	};
 
 } // namespace erm

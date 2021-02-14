@@ -14,10 +14,18 @@
 */
 namespace {
 
-	const std::vector<const char*> kDeviceExtensions {
+	const std::vector<const char*> kDeviceExtensions
+	{
 		VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-#ifdef ERM_FLIP_VIEWPORT
-		VK_KHR_MAINTENANCE1_EXTENSION_NAME
+#if defined(ERM_FLIP_VIEWPORT) && !defined(ERM_RAY_TRACING_ENABLED)
+			VK_KHR_MAINTENANCE1_EXTENSION_NAME,
+#elif defined(ERM_RAY_TRACING_ENABLED)
+			VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME,
+			VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME,
+			VK_KHR_MAINTENANCE3_EXTENSION_NAME,
+			VK_KHR_PIPELINE_LIBRARY_EXTENSION_NAME,
+			VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME,
+			VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME,
 #endif
 	};
 
@@ -86,6 +94,9 @@ namespace erm {
 		PickPhysicalDevice();
 		CreateLogicalDevice();
 		CreateCommandPool();
+#ifdef ERM_RAY_TRACING_ENABLED
+		InitRayTracing();
+#endif
 	}
 
 	Device::~Device()
@@ -115,7 +126,7 @@ namespace erm {
 
 		std::vector<vk::ExtensionProperties> extensions = vk::enumerateInstanceExtensionProperties();
 
-		std::cout << extensions.size() << " extensions supported" << std::endl;
+		std::cout << extensions.size() << "Instance extensions supported" << std::endl;
 
 		for (const vk::ExtensionProperties& extension : extensions)
 		{
@@ -158,8 +169,14 @@ namespace erm {
 #ifdef NDEBUG
 		createInfo.enabledLayerCount = 0;
 #else
-
 		std::vector<vk::LayerProperties> availableLayers = vk::enumerateInstanceLayerProperties();
+
+		std::cout << availableLayers.size() << "Layers supported" << std::endl;
+
+		for (const vk::LayerProperties& layer : availableLayers)
+		{
+			std::cout << "\t" << layer.layerName << std::endl;
+		}
 
 		for (const char* layerName : kValidationLayers)
 		{
@@ -196,7 +213,7 @@ namespace erm {
 		VkDebugUtilsMessengerCreateInfoEXT debugMessengerInfo = {};
 		PopulateDebugMessengerCreateInfo(debugMessengerInfo);
 
-		CreateDebugUtilsMessengerEXT(VkInstance(mInstance.get()), &debugMessengerInfo, nullptr, &mDebugMessenger);
+		CreateDebugUtilsMessengerEXT(mInstance.get(), &debugMessengerInfo, nullptr, &mDebugMessenger);
 #endif
 	}
 
@@ -247,6 +264,17 @@ namespace erm {
 			queueCreateInfos.emplace_back(queueCreateInfo);
 		}
 
+		uint32_t count;
+		std::vector<VkExtensionProperties> extensionProperties;
+		vkEnumerateDeviceExtensionProperties(mPhysicalDevice, nullptr, &count, nullptr);
+		extensionProperties.resize(count);
+		vkEnumerateDeviceExtensionProperties(mPhysicalDevice, nullptr, &count, extensionProperties.data());
+		extensionProperties.resize(std::min(extensionProperties.size(), size_t(count)));
+
+		std::cout << "Available device extensions" << std::endl;
+		for (const VkExtensionProperties& prop : extensionProperties)
+			std::cout << "\t" << prop.extensionName << std::endl;
+
 		vk::PhysicalDeviceFeatures deviceFeatures = {};
 		deviceFeatures.samplerAnisotropy = VK_TRUE;
 		deviceFeatures.fillModeNonSolid = VK_TRUE;
@@ -285,5 +313,16 @@ namespace erm {
 
 		mCommandPool = mDevice->createCommandPoolUnique(poolInfo);
 	}
+
+#ifdef ERM_RAY_TRACING_ENABLED
+	void Device::InitRayTracing()
+	{
+		auto properties = mPhysicalDevice.getProperties2<vk::PhysicalDeviceProperties2, vk::PhysicalDeviceRayTracingPipelinePropertiesKHR>();
+		mRtProperties = properties.get<vk::PhysicalDeviceRayTracingPipelinePropertiesKHR>();
+
+		if (mRtProperties.maxRayRecursionDepth <= 1)
+			throw std::runtime_error("Device fails to support ray recursion (m_rtProperties.maxRayRecursionDepth <= 1)");
+	}
+#endif
 
 } // namespace erm
