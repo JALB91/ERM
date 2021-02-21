@@ -1,7 +1,7 @@
 #pragma once
 
-#include "erm/rendering/enums/TextureType.h"
 #include "erm/rendering/ISwapChainListener.h"
+#include "erm/rendering/enums/TextureType.h"
 
 #include <vulkan/vulkan.hpp>
 

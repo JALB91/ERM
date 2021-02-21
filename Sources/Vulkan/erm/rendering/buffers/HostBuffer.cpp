@@ -18,4 +18,4 @@ namespace erm {
 		mDevice->unmapMemory(mBufferMemory);
 	}
 
-}
+} // namespace erm

@@ -1,12 +1,12 @@
 #pragma once
 
+#include "erm/rendering/data_structs/BindingConfigs.h"
 #include "erm/rendering/enums/BlendFunction.h"
-#include "erm/rendering/enums/DepthFunction.h"
 #include "erm/rendering/enums/CullMode.h"
+#include "erm/rendering/enums/DepthFunction.h"
 #include "erm/rendering/enums/DrawMode.h"
 #include "erm/rendering/enums/FrontFace.h"
 #include "erm/rendering/enums/PolygonMode.h"
-#include "erm/rendering/data_structs/BindingConfigs.h"
 
 #include "erm/utils/Utils.h"
 
@@ -44,4 +44,4 @@ namespace erm {
 		ShaderProgram* mShaderProgram;
 	};
 
-}
+} // namespace erm

@@ -24,7 +24,7 @@ namespace erm::ecs {
 		, mLightSystem(std::make_unique<LightSystem>(*this))
 		, mSkeletonSystem(std::make_unique<SkeletonSystem>(*this))
 		, mAnimationSystem(std::make_unique<AnimationSystem>(*this))
-		, mModelSystem(std::make_unique<ModelSystem>(*this, mEngine))
+		, mModelSystem(std::make_unique<ModelSystem>(*this))
 		, mCameraSystem(std::make_unique<CameraSystem>(*this, mEngine.GetWindow()))
 		, mRenderingSystem(std::make_unique<RenderingSystem>(*this, mEngine))
 		, mEditorSystem(std::make_unique<EditorSystem>(*this, mEngine))

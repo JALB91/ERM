@@ -91,4 +91,4 @@ namespace erm {
 		}
 	}
 
-}
+} // namespace erm

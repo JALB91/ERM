@@ -12,9 +12,9 @@ namespace erm {
 	{
 	public:
 		IBuffer(
-			Device& device, 
-			size_t size, 
-			vk::BufferUsageFlags buf, 
+			Device& device,
+			size_t size,
+			vk::BufferUsageFlags buf,
 			vk::MemoryPropertyFlags mpf);
 		virtual ~IBuffer();
 

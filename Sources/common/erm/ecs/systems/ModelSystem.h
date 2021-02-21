@@ -3,40 +3,23 @@
 #include "erm/ecs/ISystem.h"
 #include "erm/ecs/components/ModelComponent.h"
 
-namespace erm {
-	class Mesh;
-	class Engine;
-	class Window;
-	class IRenderer;
-	class ResourcesManager;
-	namespace ecs {
-		class TransformSystem;
-		class SkeletonSystem;
-		class CameraSystem;
-		class LightSystem;
-	} // namespace ecs
-} // namespace erm
+namespace erm::ecs {
+	class TransformSystem;
+}
 
 namespace erm::ecs {
 
 	class ModelSystem : public ISystem<ModelComponent>
 	{
 	public:
-		ModelSystem(ECS& ecs, Engine& engine);
+		ModelSystem(ECS& ecs);
 
 		// ISystem
 		void Init() override;
 		void OnPostUpdate() override;
 
 	private:
-		Window& mWindow;
-		IRenderer& mRenderer;
-		ResourcesManager& mResourcesManager;
-
 		TransformSystem* mTransformSystem;
-		SkeletonSystem* mSkeletonSystem;
-		CameraSystem* mCameraSystem;
-		LightSystem* mLightSystem;
 	};
 
 } // namespace erm::ecs

@@ -31,4 +31,4 @@ namespace erm {
 		std::map<TextureType, Texture*> mTexturesMaps;
 	};
 
-}
+} // namespace erm

@@ -169,7 +169,7 @@ namespace {
 		vk::DescriptorType type)
 	{
 		const uint32_t binding = compiler.get_decoration(res.id, spv::Decoration::DecorationBinding);
-		
+
 		vk::DescriptorSetLayoutBinding& layoutBinding = data.mLayoutBindings.emplace_back();
 		layoutBinding.binding = binding;
 		layoutBinding.descriptorCount = 1;
@@ -198,7 +198,7 @@ namespace {
 	void GatherShaderBindings(erm::ShaderBindingsMap& bindings, const spirv_cross::Compiler& compiler, vk::ShaderStageFlagBits flags)
 	{
 		spirv_cross::ShaderResources resources = compiler.get_shader_resources();
-		
+
 		for (const spirv_cross::Resource& ubo : resources.uniform_buffers)
 		{
 			const uint32_t targetSet = compiler.get_decoration(ubo.id, spv::Decoration::DecorationDescriptorSet);

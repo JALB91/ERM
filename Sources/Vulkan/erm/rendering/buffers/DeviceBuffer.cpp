@@ -10,7 +10,7 @@ namespace erm {
 		{
 			if (!mStagingBuffer)
 				mStagingBuffer.reset(new HostBuffer(mDevice, mBufferSize, vk::BufferUsageFlagBits::eTransferSrc));
-			
+
 			mStagingBuffer->Update(data);
 
 			vk::BufferCopy copyRegion {};
@@ -23,4 +23,4 @@ namespace erm {
 		}
 	}
 
-}
+} // namespace erm

@@ -5,7 +5,7 @@
 #include "erm/rendering/data_structs/IBindingResources.h"
 
 namespace erm {
-	
+
 	class DeviceBindingResources : public IBindingResources
 	{
 	public:
@@ -23,12 +23,11 @@ namespace erm {
 
 	private:
 		using UniformBuffers = std::map<UboId, UniformBuffer<DeviceBuffer>>;
-	
+
 	private:
 		void CreateUniformBuffers(const std::vector<UboData>& ubosData);
 
 		UniformBuffers mUniformBuffers;
-
 	};
 
-}
+} // namespace erm

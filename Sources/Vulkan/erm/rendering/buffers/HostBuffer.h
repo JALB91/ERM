@@ -15,4 +15,4 @@ namespace erm {
 		void Update(void* data) const;
 	};
 
-}
+} // namespace erm

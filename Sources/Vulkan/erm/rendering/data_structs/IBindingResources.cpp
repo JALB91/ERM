@@ -34,7 +34,7 @@ namespace erm {
 		const std::vector<vk::DescriptorBufferInfo>& infos,
 		const std::vector<UboData>& ubosData,
 		vk::DescriptorSet& descriptorSet,
-		uint32_t writesOffset/* = 0*/)
+		uint32_t writesOffset /* = 0*/)
 	{
 		for (size_t i = 0; i < ubosData.size(); ++i)
 		{

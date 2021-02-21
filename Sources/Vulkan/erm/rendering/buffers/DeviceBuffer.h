@@ -21,7 +21,6 @@ namespace erm {
 
 	private:
 		mutable std::unique_ptr<HostBuffer> mStagingBuffer;
-
 	};
 
 } // namespace erm

@@ -21,8 +21,7 @@ namespace erm {
 
 	bool RenderConfigs::operator==(const RenderConfigs& other) const
 	{
-		return 
-			IsRenderPassLevelCompatible(other) &&
+		return IsRenderPassLevelCompatible(other) &&
 			IsPipelineLevelCompatible(other) &&
 			IsBindingLevelCompatible(other);
 	}

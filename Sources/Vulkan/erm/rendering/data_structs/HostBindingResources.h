@@ -32,7 +32,6 @@ namespace erm {
 
 		SwapChainUniformBuffers mUniformBuffers;
 		uint32_t mCurrentBufferIndex;
-
 	};
 
-}
+} // namespace erm

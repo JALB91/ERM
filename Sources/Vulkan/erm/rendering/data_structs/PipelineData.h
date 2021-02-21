@@ -1,7 +1,7 @@
 #pragma once
 
-#include "erm/rendering/data_structs/IBindingResources.h"
 #include "erm/rendering/data_structs/BindingConfigs.h"
+#include "erm/rendering/data_structs/IBindingResources.h"
 
 #include <vulkan/vulkan.hpp>
 
@@ -67,4 +67,4 @@ namespace erm {
 		uint32_t mMaxSet;
 	};
 
-}
+} // namespace erm

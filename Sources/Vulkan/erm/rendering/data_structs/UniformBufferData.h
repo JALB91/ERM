@@ -1,8 +1,8 @@
 #pragma once
 
 #include "erm/rendering/data_structs/UniformBufferObject.h"
-#include "erm/rendering/enums/TextureType.h"
 #include "erm/rendering/enums/StorageBufferType.h"
+#include "erm/rendering/enums/TextureType.h"
 
 namespace erm {
 

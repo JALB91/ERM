@@ -50,4 +50,4 @@ namespace erm {
 		return mPolygonMode == other.mPolygonMode;
 	}
 
-}
+} // namespace erm

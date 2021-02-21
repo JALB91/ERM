@@ -60,4 +60,4 @@ namespace erm {
 		return true;
 	}
 
-}
+} // namespace erm

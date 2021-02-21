@@ -105,4 +105,4 @@ namespace erm {
 		}
 	}
 
-}
+} // namespace erm

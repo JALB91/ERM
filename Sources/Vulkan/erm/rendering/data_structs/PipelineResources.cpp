@@ -78,12 +78,12 @@ namespace erm {
 		for (const Mesh* mesh : renderData.mMeshes)
 		{
 			cmd.bindDescriptorSets(
-				vk::PipelineBindPoint::eGraphics, 
-				mPipelineLayout.get(), 
-				0, 
-				static_cast<uint32_t>(ds.size()), 
-				ds.data(), 
-				0, 
+				vk::PipelineBindPoint::eGraphics,
+				mPipelineLayout.get(),
+				0,
+				static_cast<uint32_t>(ds.size()),
+				ds.data(),
+				0,
 				nullptr);
 			mesh->GetVertexBuffer().Bind(cmd);
 			mesh->GetIndexBuffer().Bind(cmd);
@@ -245,7 +245,7 @@ namespace erm {
 		emptyLayoutInfo.pBindings = nullptr;
 
 		vk::DescriptorSetLayout emptyLayout = mDevice->createDescriptorSetLayout(emptyLayoutInfo);
-		
+
 		vk::DescriptorSetAllocateInfo info {};
 		info.setDescriptorPool(*mDescriptorPool);
 		info.setDescriptorSetCount(1);
