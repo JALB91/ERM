@@ -36,6 +36,7 @@ namespace erm {
 	{
 		for (vk::DescriptorSetLayout& layout : mDescriptorSetLayouts)
 			mDevice->destroyDescriptorSetLayout(layout);
+		mDevice->destroyDescriptorSetLayout(mEmptySetLayout);
 		mData.clear();
 		mDevice->freeDescriptorSets(*mDescriptorPool, 1, &mEmptySet);
 	}
@@ -244,12 +245,12 @@ namespace erm {
 		emptyLayoutInfo.bindingCount = 0;
 		emptyLayoutInfo.pBindings = nullptr;
 
-		vk::DescriptorSetLayout emptyLayout = mDevice->createDescriptorSetLayout(emptyLayoutInfo);
+		mEmptySetLayout = mDevice->createDescriptorSetLayout(emptyLayoutInfo);
 
 		vk::DescriptorSetAllocateInfo info {};
 		info.setDescriptorPool(*mDescriptorPool);
 		info.setDescriptorSetCount(1);
-		info.setPSetLayouts(&emptyLayout);
+		info.setPSetLayouts(&mEmptySetLayout);
 
 		mEmptySet = mDevice->allocateDescriptorSets(info)[0];
 
