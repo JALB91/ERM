@@ -30,7 +30,6 @@ namespace erm {
 			: mRenderConfigs(other.mRenderConfigs)
 			, mUbos(std::move(other.mUbos))
 			, mMeshes(std::move(other.mMeshes))
-			, mRenderingId(std::move(other.mRenderingId))
 		{}
 
 		RenderData& operator=(RenderData&& other)
@@ -38,7 +37,6 @@ namespace erm {
 			mRenderConfigs = other.mRenderConfigs;
 			mUbos = std::move(other.mUbos);
 			mMeshes = std::move(other.mMeshes);
-			mRenderingId = std::move(other.mRenderingId);
 
 			return *this;
 		}
@@ -66,7 +64,6 @@ namespace erm {
 
 		std::map<UboId, std::unique_ptr<IUbo>> mUbos;
 		std::vector<Mesh*> mMeshes;
-		std::optional<uint32_t> mRenderingId;
 	};
 
 } // namespace erm

@@ -48,18 +48,6 @@ namespace erm {
 
 	vk::CommandBuffer RenderingResources::UpdateCommandBuffer(std::vector<RenderData*>& renderData, uint32_t imageIndex)
 	{
-		std::sort(renderData.begin(), renderData.end(), [](RenderData* a, RenderData* b) -> bool {
-			const bool aHasId = a->mRenderingId.has_value();
-			const bool bHasId = b->mRenderingId.has_value();
-			if (aHasId && !bHasId)
-				return true;
-			else if (!aHasId && bHasId)
-				return false;
-			else if (aHasId && bHasId)
-				return a->mRenderingId.value() < b->mRenderingId.value();
-			return false;
-		});
-
 		vk::CommandBuffer& cmd = mCommandBuffers[imageIndex];
 		cmd.reset({});
 
