@@ -2,8 +2,9 @@
 
 #include "erm/rendering/Device.h"
 #include "erm/rendering/buffers/IndexBuffer.h"
-#include "erm/rendering/buffers/UniformBuffer.h"
 #include "erm/rendering/buffers/VertexBuffer.h"
+#include "erm/rendering/data_structs/DeviceBindingResources.h"
+#include "erm/rendering/data_structs/HostBindingResources.h"
 #include "erm/rendering/data_structs/Mesh.h"
 #include "erm/rendering/data_structs/RenderConfigs.h"
 #include "erm/rendering/data_structs/RenderData.h"
@@ -33,13 +34,24 @@ namespace erm {
 
 	PipelineResources::~PipelineResources()
 	{
-		mDevice->destroyDescriptorSetLayout(mDescriptorSetLayout);
-		mBindingResources.clear();
+		for (vk::DescriptorSetLayout& layout : mDescriptorSetLayouts)
+			mDevice->destroyDescriptorSetLayout(layout);
+		mData.clear();
+		mDevice->freeDescriptorSets(*mDescriptorPool, 1, &mEmptySet);
 	}
 
-	void PipelineResources::Update(vk::CommandBuffer& cmd, RenderData& renderData, uint32_t imageIndex)
+	void PipelineResources::UpdateResources(vk::CommandBuffer& cmd, RenderData& renderData, uint32_t imageIndex)
 	{
-		if (!mDescriptorSetLayout)
+		if (mDescriptorSetLayouts.empty())
+			return;
+
+		auto& data = GetOrCreatePipelineData(renderData);
+		data.UpdateResources(cmd, renderData);
+	}
+
+	void PipelineResources::UpdateCommandBuffer(vk::CommandBuffer& cmd, RenderData& renderData, uint32_t imageIndex)
+	{
+		if (mDescriptorSetLayouts.empty())
 			return;
 
 		cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, mPipeline.get());
@@ -60,16 +72,25 @@ namespace erm {
 		cmd.setViewport(0, 1, &viewport);
 #endif
 
-		BindingResources& resources = GetOrCreateBindingResources(renderData);
-		resources.UpdateResources(renderData, imageIndex);
+		auto& data = GetOrCreatePipelineData(renderData);
+		auto ds = data.GetDescriptorSets(mEmptySet);
 
 		for (const Mesh* mesh : renderData.mMeshes)
 		{
-			cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, mPipelineLayout.get(), 0, 1, resources.GetDescriptorSet(imageIndex), 0, nullptr);
+			cmd.bindDescriptorSets(
+				vk::PipelineBindPoint::eGraphics, 
+				mPipelineLayout.get(), 
+				0, 
+				static_cast<uint32_t>(ds.size()), 
+				ds.data(), 
+				0, 
+				nullptr);
 			mesh->GetVertexBuffer().Bind(cmd);
 			mesh->GetIndexBuffer().Bind(cmd);
 			cmd.drawIndexed(mesh->GetIndexBuffer().GetCount(), 1, 0, 0, 0);
 		}
+
+		data.PostDraw();
 	}
 
 	void PipelineResources::CreatePipeline()
@@ -192,27 +213,52 @@ namespace erm {
 		/*
 			SETUP DESCRIPTOR SET LAYOUT
 		*/
-		std::vector<vk::DescriptorSetLayoutBinding> bindings = shader->GetDescriptorSetLayoutBindings();
+		const ShaderBindingsMap& bindings = shader->GetShaderBindingsMap();
+		uint32_t maxSet = 0;
+		std::for_each(bindings.begin(), bindings.end(), [&maxSet](const auto& pair) {
+			maxSet = std::max(maxSet, pair.first);
+		});
+		mDescriptorSetLayouts.reserve(maxSet + 1);
 
-		if (!bindings.empty())
+		for (uint32_t i = 0; i <= maxSet; ++i)
 		{
 			vk::DescriptorSetLayoutCreateInfo layoutInfo {};
-			layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
-			layoutInfo.pBindings = bindings.data();
 
-			mDescriptorSetLayout = mDevice->createDescriptorSetLayout(layoutInfo);
+			if (bindings.find(i) == bindings.end())
+			{
+				layoutInfo.bindingCount = 0;
+				layoutInfo.pBindings = nullptr;
+			}
+			else
+			{
+				auto& data = bindings.at(i);
+
+				layoutInfo.bindingCount = static_cast<uint32_t>(data.mLayoutBindings.size());
+				layoutInfo.pBindings = data.mLayoutBindings.data();
+			}
+
+			mDescriptorSetLayouts.emplace_back(mDevice->createDescriptorSetLayout(layoutInfo));
 		}
-		else
-		{
-			mDescriptorSetLayout = nullptr;
-		}
+
+		vk::DescriptorSetLayoutCreateInfo emptyLayoutInfo;
+		emptyLayoutInfo.bindingCount = 0;
+		emptyLayoutInfo.pBindings = nullptr;
+
+		vk::DescriptorSetLayout emptyLayout = mDevice->createDescriptorSetLayout(emptyLayoutInfo);
+		
+		vk::DescriptorSetAllocateInfo info {};
+		info.setDescriptorPool(*mDescriptorPool);
+		info.setDescriptorSetCount(1);
+		info.setPSetLayouts(&emptyLayout);
+
+		mEmptySet = mDevice->allocateDescriptorSets(info)[0];
 
 		/*
 			SETUP PIPELINE LAYOUT
 		*/
 		vk::PipelineLayoutCreateInfo pipelineLayoutInfo = {};
-		pipelineLayoutInfo.setLayoutCount = mDescriptorSetLayout ? 1 : 0;
-		pipelineLayoutInfo.pSetLayouts = mDescriptorSetLayout ? &mDescriptorSetLayout : nullptr;
+		pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(mDescriptorSetLayouts.size());
+		pipelineLayoutInfo.pSetLayouts = mDescriptorSetLayouts.data();
 		pipelineLayoutInfo.pushConstantRangeCount = 0;
 		pipelineLayoutInfo.pPushConstantRanges = nullptr;
 
@@ -269,15 +315,41 @@ namespace erm {
 		mDevice->destroyShaderModule(fragShaderModule);
 	}
 
-	BindingResources& PipelineResources::GetOrCreateBindingResources(RenderData& renderData)
+	PipelineData& PipelineResources::GetOrCreatePipelineData(RenderData& renderData)
 	{
-		if (!renderData.mRenderingId.has_value() || renderData.mRenderingId.value() >= static_cast<uint32_t>(mBindingResources.size()))
+		auto it = std::find_if(mData.begin(), mData.end(), [&renderData](PipelineData& data) {
+			return data.IsCompatible(renderData.mRenderConfigs);
+		});
+		if (it != mData.end())
+			return *it;
+
+		auto& data = mData.emplace_back(renderData.mRenderConfigs);
+		const auto& sbm = renderData.mRenderConfigs.mShaderProgram->GetShaderBindingsMap();
+
+		for (const auto& [set, bindings] : sbm)
 		{
-			renderData.mRenderingId = static_cast<uint32_t>(mBindingResources.size());
-			mBindingResources.emplace_back(mDevice, mRenderer, *mDescriptorPool, mDescriptorSetLayout, renderData.mRenderConfigs);
+			BindingResources resources;
+			if (set % 2 == 0)
+				resources = std::make_unique<DeviceBindingResources>(
+					mDevice,
+					mRenderer,
+					set,
+					*mDescriptorPool,
+					renderData.mRenderConfigs,
+					mDescriptorSetLayouts[set]);
+			else
+				resources = std::make_unique<HostBindingResources>(
+					mDevice,
+					mRenderer,
+					set,
+					*mDescriptorPool,
+					renderData.mRenderConfigs,
+					mDescriptorSetLayouts[set]);
+
+			data.AddResources(set, std::move(resources));
 		}
 
-		return mBindingResources[renderData.mRenderingId.value()];
+		return data;
 	}
 
 } // namespace erm

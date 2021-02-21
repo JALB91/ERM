@@ -105,7 +105,7 @@ namespace erm {
 					if (splitted.size() != 2)
 						continue;
 					mutex.lock();
-					mat->mDiffuseMap = resourcesManager.GetOrCreateTexture((std::string("res/textures/") + splitted[1]).c_str());
+					mat->mTexturesMaps[erm::TextureType::DIFFUSE] = resourcesManager.GetOrCreateTexture((std::string("res/textures/") + splitted[1]).c_str());
 					mutex.unlock();
 				}
 				else if (splitted[0].compare("map_Kn") == 0)
@@ -113,7 +113,7 @@ namespace erm {
 					if (splitted.size() != 2)
 						continue;
 					mutex.lock();
-					mat->mNormalMap = resourcesManager.GetOrCreateTexture((std::string("res/textures/") + splitted[1]).c_str());
+					mat->mTexturesMaps[erm::TextureType::NORMAL] = resourcesManager.GetOrCreateTexture((std::string("res/textures/") + splitted[1]).c_str());
 					mutex.unlock();
 				}
 			}

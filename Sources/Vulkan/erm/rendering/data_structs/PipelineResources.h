@@ -1,10 +1,12 @@
 #pragma once
 
-#include "erm/rendering/data_structs/BindingResources.h"
+#include "erm/rendering/data_structs/IBindingResources.h"
+#include "erm/rendering/data_structs/PipelineData.h"
 #include "erm/rendering/data_structs/RenderConfigs.h"
 
 #include <vulkan/vulkan.hpp>
 
+#include <deque>
 #include <vector>
 
 namespace erm {
@@ -32,25 +34,27 @@ namespace erm {
 		PipelineResources(const PipelineResources&) = delete;
 		PipelineResources& operator=(const PipelineResources&) = delete;
 
-		void Update(vk::CommandBuffer& cmd, RenderData& renderData, uint32_t imageIndex);
+		void UpdateResources(vk::CommandBuffer& cmd, RenderData& renderData, uint32_t imageIndex);
+		void UpdateCommandBuffer(vk::CommandBuffer& cmd, RenderData& renderData, uint32_t imageIndex);
+
+		inline const RenderConfigs& GetRenderConfigs() const { return mRenderConfigs; }
 
 	private:
 		void CreatePipeline();
-		BindingResources& GetOrCreateBindingResources(RenderData& renderData);
+		PipelineData& GetOrCreatePipelineData(RenderData& renderData);
 
 		Device& mDevice;
 		Renderer& mRenderer;
 		const vk::RenderPass* mRenderPass;
 		const vk::DescriptorPool* mDescriptorPool;
 
-	public:
 		const RenderConfigs mRenderConfigs;
 		vk::UniquePipelineLayout mPipelineLayout;
 		vk::UniquePipeline mPipeline;
 
-		vk::DescriptorSetLayout mDescriptorSetLayout;
-
-		std::vector<BindingResources> mBindingResources;
+		vk::DescriptorSet mEmptySet;
+		std::vector<vk::DescriptorSetLayout> mDescriptorSetLayouts;
+		std::deque<PipelineData> mData;
 	};
 
 } // namespace erm

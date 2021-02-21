@@ -41,10 +41,10 @@ namespace erm {
 			mat.mName = lMaterial->GetName();
 
 			if (const char* name = GetTextureName(lMaterial->FindProperty(FbxSurfaceMaterial::sDiffuse)))
-				mat.mDiffuseMap = resourcesManager.GetOrCreateTexture((std::string("res/textures/") + name).c_str());
+				mat.mTexturesMaps[erm::TextureType::DIFFUSE] = resourcesManager.GetOrCreateTexture((std::string("res/textures/") + name).c_str());
 
 			if (const char* name = GetTextureName(lMaterial->FindProperty(FbxSurfaceMaterial::sNormalMap)))
-				mat.mNormalMap = resourcesManager.GetOrCreateTexture((std::string("res/textures/") + name).c_str());
+				mat.mTexturesMaps[erm::TextureType::NORMAL] = resourcesManager.GetOrCreateTexture((std::string("res/textures/") + name).c_str());
 
 			mutex.lock();
 			Material* ret = materials.emplace_back(std::make_unique<Material>(std::move(mat))).get();

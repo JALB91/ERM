@@ -2,26 +2,20 @@
 
 #include "erm/rendering/Device.h"
 
+#include "erm/utils/Utils.h"
 #include "erm/utils/VkUtils.h"
 
 namespace erm {
 
 	VertexBuffer::VertexBuffer(
 		Device& device,
-		void* data,
-		size_t size)
-		: Buffer(device, size)
+		size_t size,
+		void* data)
+		: DeviceBuffer(device, size, vk::BufferUsageFlagBits::eVertexBuffer)
 	{
-		VkUtils::CreateDeviceLocalBuffer(
-			device.GetTransferQueue(),
-			device.GetCommandPool(),
-			device.GetVkPhysicalDevice(),
-			device.GetVkDevice(),
-			vk::BufferUsageFlagBits::eVertexBuffer,
-			size,
-			data,
-			mBuffer,
-			mBufferMemory);
+		vk::CommandBuffer cmd = VkUtils::BeginSingleTimeCommands(mDevice.GetCommandPool(), mDevice.GetVkDevice());
+		Update(cmd, data);
+		VkUtils::EndSingleTimeCommands(mDevice.GetGraphicsQueue(), mDevice.GetCommandPool(), mDevice.GetVkDevice(), cmd);
 	}
 
 	void VertexBuffer::Bind(const vk::CommandBuffer& commandBuffer) const

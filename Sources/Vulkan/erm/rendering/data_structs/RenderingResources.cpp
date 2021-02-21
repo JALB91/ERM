@@ -2,7 +2,6 @@
 
 #include "erm/rendering/Device.h"
 #include "erm/rendering/buffers/IndexBuffer.h"
-#include "erm/rendering/buffers/UniformBuffer.h"
 #include "erm/rendering/buffers/VertexBuffer.h"
 #include "erm/rendering/data_structs/Mesh.h"
 #include "erm/rendering/data_structs/RenderConfigs.h"
@@ -70,6 +69,12 @@ namespace erm {
 
 		cmd.begin(beginInfo);
 
+		for (size_t i = 0; i < renderData.size(); ++i)
+		{
+			PipelineResources& resources = GetOrCreatePipelineResources(renderData[i]->mRenderConfigs);
+			resources.UpdateResources(cmd, *renderData[i], imageIndex);
+		}
+
 		std::array<vk::ClearValue, 2> clearValues {};
 		clearValues[0].color.float32[0] = 0.0f;
 		clearValues[0].color.float32[1] = 0.0f;
@@ -90,7 +95,7 @@ namespace erm {
 		for (size_t i = 0; i < renderData.size(); ++i)
 		{
 			PipelineResources& resources = GetOrCreatePipelineResources(renderData[i]->mRenderConfigs);
-			resources.Update(cmd, *renderData[i], imageIndex);
+			resources.UpdateCommandBuffer(cmd, *renderData[i], imageIndex);
 		}
 
 		cmd.endRenderPass();
@@ -127,12 +132,12 @@ namespace erm {
 		for (int i = 0; i < static_cast<int>(mPipelineResources.size()); ++i)
 		{
 			const PipelineResources& res = *mPipelineResources[i];
-			if (res.mRenderConfigs.mShaderProgram->NeedsReload())
+			if (const RenderConfigs& configs = res.GetRenderConfigs(); configs.mShaderProgram->NeedsReload())
 			{
 				if (configsToRecreate.empty())
 					mDevice->waitIdle();
 
-				configsToRecreate.emplace_back(res.mRenderConfigs);
+				configsToRecreate.emplace_back(configs);
 				mPipelineResources.erase(mPipelineResources.begin() + i);
 				--i;
 			}
@@ -167,7 +172,7 @@ namespace erm {
 	{
 		for (const std::unique_ptr<PipelineResources>& resources : mPipelineResources)
 		{
-			if (resources->mRenderConfigs.IsPipelineLevelCompatible(renderConfigs))
+			if (renderConfigs.IsPipelineLevelCompatible(resources->GetRenderConfigs()))
 			{
 				return *resources;
 			}

@@ -11,7 +11,7 @@
 #include "erm/managers/ResourcesManager.h"
 
 #include "erm/rendering/data_structs/RenderData.h"
-#include "erm/rendering/renderer/IRenderer.h"
+#include "erm/rendering/renderer/Renderer.h"
 #include "erm/rendering/window/Window.h"
 
 #include "erm/utils/MeshUtils.h"

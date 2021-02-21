@@ -68,89 +68,160 @@ namespace {
 		return buffer;
 	}
 
-	void GatherDescriptorSetLayoutBindings(std::vector<vk::DescriptorSetLayoutBinding>& bindings, const spirv_cross::Compiler& compiler, vk::ShaderStageFlagBits flags)
-	{
-		spirv_cross::ShaderResources resources = compiler.get_shader_resources();
-
-		for (const spirv_cross::Resource& ubo : resources.uniform_buffers)
-		{
-			vk::DescriptorSetLayoutBinding binding;
-			binding.binding = compiler.get_decoration(ubo.id, spv::Decoration::DecorationBinding);
-			binding.descriptorCount = 1;
-			binding.descriptorType = vk::DescriptorType::eUniformBuffer;
-			binding.stageFlags = flags;
-			bindings.emplace_back(std::move(binding));
-		}
-
-		for (const spirv_cross::Resource& sampledImage : resources.sampled_images)
-		{
-			vk::DescriptorSetLayoutBinding binding;
-			binding.binding = compiler.get_decoration(sampledImage.id, spv::Decoration::DecorationBinding);
-			binding.descriptorCount = 1;
-			binding.descriptorType = vk::DescriptorType::eCombinedImageSampler;
-			binding.stageFlags = flags;
-			bindings.emplace_back(std::move(binding));
-		}
-
-		for (const spirv_cross::Resource& storageImage : resources.storage_images)
-		{
-			vk::DescriptorSetLayoutBinding binding;
-			binding.binding = compiler.get_decoration(storageImage.id, spv::Decoration::DecorationBinding);
-			binding.descriptorCount = 1;
-			binding.descriptorType = vk::DescriptorType::eStorageImage;
-			binding.stageFlags = flags;
-			bindings.emplace_back(std::move(binding));
-		}
-	}
-
 	erm::UboData GetUboData(const spirv_cross::Compiler& compiler, const spirv_cross::Resource& resource)
 	{
+		const auto makeUboData = [&compiler, &resource](erm::UboId id, size_t size) -> erm::UboData {
+			return {
+				id,
+				size,
+				compiler.get_decoration(resource.id, spv::Decoration::DecorationOffset),
+				compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding),
+				compiler.get_decoration(resource.id, spv::Decoration::DecorationDescriptorSet)};
+		};
+
 		if (resource.name.compare("UniformBufferObject") == 0)
-			return {erm::UboBasic::ID, sizeof(erm::UboBasic), compiler.get_decoration(resource.id, spv::Decoration::DecorationOffset), compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding)};
+			return makeUboData(erm::UboBasic::ID, sizeof(erm::UboBasic));
 		else if (resource.name.compare("ModelViewProj") == 0)
-			return {erm::UboModelViewProj::ID, sizeof(erm::UboModelViewProj), compiler.get_decoration(resource.id, spv::Decoration::DecorationOffset), compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding)};
+			return makeUboData(erm::UboModelViewProj::ID, sizeof(erm::UboModelViewProj));
 		else if (resource.name.compare("Material") == 0)
-			return {erm::UboMaterial::ID, sizeof(erm::UboMaterial), compiler.get_decoration(resource.id, spv::Decoration::DecorationOffset), compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding)};
+			return makeUboData(erm::UboMaterial::ID, sizeof(erm::UboMaterial));
 		else if (resource.name.compare("Light") == 0)
-			return {erm::UboLight::ID, sizeof(erm::UboLight), compiler.get_decoration(resource.id, spv::Decoration::DecorationOffset), compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding)};
+			return makeUboData(erm::UboLight::ID, sizeof(erm::UboLight));
 		else if (resource.name.compare("View") == 0)
-			return {erm::UboView::ID, sizeof(erm::UboView), compiler.get_decoration(resource.id, spv::Decoration::DecorationOffset), compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding)};
+			return makeUboData(erm::UboView::ID, sizeof(erm::UboView));
 		else if (resource.name.compare("Skeleton") == 0)
-			return {erm::UboSkeleton::ID, sizeof(erm::UboSkeleton), compiler.get_decoration(resource.id, spv::Decoration::DecorationOffset), compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding)};
+			return makeUboData(erm::UboSkeleton::ID, sizeof(erm::UboSkeleton));
 		else if (resource.name.compare("PBMaterial") == 0)
-			return {erm::UboPBMaterial::ID, sizeof(erm::UboPBMaterial), compiler.get_decoration(resource.id, spv::Decoration::DecorationOffset), compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding)};
+			return makeUboData(erm::UboPBMaterial::ID, sizeof(erm::UboPBMaterial));
 		else if (resource.name.compare("PBLight") == 0)
-			return {erm::UboPBLight::ID, sizeof(erm::UboPBLight), compiler.get_decoration(resource.id, spv::Decoration::DecorationOffset), compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding)};
+			return makeUboData(erm::UboPBLight::ID, sizeof(erm::UboPBLight));
 		else if (resource.name.compare("BonesDebug") == 0)
-			return {erm::UboBonesDebug::ID, sizeof(erm::UboBonesDebug), compiler.get_decoration(resource.id, spv::Decoration::DecorationOffset), compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding)};
+			return makeUboData(erm::UboBonesDebug::ID, sizeof(erm::UboBonesDebug));
 
 		ASSERT(false);
 
-		return {erm::UboBasic::ID, sizeof(erm::UboBasic), 0, 0};
+		return {erm::UboBasic::ID, sizeof(erm::UboBasic), 0, 0, 0};
 	}
 
 	erm::SamplerData GetSamplerData(const spirv_cross::Compiler& compiler, const spirv_cross::Resource& resource)
 	{
+		const auto makeSamplerData = [&compiler, &resource](erm::TextureType type) -> erm::SamplerData {
+			return {
+				compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding),
+				compiler.get_decoration(resource.id, spv::Decoration::DecorationDescriptorSet),
+				type};
+		};
+
 		if (resource.name.compare("diffuseSampler") == 0)
-			return {compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding), erm::TextureType::DIFFUSE};
+			return makeSamplerData(erm::TextureType::DIFFUSE);
 		else if (resource.name.compare("normalSampler") == 0)
-			return {compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding), erm::TextureType::NORMAL};
+			return makeSamplerData(erm::TextureType::NORMAL);
 		else if (resource.name.compare("specularSampler") == 0)
-			return {compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding), erm::TextureType::SPECULAR};
+			return makeSamplerData(erm::TextureType::SPECULAR);
 
 		ASSERT(false);
 
-		return {0, erm::TextureType::DIFFUSE};
+		return {0, 0, erm::TextureType::DIFFUSE};
 	}
 
 	erm::StorageImageData GetStorageImageData(const spirv_cross::Compiler& compiler, const spirv_cross::Resource& resource)
 	{
+		const auto makeStorageImageData = [&compiler, &resource]() -> erm::StorageImageData {
+			return {
+				compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding),
+				compiler.get_decoration(resource.id, spv::Decoration::DecorationDescriptorSet)};
+		};
+
 		if (resource.name.compare("imageStore") == 0)
-			return {compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding)};
+			return makeStorageImageData();
 
 		ASSERT(false);
 
-		return {0};
+		return {0, 0};
+	}
+
+	erm::StorageBufferData GetStorageBufferData(const spirv_cross::Compiler& compiler, const spirv_cross::Resource& resource)
+	{
+		const auto makeStorageBufferData = [&compiler, &resource](erm::StorageBufferType type) -> erm::StorageBufferData {
+			return {
+				type,
+				VK_WHOLE_SIZE,
+				compiler.get_decoration(resource.id, spv::Decoration::DecorationOffset),
+				compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding),
+				compiler.get_decoration(resource.id, spv::Decoration::DecorationDescriptorSet)};
+		};
+
+		if (resource.name.compare("Vertices") == 0)
+			return makeStorageBufferData(erm::StorageBufferType::VERTICES);
+		else if (resource.name.compare("Indices") == 0)
+			return makeStorageBufferData(erm::StorageBufferType::INDICES);
+
+		ASSERT(false);
+
+		return {erm::StorageBufferType::VERTICES, VK_WHOLE_SIZE, 0, 0, 0};
+	}
+
+	void GatherResourceBindings(
+		erm::ShaderBindingData& data,
+		const spirv_cross::Compiler& compiler,
+		const spirv_cross::Resource& res,
+		vk::ShaderStageFlagBits flags,
+		vk::DescriptorType type)
+	{
+		const uint32_t binding = compiler.get_decoration(res.id, spv::Decoration::DecorationBinding);
+		
+		vk::DescriptorSetLayoutBinding& layoutBinding = data.mLayoutBindings.emplace_back();
+		layoutBinding.binding = binding;
+		layoutBinding.descriptorCount = 1;
+		layoutBinding.descriptorType = type;
+		layoutBinding.stageFlags = flags;
+
+		switch (type)
+		{
+			case vk::DescriptorType::eUniformBuffer:
+				data.mUbosData.emplace_back(GetUboData(compiler, res));
+				break;
+			case vk::DescriptorType::eCombinedImageSampler:
+				data.mSamplersData.emplace_back(GetSamplerData(compiler, res));
+				break;
+			case vk::DescriptorType::eStorageImage:
+				data.mStorageImagesData.emplace_back(GetStorageImageData(compiler, res));
+				break;
+			case vk::DescriptorType::eStorageBuffer:
+				data.mStorageBuffersData.emplace_back(GetStorageBufferData(compiler, res));
+				break;
+			default:
+				ASSERT(false);
+		}
+	}
+
+	void GatherShaderBindings(erm::ShaderBindingsMap& bindings, const spirv_cross::Compiler& compiler, vk::ShaderStageFlagBits flags)
+	{
+		spirv_cross::ShaderResources resources = compiler.get_shader_resources();
+		
+		for (const spirv_cross::Resource& ubo : resources.uniform_buffers)
+		{
+			const uint32_t targetSet = compiler.get_decoration(ubo.id, spv::Decoration::DecorationDescriptorSet);
+			GatherResourceBindings(bindings[targetSet], compiler, ubo, flags, vk::DescriptorType::eUniformBuffer);
+		}
+
+		for (const spirv_cross::Resource& sampledImage : resources.sampled_images)
+		{
+			const uint32_t targetSet = compiler.get_decoration(sampledImage.id, spv::Decoration::DecorationDescriptorSet);
+			GatherResourceBindings(bindings[targetSet], compiler, sampledImage, flags, vk::DescriptorType::eCombinedImageSampler);
+		}
+
+		for (const spirv_cross::Resource& storageImage : resources.storage_images)
+		{
+			const uint32_t targetSet = compiler.get_decoration(storageImage.id, spv::Decoration::DecorationDescriptorSet);
+			GatherResourceBindings(bindings[targetSet], compiler, storageImage, flags, vk::DescriptorType::eStorageImage);
+		}
+
+		for (const spirv_cross::Resource& storageBuffer : resources.storage_buffers)
+		{
+			const uint32_t targetSet = compiler.get_decoration(storageBuffer.id, spv::Decoration::DecorationDescriptorSet);
+			GatherResourceBindings(bindings[targetSet], compiler, storageBuffer, flags, vk::DescriptorType::eStorageBuffer);
+		}
 	}
 
 } // namespace
@@ -180,37 +251,13 @@ namespace erm {
 
 	void IShaderProgram::UpdateBindingData()
 	{
-		mUbosData.clear();
-		mSamplerData.clear();
-		mStorageImageData.clear();
+		mShaderBindingsMap.clear();
 
 		for (const auto& [shaderType, data] : mShadersData)
 		{
 			ASSERT(data.mShaderCompiler);
-
-			spirv_cross::ShaderResources resources = data.mShaderCompiler->get_shader_resources();
-
-			for (const spirv_cross::Resource& res : resources.uniform_buffers)
-				mUbosData.emplace_back(::GetUboData(*data.mShaderCompiler, res));
-
-			for (const spirv_cross::Resource& res : resources.sampled_images)
-				mSamplerData.emplace_back(::GetSamplerData(*data.mShaderCompiler, res));
-
-			for (const spirv_cross::Resource& res : resources.storage_images)
-				mStorageImageData.emplace_back(::GetStorageImageData(*data.mShaderCompiler, res));
+			GatherShaderBindings(mShaderBindingsMap, *data.mShaderCompiler, VkUtils::ToVulkanValue<vk::ShaderStageFlagBits>(shaderType));
 		}
-	}
-
-	std::vector<vk::DescriptorSetLayoutBinding> IShaderProgram::GetDescriptorSetLayoutBindings() const
-	{
-		std::vector<vk::DescriptorSetLayoutBinding> bindings;
-
-		for (const auto& [shaderType, data] : mShadersData)
-		{
-			GatherDescriptorSetLayoutBindings(bindings, *data.mShaderCompiler, VkUtils::ToVulkanValue<vk::ShaderStageFlagBits>(shaderType));
-		}
-
-		return bindings;
 	}
 
 	void IShaderProgram::UpdateShaderData(ShaderType shaderType)
@@ -245,6 +292,13 @@ namespace erm {
 	{
 		const auto it = mShadersData.find(shaderType);
 		ASSERT(it != mShadersData.end());
+		return it->second;
+	}
+
+	const ShaderBindingData& IShaderProgram::GetShaderBindingsData(SetIdx setIdx) const
+	{
+		const auto it = mShaderBindingsMap.find(setIdx);
+		ASSERT(it != mShaderBindingsMap.end());
 		return it->second;
 	}
 

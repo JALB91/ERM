@@ -44,7 +44,7 @@ namespace erm {
 
 		mDevice->destroySampler(mTextureSampler);
 
-		for (size_t i = 0; i < kMaxFramesInFlight; ++i)
+		for (uint32_t i = 0; i < kMaxFramesInFlight; ++i)
 		{
 			mDevice->destroySemaphore(mRenderFinishedSemaphores[i]);
 			mDevice->destroySemaphore(mImageAvailableSemaphores[i]);
@@ -212,7 +212,7 @@ namespace erm {
 		vk::FenceCreateInfo fenceInfo = {};
 		fenceInfo.flags = vk::FenceCreateFlagBits::eSignaled;
 
-		for (size_t i = 0; i < kMaxFramesInFlight; ++i)
+		for (uint32_t i = 0; i < kMaxFramesInFlight; ++i)
 		{
 			mImageAvailableSemaphores[i] = mDevice->createSemaphore(semaphoreInfo);
 			mRenderFinishedSemaphores[i] = mDevice->createSemaphore(semaphoreInfo);
@@ -220,19 +220,21 @@ namespace erm {
 		}
 	}
 
-	Texture* IRenderer::GetFallbackDiffuseMap() const
+	Texture* IRenderer::GetFallbackTexture(TextureType type) const
 	{
-		return mResourcesManager.GetOrCreateTexture("res/textures/viking_room.png");
-	}
+		switch (type)
+		{
+			case TextureType::NORMAL:
+				return mResourcesManager.GetOrCreateTexture("res/textures/viking_room.png");
+			case TextureType::DIFFUSE:
+				return mResourcesManager.GetOrCreateTexture("res/textures/viking_room.png");
+			case TextureType::SPECULAR:
+				return mResourcesManager.GetOrCreateTexture("res/textures/viking_room.png");
+			default:
+				ASSERT(false);
+		}
 
-	Texture* IRenderer::GetFallbackNormalMap() const
-	{
-		return mResourcesManager.GetOrCreateTexture("res/textures/viking_room.png");
-	}
-
-	Texture* IRenderer::GetFallbackSpecularMap() const
-	{
-		return mResourcesManager.GetOrCreateTexture("res/textures/viking_room.png");
+		return nullptr;
 	}
 
 } // namespace erm

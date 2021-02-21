@@ -8,17 +8,21 @@ namespace erm {
 
 namespace erm {
 
-	class Buffer
+	class IBuffer
 	{
 	public:
-		Buffer(Device& device, size_t size);
-		virtual ~Buffer();
+		IBuffer(
+			Device& device, 
+			size_t size, 
+			vk::BufferUsageFlags buf, 
+			vk::MemoryPropertyFlags mpf);
+		virtual ~IBuffer();
 
-		Buffer(const Buffer&) = delete;
-		Buffer(Buffer&& other);
+		IBuffer(const IBuffer&) = delete;
+		IBuffer(IBuffer&& other);
 
-		Buffer& operator=(const Buffer&) = delete;
-		Buffer& operator=(Buffer&&) = delete;
+		IBuffer& operator=(const IBuffer&) = delete;
+		IBuffer& operator=(IBuffer&&) = delete;
 
 		inline vk::Buffer GetBuffer() const { return mBuffer; }
 		inline size_t GetBufferSize() const { return mBufferSize; }

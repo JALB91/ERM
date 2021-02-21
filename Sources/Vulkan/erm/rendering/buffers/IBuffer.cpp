@@ -1,17 +1,30 @@
-#include "erm/rendering/buffers/Buffer.h"
+#include "erm/rendering/buffers/IBuffer.h"
 
 #include "erm/rendering/Device.h"
 
+#include "erm/utils/VkUtils.h"
+
 namespace erm {
 
-	Buffer::Buffer(
+	IBuffer::IBuffer(
 		Device& device,
-		size_t size)
+		size_t size,
+		vk::BufferUsageFlags buf,
+		vk::MemoryPropertyFlags mpf)
 		: mDevice(device)
 		, mBufferSize(size)
-	{}
+	{
+		VkUtils::CreateBuffer(
+			device.GetVkPhysicalDevice(),
+			device.GetVkDevice(),
+			size,
+			buf,
+			mpf,
+			mBuffer,
+			mBufferMemory);
+	}
 
-	Buffer::~Buffer()
+	IBuffer::~IBuffer()
 	{
 		if (mBufferMemory && mBuffer)
 		{
@@ -20,7 +33,7 @@ namespace erm {
 		}
 	}
 
-	Buffer::Buffer(Buffer&& other)
+	IBuffer::IBuffer(IBuffer&& other)
 		: mDevice(other.mDevice)
 		, mBufferSize(other.mBufferSize)
 		, mBuffer(std::move(other.mBuffer))

@@ -23,7 +23,7 @@ namespace erm {
 		void OnRender() override;
 		void OnPostRender() override;
 
-		void SubmitRenderData(RenderData& data) override;
+		void SubmitRenderData(RenderData& data);
 
 	private:
 		using FramesData = std::map<std::unique_ptr<RenderingResources>, std::vector<RenderData*>>;

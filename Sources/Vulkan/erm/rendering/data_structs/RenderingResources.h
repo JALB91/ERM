@@ -1,6 +1,5 @@
 #pragma once
 
-#include "erm/rendering/data_structs/BindingResources.h"
 #include "erm/rendering/data_structs/PipelineResources.h"
 #include "erm/rendering/data_structs/RenderConfigs.h"
 

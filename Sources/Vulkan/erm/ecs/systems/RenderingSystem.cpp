@@ -31,16 +31,16 @@ namespace {
 
 	const char* const kDebugShaderPath("res/shaders/vk_basic");
 
-	std::string GetShaderForConfig(const erm::RenderConfigs& config, const erm::ecs::LightComponent* light, const erm::ecs::SkeletonComponent* skeleton)
+	std::string GetShaderForConfig(const erm::BindingConfigs& config, const erm::ecs::LightComponent* light, const erm::ecs::SkeletonComponent* skeleton)
 	{
 		if (!light)
 			return "res/shaders/vk_basic";
 
 		const erm::PBMaterial* pbMat = config.mPBMaterial;
 		const erm::Material* mat = config.mMaterial;
-		const erm::Texture* diffuseMap = config.mDiffuseMap ? config.mDiffuseMap : mat->mDiffuseMap;
-		const erm::Texture* normalMap = config.mNormalMap ? config.mNormalMap : mat->mNormalMap;
-		const erm::Texture* specularMap = config.mSpecularMap ? config.mSpecularMap : mat->mSpecularMap;
+		const erm::Texture* diffuseMap = config.GetTexture(erm::TextureType::DIFFUSE);
+		const erm::Texture* normalMap = config.GetTexture(erm::TextureType::NORMAL);
+		const erm::Texture* specularMap = config.GetTexture(erm::TextureType::SPECULAR);
 
 		std::string result = "res/shaders/";
 		result += skeleton && skeleton->GetSkin() ? "vk_skeleton" : "vk_model";
@@ -97,7 +97,7 @@ namespace erm::ecs {
 	{
 		PROFILE_FUNCTION();
 
-		IRenderer& renderer = mEngine.GetRenderer();
+		Renderer& renderer = mEngine.GetRenderer();
 
 		TransformComponent* cameraTransform = nullptr;
 		CameraComponent* camera = nullptr;

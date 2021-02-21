@@ -13,7 +13,7 @@
 
 namespace erm {
 	class Engine;
-	class IRenderer;
+	class Renderer;
 	class ShaderProgram;
 	class ResourcesManager;
 	namespace ecs {
@@ -46,7 +46,7 @@ namespace erm::ecs {
 		RenderData& GetOrCreateRenderDataForBBox(EntityId id);
 
 		Engine& mEngine;
-		IRenderer& mRenderer;
+		Renderer& mRenderer;
 		ResourcesManager& mResourcesManager;
 
 		TransformSystem* mTransformSystem;

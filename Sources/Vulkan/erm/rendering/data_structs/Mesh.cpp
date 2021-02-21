@@ -48,13 +48,13 @@ namespace erm {
 
 		mVertexBuffer = std::make_unique<VertexBuffer>(
 			mDevice,
-			mVerticesData.data(),
-			mVerticesData.size() * sizeof(VertexData));
+			mVerticesData.size() * sizeof(VertexData),
+			mVerticesData.data());
 
 		mIndexBuffer = std::make_unique<IndexBuffer>(
 			mDevice,
-			mIndicesData.data(),
 			mIndicesData.size() * sizeof(IndexData),
+			mIndicesData.data(),
 			static_cast<uint32_t>(mIndicesData.size()));
 	}
 

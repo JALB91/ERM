@@ -8,7 +8,6 @@
 
 #include "erm/rendering/Device.h"
 #include "erm/rendering/buffers/IndexBuffer.h"
-#include "erm/rendering/buffers/UniformBuffer.h"
 #include "erm/rendering/buffers/VertexBuffer.h"
 #include "erm/rendering/data_structs/Mesh.h"
 #include "erm/rendering/data_structs/RenderData.h"

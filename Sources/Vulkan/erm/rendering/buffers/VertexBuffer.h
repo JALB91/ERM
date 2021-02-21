@@ -1,13 +1,13 @@
 #pragma once
 
-#include "erm/rendering/buffers/Buffer.h"
+#include "erm/rendering/buffers/DeviceBuffer.h"
 
 namespace erm {
 
-	class VertexBuffer : public Buffer
+	class VertexBuffer : public DeviceBuffer
 	{
 	public:
-		VertexBuffer(Device& device, void* data, size_t size);
+		VertexBuffer(Device& device, size_t size, void* data);
 
 		void Bind(const vk::CommandBuffer& commandBuffer) const;
 	};

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "erm/rendering/enums/TextureType.h"
 #include "erm/rendering/ISwapChainListener.h"
 
 #include <vulkan/vulkan.hpp>
@@ -21,7 +22,7 @@ namespace erm {
 	class IRenderer
 	{
 	public:
-		static constexpr int kMaxFramesInFlight = 2;
+		static constexpr uint32_t kMaxFramesInFlight = 2;
 
 	public:
 		IRenderer(Engine& engine);
@@ -30,8 +31,6 @@ namespace erm {
 		virtual void OnPreRender() = 0;
 		virtual void OnRender() = 0;
 		virtual void OnPostRender() = 0;
-
-		virtual void SubmitRenderData(RenderData& data) = 0;
 
 		void AddSwapChainListener(ISwapChainListener* listener);
 		void RemoveSwapChainListener(ISwapChainListener* listener);
@@ -47,9 +46,7 @@ namespace erm {
 		inline const std::vector<vk::ImageView>& GetSwapChainImageViews() const { return mSwapChainImageViews; }
 		inline const vk::ImageView& GetDepthImageView() const { return mDepthImageView; }
 
-		Texture* GetFallbackDiffuseMap() const;
-		Texture* GetFallbackNormalMap() const;
-		Texture* GetFallbackSpecularMap() const;
+		Texture* GetFallbackTexture(TextureType type) const;
 
 	protected:
 		void RecreateSwapChain();
@@ -85,7 +82,7 @@ namespace erm {
 		std::vector<vk::Fence> mImagesInFlight;
 
 		std::set<ISwapChainListener*> mSwapChainListeners;
-		size_t mCurrentFrame;
+		uint32_t mCurrentFrame;
 		uint32_t mCurrentImageIndex;
 		uint32_t mMinImageCount;
 		uint32_t mImageCount;
