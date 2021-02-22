@@ -12,7 +12,6 @@
 namespace erm {
 	class Mesh;
 	class Engine;
-	class Renderer;
 	class ShaderProgram;
 	class ResourcesManager;
 	namespace ecs {

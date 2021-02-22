@@ -4,6 +4,8 @@
 #include "erm/loaders/fbx/FBXMaterialLoader.h"
 
 #include "erm/managers/ResourcesManager.h"
+
+#include "erm/rendering/data_structs/Material.h"
 // clang-format on
 
 namespace erm {

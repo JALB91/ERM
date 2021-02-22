@@ -2,7 +2,13 @@
 
 #include "erm/ecs/IComponent.h"
 
+// clang-format off
+#ifndef ERM_RAY_TRACING_ENABLED
 #include "erm/rendering/data_structs/RenderData.h"
+#else
+#include "erm/ray_tracing/RTRenderData.h"
+#endif
+// clang-format on
 
 #include <vector>
 
@@ -22,7 +28,11 @@ namespace erm::ecs {
 		RenderingComponent() = default;
 
 	private:
+#ifndef ERM_RAY_TRACING_ENABLED
 		std::vector<RenderData> mRenderData;
+#else
+		RTRenderData mRTRenderData;
+#endif
 	};
 
 } // namespace erm::ecs

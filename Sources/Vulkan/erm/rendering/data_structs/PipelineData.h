@@ -25,7 +25,7 @@ namespace erm {
 			return mConfigs.IsBindingLevelCompatible(other);
 		}
 
-		void UpdateResources(vk::CommandBuffer& cmd, RenderData& renderData)
+		void UpdateResources(vk::CommandBuffer& cmd, IRenderData& renderData)
 		{
 			for (auto& res : mBindingResources)
 				res->UpdateResources(cmd, renderData);

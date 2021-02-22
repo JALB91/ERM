@@ -22,7 +22,7 @@ namespace erm {
 	class IRenderer
 	{
 	public:
-		static constexpr uint32_t kMaxFramesInFlight = 2;
+		static constexpr uint32_t kMaxFramesInFlight = 1;
 
 	public:
 		IRenderer(Engine& engine);

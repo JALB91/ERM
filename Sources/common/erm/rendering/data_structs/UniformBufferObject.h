@@ -93,4 +93,14 @@ namespace erm {
 		alignas(16) math::mat4 mProj;
 	};
 
+#ifdef ERM_RAY_TRACING_ENABLED
+	struct UboRTBasic : public IUbo
+	{
+		static constexpr UboId ID = 9;
+
+		alignas(16) math::mat4 mProj;
+		alignas(16) math::mat4 mView;
+	};
+#endif
+
 } // namespace erm

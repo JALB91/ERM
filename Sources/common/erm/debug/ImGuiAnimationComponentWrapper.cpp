@@ -6,6 +6,8 @@
 
 #include "erm/engine/Engine.h"
 
+#include "erm/rendering/animations/SkeletonAnimation.h"
+
 #include <imgui.h>
 
 namespace ImGui {

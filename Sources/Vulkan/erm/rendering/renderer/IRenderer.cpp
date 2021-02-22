@@ -6,6 +6,7 @@
 
 #include "erm/rendering/Device.h"
 
+#include "erm/utils/Utils.h"
 #include "erm/utils/VkUtils.h"
 
 #include "erm/rendering/window/Window.h"
@@ -125,7 +126,7 @@ namespace erm {
 		swapChainCreateInfo.imageColorSpace = surfaceFormat.colorSpace;
 		swapChainCreateInfo.imageExtent = mSwapChainExtent;
 		swapChainCreateInfo.imageArrayLayers = 1;
-		swapChainCreateInfo.imageUsage = vk::ImageUsageFlagBits::eColorAttachment;
+		swapChainCreateInfo.imageUsage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eStorage;
 
 		if (indices.mGraphicsFamily != indices.mPresentFamily)
 		{
@@ -157,7 +158,11 @@ namespace erm {
 		mSwapChainImageViews.resize(mSwapChainImages.size());
 		for (size_t i = 0; i < mSwapChainImages.size(); ++i)
 		{
-			mSwapChainImageViews[i] = VkUtils::CreateImageView(mDevice.GetVkDevice(), mSwapChainImages[i], mSwapChainImageFormat, vk::ImageAspectFlagBits::eColor);
+			mSwapChainImageViews[i] = VkUtils::CreateImageView(
+				mDevice.GetVkDevice(),
+				mSwapChainImages[i],
+				mSwapChainImageFormat,
+				vk::ImageAspectFlagBits::eColor);
 		}
 	}
 

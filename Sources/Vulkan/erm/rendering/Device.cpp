@@ -1,5 +1,7 @@
 #include "erm/rendering/Device.h"
 
+#include "erm/extensions/VkExtensions.h"
+
 #include "erm/utils/Utils.h"
 #include "erm/utils/VkUtils.h"
 
@@ -97,6 +99,11 @@ namespace erm {
 #ifdef ERM_RAY_TRACING_ENABLED
 		InitRayTracing();
 #endif
+		load_VK_EXTENSION_SUBSET(
+			mInstance.get(),
+			(PFN_vkGetInstanceProcAddr)vkGetInstanceProcAddr(mInstance.get(), "vkGetInstanceProcAddr"),
+			mDevice.get(),
+			(PFN_vkGetDeviceProcAddr)vkGetDeviceProcAddr(mDevice.get(), "vkGetDeviceProcAddr"));
 	}
 
 	Device::~Device()
@@ -279,6 +286,19 @@ namespace erm {
 		deviceFeatures.samplerAnisotropy = VK_TRUE;
 		deviceFeatures.fillModeNonSolid = VK_TRUE;
 
+		vk::PhysicalDeviceVulkan12Features features12;
+		features12.bufferDeviceAddress = VK_TRUE;
+
+#ifdef ERM_RAY_TRACING_ENABLED
+		vk::PhysicalDeviceRayTracingPipelineFeaturesKHR rtFeatures;
+		rtFeatures.rayTracingPipeline = VK_TRUE;
+		features12.pNext = &rtFeatures;
+
+		vk::PhysicalDeviceAccelerationStructureFeaturesKHR asFeatures;
+		asFeatures.accelerationStructure = VK_TRUE;
+		rtFeatures.pNext = &asFeatures;
+#endif
+
 		vk::DeviceCreateInfo deviceCreateInfo = {};
 		deviceCreateInfo.pQueueCreateInfos = queueCreateInfos.data();
 		deviceCreateInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
@@ -291,6 +311,7 @@ namespace erm {
 		deviceCreateInfo.enabledLayerCount = static_cast<uint32_t>(kValidationLayers.size());
 		deviceCreateInfo.ppEnabledLayerNames = kValidationLayers.data();
 #endif
+		deviceCreateInfo.pNext = &features12;
 
 		mDevice = mPhysicalDevice.createDeviceUnique(deviceCreateInfo);
 

@@ -26,6 +26,7 @@ namespace erm {
 
 		inline vk::Buffer GetBuffer() const { return mBuffer; }
 		inline size_t GetBufferSize() const { return mBufferSize; }
+		inline vk::DeviceMemory GetBufferMemory() const { return mBufferMemory; }
 
 	protected:
 		Device& mDevice;

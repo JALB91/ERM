@@ -14,12 +14,18 @@ namespace erm {
 			IRenderer& renderer,
 			uint32_t targetSet,
 			const vk::DescriptorPool& descriptorPool,
-			const RenderConfigs& renderConfigs,
-			const vk::DescriptorSetLayout& descriptorSetLayout);
+			const IShaderProgram& shaderProgram,
+			const BindingConfigs& configs,
+			const vk::DescriptorSetLayout& descriptorSetLayout
+#ifdef ERM_RAY_TRACING_ENABLED
+			,
+			const vk::AccelerationStructureKHR* as = nullptr
+#endif
+		);
 
 		const vk::DescriptorSet GetDescriptorSet() const override;
 
-		void UpdateResources(vk::CommandBuffer& cmd, RenderData& data) override;
+		void UpdateResources(vk::CommandBuffer& cmd, IRenderData& data) override;
 
 	private:
 		using UniformBuffers = std::map<UboId, UniformBuffer<DeviceBuffer>>;

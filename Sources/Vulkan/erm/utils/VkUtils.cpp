@@ -90,7 +90,11 @@ namespace erm::VkUtils {
 	{
 		for (const vk::SurfaceFormatKHR& availableFormat : availableFormats)
 		{
+#ifdef ERM_RAY_TRACING_ENABLED
+			if (availableFormat.format == vk::Format::eR8G8B8A8Unorm)
+#else
 			if (availableFormat.format == vk::Format::eB8G8R8A8Srgb && availableFormat.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear)
+#endif
 			{
 				return availableFormat;
 			}
@@ -240,6 +244,13 @@ namespace erm::VkUtils {
 		vk::MemoryAllocateInfo allocInfo = {};
 		allocInfo.allocationSize = memRequirements.size;
 		allocInfo.memoryTypeIndex = FindMemoryType(physicalDevice, memRequirements.memoryTypeBits, properties);
+
+#ifdef ERM_RAY_TRACING_ENABLED
+		vk::MemoryAllocateFlagsInfo flagsInfo;
+		if ((usage & vk::BufferUsageFlagBits::eShaderDeviceAddress) == vk::BufferUsageFlagBits::eShaderDeviceAddress)
+			flagsInfo.flags = vk::MemoryAllocateFlagBits::eDeviceAddress;
+		allocInfo.pNext = &flagsInfo;
+#endif
 
 		bufferMemory = device.allocateMemory(allocInfo);
 		device.bindBufferMemory(buffer, bufferMemory, 0);
@@ -586,6 +597,8 @@ namespace erm::VkUtils {
 				return vk::ImageLayout::eDepthStencilAttachmentOptimal;
 			case ImageLayout::DEPTH_STENCIL_READONLY_OPTIMAL:
 				return vk::ImageLayout::eDepthStencilReadOnlyOptimal;
+			case ImageLayout::GENERAL:
+				return vk::ImageLayout::eGeneral;
 			default:
 			case ImageLayout::PRESENT_SRC:
 				return vk::ImageLayout::ePresentSrcKHR;

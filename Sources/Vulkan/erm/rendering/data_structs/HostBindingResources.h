@@ -15,12 +15,13 @@ namespace erm {
 			IRenderer& renderer,
 			uint32_t targetSet,
 			const vk::DescriptorPool& descriptorPool,
-			const RenderConfigs& renderConfigs,
+			const IShaderProgram& shaderProgram,
+			const BindingConfigs& configs,
 			const vk::DescriptorSetLayout& descriptorSetLayout);
 
 		const vk::DescriptorSet GetDescriptorSet() const override;
 
-		void UpdateResources(vk::CommandBuffer& cmd, RenderData& data) override;
+		void UpdateResources(vk::CommandBuffer& cmd, IRenderData& data) override;
 		void PostDraw() override;
 
 	private:

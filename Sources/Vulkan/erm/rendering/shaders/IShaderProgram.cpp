@@ -12,32 +12,6 @@
 
 namespace {
 
-	const char* GetExtensionForShaderType(erm::ShaderType shaderType)
-	{
-		switch (shaderType)
-		{
-			case erm::ShaderType::VERTEX:
-				return ".vert";
-			case erm::ShaderType::FRAGMENT:
-				return ".frag";
-			case erm::ShaderType::RT_ANY_HIT:
-				return ".rahit";
-			case erm::ShaderType::RT_CALLABLE:
-				return ".rcall";
-			case erm::ShaderType::RT_CLOSEST_HIT:
-				return ".rchit";
-			case erm::ShaderType::RT_INTERSECTION:
-				return ".rint";
-			case erm::ShaderType::RT_MISS:
-				return ".rmiss";
-			case erm::ShaderType::RT_RAY_GEN:
-				return ".rgen";
-			default:
-				ASSERT(false);
-				return "";
-		}
-	}
-
 	std::vector<char> ReadShaderCompiled(const char* path)
 	{
 		std::ifstream stream(path, std::ios::ate | std::ios::binary);
@@ -97,6 +71,8 @@ namespace {
 			return makeUboData(erm::UboPBLight::ID, sizeof(erm::UboPBLight));
 		else if (resource.name.compare("BonesDebug") == 0)
 			return makeUboData(erm::UboBonesDebug::ID, sizeof(erm::UboBonesDebug));
+		else if (resource.name.compare("UboRTBasic") == 0)
+			return makeUboData(erm::UboRTBasic::ID, sizeof(erm::UboRTBasic));
 
 		ASSERT(false);
 
@@ -132,7 +108,7 @@ namespace {
 				compiler.get_decoration(resource.id, spv::Decoration::DecorationDescriptorSet)};
 		};
 
-		if (resource.name.compare("imageStore") == 0)
+		if (resource.name.compare("image") == 0)
 			return makeStorageImageData();
 
 		ASSERT(false);
@@ -160,6 +136,24 @@ namespace {
 
 		return {erm::StorageBufferType::VERTICES, VK_WHOLE_SIZE, 0, 0, 0};
 	}
+
+#ifdef ERM_RAY_TRACING_ENABLED
+	erm::AccelerationStructureData GetAccelerationStructureData(const spirv_cross::Compiler& compiler, const spirv_cross::Resource& resource)
+	{
+		const auto makeAccelerationStructureData = [&compiler, &resource]() -> erm::AccelerationStructureData {
+			return {
+				compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding),
+				compiler.get_decoration(resource.id, spv::Decoration::DecorationDescriptorSet)};
+		};
+
+		if (resource.name.compare("topLevelAS") == 0)
+			return makeAccelerationStructureData();
+
+		ASSERT(false);
+
+		return {0, 0};
+	}
+#endif
 
 	void GatherResourceBindings(
 		erm::ShaderBindingData& data,
@@ -189,6 +183,13 @@ namespace {
 				break;
 			case vk::DescriptorType::eStorageBuffer:
 				data.mStorageBuffersData.emplace_back(GetStorageBufferData(compiler, res));
+				break;
+			case vk::DescriptorType::eAccelerationStructureKHR:
+#ifdef ERM_RAY_TRACING_ENABLED
+				data.mASData.emplace_back(GetAccelerationStructureData(compiler, res));
+#else
+				ASSERT(false);
+#endif
 				break;
 			default:
 				ASSERT(false);
@@ -221,6 +222,12 @@ namespace {
 		{
 			const uint32_t targetSet = compiler.get_decoration(storageBuffer.id, spv::Decoration::DecorationDescriptorSet);
 			GatherResourceBindings(bindings[targetSet], compiler, storageBuffer, flags, vk::DescriptorType::eStorageBuffer);
+		}
+
+		for (const spirv_cross::Resource& accelerationStructure : resources.acceleration_structures)
+		{
+			const uint32_t targetSet = compiler.get_decoration(accelerationStructure.id, spv::Decoration::DecorationDescriptorSet);
+			GatherResourceBindings(bindings[targetSet], compiler, accelerationStructure, flags, vk::DescriptorType::eAccelerationStructureKHR);
 		}
 	}
 
@@ -300,6 +307,32 @@ namespace erm {
 		const auto it = mShaderBindingsMap.find(setIdx);
 		ASSERT(it != mShaderBindingsMap.end());
 		return it->second;
+	}
+
+	const char* IShaderProgram::GetExtensionForShaderType(ShaderType shaderType)
+	{
+		switch (shaderType)
+		{
+			case ShaderType::VERTEX:
+				return ".vert";
+			case ShaderType::FRAGMENT:
+				return ".frag";
+			case ShaderType::RT_ANY_HIT:
+				return ".rahit";
+			case ShaderType::RT_CALLABLE:
+				return ".rcall";
+			case ShaderType::RT_CLOSEST_HIT:
+				return ".rchit";
+			case ShaderType::RT_INTERSECTION:
+				return ".rint";
+			case ShaderType::RT_MISS:
+				return ".rmiss";
+			case ShaderType::RT_RAY_GEN:
+				return ".rgen";
+			default:
+				ASSERT(false);
+				return "";
+		}
 	}
 
 } // namespace erm

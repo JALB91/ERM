@@ -1,19 +1,19 @@
-#version 450
+#version 460
 #extension GL_ARB_separate_shader_objects : enable
 
-layout(binding = 1) uniform PBMaterial {
+layout(binding = 1, set = 1) uniform PBMaterial {
     vec3 albedo;
 	float metallic;
 	float roughness;
 	float ao;
 } material;
 
-layout(binding = 2) uniform PBLight {
+layout(binding = 2, set = 1) uniform PBLight {
 	vec3 position;
 	vec3 color;
 } light;
 
-layout(binding = 3) uniform View {
+layout(binding = 3, set = 1) uniform View {
 	vec3 position;
 } view;
 

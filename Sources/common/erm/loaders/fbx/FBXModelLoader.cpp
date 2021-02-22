@@ -14,6 +14,7 @@
 
 #include "erm/math/vec.h"
 
+#include "erm/rendering/data_structs/Skin.h"
 #include "erm/rendering/buffers/IndexData.h"
 #include "erm/rendering/buffers/VertexData.h"
 #include "erm/rendering/data_structs/Bone.h"

@@ -52,9 +52,9 @@ namespace erm {
 		vk::UniquePipelineLayout mPipelineLayout;
 		vk::UniquePipeline mPipeline;
 
-		vk::DescriptorSetLayout mEmptySetLayout;
-		vk::DescriptorSet mEmptySet;
-		std::vector<vk::DescriptorSetLayout> mDescriptorSetLayouts;
+		vk::UniqueDescriptorSetLayout mEmptySetLayout;
+		vk::UniqueDescriptorSet mEmptySet;
+		std::vector<vk::UniqueDescriptorSetLayout> mDescriptorSetLayouts;
 		std::deque<PipelineData> mData;
 	};
 

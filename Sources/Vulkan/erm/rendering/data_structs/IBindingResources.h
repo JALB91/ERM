@@ -12,7 +12,8 @@
 namespace erm {
 	class Device;
 	class IRenderer;
-	struct RenderData;
+	class IShaderProgram;
+	struct IRenderData;
 } // namespace erm
 
 namespace erm {
@@ -25,7 +26,8 @@ namespace erm {
 			IRenderer& renderer,
 			uint32_t targetSet,
 			const vk::DescriptorPool& descriptorPool,
-			const RenderConfigs& renderConfigs);
+			const IShaderProgram& shaderProgram,
+			const BindingConfigs& configs);
 		virtual ~IBindingResources();
 
 		IBindingResources(const IBindingResources&) = delete;
@@ -35,10 +37,10 @@ namespace erm {
 		IBindingResources& operator=(IBindingResources&&) = delete;
 
 		inline uint32_t GetTargetSet() const { return mTargetSet; }
-		inline const RenderConfigs& GetRenderConfigs() const { return mRenderConfigs; }
+		inline const BindingConfigs& GetRenderConfigs() const { return mConfigs; }
 		virtual const vk::DescriptorSet GetDescriptorSet() const = 0;
 
-		virtual void UpdateResources(vk::CommandBuffer& cmd, RenderData& data) = 0;
+		virtual void UpdateResources(vk::CommandBuffer& cmd, IRenderData& data) = 0;
 		virtual void PostDraw() {};
 
 	protected:
@@ -71,7 +73,8 @@ namespace erm {
 		IRenderer& mRenderer;
 		const uint32_t mTargetSet;
 		const vk::DescriptorPool& mDescriptorPool;
-		const RenderConfigs mRenderConfigs;
+		const IShaderProgram& mShaderProgram;
+		const BindingConfigs mConfigs;
 		std::vector<vk::DescriptorSet> mDescriptorSets;
 	};
 

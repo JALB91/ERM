@@ -11,7 +11,11 @@ namespace erm {
 		Device& device,
 		size_t size,
 		void* data)
-		: DeviceBuffer(device, size, vk::BufferUsageFlagBits::eVertexBuffer)
+		: DeviceBuffer(device, size, vk::BufferUsageFlagBits::eVertexBuffer
+#ifdef ERM_RAY_TRACING_ENABLED
+						   | vk::BufferUsageFlagBits::eShaderDeviceAddress | vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR
+#endif
+		  )
 	{
 		vk::CommandBuffer cmd = VkUtils::BeginSingleTimeCommands(mDevice.GetCommandPool(), mDevice.GetVkDevice());
 		Update(cmd, data);

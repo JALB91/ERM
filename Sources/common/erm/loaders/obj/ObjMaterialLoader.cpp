@@ -2,8 +2,13 @@
 
 #include "erm/managers/ResourcesManager.h"
 
+#include "erm/rendering/data_structs/Material.h"
+
+#include "erm/utils/Utils.h"
+
 #include <fstream>
 #include <iostream>
+#include <optional>
 
 namespace erm {
 

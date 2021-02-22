@@ -33,13 +33,7 @@ namespace erm {
 	}
 
 	PipelineResources::~PipelineResources()
-	{
-		for (vk::DescriptorSetLayout& layout : mDescriptorSetLayouts)
-			mDevice->destroyDescriptorSetLayout(layout);
-		mDevice->destroyDescriptorSetLayout(mEmptySetLayout);
-		mData.clear();
-		mDevice->freeDescriptorSets(*mDescriptorPool, 1, &mEmptySet);
-	}
+	{}
 
 	void PipelineResources::UpdateResources(vk::CommandBuffer& cmd, RenderData& renderData, uint32_t imageIndex)
 	{
@@ -74,7 +68,7 @@ namespace erm {
 #endif
 
 		auto& data = GetOrCreatePipelineData(renderData);
-		auto ds = data.GetDescriptorSets(mEmptySet);
+		auto ds = data.GetDescriptorSets(mEmptySet.get());
 
 		for (const Mesh* mesh : renderData.mMeshes)
 		{
@@ -238,28 +232,32 @@ namespace erm {
 				layoutInfo.pBindings = data.mLayoutBindings.data();
 			}
 
-			mDescriptorSetLayouts.emplace_back(mDevice->createDescriptorSetLayout(layoutInfo));
+			mDescriptorSetLayouts.emplace_back(mDevice->createDescriptorSetLayoutUnique(layoutInfo));
 		}
 
 		vk::DescriptorSetLayoutCreateInfo emptyLayoutInfo;
 		emptyLayoutInfo.bindingCount = 0;
 		emptyLayoutInfo.pBindings = nullptr;
 
-		mEmptySetLayout = mDevice->createDescriptorSetLayout(emptyLayoutInfo);
+		mEmptySetLayout = mDevice->createDescriptorSetLayoutUnique(emptyLayoutInfo);
 
 		vk::DescriptorSetAllocateInfo info {};
 		info.setDescriptorPool(*mDescriptorPool);
 		info.setDescriptorSetCount(1);
-		info.setPSetLayouts(&mEmptySetLayout);
+		info.setPSetLayouts(&mEmptySetLayout.get());
 
-		mEmptySet = mDevice->allocateDescriptorSets(info)[0];
+		mEmptySet = std::move(mDevice->allocateDescriptorSetsUnique(info)[0]);
 
 		/*
 			SETUP PIPELINE LAYOUT
 		*/
+		std::vector<vk::DescriptorSetLayout> layouts(mDescriptorSetLayouts.size());
+		for (size_t i = 0; i < mDescriptorSetLayouts.size(); ++i)
+			layouts[i] = mDescriptorSetLayouts[i].get();
+
 		vk::PipelineLayoutCreateInfo pipelineLayoutInfo = {};
-		pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(mDescriptorSetLayouts.size());
-		pipelineLayoutInfo.pSetLayouts = mDescriptorSetLayouts.data();
+		pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(layouts.size());
+		pipelineLayoutInfo.pSetLayouts = layouts.data();
 		pipelineLayoutInfo.pushConstantRangeCount = 0;
 		pipelineLayoutInfo.pPushConstantRanges = nullptr;
 
@@ -336,16 +334,18 @@ namespace erm {
 					mRenderer,
 					set,
 					*mDescriptorPool,
+					*renderData.mRenderConfigs.mShaderProgram,
 					renderData.mRenderConfigs,
-					mDescriptorSetLayouts[set]);
+					mDescriptorSetLayouts[set].get());
 			else
 				resources = std::make_unique<HostBindingResources>(
 					mDevice,
 					mRenderer,
 					set,
 					*mDescriptorPool,
+					*renderData.mRenderConfigs.mShaderProgram,
 					renderData.mRenderConfigs,
-					mDescriptorSetLayouts[set]);
+					mDescriptorSetLayouts[set].get());
 
 			data.AddResources(set, std::move(resources));
 		}

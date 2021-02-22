@@ -1,6 +1,17 @@
 #include "erm/managers/ResourcesManager.h"
 
-#include "erm/loaders/ResourcesLoader.h"
+#include "erm/rendering/animations/SkeletonAnimation.h"
+#include "erm/rendering/data_structs/Material.h"
+#include "erm/rendering/data_structs/Model.h"
+#include "erm/rendering/data_structs/PBMaterial.h"
+#include "erm/rendering/data_structs/Skin.h"
+#include "erm/rendering/shaders/ShaderProgram.h"
+#include "erm/rendering/textures/Texture.h"
+// clang-format off
+#ifdef ERM_RAY_TRACING_ENABLED
+#include "erm/ray_tracing/RTShaderProgram.h"
+#endif
+// clang-format on
 
 #include "erm/utils/MeshUtils.h"
 #include "erm/utils/Utils.h"
@@ -13,13 +24,11 @@ namespace erm {
 
 	ResourcesManager::ResourcesManager(Device& device)
 		: mDevice(device)
-		, mResourcesLoader(std::make_unique<ResourcesLoader>(mDevice))
+		, mResourcesLoader(mDevice)
 	{}
 
 	ResourcesManager::~ResourcesManager()
-	{
-		mResourcesLoader.reset();
-	}
+	{}
 
 	void ResourcesManager::LoadDefaultResources()
 	{
@@ -40,17 +49,22 @@ namespace erm {
 
 	void ResourcesManager::OnUpdate()
 	{
-		mResourcesLoader->OnUpdate();
+		mResourcesLoader.OnUpdate();
 	}
 
 	void ResourcesManager::OnRender()
 	{
-		mResourcesLoader->OnRender();
+		mResourcesLoader.OnRender();
 	}
 
 	void ResourcesManager::OnPostRender()
 	{
-		mResourcesLoader->OnPostRender();
+		mResourcesLoader.OnPostRender();
+	}
+
+	bool ResourcesManager::IsStillLoading(const Model& model) const
+	{
+		return mResourcesLoader.IsStillLoading(model);
 	}
 
 	ShaderProgram* ResourcesManager::GetOrCreateShaderProgram(const char* shaderProgramPath)
@@ -63,33 +77,26 @@ namespace erm {
 			});
 
 		if (it != mShaderPrograms.end())
-		{
 			return (*it).get();
-		}
 
-		char buffer[256] {0};
-		std::strcat(buffer, shaderProgramPath);
-		std::strcat(buffer, ".vert");
+		static const std::array<ShaderType, 2> kRequiredShaders {
+			ShaderType::VERTEX,
+			ShaderType::FRAGMENT};
 
-		std::ifstream stream(buffer);
-		if (!stream.is_open())
+		for (auto type : kRequiredShaders)
 		{
-			std::cout << "No such file: " << shaderProgramPath << std::endl;
-			return nullptr;
-		}
-		stream.close();
+			char buffer[256] {0};
+			std::strcat(buffer, shaderProgramPath);
+			std::strcat(buffer, IShaderProgram::GetExtensionForShaderType(type));
 
-		std::memset(buffer, 0, sizeof(buffer));
-		std::strcat(buffer, shaderProgramPath);
-		std::strcat(buffer, ".frag");
-
-		stream = std::ifstream(buffer);
-		if (!stream.is_open())
-		{
-			std::cout << "No such file: " << shaderProgramPath << std::endl;
-			return nullptr;
+			std::ifstream stream(buffer);
+			if (!stream.is_open())
+			{
+				std::cout << "No such file: " << shaderProgramPath << std::endl;
+				return nullptr;
+			}
+			stream.close();
 		}
-		stream.close();
 
 		std::unique_ptr<ShaderProgram> shaderProgram = std::make_unique<ShaderProgram>(mDevice, shaderProgramPath);
 		return mShaderPrograms.emplace_back(std::move(shaderProgram)).get();
@@ -171,7 +178,7 @@ namespace erm {
 			return (*it).get();
 		}
 
-		if (mResourcesLoader->ParseModel(modelPath, *this))
+		if (mResourcesLoader.ParseModel(modelPath, *this))
 		{
 			return mModels.back().get();
 		}
@@ -196,5 +203,43 @@ namespace erm {
 
 		return (it != mAnimations.end() ? (*it).get() : nullptr);
 	}
+
+#ifdef ERM_RAY_TRACING_ENABLED
+	RTShaderProgram* ResourcesManager::GetOrCreateRTShaderProgram(const char* path)
+	{
+		auto it = std::find_if(
+			mRTShaders.begin(),
+			mRTShaders.end(),
+			[path](Handle<RTShaderProgram>& program) {
+				return program->mPath.compare(path) == 0;
+			});
+
+		if (it != mRTShaders.end())
+			return (*it).get();
+
+		static const std::array<ShaderType, 3> kRequiredShaders {
+			ShaderType::RT_RAY_GEN,
+			ShaderType::RT_MISS,
+			ShaderType::RT_CLOSEST_HIT};
+
+		for (auto type : kRequiredShaders)
+		{
+			char buffer[256] {0};
+			std::strcat(buffer, path);
+			std::strcat(buffer, IShaderProgram::GetExtensionForShaderType(type));
+
+			std::ifstream stream(buffer);
+			if (!stream.is_open())
+			{
+				std::cout << "No such file: " << path << std::endl;
+				return nullptr;
+			}
+			stream.close();
+		}
+
+		std::unique_ptr<RTShaderProgram> shaderProgram = std::make_unique<RTShaderProgram>(mDevice, path);
+		return mRTShaders.emplace_back(std::move(shaderProgram)).get();
+	}
+#endif
 
 } // namespace erm

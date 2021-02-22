@@ -18,7 +18,11 @@ namespace erm {
 			: BufferType(
 				  device,
 				  size,
-				  vk::BufferUsageFlagBits::eUniformBuffer)
+				  vk::BufferUsageFlagBits::eUniformBuffer
+#ifdef ERM_RAY_TRACING_ENABLED
+					  | vk::BufferUsageFlagBits::eStorageBuffer
+#endif
+			  )
 		{}
 	};
 

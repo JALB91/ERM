@@ -5,6 +5,12 @@
 #include "erm/rendering/data_structs/IAsset.h"
 #include "erm/rendering/data_structs/Mesh.h"
 
+// clang-format off
+#ifdef ERM_RAY_TRACING_ENABLED
+#include "erm/ray_tracing/RTBlas.h"
+#endif
+// clang-format on
+
 #include <string>
 #include <vector>
 
@@ -35,6 +41,13 @@ namespace erm {
 		inline bool IsDirty() const { return mIsDirty; }
 		inline void SetDirty(bool isDirty) { mIsDirty = isDirty; }
 
+#ifdef ERM_RAY_TRACING_ENABLED
+		inline RTBlas& GetBlas()
+		{
+			return mBlas;
+		}
+#endif
+
 		void AddMesh(Mesh&& mesh);
 		void AddMesh(
 			std::vector<VertexData>&& vertices,
@@ -47,6 +60,9 @@ namespace erm {
 		Device& mDevice;
 		std::vector<Mesh> mMeshes;
 		BoundingBox3D mLocalBounds;
+#ifdef ERM_RAY_TRACING_ENABLED
+		RTBlas mBlas;
+#endif
 		bool mIsDirty;
 	};
 

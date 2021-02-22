@@ -12,6 +12,9 @@ namespace erm {
 		: IAsset(path, name)
 		, mDevice(device)
 		, mIsDirty(false)
+#ifdef ERM_RAY_TRACING_ENABLED
+		, mBlas(device, *this)
+#endif
 	{}
 
 	Model::~Model()

@@ -24,12 +24,18 @@ namespace erm {
 		std::vector<SamplerData> mSamplersData;
 		std::vector<StorageImageData> mStorageImagesData;
 		std::vector<StorageBufferData> mStorageBuffersData;
+#ifdef ERM_RAY_TRACING_ENABLED
+		std::vector<AccelerationStructureData> mASData;
+#endif
 	};
 	using SetIdx = uint32_t;
 	using ShaderBindingsMap = std::map<SetIdx, ShaderBindingData>;
 
 	class IShaderProgram : public IAsset
 	{
+	public:
+		static const char* GetExtensionForShaderType(ShaderType shaderType);
+
 	public:
 		IShaderProgram(Device& device, const char* shaderPath);
 		virtual ~IShaderProgram() = default;
@@ -43,6 +49,7 @@ namespace erm {
 		inline bool NeedsReload() const { return mNeedsReload; }
 		inline void OnReloaded() { mNeedsReload = false; }
 
+		inline const std::map<ShaderType, ShaderData>& GetShadersDataMap() const { return mShadersData; }
 		const ShaderData& GetShaderData(ShaderType shaderType) const;
 		ShaderData& GetShaderData(ShaderType shaderType);
 

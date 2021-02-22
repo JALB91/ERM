@@ -8,6 +8,7 @@
 
 #include "erm/rendering/data_structs/Mesh.h"
 #include "erm/rendering/shaders/ShaderProgram.h"
+#include "erm/rendering/textures/Texture.h"
 
 #include <imgui.h>
 

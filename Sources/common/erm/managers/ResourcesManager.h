@@ -1,19 +1,20 @@
 #pragma once
 
-#include "erm/rendering/animations/SkeletonAnimation.h"
-#include "erm/rendering/data_structs/Material.h"
-#include "erm/rendering/data_structs/Model.h"
-#include "erm/rendering/data_structs/PBMaterial.h"
-#include "erm/rendering/data_structs/Skin.h"
-#include "erm/rendering/shaders/ShaderProgram.h"
-#include "erm/rendering/textures/Texture.h"
+#include "erm/loaders/ResourcesLoader.h"
 
 #include <memory>
 #include <vector>
 
 namespace erm {
 	class Device;
-	class ResourcesLoader;
+	class ShaderProgram;
+	class RTShaderProgram;
+	class Texture;
+	class Model;
+	struct PBMaterial;
+	struct Material;
+	struct SkeletonAnimation;
+	struct Skin;
 } // namespace erm
 
 namespace erm {
@@ -28,6 +29,9 @@ namespace erm {
 	using Models = std::vector<Handle<Model>>;
 	using Skins = std::vector<Handle<Skin>>;
 	using Animations = std::vector<Handle<SkeletonAnimation>>;
+#ifdef ERM_RAY_TRACING_ENABLED
+	using RTShaders = std::vector<Handle<RTShaderProgram>>;
+#endif
 
 	class ResourcesManager
 	{
@@ -40,6 +44,8 @@ namespace erm {
 		void OnUpdate();
 		void OnRender();
 		void OnPostRender();
+
+		bool IsStillLoading(const Model& model) const;
 
 		inline Shaders& GetShaderPrograms() { return mShaderPrograms; }
 		ShaderProgram* GetOrCreateShaderProgram(const char* vertexShader, const char* fragmentShader);
@@ -63,9 +69,17 @@ namespace erm {
 		inline Animations& GetAnimations() { return mAnimations; }
 		SkeletonAnimation* GetAnimation(const char* name);
 
+#ifdef ERM_RAY_TRACING_ENABLED
+		inline RTShaders& GetRTShaders()
+		{
+			return mRTShaders;
+		}
+		RTShaderProgram* GetOrCreateRTShaderProgram(const char* path);
+#endif
+
 	private:
 		Device& mDevice;
-		std::unique_ptr<ResourcesLoader> mResourcesLoader;
+		ResourcesLoader mResourcesLoader;
 
 		Shaders mShaderPrograms;
 		Materials mMaterials;
@@ -74,6 +88,9 @@ namespace erm {
 		Models mModels;
 		Skins mSkins;
 		Animations mAnimations;
+#ifdef ERM_RAY_TRACING_ENABLED
+		RTShaders mRTShaders;
+#endif
 	};
 
 } // namespace erm

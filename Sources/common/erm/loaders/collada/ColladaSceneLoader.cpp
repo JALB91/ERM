@@ -2,6 +2,9 @@
 
 #include "erm/loaders/collada/ColladaLoaderUtils.h"
 
+#include "erm/rendering/data_structs/Bone.h"
+#include "erm/rendering/data_structs/Skin.h"
+
 #include "erm/utils/Utils.h"
 
 #include <tinyxml2.h>

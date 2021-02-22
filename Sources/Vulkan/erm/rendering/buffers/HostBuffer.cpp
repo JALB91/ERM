@@ -13,8 +13,13 @@ namespace erm {
 
 	void HostBuffer::Update(void* data) const
 	{
-		void* mappedData = mDevice->mapMemory(mBufferMemory, 0, mBufferSize);
-		memcpy(mappedData, data, mBufferSize);
+		Update(data, 0, mBufferSize);
+	}
+
+	void HostBuffer::Update(void* data, vk::DeviceSize offset, vk::DeviceSize size) const
+	{
+		void* mappedData = mDevice->mapMemory(mBufferMemory, offset, size);
+		memcpy(mappedData, data, size);
 		mDevice->unmapMemory(mBufferMemory);
 	}
 

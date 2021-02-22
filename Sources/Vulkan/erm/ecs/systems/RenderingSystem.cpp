@@ -17,7 +17,7 @@
 #include "erm/rendering/data_structs/Mesh.h"
 #include "erm/rendering/data_structs/Model.h"
 #include "erm/rendering/data_structs/PBMaterial.h"
-#include "erm/rendering/renderer/IRenderer.h"
+#include "erm/rendering/renderer/Renderer.h"
 #include "erm/rendering/shaders/ShaderProgram.h"
 #include "erm/rendering/shaders/Uniform.h"
 #include "erm/rendering/window/Window.h"
@@ -147,11 +147,14 @@ namespace erm::ecs {
 
 			TransformComponent* modelTransform = mTransformSystem->GetComponent(id);
 
-			const math::mat4 model = modelTransform->mWorldTransform;
-			std::vector<Mesh>& meshes = component.GetModel()->GetMeshes();
+			const math::mat4 modelMat = modelTransform->mWorldTransform;
+			Model& model = *component.GetModel();
 
 			RenderingComponent* renderingComponent = RequireComponent(id);
 			SkeletonComponent* skeletonComponent = mSkeletonSystem->GetComponent(id);
+
+#ifndef ERM_RAY_TRACING_ENABLED
+			std::vector<Mesh>& meshes = model.GetMeshes();
 
 			for (RenderData& data : renderingComponent->mRenderData)
 				data.mMeshes.clear();
@@ -190,7 +193,7 @@ namespace erm::ecs {
 
 				{
 					UboBasic ubo;
-					ubo.mMVP = proj * view * model;
+					ubo.mMVP = proj * view * modelMat;
 					data->SetUbo(std::move(ubo));
 				}
 
@@ -239,7 +242,7 @@ namespace erm::ecs {
 				if (skeletonComponent && skeletonComponent->GetSkin())
 				{
 					UboSkeleton ubo;
-					ubo.mModel = model;
+					ubo.mModel = modelMat;
 					ubo.mView = view;
 					ubo.mProjection = proj;
 
@@ -255,7 +258,7 @@ namespace erm::ecs {
 
 				{
 					UboModelViewProj ubo;
-					ubo.mModel = model;
+					ubo.mModel = modelMat;
 					ubo.mView = view;
 					ubo.mProjection = proj;
 
@@ -280,6 +283,113 @@ namespace erm::ecs {
 				if (!data.mMeshes.empty())
 					renderer.SubmitRenderData(data);
 			}
+#else
+			if (mResourcesManager.IsStillLoading(model))
+				return;
+
+			model.GetBlas().UpdateBlasData();
+
+			RTRenderData& data = renderingComponent->mRTRenderData;
+			RTRenderConfigs& configs = data.mRenderConfigs;
+			configs.mMaterial = configs.mMaterial ? configs.mMaterial : &Material::DEFAULT;
+			configs.mPBMaterial = configs.mPBMaterial ? configs.mPBMaterial : &PBMaterial::DEFAULT;
+			data.mBlas = &model.GetBlas();
+			data.mRenderConfigs.mShaderProgram = mResourcesManager.GetOrCreateRTShaderProgram("res/shaders/vk_raytrace");
+
+			{
+				UboBasic ubo;
+				ubo.mMVP = proj * view * modelMat;
+				data.SetUbo(std::move(ubo));
+			}
+
+			{
+				PBMaterial& pbMaterial = *configs.mPBMaterial;
+
+				UboPBMaterial ubo;
+				ubo.mAlbedo = pbMaterial.mAlbedo;
+				ubo.mMetallic = pbMaterial.mMetallic;
+				ubo.mRoughness = pbMaterial.mRoughness;
+				ubo.mAO = pbMaterial.mAO;
+
+				data.SetUbo(std::move(ubo));
+			}
+
+			{
+				Material& material = *configs.mMaterial;
+
+				UboMaterial ubo;
+				ubo.mShininess = material.mShininess;
+				ubo.mSpecular = material.mSpecular;
+				ubo.mDiffuse = material.mDiffuse;
+				ubo.mAmbient = material.mAmbient;
+
+				data.SetUbo(std::move(ubo));
+			}
+
+			{
+				UboLight ubo;
+				ubo.mAmbient = light->mAmbient;
+				ubo.mDiffuse = light->mDiffuse;
+				ubo.mSpecular = light->mSpecular;
+				ubo.mPosition = lightPos;
+
+				data.SetUbo(std::move(ubo));
+			}
+
+			{
+				UboPBLight ubo;
+				ubo.mPosition = lightPos;
+				ubo.mColor = light->mAmbient;
+
+				data.SetUbo(std::move(ubo));
+			}
+
+			if (skeletonComponent && skeletonComponent->GetSkin())
+			{
+				UboSkeleton ubo;
+				ubo.mModel = modelMat;
+				ubo.mView = view;
+				ubo.mProjection = proj;
+
+				skeletonComponent->GetSkin()->mRootBone->ForEachDo([&ubo, &data](BonesTree& bone) {
+					if (bone.GetId() >= MAX_BONES)
+						return;
+
+					ubo.mBonesTransforms[bone.GetId()] = bone.GetPayload()->mAnimatedTransform;
+				});
+
+				data.SetUbo(std::move(ubo));
+			}
+
+			{
+				UboModelViewProj ubo;
+				ubo.mModel = modelMat;
+				ubo.mView = view;
+				ubo.mProjection = proj;
+
+				data.SetUbo(std::move(ubo));
+			}
+
+			{
+				UboView ubo;
+				if (EntityId parent = cameraTransform->GetParent(); parent.IsValid())
+					ubo.mPosition = mTransformSystem->GetComponent(parent)->mWorldTransform * math::vec4(cameraTransform->mTranslation, 1.0f);
+				else
+					ubo.mPosition = cameraTransform->mTranslation;
+
+				data.SetUbo(std::move(ubo));
+			}
+
+			{
+				UboRTBasic ubo;
+				ubo.mProj = glm::inverse(proj);
+				ubo.mView = glm::inverse(view);
+
+				data.SetUbo(std::move(ubo));
+			}
+
+			renderer.SubmitRTRenderData(data);
+#endif
 		});
 	}
 

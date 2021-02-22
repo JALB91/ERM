@@ -19,7 +19,9 @@ namespace erm {
 		, mName(name)
 		, mVerticesData(vertices)
 		, mIndicesData(indices)
-	{}
+	{
+		ASSERT(!mVerticesData.empty() && !mIndicesData.empty());
+	}
 
 	Mesh::~Mesh()
 	{

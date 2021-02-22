@@ -211,7 +211,7 @@ namespace erm {
 
 			vk::AttachmentReference colorAttachmentRef = {};
 			colorAttachmentRef.attachment = 0;
-			colorAttachmentRef.layout = vk::ImageLayout::eColorAttachmentOptimal;
+			colorAttachmentRef.layout = vk::ImageLayout::eGeneral;
 
 			subpasses[i].pColorAttachments = &colorAttachmentRef;
 

@@ -4,6 +4,9 @@
 
 #include "erm/math/math.h"
 
+#include "erm/rendering/animations/KeyFrame.h"
+#include "erm/rendering/animations/SkeletonAnimation.h"
+
 #include "erm/utils/Utils.h"
 
 #include <tinyxml2.h>

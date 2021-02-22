@@ -8,7 +8,7 @@ namespace erm {
 				AttachmentLoadOp::CLEAR,
 				AttachmentStoreOp::STORE,
 				ImageLayout::UNDEFINED,
-				ImageLayout::COLOR_ATTACHMENT_OPTIMAL),
+				ImageLayout::GENERAL),
 			AttachmentData(
 				AttachmentLoadOp::CLEAR,
 				AttachmentStoreOp::DONT_CARE,

@@ -8,6 +8,8 @@
 
 #include "erm/rendering/buffers/IndexData.h"
 #include "erm/rendering/buffers/VertexData.h"
+#include "erm/rendering/data_structs/Material.h"
+#include "erm/rendering/data_structs/Model.h"
 
 #include "erm/utils/Utils.h"
 

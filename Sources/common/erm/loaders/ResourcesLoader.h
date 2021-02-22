@@ -1,7 +1,5 @@
 #pragma once
 
-#include "erm/managers/ResourcesManager.h"
-
 #include <atomic>
 #include <deque>
 #include <future>
@@ -10,6 +8,7 @@
 namespace erm {
 	class Device;
 	class Model;
+	class ResourcesManager;
 } // namespace erm
 
 namespace erm {
@@ -23,6 +22,8 @@ namespace erm {
 		void OnUpdate();
 		void OnRender();
 		void OnPostRender();
+
+		bool IsStillLoading(const Model& model) const;
 
 		bool ParseModel(
 			const char* path,

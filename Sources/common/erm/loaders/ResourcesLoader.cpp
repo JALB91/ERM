@@ -1,5 +1,7 @@
 #include "erm/loaders/ResourcesLoader.h"
 
+#include "erm/managers/ResourcesManager.h"
+
 #include "erm/rendering/data_structs/Mesh.h"
 #include "erm/rendering/data_structs/Model.h"
 
@@ -74,6 +76,11 @@ namespace erm {
 	void ResourcesLoader::OnPostRender()
 	{
 		mMutex.unlock();
+	}
+
+	bool ResourcesLoader::IsStillLoading(const Model& model) const
+	{
+		return std::find(mLoadingModels.begin(), mLoadingModels.end(), &model) != mLoadingModels.end();
 	}
 
 	bool ResourcesLoader::ParseModel(

@@ -10,6 +10,7 @@
 
 #include "erm/managers/ResourcesManager.h"
 
+#include "erm/rendering/data_structs/Model.h"
 #include "erm/rendering/data_structs/RenderData.h"
 #include "erm/rendering/renderer/Renderer.h"
 #include "erm/rendering/window/Window.h"

@@ -15,12 +15,14 @@ namespace erm {
 		IRenderer& renderer,
 		uint32_t targetSet,
 		const vk::DescriptorPool& descriptorPool,
-		const RenderConfigs& renderConfigs)
+		const IShaderProgram& shaderProgram,
+		const BindingConfigs& configs)
 		: mDevice(device)
 		, mRenderer(renderer)
 		, mTargetSet(targetSet)
 		, mDescriptorPool(descriptorPool)
-		, mRenderConfigs(renderConfigs)
+		, mShaderProgram(shaderProgram)
+		, mConfigs(configs)
 	{}
 
 	IBindingResources::~IBindingResources()

@@ -57,5 +57,8 @@ namespace erm {
 	};
 
 	using StorageImageData = IBindingData;
+#ifdef ERM_RAY_TRACING_ENABLED
+	using AccelerationStructureData = IBindingData;
+#endif
 
 } // namespace erm

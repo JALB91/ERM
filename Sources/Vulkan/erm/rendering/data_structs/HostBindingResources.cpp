@@ -1,9 +1,9 @@
 #include "erm/rendering/data_structs/HostBindingResources.h"
 
 #include "erm/rendering/Device.h"
-#include "erm/rendering/data_structs/RenderData.h"
+#include "erm/rendering/data_structs/IRenderData.h"
 #include "erm/rendering/renderer/IRenderer.h"
-#include "erm/rendering/shaders/ShaderProgram.h"
+#include "erm/rendering/shaders/IShaderProgram.h"
 
 namespace erm {
 
@@ -12,14 +12,12 @@ namespace erm {
 		IRenderer& renderer,
 		uint32_t targetSet,
 		const vk::DescriptorPool& descriptorPool,
-		const RenderConfigs& renderConfigs,
+		const IShaderProgram& shaderProgram,
+		const BindingConfigs& configs,
 		const vk::DescriptorSetLayout& descriptorSetLayout)
-		: IBindingResources(device, renderer, targetSet, descriptorPool, renderConfigs)
+		: IBindingResources(device, renderer, targetSet, descriptorPool, shaderProgram, configs)
 		, mCurrentBufferIndex(0)
 	{
-		const ShaderProgram* shader = mRenderConfigs.mShaderProgram;
-		ASSERT(shader);
-
 		mUniformBuffers.resize(IRenderer::kMaxFramesInFlight);
 
 		// CREATE DESCRIPTOR SETS
@@ -34,8 +32,8 @@ namespace erm {
 		mDescriptorSets = mDevice->allocateDescriptorSets(info);
 
 		// GATHER SHADER DATA
-		const ShaderBindingData& shaderBindings = shader->GetShaderBindingsData(mTargetSet);
-		const std::vector<UboData> ubosData = shaderBindings.mUbosData;
+		const ShaderBindingData& shaderBindings = mShaderProgram.GetShaderBindingsData(mTargetSet);
+		const std::vector<UboData>& ubosData = shaderBindings.mUbosData;
 
 		ASSERT(shaderBindings.mSamplersData.empty());
 		ASSERT(shaderBindings.mStorageImagesData.empty());
@@ -62,9 +60,8 @@ namespace erm {
 		return mDescriptorSets[mCurrentBufferIndex];
 	}
 
-	void HostBindingResources::UpdateResources(vk::CommandBuffer& cmd, RenderData& data)
+	void HostBindingResources::UpdateResources(vk::CommandBuffer& cmd, IRenderData& data)
 	{
-		ASSERT(data.mRenderConfigs.IsBindingLevelCompatible(mRenderConfigs));
 		for (auto& pair : mUniformBuffers[mCurrentBufferIndex])
 		{
 			ASSERT(data.HasUbo(pair.first));

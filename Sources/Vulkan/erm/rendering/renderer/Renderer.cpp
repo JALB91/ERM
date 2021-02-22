@@ -6,6 +6,14 @@
 
 #include "erm/managers/ResourcesManager.h"
 
+// clang-format off
+#ifdef ERM_RAY_TRACING_ENABLED
+#include "erm/ray_tracing/RTBlas.h"
+#include "erm/ray_tracing/RTRenderData.h"
+#include "erm/ray_tracing/RTRenderingResources.h"
+#endif
+// clang-format on
+
 #include "erm/rendering/Device.h"
 #include "erm/rendering/buffers/IndexBuffer.h"
 #include "erm/rendering/buffers/VertexBuffer.h"
@@ -29,6 +37,9 @@ namespace erm {
 
 	Renderer::Renderer(Engine& engine)
 		: IRenderer(engine)
+#ifdef ERM_RAY_TRACING_ENABLED
+		, mRTRenderingResources(mDevice, *this)
+#endif
 	{}
 
 	Renderer::~Renderer()
@@ -38,10 +49,14 @@ namespace erm {
 	{
 		PROFILE_FUNCTION();
 
-		if (mFramesDatas.empty())
+		if (mRasterData.empty()
+#ifdef ERM_RAY_TRACING_ENABLED
+			&& mRTRenderData.empty()
+#endif
+		)
 			return;
 
-		for (const auto& [renderingResources, renderData] : mFramesDatas)
+		for (const auto& [renderingResources, renderData] : mRasterData)
 		{
 			renderingResources->Refresh();
 		}
@@ -53,7 +68,10 @@ namespace erm {
 		if (result == vk::Result::eErrorOutOfDateKHR)
 		{
 			RecreateSwapChain();
-			mFramesDatas.clear();
+			mRasterData.clear();
+#ifdef ERM_RAY_TRACING_ENABLED
+			mRTRenderData.clear();
+#endif
 			return;
 		}
 		else if (result != vk::Result::eSuccess && result != vk::Result::eSuboptimalKHR)
@@ -103,10 +121,14 @@ namespace erm {
 	{
 		PROFILE_FUNCTION();
 
-		for (FramesData::value_type& data : mFramesDatas)
+		for (RasterData::value_type& data : mRasterData)
 		{
 			data.second.clear();
 		}
+
+#ifdef ERM_RAY_TRACING_ENABLED
+		mRTRenderData.clear();
+#endif
 
 		if (!mIsImageIndexValid)
 			return;
@@ -126,7 +148,10 @@ namespace erm {
 		{
 			mFramebufferResized = false;
 			RecreateSwapChain();
-			mFramesDatas.clear();
+			mRasterData.clear();
+#ifdef ERM_RAY_TRACING_ENABLED
+			mRTRenderData.clear();
+#endif
 		}
 		else if (result != vk::Result::eSuccess)
 		{
@@ -142,32 +167,51 @@ namespace erm {
 	{
 		ASSERT(!data.mMeshes.empty());
 
-		FramesData::value_type& framesData = GetOrCreateFramesData(data.mRenderConfigs);
+		RasterData::value_type& framesData = GetOrCreateFramesData(data.mRenderConfigs);
 
 		framesData.second.emplace_back(&data);
 	}
+
+#ifdef ERM_RAY_TRACING_ENABLED
+	void Renderer::SubmitRTRenderData(RTRenderData& data)
+	{
+		mRTRenderData.emplace_back(&data);
+	}
+#endif
 
 	std::vector<vk::CommandBuffer> Renderer::RetrieveCommandBuffers()
 	{
 		PROFILE_FUNCTION();
 
-		std::vector<vk::CommandBuffer> commandBuffers(mFramesDatas.size() + 1);
+		std::vector<vk::CommandBuffer> commandBuffers(mRasterData.size() +
+#ifdef ERM_RAY_TRACING_ENABLED
+													  !mRTRenderData.empty() +
+#endif
+													  1);
 
 		size_t index = 0;
 
-		for (FramesData::value_type& data : mFramesDatas)
+		for (RasterData::value_type& data : mRasterData)
 		{
 			commandBuffers[index++] = data.first->UpdateCommandBuffer(data.second, mCurrentImageIndex);
 		}
+
+#ifdef ERM_RAY_TRACING_ENABLED
+		if (!mRTRenderData.empty())
+		{
+			mRTRenderingResources.Update(mRTRenderData, mCurrentImageIndex);
+			commandBuffers[index++] = mRTRenderingResources.UpdateCommandBuffer(mRTRenderData, mCurrentImageIndex);
+		}
+#endif
 
 		commandBuffers[index] = mEngine.GetImGuiHandle().GetCommandBuffer(mCurrentImageIndex);
 
 		return commandBuffers;
 	}
 
-	Renderer::FramesData::value_type& Renderer::GetOrCreateFramesData(const RenderConfigs& renderConfigs)
+	Renderer::RasterData::value_type& Renderer::GetOrCreateFramesData(const RenderConfigs& renderConfigs)
 	{
-		for (FramesData::value_type& data : mFramesDatas)
+		for (RasterData::value_type& data : mRasterData)
 		{
 			if (data.first->IsSubpassCompatible(renderConfigs.mSubpassData))
 				return data;
@@ -175,9 +219,9 @@ namespace erm {
 
 		std::vector<SubpassData> data = {renderConfigs.mSubpassData};
 
-		auto it = mFramesDatas.emplace(
+		auto it = mRasterData.emplace(
 			std::piecewise_construct,
-			std::forward_as_tuple(std::make_unique<RenderingResources>(mDevice, *this, data)),
+			std::forward_as_tuple(std::make_unique<RenderingResources>(mDevice, *this, std::move(data))),
 			std::forward_as_tuple());
 
 		return *it.first;
