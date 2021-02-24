@@ -27,7 +27,8 @@ namespace erm {
 
 		bool ParseModel(
 			const char* path,
-			ResourcesManager& resourcesManager);
+			ResourcesManager& resourcesManager,
+			bool async = true);
 
 	private:
 		Device& mDevice;

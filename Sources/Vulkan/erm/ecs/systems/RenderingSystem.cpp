@@ -69,7 +69,6 @@ namespace erm::ecs {
 		, mEngine(engine)
 		, mResourcesManager(engine.GetResourcesManager())
 		, mGridMesh(std::make_unique<Mesh>(MeshUtils::CreateGrid(engine.GetDevice(), 1000, 1000, 1.0f, 1.0f)))
-		, mDebugMesh(std::make_unique<Mesh>(MeshUtils::CreateCube(engine.GetDevice())))
 		, mDebugShader(mResourcesManager.GetOrCreateShaderProgram(kDebugShaderPath))
 		, mRenderData(RenderConfigs::MODELS_RENDER_CONFIGS)
 	{
@@ -115,11 +114,12 @@ namespace erm::ecs {
 			return;
 
 		const math::mat4& proj = camera->GetProjectionMatrix();
-		const math::mat4 view = glm::inverse(cameraTransform->mWorldTransform);
+		const math::mat4& view = cameraTransform->mWorldTransform;
+		const math::mat4 viewInv = glm::inverse(view);
 
 		{
 			UboBasic ubo;
-			ubo.mMVP = proj * view;
+			ubo.mMVP = proj * viewInv;
 
 			mRenderData.SetUbo(std::move(ubo));
 		}
@@ -141,7 +141,7 @@ namespace erm::ecs {
 			}
 		}
 
-		mModelSystem->ForEachComponentIndexed([this, &proj, &view, &renderer, light, &lightPos, cameraTransform](ModelComponent& component, ID id) {
+		mModelSystem->ForEachComponentIndexed([&](ModelComponent& component, ID id) {
 			if (!component.GetModel())
 				return;
 
@@ -193,7 +193,7 @@ namespace erm::ecs {
 
 				{
 					UboBasic ubo;
-					ubo.mMVP = proj * view * modelMat;
+					ubo.mMVP = proj * viewInv * modelMat;
 					data->SetUbo(std::move(ubo));
 				}
 
@@ -243,7 +243,7 @@ namespace erm::ecs {
 				{
 					UboSkeleton ubo;
 					ubo.mModel = modelMat;
-					ubo.mView = view;
+					ubo.mView = viewInv;
 					ubo.mProjection = proj;
 
 					skeletonComponent->GetSkin()->mRootBone->ForEachDo([&ubo, &data](BonesTree& bone) {
@@ -259,7 +259,7 @@ namespace erm::ecs {
 				{
 					UboModelViewProj ubo;
 					ubo.mModel = modelMat;
-					ubo.mView = view;
+					ubo.mView = viewInv;
 					ubo.mProjection = proj;
 
 					data->SetUbo(std::move(ubo));
@@ -294,11 +294,12 @@ namespace erm::ecs {
 			configs.mMaterial = configs.mMaterial ? configs.mMaterial : &Material::DEFAULT;
 			configs.mPBMaterial = configs.mPBMaterial ? configs.mPBMaterial : &PBMaterial::DEFAULT;
 			data.mBlas = &model.GetBlas();
+			data.mTransform = modelMat;
 			data.mRenderConfigs.mShaderProgram = mResourcesManager.GetOrCreateRTShaderProgram("res/shaders/vk_raytrace");
 
 			{
 				UboBasic ubo;
-				ubo.mMVP = proj * view * modelMat;
+				ubo.mMVP = proj * viewInv * modelMat;
 				data.SetUbo(std::move(ubo));
 			}
 
@@ -348,7 +349,7 @@ namespace erm::ecs {
 			{
 				UboSkeleton ubo;
 				ubo.mModel = modelMat;
-				ubo.mView = view;
+				ubo.mView = viewInv;
 				ubo.mProjection = proj;
 
 				skeletonComponent->GetSkin()->mRootBone->ForEachDo([&ubo, &data](BonesTree& bone) {
@@ -364,7 +365,7 @@ namespace erm::ecs {
 			{
 				UboModelViewProj ubo;
 				ubo.mModel = modelMat;
-				ubo.mView = view;
+				ubo.mView = viewInv;
 				ubo.mProjection = proj;
 
 				data.SetUbo(std::move(ubo));
@@ -383,7 +384,7 @@ namespace erm::ecs {
 			{
 				UboRTBasic ubo;
 				ubo.mProj = glm::inverse(proj);
-				ubo.mView = glm::inverse(view);
+				ubo.mView = view;
 
 				data.SetUbo(std::move(ubo));
 			}

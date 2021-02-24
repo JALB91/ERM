@@ -49,8 +49,8 @@ namespace erm {
 		void SubmitRTRenderData(RTRenderData& data);
 
 	private:
-		RTRenderingResources mRTRenderingResources;
-		std::vector<RTRenderData*> mRTRenderData;
+		std::vector<std::unique_ptr<RTRenderingResources>> mRTRenderingResources;
+		std::map<RTRenderingResources*, std::vector<RTRenderData*>> mRTRenderData;
 #endif
 	};
 

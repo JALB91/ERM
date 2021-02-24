@@ -24,8 +24,11 @@ namespace erm {
 	public:
 		RTRenderingResources(
 			Device& device,
-			IRenderer& renderer);
+			IRenderer& renderer,
+			const RTRenderConfigs& renderConfigs);
 		~RTRenderingResources();
+
+		inline const RTRenderConfigs& GetRenderConfigs() const { return mRenderConfigs; }
 
 		void Update(std::vector<RTRenderData*>& renderData, uint32_t imageIndex);
 		vk::CommandBuffer UpdateCommandBuffer(std::vector<RTRenderData*>& renderData, uint32_t imageIndex);
@@ -33,9 +36,9 @@ namespace erm {
 		void Refresh();
 
 	private:
-		void BuildBlas(std::vector<RTBlas*> toBuild, vk::BuildAccelerationStructureFlagsKHR flags);
-		void UpdateTopLevelAS(std::vector<RTRenderData*> data, vk::BuildAccelerationStructureFlagsKHR flags);
-		RTPipelineResources& GetOrCreatePipelineResources(const RTRenderData& renderData);
+		void BuildBlas(std::vector<RTBlas*>& toBuild, vk::BuildAccelerationStructureFlagsKHR flags);
+		void UpdateTopLevelAS(std::vector<RTRenderData*>& data, bool forceUpdate, vk::BuildAccelerationStructureFlagsKHR flags);
+		bool UpdateInstances(std::vector<RTRenderData*>& data);
 
 		void Reload();
 		void Cleanup();
@@ -45,12 +48,14 @@ namespace erm {
 
 		Device& mDevice;
 		IRenderer& mRenderer;
+		const RTRenderConfigs mRenderConfigs;
 
 		vk::UniqueDescriptorPool mDescriptorPool;
 
 		RTTlas mTopLevelAS;
 		std::vector<vk::CommandBuffer> mCommandBuffers;
 
+		std::vector<std::pair<RTRenderData*, RTBlas*>> mData;
 		std::unique_ptr<DeviceBuffer> mInstancesBuffer;
 		std::unique_ptr<RTPipelineResources> mPipelineResources;
 	};

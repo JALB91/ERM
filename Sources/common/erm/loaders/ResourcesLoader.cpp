@@ -85,7 +85,8 @@ namespace erm {
 
 	bool ResourcesLoader::ParseModel(
 		const char* path,
-		ResourcesManager& resourcesManager)
+		ResourcesManager& resourcesManager,
+		bool async /*= true*/)
 	{
 		if (!std::filesystem::exists(path))
 		{
@@ -98,63 +99,98 @@ namespace erm {
 		std::string extension = pathStr.substr(pathStr.rfind("."));
 
 		Model& model = *resourcesManager.GetModels().emplace_back(std::make_unique<Model>(mDevice, path, name.c_str()));
-		mLoadingModels.emplace_back(&model);
+		if (async)
+			mLoadingModels.emplace_back(&model);
 
 #ifdef ERM_ASSIMP_ENABLED
-		mFutures.emplace_back(
-			std::async(
-				std::launch::async,
-				&AssimpParseModel,
-				std::ref(mMutex),
-				std::ref(mStop),
-				path,
-				std::ref(model),
-				std::ref(resourcesManager)));
-
-		return true;
-#else
-		if (Utils::CompareNoCaseSensitive(extension, ".obj"))
+		if (async)
 		{
 			mFutures.emplace_back(
 				std::async(
 					std::launch::async,
-					&ParseObjModel,
+					&AssimpParseModel,
 					std::ref(mMutex),
 					std::ref(mStop),
 					path,
 					std::ref(model),
 					std::ref(resourcesManager)));
+		}
+		else
+		{
+			AssimpParseModel(mMutex, mStop, path, model, resourcesManager);
+			for (Mesh& mesh : model.GetMeshes())
+				mesh.Setup();
+		}
+
+		return true;
+#else
+		if (Utils::CompareNoCaseSensitive(extension, ".obj"))
+		{
+			if (async)
+			{
+				mFutures.emplace_back(
+					std::async(
+						std::launch::async,
+						&ParseObjModel,
+						std::ref(mMutex),
+						std::ref(mStop),
+						path,
+						std::ref(model),
+						std::ref(resourcesManager)));
+			}
+			else
+			{
+				ParseObjModel(mMutex, mStop, path, model, resourcesManager);
+				for (Mesh& mesh : model.GetMeshes())
+					mesh.Setup();
+			}
 
 			return true;
 		}
 		else if (Utils::CompareNoCaseSensitive(extension, ".dae"))
 		{
-			mFutures.emplace_back(
-				std::async(
-					std::launch::async,
-					&ParseColladaModel,
-					std::ref(mMutex),
-					std::ref(mStop),
-					path,
-					std::ref(model),
-					std::ref(resourcesManager.GetMaterials()),
-					std::ref(resourcesManager.GetSkins()),
-					std::ref(resourcesManager.GetAnimations())));
+			if (async)
+			{
+				mFutures.emplace_back(
+					std::async(
+						std::launch::async,
+						&ParseColladaModel,
+						std::ref(mMutex),
+						std::ref(mStop),
+						path,
+						std::ref(model),
+						std::ref(resourcesManager)));
+			}
+			else
+			{
+				ParseColladaModel(mMutex, mStop, path, model, resourcesManager);
+				for (Mesh& mesh : model.GetMeshes())
+					mesh.Setup();
+			}
 
 			return true;
 		}
 #	ifdef ERM_FBX_ENABLED
 		else if (Utils::CompareNoCaseSensitive(extension, ".fbx"))
 		{
-			mFutures.emplace_back(
-				std::async(
-					std::launch::async,
-					&ParseFBXModel,
-					std::ref(mMutex),
-					std::ref(mStop),
-					path,
-					std::ref(model),
-					std::ref(resourcesManager)));
+			if (async)
+			{
+				mFutures.emplace_back(
+					std::async(
+						std::launch::async,
+						&ParseFBXModel,
+						std::ref(mMutex),
+						std::ref(mStop),
+						path,
+						std::ref(model),
+						std::ref(resourcesManager)));
+			}
+			else
+			{
+				ParseFBXModel(mMutex, mStop, path, model, resourcesManager);
+				for (Mesh& mesh : model.GetMeshes())
+					mesh.Setup();
+			}
 
 			return true;
 		}

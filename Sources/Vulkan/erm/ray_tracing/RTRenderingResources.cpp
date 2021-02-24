@@ -11,6 +11,7 @@
 #include "erm/rendering/buffers/DeviceBuffer.h"
 #include "erm/rendering/renderer/IRenderer.h"
 
+#include "erm/utils/Profiler.h"
 #include "erm/utils/VkUtils.h"
 
 #include <algorithm>
@@ -19,9 +20,11 @@ namespace erm {
 
 	RTRenderingResources::RTRenderingResources(
 		Device& device,
-		IRenderer& renderer)
+		IRenderer& renderer,
+		const RTRenderConfigs& renderConfigs)
 		: mDevice(device)
 		, mRenderer(renderer)
+		, mRenderConfigs(renderConfigs)
 	{
 		CreateDescriptorPool();
 		CreateCommandBuffers();
@@ -34,6 +37,8 @@ namespace erm {
 
 	void RTRenderingResources::Update(std::vector<RTRenderData*>& renderData, uint32_t imageIndex)
 	{
+		PROFILE_FUNCTION();
+
 		if (renderData.empty())
 			return;
 
@@ -43,18 +48,39 @@ namespace erm {
 			if (!data->mBlas->GetBuffer())
 				toBuild.emplace_back(data->mBlas);
 
+		bool forceUpdate = mData.size() != renderData.size() || !toBuild.empty();
 		if (!toBuild.empty())
 		{
 			BuildBlas(toBuild, vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace);
 		}
+		else if (!forceUpdate)
+		{
+			for (size_t i = 0; i < renderData.size(); ++i)
+			{
+				auto it = std::find(renderData.begin(), renderData.end(), mData[i].first);
+				forceUpdate |= it == renderData.end();
+				if (!forceUpdate)
+					forceUpdate |= (*it)->mBlas != mData[i].second;
+			}
+		}
+
+		if (forceUpdate)
+		{
+			mData.resize(renderData.size());
+			for (size_t i = 0; i < renderData.size(); ++i)
+				mData[i] = std::make_pair(renderData[i], renderData[i]->mBlas);
+		}
 
 		UpdateTopLevelAS(
 			renderData,
+			forceUpdate,
 			vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace | vk::BuildAccelerationStructureFlagBitsKHR::eAllowUpdate);
 	}
 
 	vk::CommandBuffer RTRenderingResources::UpdateCommandBuffer(std::vector<RTRenderData*>& renderData, uint32_t imageIndex)
 	{
+		PROFILE_FUNCTION();
+
 		ASSERT(!renderData.empty());
 
 		const vk::Extent2D& extent = mRenderer.GetSwapChainExtent();
@@ -68,14 +94,14 @@ namespace erm {
 
 		cmd.begin(beginInfo);
 
-		RTPipelineResources& resources = GetOrCreatePipelineResources(*renderData[0]);
-		resources.UpdateResources(cmd, *renderData[0], imageIndex);
-		resources.UpdateCommandBuffer(cmd, *renderData[0], imageIndex);
+		RTRenderData& data = *renderData[0];
+		mPipelineResources->UpdateResources(cmd, data, imageIndex);
+		mPipelineResources->UpdateCommandBuffer(cmd, data, imageIndex);
 
 		// Size of a program identifier
 		uint32_t groupSize = math::align_up(mDevice.GetRayTracingProperties().shaderGroupHandleSize, mDevice.GetRayTracingProperties().shaderGroupBaseAlignment);
 		uint32_t groupStride = groupSize;
-		vk::DeviceAddress sbtAddress = mDevice->getBufferAddress({resources.GetSBTBuffer()});
+		vk::DeviceAddress sbtAddress = mDevice->getBufferAddress({mPipelineResources->GetSBTBuffer()});
 
 		using Stride = vk::StridedDeviceAddressRegionKHR;
 		std::array<Stride, 4> strideAddresses {
@@ -98,8 +124,10 @@ namespace erm {
 		return cmd;
 	}
 
-	void RTRenderingResources::BuildBlas(std::vector<RTBlas*> toBuild, vk::BuildAccelerationStructureFlagsKHR flags)
+	void RTRenderingResources::BuildBlas(std::vector<RTBlas*>& toBuild, vk::BuildAccelerationStructureFlagsKHR flags)
 	{
+		PROFILE_FUNCTION();
+
 		std::vector<vk::AccelerationStructureBuildGeometryInfoKHR> buildInfos(toBuild.size());
 		vk::DeviceSize maxScratch = 0;
 
@@ -194,7 +222,7 @@ namespace erm {
 				pBuildOffset[infoIdx] = &data.mInfos[infoIdx];
 
 			// Building the AS
-			cmdBuf.buildAccelerationStructuresKHR(1, buildInfos.data(), pBuildOffset.data());
+			cmdBuf.buildAccelerationStructuresKHR(1, &buildInfos[i], pBuildOffset.data());
 
 			// Since the scratch buffer is reused across builds, we need a barrier to ensure one build
 			// is finished before starting the next one
@@ -204,7 +232,7 @@ namespace erm {
 			cmdBuf.pipelineBarrier(
 				vk::PipelineStageFlagBits::eAccelerationStructureBuildKHR,
 				vk::PipelineStageFlagBits::eAccelerationStructureBuildKHR,
-				vk::DependencyFlagBits::eByRegion,
+				static_cast<vk::DependencyFlags>(0),
 				1,
 				&barrier,
 				0,
@@ -238,8 +266,6 @@ namespace erm {
 		// Compacting all BLAS
 		if (doCompaction)
 		{
-			vk::CommandBuffer cmdBuf = VkUtils::BeginSingleTimeCommands(mDevice.GetCommandPool(), mDevice.GetVkDevice());
-
 			// Get the size result back
 			std::vector<vk::DeviceSize> compactSizes(toBuild.size());
 			vk::Result result = mDevice->getQueryPoolResults(
@@ -251,12 +277,15 @@ namespace erm {
 				sizeof(vk::DeviceSize),
 				vk::QueryResultFlagBits::eWait);
 
+			std::vector<vk::UniqueAccelerationStructureKHR> toDelete(toBuild.size());
+
+			vk::CommandBuffer cmdBuf = VkUtils::BeginSingleTimeCommands(mDevice.GetCommandPool(), mDevice.GetVkDevice());
+
 			// Compacting
-			for (size_t i = 0; i < toBuild.size(); i++)
+			for (size_t i = 0; i < toBuild.size(); ++i)
 			{
 				RTBlas& blas = *toBuild[i];
-				auto& buffer = blas.GetBuffer();
-				buffer = std::make_unique<DeviceBuffer>(
+				std::unique_ptr<DeviceBuffer> buffer = std::make_unique<DeviceBuffer>(
 					mDevice,
 					compactSizes[i],
 					vk::BufferUsageFlagBits::eShaderDeviceAddress | vk::BufferUsageFlagBits::eAccelerationStructureStorageKHR);
@@ -273,20 +302,27 @@ namespace erm {
 				copyInfo.src = blas.GetAS();
 				copyInfo.dst = as.get();
 				copyInfo.mode = vk::CopyAccelerationStructureModeKHR::eCompact;
+
 				cmdBuf.copyAccelerationStructureKHR(copyInfo);
+
+				toDelete[i] = std::move(blas.GetASUnique());
 				blas.SetAS(std::move(as));
+				blas.GetBuffer() = std::move(buffer);
 			}
+
 			VkUtils::EndSingleTimeCommands(mDevice.GetGraphicsQueue(), mDevice.GetCommandPool(), mDevice.GetVkDevice(), cmdBuf);
 		}
 
 		mDevice->destroyQueryPool(queryPool);
 	}
 
-	void RTRenderingResources::UpdateTopLevelAS(std::vector<RTRenderData*> data, vk::BuildAccelerationStructureFlagsKHR flags)
+	bool RTRenderingResources::UpdateInstances(std::vector<RTRenderData*>& data)
 	{
+		PROFILE_FUNCTION();
+
 		size_t targetGeometries = data.size();
 		std::vector<vk::AccelerationStructureInstanceKHR> geometryInstances(targetGeometries);
-		size_t index = 0;
+
 		for (size_t i = 0; i < data.size(); ++i)
 		{
 			RTBlas& blas = *data[i]->mBlas;
@@ -299,18 +335,16 @@ namespace erm {
 
 			// The matrices for the instance transforms are row-major, instead of
 			// column-major in the rest of the application
-			//nvmath::mat4f transp = nvmath::transpose(instance.transform);
-			// X DAM: TODO
-			math::mat4 transp = glm::transpose(glm::identity<math::mat4>());
+			math::mat4 transp = glm::transpose(data[i]->mTransform);
 
 			// The gInst.transform value only contains 12 values, corresponding to a 4x3
 			// matrix, hence saving the last row that is anyway always (0,0,0,1). Since
 			// the matrix is row-major, we simply copy the first 12 values of the
 			// original 4x4 matrix
 			memcpy(&instance.transform, &transp, sizeof(instance.transform));
-			instance.instanceCustomIndex = index++;
 			instance.mask = 0xFF;
 			instance.instanceShaderBindingTableRecordOffset = 0;
+			instance.instanceCustomIndex = blas.GetId();
 			instance.flags = VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR;
 			instance.accelerationStructureReference = blasAddress;
 		}
@@ -318,11 +352,28 @@ namespace erm {
 		// Create a buffer holding the actual instance data (matrices++) for use by the AS builder
 		vk::DeviceSize instanceDescsSizeInBytes = targetGeometries * sizeof(vk::AccelerationStructureInstanceKHR);
 
+		const bool needsBuild = !mInstancesBuffer || mInstancesBuffer->GetBufferSize() != instanceDescsSizeInBytes;
+
 		// Allocate the instance buffer and copy its contents from host to device memory
-		mInstancesBuffer = std::make_unique<DeviceBuffer>(mDevice, instanceDescsSizeInBytes, vk::BufferUsageFlagBits::eShaderDeviceAddress);
+		if (needsBuild)
+			mInstancesBuffer = std::make_unique<DeviceBuffer>(mDevice, instanceDescsSizeInBytes, vk::BufferUsageFlagBits::eShaderDeviceAddress);
 
 		vk::CommandBuffer cmd = VkUtils::BeginSingleTimeCommands(mDevice.GetCommandPool(), mDevice.GetVkDevice());
 		mInstancesBuffer->Update(cmd, geometryInstances.data());
+		VkUtils::EndSingleTimeCommands(mDevice.GetGraphicsQueue(), mDevice.GetCommandPool(), mDevice.GetVkDevice(), cmd);
+
+		return needsBuild;
+	}
+
+	void RTRenderingResources::UpdateTopLevelAS(std::vector<RTRenderData*>& data, bool forceUpdate, vk::BuildAccelerationStructureFlagsKHR flags)
+	{
+		PROFILE_FUNCTION();
+
+		if (!UpdateInstances(data) && !forceUpdate)
+			return;
+
+		const size_t targetGeometries = data.size();
+		vk::CommandBuffer cmd = VkUtils::BeginSingleTimeCommands(mDevice.GetCommandPool(), mDevice.GetVkDevice());
 
 		vk::BufferDeviceAddressInfo bufferInfo;
 		bufferInfo.buffer = mInstancesBuffer->GetBuffer();
@@ -337,7 +388,7 @@ namespace erm {
 		cmd.pipelineBarrier(
 			vk::PipelineStageFlagBits::eTransfer,
 			vk::PipelineStageFlagBits::eAccelerationStructureBuildKHR,
-			vk::DependencyFlagBits::eByRegion,
+			static_cast<vk::DependencyFlags>(0),
 			1,
 			&barrier,
 			0,
@@ -389,6 +440,13 @@ namespace erm {
 			createInfo.buffer = buffer->GetBuffer();
 
 			mTopLevelAS.SetAS(mDevice->createAccelerationStructureKHRUnique(createInfo));
+
+			mPipelineResources = std::make_unique<RTPipelineResources>(
+				mDevice,
+				mRenderer,
+				mRenderConfigs,
+				mDescriptorPool.get(),
+				&mTopLevelAS.GetAS());
 		}
 
 		// Allocate the scratch memory
@@ -412,24 +470,13 @@ namespace erm {
 		VkUtils::EndSingleTimeCommands(mDevice.GetGraphicsQueue(), mDevice.GetCommandPool(), mDevice.GetVkDevice(), cmd);
 	}
 
-	RTPipelineResources& RTRenderingResources::GetOrCreatePipelineResources(const RTRenderData& renderData)
-	{
-		if (!mPipelineResources || mPipelineResources->GetRenderConfigs().mShaderProgram != renderData.mRenderConfigs.mShaderProgram)
-			mPipelineResources = std::make_unique<RTPipelineResources>(
-				mDevice,
-				mRenderer,
-				renderData.mRenderConfigs,
-				mDescriptorPool.get(),
-				&mTopLevelAS.GetAS());
-		return *mPipelineResources;
-	}
-
 	void RTRenderingResources::Refresh()
 	{
-		/*if (mRenderConfigs.mShaderProgram->NeedsReload())
+		if (mRenderConfigs.mShaderProgram->NeedsReload())
+		{
 			Reload();
-
-		mRenderConfigs.mShaderProgram->OnReloaded();*/
+			mRenderConfigs.mShaderProgram->OnReloaded();
+		}
 	}
 
 	void RTRenderingResources::Reload()
@@ -448,6 +495,8 @@ namespace erm {
 			mCommandBuffers.data());
 		mCommandBuffers.clear();
 		mDescriptorPool.reset();
+		mTopLevelAS.GetBuffer().reset();
+		mTopLevelAS.SetAS({});
 	}
 
 	void RTRenderingResources::CreateDescriptorPool()

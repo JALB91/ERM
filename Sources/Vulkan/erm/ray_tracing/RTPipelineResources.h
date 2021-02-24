@@ -36,8 +36,7 @@ namespace erm {
 	private:
 		void CreatePipeline();
 		void CreateBindingTable();
-
-		PipelineData& GetOrCreatePipelineData(RTRenderData& renderData);
+		void CreatePipelineData();
 
 		Device& mDevice;
 		IRenderer& mRenderer;
@@ -53,8 +52,7 @@ namespace erm {
 		std::vector<vk::UniqueDescriptorSetLayout> mDescriptorSetLayouts;
 
 		std::unique_ptr<HostBuffer> mSBTBuffer;
-
-		std::deque<PipelineData> mPipelineData;
+		std::unique_ptr<PipelineData> mPipelineData;
 	};
 
 } // namespace erm

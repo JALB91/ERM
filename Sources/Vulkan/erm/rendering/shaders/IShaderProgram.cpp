@@ -71,8 +71,10 @@ namespace {
 			return makeUboData(erm::UboPBLight::ID, sizeof(erm::UboPBLight));
 		else if (resource.name.compare("BonesDebug") == 0)
 			return makeUboData(erm::UboBonesDebug::ID, sizeof(erm::UboBonesDebug));
+#ifdef ERM_RAY_TRACING_ENABLED
 		else if (resource.name.compare("UboRTBasic") == 0)
 			return makeUboData(erm::UboRTBasic::ID, sizeof(erm::UboRTBasic));
+#endif
 
 		ASSERT(false);
 
@@ -156,13 +158,26 @@ namespace {
 #endif
 
 	void GatherResourceBindings(
-		erm::ShaderBindingData& data,
+		erm::ShaderBindingsMap& bindingsMap,
+		erm::SetIdx targetSet,
 		const spirv_cross::Compiler& compiler,
 		const spirv_cross::Resource& res,
 		vk::ShaderStageFlagBits flags,
 		vk::DescriptorType type)
 	{
 		const uint32_t binding = compiler.get_decoration(res.id, spv::Decoration::DecorationBinding);
+		erm::ShaderBindingData& data = bindingsMap[targetSet];
+
+		for (vk::DescriptorSetLayoutBinding& layoutBinding : data.mLayoutBindings)
+		{
+			if (layoutBinding.binding == binding)
+			{
+				// TODO: Should find a way to assert also based on the contents of the binding
+				ASSERT(layoutBinding.descriptorType == type);
+				layoutBinding.stageFlags |= flags;
+				return;
+			}
+		}
 
 		vk::DescriptorSetLayoutBinding& layoutBinding = data.mLayoutBindings.emplace_back();
 		layoutBinding.binding = binding;
@@ -203,31 +218,31 @@ namespace {
 		for (const spirv_cross::Resource& ubo : resources.uniform_buffers)
 		{
 			const uint32_t targetSet = compiler.get_decoration(ubo.id, spv::Decoration::DecorationDescriptorSet);
-			GatherResourceBindings(bindings[targetSet], compiler, ubo, flags, vk::DescriptorType::eUniformBuffer);
+			GatherResourceBindings(bindings, targetSet, compiler, ubo, flags, vk::DescriptorType::eUniformBuffer);
 		}
 
 		for (const spirv_cross::Resource& sampledImage : resources.sampled_images)
 		{
 			const uint32_t targetSet = compiler.get_decoration(sampledImage.id, spv::Decoration::DecorationDescriptorSet);
-			GatherResourceBindings(bindings[targetSet], compiler, sampledImage, flags, vk::DescriptorType::eCombinedImageSampler);
+			GatherResourceBindings(bindings, targetSet, compiler, sampledImage, flags, vk::DescriptorType::eCombinedImageSampler);
 		}
 
 		for (const spirv_cross::Resource& storageImage : resources.storage_images)
 		{
 			const uint32_t targetSet = compiler.get_decoration(storageImage.id, spv::Decoration::DecorationDescriptorSet);
-			GatherResourceBindings(bindings[targetSet], compiler, storageImage, flags, vk::DescriptorType::eStorageImage);
+			GatherResourceBindings(bindings, targetSet, compiler, storageImage, flags, vk::DescriptorType::eStorageImage);
 		}
 
 		for (const spirv_cross::Resource& storageBuffer : resources.storage_buffers)
 		{
 			const uint32_t targetSet = compiler.get_decoration(storageBuffer.id, spv::Decoration::DecorationDescriptorSet);
-			GatherResourceBindings(bindings[targetSet], compiler, storageBuffer, flags, vk::DescriptorType::eStorageBuffer);
+			GatherResourceBindings(bindings, targetSet, compiler, storageBuffer, flags, vk::DescriptorType::eStorageBuffer);
 		}
 
 		for (const spirv_cross::Resource& accelerationStructure : resources.acceleration_structures)
 		{
 			const uint32_t targetSet = compiler.get_decoration(accelerationStructure.id, spv::Decoration::DecorationDescriptorSet);
-			GatherResourceBindings(bindings[targetSet], compiler, accelerationStructure, flags, vk::DescriptorType::eAccelerationStructureKHR);
+			GatherResourceBindings(bindings, targetSet, compiler, accelerationStructure, flags, vk::DescriptorType::eAccelerationStructureKHR);
 		}
 	}
 
@@ -238,7 +253,7 @@ namespace erm {
 	IShaderProgram::IShaderProgram(Device& device, const char* shaderPath)
 		: IAsset(shaderPath, "")
 		, mDevice(device)
-		, mNeedsReload(true)
+		, mNeedsReload(false)
 	{}
 
 	vk::ShaderModule IShaderProgram::CreateShaderModule(ShaderType shaderType) const

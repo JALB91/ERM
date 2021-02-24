@@ -7,6 +7,8 @@
 #include "erm/loaders/collada/ColladaSkeletonLoader.h"
 #include "erm/loaders/collada/ColladaSkinData.h"
 
+#include "erm/managers/ResourcesManager.h"
+
 #include <tinyxml2.h>
 
 #include <iostream>
@@ -22,9 +24,7 @@ namespace erm {
 		std::atomic<bool>& stop,
 		const char* path,
 		Model& model,
-		Materials& /*materials*/,
-		Skins& skins,
-		Animations& animations)
+		ResourcesManager& resourcesManager)
 	{
 		tinyxml2::XMLDocument document;
 		XMLError error = document.LoadFile(path);
@@ -39,8 +39,8 @@ namespace erm {
 
 		ProcessSkeleton(document, skinsData);
 		ProcessGeometries(mutex, stop, document, model, skinsData);
-		ProcessScene(mutex, path, document, skins, skinsData);
-		ProcessAnimations(mutex, document, skinsData, path, animations);
+		ProcessScene(mutex, path, document, resourcesManager.GetSkins(), skinsData);
+		ProcessAnimations(mutex, document, skinsData, path, resourcesManager.GetAnimations());
 	}
 
 } // namespace erm

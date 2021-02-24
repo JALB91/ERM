@@ -178,7 +178,8 @@ namespace erm::VkUtils {
 		submitInfo.pCommandBuffers = &commandBuffer;
 
 		vk::Result result = graphicsQueue.submit(1, &submitInfo, nullptr);
-		vkQueueWaitIdle(graphicsQueue);
+		ASSERT(result == vk::Result::eSuccess);
+		graphicsQueue.waitIdle();
 
 		device.freeCommandBuffers(commandPool, 1, &commandBuffer);
 	}

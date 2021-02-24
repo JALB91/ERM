@@ -7,8 +7,6 @@
 
 #include "erm/rendering/data_structs/RenderData.h"
 
-#include <queue>
-
 namespace erm {
 	class Mesh;
 	class Engine;
@@ -46,10 +44,7 @@ namespace erm::ecs {
 		CameraSystem* mCameraSystem;
 		LightSystem* mLightSystem;
 
-		std::queue<ID> mModelsRenderingQueue;
-
 		std::unique_ptr<Mesh> mGridMesh;
-		std::unique_ptr<Mesh> mDebugMesh;
 		ShaderProgram* mDebugShader;
 		RenderData mRenderData;
 	};

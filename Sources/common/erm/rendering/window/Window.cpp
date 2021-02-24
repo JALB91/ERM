@@ -303,7 +303,12 @@ namespace erm {
 
 	BoundingBox2D Window::GetNormalizedViewport() const
 	{
+		// TODO: Find a way to handle different viewports when ray tracing is active
+#ifdef ERM_RAY_TRACING_ENABLED
+		return BoundingBox2D({0.0f, 0.0f}, {1.0f, 1.0f});
+#else
 		return BoundingBox2D({kImGuiSpaceLeft, kImGuiSpaceUp}, {1.0f - kImGuiSpaceRight, 1.0f - kImGuiSpaceDown});
+#endif
 	}
 
 	void Window::UpdateViewport()

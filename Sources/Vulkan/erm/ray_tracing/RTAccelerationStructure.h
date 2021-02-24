@@ -20,6 +20,7 @@ namespace erm {
 
 		inline std::unique_ptr<DeviceBuffer>& GetBuffer() { return mBuffer; }
 		inline const vk::AccelerationStructureKHR& GetAS() const { return mAccelerationStructure.get(); }
+		inline vk::UniqueAccelerationStructureKHR& GetASUnique() { return mAccelerationStructure; }
 
 	private:
 		std::unique_ptr<DeviceBuffer> mBuffer;

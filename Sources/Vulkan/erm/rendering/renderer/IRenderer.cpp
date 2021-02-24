@@ -126,7 +126,11 @@ namespace erm {
 		swapChainCreateInfo.imageColorSpace = surfaceFormat.colorSpace;
 		swapChainCreateInfo.imageExtent = mSwapChainExtent;
 		swapChainCreateInfo.imageArrayLayers = 1;
-		swapChainCreateInfo.imageUsage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eStorage;
+		swapChainCreateInfo.imageUsage = vk::ImageUsageFlagBits::eColorAttachment
+#ifdef ERM_RAY_TRACING_ENABLED
+			| vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eStorage
+#endif
+			;
 
 		if (indices.mGraphicsFamily != indices.mPresentFamily)
 		{

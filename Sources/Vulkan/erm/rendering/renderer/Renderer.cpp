@@ -37,9 +37,6 @@ namespace erm {
 
 	Renderer::Renderer(Engine& engine)
 		: IRenderer(engine)
-#ifdef ERM_RAY_TRACING_ENABLED
-		, mRTRenderingResources(mDevice, *this)
-#endif
 	{}
 
 	Renderer::~Renderer()
@@ -48,6 +45,16 @@ namespace erm {
 	void Renderer::OnPreRender()
 	{
 		PROFILE_FUNCTION();
+
+#ifdef ERM_RAY_TRACING_ENABLED
+		for (auto it = mRTRenderData.begin(); it != mRTRenderData.end();)
+		{
+			if (it->second.empty())
+				it = mRTRenderData.erase(it);
+			else
+				++it;
+		}
+#endif
 
 		if (mRasterData.empty()
 #ifdef ERM_RAY_TRACING_ENABLED
@@ -60,6 +67,10 @@ namespace erm {
 		{
 			renderingResources->Refresh();
 		}
+#ifdef ERM_RAY_TRACING_ENABLED
+		for (const auto& resources : mRTRenderingResources)
+			resources->Refresh();
+#endif
 
 		vk::Result result = mDevice->waitForFences(1, &mInFlightFences[mCurrentFrame], VK_TRUE, UINT64_MAX);
 
@@ -127,7 +138,8 @@ namespace erm {
 		}
 
 #ifdef ERM_RAY_TRACING_ENABLED
-		mRTRenderData.clear();
+		for (auto& [resources, data] : mRTRenderData)
+			data.clear();
 #endif
 
 		if (!mIsImageIndexValid)
@@ -175,7 +187,16 @@ namespace erm {
 #ifdef ERM_RAY_TRACING_ENABLED
 	void Renderer::SubmitRTRenderData(RTRenderData& data)
 	{
-		mRTRenderData.emplace_back(&data);
+		RTRenderingResources* resources = nullptr;
+		std::for_each(mRTRenderingResources.begin(), mRTRenderingResources.end(), [&resources, &configs = data.mRenderConfigs](auto& res) {
+			if (configs.mShaderProgram == res->GetRenderConfigs().mShaderProgram)
+				resources = res.get();
+		});
+
+		if (!resources)
+			resources = mRTRenderingResources.emplace_back(std::make_unique<RTRenderingResources>(mDevice, *this, data.mRenderConfigs)).get();
+
+		mRTRenderData[resources].emplace_back(&data);
 	}
 #endif
 
@@ -185,7 +206,7 @@ namespace erm {
 
 		std::vector<vk::CommandBuffer> commandBuffers(mRasterData.size() +
 #ifdef ERM_RAY_TRACING_ENABLED
-													  !mRTRenderData.empty() +
+													  mRTRenderData.size() +
 #endif
 													  1);
 
@@ -197,10 +218,10 @@ namespace erm {
 		}
 
 #ifdef ERM_RAY_TRACING_ENABLED
-		if (!mRTRenderData.empty())
+		for (auto& [resources, data] : mRTRenderData)
 		{
-			mRTRenderingResources.Update(mRTRenderData, mCurrentImageIndex);
-			commandBuffers[index++] = mRTRenderingResources.UpdateCommandBuffer(mRTRenderData, mCurrentImageIndex);
+			resources->Update(data, mCurrentImageIndex);
+			commandBuffers[index++] = resources->UpdateCommandBuffer(data, mCurrentImageIndex);
 		}
 #endif
 

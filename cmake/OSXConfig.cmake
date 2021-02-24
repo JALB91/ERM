@@ -19,7 +19,7 @@ function(target_setup_project TARGET)
 	)
 
 	if("${TARGET_API}" STREQUAL "Vulkan")
-		set(SHADERS_COMPILER "glslc" PARENT_SCOPE)
+		set(SHADERS_COMPILER "glslc --target-spv=spv1.5" PARENT_SCOPE)
 		set(ERM_FLIP_VIEWPORT OFF CACHE BOOL "" FORCE)
 		set(ERM_FLIP_PROJECTION ON CACHE BOOL "" FORCE)
 	else()

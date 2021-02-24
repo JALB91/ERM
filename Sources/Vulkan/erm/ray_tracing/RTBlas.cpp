@@ -34,7 +34,7 @@ namespace erm {
 			vk::DeviceAddress vertexAddress = mDevice->getBufferAddress({mesh.GetVertexBuffer().GetBuffer()});
 			vk::DeviceAddress indexAddress = mDevice->getBufferAddress({mesh.GetIndexBuffer().GetBuffer()});
 
-			uint32_t maxPrimitiveCount = static_cast<uint32_t>(mesh.GetIndicesData().size()) / 3;
+			uint32_t maxPrimitiveCount = static_cast<uint32_t>(mesh.GetIndexBuffer().GetCount()) / 3;
 
 			// Describe buffer as array of VertexObj.
 			vk::AccelerationStructureGeometryTrianglesDataKHR triangles;

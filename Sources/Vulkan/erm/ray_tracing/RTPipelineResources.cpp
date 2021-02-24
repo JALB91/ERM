@@ -9,6 +9,7 @@
 #include "erm/rendering/data_structs/DeviceBindingResources.h"
 #include "erm/rendering/data_structs/HostBindingResources.h"
 
+#include "erm/utils/Profiler.h"
 #include "erm/utils/Utils.h"
 
 namespace erm {
@@ -27,20 +28,21 @@ namespace erm {
 	{
 		CreatePipeline();
 		CreateBindingTable();
+		CreatePipelineData();
 	}
 
 	void RTPipelineResources::UpdateResources(vk::CommandBuffer& cmd, RTRenderData& renderData, uint32_t imageIndex)
 	{
-		auto& pipelineData = GetOrCreatePipelineData(renderData);
-		pipelineData.UpdateResources(cmd, renderData);
+		PROFILE_FUNCTION();
+		mPipelineData->UpdateResources(cmd, renderData);
 	}
 
 	void RTPipelineResources::UpdateCommandBuffer(vk::CommandBuffer& cmd, RTRenderData& renderData, uint32_t imageIndex)
 	{
+		PROFILE_FUNCTION();
 		cmd.bindPipeline(vk::PipelineBindPoint::eRayTracingKHR, mPipeline.get());
 
-		auto& pipelineData = GetOrCreatePipelineData(renderData);
-		auto ds = pipelineData.GetDescriptorSets(mEmptySet.get());
+		auto ds = mPipelineData->GetDescriptorSets(mEmptySet.get());
 
 		cmd.bindDescriptorSets(
 			vk::PipelineBindPoint::eRayTracingKHR,
@@ -51,7 +53,7 @@ namespace erm {
 			0,
 			nullptr);
 
-		pipelineData.PostDraw();
+		mPipelineData->PostDraw();
 	}
 
 	void RTPipelineResources::CreatePipeline()
@@ -199,7 +201,7 @@ namespace erm {
 		vk::Result result = mDevice->getRayTracingShaderGroupHandlesKHR(mPipeline.get(), 0, groupCount, sbtSize, shaderHandleStorage.data());
 		ASSERT(result == vk::Result::eSuccess);
 
-		// Allocate a buffer for storing the SBT. Give it a debug name for NSight.
+		// Allocate a buffer for storing the SBT.
 		mSBTBuffer = std::make_unique<HostBuffer>(
 			mDevice,
 			sbtSize,
@@ -216,16 +218,10 @@ namespace erm {
 		mDevice->unmapMemory(mSBTBuffer->GetBufferMemory());
 	}
 
-	PipelineData& RTPipelineResources::GetOrCreatePipelineData(RTRenderData& renderData)
+	void RTPipelineResources::CreatePipelineData()
 	{
-		auto it = std::find_if(mPipelineData.begin(), mPipelineData.end(), [&renderData](PipelineData& data) {
-			return data.IsCompatible(renderData.mRenderConfigs);
-		});
-		if (it != mPipelineData.end())
-			return *it;
-
-		auto& data = mPipelineData.emplace_back(renderData.mRenderConfigs);
-		const auto& sbm = renderData.mRenderConfigs.mShaderProgram->GetShaderBindingsMap();
+		mPipelineData = std::make_unique<PipelineData>(mRenderConfigs);
+		const auto& sbm = mRenderConfigs.mShaderProgram->GetShaderBindingsMap();
 
 		for (const auto& [set, bindings] : sbm)
 		{
@@ -236,8 +232,8 @@ namespace erm {
 					mRenderer,
 					set,
 					mDescriptorPool,
-					*renderData.mRenderConfigs.mShaderProgram,
-					renderData.mRenderConfigs,
+					*mRenderConfigs.mShaderProgram,
+					mRenderConfigs,
 					mDescriptorSetLayouts[set].get(),
 					mTopLevelAS);
 			else
@@ -246,14 +242,12 @@ namespace erm {
 					mRenderer,
 					set,
 					mDescriptorPool,
-					*renderData.mRenderConfigs.mShaderProgram,
-					renderData.mRenderConfigs,
+					*mRenderConfigs.mShaderProgram,
+					mRenderConfigs,
 					mDescriptorSetLayouts[set].get());
 
-			data.AddResources(set, std::move(resources));
+			mPipelineData->AddResources(set, std::move(resources));
 		}
-
-		return data;
 	}
 
 } // namespace erm

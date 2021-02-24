@@ -1,4 +1,4 @@
 struct hitPayload
 {
-    vec3 hitValue;
+    vec4 hitValue;
 };
