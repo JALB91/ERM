@@ -23,7 +23,7 @@ namespace erm {
 			Device& device,
 			Renderer& renderer,
 			const std::vector<SubpassData>& renderConfigs);
-		~RenderingResources();
+		~RenderingResources() = default;
 
 		RenderingResources(RenderingResources&& other);
 
@@ -53,11 +53,11 @@ namespace erm {
 		Device& mDevice;
 		Renderer& mRenderer;
 		std::vector<SubpassData> mSubpassData;
-		vk::RenderPass mRenderPass;
-		std::vector<vk::Framebuffer> mSwapChainFramebuffers;
-		vk::DescriptorPool mDescriptorPool;
+		vk::UniqueRenderPass mRenderPass;
+		std::vector<vk::UniqueFramebuffer> mSwapChainFramebuffers;
+		vk::UniqueDescriptorPool mDescriptorPool;
 		std::vector<std::unique_ptr<PipelineResources>> mPipelineResources;
-		std::vector<vk::CommandBuffer> mCommandBuffers;
+		std::vector<vk::UniqueCommandBuffer> mCommandBuffers;
 	};
 
 } // namespace erm

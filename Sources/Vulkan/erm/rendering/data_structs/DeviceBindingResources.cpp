@@ -6,6 +6,8 @@
 #include "erm/rendering/shaders/IShaderProgram.h"
 #include "erm/rendering/textures/Texture.h"
 
+#include "erm/utils/VkUtils.h"
+
 namespace erm {
 
 	DeviceBindingResources::DeviceBindingResources(
@@ -29,7 +31,7 @@ namespace erm {
 		info.setDescriptorSetCount(1);
 		info.setPSetLayouts(&descriptorSetLayout);
 
-		mDescriptorSets = mDevice->allocateDescriptorSets(info);
+		mDescriptorSets = mDevice->allocateDescriptorSetsUnique(info);
 
 		// GATHER SHADER DATA
 		const ShaderBindingData& shaderBindings = mShaderProgram.GetShaderBindingsData(mTargetSet);
@@ -63,7 +65,7 @@ namespace erm {
 			descriptorWrites,
 			descriptorBuffers,
 			ubosData,
-			mDescriptorSets[0]);
+			mDescriptorSets[0].get());
 
 		for (size_t i = 0; i < samplerData.size(); ++i)
 		{
@@ -78,7 +80,7 @@ namespace erm {
 			imageInfo.sampler = mRenderer.GetTextureSampler();
 
 			vk::WriteDescriptorSet descriptorWrite;
-			descriptorWrite.dstSet = mDescriptorSets[0];
+			descriptorWrite.dstSet = mDescriptorSets[0].get();
 			descriptorWrite.dstBinding = sData.mBinding;
 			descriptorWrite.dstArrayElement = 0;
 			descriptorWrite.descriptorType = vk::DescriptorType::eCombinedImageSampler;
@@ -95,7 +97,7 @@ namespace erm {
 			imageInfo.imageView = mRenderer.GetSwapChainImageViews()[mRenderer.GetCurrentImageIndex()];
 
 			vk::WriteDescriptorSet descriptorWrite;
-			descriptorWrite.dstSet = mDescriptorSets[0];
+			descriptorWrite.dstSet = mDescriptorSets[0].get();
 			descriptorWrite.dstBinding = storageImageData[i].mBinding;
 			descriptorWrite.dstArrayElement = 0;
 			descriptorWrite.descriptorType = vk::DescriptorType::eStorageImage;
@@ -113,7 +115,7 @@ namespace erm {
 			asInfo.pAccelerationStructures = as;
 
 			vk::WriteDescriptorSet& write = descriptorWrites.back();
-			write.dstSet = mDescriptorSets[0];
+			write.dstSet = mDescriptorSets[0].get();
 			write.dstBinding = asData[0].mBinding;
 			write.dstArrayElement = 0;
 			write.descriptorCount = 1;
@@ -128,7 +130,7 @@ namespace erm {
 	const vk::DescriptorSet DeviceBindingResources::GetDescriptorSet() const
 	{
 		ASSERT(!mDescriptorSets.empty());
-		return mDescriptorSets[0];
+		return mDescriptorSets[0].get();
 	}
 
 	void DeviceBindingResources::UpdateResources(vk::CommandBuffer& cmd, IRenderData& data)
@@ -148,7 +150,7 @@ namespace erm {
 			imageInfo.imageView = mRenderer.GetSwapChainImageViews()[mRenderer.GetCurrentImageIndex()];
 
 			vk::WriteDescriptorSet descriptorWrite;
-			descriptorWrite.dstSet = mDescriptorSets[0];
+			descriptorWrite.dstSet = mDescriptorSets[0].get();
 			descriptorWrite.dstBinding = storageImageData[0].mBinding;
 			descriptorWrite.dstArrayElement = 0;
 			descriptorWrite.descriptorType = vk::DescriptorType::eStorageImage;

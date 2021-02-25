@@ -5,6 +5,8 @@
 #include "erm/rendering/renderer/IRenderer.h"
 #include "erm/rendering/shaders/IShaderProgram.h"
 
+#include "erm/utils/VkUtils.h"
+
 namespace erm {
 
 	HostBindingResources::HostBindingResources(
@@ -28,8 +30,7 @@ namespace erm {
 		info.setDescriptorSetCount(IRenderer::kMaxFramesInFlight);
 		info.setPSetLayouts(layouts.data());
 
-		mDescriptorSets.resize(IRenderer::kMaxFramesInFlight);
-		mDescriptorSets = mDevice->allocateDescriptorSets(info);
+		mDescriptorSets = mDevice->allocateDescriptorSetsUnique(info);
 
 		// GATHER SHADER DATA
 		const ShaderBindingData& shaderBindings = mShaderProgram.GetShaderBindingsData(mTargetSet);
@@ -49,7 +50,7 @@ namespace erm {
 		for (uint32_t i = 0; i < IRenderer::kMaxFramesInFlight; ++i)
 		{
 			CreateUniformBuffersDescriptorInfos(descriptorBuffers, ubosData, mUniformBuffers[i]);
-			CreateUniformBuffersDescriptorWrites(descriptorWrites, descriptorBuffers, ubosData, mDescriptorSets[i], i * static_cast<uint32_t>(ubosData.size()));
+			CreateUniformBuffersDescriptorWrites(descriptorWrites, descriptorBuffers, ubosData, mDescriptorSets[i].get(), i * static_cast<uint32_t>(ubosData.size()));
 		}
 
 		mDevice->updateDescriptorSets(static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
@@ -57,7 +58,7 @@ namespace erm {
 
 	const vk::DescriptorSet HostBindingResources::GetDescriptorSet() const
 	{
-		return mDescriptorSets[mCurrentBufferIndex];
+		return mDescriptorSets[mCurrentBufferIndex].get();
 	}
 
 	void HostBindingResources::UpdateResources(vk::CommandBuffer& cmd, IRenderData& data)

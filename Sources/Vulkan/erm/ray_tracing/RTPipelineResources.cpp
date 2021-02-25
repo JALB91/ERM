@@ -11,6 +11,7 @@
 
 #include "erm/utils/Profiler.h"
 #include "erm/utils/Utils.h"
+#include "erm/utils/VkUtils.h"
 
 namespace erm {
 
@@ -65,23 +66,23 @@ namespace erm {
 		/*
 			LOAD SHADERS
 		*/
-		vk::ShaderModule rayGenShaderModule = shader->CreateShaderModule(ShaderType::RT_RAY_GEN);
-		vk::ShaderModule missShaderModule = shader->CreateShaderModule(ShaderType::RT_MISS);
-		vk::ShaderModule closestHitShaderModule = shader->CreateShaderModule(ShaderType::RT_CLOSEST_HIT);
+		vk::UniqueShaderModule rayGenShaderModule = shader->CreateShaderModule(ShaderType::RT_RAY_GEN);
+		vk::UniqueShaderModule missShaderModule = shader->CreateShaderModule(ShaderType::RT_MISS);
+		vk::UniqueShaderModule closestHitShaderModule = shader->CreateShaderModule(ShaderType::RT_CLOSEST_HIT);
 
 		vk::PipelineShaderStageCreateInfo rayGenShaderStageInfo = {};
 		rayGenShaderStageInfo.stage = vk::ShaderStageFlagBits::eRaygenKHR;
-		rayGenShaderStageInfo.module = rayGenShaderModule;
+		rayGenShaderStageInfo.module = rayGenShaderModule.get();
 		rayGenShaderStageInfo.pName = "main";
 
 		vk::PipelineShaderStageCreateInfo missShaderStageInfo = {};
 		missShaderStageInfo.stage = vk::ShaderStageFlagBits::eMissKHR;
-		missShaderStageInfo.module = missShaderModule;
+		missShaderStageInfo.module = missShaderModule.get();
 		missShaderStageInfo.pName = "main";
 
 		vk::PipelineShaderStageCreateInfo closestHitShaderStageInfo = {};
 		closestHitShaderStageInfo.stage = vk::ShaderStageFlagBits::eClosestHitKHR;
-		closestHitShaderStageInfo.module = closestHitShaderModule;
+		closestHitShaderStageInfo.module = closestHitShaderModule.get();
 		closestHitShaderStageInfo.pName = "main";
 
 		vk::PipelineShaderStageCreateInfo shaderStages[] = {rayGenShaderStageInfo, missShaderStageInfo, closestHitShaderStageInfo};
@@ -177,11 +178,9 @@ namespace erm {
 		pipelineInfo.setStageCount(3);
 		pipelineInfo.setLayout(mPipelineLayout.get());
 
-		mPipeline = mDevice->createRayTracingPipelineKHRUnique(nullptr, mDevice.GetPipelineCache(), pipelineInfo).value;
-
-		mDevice->destroyShaderModule(missShaderModule);
-		mDevice->destroyShaderModule(rayGenShaderModule);
-		mDevice->destroyShaderModule(closestHitShaderModule);
+		auto result = mDevice->createRayTracingPipelineKHRUnique(nullptr, mDevice.GetPipelineCache(), pipelineInfo);
+		ASSERT(result.result == vk::Result::eSuccess);
+		mPipeline = std::move(result.value);
 	}
 
 	void RTPipelineResources::CreateBindingTable()
@@ -198,8 +197,7 @@ namespace erm {
 		// Fetch all the shader handles used in the pipeline. This is opaque data,
 		// so we store it in a vector of bytes.
 		std::vector<uint8_t> shaderHandleStorage(sbtSize);
-		vk::Result result = mDevice->getRayTracingShaderGroupHandlesKHR(mPipeline.get(), 0, groupCount, sbtSize, shaderHandleStorage.data());
-		ASSERT(result == vk::Result::eSuccess);
+		VK_CHECK(mDevice->getRayTracingShaderGroupHandlesKHR(mPipeline.get(), 0, groupCount, sbtSize, shaderHandleStorage.data()));
 
 		// Allocate a buffer for storing the SBT.
 		mSBTBuffer = std::make_unique<HostBuffer>(
@@ -208,7 +206,8 @@ namespace erm {
 			vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eShaderDeviceAddress | vk::BufferUsageFlagBits::eShaderBindingTableKHR);
 
 		// Map the SBT buffer and write in the handles.
-		void* mapped = mDevice->mapMemory(mSBTBuffer->GetBufferMemory(), 0, mSBTBuffer->GetBufferSize());
+		void* mapped = nullptr;
+		VK_CHECK(mDevice->mapMemory(mSBTBuffer->GetBufferMemory(), 0, mSBTBuffer->GetBufferSize(), {}, &mapped));
 		uint8_t* pData = reinterpret_cast<uint8_t*>(mapped);
 		for (uint32_t g = 0; g < groupCount; ++g)
 		{

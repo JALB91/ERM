@@ -101,17 +101,17 @@ namespace erm {
 		/*
 			LOAD SHADERS
 		*/
-		vk::ShaderModule vertShaderModule = shader->CreateShaderModule(ShaderType::VERTEX);
-		vk::ShaderModule fragShaderModule = shader->CreateShaderModule(ShaderType::FRAGMENT);
+		vk::UniqueShaderModule vertShaderModule = shader->CreateShaderModule(ShaderType::VERTEX);
+		vk::UniqueShaderModule fragShaderModule = shader->CreateShaderModule(ShaderType::FRAGMENT);
 
 		vk::PipelineShaderStageCreateInfo vertShaderStageInfo = {};
 		vertShaderStageInfo.stage = vk::ShaderStageFlagBits::eVertex;
-		vertShaderStageInfo.module = vertShaderModule;
+		vertShaderStageInfo.module = vertShaderModule.get();
 		vertShaderStageInfo.pName = "main";
 
 		vk::PipelineShaderStageCreateInfo fragShaderStageInfo = {};
 		fragShaderStageInfo.stage = vk::ShaderStageFlagBits::eFragment;
-		fragShaderStageInfo.module = fragShaderModule;
+		fragShaderStageInfo.module = fragShaderModule.get();
 		fragShaderStageInfo.pName = "main";
 
 		vk::PipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};
@@ -308,10 +308,9 @@ namespace erm {
 		pipelineInfo.basePipelineHandle = nullptr;
 		pipelineInfo.basePipelineIndex = -1;
 
-		mPipeline = mDevice->createGraphicsPipelineUnique(mDevice.GetPipelineCache(), pipelineInfo).value;
-
-		mDevice->destroyShaderModule(vertShaderModule);
-		mDevice->destroyShaderModule(fragShaderModule);
+		auto result = mDevice->createGraphicsPipelineUnique(mDevice.GetPipelineCache(), pipelineInfo);
+		ASSERT(result.result == vk::Result::eSuccess);
+		mPipeline = std::move(result.value);
 	}
 
 	PipelineData& PipelineResources::GetOrCreatePipelineData(RenderData& renderData)

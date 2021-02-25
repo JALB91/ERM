@@ -22,33 +22,23 @@ namespace erm {
 		: mDevice(device)
 		, mRenderer(renderer)
 		, mSubpassData(subpassData)
-		, mRenderPass(nullptr)
-		, mDescriptorPool(nullptr)
 	{
 		Reload();
-	}
-
-	RenderingResources::~RenderingResources()
-	{
-		Cleanup();
 	}
 
 	RenderingResources::RenderingResources(RenderingResources&& other)
 		: mDevice(other.mDevice)
 		, mRenderer(other.mRenderer)
-		, mSubpassData(other.mSubpassData)
-		, mRenderPass(other.mRenderPass)
+		, mSubpassData(std::move(other.mSubpassData))
+		, mRenderPass(std::move(other.mRenderPass))
 		, mSwapChainFramebuffers(std::move(other.mSwapChainFramebuffers))
-		, mDescriptorPool(other.mDescriptorPool)
+		, mDescriptorPool(std::move(other.mDescriptorPool))
 		, mCommandBuffers(std::move(other.mCommandBuffers))
-	{
-		other.mRenderPass = nullptr;
-		other.mDescriptorPool = nullptr;
-	}
+	{}
 
 	vk::CommandBuffer RenderingResources::UpdateCommandBuffer(std::vector<RenderData*>& renderData, uint32_t imageIndex)
 	{
-		vk::CommandBuffer& cmd = mCommandBuffers[imageIndex];
+		vk::CommandBuffer& cmd = mCommandBuffers[imageIndex].get();
 		cmd.reset({});
 
 		vk::CommandBufferBeginInfo beginInfo = {};
@@ -71,8 +61,8 @@ namespace erm {
 		clearValues[1].setDepthStencil({1.0f, 0});
 
 		vk::RenderPassBeginInfo renderPassInfo = {};
-		renderPassInfo.renderPass = mRenderPass;
-		renderPassInfo.framebuffer = mSwapChainFramebuffers[imageIndex];
+		renderPassInfo.renderPass = mRenderPass.get();
+		renderPassInfo.framebuffer = mSwapChainFramebuffers[imageIndex].get();
 		renderPassInfo.renderArea.offset = vk::Offset2D {0, 0};
 		renderPassInfo.renderArea.extent = mRenderer.GetSwapChainExtent();
 		renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
@@ -133,7 +123,7 @@ namespace erm {
 
 		for (const RenderConfigs& config : configsToRecreate)
 		{
-			mPipelineResources.emplace_back(std::make_unique<PipelineResources>(mDevice, mRenderer, &mRenderPass, &mDescriptorPool, config));
+			mPipelineResources.emplace_back(std::make_unique<PipelineResources>(mDevice, mRenderer, &mRenderPass.get(), &mDescriptorPool.get(), config));
 		}
 
 		for (const RenderConfigs& config : configsToRecreate)
@@ -166,7 +156,7 @@ namespace erm {
 			}
 		}
 
-		return *mPipelineResources.emplace_back(std::make_unique<PipelineResources>(mDevice, mRenderer, &mRenderPass, &mDescriptorPool, renderConfigs));
+		return *mPipelineResources.emplace_back(std::make_unique<PipelineResources>(mDevice, mRenderer, &mRenderPass.get(), &mDescriptorPool.get(), renderConfigs));
 	}
 
 	void RenderingResources::Reload()
@@ -180,18 +170,11 @@ namespace erm {
 
 	void RenderingResources::Cleanup()
 	{
-		for (size_t i = 0; i < mSwapChainFramebuffers.size(); ++i)
-		{
-			mDevice->destroyFramebuffer(mSwapChainFramebuffers[i]);
-		}
 		mSwapChainFramebuffers.clear();
-		mDevice->freeCommandBuffers(mDevice.GetCommandPool(), static_cast<uint32_t>(mCommandBuffers.size()), mCommandBuffers.data());
 		mCommandBuffers.clear();
 		mPipelineResources.clear();
-		mDevice->destroyRenderPass(mRenderPass);
-		mRenderPass = nullptr;
-		mDevice->destroyDescriptorPool(mDescriptorPool);
-		mDescriptorPool = nullptr;
+		mRenderPass.reset();
+		mDescriptorPool.reset();
 	}
 
 	void RenderingResources::CreateRenderPass()
@@ -245,7 +228,7 @@ namespace erm {
 		renderPassInfo.dependencyCount = static_cast<uint32_t>(dependencies.size());
 		renderPassInfo.pDependencies = dependencies.data();
 
-		mRenderPass = mDevice->createRenderPass(renderPassInfo);
+		mRenderPass = mDevice->createRenderPassUnique(renderPassInfo);
 	}
 
 	void RenderingResources::CreateFramebuffers()
@@ -259,14 +242,14 @@ namespace erm {
 			std::vector<vk::ImageView> attachments = {swapChainImageViews[i], mRenderer.GetDepthImageView()};
 
 			vk::FramebufferCreateInfo framebufferInfo = {};
-			framebufferInfo.renderPass = mRenderPass;
+			framebufferInfo.renderPass = mRenderPass.get();
 			framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
 			framebufferInfo.pAttachments = attachments.data();
 			framebufferInfo.width = static_cast<uint32_t>(swapChainExtent.width);
 			framebufferInfo.height = static_cast<uint32_t>(swapChainExtent.height);
 			framebufferInfo.layers = 1;
 
-			mSwapChainFramebuffers[i] = mDevice->createFramebuffer(framebufferInfo);
+			mSwapChainFramebuffers[i] = mDevice->createFramebufferUnique(framebufferInfo);
 		}
 	}
 
@@ -286,7 +269,7 @@ namespace erm {
 		poolInfo.maxSets = static_cast<uint32_t>(swapChainImageViews.size() * 100);
 		poolInfo.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
 
-		mDescriptorPool = mDevice->createDescriptorPool(poolInfo);
+		mDescriptorPool = mDevice->createDescriptorPoolUnique(poolInfo);
 	}
 
 	void RenderingResources::CreateCommandBuffers()
@@ -300,7 +283,7 @@ namespace erm {
 		allocInfo.level = vk::CommandBufferLevel::ePrimary;
 		allocInfo.commandBufferCount = static_cast<uint32_t>(mCommandBuffers.size());
 
-		mCommandBuffers = mDevice->allocateCommandBuffers(allocInfo);
+		mCommandBuffers = mDevice->allocateCommandBuffersUnique(allocInfo);
 	}
 
 } // namespace erm

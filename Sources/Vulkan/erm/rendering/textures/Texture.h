@@ -28,7 +28,7 @@ namespace erm {
 		inline int GetWidth() const { return mWidth; }
 		inline int GetHeight() const { return mHeight; }
 
-		inline vk::ImageView& GetImageView() { return mTextureImageView; }
+		inline vk::ImageView& GetImageView() { return mTextureImageView.get(); }
 
 	private:
 		void CreateTextureImage();
@@ -38,9 +38,9 @@ namespace erm {
 		unsigned char* mLocalBuffer;
 		int mWidth, mHeight, mBPP;
 
-		vk::Image mTextureImage;
-		vk::ImageView mTextureImageView;
-		vk::DeviceMemory mTextureImageMemory;
+		vk::UniqueImage mTextureImage;
+		vk::UniqueImageView mTextureImageView;
+		vk::UniqueDeviceMemory mTextureImageMemory;
 	};
 
 } // namespace erm

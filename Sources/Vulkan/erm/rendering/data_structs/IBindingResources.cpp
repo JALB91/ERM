@@ -8,6 +8,8 @@
 #include "erm/rendering/shaders/ShaderProgram.h"
 #include "erm/rendering/textures/Texture.h"
 
+#include "erm/utils/VkUtils.h"
+
 namespace erm {
 
 	IBindingResources::IBindingResources(
@@ -24,12 +26,6 @@ namespace erm {
 		, mShaderProgram(shaderProgram)
 		, mConfigs(configs)
 	{}
-
-	IBindingResources::~IBindingResources()
-	{
-		if (!mDescriptorSets.empty())
-			mDevice->freeDescriptorSets(mDescriptorPool, static_cast<uint32_t>(mDescriptorSets.size()), mDescriptorSets.data());
-	}
 
 	void IBindingResources::CreateUniformBuffersDescriptorWrites(
 		std::vector<vk::WriteDescriptorSet>& writes,

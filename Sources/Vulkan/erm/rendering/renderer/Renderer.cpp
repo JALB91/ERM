@@ -72,9 +72,9 @@ namespace erm {
 			resources->Refresh();
 #endif
 
-		vk::Result result = mDevice->waitForFences(1, &mInFlightFences[mCurrentFrame], VK_TRUE, UINT64_MAX);
+		VK_CHECK(mDevice->waitForFences(1, &mInFlightFences[mCurrentFrame], VK_TRUE, UINT64_MAX));
 
-		result = mDevice->acquireNextImageKHR(mSwapChain, UINT64_MAX, mImageAvailableSemaphores[mCurrentFrame], {}, &mCurrentImageIndex);
+		const vk::Result result = mDevice->acquireNextImageKHR(mSwapChain, UINT64_MAX, mImageAvailableSemaphores[mCurrentFrame], {}, &mCurrentImageIndex);
 
 		if (result == vk::Result::eErrorOutOfDateKHR)
 		{
@@ -93,7 +93,7 @@ namespace erm {
 		// Check if a previous frame is using this image (i.e. there is its fence to wait on)
 		if (mImagesInFlight[mCurrentImageIndex])
 		{
-			vk::Result result = mDevice->waitForFences(1, &mImagesInFlight[mCurrentImageIndex], VK_TRUE, UINT64_MAX);
+			VK_CHECK(mDevice->waitForFences(1, &mImagesInFlight[mCurrentImageIndex], VK_TRUE, UINT64_MAX));
 		}
 		// Mark the image as now being in use by this frame
 		mImagesInFlight[mCurrentImageIndex] = mInFlightFences[mCurrentFrame];
@@ -120,12 +120,8 @@ namespace erm {
 		submitInfo.signalSemaphoreCount = 1;
 		submitInfo.pSignalSemaphores = &mRenderFinishedSemaphores[mCurrentFrame];
 
-		vk::Result result = mDevice->resetFences(1, &mInFlightFences[mCurrentFrame]);
-
-		if (mDevice.GetGraphicsQueue().submit(1, &submitInfo, mInFlightFences[mCurrentFrame]) != vk::Result::eSuccess)
-		{
-			throw std::runtime_error("Failed to submit draw command buffer");
-		}
+		VK_CHECK(mDevice->resetFences(1, &mInFlightFences[mCurrentFrame]));
+		VK_CHECK(mDevice.GetGraphicsQueue().submit(1, &submitInfo, mInFlightFences[mCurrentFrame]));
 	}
 
 	void Renderer::OnPostRender()
@@ -154,7 +150,7 @@ namespace erm {
 		presentInfo.pSwapchains = swapChains;
 		presentInfo.pImageIndices = &mCurrentImageIndex;
 
-		vk::Result result = mDevice.GetPresentQueue().presentKHR(&presentInfo);
+		const vk::Result result = mDevice.GetPresentQueue().presentKHR(&presentInfo);
 
 		if (result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR || mFramebufferResized)
 		{

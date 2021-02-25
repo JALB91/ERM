@@ -7,6 +7,12 @@
 
 #include <vector>
 
+#define VK_CHECK(OP)                            \
+	{                                           \
+		const auto result = OP;                 \
+		ASSERT(result == vk::Result::eSuccess); \
+	}
+
 namespace erm::VkUtils {
 
 	extern QueueFamilyIndices FindQueueFamilies(vk::PhysicalDevice device, vk::SurfaceKHR surface);
@@ -52,6 +58,15 @@ namespace erm::VkUtils {
 		vk::Buffer& buffer,
 		vk::DeviceMemory& bufferMemory);
 
+	extern void CreateBufferUnique(
+		vk::PhysicalDevice physicalDevice,
+		vk::Device device,
+		vk::DeviceSize size,
+		vk::BufferUsageFlags usage,
+		vk::MemoryPropertyFlags properties,
+		vk::UniqueBuffer& buffer,
+		vk::UniqueDeviceMemory& bufferMemory);
+
 	extern void CopyBufferToBuffer(
 		vk::CommandPool commandPool,
 		vk::Device device,
@@ -72,7 +87,25 @@ namespace erm::VkUtils {
 		vk::Image& image,
 		vk::DeviceMemory& imageMemory);
 
+	extern void CreateImageUnique(
+		vk::PhysicalDevice physicalDevice,
+		vk::Device device,
+		uint32_t width,
+		uint32_t height,
+		vk::Format format,
+		vk::ImageTiling tiling,
+		vk::ImageUsageFlags usage,
+		vk::MemoryPropertyFlags properties,
+		vk::UniqueImage& image,
+		vk::UniqueDeviceMemory& imageMemory);
+
 	extern vk::ImageView CreateImageView(
+		vk::Device device,
+		vk::Image image,
+		vk::Format format,
+		vk::ImageAspectFlags aspectFlags);
+
+	extern vk::UniqueImageView CreateImageViewUnique(
 		vk::Device device,
 		vk::Image image,
 		vk::Format format,

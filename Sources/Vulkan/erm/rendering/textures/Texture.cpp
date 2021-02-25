@@ -1,6 +1,7 @@
 #include "erm/rendering/textures/Texture.h"
 
 #include "erm/rendering/Device.h"
+#include "erm/rendering/buffers/HostBuffer.h"
 
 #include "erm/utils/Utils.h"
 #include "erm/utils/VkUtils.h"
@@ -24,43 +25,21 @@ namespace erm {
 		CreateTextureImageView();
 	}
 
-	Texture::~Texture()
-	{
-		mDevice->freeMemory(mTextureImageMemory);
-		mDevice->destroyImageView(mTextureImageView);
-		mDevice->destroyImage(mTextureImage);
-	}
+	Texture::~Texture() = default;
 
 	void Texture::CreateTextureImage()
 	{
 		stbi_set_flip_vertically_on_load(1);
 		mLocalBuffer = stbi_load(mPath.c_str(), &mWidth, &mHeight, &mBPP, STBI_rgb_alpha);
 		vk::DeviceSize imageSize = mWidth * mHeight * 4;
+		ASSERT(mLocalBuffer);
 
-		if (!mLocalBuffer)
-		{
-			throw std::runtime_error("Failed to load texture image");
-		}
-
-		vk::Buffer stagingBuffer;
-		vk::DeviceMemory stagingBufferMemory;
-
-		VkUtils::CreateBuffer(
-			mDevice.GetVkPhysicalDevice(),
-			mDevice.GetVkDevice(),
-			imageSize,
-			vk::BufferUsageFlagBits::eTransferSrc,
-			vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
-			stagingBuffer,
-			stagingBufferMemory);
-
-		void* data = mDevice->mapMemory(stagingBufferMemory, 0, imageSize);
-		memcpy(data, mLocalBuffer, static_cast<size_t>(imageSize));
-		mDevice->unmapMemory(stagingBufferMemory);
+		HostBuffer stagingBuffer(mDevice, imageSize, vk::BufferUsageFlagBits::eTransferSrc);
+		stagingBuffer.Update(mLocalBuffer);
 
 		stbi_image_free(mLocalBuffer);
 
-		VkUtils::CreateImage(
+		VkUtils::CreateImageUnique(
 			mDevice.GetVkPhysicalDevice(),
 			mDevice.GetVkDevice(),
 			mWidth,
@@ -76,7 +55,7 @@ namespace erm {
 			mDevice.GetGraphicsQueue(),
 			mDevice.GetCommandPool(),
 			mDevice.GetVkDevice(),
-			mTextureImage,
+			mTextureImage.get(),
 			vk::Format::eR8G8B8A8Srgb,
 			vk::ImageLayout::eUndefined,
 			vk::ImageLayout::eTransferDstOptimal);
@@ -85,8 +64,8 @@ namespace erm {
 			mDevice.GetGraphicsQueue(),
 			mDevice.GetCommandPool(),
 			mDevice.GetVkDevice(),
-			stagingBuffer,
-			mTextureImage,
+			stagingBuffer.GetBuffer(),
+			mTextureImage.get(),
 			static_cast<uint32_t>(mWidth),
 			static_cast<uint32_t>(mHeight));
 
@@ -94,18 +73,15 @@ namespace erm {
 			mDevice.GetGraphicsQueue(),
 			mDevice.GetCommandPool(),
 			mDevice.GetVkDevice(),
-			mTextureImage,
+			mTextureImage.get(),
 			vk::Format::eR8G8B8A8Srgb,
 			vk::ImageLayout::eTransferDstOptimal,
 			vk::ImageLayout::eShaderReadOnlyOptimal);
-
-		mDevice->destroyBuffer(stagingBuffer);
-		mDevice->freeMemory(stagingBufferMemory);
 	}
 
 	void Texture::CreateTextureImageView()
 	{
-		mTextureImageView = VkUtils::CreateImageView(mDevice.GetVkDevice(), mTextureImage, vk::Format::eR8G8B8A8Srgb, vk::ImageAspectFlagBits::eColor);
+		mTextureImageView = VkUtils::CreateImageViewUnique(mDevice.GetVkDevice(), mTextureImage.get(), vk::Format::eR8G8B8A8Srgb, vk::ImageAspectFlagBits::eColor);
 	}
 
 } // namespace erm

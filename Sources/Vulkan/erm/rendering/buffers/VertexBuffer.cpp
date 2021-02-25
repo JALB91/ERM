@@ -24,7 +24,7 @@ namespace erm {
 
 	void VertexBuffer::Bind(const vk::CommandBuffer& commandBuffer) const
 	{
-		vk::Buffer vertexBuffers[] = {mBuffer};
+		vk::Buffer vertexBuffers[] = {mBuffer.get()};
 		vk::DeviceSize offsets[] = {0};
 		commandBuffer.bindVertexBuffers(0, 1, vertexBuffers, offsets);
 	}

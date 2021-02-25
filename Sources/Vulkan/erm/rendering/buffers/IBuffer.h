@@ -16,7 +16,7 @@ namespace erm {
 			size_t size,
 			vk::BufferUsageFlags buf,
 			vk::MemoryPropertyFlags mpf);
-		virtual ~IBuffer();
+		virtual ~IBuffer() = default;
 
 		IBuffer(const IBuffer&) = delete;
 		IBuffer(IBuffer&& other);
@@ -24,16 +24,16 @@ namespace erm {
 		IBuffer& operator=(const IBuffer&) = delete;
 		IBuffer& operator=(IBuffer&&) = delete;
 
-		inline vk::Buffer GetBuffer() const { return mBuffer; }
 		inline size_t GetBufferSize() const { return mBufferSize; }
-		inline vk::DeviceMemory GetBufferMemory() const { return mBufferMemory; }
+		inline vk::Buffer GetBuffer() const { return mBuffer.get(); }
+		inline vk::DeviceMemory GetBufferMemory() const { return mBufferMemory.get(); }
 
 	protected:
 		Device& mDevice;
 		const size_t mBufferSize;
 
-		vk::Buffer mBuffer;
-		vk::DeviceMemory mBufferMemory;
+		vk::UniqueBuffer mBuffer;
+		vk::UniqueDeviceMemory mBufferMemory;
 	};
 
 } // namespace erm

@@ -36,9 +36,8 @@ namespace erm {
 		void Refresh();
 
 	private:
-		void BuildBlas(std::vector<RTBlas*>& toBuild, vk::BuildAccelerationStructureFlagsKHR flags);
-		void UpdateTopLevelAS(std::vector<RTRenderData*>& data, bool forceUpdate, vk::BuildAccelerationStructureFlagsKHR flags);
-		bool UpdateInstances(std::vector<RTRenderData*>& data);
+		void BuildBlas(std::vector<RTRenderData*>& data, vk::BuildAccelerationStructureFlagsKHR flags);
+		void UpdateTopLevelAS(std::vector<RTRenderData*>& data, vk::BuildAccelerationStructureFlagsKHR flags);
 
 		void Reload();
 		void Cleanup();
@@ -51,12 +50,9 @@ namespace erm {
 		const RTRenderConfigs mRenderConfigs;
 
 		vk::UniqueDescriptorPool mDescriptorPool;
+		std::vector<vk::UniqueCommandBuffer> mCommandBuffers;
 
 		RTTlas mTopLevelAS;
-		std::vector<vk::CommandBuffer> mCommandBuffers;
-
-		std::vector<std::pair<RTRenderData*, RTBlas*>> mData;
-		std::unique_ptr<DeviceBuffer> mInstancesBuffer;
 		std::unique_ptr<RTPipelineResources> mPipelineResources;
 	};
 

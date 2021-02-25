@@ -22,7 +22,7 @@ namespace erm {
 
 	void IndexBuffer::Bind(const vk::CommandBuffer& commandBuffer) const
 	{
-		commandBuffer.bindIndexBuffer(mBuffer, 0, vk::IndexType::eUint32);
+		commandBuffer.bindIndexBuffer(mBuffer.get(), 0, vk::IndexType::eUint32);
 	}
 
 } // namespace erm

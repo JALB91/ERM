@@ -14,7 +14,7 @@ namespace erm {
 		: mDevice(device)
 		, mBufferSize(size)
 	{
-		VkUtils::CreateBuffer(
+		VkUtils::CreateBufferUnique(
 			device.GetVkPhysicalDevice(),
 			device.GetVkDevice(),
 			size,
@@ -24,23 +24,11 @@ namespace erm {
 			mBufferMemory);
 	}
 
-	IBuffer::~IBuffer()
-	{
-		if (mBufferMemory && mBuffer)
-		{
-			mDevice->freeMemory(mBufferMemory);
-			mDevice->destroyBuffer(mBuffer);
-		}
-	}
-
 	IBuffer::IBuffer(IBuffer&& other)
 		: mDevice(other.mDevice)
 		, mBufferSize(other.mBufferSize)
 		, mBuffer(std::move(other.mBuffer))
 		, mBufferMemory(std::move(other.mBufferMemory))
-	{
-		other.mBuffer = nullptr;
-		other.mBufferMemory = nullptr;
-	}
+	{}
 
 } // namespace erm

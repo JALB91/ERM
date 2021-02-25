@@ -56,7 +56,7 @@ namespace erm {
 		const ShaderBindingData& GetShaderBindingsData(SetIdx setIdx) const;
 		inline const ShaderBindingsMap& GetShaderBindingsMap() const { return mShaderBindingsMap; }
 
-		vk::ShaderModule CreateShaderModule(ShaderType shaderType) const;
+		vk::UniqueShaderModule CreateShaderModule(ShaderType shaderType) const;
 
 	protected:
 		void CompileShaderSource(ShaderType shaderType) const;

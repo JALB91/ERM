@@ -28,7 +28,7 @@ namespace erm {
 			const vk::DescriptorPool& descriptorPool,
 			const IShaderProgram& shaderProgram,
 			const BindingConfigs& configs);
-		virtual ~IBindingResources();
+		virtual ~IBindingResources() = default;
 
 		IBindingResources(const IBindingResources&) = delete;
 		IBindingResources& operator=(const IBindingResources&) = delete;
@@ -75,7 +75,7 @@ namespace erm {
 		const vk::DescriptorPool& mDescriptorPool;
 		const IShaderProgram& mShaderProgram;
 		const BindingConfigs mConfigs;
-		std::vector<vk::DescriptorSet> mDescriptorSets;
+		std::vector<vk::UniqueDescriptorSet> mDescriptorSets;
 	};
 
 } // namespace erm

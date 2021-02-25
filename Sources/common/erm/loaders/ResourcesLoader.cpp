@@ -61,6 +61,9 @@ namespace erm {
 
 			if (future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
 			{
+#if defined(ERM_VULKAN) && defined(ERM_RAY_TRACING_ENABLED)
+				mLoadingModels[i]->GetBlas().UpdateBlasData();
+#endif
 				mFutures.erase(mFutures.begin() + i);
 				mLoadingModels.erase(mLoadingModels.begin() + i);
 				--i;

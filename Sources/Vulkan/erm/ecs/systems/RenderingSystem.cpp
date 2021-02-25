@@ -287,8 +287,6 @@ namespace erm::ecs {
 			if (mResourcesManager.IsStillLoading(model))
 				return;
 
-			model.GetBlas().UpdateBlasData();
-
 			RTRenderData& data = renderingComponent->mRTRenderData;
 			RTRenderConfigs& configs = data.mRenderConfigs;
 			configs.mMaterial = configs.mMaterial ? configs.mMaterial : &Material::DEFAULT;

@@ -155,7 +155,7 @@ namespace erm::VkUtils {
 		allocInfo.commandBufferCount = 1;
 
 		vk::CommandBuffer commandBuffer;
-		vk::Result result = device.allocateCommandBuffers(&allocInfo, &commandBuffer);
+		VK_CHECK(device.allocateCommandBuffers(&allocInfo, &commandBuffer));
 
 		vk::CommandBufferBeginInfo beginInfo {};
 		beginInfo.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit;
@@ -177,8 +177,7 @@ namespace erm::VkUtils {
 		submitInfo.commandBufferCount = 1;
 		submitInfo.pCommandBuffers = &commandBuffer;
 
-		vk::Result result = graphicsQueue.submit(1, &submitInfo, nullptr);
-		ASSERT(result == vk::Result::eSuccess);
+		VK_CHECK(graphicsQueue.submit(1, &submitInfo, nullptr));
 		graphicsQueue.waitIdle();
 
 		device.freeCommandBuffers(commandPool, 1, &commandBuffer);
@@ -237,7 +236,7 @@ namespace erm::VkUtils {
 		bufferInfo.usage = usage;
 		bufferInfo.sharingMode = vk::SharingMode::eExclusive;
 
-		buffer = device.createBuffer(bufferInfo);
+		VK_CHECK(device.createBuffer(&bufferInfo, nullptr, &buffer));
 
 		vk::MemoryRequirements memRequirements;
 		device.getBufferMemoryRequirements(buffer, &memRequirements);
@@ -246,15 +245,45 @@ namespace erm::VkUtils {
 		allocInfo.allocationSize = memRequirements.size;
 		allocInfo.memoryTypeIndex = FindMemoryType(physicalDevice, memRequirements.memoryTypeBits, properties);
 
-#ifdef ERM_RAY_TRACING_ENABLED
 		vk::MemoryAllocateFlagsInfo flagsInfo;
 		if ((usage & vk::BufferUsageFlagBits::eShaderDeviceAddress) == vk::BufferUsageFlagBits::eShaderDeviceAddress)
 			flagsInfo.flags = vk::MemoryAllocateFlagBits::eDeviceAddress;
 		allocInfo.pNext = &flagsInfo;
-#endif
 
-		bufferMemory = device.allocateMemory(allocInfo);
+		VK_CHECK(device.allocateMemory(&allocInfo, nullptr, &bufferMemory));
 		device.bindBufferMemory(buffer, bufferMemory, 0);
+	}
+
+	void CreateBufferUnique(
+		vk::PhysicalDevice physicalDevice,
+		vk::Device device,
+		vk::DeviceSize size,
+		vk::BufferUsageFlags usage,
+		vk::MemoryPropertyFlags properties,
+		vk::UniqueBuffer& buffer,
+		vk::UniqueDeviceMemory& bufferMemory)
+	{
+		vk::BufferCreateInfo bufferInfo = {};
+		bufferInfo.size = size;
+		bufferInfo.usage = usage;
+		bufferInfo.sharingMode = vk::SharingMode::eExclusive;
+
+		buffer = device.createBufferUnique(bufferInfo);
+
+		vk::MemoryRequirements memRequirements;
+		device.getBufferMemoryRequirements(buffer.get(), &memRequirements);
+
+		vk::MemoryAllocateInfo allocInfo = {};
+		allocInfo.allocationSize = memRequirements.size;
+		allocInfo.memoryTypeIndex = FindMemoryType(physicalDevice, memRequirements.memoryTypeBits, properties);
+
+		vk::MemoryAllocateFlagsInfo flagsInfo;
+		if ((usage & vk::BufferUsageFlagBits::eShaderDeviceAddress) == vk::BufferUsageFlagBits::eShaderDeviceAddress)
+			flagsInfo.flags = vk::MemoryAllocateFlagBits::eDeviceAddress;
+		allocInfo.pNext = &flagsInfo;
+
+		bufferMemory = device.allocateMemoryUnique(allocInfo);
+		device.bindBufferMemory(buffer.get(), bufferMemory.get(), 0);
 	}
 
 	void CopyBufferToBuffer(
@@ -300,7 +329,7 @@ namespace erm::VkUtils {
 		imageInfo.samples = vk::SampleCountFlagBits::e1;
 		imageInfo.sharingMode = vk::SharingMode::eExclusive;
 
-		image = device.createImage(imageInfo);
+		VK_CHECK(device.createImage(&imageInfo, nullptr, &image));
 
 		vk::MemoryRequirements memRequirements;
 		device.getImageMemoryRequirements(image, &memRequirements);
@@ -309,8 +338,47 @@ namespace erm::VkUtils {
 		allocInfo.allocationSize = memRequirements.size;
 		allocInfo.memoryTypeIndex = FindMemoryType(physicalDevice, memRequirements.memoryTypeBits, properties);
 
-		imageMemory = device.allocateMemory(allocInfo);
+		VK_CHECK(device.allocateMemory(&allocInfo, nullptr, &imageMemory));
 		device.bindImageMemory(image, imageMemory, 0);
+	}
+
+	void CreateImageUnique(
+		vk::PhysicalDevice physicalDevice,
+		vk::Device device,
+		uint32_t width,
+		uint32_t height,
+		vk::Format format,
+		vk::ImageTiling tiling,
+		vk::ImageUsageFlags usage,
+		vk::MemoryPropertyFlags properties,
+		vk::UniqueImage& image,
+		vk::UniqueDeviceMemory& imageMemory)
+	{
+		vk::ImageCreateInfo imageInfo {};
+		imageInfo.imageType = vk::ImageType::e2D;
+		imageInfo.extent.width = width;
+		imageInfo.extent.height = height;
+		imageInfo.extent.depth = 1;
+		imageInfo.mipLevels = 1;
+		imageInfo.arrayLayers = 1;
+		imageInfo.format = format;
+		imageInfo.tiling = tiling;
+		imageInfo.initialLayout = vk::ImageLayout::eUndefined;
+		imageInfo.usage = usage;
+		imageInfo.samples = vk::SampleCountFlagBits::e1;
+		imageInfo.sharingMode = vk::SharingMode::eExclusive;
+
+		image = device.createImageUnique(imageInfo);
+
+		vk::MemoryRequirements memRequirements;
+		device.getImageMemoryRequirements(image.get(), &memRequirements);
+
+		vk::MemoryAllocateInfo allocInfo {};
+		allocInfo.allocationSize = memRequirements.size;
+		allocInfo.memoryTypeIndex = FindMemoryType(physicalDevice, memRequirements.memoryTypeBits, properties);
+
+		imageMemory = device.allocateMemoryUnique(allocInfo);
+		device.bindImageMemory(image.get(), imageMemory.get(), 0);
 	}
 
 	vk::ImageView CreateImageView(
@@ -329,9 +397,29 @@ namespace erm::VkUtils {
 		viewInfo.subresourceRange.baseArrayLayer = 0;
 		viewInfo.subresourceRange.layerCount = 1;
 
-		vk::ImageView imageView = device.createImageView(viewInfo);
+		vk::ImageView imageView;
+		VK_CHECK(device.createImageView(&viewInfo, nullptr, &imageView));
 
 		return imageView;
+	}
+
+	vk::UniqueImageView CreateImageViewUnique(
+		vk::Device device,
+		vk::Image image,
+		vk::Format format,
+		vk::ImageAspectFlags aspectFlags)
+	{
+		vk::ImageViewCreateInfo viewInfo {};
+		viewInfo.image = image;
+		viewInfo.viewType = vk::ImageViewType::e2D;
+		viewInfo.format = format;
+		viewInfo.subresourceRange.aspectMask = aspectFlags;
+		viewInfo.subresourceRange.baseMipLevel = 0;
+		viewInfo.subresourceRange.levelCount = 1;
+		viewInfo.subresourceRange.baseArrayLayer = 0;
+		viewInfo.subresourceRange.layerCount = 1;
+
+		return device.createImageViewUnique(viewInfo);
 	}
 
 	void TransitionImageLayout(
@@ -435,7 +523,8 @@ namespace erm::VkUtils {
 			stagingBuffer,
 			stagingBufferMemory);
 
-		void* data = device.mapMemory(stagingBufferMemory, 0, bufferSize);
+		void* data = nullptr;
+		VK_CHECK(device.mapMemory(stagingBufferMemory, 0, bufferSize, {}, &data));
 		memcpy(data, bufferData, static_cast<size_t>(bufferSize));
 		device.unmapMemory(stagingBufferMemory);
 

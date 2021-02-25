@@ -15,11 +15,11 @@ namespace erm {
 
 			vk::BufferCopy copyRegion {};
 			copyRegion.size = mBufferSize;
-			cmd.copyBuffer(mStagingBuffer->GetBuffer(), mBuffer, 1, &copyRegion);
+			cmd.copyBuffer(mStagingBuffer->GetBuffer(), mBuffer.get(), 1, &copyRegion);
 		}
 		else
 		{
-			cmd.updateBuffer(mBuffer, 0, mBufferSize, data);
+			cmd.updateBuffer(mBuffer.get(), 0, mBufferSize, data);
 		}
 	}
 

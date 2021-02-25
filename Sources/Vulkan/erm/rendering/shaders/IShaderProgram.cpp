@@ -256,11 +256,11 @@ namespace erm {
 		, mNeedsReload(false)
 	{}
 
-	vk::ShaderModule IShaderProgram::CreateShaderModule(ShaderType shaderType) const
+	vk::UniqueShaderModule IShaderProgram::CreateShaderModule(ShaderType shaderType) const
 	{
 		const auto it = mShadersData.find(shaderType);
 		if (it == mShadersData.end())
-			return nullptr;
+			return {};
 
 		const ShaderData& data = it->second;
 
@@ -268,7 +268,7 @@ namespace erm {
 		createInfo.codeSize = data.mShaderByteCode.size();
 		createInfo.pCode = reinterpret_cast<const uint32_t*>(data.mShaderByteCode.data());
 
-		return mDevice->createShaderModule(createInfo);
+		return mDevice->createShaderModuleUnique(createInfo);
 	}
 
 	void IShaderProgram::UpdateBindingData()

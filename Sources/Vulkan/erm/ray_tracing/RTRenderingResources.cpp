@@ -30,10 +30,7 @@ namespace erm {
 		CreateCommandBuffers();
 	}
 
-	RTRenderingResources::~RTRenderingResources()
-	{
-		Cleanup();
-	}
+	RTRenderingResources::~RTRenderingResources() = default;
 
 	void RTRenderingResources::Update(std::vector<RTRenderData*>& renderData, uint32_t imageIndex)
 	{
@@ -42,38 +39,9 @@ namespace erm {
 		if (renderData.empty())
 			return;
 
-		std::vector<RTBlas*> toBuild;
-
-		for (const auto& data : renderData)
-			if (!data->mBlas->GetBuffer())
-				toBuild.emplace_back(data->mBlas);
-
-		bool forceUpdate = mData.size() != renderData.size() || !toBuild.empty();
-		if (!toBuild.empty())
-		{
-			BuildBlas(toBuild, vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace);
-		}
-		else if (!forceUpdate)
-		{
-			for (size_t i = 0; i < renderData.size(); ++i)
-			{
-				auto it = std::find(renderData.begin(), renderData.end(), mData[i].first);
-				forceUpdate |= it == renderData.end();
-				if (!forceUpdate)
-					forceUpdate |= (*it)->mBlas != mData[i].second;
-			}
-		}
-
-		if (forceUpdate)
-		{
-			mData.resize(renderData.size());
-			for (size_t i = 0; i < renderData.size(); ++i)
-				mData[i] = std::make_pair(renderData[i], renderData[i]->mBlas);
-		}
-
+		BuildBlas(renderData, vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace);
 		UpdateTopLevelAS(
 			renderData,
-			forceUpdate,
 			vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace | vk::BuildAccelerationStructureFlagBitsKHR::eAllowUpdate);
 	}
 
@@ -85,7 +53,7 @@ namespace erm {
 
 		const vk::Extent2D& extent = mRenderer.GetSwapChainExtent();
 
-		vk::CommandBuffer& cmd = mCommandBuffers[imageIndex];
+		vk::CommandBuffer& cmd = mCommandBuffers[imageIndex].get();
 		cmd.reset({});
 
 		vk::CommandBufferBeginInfo beginInfo = {};
@@ -124,9 +92,14 @@ namespace erm {
 		return cmd;
 	}
 
-	void RTRenderingResources::BuildBlas(std::vector<RTBlas*>& toBuild, vk::BuildAccelerationStructureFlagsKHR flags)
+	void RTRenderingResources::BuildBlas(std::vector<RTRenderData*>& data, vk::BuildAccelerationStructureFlagsKHR flags)
 	{
 		PROFILE_FUNCTION();
+
+		std::vector<RTBlas*> toBuild;
+		for (RTRenderData* d : data)
+			if (std::find(toBuild.begin(), toBuild.end(), d->mBlas) == toBuild.end())
+				toBuild.emplace_back(d->mBlas);
 
 		std::vector<vk::AccelerationStructureBuildGeometryInfoKHR> buildInfos(toBuild.size());
 		vk::DeviceSize maxScratch = 0;
@@ -144,11 +117,11 @@ namespace erm {
 			// computes the worst case memory requirements based on the user-reported max number of
 			// primitives. Later, compaction can fix this potential inefficiency.
 			std::vector<uint32_t> maxPrimCount(blasData.mInfos.size());
-			for (auto tt = 0; tt < blasData.mInfos.size(); tt++)
+			for (auto tt = 0; tt < blasData.mInfos.size(); ++tt)
 				maxPrimCount[tt] = blasData.mInfos[tt].primitiveCount; // Number of primitives/triangles
 
-			vk::AccelerationStructureBuildSizesInfoKHR sizeInfo;
-			mDevice->getAccelerationStructureBuildSizesKHR(vk::AccelerationStructureBuildTypeKHR::eDevice, buildInfos.data(), maxPrimCount.data(), &sizeInfo);
+			vk::AccelerationStructureBuildSizesInfoKHR sizeInfo {};
+			mDevice->getAccelerationStructureBuildSizesKHR(vk::AccelerationStructureBuildTypeKHR::eDevice, &buildInfos[i], maxPrimCount.data(), &sizeInfo);
 
 			auto& buffer = blas.GetBuffer();
 			buffer = std::make_unique<DeviceBuffer>(
@@ -185,7 +158,7 @@ namespace erm {
 		vk::QueryPoolCreateInfo qpci;
 		qpci.queryCount = static_cast<uint32_t>(toBuild.size());
 		qpci.queryType = vk::QueryType::eAccelerationStructureCompactedSizeKHR;
-		vk::QueryPool queryPool = mDevice->createQueryPool(qpci);
+		vk::UniqueQueryPool queryPool = mDevice->createQueryPoolUnique(qpci);
 
 		// Allocate a command pool for queue of given queue index.
 		// To avoid timeout, record and submit one command buffer per AS build.
@@ -196,7 +169,7 @@ namespace erm {
 		allocInfo.level = vk::CommandBufferLevel::ePrimary;
 		allocInfo.commandBufferCount = static_cast<uint32_t>(allCmdBufs.size());
 
-		allCmdBufs = mDevice->allocateCommandBuffers(allocInfo);
+		VK_CHECK(mDevice->allocateCommandBuffers(&allocInfo, allCmdBufs.data()));
 
 		// Building the acceleration structures
 		for (size_t i = 0; i < toBuild.size(); i++)
@@ -218,7 +191,7 @@ namespace erm {
 			// Recall that this defines which (sub)section of the vertex/index arrays
 			// will be built into the BLAS.
 			std::vector<const vk::AccelerationStructureBuildRangeInfoKHR*> pBuildOffset(data.mInfos.size());
-			for (size_t infoIdx = 0; infoIdx < data.mInfos.size(); infoIdx++)
+			for (size_t infoIdx = 0; infoIdx < data.mInfos.size(); ++infoIdx)
 				pBuildOffset[infoIdx] = &data.mInfos[infoIdx];
 
 			// Building the AS
@@ -232,7 +205,7 @@ namespace erm {
 			cmdBuf.pipelineBarrier(
 				vk::PipelineStageFlagBits::eAccelerationStructureBuildKHR,
 				vk::PipelineStageFlagBits::eAccelerationStructureBuildKHR,
-				static_cast<vk::DependencyFlags>(0),
+				{},
 				1,
 				&barrier,
 				0,
@@ -247,7 +220,7 @@ namespace erm {
 					1,
 					&blas.GetAS(),
 					vk::QueryType::eAccelerationStructureCompactedSizeKHR,
-					queryPool,
+					queryPool.get(),
 					static_cast<uint32_t>(i));
 			}
 
@@ -257,8 +230,7 @@ namespace erm {
 		sInfo.commandBufferCount = static_cast<uint32_t>(allCmdBufs.size());
 		sInfo.pCommandBuffers = allCmdBufs.data();
 
-		vk::Result result = mDevice.GetGraphicsQueue().submit(1, &sInfo, {});
-		ASSERT(result == vk::Result::eSuccess);
+		VK_CHECK(mDevice.GetGraphicsQueue().submit(1, &sInfo, {}));
 		mDevice.GetGraphicsQueue().waitIdle();
 
 		allCmdBufs.clear();
@@ -268,14 +240,14 @@ namespace erm {
 		{
 			// Get the size result back
 			std::vector<vk::DeviceSize> compactSizes(toBuild.size());
-			vk::Result result = mDevice->getQueryPoolResults(
-				queryPool,
+			VK_CHECK(mDevice->getQueryPoolResults(
+				queryPool.get(),
 				0,
 				static_cast<uint32_t>(compactSizes.size()),
 				compactSizes.size() * sizeof(vk::DeviceSize),
 				compactSizes.data(),
 				sizeof(vk::DeviceSize),
-				vk::QueryResultFlagBits::eWait);
+				vk::QueryResultFlagBits::eWait));
 
 			std::vector<vk::UniqueAccelerationStructureKHR> toDelete(toBuild.size());
 
@@ -312,15 +284,13 @@ namespace erm {
 
 			VkUtils::EndSingleTimeCommands(mDevice.GetGraphicsQueue(), mDevice.GetCommandPool(), mDevice.GetVkDevice(), cmdBuf);
 		}
-
-		mDevice->destroyQueryPool(queryPool);
 	}
 
-	bool RTRenderingResources::UpdateInstances(std::vector<RTRenderData*>& data)
+	void RTRenderingResources::UpdateTopLevelAS(std::vector<RTRenderData*>& data, vk::BuildAccelerationStructureFlagsKHR flags)
 	{
 		PROFILE_FUNCTION();
 
-		size_t targetGeometries = data.size();
+		const size_t targetGeometries = data.size();
 		std::vector<vk::AccelerationStructureInstanceKHR> geometryInstances(targetGeometries);
 
 		for (size_t i = 0; i < data.size(); ++i)
@@ -344,7 +314,7 @@ namespace erm {
 			memcpy(&instance.transform, &transp, sizeof(instance.transform));
 			instance.mask = 0xFF;
 			instance.instanceShaderBindingTableRecordOffset = 0;
-			instance.instanceCustomIndex = blas.GetId();
+			instance.instanceCustomIndex = i;
 			instance.flags = VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR;
 			instance.accelerationStructureReference = blasAddress;
 		}
@@ -352,31 +322,14 @@ namespace erm {
 		// Create a buffer holding the actual instance data (matrices++) for use by the AS builder
 		vk::DeviceSize instanceDescsSizeInBytes = targetGeometries * sizeof(vk::AccelerationStructureInstanceKHR);
 
-		const bool needsBuild = !mInstancesBuffer || mInstancesBuffer->GetBufferSize() != instanceDescsSizeInBytes;
-
 		// Allocate the instance buffer and copy its contents from host to device memory
-		if (needsBuild)
-			mInstancesBuffer = std::make_unique<DeviceBuffer>(mDevice, instanceDescsSizeInBytes, vk::BufferUsageFlagBits::eShaderDeviceAddress);
+		DeviceBuffer instancesBuffer(mDevice, instanceDescsSizeInBytes, vk::BufferUsageFlagBits::eShaderDeviceAddress);
 
 		vk::CommandBuffer cmd = VkUtils::BeginSingleTimeCommands(mDevice.GetCommandPool(), mDevice.GetVkDevice());
-		mInstancesBuffer->Update(cmd, geometryInstances.data());
-		VkUtils::EndSingleTimeCommands(mDevice.GetGraphicsQueue(), mDevice.GetCommandPool(), mDevice.GetVkDevice(), cmd);
-
-		return needsBuild;
-	}
-
-	void RTRenderingResources::UpdateTopLevelAS(std::vector<RTRenderData*>& data, bool forceUpdate, vk::BuildAccelerationStructureFlagsKHR flags)
-	{
-		PROFILE_FUNCTION();
-
-		if (!UpdateInstances(data) && !forceUpdate)
-			return;
-
-		const size_t targetGeometries = data.size();
-		vk::CommandBuffer cmd = VkUtils::BeginSingleTimeCommands(mDevice.GetCommandPool(), mDevice.GetVkDevice());
+		instancesBuffer.Update(cmd, geometryInstances.data());
 
 		vk::BufferDeviceAddressInfo bufferInfo;
-		bufferInfo.buffer = mInstancesBuffer->GetBuffer();
+		bufferInfo.buffer = instancesBuffer.GetBuffer();
 		vk::DeviceAddress instanceAddress = mDevice->getBufferAddress(bufferInfo);
 
 		// Make sure the copy of the instance buffer are copied before triggering the
@@ -388,7 +341,7 @@ namespace erm {
 		cmd.pipelineBarrier(
 			vk::PipelineStageFlagBits::eTransfer,
 			vk::PipelineStageFlagBits::eAccelerationStructureBuildKHR,
-			static_cast<vk::DependencyFlags>(0),
+			{},
 			1,
 			&barrier,
 			0,
@@ -489,10 +442,6 @@ namespace erm {
 	void RTRenderingResources::Cleanup()
 	{
 		mPipelineResources.reset();
-		mDevice->freeCommandBuffers(
-			mDevice.GetCommandPool(),
-			static_cast<uint32_t>(mCommandBuffers.size()),
-			mCommandBuffers.data());
 		mCommandBuffers.clear();
 		mDescriptorPool.reset();
 		mTopLevelAS.GetBuffer().reset();
@@ -533,7 +482,7 @@ namespace erm {
 		allocInfo.level = vk::CommandBufferLevel::ePrimary;
 		allocInfo.commandBufferCount = static_cast<uint32_t>(mCommandBuffers.size());
 
-		mCommandBuffers = mDevice->allocateCommandBuffers(allocInfo);
+		mCommandBuffers = mDevice->allocateCommandBuffersUnique(allocInfo);
 	}
 
 } // namespace erm
