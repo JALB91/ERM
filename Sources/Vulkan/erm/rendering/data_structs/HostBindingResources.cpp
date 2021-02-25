@@ -39,6 +39,9 @@ namespace erm {
 		ASSERT(shaderBindings.mSamplersData.empty());
 		ASSERT(shaderBindings.mStorageImagesData.empty());
 		ASSERT(shaderBindings.mStorageBuffersData.empty());
+#ifdef ERM_RAY_TRACING_ENABLED
+		ASSERT(shaderBindings.mASData.empty());
+#endif
 
 		// UNIFORM BUFFERS
 		CreateUniformBuffers(ubosData);

@@ -36,9 +36,6 @@ namespace erm {
 	{
 		PROFILE_FUNCTION();
 
-		if (renderData.empty())
-			return;
-
 		BuildBlas(renderData, vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace);
 		UpdateTopLevelAS(
 			renderData,

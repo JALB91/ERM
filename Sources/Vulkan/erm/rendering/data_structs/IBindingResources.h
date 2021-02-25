@@ -69,6 +69,30 @@ namespace erm {
 			vk::DescriptorSet& descriptorSet,
 			uint32_t writesOffset = 0);
 
+		void CreateSamplerDescriptorWritesAndInfos(
+			std::vector<vk::DescriptorImageInfo>& infos,
+			std::vector<vk::WriteDescriptorSet>& writes,
+			const std::vector<SamplerData>& samplerData,
+			vk::DescriptorSet& descriptorSet,
+			uint32_t writeOffset = 0);
+
+		void CreateStorageImagesDescriptorWritesAndInfos(
+			std::vector<vk::DescriptorImageInfo>& infos,
+			std::vector<vk::WriteDescriptorSet>& writes,
+			const std::vector<StorageImageData>& storageImageData,
+			vk::DescriptorSet& descriptorSet,
+			uint32_t writeOffset = 0);
+
+#ifdef ERM_RAY_TRACING_ENABLED
+		void CreateASDescriptorWritesAndInfos(
+			std::vector<vk::WriteDescriptorSetAccelerationStructureKHR>& infos,
+			std::vector<vk::WriteDescriptorSet>& writes,
+			const std::vector<AccelerationStructureData>& asData,
+			const vk::AccelerationStructureKHR* as,
+			vk::DescriptorSet& descriptorSet,
+			uint32_t writeOffset = 0);
+#endif
+
 		Device& mDevice;
 		IRenderer& mRenderer;
 		const uint32_t mTargetSet;

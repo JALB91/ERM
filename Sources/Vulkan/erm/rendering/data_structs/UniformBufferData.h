@@ -2,6 +2,7 @@
 
 #include "erm/rendering/data_structs/UniformBufferObject.h"
 #include "erm/rendering/enums/StorageBufferType.h"
+#include "erm/rendering/enums/StorageImageType.h"
 #include "erm/rendering/enums/TextureType.h"
 
 namespace erm {
@@ -56,7 +57,16 @@ namespace erm {
 		uint32_t mOffset;
 	};
 
-	using StorageImageData = IBindingData;
+	struct StorageImageData : IBindingData
+	{
+		StorageImageData(StorageImageType type, uint32_t binding, uint32_t set)
+			: IBindingData(binding, set)
+			, mType(type)
+		{}
+
+		StorageImageType mType;
+	};
+
 #ifdef ERM_RAY_TRACING_ENABLED
 	using AccelerationStructureData = IBindingData;
 #endif

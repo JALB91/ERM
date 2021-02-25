@@ -104,18 +104,21 @@ namespace {
 
 	erm::StorageImageData GetStorageImageData(const spirv_cross::Compiler& compiler, const spirv_cross::Resource& resource)
 	{
-		const auto makeStorageImageData = [&compiler, &resource]() -> erm::StorageImageData {
+		const auto makeStorageImageData = [&compiler, &resource](erm::StorageImageType type) -> erm::StorageImageData {
 			return {
+				type,
 				compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding),
 				compiler.get_decoration(resource.id, spv::Decoration::DecorationDescriptorSet)};
 		};
 
 		if (resource.name.compare("image") == 0)
-			return makeStorageImageData();
+			return makeStorageImageData(erm::StorageImageType::FRAME_BUFFER);
+		else if (resource.name.compare("depth") == 0)
+			return makeStorageImageData(erm::StorageImageType::DEPTH_BUFFER);
 
 		ASSERT(false);
 
-		return {0, 0};
+		return {erm::StorageImageType::FRAME_BUFFER, 0, 0};
 	}
 
 	erm::StorageBufferData GetStorageBufferData(const spirv_cross::Compiler& compiler, const spirv_cross::Resource& resource)

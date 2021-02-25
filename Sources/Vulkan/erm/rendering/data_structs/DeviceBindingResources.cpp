@@ -45,10 +45,13 @@ namespace erm {
 		// CREATE UNIFORM BUFFERS
 		CreateUniformBuffers(ubosData);
 
-		// UPDATE DESCRIPTOR SETS
+		// PREPARE RESOURCES
 		std::vector<vk::DescriptorBufferInfo> descriptorBuffers(ubosData.size());
 		std::vector<vk::DescriptorImageInfo> imagesInfo(samplerData.size());
 		std::vector<vk::DescriptorImageInfo> storageImagesInfo(storageImageData.size());
+#ifdef ERM_RAY_TRACING_ENABLED
+		std::vector<vk::WriteDescriptorSetAccelerationStructureKHR> asInfo(asData.size());
+#endif
 
 		std::vector<vk::WriteDescriptorSet> descriptorWrites(ubosData.size() + samplerData.size() + storageImageData.size()
 #ifdef ERM_RAY_TRACING_ENABLED
@@ -56,6 +59,7 @@ namespace erm {
 #endif
 		);
 
+		// UNIFORM BUFFERS
 		CreateUniformBuffersDescriptorInfos(
 			descriptorBuffers,
 			ubosData,
@@ -67,63 +71,34 @@ namespace erm {
 			ubosData,
 			mDescriptorSets[0].get());
 
-		for (size_t i = 0; i < samplerData.size(); ++i)
-		{
-			const SamplerData& sData = samplerData[i];
-			Texture* texture = mConfigs.GetTexture(sData.mTextureType);
-			if (!texture)
-				texture = mRenderer.GetFallbackTexture(sData.mTextureType);
+		// SAMPLERS
+		CreateSamplerDescriptorWritesAndInfos(
+			imagesInfo,
+			descriptorWrites,
+			samplerData,
+			mDescriptorSets[0].get(),
+			static_cast<uint32_t>(ubosData.size()));
 
-			vk::DescriptorImageInfo& imageInfo = imagesInfo[i];
-			imageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
-			imageInfo.imageView = texture->GetImageView();
-			imageInfo.sampler = mRenderer.GetTextureSampler();
+		// STORAGE IMAGES
+		CreateStorageImagesDescriptorWritesAndInfos(
+			storageImagesInfo,
+			descriptorWrites,
+			storageImageData,
+			mDescriptorSets[0].get(),
+			static_cast<uint32_t>(ubosData.size() + samplerData.size()));
 
-			vk::WriteDescriptorSet descriptorWrite;
-			descriptorWrite.dstSet = mDescriptorSets[0].get();
-			descriptorWrite.dstBinding = sData.mBinding;
-			descriptorWrite.dstArrayElement = 0;
-			descriptorWrite.descriptorType = vk::DescriptorType::eCombinedImageSampler;
-			descriptorWrite.descriptorCount = 1;
-			descriptorWrite.pImageInfo = &imageInfo;
-
-			descriptorWrites[ubosData.size() + i] = std::move(descriptorWrite);
-		}
-
-		for (size_t i = 0; i < storageImageData.size(); ++i)
-		{
-			vk::DescriptorImageInfo& imageInfo = storageImagesInfo[i];
-			imageInfo.imageLayout = vk::ImageLayout::eGeneral;
-			imageInfo.imageView = mRenderer.GetSwapChainImageViews()[mRenderer.GetCurrentImageIndex()];
-
-			vk::WriteDescriptorSet descriptorWrite;
-			descriptorWrite.dstSet = mDescriptorSets[0].get();
-			descriptorWrite.dstBinding = storageImageData[i].mBinding;
-			descriptorWrite.dstArrayElement = 0;
-			descriptorWrite.descriptorType = vk::DescriptorType::eStorageImage;
-			descriptorWrite.descriptorCount = 1;
-			descriptorWrite.pImageInfo = &imageInfo;
-
-			descriptorWrites[ubosData.size() + samplerData.size() + i] = std::move(descriptorWrite);
-		}
-
+		// ACCELERATION STRUCTURES
 #ifdef ERM_RAY_TRACING_ENABLED
-		if (!asData.empty())
-		{
-			vk::WriteDescriptorSetAccelerationStructureKHR asInfo;
-			asInfo.accelerationStructureCount = 1;
-			asInfo.pAccelerationStructures = as;
-
-			vk::WriteDescriptorSet& write = descriptorWrites.back();
-			write.dstSet = mDescriptorSets[0].get();
-			write.dstBinding = asData[0].mBinding;
-			write.dstArrayElement = 0;
-			write.descriptorCount = 1;
-			write.descriptorType = vk::DescriptorType::eAccelerationStructureKHR;
-			write.pNext = &asInfo;
-		}
+		CreateASDescriptorWritesAndInfos(
+			asInfo,
+			descriptorWrites,
+			asData,
+			as,
+			mDescriptorSets[0].get(),
+			static_cast<uint32_t>(ubosData.size() + samplerData.size() + storageImageData.size()));
 #endif
 
+		// UPDATE DS
 		mDevice->updateDescriptorSets(static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 	}
 
@@ -143,22 +118,16 @@ namespace erm {
 
 		const auto& shaderBindingData = mShaderProgram.GetShaderBindingsData(mTargetSet);
 		const auto& storageImageData = shaderBindingData.mStorageImagesData;
-		if (!storageImageData.empty())
-		{
-			vk::DescriptorImageInfo imageInfo;
-			imageInfo.imageLayout = vk::ImageLayout::eGeneral;
-			imageInfo.imageView = mRenderer.GetSwapChainImageViews()[mRenderer.GetCurrentImageIndex()];
+		std::vector<vk::DescriptorImageInfo> infos(storageImageData.size());
+		std::vector<vk::WriteDescriptorSet> writes(storageImageData.size());
 
-			vk::WriteDescriptorSet descriptorWrite;
-			descriptorWrite.dstSet = mDescriptorSets[0].get();
-			descriptorWrite.dstBinding = storageImageData[0].mBinding;
-			descriptorWrite.dstArrayElement = 0;
-			descriptorWrite.descriptorType = vk::DescriptorType::eStorageImage;
-			descriptorWrite.descriptorCount = 1;
-			descriptorWrite.pImageInfo = &imageInfo;
+		CreateStorageImagesDescriptorWritesAndInfos(
+			infos,
+			writes,
+			storageImageData,
+			mDescriptorSets[0].get());
 
-			mDevice->updateDescriptorSets(1, &descriptorWrite, 0, nullptr);
-		}
+		mDevice->updateDescriptorSets(static_cast<uint32_t>(writes.size()), writes.data(), 0, nullptr);
 	}
 
 	void DeviceBindingResources::CreateUniformBuffers(const std::vector<UboData>& ubosData)
