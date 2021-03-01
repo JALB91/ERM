@@ -38,6 +38,15 @@ namespace erm::ecs {
 	ECS::~ECS()
 	{}
 
+	void ECS::OnPreUpdate()
+	{
+		PROFILE_FUNCTION();
+
+		ForEachSystem([](auto& system) {
+			system.OnPreUpdate();
+		});
+	}
+
 	void ECS::OnUpdate(float dt)
 	{
 		PROFILE_FUNCTION();
@@ -56,12 +65,30 @@ namespace erm::ecs {
 		});
 	}
 
+	void ECS::OnPreRender()
+	{
+		PROFILE_FUNCTION();
+
+		ForEachSystem([](auto& system) {
+			system.OnPreRender();
+		});
+	}
+
 	void ECS::OnRender()
 	{
 		PROFILE_FUNCTION();
 
 		ForEachSystem([](auto& system) {
 			system.OnRender();
+		});
+	}
+
+	void ECS::OnPostRender()
+	{
+		PROFILE_FUNCTION();
+
+		ForEachSystem([](auto& system) {
+			system.OnPostRender();
 		});
 	}
 

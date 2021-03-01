@@ -12,8 +12,7 @@ namespace erm {
 			size_t size,
 			vk::BufferUsageFlags buf);
 
-		void Update(void* data) const;
-		void Update(void* data, vk::DeviceSize offset, vk::DeviceSize size) const;
+		void Update(const void* data, const BufferInfo& info = {}) const override;
 	};
 
 } // namespace erm

@@ -11,7 +11,8 @@ namespace erm {
 		RT_RAY_GEN,
 		RT_MISS,
 		RT_CALLABLE,
-		RT_INTERSECTION
+		RT_INTERSECTION,
+		COUNT
 	};
 
 }

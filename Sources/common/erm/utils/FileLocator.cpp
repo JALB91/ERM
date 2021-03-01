@@ -15,7 +15,9 @@ namespace {
 #endif
 	const char* const kObjMaterialExtension = ".mtl";
 	const char* const kVertexShaderExtension = ".vert";
-	const char* const kFragmentShaderExtension = ".frag";
+#ifdef ERM_RAY_TRACING_ENABLED
+	const char* const kRayGenShaderExtension = ".rgen";
+#endif
 	const char* const kPngTextureExtension = ".png";
 	const char* const kJpgTextureExtension = ".jpg";
 	const char* const kJpegTextureExtension = ".jpeg";
@@ -34,6 +36,10 @@ namespace {
 	};
 	std::array kSupportedMaterialsExtensions {kObjMaterialExtension};
 	std::array kSupportedShadersExtensions {kVertexShaderExtension};
+#ifdef ERM_RAY_TRACING_ENABLED
+	std::array kSupportedRTShadersExtensions {kRayGenShaderExtension};
+#endif
+
 	std::array kSupportedTexturesExtensions {kPngTextureExtension, kJpgTextureExtension, kJpegTextureExtension};
 
 	std::map<std::string, std::vector<const char*>> kFilesAssociations
@@ -44,8 +50,10 @@ namespace {
 			{kFbxModelExtension, {kModelsDir}},
 #endif
 			{kObjMaterialExtension, {kModelsDir}},
-			{kFragmentShaderExtension, {kShadersDir}},
 			{kVertexShaderExtension, {kShadersDir}},
+#ifdef ERM_RAY_TRACING_ENABLED
+			{kRayGenShaderExtension, {kShadersDir}},
+#endif
 			{kPngTextureExtension, {kTexturesDir}},
 			{kJpegTextureExtension, {kTexturesDir}},
 		{
@@ -112,6 +120,14 @@ namespace erm {
 			std::vector<std::string> result = GetResourcesWithExtension(ext, false);
 			mShaderPrograms.insert(mShaderPrograms.end(), result.begin(), result.end());
 		}
+
+#ifdef ERM_RAY_TRACING_ENABLED
+		for (const char* ext : kSupportedRTShadersExtensions)
+		{
+			std::vector<std::string> result = GetResourcesWithExtension(ext, false);
+			mRTShaderPrograms.insert(mRTShaderPrograms.end(), result.begin(), result.end());
+		}
+#endif
 	}
 
 	std::vector<std::string> FileLocator::GetResourcesWithExtension(const char* extension, bool includeExtension /*= true*/) const

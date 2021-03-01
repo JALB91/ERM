@@ -52,8 +52,12 @@ namespace erm {
 
 		for (uint32_t i = 0; i < IRenderer::kMaxFramesInFlight; ++i)
 		{
-			CreateUniformBuffersDescriptorInfos(descriptorBuffers, ubosData, mUniformBuffers[i]);
-			CreateUniformBuffersDescriptorWrites(descriptorWrites, descriptorBuffers, ubosData, mDescriptorSets[i].get(), i * static_cast<uint32_t>(ubosData.size()));
+			CreateUniformBuffersDescriptorWritesAndInfos(
+				descriptorBuffers,
+				descriptorWrites,
+				ubosData,
+				mUniformBuffers[i],
+				mDescriptorSets[i].get());
 		}
 
 		mDevice->updateDescriptorSets(static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
@@ -87,7 +91,7 @@ namespace erm {
 				buffs.emplace(
 					std::piecewise_construct,
 					std::forward_as_tuple(data.mUboId),
-					std::forward_as_tuple(mDevice, data.mSize));
+					std::forward_as_tuple(mDevice, data.mStride));
 			}
 		}
 	}

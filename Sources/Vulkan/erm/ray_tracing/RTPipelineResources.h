@@ -3,8 +3,6 @@
 #include "erm/rendering/buffers/HostBuffer.h"
 #include "erm/rendering/data_structs/PipelineData.h"
 
-#include "erm/ray_tracing/RTRenderConfigs.h"
-
 #include <vulkan/vulkan.hpp>
 
 #include <deque>
@@ -23,15 +21,16 @@ namespace erm {
 		RTPipelineResources(
 			Device& device,
 			IRenderer& renderer,
-			const RTRenderConfigs& renderConfigs,
+			const RTRenderData& renderData,
 			const vk::DescriptorPool& descriptorPool,
 			const vk::AccelerationStructureKHR* topLevelAS);
 
 		void UpdateResources(vk::CommandBuffer& cmd, RTRenderData& renderData, uint32_t imageIndex);
 		void UpdateCommandBuffer(vk::CommandBuffer& cmd, RTRenderData& renderData, uint32_t imageIndex);
 
-		inline const RTRenderConfigs& GetRenderConfigs() const { return mRenderConfigs; }
+		inline const RTRenderData& GetRenderData() const { return mRenderData; }
 		inline const vk::Buffer GetSBTBuffer() const { return mSBTBuffer->GetBuffer(); }
+		inline size_t GetMaxInstancesCount() const { return mMaxInstancesCount; }
 
 	private:
 		void CreatePipeline();
@@ -40,7 +39,7 @@ namespace erm {
 
 		Device& mDevice;
 		IRenderer& mRenderer;
-		RTRenderConfigs mRenderConfigs;
+		const RTRenderData& mRenderData;
 		const vk::DescriptorPool& mDescriptorPool;
 		const vk::AccelerationStructureKHR* mTopLevelAS;
 
@@ -53,6 +52,7 @@ namespace erm {
 
 		std::unique_ptr<HostBuffer> mSBTBuffer;
 		std::unique_ptr<PipelineData> mPipelineData;
+		size_t mMaxInstancesCount;
 	};
 
 } // namespace erm

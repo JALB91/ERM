@@ -20,7 +20,7 @@ namespace erm {
 		~ResourcesLoader();
 
 		void OnUpdate();
-		void OnRender();
+		void OnPreRender();
 		void OnPostRender();
 
 		bool IsStillLoading(const Model& model) const;

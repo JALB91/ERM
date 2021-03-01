@@ -1,12 +1,10 @@
 #pragma once
 
+#include "erm/rendering/buffers/DeviceBuffer.h"
+
 #include <vulkan/vulkan.hpp>
 
 #include <memory>
-
-namespace erm {
-	class DeviceBuffer;
-}
 
 namespace erm {
 
@@ -16,11 +14,18 @@ namespace erm {
 		RTAccelerationStructure() = default;
 		virtual ~RTAccelerationStructure() = default;
 
+		inline void Reset()
+		{
+			mBuffer.reset();
+			mAccelerationStructure.reset();
+		}
+
+		inline void SetBuffer(std::unique_ptr<DeviceBuffer>&& buffer) { mBuffer = std::move(buffer); }
 		inline void SetAS(vk::UniqueAccelerationStructureKHR&& as) { mAccelerationStructure = std::move(as); }
 
-		inline std::unique_ptr<DeviceBuffer>& GetBuffer() { return mBuffer; }
+		inline bool IsReady() const { return mBuffer && mAccelerationStructure; }
+		inline DeviceBuffer& GetBuffer() { return *mBuffer; }
 		inline const vk::AccelerationStructureKHR& GetAS() const { return mAccelerationStructure.get(); }
-		inline vk::UniqueAccelerationStructureKHR& GetASUnique() { return mAccelerationStructure; }
 
 	private:
 		std::unique_ptr<DeviceBuffer> mBuffer;

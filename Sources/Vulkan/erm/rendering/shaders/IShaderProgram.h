@@ -49,6 +49,8 @@ namespace erm {
 		inline bool NeedsReload() const { return mNeedsReload; }
 		inline void OnReloaded() { mNeedsReload = false; }
 
+		void SetShaderSources(const std::map<ShaderType, std::string>& shadersSources);
+
 		inline const std::map<ShaderType, ShaderData>& GetShadersDataMap() const { return mShadersData; }
 		const ShaderData& GetShaderData(ShaderType shaderType) const;
 		ShaderData& GetShaderData(ShaderType shaderType);

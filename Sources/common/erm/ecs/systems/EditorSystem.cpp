@@ -164,7 +164,7 @@ namespace erm::ecs {
 						}
 
 						if (!mesh)
-							mesh = &meshes.emplace_back(MeshUtils::CreateSpike(mEngine.GetDevice(), 1.0f, 1.0f, 1.0f, index));
+							mesh = &meshes.emplace_back(MeshUtils::CreateSpike(1.0f, 1.0f, 1.0f, index));
 
 						++index;
 					});
@@ -216,7 +216,7 @@ namespace erm::ecs {
 			auto val = mBBoxesRenderData.emplace(
 				std::piecewise_construct,
 				std::forward_as_tuple(id),
-				std::forward_as_tuple(std::make_pair(mBBoxRenderConfigs, MeshUtils::CreateCube(mEngine.GetDevice()))));
+				std::forward_as_tuple(std::make_pair(mBBoxRenderConfigs, MeshUtils::CreateCube())));
 			data = &val.first->second;
 		}
 

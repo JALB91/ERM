@@ -1,6 +1,7 @@
 #include "erm/rendering/data_structs/IBindingResources.h"
 
 #include "erm/rendering/Device.h"
+#include "erm/rendering/buffers/DeviceBuffer.h"
 #include "erm/rendering/data_structs/Material.h"
 #include "erm/rendering/data_structs/RenderData.h"
 #include "erm/rendering/data_structs/RenderingResources.h"
@@ -27,24 +28,49 @@ namespace erm {
 		, mConfigs(configs)
 	{}
 
-	void IBindingResources::CreateUniformBuffersDescriptorWrites(
+	void IBindingResources::CreateStorageBuffersDescriptorWritesAndInfos(
+		std::vector<std::vector<vk::DescriptorBufferInfo>>& infos,
 		std::vector<vk::WriteDescriptorSet>& writes,
-		const std::vector<vk::DescriptorBufferInfo>& infos,
-		const std::vector<UboData>& ubosData,
+		const std::vector<StorageBufferData>& storageBuffersData,
+		const StorageBuffersMap& buffersMap,
 		vk::DescriptorSet& descriptorSet,
-		uint32_t writesOffset /* = 0*/)
+		uint32_t writesOffset /*= 0*/)
 	{
-		for (size_t i = 0; i < ubosData.size(); ++i)
+		for (size_t i = 0; i < storageBuffersData.size(); ++i)
 		{
-			const erm::UboData& data = ubosData[i];
+			const StorageBufferData& data = storageBuffersData[i];
+			const StorageBufferResources& bufferResources = buffersMap.at(data.mType);
+			std::vector<vk::DescriptorBufferInfo>& dbInfos = infos[i];
+
+			const uint32_t maxId = bufferResources.GetMaxBufferId();
+
+			dbInfos.resize(maxId + 1);
+
+			for (uint32_t j = 0; j < maxId + 1; ++j)
+			{
+				vk::DescriptorBufferInfo& bufferInfo = dbInfos[j];
+
+				if (vk::Buffer buffer = bufferResources.GetBuffer(j))
+				{
+					bufferInfo.buffer = buffer;
+					bufferInfo.offset = data.mOffset;
+					bufferInfo.range = VK_WHOLE_SIZE;
+				}
+				else
+				{
+					bufferInfo.buffer = nullptr;
+					bufferInfo.offset = 0;
+					bufferInfo.range = VK_WHOLE_SIZE;
+				}
+			}
 
 			vk::WriteDescriptorSet& descriptorWrite = writes[i + writesOffset];
 			descriptorWrite.dstSet = descriptorSet;
 			descriptorWrite.dstBinding = data.mBinding;
 			descriptorWrite.dstArrayElement = 0;
-			descriptorWrite.descriptorType = vk::DescriptorType::eUniformBuffer;
-			descriptorWrite.descriptorCount = 1;
-			descriptorWrite.pBufferInfo = &infos[i];
+			descriptorWrite.descriptorType = vk::DescriptorType::eStorageBuffer;
+			descriptorWrite.descriptorCount = static_cast<uint32_t>(dbInfos.size());
+			descriptorWrite.pBufferInfo = dbInfos.data();
 		}
 	}
 

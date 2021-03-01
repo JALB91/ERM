@@ -11,12 +11,15 @@
 #endif
 // clang-format on
 
+#include <memory>
 #include <string>
 #include <vector>
 
 namespace erm {
 	class Device;
-}
+	class IndexBuffer;
+	class VertexBuffer;
+} // namespace erm
 
 namespace erm {
 
@@ -38,6 +41,9 @@ namespace erm {
 		inline BoundingBox3D GetLocalBounds() { return mLocalBounds; }
 		inline const BoundingBox3D& GetLocalBounds() const { return mLocalBounds; }
 
+		inline const VertexBuffer& GetVerticesBuffer() const { return *mVerticesBuffer; }
+		inline const IndexBuffer& GetIndicesBuffer() const { return *mIndicesBuffer; }
+
 		inline bool IsDirty() const { return mIsDirty; }
 		inline void SetDirty(bool isDirty) { mIsDirty = isDirty; }
 
@@ -55,6 +61,7 @@ namespace erm {
 			const RenderConfigs& configs = RenderConfigs::MODELS_RENDER_CONFIGS,
 			const char* name = "");
 		void UpdateLocalBound();
+		void UpdateBuffers();
 
 	private:
 		Device& mDevice;
@@ -63,6 +70,8 @@ namespace erm {
 #ifdef ERM_RAY_TRACING_ENABLED
 		RTBlas mBlas;
 #endif
+		std::unique_ptr<VertexBuffer> mVerticesBuffer;
+		std::unique_ptr<IndexBuffer> mIndicesBuffer;
 		bool mIsDirty;
 	};
 

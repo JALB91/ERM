@@ -32,6 +32,7 @@ namespace erm::ecs {
 
 		virtual void Init() = 0;
 
+		virtual void OnPreUpdate() {}
 		virtual void OnUpdate(float /*dt*/) {}
 		virtual void OnPostUpdate() {}
 		virtual void OnPreRender() {}

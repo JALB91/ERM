@@ -80,9 +80,9 @@ namespace erm {
 				ds.data(),
 				0,
 				nullptr);
-			mesh->GetVertexBuffer().Bind(cmd);
+			/*mesh->GetVertexBuffer().Bind(cmd);
 			mesh->GetIndexBuffer().Bind(cmd);
-			cmd.drawIndexed(mesh->GetIndexBuffer().GetCount(), 1, 0, 0, 0);
+			cmd.drawIndexed(mesh->GetIndexBuffer().GetCount(), 1, 0, 0, 0);*/
 		}
 
 		data.PostDraw();
@@ -335,6 +335,7 @@ namespace erm {
 					*mDescriptorPool,
 					*renderData.mRenderConfigs.mShaderProgram,
 					renderData.mRenderConfigs,
+					renderData,
 					mDescriptorSetLayouts[set].get());
 			else
 				resources = std::make_unique<HostBindingResources>(

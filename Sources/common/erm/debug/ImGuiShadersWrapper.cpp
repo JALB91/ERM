@@ -69,7 +69,7 @@ namespace ImGui {
 			{
 				if (selected)
 				{
-					selected->SetShaderSources(vertexShader, fragmentShader);
+					selected->SetShaderSources({{erm::ShaderType::VERTEX, vertexShader}, {erm::ShaderType::FRAGMENT, fragmentShader}});
 				}
 				else
 				{

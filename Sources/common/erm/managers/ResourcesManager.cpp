@@ -34,17 +34,17 @@ namespace erm {
 	{
 		mModels.reserve(10);
 		mModels.emplace_back(std::make_unique<Model>(mDevice, "Defaults/Triangle", "Triangle"));
-		mModels.back()->AddMesh(MeshUtils::CreateTriangle(mDevice));
+		mModels.back()->AddMesh(MeshUtils::CreateTriangle());
 		mModels.emplace_back(std::make_unique<Model>(mDevice, "Defaults/Square", "Square"));
-		mModels.back()->AddMesh(MeshUtils::CreateSquare(mDevice));
+		mModels.back()->AddMesh(MeshUtils::CreateSquare());
 		mModels.emplace_back(std::make_unique<Model>(mDevice, "Defaults/Cube", "Cube"));
-		mModels.back()->AddMesh(MeshUtils::CreateCube(mDevice));
+		mModels.back()->AddMesh(MeshUtils::CreateCube());
 		mModels.emplace_back(std::make_unique<Model>(mDevice, "Defaults/Sphere", "Sphere"));
-		mModels.back()->AddMesh(MeshUtils::CreateSphere(mDevice));
+		mModels.back()->AddMesh(MeshUtils::CreateSphere());
 		mModels.emplace_back(std::make_unique<Model>(mDevice, "Defaults/Spike", "Spike"));
-		mModels.back()->AddMesh(MeshUtils::CreateSpike(mDevice));
+		mModels.back()->AddMesh(MeshUtils::CreateSpike());
 		mModels.emplace_back(std::make_unique<Model>(mDevice, "Defaults/Grid", "Grid"));
-		mModels.back()->AddMesh(MeshUtils::CreateGrid(mDevice));
+		mModels.back()->AddMesh(MeshUtils::CreateGrid());
 	}
 
 	void ResourcesManager::OnUpdate()
@@ -52,9 +52,9 @@ namespace erm {
 		mResourcesLoader.OnUpdate();
 	}
 
-	void ResourcesManager::OnRender()
+	void ResourcesManager::OnPreRender()
 	{
-		mResourcesLoader.OnRender();
+		mResourcesLoader.OnPreRender();
 	}
 
 	void ResourcesManager::OnPostRender()

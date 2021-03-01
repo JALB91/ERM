@@ -5,7 +5,11 @@ namespace erm {
 	enum class StorageBufferType
 	{
 		VERTICES,
-		INDICES
+		INDICES,
+		MATERIALS,
+		MATERIALS_INDICES,
+		SCENE_DESCS,
+		TRANSFORMS_IT
 	};
 
 }

@@ -12,7 +12,9 @@
 
 #include "erm/managers/ResourcesManager.h"
 
+#include "erm/rendering/Device.h"
 #include "erm/rendering/buffers/IndexBuffer.h"
+#include "erm/rendering/buffers/VertexBuffer.h"
 #include "erm/rendering/data_structs/Material.h"
 #include "erm/rendering/data_structs/Mesh.h"
 #include "erm/rendering/data_structs/Model.h"
@@ -24,6 +26,7 @@
 
 #include "erm/utils/MeshUtils.h"
 #include "erm/utils/Profiler.h"
+#include "erm/utils/VkUtils.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -68,7 +71,7 @@ namespace erm::ecs {
 		: ISystem(ecs)
 		, mEngine(engine)
 		, mResourcesManager(engine.GetResourcesManager())
-		, mGridMesh(std::make_unique<Mesh>(MeshUtils::CreateGrid(engine.GetDevice(), 1000, 1000, 1.0f, 1.0f)))
+		, mGridMesh(std::make_unique<Mesh>(MeshUtils::CreateGrid(1000, 1000, 1.0f, 1.0f)))
 		, mDebugShader(mResourcesManager.GetOrCreateShaderProgram(kDebugShaderPath))
 		, mRenderData(RenderConfigs::MODELS_RENDER_CONFIGS)
 	{
@@ -92,7 +95,28 @@ namespace erm::ecs {
 		mLightSystem = &mECS.GetSystem<LightSystem>();
 	}
 
-	void RenderingSystem::OnRender()
+	void RenderingSystem::OnPostUpdate()
+	{
+		ForEachComponent([&](RenderingComponent& component) {
+			if (!component.IsDirty())
+				return;
+
+			if (component.mCustomIndex.has_value())
+			{
+				for (RTRenderData& data : mRTRenderData)
+				{
+					data.mForceUpdate = true;
+					data.ClearDataForIndex(component.mCustomIndex.value());
+				}
+
+				component.mCustomIndex.reset();
+			}
+
+			component.SetDirty(false);
+		});
+	}
+
+	void RenderingSystem::OnPreRender()
 	{
 		PROFILE_FUNCTION();
 
@@ -145,10 +169,13 @@ namespace erm::ecs {
 			if (!component.GetModel())
 				return;
 
-			TransformComponent* modelTransform = mTransformSystem->GetComponent(id);
-
-			const math::mat4 modelMat = modelTransform->mWorldTransform;
 			Model& model = *component.GetModel();
+
+			if (mResourcesManager.IsStillLoading(model))
+				return;
+
+			const TransformComponent* modelTransform = mTransformSystem->GetComponent(id);
+			const math::mat4& modelMat = modelTransform->mWorldTransform;
 
 			RenderingComponent* renderingComponent = RequireComponent(id);
 			SkeletonComponent* skeletonComponent = mSkeletonSystem->GetComponent(id);
@@ -162,10 +189,6 @@ namespace erm::ecs {
 			for (size_t i = 0; i < meshes.size(); ++i)
 			{
 				Mesh& mesh = meshes[i];
-
-				if (!mesh.IsReady())
-					continue;
-
 				RenderConfigs& configs = mesh.GetRenderConfigs();
 
 				if (!configs.mPBMaterial)
@@ -284,112 +307,76 @@ namespace erm::ecs {
 					renderer.SubmitRenderData(data);
 			}
 #else
-			if (mResourcesManager.IsStillLoading(model))
-				return;
+			RTRenderData* data = data = mRTRenderData.empty() ? &mRTRenderData.emplace_back(mEngine.GetDevice()) : &mRTRenderData[0];
 
-			RTRenderData& data = renderingComponent->mRTRenderData;
-			RTRenderConfigs& configs = data.mRenderConfigs;
+			RTRenderConfigs& configs = data->mRenderConfigs;
 			configs.mMaterial = configs.mMaterial ? configs.mMaterial : &Material::DEFAULT;
 			configs.mPBMaterial = configs.mPBMaterial ? configs.mPBMaterial : &PBMaterial::DEFAULT;
-			data.mBlas = &model.GetBlas();
-			data.mTransform = modelMat;
-			data.mRenderConfigs.mShaderProgram = mResourcesManager.GetOrCreateRTShaderProgram("res/shaders/vk_raytrace");
-
-			{
-				UboBasic ubo;
-				ubo.mMVP = proj * viewInv * modelMat;
-				data.SetUbo(std::move(ubo));
-			}
-
-			{
-				PBMaterial& pbMaterial = *configs.mPBMaterial;
-
-				UboPBMaterial ubo;
-				ubo.mAlbedo = pbMaterial.mAlbedo;
-				ubo.mMetallic = pbMaterial.mMetallic;
-				ubo.mRoughness = pbMaterial.mRoughness;
-				ubo.mAO = pbMaterial.mAO;
-
-				data.SetUbo(std::move(ubo));
-			}
-
-			{
-				Material& material = *configs.mMaterial;
-
-				UboMaterial ubo;
-				ubo.mShininess = material.mShininess;
-				ubo.mSpecular = material.mSpecular;
-				ubo.mDiffuse = material.mDiffuse;
-				ubo.mAmbient = material.mAmbient;
-
-				data.SetUbo(std::move(ubo));
-			}
-
-			{
-				UboLight ubo;
-				ubo.mAmbient = light->mAmbient;
-				ubo.mDiffuse = light->mDiffuse;
-				ubo.mSpecular = light->mSpecular;
-				ubo.mPosition = lightPos;
-
-				data.SetUbo(std::move(ubo));
-			}
-
-			{
-				UboPBLight ubo;
-				ubo.mPosition = lightPos;
-				ubo.mColor = light->mAmbient;
-
-				data.SetUbo(std::move(ubo));
-			}
-
-			if (skeletonComponent && skeletonComponent->GetSkin())
-			{
-				UboSkeleton ubo;
-				ubo.mModel = modelMat;
-				ubo.mView = viewInv;
-				ubo.mProjection = proj;
-
-				skeletonComponent->GetSkin()->mRootBone->ForEachDo([&ubo, &data](BonesTree& bone) {
-					if (bone.GetId() >= MAX_BONES)
-						return;
-
-					ubo.mBonesTransforms[bone.GetId()] = bone.GetPayload()->mAnimatedTransform;
-				});
-
-				data.SetUbo(std::move(ubo));
-			}
-
-			{
-				UboModelViewProj ubo;
-				ubo.mModel = modelMat;
-				ubo.mView = viewInv;
-				ubo.mProjection = proj;
-
-				data.SetUbo(std::move(ubo));
-			}
-
-			{
-				UboView ubo;
-				if (EntityId parent = cameraTransform->GetParent(); parent.IsValid())
-					ubo.mPosition = mTransformSystem->GetComponent(parent)->mWorldTransform * math::vec4(cameraTransform->mTranslation, 1.0f);
-				else
-					ubo.mPosition = cameraTransform->mTranslation;
-
-				data.SetUbo(std::move(ubo));
-			}
+			configs.mShaderProgram = configs.mShaderProgram ? configs.mShaderProgram : mResourcesManager.GetOrCreateRTShaderProgram("res/shaders/vk_raytrace");
 
 			{
 				UboRTBasic ubo;
-				ubo.mProj = glm::inverse(proj);
-				ubo.mView = view;
+				ubo.mProjInv = glm::inverse(proj);
+				ubo.mViewInv = view;
 
-				data.SetUbo(std::move(ubo));
+				data->SetUbo(std::move(ubo));
 			}
 
-			renderer.SubmitRTRenderData(data);
+			data->mForceUpdate |= !renderingComponent->mCustomIndex.has_value();
+
+			if (!renderingComponent->mCustomIndex.has_value())
+			{
+				uint32_t customIdx = 0;
+
+				while (data->HasInstanceWithId(customIdx))
+					customIdx++;
+
+				renderingComponent->mCustomIndex = customIdx;
+				auto& itBuffer = renderingComponent->mTransformITBuffer;
+				if (!itBuffer)
+					itBuffer = std::make_unique<DeviceBuffer>(mEngine.GetDevice(), sizeof(math::mat4), vk::BufferUsageFlagBits::eStorageBuffer);
+
+				data->AddSbo(StorageBufferType::VERTICES, customIdx, model.GetVerticesBuffer());
+				data->AddSbo(StorageBufferType::INDICES, customIdx, model.GetIndicesBuffer());
+				data->AddSbo(StorageBufferType::TRANSFORMS_IT, customIdx, *itBuffer);
+			}
+
+			data->AddOrUpdateInstance(&model.GetBlas(), modelMat, renderingComponent->GetCustomIndex().value());
+			renderingComponent->mTransformITBuffer->Update(static_cast<void*>(&glm::inverse(glm::transpose(modelMat))));
 #endif
 		});
+
+#ifdef ERM_RAY_TRACING_ENABLED
+		for (RTRenderData& data : mRTRenderData)
+			if (!data.mInstancesMap.empty())
+				renderer.SubmitRTRenderData(data);
+#endif
+	}
+
+	void RenderingSystem::OnPostRender()
+	{
+#ifdef ERM_RAY_TRACING_ENABLED
+		for (auto& data : mRTRenderData)
+		{
+			data.mForceUpdate = false;
+		}
+#endif
+	}
+
+	void RenderingSystem::OnComponentBeingRemoved(EntityId id)
+	{
+#ifdef ERM_RAY_TRACING_ENABLED
+		if (RenderingComponent* comp = GetComponent(id))
+		{
+			if (comp->mCustomIndex.has_value())
+			{
+				for (auto& data : mRTRenderData)
+				{
+					data.ClearDataForIndex(comp->mCustomIndex.value());
+				}
+			}
+		}
+#endif
 	}
 
 } // namespace erm::ecs

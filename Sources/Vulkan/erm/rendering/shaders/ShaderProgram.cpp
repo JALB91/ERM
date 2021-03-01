@@ -13,23 +13,6 @@ namespace erm {
 		UpdateBindingData();
 	}
 
-	void ShaderProgram::SetShaderSources(const std::string& vertex, const std::string& fragment)
-	{
-		Utils::WriteToFile((mPath + ".vert").c_str(), vertex);
-		Utils::WriteToFile((mPath + ".frag").c_str(), fragment);
-
-		CompileShaderSource(ShaderType::VERTEX);
-		CompileShaderSource(ShaderType::FRAGMENT);
-
-		mShadersData.clear();
-		UpdateShaderData(ShaderType::VERTEX);
-		UpdateShaderData(ShaderType::FRAGMENT);
-
-		UpdateBindingData();
-
-		mNeedsReload = true;
-	}
-
 	vk::VertexInputBindingDescription ShaderProgram::GetVertexBindingDescription()
 	{
 		spirv_cross::ShaderResources resources = mShadersData[ShaderType::VERTEX].mShaderCompiler->get_shader_resources();

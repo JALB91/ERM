@@ -7,43 +7,44 @@
 
 namespace erm {
 
-	uint32_t RTBlas::sCurrentId = 0;
-
 	RTBlas::RTBlas(
 		Device& device,
 		const Model& model)
 		: mDevice(device)
 		, mModel(model)
-		, mID(sCurrentId++)
+		, mNeedsBuild(false)
 	{}
 
-	RTBlas::~RTBlas()
-	{}
+	RTBlas::~RTBlas() = default;
 
 	void RTBlas::UpdateBlasData()
 	{
 		ASSERT(mBlasData.mGeometries.size() == mBlasData.mInfos.size());
 		const std::vector<Mesh>& meshes = mModel.GetMeshes();
+		const BufferLayout& vLayout = mModel.GetVerticesBuffer().GetLayout();
+		const BufferLayout& iLayout = mModel.GetIndicesBuffer().GetLayout();
+
+		vk::DeviceAddress vertexAddress = mDevice->getBufferAddress({vLayout.mBuffer});
+		vk::DeviceAddress indexAddress = mDevice->getBufferAddress({iLayout.mBuffer});
 
 		for (size_t i = mBlasData.mGeometries.size(); i < meshes.size(); ++i)
 		{
+			mNeedsBuild = true;
+
 			const Mesh& mesh = meshes[i];
+			const BufferInfo& vInfos = vLayout.mInfos[i];
+			const BufferInfo& iInfos = iLayout.mInfos[i];
 
-			ASSERT(mesh.IsReady());
-
-			vk::DeviceAddress vertexAddress = mDevice->getBufferAddress({mesh.GetVertexBuffer().GetBuffer()});
-			vk::DeviceAddress indexAddress = mDevice->getBufferAddress({mesh.GetIndexBuffer().GetBuffer()});
-
-			uint32_t maxPrimitiveCount = static_cast<uint32_t>(mesh.GetIndexBuffer().GetCount()) / 3;
+			uint32_t maxPrimitiveCount = static_cast<uint32_t>(mesh.GetIndicesData().size() / 3);
 
 			// Describe buffer as array of VertexObj.
 			vk::AccelerationStructureGeometryTrianglesDataKHR triangles;
 			triangles.setVertexFormat(vk::Format::eR32G32B32Sfloat); // vec3 vertex position data.
-			triangles.setVertexData(vertexAddress);
+			triangles.setVertexData(vertexAddress + vInfos.mOffset);
 			triangles.setVertexStride(sizeof(VertexData));
 			// Describe index data (32-bit unsigned int)
 			triangles.setIndexType(vk::IndexType::eUint32);
-			triangles.setIndexData(indexAddress);
+			triangles.setIndexData(indexAddress + iInfos.mOffset);
 			// Indicate identity transform by setting transformData to null device pointer.
 			triangles.setTransformData({});
 			triangles.setMaxVertex(static_cast<uint32_t>(mesh.GetVerticesData().size()));
@@ -57,9 +58,9 @@ namespace erm {
 			// The entire array will be used to build the BLAS.
 			vk::AccelerationStructureBuildRangeInfoKHR& offset = mBlasData.mInfos.emplace_back();
 			offset.setFirstVertex(0);
-			offset.setPrimitiveCount(maxPrimitiveCount);
 			offset.setPrimitiveOffset(0);
 			offset.setTransformOffset(0);
+			offset.setPrimitiveCount(maxPrimitiveCount);
 		}
 	}
 

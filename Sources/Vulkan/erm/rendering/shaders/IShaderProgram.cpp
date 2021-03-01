@@ -136,6 +136,8 @@ namespace {
 			return makeStorageBufferData(erm::StorageBufferType::VERTICES);
 		else if (resource.name.compare("Indices") == 0)
 			return makeStorageBufferData(erm::StorageBufferType::INDICES);
+		else if (resource.name.compare("Transforms") == 0)
+			return makeStorageBufferData(erm::StorageBufferType::TRANSFORMS_IT);
 
 		ASSERT(false);
 
@@ -258,6 +260,21 @@ namespace erm {
 		, mDevice(device)
 		, mNeedsReload(false)
 	{}
+
+	void IShaderProgram::SetShaderSources(const std::map<ShaderType, std::string>& shadersSources)
+	{
+		mShadersData.clear();
+
+		for (const auto& [type, source] : shadersSources)
+		{
+			Utils::WriteToFile((mPath + GetExtensionForShaderType(type)).c_str(), source);
+			CompileShaderSource(type);
+			UpdateShaderData(type);
+		}
+
+		UpdateBindingData();
+		mNeedsReload = true;
+	}
 
 	vk::UniqueShaderModule IShaderProgram::CreateShaderModule(ShaderType shaderType) const
 	{

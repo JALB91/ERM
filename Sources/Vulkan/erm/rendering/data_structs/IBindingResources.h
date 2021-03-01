@@ -1,6 +1,7 @@
 #pragma once
 
-#include "erm/rendering/buffers/IBuffer.h"
+#include "erm/rendering/buffers/DeviceBuffer.h"
+#include "erm/rendering/data_structs/IRenderData.h"
 #include "erm/rendering/data_structs/RenderConfigs.h"
 #include "erm/rendering/data_structs/UniformBufferData.h"
 #include "erm/rendering/data_structs/UniformBufferObject.h"
@@ -13,7 +14,6 @@ namespace erm {
 	class Device;
 	class IRenderer;
 	class IShaderProgram;
-	struct IRenderData;
 } // namespace erm
 
 namespace erm {
@@ -45,10 +45,13 @@ namespace erm {
 
 	protected:
 		template<typename Buffer>
-		void CreateUniformBuffersDescriptorInfos(
+		void CreateUniformBuffersDescriptorWritesAndInfos(
 			std::vector<vk::DescriptorBufferInfo>& infos,
+			std::vector<vk::WriteDescriptorSet>& writes,
 			const std::vector<UboData>& ubosData,
-			const std::map<UboId, Buffer>& buffers)
+			const std::map<UboId, Buffer>& buffers,
+			vk::DescriptorSet& descriptorSet,
+			uint32_t writesOffset = 0)
 		{
 			for (size_t i = 0; i < ubosData.size(); ++i)
 			{
@@ -59,13 +62,22 @@ namespace erm {
 				bufferInfo.buffer = buffer.GetBuffer();
 				bufferInfo.offset = data.mOffset;
 				bufferInfo.range = buffer.GetBufferSize();
+
+				vk::WriteDescriptorSet& descriptorWrite = writes[i + writesOffset];
+				descriptorWrite.dstSet = descriptorSet;
+				descriptorWrite.dstBinding = data.mBinding;
+				descriptorWrite.dstArrayElement = 0;
+				descriptorWrite.descriptorType = vk::DescriptorType::eUniformBuffer;
+				descriptorWrite.descriptorCount = 1;
+				descriptorWrite.pBufferInfo = &infos[i];
 			}
 		}
 
-		void CreateUniformBuffersDescriptorWrites(
+		void CreateStorageBuffersDescriptorWritesAndInfos(
+			std::vector<std::vector<vk::DescriptorBufferInfo>>& infos,
 			std::vector<vk::WriteDescriptorSet>& writes,
-			const std::vector<vk::DescriptorBufferInfo>& infos,
-			const std::vector<UboData>& ubosData,
+			const std::vector<StorageBufferData>& storageBuffersData,
+			const StorageBuffersMap& buffersMap,
 			vk::DescriptorSet& descriptorSet,
 			uint32_t writesOffset = 0);
 

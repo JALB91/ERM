@@ -19,13 +19,13 @@ namespace erm {
 
 	struct VertexData
 	{
-		alignas(16) PositionVertex mPositionVertex = PositionVertex(0.0f);
-		alignas(16) NormalVertex mNormalVertex = NormalVertex(0.0f);
-		alignas(8) UVVertex mUVVertex = UVVertex(0.0f);
-		alignas(16) BoneWeights mBoneWeights = BoneWeights(0.0f);
-		alignas(16) BoneIds mBoneIds = BoneIds(0);
-		alignas(4) BoneNum mBoneNum = BoneNum(0);
-		alignas(4) DebugBoneId mDebugBoneId = DebugBoneId(0);
+		PositionVertex mPositionVertex = PositionVertex(0.0f);
+		NormalVertex mNormalVertex = NormalVertex(0.0f);
+		UVVertex mUVVertex = UVVertex(0.0f);
+		BoneWeights mBoneWeights = BoneWeights(0.0f);
+		BoneIds mBoneIds = BoneIds(0);
+		BoneNum mBoneNum = BoneNum(0);
+		DebugBoneId mDebugBoneId = DebugBoneId(0);
 	};
 
 } // namespace erm

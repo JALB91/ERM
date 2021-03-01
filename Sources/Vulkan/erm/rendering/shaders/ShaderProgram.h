@@ -9,8 +9,6 @@ namespace erm {
 	public:
 		ShaderProgram(Device& device, const char* shaderPath);
 
-		void SetShaderSources(const std::string& vertex, const std::string& fragment);
-
 		vk::VertexInputBindingDescription GetVertexBindingDescription();
 		std::vector<vk::VertexInputAttributeDescription> GetVertexAttributeDescriptions();
 	};

@@ -2,14 +2,15 @@
 
 #include "erm/managers/ResourcesManager.h"
 
-#include "erm/rendering/data_structs/Mesh.h"
 #include "erm/rendering/data_structs/Model.h"
 
 #include "erm/loaders/assimp/AssimpModelLoader.h"
 #include "erm/loaders/collada/ColladaModelLoader.h"
+// clang-format off
 #ifdef ERM_FBX_ENABLED
-#	include "erm/loaders/fbx/FBXModelLoader.h"
+#include "erm/loaders/fbx/FBXModelLoader.h"
 #endif
+// clang-format on
 #include "erm/loaders/obj/ObjModelLoader.h"
 
 #include <algorithm>
@@ -42,36 +43,23 @@ namespace erm {
 			return;
 		}
 
-		for (erm::Model* model : mLoadingModels)
-		{
-			for (Mesh& mesh : model->GetMeshes())
-			{
-				if (!mesh.IsReady())
-				{
-					mesh.Setup();
-				}
-			}
-		}
-
-		mMutex.unlock();
-
 		for (int i = 0; i < static_cast<int>(mFutures.size()); ++i)
 		{
 			std::future<void>& future = mFutures[i];
 
 			if (future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
 			{
-#if defined(ERM_VULKAN) && defined(ERM_RAY_TRACING_ENABLED)
-				mLoadingModels[i]->GetBlas().UpdateBlasData();
-#endif
+				mLoadingModels[i]->UpdateBuffers();
 				mFutures.erase(mFutures.begin() + i);
 				mLoadingModels.erase(mLoadingModels.begin() + i);
 				--i;
 			}
 		}
+
+		mMutex.unlock();
 	}
 
-	void ResourcesLoader::OnRender()
+	void ResourcesLoader::OnPreRender()
 	{
 		mMutex.lock();
 	}
@@ -102,6 +90,7 @@ namespace erm {
 		std::string extension = pathStr.substr(pathStr.rfind("."));
 
 		Model& model = *resourcesManager.GetModels().emplace_back(std::make_unique<Model>(mDevice, path, name.c_str()));
+
 		if (async)
 			mLoadingModels.emplace_back(&model);
 
@@ -121,8 +110,7 @@ namespace erm {
 		else
 		{
 			AssimpParseModel(mMutex, mStop, path, model, resourcesManager);
-			for (Mesh& mesh : model.GetMeshes())
-				mesh.Setup();
+			model.UpdateBuffers();
 		}
 
 		return true;
@@ -144,8 +132,7 @@ namespace erm {
 			else
 			{
 				ParseObjModel(mMutex, mStop, path, model, resourcesManager);
-				for (Mesh& mesh : model.GetMeshes())
-					mesh.Setup();
+				model.UpdateBuffers();
 			}
 
 			return true;
@@ -167,8 +154,7 @@ namespace erm {
 			else
 			{
 				ParseColladaModel(mMutex, mStop, path, model, resourcesManager);
-				for (Mesh& mesh : model.GetMeshes())
-					mesh.Setup();
+				model.UpdateBuffers();
 			}
 
 			return true;
@@ -191,8 +177,7 @@ namespace erm {
 			else
 			{
 				ParseFBXModel(mMutex, mStop, path, model, resourcesManager);
-				for (Mesh& mesh : model.GetMeshes())
-					mesh.Setup();
+				model.UpdateBuffers();
 			}
 
 			return true;

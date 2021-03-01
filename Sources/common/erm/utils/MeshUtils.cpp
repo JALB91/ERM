@@ -6,7 +6,6 @@
 namespace erm::MeshUtils {
 
 	Mesh CreateTriangle(
-		Device& device,
 		const math::vec3& a /* = math::vec3(-1.0f, -1.0f, 0.0f) */,
 		const math::vec3& b /* = math::vec3(1.0f, -1.0f, 0.0f) */,
 		const math::vec3& c /* = math::vec3(-1.0f, 1.0f, 0.0f) */
@@ -27,13 +26,11 @@ namespace erm::MeshUtils {
 		indices[1] = 1;
 		indices[2] = 2;
 
-		Mesh mesh(device, std::move(vertices), std::move(indices), RenderConfigs::MODELS_RENDER_CONFIGS);
-		mesh.Setup();
+		Mesh mesh(std::move(vertices), std::move(indices), RenderConfigs::MODELS_RENDER_CONFIGS);
 		return mesh;
 	}
 
 	Mesh CreateSquare(
-		Device& device,
 		float width /* = 1.0f */,
 		float height /* = 1.0f */
 	)
@@ -61,13 +58,11 @@ namespace erm::MeshUtils {
 		indices[4] = 1;
 		indices[5] = 3;
 
-		Mesh mesh(device, std::move(vertices), std::move(indices), RenderConfigs::MODELS_RENDER_CONFIGS);
-		mesh.Setup();
+		Mesh mesh(std::move(vertices), std::move(indices), RenderConfigs::MODELS_RENDER_CONFIGS);
 		return mesh;
 	}
 
 	Mesh CreateCube(
-		Device& device,
 		float sizeX /* = 1.0f */,
 		float sizeY /* = 1.0f */,
 		float sizeZ /* = 1.0f */
@@ -181,13 +176,11 @@ namespace erm::MeshUtils {
 			indices[(i * 6) + 5] = offset + 2;
 		}
 
-		Mesh mesh(device, std::move(vertices), std::move(indices), RenderConfigs::MODELS_RENDER_CONFIGS);
-		mesh.Setup();
+		Mesh mesh(std::move(vertices), std::move(indices), RenderConfigs::MODELS_RENDER_CONFIGS);
 		return mesh;
 	}
 
 	Mesh CreateSpike(
-		Device& device,
 		float sizeX /* = 1.0f */,
 		float sizeY /* = 1.0f */,
 		float sizeZ /* = 1.0f */,
@@ -284,13 +277,11 @@ namespace erm::MeshUtils {
 		indices[16] = 14;
 		indices[17] = 15;
 
-		Mesh mesh(device, std::move(vertices), std::move(indices), RenderConfigs::MODELS_RENDER_CONFIGS);
-		mesh.Setup();
+		Mesh mesh(std::move(vertices), std::move(indices), RenderConfigs::MODELS_RENDER_CONFIGS);
 		return mesh;
 	}
 
 	Mesh CreateSphere(
-		Device& device,
 		float radius /* = 1.0f */,
 		unsigned int sectors /* = 10 */,
 		unsigned int rings /* = 10 */
@@ -352,13 +343,11 @@ namespace erm::MeshUtils {
 			}
 		}
 
-		Mesh mesh(device, std::move(vertices), std::move(indices), RenderConfigs::MODELS_RENDER_CONFIGS);
-		mesh.Setup();
+		Mesh mesh(std::move(vertices), std::move(indices), RenderConfigs::MODELS_RENDER_CONFIGS);
 		return mesh;
 	}
 
 	Mesh CreateGrid(
-		Device& device,
 		unsigned int sizeX /*= 100*/,
 		unsigned int sizeY /*= 100*/,
 		float width /*= 1.0f*/,
@@ -422,8 +411,7 @@ namespace erm::MeshUtils {
 		configs.SetDrawMode(DrawMode::LINES);
 		configs.SetCullMode(CullMode::NONE);
 
-		Mesh mesh(device, std::move(vertices), std::move(indices), configs);
-		mesh.Setup();
+		Mesh mesh(std::move(vertices), std::move(indices), configs);
 		return mesh;
 	}
 

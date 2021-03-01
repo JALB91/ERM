@@ -24,12 +24,12 @@ namespace erm {
 		UboData(UboId uboId, size_t size, uint32_t offset, uint32_t binding, uint32_t set)
 			: IBindingData(binding, set)
 			, mUboId(uboId)
-			, mSize(size)
+			, mStride(size)
 			, mOffset(offset)
 		{}
 
 		UboId mUboId;
-		size_t mSize;
+		size_t mStride;
 		uint32_t mOffset;
 	};
 
@@ -48,12 +48,12 @@ namespace erm {
 		StorageBufferData(StorageBufferType type, size_t size, uint32_t offset, uint32_t binding, uint32_t set)
 			: IBindingData(binding, set)
 			, mType(type)
-			, mSize(size)
+			, mStride(size)
 			, mOffset(offset)
 		{}
 
 		StorageBufferType mType;
-		size_t mSize;
+		size_t mStride;
 		uint32_t mOffset;
 	};
 

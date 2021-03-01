@@ -17,6 +17,7 @@ namespace erm {
 		const vk::DescriptorPool& descriptorPool,
 		const IShaderProgram& shaderProgram,
 		const BindingConfigs& configs,
+		const IRenderData& renderData,
 		const vk::DescriptorSetLayout& descriptorSetLayout
 #ifdef ERM_RAY_TRACING_ENABLED
 		,
@@ -36,6 +37,7 @@ namespace erm {
 		// GATHER SHADER DATA
 		const ShaderBindingData& shaderBindings = mShaderProgram.GetShaderBindingsData(mTargetSet);
 		const std::vector<UboData>& ubosData = shaderBindings.mUbosData;
+		const std::vector<StorageBufferData>& storageBuffersData = shaderBindings.mStorageBuffersData;
 		const std::vector<SamplerData>& samplerData = shaderBindings.mSamplersData;
 		const std::vector<StorageImageData> storageImageData = shaderBindings.mStorageImagesData;
 #ifdef ERM_RAY_TRACING_ENABLED
@@ -46,29 +48,30 @@ namespace erm {
 		CreateUniformBuffers(ubosData);
 
 		// PREPARE RESOURCES
-		std::vector<vk::DescriptorBufferInfo> descriptorBuffers(ubosData.size());
+		std::vector<vk::DescriptorBufferInfo> uboBuffersInfos(ubosData.size());
 		std::vector<vk::DescriptorImageInfo> imagesInfo(samplerData.size());
 		std::vector<vk::DescriptorImageInfo> storageImagesInfo(storageImageData.size());
+		std::vector<std::vector<vk::DescriptorBufferInfo>> storageBuffersInfos(storageBuffersData.size());
 #ifdef ERM_RAY_TRACING_ENABLED
 		std::vector<vk::WriteDescriptorSetAccelerationStructureKHR> asInfo(asData.size());
 #endif
 
-		std::vector<vk::WriteDescriptorSet> descriptorWrites(ubosData.size() + samplerData.size() + storageImageData.size()
+		std::vector<vk::WriteDescriptorSet> descriptorWrites(
+			ubosData.size() +
+			samplerData.size() +
+			storageImageData.size() +
+			storageBuffersData.size()
 #ifdef ERM_RAY_TRACING_ENABLED
-															 + asData.size()
+			+ asData.size()
 #endif
 		);
 
 		// UNIFORM BUFFERS
-		CreateUniformBuffersDescriptorInfos(
-			descriptorBuffers,
-			ubosData,
-			mUniformBuffers);
-
-		CreateUniformBuffersDescriptorWrites(
+		CreateUniformBuffersDescriptorWritesAndInfos(
+			uboBuffersInfos,
 			descriptorWrites,
-			descriptorBuffers,
 			ubosData,
+			mUniformBuffers,
 			mDescriptorSets[0].get());
 
 		// SAMPLERS
@@ -87,6 +90,15 @@ namespace erm {
 			mDescriptorSets[0].get(),
 			static_cast<uint32_t>(ubosData.size() + samplerData.size()));
 
+		// STORAGE BUFFERS
+		CreateStorageBuffersDescriptorWritesAndInfos(
+			storageBuffersInfos,
+			descriptorWrites,
+			storageBuffersData,
+			renderData.mSbos,
+			mDescriptorSets[0].get(),
+			static_cast<uint32_t>(ubosData.size() + samplerData.size() + storageImageData.size()));
+
 		// ACCELERATION STRUCTURES
 #ifdef ERM_RAY_TRACING_ENABLED
 		CreateASDescriptorWritesAndInfos(
@@ -95,7 +107,7 @@ namespace erm {
 			asData,
 			as,
 			mDescriptorSets[0].get(),
-			static_cast<uint32_t>(ubosData.size() + samplerData.size() + storageImageData.size()));
+			static_cast<uint32_t>(ubosData.size() + samplerData.size() + storageImageData.size() + storageBuffersData.size()));
 #endif
 
 		// UPDATE DS
@@ -118,11 +130,14 @@ namespace erm {
 
 		const auto& shaderBindingData = mShaderProgram.GetShaderBindingsData(mTargetSet);
 		const auto& storageImageData = shaderBindingData.mStorageImagesData;
-		std::vector<vk::DescriptorImageInfo> infos(storageImageData.size());
+		if (storageImageData.empty())
+			return;
+
+		std::vector<vk::DescriptorImageInfo> storageImagesInfos(storageImageData.size());
 		std::vector<vk::WriteDescriptorSet> writes(storageImageData.size());
 
 		CreateStorageImagesDescriptorWritesAndInfos(
-			infos,
+			storageImagesInfos,
 			writes,
 			storageImageData,
 			mDescriptorSets[0].get());
@@ -137,7 +152,7 @@ namespace erm {
 			mUniformBuffers.emplace(
 				std::piecewise_construct,
 				std::forward_as_tuple(data.mUboId),
-				std::forward_as_tuple(mDevice, data.mSize));
+				std::forward_as_tuple(mDevice, data.mStride));
 		}
 	}
 

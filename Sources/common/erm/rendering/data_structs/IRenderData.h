@@ -1,11 +1,18 @@
 #pragma once
 
+#include "erm/rendering/buffers/DeviceBuffer.h"
+#include "erm/rendering/data_structs/StorageBufferResources.h"
 #include "erm/rendering/data_structs/UniformBufferObject.h"
+#include "erm/rendering/enums/StorageBufferType.h"
 
-#include <map>
 #include <memory>
+#include <unordered_map>
+#include <vector>
 
 namespace erm {
+
+	using UbosMap = std::unordered_map<UboId, std::unique_ptr<IUbo>>;
+	using StorageBuffersMap = std::unordered_map<StorageBufferType, StorageBufferResources>;
 
 	struct IRenderData
 	{
@@ -14,11 +21,13 @@ namespace erm {
 
 		IRenderData(IRenderData&& other)
 			: mUbos(std::move(other.mUbos))
+			, mSbos(std::move(other.mSbos))
 		{}
 
 		IRenderData& operator=(IRenderData&& other)
 		{
 			mUbos = std::move(other.mUbos);
+			mSbos = std::move(other.mSbos);
 			return *this;
 		}
 
@@ -36,7 +45,24 @@ namespace erm {
 			return mUbos.find(id) != mUbos.cend();
 		}
 
-		std::map<UboId, std::unique_ptr<IUbo>> mUbos;
+		inline void AddSbo(StorageBufferType type, uint32_t id, const DeviceBuffer& buffer)
+		{
+			mSbos[type].AddBuffer(id, buffer);
+		}
+
+		inline void RemoveSbos(uint32_t id)
+		{
+			for (auto& [type, resources] : mSbos)
+				resources.ClearBuffer(id);
+		}
+
+		inline bool HasSbos(StorageBufferType type) const
+		{
+			return mSbos.find(type) != mSbos.cend();
+		}
+
+		UbosMap mUbos;
+		StorageBuffersMap mSbos;
 	};
 
 } // namespace erm

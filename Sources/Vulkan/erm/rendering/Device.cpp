@@ -282,27 +282,35 @@ namespace erm {
 		for (const VkExtensionProperties& prop : extensionProperties)
 			std::cout << "\t" << prop.extensionName << std::endl;
 
-		vk::PhysicalDeviceFeatures deviceFeatures = {};
-		deviceFeatures.samplerAnisotropy = VK_TRUE;
-		deviceFeatures.fillModeNonSolid = VK_TRUE;
+		vk::PhysicalDeviceFeatures2 features2 = {};
+		features2.features.samplerAnisotropy = VK_TRUE;
+		features2.features.fillModeNonSolid = VK_TRUE;
 
 		vk::PhysicalDeviceVulkan12Features features12;
 		features12.bufferDeviceAddress = VK_TRUE;
+		features12.scalarBlockLayout = VK_TRUE;
+		features12.runtimeDescriptorArray = VK_TRUE;
+
+		vk::PhysicalDeviceRobustness2FeaturesEXT robustness2Features = {};
+		robustness2Features.nullDescriptor = VK_TRUE;
+
+		features2.pNext = &robustness2Features;
+		robustness2Features.pNext = &features12;
 
 #ifdef ERM_RAY_TRACING_ENABLED
 		vk::PhysicalDeviceRayTracingPipelineFeaturesKHR rtFeatures;
 		rtFeatures.rayTracingPipeline = VK_TRUE;
-		features12.pNext = &rtFeatures;
 
 		vk::PhysicalDeviceAccelerationStructureFeaturesKHR asFeatures;
 		asFeatures.accelerationStructure = VK_TRUE;
-		rtFeatures.pNext = &asFeatures;
+
+		features12.pNext = &asFeatures;
+		asFeatures.pNext = &rtFeatures;
 #endif
 
 		vk::DeviceCreateInfo deviceCreateInfo = {};
 		deviceCreateInfo.pQueueCreateInfos = queueCreateInfos.data();
 		deviceCreateInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
-		deviceCreateInfo.pEnabledFeatures = &deviceFeatures;
 		deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(kDeviceExtensions.size());
 		deviceCreateInfo.ppEnabledExtensionNames = kDeviceExtensions.data();
 #ifdef NDEBUG
@@ -311,7 +319,7 @@ namespace erm {
 		deviceCreateInfo.enabledLayerCount = static_cast<uint32_t>(kValidationLayers.size());
 		deviceCreateInfo.ppEnabledLayerNames = kValidationLayers.data();
 #endif
-		deviceCreateInfo.pNext = &features12;
+		deviceCreateInfo.pNext = &features2;
 
 		mDevice = mPhysicalDevice.createDeviceUnique(deviceCreateInfo);
 

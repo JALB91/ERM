@@ -36,6 +36,7 @@ namespace erm {
 
 	private:
 		using RasterData = std::map<std::unique_ptr<RenderingResources>, std::vector<RenderData*>>;
+		using RayTracingData = std::map<std::unique_ptr<RTRenderingResources>, RTRenderData*>;
 
 	private:
 		std::vector<vk::CommandBuffer> RetrieveCommandBuffers();
@@ -49,8 +50,7 @@ namespace erm {
 		void SubmitRTRenderData(RTRenderData& data);
 
 	private:
-		std::vector<std::unique_ptr<RTRenderingResources>> mRTRenderingResources;
-		std::map<RTRenderingResources*, std::vector<RTRenderData*>> mRTRenderData;
+		RayTracingData mRTRenderData;
 #endif
 	};
 

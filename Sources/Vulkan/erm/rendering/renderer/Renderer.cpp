@@ -49,7 +49,7 @@ namespace erm {
 #ifdef ERM_RAY_TRACING_ENABLED
 		for (auto it = mRTRenderData.begin(); it != mRTRenderData.end();)
 		{
-			if (it->second.empty())
+			if (it->second == nullptr)
 				it = mRTRenderData.erase(it);
 			else
 				++it;
@@ -68,7 +68,7 @@ namespace erm {
 			renderingResources->Refresh();
 		}
 #ifdef ERM_RAY_TRACING_ENABLED
-		for (const auto& resources : mRTRenderingResources)
+		for (const auto& [resources, data] : mRTRenderData)
 			resources->Refresh();
 #endif
 
@@ -135,7 +135,7 @@ namespace erm {
 
 #ifdef ERM_RAY_TRACING_ENABLED
 		for (auto& [resources, data] : mRTRenderData)
-			data.clear();
+			data = nullptr;
 #endif
 
 		if (!mIsImageIndexValid)
@@ -183,16 +183,20 @@ namespace erm {
 #ifdef ERM_RAY_TRACING_ENABLED
 	void Renderer::SubmitRTRenderData(RTRenderData& data)
 	{
-		RTRenderingResources* resources = nullptr;
-		std::for_each(mRTRenderingResources.begin(), mRTRenderingResources.end(), [&resources, &configs = data.mRenderConfigs](auto& res) {
-			if (configs.mShaderProgram == res->GetRenderConfigs().mShaderProgram)
-				resources = res.get();
-		});
+		for (auto& [resources, rtData] : mRTRenderData)
+		{
+			if (resources->GetRenderConfigs().mShaderProgram == data.mRenderConfigs.mShaderProgram)
+			{
+				ASSERT(rtData == nullptr);
+				rtData = &data;
+				return;
+			}
+		}
 
-		if (!resources)
-			resources = mRTRenderingResources.emplace_back(std::make_unique<RTRenderingResources>(mDevice, *this, data.mRenderConfigs)).get();
-
-		mRTRenderData[resources].emplace_back(&data);
+		mRTRenderData.emplace(
+			std::piecewise_construct,
+			std::forward_as_tuple(std::make_unique<RTRenderingResources>(mDevice, *this, data.mRenderConfigs)),
+			std::forward_as_tuple(&data));
 	}
 #endif
 
@@ -216,8 +220,9 @@ namespace erm {
 #ifdef ERM_RAY_TRACING_ENABLED
 		for (auto& [resources, data] : mRTRenderData)
 		{
-			resources->Update(data, mCurrentImageIndex);
-			commandBuffers[index++] = resources->UpdateCommandBuffer(data, mCurrentImageIndex);
+			ASSERT(data);
+			resources->Update(*data, mCurrentImageIndex);
+			commandBuffers[index++] = resources->UpdateCommandBuffer(*data, mCurrentImageIndex);
 		}
 #endif
 

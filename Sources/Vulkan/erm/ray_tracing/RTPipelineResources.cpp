@@ -2,6 +2,7 @@
 
 #include "erm/math/math.h"
 
+#include "erm/ray_tracing/RTRenderConfigs.h"
 #include "erm/ray_tracing/RTRenderData.h"
 #include "erm/ray_tracing/RTShaderProgram.h"
 
@@ -18,14 +19,15 @@ namespace erm {
 	RTPipelineResources::RTPipelineResources(
 		Device& device,
 		IRenderer& renderer,
-		const RTRenderConfigs& renderConfigs,
+		const RTRenderData& renderData,
 		const vk::DescriptorPool& descriptorPool,
 		const vk::AccelerationStructureKHR* topLevelAS)
 		: mDevice(device)
 		, mRenderer(renderer)
-		, mRenderConfigs(renderConfigs)
+		, mRenderData(renderData)
 		, mDescriptorPool(descriptorPool)
 		, mTopLevelAS(topLevelAS)
+		, mMaxInstancesCount(renderData.mInstancesMap.size())
 	{
 		CreatePipeline();
 		CreateBindingTable();
@@ -41,6 +43,7 @@ namespace erm {
 	void RTPipelineResources::UpdateCommandBuffer(vk::CommandBuffer& cmd, RTRenderData& renderData, uint32_t imageIndex)
 	{
 		PROFILE_FUNCTION();
+
 		cmd.bindPipeline(vk::PipelineBindPoint::eRayTracingKHR, mPipeline.get());
 
 		auto ds = mPipelineData->GetDescriptorSets(mEmptySet.get());
@@ -59,7 +62,7 @@ namespace erm {
 
 	void RTPipelineResources::CreatePipeline()
 	{
-		RTShaderProgram* shader = mRenderConfigs.mShaderProgram;
+		RTShaderProgram* shader = mRenderData.mRenderConfigs.mShaderProgram;
 
 		ASSERT(shader);
 
@@ -120,6 +123,12 @@ namespace erm {
 		});
 		mDescriptorSetLayouts.reserve(maxSet + 1);
 
+		uint32_t maxInstanceId = 0;
+		for (const auto& [id, inst] : mRenderData.mInstancesMap)
+			maxInstanceId = std::max(maxInstanceId, id);
+
+		std::map<SetIdx, std::vector<vk::DescriptorSetLayoutBinding>> layoutBindings;
+
 		for (uint32_t i = 0; i <= maxSet; ++i)
 		{
 			vk::DescriptorSetLayoutCreateInfo layoutInfo {};
@@ -133,8 +142,15 @@ namespace erm {
 			{
 				auto& data = bindings.at(i);
 
-				layoutInfo.bindingCount = static_cast<uint32_t>(data.mLayoutBindings.size());
-				layoutInfo.pBindings = data.mLayoutBindings.data();
+				for (auto& layoutBinding : data.mLayoutBindings)
+				{
+					auto& binding = layoutBindings[i].emplace_back(layoutBinding);
+					if (binding.descriptorType == vk::DescriptorType::eStorageBuffer)
+						binding.descriptorCount = maxInstanceId + 1;
+				}
+
+				layoutInfo.bindingCount = static_cast<uint32_t>(layoutBindings[i].size());
+				layoutInfo.pBindings = layoutBindings[i].data();
 			}
 
 			mDescriptorSetLayouts.emplace_back(mDevice->createDescriptorSetLayoutUnique(layoutInfo));
@@ -185,7 +201,7 @@ namespace erm {
 
 	void RTPipelineResources::CreateBindingTable()
 	{
-		RTShaderProgram& shader = *mRenderConfigs.mShaderProgram;
+		RTShaderProgram& shader = *mRenderData.mRenderConfigs.mShaderProgram;
 
 		uint32_t groupCount = static_cast<uint32_t>(shader.GetShadersDataMap().size()); // 3 shaders: raygen, miss, chit
 		uint32_t groupHandleSize = mDevice.GetRayTracingProperties().shaderGroupHandleSize; // Size of a program identifier
@@ -219,8 +235,9 @@ namespace erm {
 
 	void RTPipelineResources::CreatePipelineData()
 	{
-		mPipelineData = std::make_unique<PipelineData>(mRenderConfigs);
-		const auto& sbm = mRenderConfigs.mShaderProgram->GetShaderBindingsMap();
+		const RTRenderConfigs& configs = mRenderData.mRenderConfigs;
+		mPipelineData = std::make_unique<PipelineData>(configs);
+		const auto& sbm = configs.mShaderProgram->GetShaderBindingsMap();
 
 		for (const auto& [set, bindings] : sbm)
 		{
@@ -231,8 +248,9 @@ namespace erm {
 					mRenderer,
 					set,
 					mDescriptorPool,
-					*mRenderConfigs.mShaderProgram,
-					mRenderConfigs,
+					*configs.mShaderProgram,
+					configs,
+					mRenderData,
 					mDescriptorSetLayouts[set].get(),
 					mTopLevelAS);
 			else
@@ -241,8 +259,8 @@ namespace erm {
 					mRenderer,
 					set,
 					mDescriptorPool,
-					*mRenderConfigs.mShaderProgram,
-					mRenderConfigs,
+					*configs.mShaderProgram,
+					configs,
 					mDescriptorSetLayouts[set].get());
 
 			mPipelineData->AddResources(set, std::move(resources));

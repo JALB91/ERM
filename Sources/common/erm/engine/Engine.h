@@ -35,6 +35,7 @@ namespace erm {
 		bool Init();
 		void Run();
 
+		void OnPreUpdate();
 		void OnUpdate(float dt);
 		void OnPostUpdate();
 		void OnPreRender();

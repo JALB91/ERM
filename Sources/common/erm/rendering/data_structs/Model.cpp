@@ -1,6 +1,8 @@
 #include "erm/rendering/data_structs/Model.h"
+
+#include "erm/rendering/buffers/IndexBuffer.h"
+#include "erm/rendering/buffers/VertexBuffer.h"
 #include "erm/rendering/buffers/VertexData.h"
-#include "erm/rendering/renderer/Renderer.h"
 
 #include "erm/utils/Utils.h"
 
@@ -32,7 +34,7 @@ namespace erm {
 		const RenderConfigs& configs /*= RenderConfigs::MODELS_RENDER_CONFIGS*/,
 		const char* name /*= ""*/)
 	{
-		AddMesh({mDevice, std::move(vertices), std::move(indices), configs, name});
+		AddMesh({std::move(vertices), std::move(indices), configs, name});
 	}
 
 	void Model::UpdateLocalBound()
@@ -47,6 +49,52 @@ namespace erm {
 			}
 		}
 		SetDirty(true);
+	}
+
+	void Model::UpdateBuffers()
+	{
+		// UPDATE BUFFERS
+		BufferLayout vLayout;
+		BufferLayout iLayout;
+
+		vLayout.mInfos.reserve(mMeshes.size());
+		iLayout.mInfos.reserve(mMeshes.size());
+
+		size_t vTargetOffset = 0;
+		size_t iTargetOffset = 0;
+		uint32_t totalIndices = 0;
+
+		for (const Mesh& mesh : mMeshes)
+		{
+			const BufferInfo& vInfo = vLayout.mInfos.emplace_back(vTargetOffset, mesh.GetVerticesData().size() * sizeof(VertexData));
+			const BufferInfo& iInfo = iLayout.mInfos.emplace_back(iTargetOffset, mesh.GetIndicesData().size() * sizeof(IndexData));
+
+			vTargetOffset += vInfo.mStride;
+			iTargetOffset += iInfo.mStride;
+			totalIndices += static_cast<uint32_t>(mesh.GetIndicesData().size());
+		}
+
+		mVerticesBuffer = std::make_unique<VertexBuffer>(mDevice, vTargetOffset);
+		mIndicesBuffer = std::make_unique<IndexBuffer>(mDevice, iTargetOffset, totalIndices);
+
+		vLayout.mBuffer = mVerticesBuffer->GetBuffer();
+		iLayout.mBuffer = mIndicesBuffer->GetBuffer();
+
+		for (size_t i = 0; i < mMeshes.size(); ++i)
+		{
+			const Mesh& mesh = mMeshes[i];
+			const BufferInfo& vInfo = vLayout.mInfos[i];
+			const BufferInfo& iInfo = iLayout.mInfos[i];
+
+			mVerticesBuffer->Update(mesh.GetVerticesData().data(), vInfo);
+			mIndicesBuffer->Update(mesh.GetIndicesData().data(), iInfo);
+		}
+
+		mVerticesBuffer->SetLayout(std::move(vLayout));
+		mIndicesBuffer->SetLayout(std::move(iLayout));
+
+		// UPDATE BLAS DATA
+		mBlas.UpdateBlasData();
 	}
 
 } // namespace erm

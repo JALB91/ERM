@@ -13,7 +13,6 @@ namespace erm {
 	class IRenderer;
 	class RTBlas;
 	class RTPipelineResources;
-	class DeviceBuffer;
 	struct RTRenderData;
 } // namespace erm
 
@@ -30,14 +29,14 @@ namespace erm {
 
 		inline const RTRenderConfigs& GetRenderConfigs() const { return mRenderConfigs; }
 
-		void Update(std::vector<RTRenderData*>& renderData, uint32_t imageIndex);
-		vk::CommandBuffer UpdateCommandBuffer(std::vector<RTRenderData*>& renderData, uint32_t imageIndex);
+		void Update(RTRenderData& renderData, uint32_t imageIndex);
+		vk::CommandBuffer UpdateCommandBuffer(RTRenderData& renderData, uint32_t imageIndex);
 
 		void Refresh();
 
 	private:
-		void BuildBlas(std::vector<RTRenderData*>& data, vk::BuildAccelerationStructureFlagsKHR flags);
-		void UpdateTopLevelAS(std::vector<RTRenderData*>& data, vk::BuildAccelerationStructureFlagsKHR flags);
+		void BuildBlas(RTRenderData& data, vk::BuildAccelerationStructureFlagsKHR flags);
+		void UpdateTopLevelAS(RTRenderData& data, vk::BuildAccelerationStructureFlagsKHR flags);
 
 		void Reload();
 		void Cleanup();

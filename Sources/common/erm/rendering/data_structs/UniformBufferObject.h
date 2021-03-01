@@ -98,8 +98,8 @@ namespace erm {
 	{
 		static constexpr UboId ID = 9;
 
-		alignas(16) math::mat4 mProj;
-		alignas(16) math::mat4 mView;
+		alignas(16) math::mat4 mProjInv;
+		alignas(16) math::mat4 mViewInv;
 	};
 #endif
 

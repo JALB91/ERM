@@ -7,14 +7,12 @@ namespace erm {
 	class IndexBuffer : public DeviceBuffer
 	{
 	public:
-		IndexBuffer(Device& device, size_t size, void* data, uint32_t count);
-
-		void Bind(const vk::CommandBuffer& commandBuffer) const;
+		IndexBuffer(Device& device, size_t size, uint32_t count);
 
 		inline uint32_t GetCount() const { return mCount; }
 
 	private:
-		const uint32_t mCount;
+		uint32_t mCount;
 	};
 
 } // namespace erm

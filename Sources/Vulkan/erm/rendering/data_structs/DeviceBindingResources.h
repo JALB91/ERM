@@ -16,6 +16,7 @@ namespace erm {
 			const vk::DescriptorPool& descriptorPool,
 			const IShaderProgram& shaderProgram,
 			const BindingConfigs& configs,
+			const IRenderData& renderData,
 			const vk::DescriptorSetLayout& descriptorSetLayout
 #ifdef ERM_RAY_TRACING_ENABLED
 			,

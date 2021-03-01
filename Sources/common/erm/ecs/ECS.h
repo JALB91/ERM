@@ -41,9 +41,12 @@ namespace erm::ecs {
 		ECS(Engine& engine);
 		~ECS();
 
+		void OnPreUpdate();
 		void OnUpdate(float dt);
 		void OnPostUpdate();
+		void OnPreRender();
 		void OnRender();
+		void OnPostRender();
 
 		template<typename T>
 		T& GetSystem() const;

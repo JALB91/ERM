@@ -74,6 +74,9 @@ namespace erm {
 
 	Engine::~Engine()
 	{
+#ifdef ERM_VULKAN
+		(*mDevice)->waitIdle();
+#endif
 		mWindow->RemoveListener(*this);
 	}
 
@@ -151,6 +154,7 @@ namespace erm {
 				framesInSecond = 0;
 			}
 
+			OnPreUpdate();
 			OnUpdate(static_cast<float>(frameElapsedTime));
 			OnPostUpdate();
 
@@ -160,6 +164,13 @@ namespace erm {
 
 			frameElapsedTime = 0.0;
 		}
+	}
+
+	void Engine::OnPreUpdate()
+	{
+		PROFILE_FUNCTION();
+
+		mECS->OnPreUpdate();
 	}
 
 	void Engine::OnUpdate(float dt)
@@ -183,6 +194,8 @@ namespace erm {
 	{
 		PROFILE_FUNCTION();
 
+		mResourcesManager->OnPreRender();
+		mECS->OnPreRender();
 		mRenderer->OnPreRender();
 		mImGuiHandle->OnPreRender();
 	}
@@ -191,7 +204,6 @@ namespace erm {
 	{
 		PROFILE_FUNCTION();
 
-		mResourcesManager->OnRender();
 		mECS->OnRender();
 		mRenderer->OnRender();
 		mImGuiHandle->OnRender();
@@ -202,6 +214,7 @@ namespace erm {
 	{
 		PROFILE_FUNCTION();
 
+		mECS->OnPostRender();
 		mRenderer->OnPostRender();
 		mImGuiHandle->OnPostRender();
 		mWindow->OnPostRender();

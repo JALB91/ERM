@@ -11,15 +11,10 @@ namespace erm {
 		: IBuffer(device, size, buf, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent)
 	{}
 
-	void HostBuffer::Update(void* data) const
+	void HostBuffer::Update(const void* data, const BufferInfo& info /*= {}*/) const
 	{
-		Update(data, 0, mBufferSize);
-	}
-
-	void HostBuffer::Update(void* data, vk::DeviceSize offset, vk::DeviceSize size) const
-	{
-		void* mappedData = mDevice->mapMemory(mBufferMemory.get(), offset, size);
-		memcpy(mappedData, data, size);
+		void* mappedData = mDevice->mapMemory(mBufferMemory.get(), info.mOffset, info.mStride);
+		memcpy(mappedData, data, info.mStride == VK_WHOLE_SIZE ? mBufferSize : info.mStride);
 		mDevice->unmapMemory(mBufferMemory.get());
 	}
 

@@ -1,11 +1,11 @@
 #pragma once
 
-#include <cstddef>
+#include <cstdint>
 
 namespace erm {
 	namespace ecs {
 
-		typedef unsigned int ID;
+		typedef uint32_t ID;
 
 		static constexpr ID ROOT_ID = 0;
 		static constexpr ID MAX_ID = 100;

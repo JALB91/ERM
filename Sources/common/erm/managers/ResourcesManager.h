@@ -42,13 +42,12 @@ namespace erm {
 		void LoadDefaultResources();
 
 		void OnUpdate();
-		void OnRender();
+		void OnPreRender();
 		void OnPostRender();
 
 		bool IsStillLoading(const Model& model) const;
 
 		inline Shaders& GetShaderPrograms() { return mShaderPrograms; }
-		ShaderProgram* GetOrCreateShaderProgram(const char* vertexShader, const char* fragmentShader);
 		ShaderProgram* GetOrCreateShaderProgram(const char* shaderProgramPath);
 
 		inline Materials& GetMaterials() { return mMaterials; }

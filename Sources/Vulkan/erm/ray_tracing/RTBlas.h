@@ -27,19 +27,16 @@ namespace erm {
 			const Model& model);
 		~RTBlas();
 
+		inline const RTBlasData& GetBlasData() const { return mBlasData; }
+
 		void UpdateBlasData();
 		void GetBuildInfo(vk::AccelerationStructureBuildGeometryInfoKHR& buildInfo) const;
 
-		inline uint32_t GetId() const { return mID; }
-		inline const RTBlasData& GetBlasData() const { return mBlasData; }
-
 	private:
-		static uint32_t sCurrentId;
-
 		Device& mDevice;
 		const Model& mModel;
 		RTBlasData mBlasData;
-		uint32_t mID;
+		bool mNeedsBuild;
 	};
 
 } // namespace erm

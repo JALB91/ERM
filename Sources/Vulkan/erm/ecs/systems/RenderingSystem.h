@@ -5,6 +5,13 @@
 
 #include "erm/math/mat.h"
 
+// clang-format off
+#ifdef ERM_RAY_TRACING_ENABLED
+#include "erm/ray_tracing/RTRenderData.h"
+#include <vector>
+#endif
+// clang-format on
+
 #include "erm/rendering/data_structs/RenderData.h"
 
 namespace erm {
@@ -32,9 +39,14 @@ namespace erm::ecs {
 
 		// ISystem
 		void Init() override;
-		void OnRender() override;
+		void OnPostUpdate() override;
+		void OnPreRender() override;
+		void OnPostRender() override;
 
 	private:
+		// ISystem
+		void OnComponentBeingRemoved(EntityId id) override;
+
 		Engine& mEngine;
 		ResourcesManager& mResourcesManager;
 
@@ -47,6 +59,10 @@ namespace erm::ecs {
 		std::unique_ptr<Mesh> mGridMesh;
 		ShaderProgram* mDebugShader;
 		RenderData mRenderData;
+
+#ifdef ERM_RAY_TRACING_ENABLED
+		std::vector<RTRenderData> mRTRenderData;
+#endif
 	};
 
 } // namespace erm::ecs

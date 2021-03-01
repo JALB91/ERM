@@ -17,7 +17,14 @@ namespace erm {
 			: IBuffer(device, size, buf | vk::BufferUsageFlagBits::eTransferDst, vk::MemoryPropertyFlagBits::eDeviceLocal)
 		{}
 
-		void Update(vk::CommandBuffer& cmd, void* data) const;
+		DeviceBuffer(DeviceBuffer&& other);
+		DeviceBuffer(const DeviceBuffer&) = delete;
+
+		DeviceBuffer& operator=(DeviceBuffer&& other);
+		DeviceBuffer& operator=(const DeviceBuffer&) = delete;
+
+		void Update(const void* data, const BufferInfo& info = {}) const override;
+		void Update(vk::CommandBuffer& cmd, const void* data, const BufferInfo& info = {}) const;
 
 	private:
 		mutable std::unique_ptr<HostBuffer> mStagingBuffer;
