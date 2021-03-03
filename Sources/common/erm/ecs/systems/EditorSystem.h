@@ -5,8 +5,8 @@
 
 #include "erm/ecs/EntityId.h"
 
-#include "erm/rendering/data_structs/Mesh.h"
 #include "erm/rendering/data_structs/RenderData.h"
+#include "erm/rendering/data_structs/StandaloneMesh.h"
 
 #include <map>
 #include <vector>
@@ -55,14 +55,17 @@ namespace erm::ecs {
 		CameraSystem* mCameraSystem;
 		LightSystem* mLightSystem;
 
+		RenderData mGridRenderData;
+		StandaloneMesh mGridMesh;
+
 		RenderConfigs mBBoxRenderConfigs;
-		std::map<EntityId, std::pair<RenderData, Mesh>> mBBoxesRenderData;
+		std::map<EntityId, std::pair<RenderData, StandaloneMesh>> mBBoxesRenderData;
 
 		RenderData mArrowsRenderData;
-		std::vector<Mesh> mArrowsMeshes;
+		std::vector<StandaloneMesh> mArrowsMeshes;
 
 		RenderConfigs mBonesRenderConfigs;
-		std::map<EntityId, std::vector<Mesh>> mBonesMeshes;
+		std::map<EntityId, std::vector<StandaloneMesh>> mBonesMeshes;
 	};
 
 } // namespace erm::ecs

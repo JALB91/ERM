@@ -71,17 +71,7 @@ namespace erm::ecs {
 		: ISystem(ecs)
 		, mEngine(engine)
 		, mResourcesManager(engine.GetResourcesManager())
-		, mGridMesh(std::make_unique<Mesh>(MeshUtils::CreateGrid(1000, 1000, 1.0f, 1.0f)))
-		, mDebugShader(mResourcesManager.GetOrCreateShaderProgram(kDebugShaderPath))
-		, mRenderData(RenderConfigs::MODELS_RENDER_CONFIGS)
-	{
-		mRenderData.mRenderConfigs.SetNormViewport(engine.GetWindow().GetNormalizedViewport());
-		mRenderData.mRenderConfigs.SetPolygonMode(PolygonMode::LINE);
-		mRenderData.mRenderConfigs.SetDrawMode(DrawMode::LINES);
-		mRenderData.mRenderConfigs.SetCullMode(CullMode::NONE);
-		mRenderData.mRenderConfigs.mShaderProgram = mDebugShader;
-		mRenderData.mMeshes.emplace_back(mGridMesh.get());
-	}
+	{}
 
 	RenderingSystem::~RenderingSystem()
 	{}
@@ -101,6 +91,7 @@ namespace erm::ecs {
 			if (!component.IsDirty())
 				return;
 
+#ifdef ERM_RAY_TRACING_ENABLED
 			if (component.mCustomIndex.has_value())
 			{
 				for (RTRenderData& data : mRTRenderData)
@@ -111,6 +102,7 @@ namespace erm::ecs {
 
 				component.mCustomIndex.reset();
 			}
+#endif
 
 			component.SetDirty(false);
 		});
@@ -140,15 +132,6 @@ namespace erm::ecs {
 		const math::mat4& proj = camera->GetProjectionMatrix();
 		const math::mat4& view = cameraTransform->mWorldTransform;
 		const math::mat4 viewInv = glm::inverse(view);
-
-		{
-			UboBasic ubo;
-			ubo.mMVP = proj * viewInv;
-
-			mRenderData.SetUbo(std::move(ubo));
-		}
-
-		renderer.SubmitRenderData(mRenderData);
 
 		LightComponent* light = nullptr;
 		math::vec3 lightPos = math::vec3(0.0f);

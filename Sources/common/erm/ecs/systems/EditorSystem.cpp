@@ -21,6 +21,18 @@
 
 namespace erm::ecs {
 
+	static RenderConfigs GetGridRenderConfigs(Engine& engine)
+	{
+		RenderConfigs configs(RenderConfigs::MODELS_RENDER_CONFIGS);
+		configs.SetNormViewport(engine.GetWindow().GetNormalizedViewport());
+		configs.SetPolygonMode(PolygonMode::LINE);
+		configs.SetDrawMode(DrawMode::LINES);
+		configs.SetCullMode(CullMode::NONE);
+		configs.mShaderProgram = engine.GetResourcesManager().GetOrCreateShaderProgram("res/shaders/vk_basic");
+
+		return configs;
+	}
+
 	static RenderConfigs GetArrowsRenderConfigs(Engine& engine)
 	{
 		RenderConfigs configs(RenderConfigs::MODELS_RENDER_CONFIGS);
@@ -55,10 +67,14 @@ namespace erm::ecs {
 		, mEngine(engine)
 		, mRenderer(mEngine.GetRenderer())
 		, mResourcesManager(engine.GetResourcesManager())
+		, mGridRenderData(GetGridRenderConfigs(mEngine))
+		, mGridMesh(mEngine.GetDevice(), MeshUtils::CreateGrid(1000, 1000, 1.0f, 1.0f))
 		, mBBoxRenderConfigs(GetBBoxRenderConfigs(mEngine))
 		, mArrowsRenderData(GetArrowsRenderConfigs(mEngine))
 		, mBonesRenderConfigs(GetBonesRenderConfigs(mEngine))
-	{}
+	{
+		mGridRenderData.mMeshes.emplace_back(&mGridMesh);
+	}
 
 	EditorSystem::~EditorSystem()
 	{}
@@ -91,7 +107,16 @@ namespace erm::ecs {
 		TransformComponent* cameraTransform = mTransformSystem->GetComponent(cameraId);
 
 		const math::mat4& proj = camera->GetProjectionMatrix();
-		const math::mat4 view = glm::inverse(cameraTransform->mWorldTransform);
+		const math::mat4 viewInv = glm::inverse(cameraTransform->mWorldTransform);
+
+		{
+			UboBasic ubo;
+			ubo.mMVP = proj * viewInv;
+
+			mGridRenderData.SetUbo(std::move(ubo));
+		}
+
+		mRenderer.SubmitRenderData(mGridRenderData);
 
 		for (ID i = 0; i < MAX_ID; ++i)
 		{
@@ -120,7 +145,7 @@ namespace erm::ecs {
 
 				{
 					UboBasic ubo;
-					ubo.mMVP = proj * view * transform;
+					ubo.mMVP = proj * viewInv * transform;
 
 					data.SetUbo(std::move(ubo));
 				}
@@ -142,7 +167,7 @@ namespace erm::ecs {
 					UboBonesDebug ubo;
 					int index = 0;
 
-					std::vector<Mesh>& meshes = mBonesMeshes[i];
+					std::vector<StandaloneMesh>& meshes = mBonesMeshes[i];
 
 					while (root->GetSize() < meshes.size())
 						meshes.pop_back();
@@ -153,8 +178,8 @@ namespace erm::ecs {
 
 						ubo.mBonesModels[index] = node.GetPayload()->mWorldTransform;
 
-						Mesh* mesh = nullptr;
-						for (Mesh& m : meshes)
+						StandaloneMesh* mesh = nullptr;
+						for (StandaloneMesh& m : meshes)
 						{
 							if (m.GetVerticesData()[0].mDebugBoneId == index)
 							{
@@ -164,18 +189,18 @@ namespace erm::ecs {
 						}
 
 						if (!mesh)
-							mesh = &meshes.emplace_back(MeshUtils::CreateSpike(1.0f, 1.0f, 1.0f, index));
+							mesh = &meshes.emplace_back(mEngine.GetDevice(), MeshUtils::CreateSpike(1.0f, 1.0f, 1.0f, index));
 
 						++index;
 					});
 
 					ubo.mModel = mTransformSystem->GetComponent(i)->mWorldTransform;
-					ubo.mView = view;
+					ubo.mView = viewInv;
 					ubo.mProj = proj;
 
 					data.SetUbo(std::move(ubo));
 
-					for (Mesh& mesh : meshes)
+					for (StandaloneMesh& mesh : meshes)
 						data.mMeshes.emplace_back(&mesh);
 
 					if (!data.mMeshes.empty())
@@ -205,7 +230,7 @@ namespace erm::ecs {
 
 	RenderData& EditorSystem::GetOrCreateRenderDataForBBox(EntityId id)
 	{
-		std::pair<RenderData, Mesh>* data = nullptr;
+		std::pair<RenderData, StandaloneMesh>* data = nullptr;
 		auto it = mBBoxesRenderData.find(id);
 		if (it != mBBoxesRenderData.end())
 		{
@@ -216,7 +241,7 @@ namespace erm::ecs {
 			auto val = mBBoxesRenderData.emplace(
 				std::piecewise_construct,
 				std::forward_as_tuple(id),
-				std::forward_as_tuple(std::make_pair(mBBoxRenderConfigs, MeshUtils::CreateCube())));
+				std::forward_as_tuple(std::make_pair(mBBoxRenderConfigs, StandaloneMesh(mEngine.GetDevice(), MeshUtils::CreateCube()))));
 			data = &val.first->second;
 		}
 

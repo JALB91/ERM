@@ -44,7 +44,7 @@ namespace erm {
 		}
 
 		RenderConfigs mRenderConfigs;
-		std::vector<Mesh*> mMeshes;
+		std::vector<const Mesh*> mMeshes;
 	};
 
 } // namespace erm

@@ -45,6 +45,9 @@ namespace erm {
 		mModels.back()->AddMesh(MeshUtils::CreateSpike());
 		mModels.emplace_back(std::make_unique<Model>(mDevice, "Defaults/Grid", "Grid"));
 		mModels.back()->AddMesh(MeshUtils::CreateGrid());
+
+		for (const auto& model : mModels)
+			model->UpdateBuffers();
 	}
 
 	void ResourcesManager::OnUpdate()

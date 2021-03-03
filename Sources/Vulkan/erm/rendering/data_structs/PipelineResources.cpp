@@ -70,19 +70,24 @@ namespace erm {
 		auto& data = GetOrCreatePipelineData(renderData);
 		auto ds = data.GetDescriptorSets(mEmptySet.get());
 
-		for (const Mesh* mesh : renderData.mMeshes)
+		cmd.bindDescriptorSets(
+			vk::PipelineBindPoint::eGraphics,
+			mPipelineLayout.get(),
+			0,
+			static_cast<uint32_t>(ds.size()),
+			ds.data(),
+			0,
+			nullptr);
+
+		for (size_t i = 0; i < renderData.mMeshes.size(); ++i)
 		{
-			cmd.bindDescriptorSets(
-				vk::PipelineBindPoint::eGraphics,
-				mPipelineLayout.get(),
-				0,
-				static_cast<uint32_t>(ds.size()),
-				ds.data(),
-				0,
-				nullptr);
-			/*mesh->GetVertexBuffer().Bind(cmd);
-			mesh->GetIndexBuffer().Bind(cmd);
-			cmd.drawIndexed(mesh->GetIndexBuffer().GetCount(), 1, 0, 0, 0);*/
+			const Mesh& mesh = *renderData.mMeshes[i];
+			const BufferHandle& vHandle = mesh.GetVertBufferHandle();
+			const BufferHandle& iHandle = mesh.GetIndBufferHandle();
+
+			cmd.bindVertexBuffers(0, 1, &vHandle.mBuffer, &vHandle.mInfo.mOffset);
+			cmd.bindIndexBuffer(iHandle.mBuffer, iHandle.mInfo.mOffset, vk::IndexType::eUint32);
+			cmd.drawIndexed(static_cast<uint32_t>(mesh.GetIndicesData().size()), 1, 0, 0, 0);
 		}
 
 		data.PostDraw();

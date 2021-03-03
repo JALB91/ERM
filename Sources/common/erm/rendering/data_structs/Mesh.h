@@ -1,5 +1,6 @@
 #pragma once
 
+#include "erm/rendering/buffers/BufferHandle.h"
 #include "erm/rendering/buffers/IndexData.h"
 #include "erm/rendering/buffers/VertexData.h"
 #include "erm/rendering/data_structs/RenderConfigs.h"
@@ -8,9 +9,16 @@
 #include <vector>
 
 namespace erm {
+	class Model;
+}
+
+namespace erm {
 
 	class Mesh
 	{
+	public:
+		friend class Model;
+
 	public:
 		Mesh(
 			std::vector<VertexData>&& vertices,
@@ -28,6 +36,9 @@ namespace erm {
 		inline const std::vector<VertexData>& GetVerticesData() const { return mVerticesData; }
 		inline const std::vector<IndexData>& GetIndicesData() const { return mIndicesData; }
 
+		inline const BufferHandle& GetVertBufferHandle() const { return mVertBuffer; }
+		inline const BufferHandle& GetIndBufferHandle() const { return mIndBuffer; }
+
 		inline const std::string& GetName() const { return mName; }
 		inline void SetName(const char* name) { mName = name; }
 
@@ -35,10 +46,12 @@ namespace erm {
 		inline const RenderConfigs& GetRenderConfigs() const { return mRenderConfigs; }
 		inline void SetRenderConfigs(const RenderConfigs& configs) { mRenderConfigs = configs; }
 
-	private:
+	protected:
 		std::vector<VertexData> mVerticesData;
 		std::vector<IndexData> mIndicesData;
 		RenderConfigs mRenderConfigs;
+		BufferHandle mVertBuffer;
+		BufferHandle mIndBuffer;
 		std::string mName;
 	};
 

@@ -1,5 +1,6 @@
 #include "erm/rendering/data_structs/Model.h"
 
+#include "erm/rendering/Device.h"
 #include "erm/rendering/buffers/IndexBuffer.h"
 #include "erm/rendering/buffers/VertexBuffer.h"
 #include "erm/rendering/buffers/VertexData.h"
@@ -20,7 +21,9 @@ namespace erm {
 	{}
 
 	Model::~Model()
-	{}
+	{
+		mDevice->waitIdle();
+	}
 
 	void Model::AddMesh(Mesh&& mesh)
 	{
@@ -82,9 +85,12 @@ namespace erm {
 
 		for (size_t i = 0; i < mMeshes.size(); ++i)
 		{
-			const Mesh& mesh = mMeshes[i];
+			Mesh& mesh = mMeshes[i];
 			const BufferInfo& vInfo = vLayout.mInfos[i];
 			const BufferInfo& iInfo = iLayout.mInfos[i];
+
+			mesh.mVertBuffer = BufferHandle(mVerticesBuffer->GetBuffer(), vInfo);
+			mesh.mIndBuffer = BufferHandle(mIndicesBuffer->GetBuffer(), iInfo);
 
 			mVerticesBuffer->Update(mesh.GetVerticesData().data(), vInfo);
 			mIndicesBuffer->Update(mesh.GetIndicesData().data(), iInfo);
@@ -93,8 +99,10 @@ namespace erm {
 		mVerticesBuffer->SetLayout(std::move(vLayout));
 		mIndicesBuffer->SetLayout(std::move(iLayout));
 
+#ifdef ERM_RAY_TRACING_ENABLED
 		// UPDATE BLAS DATA
 		mBlas.UpdateBlasData();
+#endif
 	}
 
 } // namespace erm

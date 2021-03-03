@@ -31,7 +31,9 @@ namespace erm::ecs {
 	public:
 		RenderingComponent() = default;
 
+#ifdef ERM_RAY_TRACING_ENABLED
 		SENSIBLE_MEMBER(CustomIndex, std::optional<uint32_t>, mCustomIndex)
+#endif
 
 	private:
 #ifndef ERM_RAY_TRACING_ENABLED

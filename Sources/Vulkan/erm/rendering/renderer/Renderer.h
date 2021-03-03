@@ -36,7 +36,9 @@ namespace erm {
 
 	private:
 		using RasterData = std::map<std::unique_ptr<RenderingResources>, std::vector<RenderData*>>;
+#ifdef ERM_RAY_TRACING_ENABLED
 		using RayTracingData = std::map<std::unique_ptr<RTRenderingResources>, RTRenderData*>;
+#endif
 
 	private:
 		std::vector<vk::CommandBuffer> RetrieveCommandBuffers();

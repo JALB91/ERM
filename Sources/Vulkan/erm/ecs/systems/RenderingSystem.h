@@ -15,7 +15,6 @@
 #include "erm/rendering/data_structs/RenderData.h"
 
 namespace erm {
-	class Mesh;
 	class Engine;
 	class ShaderProgram;
 	class ResourcesManager;
@@ -55,10 +54,6 @@ namespace erm::ecs {
 		ModelSystem* mModelSystem;
 		CameraSystem* mCameraSystem;
 		LightSystem* mLightSystem;
-
-		std::unique_ptr<Mesh> mGridMesh;
-		ShaderProgram* mDebugShader;
-		RenderData mRenderData;
 
 #ifdef ERM_RAY_TRACING_ENABLED
 		std::vector<RTRenderData> mRTRenderData;

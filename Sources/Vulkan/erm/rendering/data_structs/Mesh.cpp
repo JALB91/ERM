@@ -11,6 +11,8 @@ namespace erm {
 		: mVerticesData(vertices)
 		, mIndicesData(indices)
 		, mRenderConfigs(configs)
+		, mVertBuffer(nullptr, {})
+		, mIndBuffer(nullptr, {})
 		, mName(name)
 	{
 		ASSERT(!mVerticesData.empty() && !mIndicesData.empty());
@@ -22,6 +24,8 @@ namespace erm {
 		: mVerticesData(std::move(other.mVerticesData))
 		, mIndicesData(std::move(other.mIndicesData))
 		, mRenderConfigs(std::move(other.mRenderConfigs))
+		, mVertBuffer(std::move(other.mVertBuffer))
+		, mIndBuffer(std::move(other.mIndBuffer))
 		, mName(std::move(other.mName))
 	{}
 
@@ -30,6 +34,8 @@ namespace erm {
 		mVerticesData = std::move(other.mVerticesData);
 		mIndicesData = std::move(other.mIndicesData);
 		mRenderConfigs = std::move(other.mRenderConfigs);
+		mVertBuffer = std::move(other.mVertBuffer);
+		mIndBuffer = std::move(other.mIndBuffer);
 		mName = std::move(other.mName);
 
 		return *this;
