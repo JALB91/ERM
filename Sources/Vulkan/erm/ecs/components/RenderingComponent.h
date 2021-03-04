@@ -2,12 +2,11 @@
 
 #include "erm/ecs/IComponent.h"
 
-// clang-format off
-#ifndef ERM_RAY_TRACING_ENABLED
 #include "erm/rendering/data_structs/RenderData.h"
 
 #include <vector>
-#else
+// clang-format off
+#ifdef ERM_RAY_TRACING_ENABLED
 #include <optional>
 #include <memory>
 #endif
@@ -29,18 +28,23 @@ namespace erm::ecs {
 		friend class RenderingSystem;
 
 	public:
-		RenderingComponent() = default;
+		RenderingComponent()
+#ifdef ERM_RAY_TRACING_ENABLED
+			: mUseRayTracing(true)
+#endif
+		{}
 
 #ifdef ERM_RAY_TRACING_ENABLED
 		SENSIBLE_MEMBER(CustomIndex, std::optional<uint32_t>, mCustomIndex)
+		SENSIBLE_MEMBER(UseRayTracing, bool, mUseRayTracing)
 #endif
 
 	private:
-#ifndef ERM_RAY_TRACING_ENABLED
 		std::vector<RenderData> mRenderData;
-#else
+#ifdef ERM_RAY_TRACING_ENABLED
 		std::optional<uint32_t> mCustomIndex;
 		std::unique_ptr<DeviceBuffer> mTransformITBuffer;
+		bool mUseRayTracing;
 #endif
 	};
 

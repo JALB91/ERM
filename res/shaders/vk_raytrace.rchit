@@ -21,6 +21,12 @@ layout(binding = 2, set = 0, rgba32f) uniform image2D depth;
 layout(binding = 5, set = 0, scalar) buffer Vertices { Vertex v[]; } vertices[];
 layout(binding = 6, set = 0) buffer Indices { uint i[]; } indices[];
 layout(binding = 7, set = 0) buffer Transforms { mat4 i; } transforms[];
+layout(binding = 8, set = 1) uniform Light {
+	vec3 position;
+	vec3 ambient;
+	vec3 diffuse;
+	vec3 specular;
+} light;
 
 layout(location = 0) rayPayloadInEXT vec4 hitValue;
 
@@ -51,14 +57,8 @@ void main()
 	// Transforming the position to world space
 	worldPos = vec3(transforms[gl_InstanceCustomIndexEXT].i * vec4(worldPos, 1.0));
 
-	hitValue = vec4(0.2, 0.5, 0.5, 1.0);
-	hitValue.rgb = worldPos;
+	vec3 L = normalize(light.position - vec3(0));
+	float dotNL = max(dot(normal, L), 0.2);
 
-	const ivec2 p = ivec2(gl_LaunchIDEXT.x, gl_LaunchSizeEXT.y-gl_LaunchIDEXT.y);
-    vec4 dBuff = imageLoad(depth, p);
-
-	hitValue = vec4(1.0);
-	hitValue.z = -dBuff.z;
-	
-	//hitValue.rgb = hitValue.z > worldPos.z ? hitValue.rgb : vec3(1.0, 1.0, 0.0);
+	hitValue.rgb = vec3(dotNL);
 }

@@ -3,6 +3,7 @@
 #include "erm/debug/ImGuiCameraComponentWrapper.h"
 #include "erm/debug/ImGuiLightComponentWrapper.h"
 #include "erm/debug/ImGuiModelComponentWrapper.h"
+#include "erm/debug/ImGuiRenderingComponentWrapper.h"
 #include "erm/debug/ImGuiSkeletonComponentWrapper.h"
 #include "erm/debug/ImGuiTransformComponentWrapper.h"
 
@@ -17,6 +18,7 @@
 #include "erm/ecs/systems/CameraSystem.h"
 #include "erm/ecs/systems/LightSystem.h"
 #include "erm/ecs/systems/ModelSystem.h"
+#include "erm/ecs/systems/RenderingSystem.h"
 #include "erm/ecs/systems/SkeletonSystem.h"
 #include "erm/ecs/systems/TransformSystem.h"
 
@@ -101,6 +103,13 @@ namespace ImGui {
 				return ShowAnimationComponentDebugWindow(engine, component);
 			},
 			"Animation");
+		ShowComponentDebugWindow<erm::ecs::RenderingComponent>(
+			engine,
+			entity,
+			[](erm::ecs::RenderingComponent& component) {
+				return ShowRenderingComponentDebug(component);
+			},
+			"Rendering");
 	}
 
 } // namespace ImGui

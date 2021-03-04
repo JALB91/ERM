@@ -16,6 +16,8 @@
 
 namespace erm {
 	class Engine;
+	class Model;
+	class Renderer;
 	class ShaderProgram;
 	class ResourcesManager;
 	namespace ecs {
@@ -25,6 +27,9 @@ namespace erm {
 		class CameraSystem;
 		class LightSystem;
 		struct Entity;
+		struct LightComponent;
+		struct SkeletonComponent;
+		struct TransformComponent;
 	} // namespace ecs
 } // namespace erm
 
@@ -46,7 +51,27 @@ namespace erm::ecs {
 		// ISystem
 		void OnComponentBeingRemoved(EntityId id) override;
 
+		void ProcessForRasterization(
+			Model& model,
+			RenderingComponent& renderingComponent,
+			LightComponent* light,
+			SkeletonComponent* skeletonComponent,
+			TransformComponent& cameraTransform,
+			const math::mat4& proj,
+			const math::mat4& viewInv,
+			const math::mat4& modelMat,
+			const math::vec3& lightPos);
+		void ProcessForRayTracing(
+			Model& model,
+			RenderingComponent& renderingComponent,
+			LightComponent* light,
+			const math::mat4& proj,
+			const math::mat4& view,
+			const math::mat4& modelMat,
+			const math::vec3& lightPos);
+
 		Engine& mEngine;
+		Renderer& mRenderer;
 		ResourcesManager& mResourcesManager;
 
 		TransformSystem* mTransformSystem;
