@@ -47,17 +47,20 @@ namespace erm {
 		CreateUniformBuffers(ubosData);
 
 		// UPDATE DESCRIPTOR SETS
-		std::vector<vk::DescriptorBufferInfo> descriptorBuffers(ubosData.size());
+		std::vector<std::vector<vk::DescriptorBufferInfo>> descriptorBuffers(IRenderer::kMaxFramesInFlight);
 		std::vector<vk::WriteDescriptorSet> descriptorWrites(ubosData.size() * IRenderer::kMaxFramesInFlight);
 
 		for (uint32_t i = 0; i < IRenderer::kMaxFramesInFlight; ++i)
 		{
+			descriptorBuffers[i].resize(ubosData.size());
+
 			CreateUniformBuffersDescriptorWritesAndInfos(
-				descriptorBuffers,
+				descriptorBuffers[i],
 				descriptorWrites,
 				ubosData,
 				mUniformBuffers[i],
-				mDescriptorSets[i].get());
+				mDescriptorSets[i].get(),
+				static_cast<uint32_t>(ubosData.size()) * i);
 		}
 
 		mDevice->updateDescriptorSets(static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
