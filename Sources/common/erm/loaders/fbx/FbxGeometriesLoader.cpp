@@ -23,6 +23,7 @@ namespace erm {
 		std::atomic<bool>& stop,
 		const char* path,
 		Model& model,
+		uint32_t& indicesOffset,
 		ResourcesManager& resourcesManager,
 		std::unique_ptr<BonesTree>& bonesTree,
 		FbxNode* node);
@@ -32,6 +33,7 @@ namespace erm {
 		std::atomic<bool>& stop,
 		const char* path,
 		Model& model,
+		uint32_t& indicesOffset,
 		ResourcesManager& resourcesManager,
 		std::unique_ptr<BonesTree>& bonesTree,
 		FbxMesh* pMesh);
@@ -45,8 +47,9 @@ namespace erm {
 		std::unique_ptr<BonesTree>& bonesTree,
 		FbxScene& scene)
 	{
+		uint32_t indicesOffset = 0;
 		if (FbxNode* node = scene.GetRootNode())
-			ProcessNode(mutex, stop, path, model, resourcesManager, bonesTree, node);
+			ProcessNode(mutex, stop, path, model, indicesOffset, resourcesManager, bonesTree, node);
 	}
 
 	void ProcessNode(
@@ -54,6 +57,7 @@ namespace erm {
 		std::atomic<bool>& stop,
 		const char* path,
 		Model& model,
+		uint32_t& indicesOffset,
 		ResourcesManager& resourcesManager,
 		std::unique_ptr<BonesTree>& bonesTree,
 		FbxNode* node)
@@ -65,9 +69,9 @@ namespace erm {
 
 			FbxNode* child = node->GetChild(i);
 			if (FbxMesh* mesh = child->GetMesh())
-				ProcessMesh(mutex, stop, path, model, resourcesManager, bonesTree, mesh);
+				ProcessMesh(mutex, stop, path, model, indicesOffset, resourcesManager, bonesTree, mesh);
 
-			ProcessNode(mutex, stop, path, model, resourcesManager, bonesTree, child);
+			ProcessNode(mutex, stop, path, model, indicesOffset, resourcesManager, bonesTree, child);
 		}
 	}
 
@@ -76,6 +80,7 @@ namespace erm {
 		std::atomic<bool>& stop,
 		const char* path,
 		Model& model,
+		uint32_t& indicesOffset,
 		ResourcesManager& resourcesManager,
 		std::unique_ptr<BonesTree>& bonesTree,
 		FbxMesh* pMesh)
@@ -139,9 +144,9 @@ namespace erm {
 			if (lPolygonSize < 3 || lPolygonSize > 4)
 				continue;
 
-			iData.emplace_back(static_cast<int>(vData.size()));
-			iData.emplace_back(static_cast<int>(vData.size() + 1));
-			iData.emplace_back(static_cast<int>(vData.size() + 2));
+			iData.emplace_back(static_cast<int>(indicesOffset + vData.size()));
+			iData.emplace_back(static_cast<int>(indicesOffset + vData.size() + 1));
+			iData.emplace_back(static_cast<int>(indicesOffset + vData.size() + 2));
 
 			int lControlPointIndex0 = pMesh->GetPolygonVertex(i, 0);
 			VertexData data0;
@@ -173,9 +178,9 @@ namespace erm {
 				data3.mUVVertex = GetUV(pMesh, lControlPointIndex3, i, 3);
 				GetBonesData(skeletonData, bonesTree.get(), data3, lControlPointIndex3);
 
-				iData.emplace_back(static_cast<uint32_t>(vData.size() + 2));
-				iData.emplace_back(static_cast<uint32_t>(vData.size() + 3));
-				iData.emplace_back(static_cast<uint32_t>(vData.size()));
+				iData.emplace_back(indicesOffset + static_cast<uint32_t>(vData.size() + 2));
+				iData.emplace_back(indicesOffset + static_cast<uint32_t>(vData.size() + 3));
+				iData.emplace_back(indicesOffset + static_cast<uint32_t>(vData.size()));
 
 				vData.emplace_back(data0);
 				vData.emplace_back(data1);
@@ -198,6 +203,8 @@ namespace erm {
 
 		RenderConfigs conf = RenderConfigs::MODELS_RENDER_CONFIGS;
 		conf.mMaterial = mat;
+
+		indicesOffset += static_cast<uint32_t>(vData.size());
 
 		mutex.lock();
 		model.AddMesh(std::move(vData), std::move(iData), conf, pMesh->GetName());

@@ -27,41 +27,43 @@ namespace erm {
 		vk::DeviceAddress vertexAddress = mDevice->getBufferAddress({vLayout.mBuffer});
 		vk::DeviceAddress indexAddress = mDevice->getBufferAddress({iLayout.mBuffer});
 
+		uint32_t maxVertex = 0;
+		uint32_t maxPrimCount = 0;
+
 		for (size_t i = mBlasData.mGeometries.size(); i < meshes.size(); ++i)
 		{
-			mNeedsBuild = true;
-
 			const Mesh& mesh = meshes[i];
-			const BufferInfo& vInfos = vLayout.mInfos[i];
-			const BufferInfo& iInfos = iLayout.mInfos[i];
 
-			uint32_t maxPrimitiveCount = static_cast<uint32_t>(mesh.GetIndicesData().size() / 3);
-
-			// Describe buffer as array of VertexObj.
-			vk::AccelerationStructureGeometryTrianglesDataKHR triangles;
-			triangles.setVertexFormat(vk::Format::eR32G32B32Sfloat); // vec3 vertex position data.
-			triangles.setVertexData(vertexAddress + vInfos.mOffset);
-			triangles.setVertexStride(sizeof(VertexData));
-			// Describe index data (32-bit unsigned int)
-			triangles.setIndexType(vk::IndexType::eUint32);
-			triangles.setIndexData(indexAddress + iInfos.mOffset);
-			// Indicate identity transform by setting transformData to null device pointer.
-			triangles.setTransformData({});
-			triangles.setMaxVertex(static_cast<uint32_t>(mesh.GetVerticesData().size()));
-
-			// Identify the above data as containing opaque triangles.
-			vk::AccelerationStructureGeometryKHR& asGeom = mBlasData.mGeometries.emplace_back();
-			asGeom.setGeometryType(vk::GeometryTypeKHR::eTriangles);
-			asGeom.setFlags(vk::GeometryFlagBitsKHR::eOpaque);
-			asGeom.geometry.setTriangles(triangles);
-
-			// The entire array will be used to build the BLAS.
-			vk::AccelerationStructureBuildRangeInfoKHR& offset = mBlasData.mInfos.emplace_back();
-			offset.setFirstVertex(0);
-			offset.setPrimitiveOffset(0);
-			offset.setTransformOffset(0);
-			offset.setPrimitiveCount(maxPrimitiveCount);
+			maxVertex += static_cast<uint32_t>(mesh.GetVerticesData().size());
+			maxPrimCount += static_cast<uint32_t>(mesh.GetIndicesData().size() / 3);
 		}
+
+		mNeedsBuild = true;
+
+		// Describe buffer as array of VertexObj.
+		vk::AccelerationStructureGeometryTrianglesDataKHR triangles;
+		triangles.setVertexFormat(vk::Format::eR32G32B32Sfloat); // vec3 vertex position data.
+		triangles.setVertexData(vertexAddress);
+		triangles.setVertexStride(sizeof(VertexData));
+		// Describe index data (32-bit unsigned int)
+		triangles.setIndexType(vk::IndexType::eUint32);
+		triangles.setIndexData(indexAddress);
+		// Indicate identity transform by setting transformData to null device pointer.
+		triangles.setTransformData({});
+		triangles.setMaxVertex(maxVertex);
+
+		// Identify the above data as containing opaque triangles.
+		vk::AccelerationStructureGeometryKHR& asGeom = mBlasData.mGeometries.emplace_back();
+		asGeom.setGeometryType(vk::GeometryTypeKHR::eTriangles);
+		asGeom.setFlags(vk::GeometryFlagBitsKHR::eOpaque);
+		asGeom.geometry.setTriangles(triangles);
+
+		// The entire array will be used to build the BLAS.
+		vk::AccelerationStructureBuildRangeInfoKHR& offset = mBlasData.mInfos.emplace_back();
+		offset.setFirstVertex(0);
+		offset.setPrimitiveOffset(0);
+		offset.setTransformOffset(0);
+		offset.setPrimitiveCount(maxPrimCount);
 	}
 
 	void RTBlas::GetBuildInfo(vk::AccelerationStructureBuildGeometryInfoKHR& buildInfo) const

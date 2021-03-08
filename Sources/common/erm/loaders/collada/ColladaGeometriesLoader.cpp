@@ -41,6 +41,7 @@ namespace erm {
 	{
 		XMLElement* geometry =
 			document.RootElement()->FirstChildElement("library_geometries")->FirstChildElement("geometry");
+		uint32_t indicesOffset = 0;
 
 		while (geometry)
 		{
@@ -130,7 +131,7 @@ namespace erm {
 				{
 					const unsigned int index = i / totalOffset;
 
-					indicesData[index] = index;
+					indicesData[index] = indicesOffset + index;
 					VertexData& vertexData = verticesData[index];
 
 					const IndexData pIndex = std::atoi(values[i + pOffset].c_str());
@@ -153,6 +154,8 @@ namespace erm {
 						vertexData.mUVVertex = uvVertices[uvIndex];
 					}
 				}
+
+				indicesOffset += static_cast<uint32_t>(verticesData.size());
 
 				mutex.lock();
 				model.AddMesh(std::move(verticesData), std::move(indicesData), RenderConfigs::MODELS_RENDER_CONFIGS, name);

@@ -85,7 +85,9 @@ namespace erm {
 			const BufferHandle& vHandle = mesh.GetVertBufferHandle();
 			const BufferHandle& iHandle = mesh.GetIndBufferHandle();
 
-			cmd.bindVertexBuffers(0, 1, &vHandle.mBuffer, &vHandle.mInfo.mOffset);
+			vk::DeviceSize offsets = {0};
+
+			cmd.bindVertexBuffers(0, 1, &vHandle.mBuffer, &offsets);
 			cmd.bindIndexBuffer(iHandle.mBuffer, iHandle.mInfo.mOffset, vk::IndexType::eUint32);
 			cmd.drawIndexed(static_cast<uint32_t>(mesh.GetIndicesData().size()), 1, 0, 0, 0);
 		}

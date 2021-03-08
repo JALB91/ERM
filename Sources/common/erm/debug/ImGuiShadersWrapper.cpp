@@ -1,4 +1,4 @@
-#include "erm/debug/ImGuiShadersWrapper.h"
+#include "erm/ray_tracing/ImGuiRTShadersWrapper.h"
 
 #include "erm/engine/Engine.h"
 
@@ -47,33 +47,53 @@ namespace ImGui {
 				ImGui::EndCombo();
 			}
 
-			static char vertexShader[1024 * 16] = "";
-			static char fragmentShader[1024 * 16] = "";
+			static std::map<erm::ShaderType, std::string> shaderSources;
+			static char current[1024 * 16] = "";
 
 			if (selected && hasChanged)
 			{
-				std::strcpy(vertexShader, selected->GetShaderData(erm::ShaderType::VERTEX).mShaderSource.c_str());
-				std::strcpy(fragmentShader, selected->GetShaderData(erm::ShaderType::FRAGMENT).mShaderSource.c_str());
+				const std::map<erm::ShaderType, erm::ShaderData>& dataMap = selected->GetShadersDataMap();
+
+				for (const auto& [type, data] : dataMap)
+				{
+					shaderSources.emplace(
+						std::piecewise_construct,
+						std::forward_as_tuple(type),
+						std::forward_as_tuple(data.mShaderSource));
+				}
 			}
 			else if (hasChanged)
 			{
-				std::strcpy(vertexShader, "");
-				std::strcpy(fragmentShader, "");
+				shaderSources.clear();
 			}
 
-			ImGui::InputTextMultiline("Vertex", vertexShader, IM_ARRAYSIZE(vertexShader), ImVec2(-1.0f, ImGui::GetTextLineHeight() * 16), ImGuiInputTextFlags_AllowTabInput);
-			ImGui::Separator();
-			ImGui::InputTextMultiline("Fragment", fragmentShader, IM_ARRAYSIZE(fragmentShader), ImVec2(-1.0f, ImGui::GetTextLineHeight() * 16), ImGuiInputTextFlags_AllowTabInput);
-
-			if (ImGui::Button("Save"))
+			if (selected && ImGui::BeginTabBar("Shaders"))
 			{
-				if (selected)
+				const auto& dataMap = selected->GetShadersDataMap();
+				for (const auto& [type, data] : dataMap)
 				{
-					selected->SetShaderSources({{erm::ShaderType::VERTEX, vertexShader}, {erm::ShaderType::FRAGMENT, fragmentShader}});
+					const char* extension = erm::IShaderProgram::GetExtensionForShaderType(type);
+
+					if (ImGui::BeginTabItem(extension))
+					{
+						std::strcpy(current, shaderSources[type].c_str());
+						ImGui::InputTextMultiline(extension, current, IM_ARRAYSIZE(current), ImVec2(-1.0f, ImGui::GetTextLineHeight() * 50), ImGuiInputTextFlags_AllowTabInput);
+						ImGui::EndTabItem();
+
+						shaderSources[type] = current;
+					}
 				}
-				else
+
+				ImGui::EndTabBar();
+			}
+
+			if (selected)
+			{
+				ImGui::Separator();
+
+				if (ImGui::Button("Save"))
 				{
-					//engine.GetResourcesManager().GetOrCreateShaderProgram(vertexShader, fragmentShader);
+					selected->SetShaderSources(shaderSources);
 				}
 			}
 		}

@@ -35,6 +35,7 @@ namespace erm {
 	void AddMesh(
 		std::mutex& mutex,
 		Model& model,
+		uint32_t& indicesOffset,
 		std::vector<VertexData>&& vertices,
 		std::vector<IndexData>&& indices,
 		Material* material,
@@ -59,6 +60,7 @@ namespace erm {
 		std::vector<IndexData> indicesData;
 		Material* material = nullptr;
 
+		uint32_t indicesOffset = 0;
 		bool wasLooping = false;
 		bool noMat = false;
 
@@ -81,7 +83,7 @@ namespace erm {
 
 					if (!verticesData.empty() && !indicesData.empty())
 					{
-						AddMesh(mutex, model, std::move(verticesData), std::move(indicesData), material, meshName);
+						AddMesh(mutex, model, indicesOffset, std::move(verticesData), std::move(indicesData), material, meshName);
 						meshName.clear();
 					}
 				}
@@ -89,7 +91,7 @@ namespace erm {
 				{
 					if (!verticesData.empty() && !indicesData.empty())
 					{
-						AddMesh(mutex, model, std::move(verticesData), std::move(indicesData), material, meshName);
+						AddMesh(mutex, model, indicesOffset, std::move(verticesData), std::move(indicesData), material, meshName);
 					}
 
 					if (wasLooping)
@@ -114,7 +116,7 @@ namespace erm {
 				{
 					if (!verticesData.empty() && !indicesData.empty() && material)
 					{
-						AddMesh(mutex, model, std::move(verticesData), std::move(indicesData), material, meshName);
+						AddMesh(mutex, model, indicesOffset, std::move(verticesData), std::move(indicesData), material, meshName);
 					}
 
 					if (wasLooping)
@@ -149,7 +151,7 @@ namespace erm {
 				{
 					if (!verticesData.empty() && !indicesData.empty())
 					{
-						AddMesh(mutex, model, std::move(verticesData), std::move(indicesData), material, meshName);
+						AddMesh(mutex, model, indicesOffset, std::move(verticesData), std::move(indicesData), material, meshName);
 					}
 					if (noMat)
 					{
@@ -183,7 +185,7 @@ namespace erm {
 
 					for (unsigned int i = 0; i < vIndices.size(); ++i)
 					{
-						indicesData.emplace_back(static_cast<IndexData>(verticesData.size() + vIndices[i]));
+						indicesData.emplace_back(indicesOffset + static_cast<IndexData>(verticesData.size() + vIndices[i]));
 					}
 
 					for (unsigned int i = 0; i < vVertices.size(); ++i)
@@ -198,7 +200,7 @@ namespace erm {
 
 		if (meshName.find("Collider") == std::string::npos && !verticesData.empty() && !indicesData.empty())
 		{
-			AddMesh(mutex, model, std::move(verticesData), std::move(indicesData), material, meshName);
+			AddMesh(mutex, model, indicesOffset, std::move(verticesData), std::move(indicesData), material, meshName);
 		}
 
 		if (!name.empty())
@@ -329,11 +331,14 @@ namespace erm {
 	void AddMesh(
 		std::mutex& mutex,
 		Model& model,
+		uint32_t& indicesOffset,
 		std::vector<VertexData>&& vertices,
 		std::vector<IndexData>&& indices,
 		Material* material,
 		std::string& meshName)
 	{
+		indicesOffset += static_cast<uint32_t>(vertices.size());
+
 		RenderConfigs configs = RenderConfigs::MODELS_RENDER_CONFIGS;
 		configs.mMaterial = material ? material : &Material::DEFAULT;
 
