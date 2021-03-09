@@ -6,10 +6,10 @@ namespace erm {
 		: IShaderProgram(device, shaderPath)
 	{
 		//UpdateShaderData(ShaderType::RT_ANY_HIT);
-		UpdateShaderData(ShaderType::RT_CLOSEST_HIT);
+		UpdateShadersData(ShaderType::RT_CLOSEST_HIT);
 		//UpdateShaderData(ShaderType::RT_INTERSECTION);
-		UpdateShaderData(ShaderType::RT_MISS);
-		UpdateShaderData(ShaderType::RT_RAY_GEN);
+		UpdateShadersData(ShaderType::RT_MISS);
+		UpdateShadersData(ShaderType::RT_RAY_GEN);
 		UpdateBindingData();
 	}
 

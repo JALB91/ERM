@@ -8,14 +8,16 @@ namespace erm {
 	ShaderProgram::ShaderProgram(Device& device, const char* shaderPath)
 		: IShaderProgram(device, shaderPath)
 	{
-		UpdateShaderData(ShaderType::VERTEX);
-		UpdateShaderData(ShaderType::FRAGMENT);
+		UpdateShadersData(ShaderType::VERTEX);
+		UpdateShadersData(ShaderType::FRAGMENT);
 		UpdateBindingData();
 	}
 
 	vk::VertexInputBindingDescription ShaderProgram::GetVertexBindingDescription()
 	{
-		spirv_cross::ShaderResources resources = mShadersData[ShaderType::VERTEX].mShaderCompiler->get_shader_resources();
+		ASSERT(mShadersData[ShaderType::VERTEX].size() == 1);
+
+		spirv_cross::ShaderResources resources = mShadersData[ShaderType::VERTEX][0].mShaderCompiler->get_shader_resources();
 
 		vk::VertexInputBindingDescription bindingDescription = {};
 
@@ -31,7 +33,9 @@ namespace erm {
 
 	std::vector<vk::VertexInputAttributeDescription> ShaderProgram::GetVertexAttributeDescriptions()
 	{
-		const ShaderData& data = mShadersData[ShaderType::VERTEX];
+		ASSERT(mShadersData[ShaderType::VERTEX].size() == 1);
+
+		const ShaderData& data = mShadersData[ShaderType::VERTEX][0];
 		spirv_cross::ShaderResources resources = data.mShaderCompiler->get_shader_resources();
 
 		std::vector<vk::VertexInputAttributeDescription> attributeDescriptions;

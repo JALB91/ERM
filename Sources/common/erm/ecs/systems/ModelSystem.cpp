@@ -51,4 +51,10 @@ namespace erm::ecs {
 		});
 	}
 
+	void ModelSystem::OnComponentBeingRemoved(EntityId id)
+	{
+		if (auto* comp = mECS.GetSystem<RenderingSystem>().GetComponent(id))
+			comp->SetDirty(true);
+	}
+
 } // namespace erm::ecs

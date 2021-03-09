@@ -108,17 +108,20 @@ namespace erm {
 		/*
 			LOAD SHADERS
 		*/
-		vk::UniqueShaderModule vertShaderModule = shader->CreateShaderModule(ShaderType::VERTEX);
-		vk::UniqueShaderModule fragShaderModule = shader->CreateShaderModule(ShaderType::FRAGMENT);
+		std::vector<vk::UniqueShaderModule> vertShaderModules = shader->CreateShaderModules(ShaderType::VERTEX);
+		std::vector<vk::UniqueShaderModule> fragShaderModules = shader->CreateShaderModules(ShaderType::FRAGMENT);
+
+		ASSERT(vertShaderModules.size() == 1);
+		ASSERT(fragShaderModules.size() == 1);
 
 		vk::PipelineShaderStageCreateInfo vertShaderStageInfo = {};
 		vertShaderStageInfo.stage = vk::ShaderStageFlagBits::eVertex;
-		vertShaderStageInfo.module = vertShaderModule.get();
+		vertShaderStageInfo.module = vertShaderModules[0].get();
 		vertShaderStageInfo.pName = "main";
 
 		vk::PipelineShaderStageCreateInfo fragShaderStageInfo = {};
 		fragShaderStageInfo.stage = vk::ShaderStageFlagBits::eFragment;
-		fragShaderStageInfo.module = fragShaderModule.get();
+		fragShaderStageInfo.module = fragShaderModules[0].get();
 		fragShaderStageInfo.pName = "main";
 
 		vk::PipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};

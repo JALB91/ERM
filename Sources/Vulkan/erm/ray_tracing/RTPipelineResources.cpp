@@ -69,49 +69,69 @@ namespace erm {
 		/*
 			LOAD SHADERS
 		*/
-		vk::UniqueShaderModule rayGenShaderModule = shader->CreateShaderModule(ShaderType::RT_RAY_GEN);
-		vk::UniqueShaderModule missShaderModule = shader->CreateShaderModule(ShaderType::RT_MISS);
-		vk::UniqueShaderModule closestHitShaderModule = shader->CreateShaderModule(ShaderType::RT_CLOSEST_HIT);
+		std::vector<vk::UniqueShaderModule> rayGenShaderModules = shader->CreateShaderModules(ShaderType::RT_RAY_GEN);
+		std::vector<vk::UniqueShaderModule> missShaderModules = shader->CreateShaderModules(ShaderType::RT_MISS);
+		std::vector<vk::UniqueShaderModule> closestHitShaderModules = shader->CreateShaderModules(ShaderType::RT_CLOSEST_HIT);
 
-		vk::PipelineShaderStageCreateInfo rayGenShaderStageInfo = {};
+		ASSERT(rayGenShaderModules.size() == 1);
+		ASSERT(!missShaderModules.empty());
+		ASSERT(!closestHitShaderModules.empty());
+
+		std::vector<vk::PipelineShaderStageCreateInfo> shaderStages(1 + missShaderModules.size() + closestHitShaderModules.size());
+
+		vk::PipelineShaderStageCreateInfo& rayGenShaderStageInfo = shaderStages[0];
 		rayGenShaderStageInfo.stage = vk::ShaderStageFlagBits::eRaygenKHR;
-		rayGenShaderStageInfo.module = rayGenShaderModule.get();
+		rayGenShaderStageInfo.module = rayGenShaderModules[0].get();
 		rayGenShaderStageInfo.pName = "main";
 
-		vk::PipelineShaderStageCreateInfo missShaderStageInfo = {};
-		missShaderStageInfo.stage = vk::ShaderStageFlagBits::eMissKHR;
-		missShaderStageInfo.module = missShaderModule.get();
-		missShaderStageInfo.pName = "main";
+		for (size_t i = 0; i < missShaderModules.size(); ++i)
+		{
+			vk::PipelineShaderStageCreateInfo& missShaderStageInfo = shaderStages[i + 1];
+			missShaderStageInfo.stage = vk::ShaderStageFlagBits::eMissKHR;
+			missShaderStageInfo.module = missShaderModules[i].get();
+			missShaderStageInfo.pName = "main";
+		}
 
-		vk::PipelineShaderStageCreateInfo closestHitShaderStageInfo = {};
-		closestHitShaderStageInfo.stage = vk::ShaderStageFlagBits::eClosestHitKHR;
-		closestHitShaderStageInfo.module = closestHitShaderModule.get();
-		closestHitShaderStageInfo.pName = "main";
+		for (size_t i = 0; i < closestHitShaderModules.size(); ++i)
+		{
+			vk::PipelineShaderStageCreateInfo& closestHitShaderStageInfo = shaderStages[i + 1 + missShaderModules.size()];
+			closestHitShaderStageInfo.stage = vk::ShaderStageFlagBits::eClosestHitKHR;
+			closestHitShaderStageInfo.module = closestHitShaderModules[i].get();
+			closestHitShaderStageInfo.pName = "main";
+		}
 
-		vk::PipelineShaderStageCreateInfo shaderStages[] = {rayGenShaderStageInfo, missShaderStageInfo, closestHitShaderStageInfo};
+		std::vector<vk::RayTracingShaderGroupCreateInfoKHR> shaderGroups(shaderStages.size());
 
-		vk::RayTracingShaderGroupCreateInfoKHR rayGenGroup;
+		vk::RayTracingShaderGroupCreateInfoKHR& rayGenGroup = shaderGroups[0];
 		rayGenGroup.type = vk::RayTracingShaderGroupTypeKHR::eGeneral;
 		rayGenGroup.generalShader = 0;
 		rayGenGroup.anyHitShader = VK_SHADER_UNUSED_KHR;
 		rayGenGroup.closestHitShader = VK_SHADER_UNUSED_KHR;
 		rayGenGroup.intersectionShader = VK_SHADER_UNUSED_KHR;
 
-		vk::RayTracingShaderGroupCreateInfoKHR missGroup;
-		missGroup.type = vk::RayTracingShaderGroupTypeKHR::eGeneral;
-		missGroup.generalShader = 1;
-		missGroup.anyHitShader = VK_SHADER_UNUSED_KHR;
-		missGroup.closestHitShader = VK_SHADER_UNUSED_KHR;
-		missGroup.intersectionShader = VK_SHADER_UNUSED_KHR;
+		for (size_t i = 0; i < missShaderModules.size(); ++i)
+		{
+			const uint32_t targetIndex = static_cast<uint32_t>(i) + 1;
 
-		vk::RayTracingShaderGroupCreateInfoKHR closestHitGroup;
-		closestHitGroup.type = vk::RayTracingShaderGroupTypeKHR::eTrianglesHitGroup;
-		closestHitGroup.generalShader = VK_SHADER_UNUSED_KHR;
-		closestHitGroup.closestHitShader = 2;
-		closestHitGroup.anyHitShader = VK_SHADER_UNUSED_KHR;
-		closestHitGroup.intersectionShader = VK_SHADER_UNUSED_KHR;
+			vk::RayTracingShaderGroupCreateInfoKHR& missGroup = shaderGroups[targetIndex];
+			missGroup.type = vk::RayTracingShaderGroupTypeKHR::eGeneral;
+			missGroup.generalShader = targetIndex;
+			missGroup.anyHitShader = VK_SHADER_UNUSED_KHR;
+			missGroup.closestHitShader = VK_SHADER_UNUSED_KHR;
+			missGroup.intersectionShader = VK_SHADER_UNUSED_KHR;
+		}
 
-		vk::RayTracingShaderGroupCreateInfoKHR shaderGroups[] = {rayGenGroup, missGroup, closestHitGroup};
+		for (size_t i = 0; i < closestHitShaderModules.size(); ++i)
+		{
+			const uint32_t targetIndex = static_cast<uint32_t>(i) + 1 + static_cast<uint32_t>(missShaderModules.size());
+
+			vk::RayTracingShaderGroupCreateInfoKHR& closestHitGroup = shaderGroups[targetIndex];
+			closestHitGroup.type = vk::RayTracingShaderGroupTypeKHR::eTrianglesHitGroup;
+			closestHitGroup.generalShader = VK_SHADER_UNUSED_KHR;
+			closestHitGroup.closestHitShader = targetIndex;
+			closestHitGroup.anyHitShader = VK_SHADER_UNUSED_KHR;
+			closestHitGroup.intersectionShader = VK_SHADER_UNUSED_KHR;
+		}
 
 		/*
 			SETUP DESCRIPTOR SET LAYOUT
@@ -188,10 +208,10 @@ namespace erm {
 			CREATE PIPELINE
 		*/
 		vk::RayTracingPipelineCreateInfoKHR pipelineInfo = {};
-		pipelineInfo.setPGroups(shaderGroups);
-		pipelineInfo.setGroupCount(3);
-		pipelineInfo.setPStages(shaderStages);
-		pipelineInfo.setStageCount(3);
+		pipelineInfo.setPGroups(shaderGroups.data());
+		pipelineInfo.setGroupCount(static_cast<uint32_t>(shaderGroups.size()));
+		pipelineInfo.setPStages(shaderStages.data());
+		pipelineInfo.setStageCount(static_cast<uint32_t>(shaderStages.size()));
 		pipelineInfo.setLayout(mPipelineLayout.get());
 
 		auto result = mDevice->createRayTracingPipelineKHRUnique(nullptr, mDevice.GetPipelineCache(), pipelineInfo);
@@ -203,7 +223,11 @@ namespace erm {
 	{
 		RTShaderProgram& shader = *mRenderData.mRenderConfigs.mShaderProgram;
 
-		uint32_t groupCount = static_cast<uint32_t>(shader.GetShadersDataMap().size()); // 3 shaders: raygen, miss, chit
+		uint32_t groupCount = 0;
+
+		for (const auto& [type, data] : shader.GetShadersDataMap())
+			groupCount += static_cast<uint32_t>(data.size());
+
 		uint32_t groupHandleSize = mDevice.GetRayTracingProperties().shaderGroupHandleSize; // Size of a program identifier
 		// Compute the actual size needed per SBT entry (round-up to alignment needed).
 		uint32_t groupSizeAligned = math::align_up(groupHandleSize, mDevice.GetRayTracingProperties().shaderGroupBaseAlignment);

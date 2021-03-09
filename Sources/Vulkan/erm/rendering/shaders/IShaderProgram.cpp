@@ -7,6 +7,7 @@
 
 #include <algorithm>
 #include <cctype>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 
@@ -136,8 +137,8 @@ namespace {
 			return makeStorageBufferData(erm::StorageBufferType::VERTICES);
 		else if (resource.name.compare("Indices") == 0)
 			return makeStorageBufferData(erm::StorageBufferType::INDICES);
-		else if (resource.name.compare("Transforms") == 0)
-			return makeStorageBufferData(erm::StorageBufferType::TRANSFORMS_IT);
+		else if (resource.name.compare("InstancesData") == 0)
+			return makeStorageBufferData(erm::StorageBufferType::INSTANCE_DATA);
 
 		ASSERT(false);
 
@@ -261,34 +262,43 @@ namespace erm {
 		, mNeedsReload(false)
 	{}
 
-	void IShaderProgram::SetShaderSources(const std::map<ShaderType, std::string>& shadersSources)
+	void IShaderProgram::SetShaderSources(const std::map<ShaderType, std::vector<std::string>>& shadersSources)
 	{
-		mShadersData.clear();
-
-		for (const auto& [type, source] : shadersSources)
+		for (const auto& [type, sources] : shadersSources)
 		{
-			Utils::WriteToFile((mPath + GetExtensionForShaderType(type)).c_str(), source);
-			CompileShaderSource(type);
-			UpdateShaderData(type);
+			for (size_t i = 0; i < sources.size(); ++i)
+			{
+				Utils::WriteToFile((mPath + GetSuffixForShaderIndex(static_cast<uint32_t>(i)) + GetExtensionForShaderType(type)).c_str(), sources[i]);
+			}
+
+			CompileShadersSource(type);
+			UpdateShadersData(type);
 		}
 
 		UpdateBindingData();
 		mNeedsReload = true;
 	}
 
-	vk::UniqueShaderModule IShaderProgram::CreateShaderModule(ShaderType shaderType) const
+	std::vector<vk::UniqueShaderModule> IShaderProgram::CreateShaderModules(ShaderType shaderType) const
 	{
 		const auto it = mShadersData.find(shaderType);
 		if (it == mShadersData.end())
 			return {};
 
-		const ShaderData& data = it->second;
+		const std::vector<ShaderData>& data = it->second;
 
-		vk::ShaderModuleCreateInfo createInfo = {};
-		createInfo.codeSize = data.mShaderByteCode.size();
-		createInfo.pCode = reinterpret_cast<const uint32_t*>(data.mShaderByteCode.data());
+		std::vector<vk::UniqueShaderModule> result(data.size());
 
-		return mDevice->createShaderModuleUnique(createInfo);
+		for (size_t i = 0; i < data.size(); ++i)
+		{
+			vk::ShaderModuleCreateInfo createInfo = {};
+			createInfo.codeSize = data[i].mShaderByteCode.size();
+			createInfo.pCode = reinterpret_cast<const uint32_t*>(data[i].mShaderByteCode.data());
+
+			result[i] = mDevice->createShaderModuleUnique(createInfo);
+		}
+
+		return result;
 	}
 
 	void IShaderProgram::UpdateBindingData()
@@ -297,40 +307,60 @@ namespace erm {
 
 		for (const auto& [shaderType, data] : mShadersData)
 		{
-			ASSERT(data.mShaderCompiler);
-			GatherShaderBindings(mShaderBindingsMap, *data.mShaderCompiler, VkUtils::ToVulkanValue<vk::ShaderStageFlagBits>(shaderType));
+			for (const auto& d : data)
+			{
+				ASSERT(d.mShaderCompiler);
+				GatherShaderBindings(mShaderBindingsMap, *d.mShaderCompiler, VkUtils::ToVulkanValue<vk::ShaderStageFlagBits>(shaderType));
+			}
 		}
 	}
 
-	void IShaderProgram::UpdateShaderData(ShaderType shaderType)
+	void IShaderProgram::UpdateShadersData(ShaderType shaderType)
 	{
-		ShaderData& data = mShadersData[shaderType];
+		std::vector<ShaderData>& data = mShadersData[shaderType];
 
-		const std::string shaderPath = mPath + GetExtensionForShaderType(shaderType);
-		const std::string compiledShaderPath = shaderPath + ".cmp";
+		size_t index = 0;
 
-		data.mShaderSource = Utils::ReadFromFile(shaderPath.c_str());
-		data.mShaderByteCode = ReadShaderCompiled(compiledShaderPath.c_str());
-		data.mShaderCompiler = std::make_unique<spirv_cross::Compiler>(LoadSpirvFile(compiledShaderPath.c_str()));
+		while (true)
+		{
+			const std::string shaderPath = mPath + GetSuffixForShaderIndex(static_cast<uint32_t>(index)) + GetExtensionForShaderType(shaderType);
+			const std::string compiledShaderPath = shaderPath + ".cmp";
+
+			if (!std::filesystem::exists(shaderPath))
+				break;
+
+			ShaderData& d = data.size() > index ? data[index] : data.emplace_back();
+			index++;
+
+			d.mShaderSource = Utils::ReadFromFile(shaderPath.c_str());
+			d.mShaderByteCode = ReadShaderCompiled(compiledShaderPath.c_str());
+			d.mShaderCompiler = std::make_unique<spirv_cross::Compiler>(LoadSpirvFile(compiledShaderPath.c_str()));
+		}
 	}
 
-	void IShaderProgram::CompileShaderSource(ShaderType shaderType) const
+	void IShaderProgram::CompileShadersSource(ShaderType shaderType) const
 	{
-		const std::string shaderPath = mPath + GetExtensionForShaderType(shaderType);
-		const std::string compiledShaderPath = shaderPath + ".cmp";
-		std::string compilationCommand = ERM_SHADER_COMPILER;
-		compilationCommand += " " + shaderPath + " -o " + compiledShaderPath;
-		system(compilationCommand.c_str());
+		ASSERT(mShadersData.find(shaderType) != mShadersData.end());
+		const std::vector<ShaderData>& data = mShadersData.at(shaderType);
+
+		for (size_t i = 0; i < data.size(); ++i)
+		{
+			const std::string shaderPath = mPath + GetSuffixForShaderIndex(static_cast<uint32_t>(i)) + GetExtensionForShaderType(shaderType);
+			const std::string compiledShaderPath = shaderPath + ".cmp";
+			std::string compilationCommand = ERM_SHADER_COMPILER;
+			compilationCommand += " " + shaderPath + " -o " + compiledShaderPath;
+			system(compilationCommand.c_str());
+		}
 	}
 
-	const ShaderData& IShaderProgram::GetShaderData(ShaderType shaderType) const
+	const std::vector<ShaderData>& IShaderProgram::GetShadersData(ShaderType shaderType) const
 	{
 		const auto it = mShadersData.find(shaderType);
 		ASSERT(it != mShadersData.end());
 		return it->second;
 	}
 
-	ShaderData& IShaderProgram::GetShaderData(ShaderType shaderType)
+	std::vector<ShaderData>& IShaderProgram::GetShadersData(ShaderType shaderType)
 	{
 		const auto it = mShadersData.find(shaderType);
 		ASSERT(it != mShadersData.end());
@@ -368,6 +398,14 @@ namespace erm {
 				ASSERT(false);
 				return "";
 		}
+	}
+
+	std::string IShaderProgram::GetSuffixForShaderIndex(uint32_t index)
+	{
+		if (index == 0)
+			return "";
+		else
+			return "_" + std::to_string(index);
 	}
 
 } // namespace erm

@@ -1,8 +1,11 @@
 #include "erm/ecs/systems/EditorSystem.h"
 
 #include "erm/ecs/ECS.h"
+#include "erm/ecs/components/LightComponent.h"
 #include "erm/ecs/systems/CameraSystem.h"
+#include "erm/ecs/systems/LightSystem.h"
 #include "erm/ecs/systems/ModelSystem.h"
+#include "erm/ecs/systems/RenderingSystem.h"
 #include "erm/ecs/systems/SkeletonSystem.h"
 #include "erm/ecs/systems/TransformSystem.h"
 
@@ -10,7 +13,13 @@
 
 #include "erm/managers/ResourcesManager.h"
 
-#include "erm/rendering/data_structs/Model.h"
+#ifdef ERM_RAY_TRACING_ENABLED
+#	include "erm/ray_tracing/RTRenderData.h"
+
+#	include "erm/rendering/data_structs/InstanceData.h"
+#	include "erm/rendering/data_structs/Material.h"
+#	include "erm/rendering/data_structs/PBMaterial.h"
+#endif
 #include "erm/rendering/data_structs/RenderData.h"
 #include "erm/rendering/renderer/Renderer.h"
 #include "erm/rendering/window/Window.h"
@@ -67,6 +76,10 @@ namespace erm::ecs {
 		, mEngine(engine)
 		, mRenderer(mEngine.GetRenderer())
 		, mResourcesManager(engine.GetResourcesManager())
+#ifdef ERM_RAY_TRACING_ENABLED
+		, mPlaneModel(mEngine.GetDevice(), "Plane", "Plane")
+		, mInstanceDataBuffer(mEngine.GetDevice(), sizeof(InstanceData), vk::BufferUsageFlagBits::eStorageBuffer)
+#endif
 		, mGridRenderData(GetGridRenderConfigs(mEngine))
 		, mGridMesh(mEngine.GetDevice(), MeshUtils::CreateGrid(1000, 1000, 1.0f, 1.0f))
 		, mBBoxRenderConfigs(GetBBoxRenderConfigs(mEngine))
@@ -86,6 +99,24 @@ namespace erm::ecs {
 		mModelSystem = &mECS.GetSystem<ModelSystem>();
 		mCameraSystem = &mECS.GetSystem<CameraSystem>();
 		mLightSystem = &mECS.GetSystem<LightSystem>();
+		mRenderingSystem = &mECS.GetSystem<RenderingSystem>();
+
+#ifdef ERM_RAY_TRACING_ENABLED
+		mPlaneModel.AddMesh(MeshUtils::CreateSquare(1000, 1000));
+		mPlaneModel.UpdateBuffers();
+
+		math::mat4 transform = glm::identity<math::mat4>();
+		transform = glm::rotate(transform, static_cast<float>(M_PI * 0.5), math::vec3(1.0f, 0.0f, 0.0f));
+		InstanceData iData {transform, glm::inverse(glm::transpose(transform))};
+
+		mInstanceDataBuffer.Update(&iData);
+
+		RTRenderData& data = mRenderingSystem->GetDefaultRTRenderData();
+		data.AddOrUpdateInstance(&mPlaneModel.GetBlas(), transform, 0);
+		data.AddSbo(StorageBufferType::VERTICES, 0, mPlaneModel.GetVerticesBuffer());
+		data.AddSbo(StorageBufferType::INDICES, 0, mPlaneModel.GetIndicesBuffer());
+		data.AddSbo(StorageBufferType::INSTANCE_DATA, 0, mInstanceDataBuffer);
+#endif
 	}
 
 	void EditorSystem::OnRender()
@@ -107,8 +138,10 @@ namespace erm::ecs {
 		TransformComponent* cameraTransform = mTransformSystem->GetComponent(cameraId);
 
 		const math::mat4& proj = camera->GetProjectionMatrix();
-		const math::mat4 viewInv = glm::inverse(cameraTransform->mWorldTransform);
+		const math::mat4& view = cameraTransform->mWorldTransform;
+		const math::mat4 viewInv = glm::inverse(view);
 
+		// GRID RENDERING
 		{
 			UboBasic ubo;
 			ubo.mMVP = proj * viewInv;
@@ -118,6 +151,7 @@ namespace erm::ecs {
 
 		mRenderer.SubmitRenderData(mGridRenderData);
 
+		// BONES & BBOXES RENDERING
 		for (ID i = 0; i < MAX_ID; ++i)
 		{
 			EditorComponent* editorCmp = GetComponent(i);

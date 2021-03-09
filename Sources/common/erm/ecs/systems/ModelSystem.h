@@ -19,6 +19,9 @@ namespace erm::ecs {
 		void OnPostUpdate() override;
 
 	private:
+		// ISystem
+		void OnComponentBeingRemoved(EntityId id) override;
+
 		TransformSystem* mTransformSystem;
 	};
 

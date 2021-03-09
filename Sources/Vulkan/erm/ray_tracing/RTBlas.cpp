@@ -19,7 +19,6 @@ namespace erm {
 
 	void RTBlas::UpdateBlasData()
 	{
-		ASSERT(mBlasData.mGeometries.size() == mBlasData.mInfos.size());
 		const std::vector<Mesh>& meshes = mModel.GetMeshes();
 		const BufferLayout& vLayout = mModel.GetVerticesBuffer().GetLayout();
 		const BufferLayout& iLayout = mModel.GetIndicesBuffer().GetLayout();
@@ -30,7 +29,7 @@ namespace erm {
 		uint32_t maxVertex = 0;
 		uint32_t maxPrimCount = 0;
 
-		for (size_t i = mBlasData.mGeometries.size(); i < meshes.size(); ++i)
+		for (size_t i = 0; i < meshes.size(); ++i)
 		{
 			const Mesh& mesh = meshes[i];
 
@@ -53,23 +52,21 @@ namespace erm {
 		triangles.setMaxVertex(maxVertex);
 
 		// Identify the above data as containing opaque triangles.
-		vk::AccelerationStructureGeometryKHR& asGeom = mBlasData.mGeometries.emplace_back();
-		asGeom.setGeometryType(vk::GeometryTypeKHR::eTriangles);
-		asGeom.setFlags(vk::GeometryFlagBitsKHR::eOpaque);
-		asGeom.geometry.setTriangles(triangles);
+		mBlasData.mGeometries.setGeometryType(vk::GeometryTypeKHR::eTriangles);
+		mBlasData.mGeometries.setFlags(vk::GeometryFlagBitsKHR::eOpaque);
+		mBlasData.mGeometries.geometry.setTriangles(triangles);
 
 		// The entire array will be used to build the BLAS.
-		vk::AccelerationStructureBuildRangeInfoKHR& offset = mBlasData.mInfos.emplace_back();
-		offset.setFirstVertex(0);
-		offset.setPrimitiveOffset(0);
-		offset.setTransformOffset(0);
-		offset.setPrimitiveCount(maxPrimCount);
+		mBlasData.mInfos.setFirstVertex(0);
+		mBlasData.mInfos.setPrimitiveOffset(0);
+		mBlasData.mInfos.setTransformOffset(0);
+		mBlasData.mInfos.setPrimitiveCount(maxPrimCount);
 	}
 
 	void RTBlas::GetBuildInfo(vk::AccelerationStructureBuildGeometryInfoKHR& buildInfo) const
 	{
-		buildInfo.setGeometryCount(static_cast<uint32_t>(mBlasData.mGeometries.size()));
-		buildInfo.setPGeometries(mBlasData.mGeometries.data());
+		buildInfo.setGeometryCount(1);
+		buildInfo.setPGeometries(&mBlasData.mGeometries);
 		buildInfo.setType(vk::AccelerationStructureTypeKHR::eBottomLevel);
 		buildInfo.setSrcAccelerationStructure(nullptr);
 		buildInfo.setFlags(vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace);

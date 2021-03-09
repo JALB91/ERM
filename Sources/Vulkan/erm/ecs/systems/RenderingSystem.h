@@ -47,6 +47,14 @@ namespace erm::ecs {
 		void OnPreRender() override;
 		void OnPostRender() override;
 
+#ifdef ERM_RAY_TRACING_ENABLED
+		inline RTRenderData& GetDefaultRTRenderData()
+		{
+			ASSERT(!mRTRenderData.empty());
+			return mRTRenderData[0];
+		}
+#endif
+
 	private:
 		// ISystem
 		void OnComponentBeingRemoved(EntityId id) override;
@@ -61,14 +69,19 @@ namespace erm::ecs {
 			const math::mat4& viewInv,
 			const math::mat4& modelMat,
 			const math::vec3& lightPos);
-		void ProcessForRayTracing(
-			Model& model,
-			RenderingComponent& renderingComponent,
+
+#ifdef ERM_RAY_TRACING_ENABLED
+		void UpdateRTData(
 			LightComponent* light,
 			const math::mat4& proj,
 			const math::mat4& view,
-			const math::mat4& modelMat,
 			const math::vec3& lightPos);
+
+		void ProcessForRayTracing(
+			Model& model,
+			RenderingComponent& renderingComponent,
+			const math::mat4& modelMat);
+#endif
 
 		Engine& mEngine;
 		Renderer& mRenderer;

@@ -5,6 +5,13 @@
 
 #include "erm/ecs/EntityId.h"
 
+// clang-format off
+#ifdef ERM_RAY_TRACING_ENABLED
+#include "erm/rendering/buffers/DeviceBuffer.h"
+
+#include "erm/rendering/data_structs/Model.h"
+#endif
+// clang-format on
 #include "erm/rendering/data_structs/RenderData.h"
 #include "erm/rendering/data_structs/StandaloneMesh.h"
 
@@ -22,6 +29,7 @@ namespace erm {
 		class ModelSystem;
 		class CameraSystem;
 		class LightSystem;
+		class RenderingSystem;
 		struct Entity;
 	} // namespace ecs
 } // namespace erm
@@ -54,6 +62,12 @@ namespace erm::ecs {
 		ModelSystem* mModelSystem;
 		CameraSystem* mCameraSystem;
 		LightSystem* mLightSystem;
+		RenderingSystem* mRenderingSystem;
+
+#ifdef ERM_RAY_TRACING_ENABLED
+		Model mPlaneModel;
+		DeviceBuffer mInstanceDataBuffer;
+#endif
 
 		RenderData mGridRenderData;
 		StandaloneMesh mGridMesh;

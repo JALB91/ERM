@@ -43,7 +43,7 @@ namespace erm::ecs {
 		std::vector<RenderData> mRenderData;
 #ifdef ERM_RAY_TRACING_ENABLED
 		std::optional<uint32_t> mCustomIndex;
-		std::unique_ptr<DeviceBuffer> mTransformITBuffer;
+		std::unique_ptr<DeviceBuffer> mInstanceDataBuffer;
 		bool mUseRayTracing;
 #endif
 	};

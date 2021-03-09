@@ -35,6 +35,7 @@ namespace erm {
 	{
 	public:
 		static const char* GetExtensionForShaderType(ShaderType shaderType);
+		static std::string GetSuffixForShaderIndex(uint32_t index);
 
 	public:
 		IShaderProgram(Device& device, const char* shaderPath);
@@ -49,26 +50,26 @@ namespace erm {
 		inline bool NeedsReload() const { return mNeedsReload; }
 		inline void OnReloaded() { mNeedsReload = false; }
 
-		void SetShaderSources(const std::map<ShaderType, std::string>& shadersSources);
+		void SetShaderSources(const std::map<ShaderType, std::vector<std::string>>& shadersSources);
 
-		inline const std::map<ShaderType, ShaderData>& GetShadersDataMap() const { return mShadersData; }
-		const ShaderData& GetShaderData(ShaderType shaderType) const;
-		ShaderData& GetShaderData(ShaderType shaderType);
+		inline const std::map<ShaderType, std::vector<ShaderData>>& GetShadersDataMap() const { return mShadersData; }
+		const std::vector<ShaderData>& GetShadersData(ShaderType shaderType) const;
+		std::vector<ShaderData>& GetShadersData(ShaderType shaderType);
 
 		const ShaderBindingData& GetShaderBindingsData(SetIdx setIdx) const;
 		inline const ShaderBindingsMap& GetShaderBindingsMap() const { return mShaderBindingsMap; }
 
-		vk::UniqueShaderModule CreateShaderModule(ShaderType shaderType) const;
+		std::vector<vk::UniqueShaderModule> CreateShaderModules(ShaderType shaderType) const;
 
 	protected:
-		void CompileShaderSource(ShaderType shaderType) const;
+		void CompileShadersSource(ShaderType shaderType) const;
 
-		void UpdateShaderData(ShaderType shaderType);
+		void UpdateShadersData(ShaderType shaderType);
 		void UpdateBindingData();
 
 		Device& mDevice;
 		ShaderBindingsMap mShaderBindingsMap;
-		std::map<ShaderType, ShaderData> mShadersData;
+		std::map<ShaderType, std::vector<ShaderData>> mShadersData;
 		bool mNeedsReload;
 	};
 

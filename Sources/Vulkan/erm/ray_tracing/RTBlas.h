@@ -4,8 +4,6 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include <memory>
-
 namespace erm {
 	class Device;
 	class Model;
@@ -15,8 +13,8 @@ namespace erm {
 
 	struct RTBlasData
 	{
-		std::vector<vk::AccelerationStructureGeometryKHR> mGeometries;
-		std::vector<vk::AccelerationStructureBuildRangeInfoKHR> mInfos;
+		vk::AccelerationStructureGeometryKHR mGeometries;
+		vk::AccelerationStructureBuildRangeInfoKHR mInfos;
 	};
 
 	class RTBlas : public RTAccelerationStructure

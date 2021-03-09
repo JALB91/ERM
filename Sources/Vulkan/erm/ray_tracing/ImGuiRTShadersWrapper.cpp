@@ -48,19 +48,25 @@ namespace ImGui {
 				ImGui::EndCombo();
 			}
 
-			static std::map<erm::ShaderType, std::string> shaderSources;
+			static std::map<erm::ShaderType, std::vector<std::string>> shaderSources;
 			static char current[1024 * 16] = "";
 
 			if (selected && hasChanged)
 			{
-				const std::map<erm::ShaderType, erm::ShaderData>& dataMap = selected->GetShadersDataMap();
+				const std::map<erm::ShaderType, std::vector<erm::ShaderData>>& dataMap = selected->GetShadersDataMap();
 
 				for (const auto& [type, data] : dataMap)
 				{
 					shaderSources.emplace(
 						std::piecewise_construct,
 						std::forward_as_tuple(type),
-						std::forward_as_tuple(data.mShaderSource));
+						std::forward_as_tuple(data.size()));
+					auto& sources = shaderSources[type];
+
+					for (size_t i = 0; i < data.size(); ++i)
+					{
+						sources[i] = data[i].mShaderSource;
+					}
 				}
 			}
 			else if (hasChanged)
@@ -73,15 +79,18 @@ namespace ImGui {
 				const auto& dataMap = selected->GetShadersDataMap();
 				for (const auto& [type, data] : dataMap)
 				{
-					const char* extension = erm::IShaderProgram::GetExtensionForShaderType(type);
-
-					if (ImGui::BeginTabItem(extension))
+					for (size_t i = 0; i < data.size(); ++i)
 					{
-						std::strcpy(current, shaderSources[type].c_str());
-						ImGui::InputTextMultiline(extension, current, IM_ARRAYSIZE(current), ImVec2(-1.0f, ImGui::GetTextLineHeight() * 50), ImGuiInputTextFlags_AllowTabInput);
-						ImGui::EndTabItem();
+						std::string shaderId = erm::IShaderProgram::GetSuffixForShaderIndex(static_cast<uint32_t>(i)) + erm::IShaderProgram::GetExtensionForShaderType(type);
 
-						shaderSources[type] = current;
+						if (ImGui::BeginTabItem(shaderId.c_str()))
+						{
+							std::strcpy(current, shaderSources[type][i].c_str());
+							ImGui::InputTextMultiline(shaderId.c_str(), current, IM_ARRAYSIZE(current), ImVec2(-1.0f, ImGui::GetTextLineHeight() * 50), ImGuiInputTextFlags_AllowTabInput);
+							ImGui::EndTabItem();
+
+							shaderSources[type][i] = current;
+						}
 					}
 				}
 

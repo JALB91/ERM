@@ -78,11 +78,17 @@ namespace erm {
 		uint32_t groupStride = groupSize;
 		vk::DeviceAddress sbtAddress = mDevice->getBufferAddress({mPipelineResources->GetSBTBuffer()});
 
+		const RTShaderProgram& shader = *mRenderConfigs.mShaderProgram;
+		const auto& shadersData = shader.GetShadersDataMap();
+		const size_t genNum = shadersData.at(ShaderType::RT_RAY_GEN).size();
+		const size_t missNum = shadersData.at(ShaderType::RT_MISS).size();
+		const size_t chHitNum = shadersData.at(ShaderType::RT_CLOSEST_HIT).size();
+
 		using Stride = vk::StridedDeviceAddressRegionKHR;
 		std::array<Stride, 4> strideAddresses {
-			Stride {sbtAddress + 0u * groupSize, groupStride, groupSize * 1}, // raygen
-			Stride {sbtAddress + 1u * groupSize, groupStride, groupSize * 1}, // miss
-			Stride {sbtAddress + 2u * groupSize, groupStride, groupSize * 1}, // hit
+			Stride {sbtAddress + 0u * groupSize, groupStride, groupSize * genNum},
+			Stride {sbtAddress + genNum * groupSize, groupStride, groupSize * missNum},
+			Stride {sbtAddress + (genNum + missNum) * groupSize, groupStride, groupSize * chHitNum},
 			Stride {0u, 0u, 0u}}; // callable
 
 		cmd.traceRaysKHR(
@@ -126,12 +132,8 @@ namespace erm {
 			// needed (both written to sizeInfo). The `vkGetAccelerationStructureBuildSizesKHR` function
 			// computes the worst case memory requirements based on the user-reported max number of
 			// primitives. Later, compaction can fix this potential inefficiency.
-			std::vector<uint32_t> maxPrimCount(blasData.mInfos.size());
-			for (auto tt = 0; tt < blasData.mInfos.size(); ++tt)
-				maxPrimCount[tt] = blasData.mInfos[tt].primitiveCount; // Number of primitives/triangles
-
 			vk::AccelerationStructureBuildSizesInfoKHR sizeInfo {};
-			mDevice->getAccelerationStructureBuildSizesKHR(vk::AccelerationStructureBuildTypeKHR::eDevice, &buildInfos[i], maxPrimCount.data(), &sizeInfo);
+			mDevice->getAccelerationStructureBuildSizesKHR(vk::AccelerationStructureBuildTypeKHR::eDevice, &buildInfos[i], &blasData.mInfos.primitiveCount, &sizeInfo);
 
 			std::unique_ptr<DeviceBuffer> buffer = std::make_unique<DeviceBuffer>(
 				mDevice,
@@ -200,9 +202,7 @@ namespace erm {
 			// Convert user vector of offsets to vector of pointer-to-offset (required by vk).
 			// Recall that this defines which (sub)section of the vertex/index arrays
 			// will be built into the BLAS.
-			std::vector<const vk::AccelerationStructureBuildRangeInfoKHR*> pBuildOffset(data.mInfos.size());
-			for (size_t infoIdx = 0; infoIdx < data.mInfos.size(); ++infoIdx)
-				pBuildOffset[infoIdx] = &data.mInfos[infoIdx];
+			const std::vector<const vk::AccelerationStructureBuildRangeInfoKHR*> pBuildOffset {&data.mInfos};
 
 			// Building the AS
 			cmdBuf.buildAccelerationStructuresKHR(1, &buildInfos[i], pBuildOffset.data());

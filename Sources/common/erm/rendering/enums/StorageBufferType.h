@@ -8,8 +8,7 @@ namespace erm {
 		INDICES,
 		MATERIALS,
 		MATERIALS_INDICES,
-		SCENE_DESCS,
-		TRANSFORMS_IT
+		INSTANCE_DATA
 	};
 
 }

@@ -15,6 +15,7 @@
 #include "erm/rendering/Device.h"
 #include "erm/rendering/buffers/IndexBuffer.h"
 #include "erm/rendering/buffers/VertexBuffer.h"
+#include "erm/rendering/data_structs/InstanceData.h"
 #include "erm/rendering/data_structs/Material.h"
 #include "erm/rendering/data_structs/Mesh.h"
 #include "erm/rendering/data_structs/Model.h"
@@ -63,6 +64,18 @@ namespace {
 		return result;
 	}
 
+#ifdef ERM_RAY_TRACING_ENABLED
+	static erm::RTRenderData GetDefaultRTRenderData(erm::Engine& engine)
+	{
+		erm::RTRenderData data(engine.GetDevice());
+		data.mRenderConfigs.mShaderProgram = engine.GetResourcesManager().GetOrCreateRTShaderProgram("res/shaders/vk_raytrace");
+		data.mRenderConfigs.mMaterial = &erm::Material::DEFAULT;
+		data.mRenderConfigs.mPBMaterial = &erm::PBMaterial::DEFAULT;
+
+		return data;
+	}
+#endif
+
 } // namespace
 
 namespace erm::ecs {
@@ -72,7 +85,9 @@ namespace erm::ecs {
 		, mEngine(engine)
 		, mRenderer(engine.GetRenderer())
 		, mResourcesManager(engine.GetResourcesManager())
-	{}
+	{
+		mRTRenderData.emplace_back(::GetDefaultRTRenderData(engine));
+	}
 
 	RenderingSystem::~RenderingSystem()
 	{}
@@ -97,8 +112,11 @@ namespace erm::ecs {
 			{
 				for (RTRenderData& data : mRTRenderData)
 				{
-					data.mForceUpdate = true;
-					data.ClearDataForIndex(component.mCustomIndex.value());
+					if (data.HasInstanceWithId(component.mCustomIndex.value()))
+					{
+						data.mForceUpdate = true;
+						data.ClearDataForIndex(component.mCustomIndex.value());
+					}
 				}
 
 				component.mCustomIndex.reset();
@@ -147,6 +165,14 @@ namespace erm::ecs {
 			}
 		}
 
+#ifdef ERM_RAY_TRACING_ENABLED
+		UpdateRTData(
+			light,
+			proj,
+			view,
+			lightPos);
+#endif
+
 		mModelSystem->ForEachComponentIndexed([&](ModelComponent& component, ID id) {
 			if (!component.GetModel())
 				return;
@@ -164,16 +190,15 @@ namespace erm::ecs {
 
 #ifdef ERM_RAY_TRACING_ENABLED
 			if (renderingComponent->GetUseRayTracing())
+			{
 				ProcessForRayTracing(
 					model,
 					*renderingComponent,
-					light,
-					proj,
-					view,
-					modelMat,
-					lightPos);
+					modelMat);
+			}
 			else
 #endif
+			{
 				ProcessForRasterization(
 					model,
 					*renderingComponent,
@@ -184,6 +209,7 @@ namespace erm::ecs {
 					viewInv,
 					modelMat,
 					lightPos);
+			}
 		});
 
 #ifdef ERM_RAY_TRACING_ENABLED
@@ -358,69 +384,78 @@ namespace erm::ecs {
 	}
 
 #ifdef ERM_RAY_TRACING_ENABLED
-	void RenderingSystem::ProcessForRayTracing(
-		Model& model,
-		RenderingComponent& renderingComponent,
+	void RenderingSystem::UpdateRTData(
 		LightComponent* light,
 		const math::mat4& proj,
 		const math::mat4& view,
-		const math::mat4& modelMat,
 		const math::vec3& lightPos)
 	{
-		RTRenderData* data = data = mRTRenderData.empty() ? &mRTRenderData.emplace_back(mEngine.GetDevice()) : &mRTRenderData[0];
+		ASSERT(light);
 
-		RTRenderConfigs& configs = data->mRenderConfigs;
-		configs.mMaterial = configs.mMaterial ? configs.mMaterial : &Material::DEFAULT;
-		configs.mPBMaterial = configs.mPBMaterial ? configs.mPBMaterial : &PBMaterial::DEFAULT;
-		configs.mShaderProgram = configs.mShaderProgram ? configs.mShaderProgram : mResourcesManager.GetOrCreateRTShaderProgram("res/shaders/vk_raytrace");
-
+		for (RTRenderData& data : mRTRenderData)
 		{
-			UboLight ubo;
-			ubo.mAmbient = light->mAmbient;
-			ubo.mDiffuse = light->mDiffuse;
-			ubo.mSpecular = light->mSpecular;
-			ubo.mPosition = lightPos;
+			RTRenderConfigs& configs = data.mRenderConfigs;
+			configs.mMaterial = configs.mMaterial ? configs.mMaterial : &Material::DEFAULT;
+			configs.mPBMaterial = configs.mPBMaterial ? configs.mPBMaterial : &PBMaterial::DEFAULT;
+			configs.mShaderProgram = configs.mShaderProgram ? configs.mShaderProgram : mResourcesManager.GetOrCreateRTShaderProgram("res/shaders/vk_raytrace");
 
-			data->SetUbo(std::move(ubo));
+			{
+				UboLight ubo;
+				ubo.mAmbient = light->mAmbient;
+				ubo.mDiffuse = light->mDiffuse;
+				ubo.mSpecular = light->mSpecular;
+				ubo.mPosition = lightPos;
+
+				data.SetUbo(std::move(ubo));
+			}
+
+			{
+				UboPBLight ubo;
+				ubo.mPosition = lightPos;
+				ubo.mColor = light->mAmbient;
+
+				data.SetUbo(std::move(ubo));
+			}
+
+			{
+				UboRTBasic ubo;
+				ubo.mProjInv = glm::inverse(proj);
+				ubo.mViewInv = view;
+
+				data.SetUbo(std::move(ubo));
+			}
 		}
+	}
 
-		{
-			UboPBLight ubo;
-			ubo.mPosition = lightPos;
-			ubo.mColor = light->mAmbient;
+	void RenderingSystem::ProcessForRayTracing(
+		Model& model,
+		RenderingComponent& renderingComponent,
+		const math::mat4& modelMat)
+	{
+		RTRenderData& data = GetDefaultRTRenderData();
 
-			data->SetUbo(std::move(ubo));
-		}
-
-		{
-			UboRTBasic ubo;
-			ubo.mProjInv = glm::inverse(proj);
-			ubo.mViewInv = view;
-
-			data->SetUbo(std::move(ubo));
-		}
-
-		data->mForceUpdate |= !renderingComponent.mCustomIndex.has_value();
+		data.mForceUpdate |= !renderingComponent.mCustomIndex.has_value();
 
 		if (!renderingComponent.mCustomIndex.has_value())
 		{
-			uint32_t customIdx = 0;
+			uint32_t customIdx = 20;
 
-			while (data->HasInstanceWithId(customIdx))
+			while (data.HasInstanceWithId(customIdx))
 				customIdx++;
 
 			renderingComponent.mCustomIndex = customIdx;
-			auto& itBuffer = renderingComponent.mTransformITBuffer;
-			if (!itBuffer)
-				itBuffer = std::make_unique<DeviceBuffer>(mEngine.GetDevice(), sizeof(math::mat4), vk::BufferUsageFlagBits::eStorageBuffer);
+			auto& instanceDataBuffer = renderingComponent.mInstanceDataBuffer;
+			if (!instanceDataBuffer)
+				instanceDataBuffer = std::make_unique<DeviceBuffer>(mEngine.GetDevice(), sizeof(InstanceData), vk::BufferUsageFlagBits::eStorageBuffer);
 
-			data->AddSbo(StorageBufferType::VERTICES, customIdx, model.GetVerticesBuffer());
-			data->AddSbo(StorageBufferType::INDICES, customIdx, model.GetIndicesBuffer());
-			data->AddSbo(StorageBufferType::TRANSFORMS_IT, customIdx, *itBuffer);
+			data.AddSbo(StorageBufferType::VERTICES, customIdx, model.GetVerticesBuffer());
+			data.AddSbo(StorageBufferType::INDICES, customIdx, model.GetIndicesBuffer());
+			data.AddSbo(StorageBufferType::INSTANCE_DATA, customIdx, *instanceDataBuffer);
 		}
 
-		data->AddOrUpdateInstance(&model.GetBlas(), modelMat, renderingComponent.GetCustomIndex().value());
-		renderingComponent.mTransformITBuffer->Update(static_cast<void*>(&glm::inverse(glm::transpose(modelMat))));
+		data.AddOrUpdateInstance(&model.GetBlas(), modelMat, renderingComponent.GetCustomIndex().value());
+		InstanceData iData {modelMat, glm::inverse(glm::transpose(modelMat))};
+		renderingComponent.mInstanceDataBuffer->Update(&iData);
 	}
 #endif
 
