@@ -2,8 +2,6 @@
 
 #include "erm/rendering/data_structs/UniformBufferData.h"
 
-#include <vulkan/vulkan.hpp>
-
 #include <vector>
 
 namespace erm {

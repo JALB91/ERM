@@ -3,8 +3,7 @@
 namespace erm {
 
 	ShaderProgram::ShaderProgram(Device& device, const char* path)
-		: IAsset(path, "")
-		, mDevice(device)
+		: IShaderProgram(device, path)
 	{}
 
 } // namespace erm

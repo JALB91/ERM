@@ -127,7 +127,6 @@ namespace {
 		const auto makeStorageBufferData = [&compiler, &resource](erm::StorageBufferType type) -> erm::StorageBufferData {
 			return {
 				type,
-				VK_WHOLE_SIZE,
 				compiler.get_decoration(resource.id, spv::Decoration::DecorationOffset),
 				compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding),
 				compiler.get_decoration(resource.id, spv::Decoration::DecorationDescriptorSet)};
@@ -142,7 +141,7 @@ namespace {
 
 		ASSERT(false);
 
-		return {erm::StorageBufferType::VERTICES, VK_WHOLE_SIZE, 0, 0, 0};
+		return {erm::StorageBufferType::VERTICES, 0, 0, 0};
 	}
 
 #ifdef ERM_RAY_TRACING_ENABLED
@@ -222,9 +221,13 @@ namespace erm {
 		{
 			const std::string shaderPath = ShaderUtils::GetShaderFilename(mPath, static_cast<uint32_t>(i), shaderType);
 			const std::string compiledShaderPath = shaderPath + ".cmp";
+#ifdef ERM_SHADER_COMPILER
 			std::string compilationCommand = ERM_SHADER_COMPILER;
 			compilationCommand += " " + shaderPath + " -o " + compiledShaderPath;
 			system(compilationCommand.c_str());
+#else
+			ASSERT(false);
+#endif
 		}
 	}
 

@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.15...3.17)
 
 # PROJECT DECLARATION
 project(
-	"ERM"
+	"ERM_${TARGET_API}"
 	VERSION 0.0.1
 	DESCRIPTION "C++ Game Engine"
 	LANGUAGES CXX
