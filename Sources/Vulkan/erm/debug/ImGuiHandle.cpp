@@ -175,9 +175,9 @@ namespace erm {
 		vk::AttachmentReference color_attachment = {};
 		color_attachment.attachment = 0;
 #ifdef ERM_RAY_TRACING_ENABLED
-		attachment.initialLayout = vk::ImageLayout::eGeneral;
+		color_attachment.layout = vk::ImageLayout::eGeneral;
 #else
-		attachment.initialLayout = vk::ImageLayout::eColorAttachmentOptimal;
+		color_attachment.layout = vk::ImageLayout::eColorAttachmentOptimal;
 #endif
 
 		vk::SubpassDescription subpass = {};
