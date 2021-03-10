@@ -28,7 +28,7 @@ function(target_setup_project TARGET)
 	)
 
 	if("${TARGET_API}" STREQUAL "Vulkan")
-		set(SHADERS_COMPILER "$ENV{VULKAN_SDK}\\Bin32\\glslc.exe")
+		set(SHADERS_COMPILER "$ENV{VULKAN_SDK}\\Bin\\glslc.exe --target-spv=spv1.5")
 		string(REPLACE "\\" "/" SHADERS_COMPILER "${SHADERS_COMPILER}")
 		set(SHADERS_COMPILER "${SHADERS_COMPILER}" PARENT_SCOPE)
 		set(ERM_FLIP_VIEWPORT ON CACHE BOOL "" FORCE)

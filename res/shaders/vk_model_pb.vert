@@ -1,7 +1,8 @@
-#version 450
+#version 460
 #extension GL_ARB_separate_shader_objects : enable
+#extension GL_GOOGLE_include_directive : enable
 
-layout(binding = 0) uniform ModelViewProj {
+layout(binding = 0, set = 1) uniform ModelViewProj {
 	mat4 model;
 	mat4 view;
 	mat4 projection;

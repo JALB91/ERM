@@ -1,0 +1,411 @@
+#include "erm/rendering/shaders/IShaderProgram.h"
+
+#include "erm/rendering/Device.h"
+
+#include "erm/utils/Utils.h"
+#include "erm/utils/VkUtils.h"
+
+#include <algorithm>
+#include <cctype>
+#include <filesystem>
+#include <fstream>
+#include <iostream>
+
+namespace {
+
+	std::vector<char> ReadShaderCompiled(const char* path)
+	{
+		std::ifstream stream(path, std::ios::ate | std::ios::binary);
+
+		if (!stream.is_open())
+		{
+			throw std::runtime_error("Failed to open shader file");
+		}
+
+		size_t fileSize = static_cast<size_t>(stream.tellg());
+		std::vector<char> buffer(fileSize);
+
+		stream.seekg(0);
+		stream.read(buffer.data(), fileSize);
+
+		stream.close();
+
+		return buffer;
+	}
+
+	std::vector<uint32_t> LoadSpirvFile(const char* path)
+	{
+		std::vector<char> file = ReadShaderCompiled(path);
+
+		std::vector<uint32_t> buffer(file.size() / sizeof(uint32_t));
+		memcpy(buffer.data(), file.data(), file.size());
+
+		return buffer;
+	}
+
+	erm::UboData GetUboData(const spirv_cross::Compiler& compiler, const spirv_cross::Resource& resource)
+	{
+		const auto makeUboData = [&compiler, &resource](erm::UboId id, size_t size) -> erm::UboData {
+			return {
+				id,
+				size,
+				compiler.get_decoration(resource.id, spv::Decoration::DecorationOffset),
+				compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding),
+				compiler.get_decoration(resource.id, spv::Decoration::DecorationDescriptorSet)};
+		};
+
+		if (resource.name.compare("UniformBufferObject") == 0)
+			return makeUboData(erm::UboBasic::ID, sizeof(erm::UboBasic));
+		else if (resource.name.compare("ModelViewProj") == 0)
+			return makeUboData(erm::UboModelViewProj::ID, sizeof(erm::UboModelViewProj));
+		else if (resource.name.compare("Material") == 0)
+			return makeUboData(erm::UboMaterial::ID, sizeof(erm::UboMaterial));
+		else if (resource.name.compare("Light") == 0)
+			return makeUboData(erm::UboLight::ID, sizeof(erm::UboLight));
+		else if (resource.name.compare("View") == 0)
+			return makeUboData(erm::UboView::ID, sizeof(erm::UboView));
+		else if (resource.name.compare("Skeleton") == 0)
+			return makeUboData(erm::UboSkeleton::ID, sizeof(erm::UboSkeleton));
+		else if (resource.name.compare("PBMaterial") == 0)
+			return makeUboData(erm::UboPBMaterial::ID, sizeof(erm::UboPBMaterial));
+		else if (resource.name.compare("PBLight") == 0)
+			return makeUboData(erm::UboPBLight::ID, sizeof(erm::UboPBLight));
+		else if (resource.name.compare("BonesDebug") == 0)
+			return makeUboData(erm::UboBonesDebug::ID, sizeof(erm::UboBonesDebug));
+#ifdef ERM_RAY_TRACING_ENABLED
+		else if (resource.name.compare("UboRTBasic") == 0)
+			return makeUboData(erm::UboRTBasic::ID, sizeof(erm::UboRTBasic));
+#endif
+
+		ASSERT(false);
+
+		return {erm::UboBasic::ID, sizeof(erm::UboBasic), 0, 0, 0};
+	}
+
+	erm::SamplerData GetSamplerData(const spirv_cross::Compiler& compiler, const spirv_cross::Resource& resource)
+	{
+		const auto makeSamplerData = [&compiler, &resource](erm::TextureType type) -> erm::SamplerData {
+			return {
+				compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding),
+				compiler.get_decoration(resource.id, spv::Decoration::DecorationDescriptorSet),
+				type};
+		};
+
+		if (resource.name.compare("diffuseSampler") == 0)
+			return makeSamplerData(erm::TextureType::DIFFUSE);
+		else if (resource.name.compare("normalSampler") == 0)
+			return makeSamplerData(erm::TextureType::NORMAL);
+		else if (resource.name.compare("specularSampler") == 0)
+			return makeSamplerData(erm::TextureType::SPECULAR);
+
+		ASSERT(false);
+
+		return {0, 0, erm::TextureType::DIFFUSE};
+	}
+
+	erm::StorageImageData GetStorageImageData(const spirv_cross::Compiler& compiler, const spirv_cross::Resource& resource)
+	{
+		const auto makeStorageImageData = [&compiler, &resource](erm::StorageImageType type) -> erm::StorageImageData {
+			return {
+				type,
+				compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding),
+				compiler.get_decoration(resource.id, spv::Decoration::DecorationDescriptorSet)};
+		};
+
+		if (resource.name.compare("image") == 0)
+			return makeStorageImageData(erm::StorageImageType::FRAME_BUFFER);
+		else if (resource.name.compare("depth") == 0)
+			return makeStorageImageData(erm::StorageImageType::DEPTH_BUFFER);
+
+		ASSERT(false);
+
+		return {erm::StorageImageType::FRAME_BUFFER, 0, 0};
+	}
+
+	erm::StorageBufferData GetStorageBufferData(const spirv_cross::Compiler& compiler, const spirv_cross::Resource& resource)
+	{
+		const auto makeStorageBufferData = [&compiler, &resource](erm::StorageBufferType type) -> erm::StorageBufferData {
+			return {
+				type,
+				VK_WHOLE_SIZE,
+				compiler.get_decoration(resource.id, spv::Decoration::DecorationOffset),
+				compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding),
+				compiler.get_decoration(resource.id, spv::Decoration::DecorationDescriptorSet)};
+		};
+
+		if (resource.name.compare("Vertices") == 0)
+			return makeStorageBufferData(erm::StorageBufferType::VERTICES);
+		else if (resource.name.compare("Indices") == 0)
+			return makeStorageBufferData(erm::StorageBufferType::INDICES);
+		else if (resource.name.compare("InstancesData") == 0)
+			return makeStorageBufferData(erm::StorageBufferType::INSTANCE_DATA);
+
+		ASSERT(false);
+
+		return {erm::StorageBufferType::VERTICES, VK_WHOLE_SIZE, 0, 0, 0};
+	}
+
+#ifdef ERM_RAY_TRACING_ENABLED
+	erm::AccelerationStructureData GetAccelerationStructureData(const spirv_cross::Compiler& compiler, const spirv_cross::Resource& resource)
+	{
+		const auto makeAccelerationStructureData = [&compiler, &resource]() -> erm::AccelerationStructureData {
+			return {
+				compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding),
+				compiler.get_decoration(resource.id, spv::Decoration::DecorationDescriptorSet)};
+		};
+
+		if (resource.name.compare("topLevelAS") == 0)
+			return makeAccelerationStructureData();
+
+		ASSERT(false);
+
+		return {0, 0};
+	}
+#endif
+
+	void GatherResourceBindings(
+		erm::ShaderBindingsMap& bindingsMap,
+		erm::SetIdx targetSet,
+		const spirv_cross::Compiler& compiler,
+		const spirv_cross::Resource& res,
+		vk::ShaderStageFlagBits flags,
+		vk::DescriptorType type)
+	{
+		const uint32_t binding = compiler.get_decoration(res.id, spv::Decoration::DecorationBinding);
+		erm::ShaderBindingData& data = bindingsMap[targetSet];
+
+		for (vk::DescriptorSetLayoutBinding& layoutBinding : data.mLayoutBindings)
+		{
+			if (layoutBinding.binding == binding)
+			{
+				// TODO: Should find a way to assert also based on the contents of the binding
+				ASSERT(layoutBinding.descriptorType == type);
+				layoutBinding.stageFlags |= flags;
+				return;
+			}
+		}
+
+		vk::DescriptorSetLayoutBinding& layoutBinding = data.mLayoutBindings.emplace_back();
+		layoutBinding.binding = binding;
+		layoutBinding.descriptorCount = 1;
+		layoutBinding.descriptorType = type;
+		layoutBinding.stageFlags = flags;
+
+		switch (type)
+		{
+			case vk::DescriptorType::eUniformBuffer:
+				data.mUbosData.emplace_back(GetUboData(compiler, res));
+				break;
+			case vk::DescriptorType::eCombinedImageSampler:
+				data.mSamplersData.emplace_back(GetSamplerData(compiler, res));
+				break;
+			case vk::DescriptorType::eStorageImage:
+				data.mStorageImagesData.emplace_back(GetStorageImageData(compiler, res));
+				break;
+			case vk::DescriptorType::eStorageBuffer:
+				data.mStorageBuffersData.emplace_back(GetStorageBufferData(compiler, res));
+				break;
+			case vk::DescriptorType::eAccelerationStructureKHR:
+#ifdef ERM_RAY_TRACING_ENABLED
+				data.mASData.emplace_back(GetAccelerationStructureData(compiler, res));
+#else
+				ASSERT(false);
+#endif
+				break;
+			default:
+				ASSERT(false);
+		}
+	}
+
+	void GatherShaderBindings(erm::ShaderBindingsMap& bindings, const spirv_cross::Compiler& compiler, vk::ShaderStageFlagBits flags)
+	{
+		spirv_cross::ShaderResources resources = compiler.get_shader_resources();
+
+		for (const spirv_cross::Resource& ubo : resources.uniform_buffers)
+		{
+			const uint32_t targetSet = compiler.get_decoration(ubo.id, spv::Decoration::DecorationDescriptorSet);
+			GatherResourceBindings(bindings, targetSet, compiler, ubo, flags, vk::DescriptorType::eUniformBuffer);
+		}
+
+		for (const spirv_cross::Resource& sampledImage : resources.sampled_images)
+		{
+			const uint32_t targetSet = compiler.get_decoration(sampledImage.id, spv::Decoration::DecorationDescriptorSet);
+			GatherResourceBindings(bindings, targetSet, compiler, sampledImage, flags, vk::DescriptorType::eCombinedImageSampler);
+		}
+
+		for (const spirv_cross::Resource& storageImage : resources.storage_images)
+		{
+			const uint32_t targetSet = compiler.get_decoration(storageImage.id, spv::Decoration::DecorationDescriptorSet);
+			GatherResourceBindings(bindings, targetSet, compiler, storageImage, flags, vk::DescriptorType::eStorageImage);
+		}
+
+		for (const spirv_cross::Resource& storageBuffer : resources.storage_buffers)
+		{
+			const uint32_t targetSet = compiler.get_decoration(storageBuffer.id, spv::Decoration::DecorationDescriptorSet);
+			GatherResourceBindings(bindings, targetSet, compiler, storageBuffer, flags, vk::DescriptorType::eStorageBuffer);
+		}
+
+		for (const spirv_cross::Resource& accelerationStructure : resources.acceleration_structures)
+		{
+			const uint32_t targetSet = compiler.get_decoration(accelerationStructure.id, spv::Decoration::DecorationDescriptorSet);
+			GatherResourceBindings(bindings, targetSet, compiler, accelerationStructure, flags, vk::DescriptorType::eAccelerationStructureKHR);
+		}
+	}
+
+} // namespace
+
+namespace erm {
+
+	IShaderProgram::IShaderProgram(Device& device, const char* shaderPath)
+		: IAsset(shaderPath, "")
+		, mDevice(device)
+		, mNeedsReload(false)
+	{}
+
+	void IShaderProgram::SetShaderSources(const std::map<ShaderType, std::vector<std::string>>& shadersSources)
+	{
+		for (const auto& [type, sources] : shadersSources)
+		{
+			for (size_t i = 0; i < sources.size(); ++i)
+			{
+				Utils::WriteToFile((mPath + GetSuffixForShaderIndex(static_cast<uint32_t>(i)) + GetExtensionForShaderType(type)).c_str(), sources[i]);
+			}
+
+			CompileShadersSource(type);
+			UpdateShadersData(type);
+		}
+
+		UpdateBindingData();
+		mNeedsReload = true;
+	}
+
+	std::vector<vk::UniqueShaderModule> IShaderProgram::CreateShaderModules(ShaderType shaderType) const
+	{
+		const auto it = mShadersData.find(shaderType);
+		if (it == mShadersData.end())
+			return {};
+
+		const std::vector<ShaderData>& data = it->second;
+
+		std::vector<vk::UniqueShaderModule> result(data.size());
+
+		for (size_t i = 0; i < data.size(); ++i)
+		{
+			vk::ShaderModuleCreateInfo createInfo = {};
+			createInfo.codeSize = data[i].mShaderByteCode.size();
+			createInfo.pCode = reinterpret_cast<const uint32_t*>(data[i].mShaderByteCode.data());
+
+			result[i] = mDevice->createShaderModuleUnique(createInfo);
+		}
+
+		return result;
+	}
+
+	void IShaderProgram::UpdateBindingData()
+	{
+		mShaderBindingsMap.clear();
+
+		for (const auto& [shaderType, data] : mShadersData)
+		{
+			for (const auto& d : data)
+			{
+				ASSERT(d.mShaderCompiler);
+				GatherShaderBindings(mShaderBindingsMap, *d.mShaderCompiler, VkUtils::ToVulkanValue<vk::ShaderStageFlagBits>(shaderType));
+			}
+		}
+	}
+
+	void IShaderProgram::UpdateShadersData(ShaderType shaderType)
+	{
+		std::vector<ShaderData>& data = mShadersData[shaderType];
+
+		size_t index = 0;
+
+		while (true)
+		{
+			const std::string shaderPath = mPath + GetSuffixForShaderIndex(static_cast<uint32_t>(index)) + GetExtensionForShaderType(shaderType);
+			const std::string compiledShaderPath = shaderPath + ".cmp";
+
+			if (!std::filesystem::exists(shaderPath))
+				break;
+
+			ShaderData& d = data.size() > index ? data[index] : data.emplace_back();
+			index++;
+
+			d.mShaderSource = Utils::ReadFromFile(shaderPath.c_str());
+			d.mShaderByteCode = ReadShaderCompiled(compiledShaderPath.c_str());
+			d.mShaderCompiler = std::make_unique<spirv_cross::Compiler>(LoadSpirvFile(compiledShaderPath.c_str()));
+		}
+	}
+
+	void IShaderProgram::CompileShadersSource(ShaderType shaderType) const
+	{
+		ASSERT(mShadersData.find(shaderType) != mShadersData.end());
+		const std::vector<ShaderData>& data = mShadersData.at(shaderType);
+
+		for (size_t i = 0; i < data.size(); ++i)
+		{
+			const std::string shaderPath = mPath + GetSuffixForShaderIndex(static_cast<uint32_t>(i)) + GetExtensionForShaderType(shaderType);
+			const std::string compiledShaderPath = shaderPath + ".cmp";
+			std::string compilationCommand = ERM_SHADER_COMPILER;
+			compilationCommand += " " + shaderPath + " -o " + compiledShaderPath;
+			system(compilationCommand.c_str());
+		}
+	}
+
+	const std::vector<ShaderData>& IShaderProgram::GetShadersData(ShaderType shaderType) const
+	{
+		const auto it = mShadersData.find(shaderType);
+		ASSERT(it != mShadersData.end());
+		return it->second;
+	}
+
+	std::vector<ShaderData>& IShaderProgram::GetShadersData(ShaderType shaderType)
+	{
+		const auto it = mShadersData.find(shaderType);
+		ASSERT(it != mShadersData.end());
+		return it->second;
+	}
+
+	const ShaderBindingData& IShaderProgram::GetShaderBindingsData(SetIdx setIdx) const
+	{
+		const auto it = mShaderBindingsMap.find(setIdx);
+		ASSERT(it != mShaderBindingsMap.end());
+		return it->second;
+	}
+
+	const char* IShaderProgram::GetExtensionForShaderType(ShaderType shaderType)
+	{
+		switch (shaderType)
+		{
+			case ShaderType::VERTEX:
+				return ".vert";
+			case ShaderType::FRAGMENT:
+				return ".frag";
+			case ShaderType::RT_ANY_HIT:
+				return ".rahit";
+			case ShaderType::RT_CALLABLE:
+				return ".rcall";
+			case ShaderType::RT_CLOSEST_HIT:
+				return ".rchit";
+			case ShaderType::RT_INTERSECTION:
+				return ".rint";
+			case ShaderType::RT_MISS:
+				return ".rmiss";
+			case ShaderType::RT_RAY_GEN:
+				return ".rgen";
+			default:
+				ASSERT(false);
+				return "";
+		}
+	}
+
+	std::string IShaderProgram::GetSuffixForShaderIndex(uint32_t index)
+	{
+		if (index == 0)
+			return "";
+		else
+			return "_" + std::to_string(index);
+	}
+
+} // namespace erm
