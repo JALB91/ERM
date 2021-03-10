@@ -6,9 +6,8 @@ namespace erm {
 	{
 		VERTICES,
 		INDICES,
-		MATERIALS,
-		MATERIALS_INDICES,
-		INSTANCE_DATA
+		INSTANCE_DATA,
+		COUNT
 	};
 
 }

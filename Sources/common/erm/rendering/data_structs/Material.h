@@ -5,7 +5,7 @@
 #include "erm/rendering/data_structs/IAsset.h"
 #include "erm/rendering/enums/TextureType.h"
 
-#include <map>
+#include <unordered_map>
 
 namespace erm {
 	class Texture;
@@ -35,7 +35,7 @@ namespace erm {
 		math::vec3 mDiffuse;
 		math::vec3 mSpecular;
 		float mShininess;
-		std::map<TextureType, Texture*> mTexturesMaps;
+		std::unordered_map<TextureType, Texture*> mTexturesMaps;
 	};
 
 } // namespace erm

@@ -13,13 +13,15 @@
 
 #include "erm/managers/ResourcesManager.h"
 
+// clang-format off
 #ifdef ERM_RAY_TRACING_ENABLED
-#	include "erm/ray_tracing/RTRenderData.h"
+#include "erm/ray_tracing/RTRenderData.h"
 
-#	include "erm/rendering/data_structs/InstanceData.h"
-#	include "erm/rendering/data_structs/Material.h"
-#	include "erm/rendering/data_structs/PBMaterial.h"
+#include "erm/rendering/data_structs/InstanceData.h"
+#include "erm/rendering/data_structs/Material.h"
+#include "erm/rendering/data_structs/PBMaterial.h"
 #endif
+// clang-format on
 #include "erm/rendering/data_structs/RenderData.h"
 #include "erm/rendering/renderer/Renderer.h"
 #include "erm/rendering/window/Window.h"

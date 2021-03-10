@@ -33,8 +33,6 @@
 
 namespace {
 
-	const char* const kDebugShaderPath("res/shaders/vk_basic");
-
 	std::string GetShaderForConfig(const erm::BindingConfigs& config, const erm::ecs::LightComponent* light, const erm::ecs::SkeletonComponent* skeleton)
 	{
 		if (!light)

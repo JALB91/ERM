@@ -194,7 +194,11 @@ namespace erm {
 
 			vk::AttachmentReference colorAttachmentRef = {};
 			colorAttachmentRef.attachment = 0;
+#ifdef ERM_RAY_TRACING_ENABLED
 			colorAttachmentRef.layout = vk::ImageLayout::eGeneral;
+#else
+			colorAttachmentRef.layout = vk::ImageLayout::eColorAttachmentOptimal;
+#endif
 
 			subpasses[i].pColorAttachments = &colorAttachmentRef;
 

@@ -165,12 +165,20 @@ namespace erm {
 		attachment.storeOp = vk::AttachmentStoreOp::eStore;
 		attachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
 		attachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
+#ifdef ERM_RAY_TRACING_ENABLED
 		attachment.initialLayout = vk::ImageLayout::eGeneral;
+#else
+		attachment.initialLayout = vk::ImageLayout::eColorAttachmentOptimal;
+#endif
 		attachment.finalLayout = vk::ImageLayout::ePresentSrcKHR;
 
 		vk::AttachmentReference color_attachment = {};
 		color_attachment.attachment = 0;
-		color_attachment.layout = vk::ImageLayout::eGeneral;
+#ifdef ERM_RAY_TRACING_ENABLED
+		attachment.initialLayout = vk::ImageLayout::eGeneral;
+#else
+		attachment.initialLayout = vk::ImageLayout::eColorAttachmentOptimal;
+#endif
 
 		vk::SubpassDescription subpass = {};
 		subpass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;

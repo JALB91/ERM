@@ -24,7 +24,7 @@ namespace erm {
 		inline void SetAS(vk::UniqueAccelerationStructureKHR&& as) { mAccelerationStructure = std::move(as); }
 
 		inline bool IsReady() const { return mBuffer && mAccelerationStructure; }
-		inline DeviceBuffer& GetBuffer() { return *mBuffer; }
+		inline const DeviceBuffer& GetBuffer() const { return *mBuffer; }
 		inline const vk::AccelerationStructureKHR& GetAS() const { return mAccelerationStructure.get(); }
 
 	private:
