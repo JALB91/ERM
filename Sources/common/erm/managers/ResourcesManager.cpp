@@ -5,7 +5,9 @@
 #include "erm/rendering/data_structs/Model.h"
 #include "erm/rendering/data_structs/PBMaterial.h"
 #include "erm/rendering/data_structs/Skin.h"
+#include "erm/rendering/enums/ShaderType.h"
 #include "erm/rendering/shaders/ShaderProgram.h"
+#include "erm/rendering/shaders/ShaderUtils.h"
 #include "erm/rendering/textures/Texture.h"
 // clang-format off
 #ifdef ERM_RAY_TRACING_ENABLED
@@ -90,7 +92,8 @@ namespace erm {
 		{
 			char buffer[256] {0};
 			std::strcat(buffer, shaderProgramPath);
-			std::strcat(buffer, IShaderProgram::GetExtensionForShaderType(type));
+			std::strcat(buffer, ShaderUtils::GetSuffixForShaderIndex(0).c_str());
+			std::strcat(buffer, ShaderUtils::GetExtensionForShaderType(type));
 
 			std::ifstream stream(buffer);
 			if (!stream.is_open())
@@ -229,7 +232,8 @@ namespace erm {
 		{
 			char buffer[256] {0};
 			std::strcat(buffer, path);
-			std::strcat(buffer, IShaderProgram::GetExtensionForShaderType(type));
+			std::strcat(buffer, ShaderUtils::GetSuffixForShaderIndex(0).c_str());
+			std::strcat(buffer, ShaderUtils::GetExtensionForShaderType(type));
 
 			std::ifstream stream(buffer);
 			if (!stream.is_open())

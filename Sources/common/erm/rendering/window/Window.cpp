@@ -1,5 +1,4 @@
 #include "erm/rendering/window/Window.h"
-#include "erm/rendering/shaders/ShaderProgram.h"
 #include "erm/rendering/window/IWindowListener.h"
 
 #include "erm/utils/Profiler.h"
@@ -47,6 +46,8 @@ namespace {
 	const char* const kTitle = "ERM Vulkan";
 #elif defined(ERM_OPENGL)
 	const char* const kTitle = "ERM OpenGl";
+#elif defined(ERM_DX12)
+	const char* const kTitle = "ERM DX12";
 #endif
 
 	const float kImGuiSpaceUp = 0.0f;
@@ -141,7 +142,7 @@ namespace erm {
 		glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-#if defined(ERM_VULKAN)
+#if defined(ERM_VULKAN) || defined(ERM_DX12)
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 #elif defined(ERM_OPENGL)
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);

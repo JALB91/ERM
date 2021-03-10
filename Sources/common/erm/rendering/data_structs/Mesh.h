@@ -1,9 +1,9 @@
 #pragma once
 
 #include "erm/rendering/buffers/BufferHandle.h"
-#include "erm/rendering/buffers/IndexData.h"
-#include "erm/rendering/buffers/VertexData.h"
+#include "erm/rendering/data_structs/IndexData.h"
 #include "erm/rendering/data_structs/RenderConfigs.h"
+#include "erm/rendering/data_structs/VertexData.h"
 
 #include <string>
 #include <vector>

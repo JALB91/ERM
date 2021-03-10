@@ -218,7 +218,7 @@ namespace erm {
 		/*
 			SETUP DESCRIPTOR SET LAYOUT
 		*/
-		const ShaderBindingsMap& bindings = shader->GetShaderBindingsMap();
+		const LayoutBindingsMap& bindings = shader->GetLayoutBindingsMap();
 		uint32_t maxSet = 0;
 		std::for_each(bindings.begin(), bindings.end(), [&maxSet](const auto& pair) {
 			maxSet = std::max(maxSet, pair.first);
@@ -238,8 +238,8 @@ namespace erm {
 			{
 				auto& data = bindings.at(i);
 
-				layoutInfo.bindingCount = static_cast<uint32_t>(data.mLayoutBindings.size());
-				layoutInfo.pBindings = data.mLayoutBindings.data();
+				layoutInfo.bindingCount = static_cast<uint32_t>(data.size());
+				layoutInfo.pBindings = data.data();
 			}
 
 			mDescriptorSetLayouts.emplace_back(mDevice->createDescriptorSetLayoutUnique(layoutInfo));

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "erm/rendering/buffers/VertexData.h"
+#include "erm/rendering/data_structs/VertexData.h"
 
 #include <string>
 #include <vector>

@@ -1,10 +1,10 @@
 #include "erm/utils/VkUtils.h"
 
-#include "erm/rendering/buffers/VertexData.h"
 #include "erm/rendering/enums/AttachmentLoadOp.h"
 #include "erm/rendering/enums/AttachmentStoreOp.h"
 #include "erm/rendering/enums/CullMode.h"
 #include "erm/rendering/enums/DepthFunction.h"
+#include "erm/rendering/enums/DescriptorType.h"
 #include "erm/rendering/enums/DrawMode.h"
 #include "erm/rendering/enums/FrontFace.h"
 #include "erm/rendering/enums/ImageLayout.h"
@@ -719,6 +719,29 @@ namespace erm::VkUtils {
 			default:
 				ASSERT(false);
 				return vk::ShaderStageFlagBits::eAll;
+		}
+	}
+
+	template<>
+	vk::DescriptorType ToVulkanValue(DescriptorType type)
+	{
+		switch (type)
+		{
+			case DescriptorType::UNIFORM_BUFFER:
+				return vk::DescriptorType::eUniformBuffer;
+			case DescriptorType::COMBINED_IMAGE_SAMPLER:
+				return vk::DescriptorType::eCombinedImageSampler;
+			case DescriptorType::STORAGE_IMAGE:
+				return vk::DescriptorType::eStorageImage;
+			case DescriptorType::STORAGE_BUFFER:
+				return vk::DescriptorType::eStorageBuffer;
+#ifdef ERM_RAY_TRACING_ENABLED
+			case DescriptorType::ACCELERATION_STRUCTURE:
+				return vk::DescriptorType::eAccelerationStructureKHR;
+#endif
+			default:
+				ASSERT(false);
+				return vk::DescriptorType::eUniformBuffer;
 		}
 	}
 

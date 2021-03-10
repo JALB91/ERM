@@ -1,15 +1,18 @@
-#include "erm/ray_tracing/ImGuiRTShadersWrapper.h"
+#include "erm/debug/ImGuiShadersWrapper.h"
 
 #include "erm/engine/Engine.h"
 
 #include "erm/managers/ResourcesManager.h"
 
 #include "erm/rendering/shaders/ShaderProgram.h"
+#include "erm/rendering/shaders/ShaderUtils.h"
 #include "erm/rendering/window/Window.h"
 
 #include "erm/utils/Utils.h"
 
 #include <imgui.h>
+
+#include <unordered_map>
 
 namespace ImGui {
 
@@ -47,12 +50,12 @@ namespace ImGui {
 				ImGui::EndCombo();
 			}
 
-			static std::map<erm::ShaderType, std::vector<std::string>> shaderSources;
+			static std::unordered_map<erm::ShaderType, std::vector<std::string>> shaderSources;
 			static char current[1024 * 16] = "";
 
 			if (selected && hasChanged)
 			{
-				const std::map<erm::ShaderType, std::vector<erm::ShaderData>>& dataMap = selected->GetShadersDataMap();
+				const std::unordered_map<erm::ShaderType, std::vector<erm::ShaderData>>& dataMap = selected->GetShadersDataMap();
 
 				for (const auto& [type, data] : dataMap)
 				{
@@ -80,7 +83,7 @@ namespace ImGui {
 				{
 					for (size_t i = 0; i < data.size(); ++i)
 					{
-						std::string shaderId = erm::IShaderProgram::GetSuffixForShaderIndex(static_cast<uint32_t>(i)) + erm::IShaderProgram::GetExtensionForShaderType(type);
+						std::string shaderId = erm::ShaderUtils::GetSuffixForShaderIndex(static_cast<uint32_t>(i)) + erm::ShaderUtils::GetExtensionForShaderType(type);
 
 						if (ImGui::BeginTabItem(shaderId.c_str()))
 						{
@@ -102,7 +105,7 @@ namespace ImGui {
 
 				if (ImGui::Button("Save"))
 				{
-					selected->SetShaderSources(shaderSources);
+					selected->SetShadersSources(shaderSources);
 				}
 			}
 		}

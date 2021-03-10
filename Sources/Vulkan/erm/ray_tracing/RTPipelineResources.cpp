@@ -136,7 +136,7 @@ namespace erm {
 		/*
 			SETUP DESCRIPTOR SET LAYOUT
 		*/
-		const ShaderBindingsMap& bindings = shader->GetShaderBindingsMap();
+		const LayoutBindingsMap& bindings = shader->GetLayoutBindingsMap();
 		uint32_t maxSet = 0;
 		std::for_each(bindings.begin(), bindings.end(), [&maxSet](const auto& pair) {
 			maxSet = std::max(maxSet, pair.first);
@@ -162,7 +162,7 @@ namespace erm {
 			{
 				auto& data = bindings.at(i);
 
-				for (auto& layoutBinding : data.mLayoutBindings)
+				for (auto& layoutBinding : data)
 				{
 					auto& binding = layoutBindings[i].emplace_back(layoutBinding);
 					if (binding.descriptorType == vk::DescriptorType::eStorageBuffer)

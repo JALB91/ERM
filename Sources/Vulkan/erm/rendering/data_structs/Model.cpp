@@ -3,7 +3,7 @@
 #include "erm/rendering/Device.h"
 #include "erm/rendering/buffers/IndexBuffer.h"
 #include "erm/rendering/buffers/VertexBuffer.h"
-#include "erm/rendering/buffers/VertexData.h"
+#include "erm/rendering/data_structs/VertexData.h"
 
 #include "erm/utils/Utils.h"
 

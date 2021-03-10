@@ -2,10 +2,10 @@
 
 #include "erm/loaders/collada/ColladaLoaderUtils.h"
 
-#include "erm/rendering/buffers/IndexData.h"
-#include "erm/rendering/buffers/VertexData.h"
+#include "erm/rendering/data_structs/IndexData.h"
 #include "erm/rendering/data_structs/Mesh.h"
 #include "erm/rendering/data_structs/Model.h"
+#include "erm/rendering/data_structs/VertexData.h"
 
 #include "erm/utils/Utils.h"
 

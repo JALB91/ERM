@@ -3,7 +3,7 @@
 namespace erm {
 
 	RTShaderProgram::RTShaderProgram(Device& device, const char* shaderPath)
-		: IShaderProgram(device, shaderPath)
+		: VulkanShaderProgram(device, shaderPath)
 	{
 		//UpdateShaderData(ShaderType::RT_ANY_HIT);
 		UpdateShadersData(ShaderType::RT_CLOSEST_HIT);

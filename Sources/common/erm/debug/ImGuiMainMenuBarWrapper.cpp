@@ -3,9 +3,11 @@
 #include "erm/debug/ImGuiInfoWrapper.h"
 #include "erm/debug/ImGuiShadersWrapper.h"
 
+// clang-format off
 #ifdef ERM_RAY_TRACING_ENABLED
-#	include "erm/ray_tracing/ImGuiRTShadersWrapper.h"
+#include "erm/ray_tracing/ImGuiRTShadersWrapper.h"
 #endif
+// clang-format on
 
 #include "erm/input/Keys.h"
 

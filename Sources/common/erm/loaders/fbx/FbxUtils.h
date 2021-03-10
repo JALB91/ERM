@@ -10,7 +10,7 @@
 #include "erm/math/vec.h"
 
 #include "erm/rendering/data_structs/Bone.h"
-#include "erm/rendering/buffers/VertexData.h"
+#include "erm/rendering/data_structs/VertexData.h"
 
 #include <map>
 #include <vector>

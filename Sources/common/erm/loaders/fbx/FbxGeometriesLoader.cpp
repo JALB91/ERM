@@ -7,8 +7,8 @@
 #include "erm/loaders/fbx/FbxUtils.h"
 #include "erm/loaders/fbx/FBXSkeletonData.h"
 
-#include "erm/rendering/buffers/VertexData.h"
-#include "erm/rendering/buffers/IndexData.h"
+#include "erm/rendering/data_structs/VertexData.h"
+#include "erm/rendering/data_structs/IndexData.h"
 #include "erm/rendering/data_structs/RenderConfigs.h"
 #include "erm/rendering/data_structs/Model.h"
 

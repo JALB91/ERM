@@ -1,10 +1,10 @@
 #pragma once
 
-#include "erm/rendering/shaders/IShaderProgram.h"
+#include "erm/rendering/shaders/VulkanShaderProgram.h"
 
 namespace erm {
 
-	class ShaderProgram : public IShaderProgram
+	class ShaderProgram : public VulkanShaderProgram
 	{
 	public:
 		ShaderProgram(Device& device, const char* shaderPath);

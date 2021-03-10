@@ -1,12 +1,12 @@
 #include "erm/rendering/shaders/ShaderProgram.h"
 
 #include "erm/rendering/Device.h"
-#include "erm/rendering/buffers/VertexData.h"
+#include "erm/rendering/data_structs/VertexData.h"
 
 namespace erm {
 
 	ShaderProgram::ShaderProgram(Device& device, const char* shaderPath)
-		: IShaderProgram(device, shaderPath)
+		: VulkanShaderProgram(device, shaderPath)
 	{
 		UpdateShadersData(ShaderType::VERTEX);
 		UpdateShadersData(ShaderType::FRAGMENT);
@@ -15,9 +15,9 @@ namespace erm {
 
 	vk::VertexInputBindingDescription ShaderProgram::GetVertexBindingDescription()
 	{
-		ASSERT(mShadersData[ShaderType::VERTEX].size() == 1);
+		ASSERT(mShadersDataMap[ShaderType::VERTEX].size() == 1);
 
-		spirv_cross::ShaderResources resources = mShadersData[ShaderType::VERTEX][0].mShaderCompiler->get_shader_resources();
+		spirv_cross::ShaderResources resources = mShadersDataMap[ShaderType::VERTEX][0].mShaderCompiler->get_shader_resources();
 
 		vk::VertexInputBindingDescription bindingDescription = {};
 
@@ -33,9 +33,9 @@ namespace erm {
 
 	std::vector<vk::VertexInputAttributeDescription> ShaderProgram::GetVertexAttributeDescriptions()
 	{
-		ASSERT(mShadersData[ShaderType::VERTEX].size() == 1);
+		ASSERT(mShadersDataMap[ShaderType::VERTEX].size() == 1);
 
-		const ShaderData& data = mShadersData[ShaderType::VERTEX][0];
+		const ShaderData& data = mShadersDataMap[ShaderType::VERTEX][0];
 		spirv_cross::ShaderResources resources = data.mShaderCompiler->get_shader_resources();
 
 		std::vector<vk::VertexInputAttributeDescription> attributeDescriptions;

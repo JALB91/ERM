@@ -6,7 +6,7 @@ function print_help {
 	echo "    -S) Setup the project using Sublime (With Make as default)"
 	echo "    -M) Setup the project using Make"
 	echo "    -N) Setup the project using Ninja"
-	echo "    -t) Set target api [OpenGl, Vulkan (default)]"
+	echo "    -t) Set target api [OpenGl, DX12, Vulkan (default)]"
 	echo "    -r) Release mode"
 	echo "    -i) Run cmake in interactive mode"
 	echo "    -c) Compile the project"
