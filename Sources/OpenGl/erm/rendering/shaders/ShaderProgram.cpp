@@ -32,22 +32,12 @@ namespace {
 
 namespace erm {
 
-	unsigned int ShaderProgram::sShaderId = 0;
-
-	ShaderProgram::ShaderProgram(Device& /*device*/, const std::string& vertexShader, const std::string& fragmentShader)
-		: mRendererId(CreateShaderProgram(vertexShader, fragmentShader))
-		, mPath("TEMP_" + std::to_string(sShaderId))
-		, mVertex(vertexShader)
-		, mFragment(fragmentShader)
-		, mId(sShaderId++)
+	ShaderProgram::ShaderProgram(Device& device, const char* path)
+		: IShaderProgram(device, path)
 	{
-		CacheUniformsLocations();
-	}
-
-	ShaderProgram::ShaderProgram(Device& device, const std::string& shaderPath)
-		: ShaderProgram(device, ParseShader((shaderPath + ".vert").c_str()), ParseShader((shaderPath + ".frag").c_str()))
-	{
-		mPath = shaderPath;
+		UpdateShadersData(ShaderType::VERTEX);
+		UpdateShadersData(ShaderType::FRAGMENT);
+		UpdateBindingData();
 	}
 
 	ShaderProgram::~ShaderProgram()
@@ -65,12 +55,11 @@ namespace erm {
 		GL_CALL(glUseProgram(0));
 	}
 
-	void ShaderProgram::SetShaderSources(const std::string& vertexShader, const std::string& fragmentShader)
+	void ShaderProgram::UpdateBindingData()
 	{
+		IShaderProgram::UpdateBindingData();
 		GL_CALL(glDeleteProgram(mRendererId));
-		mRendererId = CreateShaderProgram(vertexShader, fragmentShader);
-		mVertex = vertexShader;
-		mFragment = fragmentShader;
+		mRendererId = CreateShaderProgram(mShadersDataMap[ShaderType::VERTEX][0].mShaderSource, mShadersDataMap[ShaderType::FRAGMENT][0].mShaderSource);
 		mUniformLocationsCache.clear();
 		CacheUniformsLocations();
 	}

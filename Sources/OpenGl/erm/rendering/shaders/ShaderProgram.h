@@ -1,41 +1,18 @@
 #pragma once
 
-#include "erm/math/mat.h"
-#include "erm/math/vec.h"
-
+#include "erm/rendering/shaders/IShaderProgram.h"
 #include "erm/rendering/shaders/Uniform.h"
 
-#include <string>
-#include <unordered_map>
-#include <vector>
-
-namespace erm {
-	class Device;
-}
-
 namespace erm {
 
-	class ShaderProgram
+	class ShaderProgram : public IShaderProgram
 	{
 	public:
-		ShaderProgram(Device& device, const std::string& vertexShader, const std::string& fragmentShader);
-		ShaderProgram(Device& device, const std::string& shaderPath);
+		ShaderProgram(Device& device, const char* shaderPath);
 		~ShaderProgram();
-
-		ShaderProgram(ShaderProgram&&) = delete;
-		ShaderProgram(const ShaderProgram&) = delete;
-
-		ShaderProgram& operator=(ShaderProgram&&) = delete;
-		ShaderProgram& operator=(const ShaderProgram&) = delete;
 
 		void Bind() const;
 		void Unbind() const;
-
-		const std::string& GetPath() const { return mPath; }
-		const std::string& GetVertexSource() const { return mVertex; }
-		const std::string& GetFragmentSource() const { return mFragment; }
-
-		void SetShaderSources(const std::string& vertexShader, const std::string& fragmentShader);
 
 		void SetUniform1i(const Uniform& uniform, int value, int index = -1);
 		void SetUniform1f(const Uniform& uniform, float value, int index = -1);
@@ -49,6 +26,9 @@ namespace erm {
 		void SetUniformMat4f(const Uniform& uniform, const math::mat4& matrix, int index = -1);
 
 	private:
+		// IShaderProgram
+		void UpdateBindingData() override;
+
 		std::string ParseShader(const std::string& path) const;
 		unsigned int CompileShader(unsigned int type, const std::string& source) const;
 		unsigned int CreateShaderProgram(const std::string& vertexSource, const std::string& fragmentSource) const;
@@ -58,13 +38,6 @@ namespace erm {
 
 		std::unordered_map<std::string, int> mUniformLocationsCache;
 		unsigned int mRendererId;
-		std::string mPath;
-		std::string mVertex;
-		std::string mFragment;
-		const unsigned int mId;
-
-	private:
-		static unsigned int sShaderId;
 	};
 
 } // namespace erm

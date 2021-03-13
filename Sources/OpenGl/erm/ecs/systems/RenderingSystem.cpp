@@ -138,7 +138,7 @@ namespace erm::ecs {
 
 		Model* modelPtr = modelComponent->GetModel();
 
-		if (!modelPtr)
+		if (!modelPtr || mResourcesManager.IsStillLoading(*modelPtr))
 			return;
 
 		const math::mat4& model = transformComponent->mWorldTransform;
@@ -148,7 +148,7 @@ namespace erm::ecs {
 		const math::vec3& viewPos = camera.GetComponent<TransformComponent>()->mTranslation;
 		std::vector<Mesh>& meshes = modelPtr->GetMeshes();
 
-		const bool hasBone = skeletonComponent && skeletonComponent->GetRootBone();
+		const bool hasBone = skeletonComponent && skeletonComponent->GetSkin();
 
 		ShaderProgram* skeletonShaderProgram = mResourcesManager.GetOrCreateShaderProgram("res/shaders/skeleton_model");
 		ShaderProgram* modelShaderProgram = mResourcesManager.GetOrCreateShaderProgram("res/shaders/model");
@@ -164,7 +164,7 @@ namespace erm::ecs {
 				configs.mShaderProgram = skeletonShaderProgram;
 				configs.mShaderProgram->Bind();
 
-				skeletonComponent->GetRootBone()->ForEachDo([&configs](BonesTree& node) {
+				skeletonComponent->GetSkin()->mRootBone->ForEachDo([&configs](BonesTree& node) {
 					configs.mShaderProgram->SetUniformMat4f(
 						Uniform::BONE_TRANSFORM_I,
 						node.GetPayload()->mAnimatedTransform,
@@ -180,9 +180,6 @@ namespace erm::ecs {
 		for (unsigned int i = 0; i < meshes.size(); ++i)
 		{
 			Mesh& mesh = meshes[i];
-
-			if (!mesh.IsReady())
-				continue;
 
 			RenderConfigs& configs = mesh.GetRenderConfigs();
 			Material& material = configs.mMaterial ? *configs.mMaterial : Material::DEFAULT;
