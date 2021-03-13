@@ -25,6 +25,27 @@
 #include <vector>
 // clang-format on
 
+namespace {
+
+	static std::mutex sFbxMutex;
+	static FbxManager* sManager = nullptr;
+	static FbxIOSettings* sIOSettings = nullptr;
+	static FbxImporter* sImporter = nullptr;
+
+	void InitFBXManager()
+	{
+		ASSERT(!sManager && !sIOSettings && !sImporter);
+
+		sManager = FbxManager::Create();
+
+		sIOSettings = FbxIOSettings::Create(sManager, IOSROOT);
+		sManager->SetIOSettings(sIOSettings);
+
+		sImporter = FbxImporter::Create(sManager, "");
+	}
+
+} // namespace
+
 namespace erm {
 
 	void ParseFBXModel(
@@ -34,23 +55,19 @@ namespace erm {
 		Model& model,
 		ResourcesManager& resourcesManager)
 	{
-		FbxManager* lSdkManager = FbxManager::Create();
+		sFbxMutex.lock();
+		if (!sManager)
+			InitFBXManager();
 
-		FbxIOSettings* ios = FbxIOSettings::Create(lSdkManager, IOSROOT);
-		lSdkManager->SetIOSettings(ios);
-
-		FbxImporter* lImporter = FbxImporter::Create(lSdkManager, "");
-		auto& t = static_cast<FbxIOBase*>(lImporter)->GetStatus();
-
-		if (!lImporter->Initialize(path, -1, lSdkManager->GetIOSettings()))
+		if (!sImporter->Initialize(path, -1, sManager->GetIOSettings()))
 		{
 			printf("Call to FbxImporter::Initialize() failed.\n");
-			printf("Error returned: %s\n\n", lImporter->GetStatus().GetErrorString());
+			printf("Error returned: %s\n\n", sImporter->GetStatus().GetErrorString());
 		}
 
-		FbxScene* lScene = FbxScene::Create(lSdkManager, "myScene");
-		lImporter->Import(lScene);
-		lImporter->Destroy();
+		FbxScene* lScene = FbxScene::Create(sManager, "myScene");
+		sImporter->Import(lScene);
+		sFbxMutex.unlock();
 
 		std::unique_ptr<BonesTree> bonesTree;
 
@@ -63,8 +80,6 @@ namespace erm {
 			resourcesManager.GetSkins().emplace_back(std::make_unique<Skin>(path, path, std::move(bonesTree)));
 			mutex.unlock();
 		}
-
-		lSdkManager->Destroy();
 	}
 
 } // namespace erm
