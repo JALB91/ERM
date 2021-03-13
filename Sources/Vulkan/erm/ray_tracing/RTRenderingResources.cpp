@@ -261,7 +261,7 @@ namespace erm {
 
 			std::vector<vk::UniqueAccelerationStructureKHR> toReplace(toBuild.size());
 
-			vk::CommandBuffer cmdBuf = VkUtils::BeginSingleTimeCommands(mDevice.GetCommandPool(), mDevice.GetVkDevice());
+			vk::CommandBuffer cmdBuf = VkUtils::BeginSingleTimeCommands(mDevice);
 
 			// Compacting
 			for (size_t i = 0; i < toBuild.size(); ++i)
@@ -291,7 +291,7 @@ namespace erm {
 				blas.SetBuffer(std::move(buffer));
 			}
 
-			VkUtils::EndSingleTimeCommands(mDevice.GetGraphicsQueue(), mDevice.GetCommandPool(), mDevice.GetVkDevice(), cmdBuf);
+			VkUtils::EndSingleTimeCommands(mDevice, cmdBuf);
 
 			for (size_t i = 0; i < toBuild.size(); ++i)
 			{
@@ -341,7 +341,7 @@ namespace erm {
 		// Allocate the instance buffer and copy its contents from host to device memory
 		DeviceBuffer instancesBuffer(mDevice, instanceDescsSizeInBytes, vk::BufferUsageFlagBits::eShaderDeviceAddress);
 
-		vk::CommandBuffer cmd = VkUtils::BeginSingleTimeCommands(mDevice.GetCommandPool(), mDevice.GetVkDevice());
+		vk::CommandBuffer cmd = VkUtils::BeginSingleTimeCommands(mDevice);
 		instancesBuffer.Update(cmd, geometryInstances.data());
 
 		vk::BufferDeviceAddressInfo bufferInfo;
@@ -429,7 +429,7 @@ namespace erm {
 		// Build the TLAS
 		cmd.buildAccelerationStructuresKHR(1, &buildInfo, &pBuildOffsetInfo);
 
-		VkUtils::EndSingleTimeCommands(mDevice.GetGraphicsQueue(), mDevice.GetCommandPool(), mDevice.GetVkDevice(), cmd);
+		VkUtils::EndSingleTimeCommands(mDevice, cmd);
 	}
 
 	void RTRenderingResources::Refresh()

@@ -1,5 +1,6 @@
 #include "erm/utils/VkUtils.h"
 
+#include "erm/rendering/Device.h"
 #include "erm/rendering/enums/AttachmentLoadOp.h"
 #include "erm/rendering/enums/AttachmentStoreOp.h"
 #include "erm/rendering/enums/CullMode.h"
@@ -145,17 +146,15 @@ namespace erm::VkUtils {
 			vk::FormatFeatureFlagBits::eDepthStencilAttachment);
 	}
 
-	vk::CommandBuffer BeginSingleTimeCommands(
-		vk::CommandPool commandPool,
-		vk::Device device)
+	vk::CommandBuffer BeginSingleTimeCommands(Device& device)
 	{
 		vk::CommandBufferAllocateInfo allocInfo {};
 		allocInfo.level = vk::CommandBufferLevel::ePrimary;
-		allocInfo.commandPool = commandPool;
+		allocInfo.commandPool = device.GetCommandPool();
 		allocInfo.commandBufferCount = 1;
 
 		vk::CommandBuffer commandBuffer;
-		VK_CHECK(device.allocateCommandBuffers(&allocInfo, &commandBuffer));
+		VK_CHECK(device->allocateCommandBuffers(&allocInfo, &commandBuffer));
 
 		vk::CommandBufferBeginInfo beginInfo {};
 		beginInfo.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit;
@@ -166,9 +165,7 @@ namespace erm::VkUtils {
 	}
 
 	void EndSingleTimeCommands(
-		vk::Queue graphicsQueue,
-		vk::CommandPool commandPool,
-		vk::Device device,
+		Device& device,
 		vk::CommandBuffer commandBuffer)
 	{
 		commandBuffer.end();
@@ -177,10 +174,10 @@ namespace erm::VkUtils {
 		submitInfo.commandBufferCount = 1;
 		submitInfo.pCommandBuffers = &commandBuffer;
 
-		VK_CHECK(graphicsQueue.submit(1, &submitInfo, nullptr));
-		graphicsQueue.waitIdle();
+		VK_CHECK(device.GetGraphicsQueue().submit(1, &submitInfo, nullptr));
+		device.GetGraphicsQueue().waitIdle();
 
-		device.freeCommandBuffers(commandPool, 1, &commandBuffer);
+		device->freeCommandBuffers(device.GetCommandPool(), 1, &commandBuffer);
 	}
 
 	vk::Extent2D ChooseSwapExtent(
@@ -287,20 +284,18 @@ namespace erm::VkUtils {
 	}
 
 	void CopyBufferToBuffer(
-		vk::CommandPool commandPool,
-		vk::Device device,
-		vk::Queue graphicsQueue,
+		Device& device,
 		vk::Buffer& srcBuffer,
 		vk::Buffer& dstBuffer,
 		vk::DeviceSize size)
 	{
-		vk::CommandBuffer commandBuffer = BeginSingleTimeCommands(commandPool, device);
+		vk::CommandBuffer commandBuffer = BeginSingleTimeCommands(device);
 
 		vk::BufferCopy copyRegion {};
 		copyRegion.size = size;
 		commandBuffer.copyBuffer(srcBuffer, dstBuffer, 1, &copyRegion);
 
-		EndSingleTimeCommands(graphicsQueue, commandPool, device, commandBuffer);
+		EndSingleTimeCommands(device, commandBuffer);
 	}
 
 	void CreateImage(
@@ -423,15 +418,13 @@ namespace erm::VkUtils {
 	}
 
 	void TransitionImageLayout(
-		vk::Queue graphicsQueue,
-		vk::CommandPool commandPool,
-		vk::Device device,
+		Device& device,
 		vk::Image image,
 		vk::Format /*format*/,
 		vk::ImageLayout oldLayout,
 		vk::ImageLayout newLayout)
 	{
-		vk::CommandBuffer commandBuffer = BeginSingleTimeCommands(commandPool, device);
+		vk::CommandBuffer commandBuffer = BeginSingleTimeCommands(device);
 
 		vk::ImageMemoryBarrier barrier {};
 		barrier.oldLayout = oldLayout;
@@ -471,19 +464,17 @@ namespace erm::VkUtils {
 
 		commandBuffer.pipelineBarrier(sourceStage, destinationStage, {}, {}, nullptr, 0, nullptr, 1, &barrier);
 
-		EndSingleTimeCommands(graphicsQueue, commandPool, device, commandBuffer);
+		EndSingleTimeCommands(device, commandBuffer);
 	}
 
 	void CopyBufferToImage(
-		vk::Queue graphicsQueue,
-		vk::CommandPool commandPool,
-		vk::Device device,
+		Device& device,
 		vk::Buffer& buffer,
 		vk::Image image,
 		uint32_t width,
 		uint32_t height)
 	{
-		vk::CommandBuffer commandBuffer = BeginSingleTimeCommands(commandPool, device);
+		vk::CommandBuffer commandBuffer = BeginSingleTimeCommands(device);
 
 		vk::BufferImageCopy region {};
 		region.bufferOffset = 0;
@@ -498,14 +489,12 @@ namespace erm::VkUtils {
 
 		commandBuffer.copyBufferToImage(buffer, image, vk::ImageLayout::eTransferDstOptimal, 1, &region);
 
-		EndSingleTimeCommands(graphicsQueue, commandPool, device, commandBuffer);
+		EndSingleTimeCommands(device, commandBuffer);
 	}
 
 	void CreateDeviceLocalBuffer(
-		vk::Queue queue,
-		vk::CommandPool commandPool,
+		Device& device,
 		vk::PhysicalDevice physicalDevice,
-		vk::Device device,
 		vk::BufferUsageFlags bufferUsage,
 		vk::DeviceSize bufferSize,
 		void* bufferData,
@@ -516,7 +505,7 @@ namespace erm::VkUtils {
 		vk::DeviceMemory stagingBufferMemory;
 		CreateBuffer(
 			physicalDevice,
-			device,
+			device.GetVkDevice(),
 			bufferSize,
 			vk::BufferUsageFlagBits::eTransferSrc,
 			vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
@@ -524,13 +513,13 @@ namespace erm::VkUtils {
 			stagingBufferMemory);
 
 		void* data = nullptr;
-		VK_CHECK(device.mapMemory(stagingBufferMemory, 0, bufferSize, {}, &data));
+		VK_CHECK(device->mapMemory(stagingBufferMemory, 0, bufferSize, {}, &data));
 		memcpy(data, bufferData, static_cast<size_t>(bufferSize));
-		device.unmapMemory(stagingBufferMemory);
+		device->unmapMemory(stagingBufferMemory);
 
 		CreateBuffer(
 			physicalDevice,
-			device,
+			device.GetVkDevice(),
 			bufferSize,
 			vk::BufferUsageFlagBits::eTransferDst | bufferUsage,
 			vk::MemoryPropertyFlagBits::eDeviceLocal,
@@ -538,15 +527,13 @@ namespace erm::VkUtils {
 			dstBufferMemory);
 
 		CopyBufferToBuffer(
-			commandPool,
 			device,
-			queue,
 			stagingBuffer,
 			dstBuffer,
 			bufferSize);
 
-		device.destroyBuffer(stagingBuffer);
-		device.freeMemory(stagingBufferMemory);
+		device->destroyBuffer(stagingBuffer);
+		device->freeMemory(stagingBufferMemory);
 	}
 
 	template<>

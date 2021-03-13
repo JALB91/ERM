@@ -10,19 +10,15 @@ namespace erm {
 	{
 		if (!sTree)
 		{
-			sTree = std::make_unique<ProfilingTree>(id, Profile());
+			sTree = std::make_unique<ProfilingTree>(id, Profile(Timer::sFrameId));
 			sCurrentNode = sTree.get();
 			return;
 		}
 
-		ProfilingTree* node = ProfilingTree::Find(*sCurrentNode, id);
-		if (node)
+		ProfilingTree* node = sCurrentNode->Find(id);
+		if (!node)
 		{
-			node->GetPayload().mDone = false;
-		}
-		else
-		{
-			node = &(sCurrentNode->AddChild(id, Profile()));
+			node = &(sCurrentNode->AddChild(id, Profile(Timer::sFrameId)));
 		}
 		sCurrentNode = node;
 	}
@@ -31,8 +27,11 @@ namespace erm {
 	{
 		const double prevTime = sCurrentNode->GetPayload().mTime;
 		const double time = mTimer.GetElapsedTime();
-		sCurrentNode->GetPayload().mTime = prevTime == 0.0 ? time : (time + prevTime) / 2.0;
-		sCurrentNode->GetPayload().mDone = true;
+		if (Timer::sFrameId != sCurrentNode->GetPayload().mFrameId)
+			sCurrentNode->GetPayload().mTime = time;
+		else
+			sCurrentNode->GetPayload().mTime = prevTime + time;
+		sCurrentNode->GetPayload().mFrameId = Timer::sFrameId;
 		if (ProfilingTree* parent = sCurrentNode->GetParent())
 		{
 			sCurrentNode = parent;

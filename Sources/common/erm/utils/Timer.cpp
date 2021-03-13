@@ -4,6 +4,8 @@ using namespace std::chrono;
 
 namespace erm {
 
+	short Timer::sFrameId = 0;
+
 	Timer::Timer()
 		: mStartingTime(GetCurrentTime())
 		, mCurrentUpdateTime(mStartingTime)

@@ -18,13 +18,13 @@ namespace erm {
 	public:
 		struct Profile
 		{
-			Profile(double time = 0.0, bool done = false)
-				: mTime(time)
-				, mDone(done)
+			Profile(short frameId, double time = 0.0)
+				: mFrameId(frameId)
+				, mTime(time)
 			{}
 
+			short mFrameId;
 			double mTime;
-			bool mDone;
 		};
 
 		using ProfilingTree = Tree<std::string, Profile>;

@@ -8,6 +8,9 @@ namespace erm {
 	class Timer
 	{
 	public:
+		static short sFrameId;
+
+	public:
 		Timer();
 
 		void Update();

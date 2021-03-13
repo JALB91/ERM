@@ -26,9 +26,9 @@ namespace erm {
 
 	void DeviceBuffer::Update(const void* data, const BufferInfo& info /*= {}*/) const
 	{
-		vk::CommandBuffer cmd = VkUtils::BeginSingleTimeCommands(mDevice.GetCommandPool(), mDevice.GetVkDevice());
+		vk::CommandBuffer cmd = VkUtils::BeginSingleTimeCommands(mDevice);
 		Update(cmd, data, info);
-		VkUtils::EndSingleTimeCommands(mDevice.GetGraphicsQueue(), mDevice.GetCommandPool(), mDevice.GetVkDevice(), cmd);
+		VkUtils::EndSingleTimeCommands(mDevice, cmd);
 	}
 
 	void DeviceBuffer::Update(vk::CommandBuffer& cmd, const void* data, const BufferInfo& info /*= {}*/) const

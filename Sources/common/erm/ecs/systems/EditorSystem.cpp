@@ -36,8 +36,6 @@ namespace erm::ecs {
 	{
 		RenderConfigs configs(RenderConfigs::MODELS_RENDER_CONFIGS);
 		configs.SetNormViewport(engine.GetWindow().GetNormalizedViewport());
-		configs.SetPolygonMode(PolygonMode::LINE);
-		configs.SetDrawMode(DrawMode::LINES);
 		configs.SetCullMode(CullMode::NONE);
 		configs.mShaderProgram = engine.GetResourcesManager().GetOrCreateShaderProgram("res/shaders/vk_basic");
 
@@ -83,7 +81,7 @@ namespace erm::ecs {
 		, mInstanceDataBuffer(mEngine.GetDevice(), sizeof(InstanceData), vk::BufferUsageFlagBits::eStorageBuffer)
 #endif
 		, mGridRenderData(GetGridRenderConfigs(mEngine))
-		, mGridMesh(mEngine.GetDevice(), MeshUtils::CreateGrid(1000, 1000, 1.0f, 1.0f))
+		, mGridMesh(mEngine.GetDevice(), MeshUtils::CreateSquare(1000.0f, 1000.0f))
 		, mBBoxRenderConfigs(GetBBoxRenderConfigs(mEngine))
 		, mArrowsRenderData(GetArrowsRenderConfigs(mEngine))
 		, mBonesRenderConfigs(GetBonesRenderConfigs(mEngine))
@@ -146,7 +144,9 @@ namespace erm::ecs {
 		// GRID RENDERING
 		{
 			UboBasic ubo;
-			ubo.mMVP = proj * viewInv;
+			math::mat4 transform = glm::identity<math::mat4>();
+			transform = glm::rotate(transform, static_cast<float>(M_PI * 0.5), math::vec3(1.0f, 0.0f, 0.0f));
+			ubo.mMVP = proj * viewInv * transform;
 
 			mGridRenderData.SetUbo(std::move(ubo));
 		}
@@ -198,7 +198,7 @@ namespace erm::ecs {
 					RenderData& data = editorCmp->mBonesRenderData;
 					data.mMeshes.clear();
 
-					std::unique_ptr<BonesTree>& root = skeleton->GetSkin()->mRootBone;
+					const std::unique_ptr<BonesTree>& root = skeleton->GetSkin()->mRootBone;
 
 					UboBonesDebug ubo;
 					int index = 0;

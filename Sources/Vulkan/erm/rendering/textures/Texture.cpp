@@ -52,27 +52,21 @@ namespace erm {
 			mTextureImageMemory);
 
 		VkUtils::TransitionImageLayout(
-			mDevice.GetGraphicsQueue(),
-			mDevice.GetCommandPool(),
-			mDevice.GetVkDevice(),
+			mDevice,
 			mTextureImage.get(),
 			vk::Format::eR8G8B8A8Srgb,
 			vk::ImageLayout::eUndefined,
 			vk::ImageLayout::eTransferDstOptimal);
 
 		VkUtils::CopyBufferToImage(
-			mDevice.GetGraphicsQueue(),
-			mDevice.GetCommandPool(),
-			mDevice.GetVkDevice(),
+			mDevice,
 			stagingBuffer.GetBuffer(),
 			mTextureImage.get(),
 			static_cast<uint32_t>(mWidth),
 			static_cast<uint32_t>(mHeight));
 
 		VkUtils::TransitionImageLayout(
-			mDevice.GetGraphicsQueue(),
-			mDevice.GetCommandPool(),
-			mDevice.GetVkDevice(),
+			mDevice,
 			mTextureImage.get(),
 			vk::Format::eR8G8B8A8Srgb,
 			vk::ImageLayout::eTransferDstOptimal,

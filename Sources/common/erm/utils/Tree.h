@@ -12,7 +12,8 @@ namespace erm {
 	class Tree
 	{
 	public:
-		typedef std::vector<std::unique_ptr<Tree>> Children;
+		typedef std::unique_ptr<Tree> Child;
+		typedef std::vector<Child> Children;
 
 	public:
 		Tree(S id, T payload)
@@ -31,7 +32,7 @@ namespace erm {
 			, mId(std::move(other.mId))
 			, mPayload(std::move(other.mPayload))
 		{
-			for (auto& child : mChildren)
+			for (Child& child : mChildren)
 			{
 				child->mParent = this;
 			}
@@ -47,7 +48,7 @@ namespace erm {
 			mId = std::move(other.mId);
 			mPayload = std::move(other.mPayload);
 
-			for (auto& child : mChildren)
+			for (Child& child : mChildren)
 			{
 				child->mParent = this;
 			}
@@ -55,20 +56,37 @@ namespace erm {
 			return *this;
 		}
 
-		Tree Clone()
+		Tree Clone() const
 		{
 			Tree tree(Utils::Clone(mId), Utils::Clone(mPayload));
 
 			Tree* currentNode = &tree;
 
-			ForEachChildDo([&currentNode](Tree& node) mutable {
+			ForEachChildDo([&currentNode](const Tree& node) mutable {
 				currentNode = &(currentNode->AddChild(Utils::Clone(node.GetId()), Utils::Clone(node.GetPayload())));
 			},
-						   [&currentNode](Tree& node) mutable {
+						   [&currentNode](const Tree& node) mutable {
 							   currentNode = currentNode->GetParent();
 						   });
 
 			return tree;
+		}
+
+		const Tree& GetRoot() const
+		{
+			const Tree* parent = mParent;
+			while (parent)
+			{
+				if (parent->mParent)
+				{
+					parent = parent->mParent;
+				}
+				else
+				{
+					return *parent;
+				}
+			}
+			return *this;
 		}
 
 		Tree& GetRoot()
@@ -90,37 +108,61 @@ namespace erm {
 
 		Tree& AddChild(S id, T payload)
 		{
-			if (Tree* child = Tree::Find(GetRoot(), id))
+			if (Tree* child = GetRoot().Find(id))
 			{
 				child->SetPayload(std::forward<T>(payload));
 				return *child;
 			}
-			auto& child = mChildren.emplace_back(std::make_unique<Tree>(std::forward<S>(id), std::forward<T>(payload)));
+			Child& child = mChildren.emplace_back(std::make_unique<Tree>(std::forward<S>(id), std::forward<T>(payload)));
 			child->mParent = this;
 			return *child;
 		}
 
 		inline void ForEachDo(const std::function<void(Tree&)>& before, const std::function<void(Tree&)>& after = nullptr)
 		{
-			ForEachDo(*this, before, after);
+			if (before)
+				before(*this);
+			for (Child& child : mChildren)
+			{
+				child->ForEachDo(before, after);
+			}
+			if (after)
+				after(*this);
 		}
 
 		inline void ForEachChildDo(const std::function<void(Tree&)>& before, const std::function<void(Tree&)>& after = nullptr)
 		{
-			ForEachChildDo(*this, before, after);
+			for (Child& child : mChildren)
+			{
+				if (before)
+					before(*child);
+				child->ForEachChildDo(before, after);
+				if (after)
+					after(*child);
+			}
 		}
 
 		inline Tree* Find(S id)
 		{
-			return Find(*this, id);
+			if (mId == id)
+				return this;
+
+			for (Child& child : mChildren)
+			{
+				if (Tree* result = child->Find(id))
+				{
+					return result;
+				}
+			}
+
+			return nullptr;
 		}
 
-		inline unsigned int GetSize()
+		inline unsigned int GetSize() const
 		{
-			unsigned int size = 0;
-			ForEachDo([&size](Tree& /*node*/) {
-				++size;
-			});
+			unsigned int size = 1;
+			for (const Child& child : mChildren)
+				size += child->GetSize();
 			return size;
 		}
 
@@ -131,7 +173,7 @@ namespace erm {
 		inline Tree* GetParent() { return mParent; }
 		inline const Children& GetChildren() const { return mChildren; }
 
-		inline bool Equal(Tree& other)
+		inline bool Equal(Tree& other) const
 		{
 			if (GetId() != other.GetId() || GetPayload() != other.GetPayload())
 				return false;
@@ -147,47 +189,6 @@ namespace erm {
 			}
 
 			return equals;
-		}
-
-	public:
-		static void ForEachDo(Tree& node, const std::function<void(Tree&)>& before, const std::function<void(Tree&)>& after)
-		{
-			if (before)
-				before(node);
-			for (auto& child : node.mChildren)
-			{
-				ForEachDo(*child, before, after);
-			}
-			if (after)
-				after(node);
-		}
-
-		static void ForEachChildDo(Tree& node, const std::function<void(Tree&)>& before, const std::function<void(Tree&)>& after)
-		{
-			for (auto& child : node.mChildren)
-			{
-				if (before)
-					before(*child);
-				ForEachChildDo(*child, before, after);
-				if (after)
-					after(*child);
-			}
-		}
-
-		static Tree* Find(Tree& node, S id)
-		{
-			if (node.mId == id)
-				return &node;
-
-			for (auto& child : node.mChildren)
-			{
-				if (Tree* result = Find(*child, id))
-				{
-					return result;
-				}
-			}
-
-			return nullptr;
 		}
 
 	private:

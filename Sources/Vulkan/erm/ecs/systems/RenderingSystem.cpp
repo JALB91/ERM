@@ -83,8 +83,12 @@ namespace erm::ecs {
 		, mEngine(engine)
 		, mRenderer(engine.GetRenderer())
 		, mResourcesManager(engine.GetResourcesManager())
+		, mCachedCameraId(INVALID_ID)
+		, mCachedLightId(INVALID_ID)
 	{
+#ifdef ERM_RAY_TRACING_ENABLED
 		mRTRenderData.emplace_back(::GetDefaultRTRenderData(engine));
+#endif
 	}
 
 	RenderingSystem::~RenderingSystem()
@@ -101,6 +105,8 @@ namespace erm::ecs {
 
 	void RenderingSystem::OnPostUpdate()
 	{
+		PROFILE_FUNCTION();
+
 		ForEachComponent([&](RenderingComponent& component) {
 			if (!component.IsDirty())
 				return;
@@ -131,37 +137,65 @@ namespace erm::ecs {
 
 		TransformComponent* cameraTransform = nullptr;
 		CameraComponent* camera = nullptr;
+		LightComponent* light = nullptr;
+		math::vec3 lightPos = math::vec3(0.0f);
 
-		for (ID i = 0; i < MAX_ID; ++i)
+		UpdateCameraID();
+		UpdateLightID();
+
+		if (mCachedCameraId == INVALID_ID || mCachedLightId == INVALID_ID)
+			return;
+
+		if (mCachedCameraId != INVALID_ID && mCameraSystem->GetComponent(mCachedCameraId))
 		{
-			if ((camera = mCameraSystem->GetComponent(i)))
+			camera = mCameraSystem->GetComponent(mCachedCameraId);
+			cameraTransform = mTransformSystem->RequireComponent(mCachedCameraId);
+		}
+		else
+		{
+			for (ID i = 0; i < MAX_ID; ++i)
 			{
-				cameraTransform = mTransformSystem->RequireComponent(i);
-				break;
+				if ((camera = mCameraSystem->GetComponent(i)))
+				{
+					cameraTransform = mTransformSystem->RequireComponent(i);
+					mCachedCameraId = i;
+					break;
+				}
 			}
 		}
 
 		if (!cameraTransform || !camera)
 			return;
 
+		if (mCachedLightId != INVALID_ID && mLightSystem->GetComponent(mCachedLightId))
+		{
+			light = mLightSystem->GetComponent(mCachedLightId);
+			TransformComponent* lTransform = mTransformSystem->GetComponent(mCachedLightId);
+			if (EntityId parent = lTransform->GetParent(); parent.IsValid())
+				lightPos = mTransformSystem->GetComponent(parent)->mWorldTransform * math::vec4(lTransform->mTranslation, 1.0f);
+			else
+				lightPos = lTransform->mTranslation;
+		}
+		else
+		{
+			for (ID i = 0; i < MAX_ID; ++i)
+			{
+				if (light = mLightSystem->GetComponent(i))
+				{
+					TransformComponent* lTransform = mTransformSystem->GetComponent(i);
+					if (EntityId parent = lTransform->GetParent(); parent.IsValid())
+						lightPos = mTransformSystem->GetComponent(parent)->mWorldTransform * math::vec4(lTransform->mTranslation, 1.0f);
+					else
+						lightPos = lTransform->mTranslation;
+					mCachedLightId = i;
+					break;
+				}
+			}
+		}
+
 		const math::mat4& proj = camera->GetProjectionMatrix();
 		const math::mat4& view = cameraTransform->mWorldTransform;
 		const math::mat4 viewInv = glm::inverse(view);
-
-		LightComponent* light = nullptr;
-		math::vec3 lightPos = math::vec3(0.0f);
-		for (ID i = 0; i < MAX_ID; ++i)
-		{
-			if (light = mLightSystem->GetComponent(i))
-			{
-				TransformComponent* lTransform = mTransformSystem->GetComponent(i);
-				if (EntityId parent = lTransform->GetParent(); parent.IsValid())
-					lightPos = mTransformSystem->GetComponent(parent)->mWorldTransform * math::vec4(lTransform->mTranslation, 1.0f);
-				else
-					lightPos = lTransform->mTranslation;
-				break;
-			}
-		}
 
 #ifdef ERM_RAY_TRACING_ENABLED
 		UpdateRTData(
@@ -170,6 +204,8 @@ namespace erm::ecs {
 			view,
 			lightPos);
 #endif
+
+		auto cmd = VkUtils::BeginSingleTimeCommands(mEngine.GetDevice());
 
 		mModelSystem->ForEachComponentIndexed([&](ModelComponent& component, ID id) {
 			if (!component.GetModel())
@@ -192,7 +228,8 @@ namespace erm::ecs {
 				ProcessForRayTracing(
 					model,
 					*renderingComponent,
-					modelMat);
+					modelMat,
+					cmd);
 			}
 			else
 #endif
@@ -210,6 +247,8 @@ namespace erm::ecs {
 			}
 		});
 
+		VkUtils::EndSingleTimeCommands(mEngine.GetDevice(), cmd);
+
 #ifdef ERM_RAY_TRACING_ENABLED
 		for (RTRenderData& data : mRTRenderData)
 			if (!data.mInstancesMap.empty())
@@ -219,6 +258,8 @@ namespace erm::ecs {
 
 	void RenderingSystem::OnPostRender()
 	{
+		PROFILE_FUNCTION();
+
 #ifdef ERM_RAY_TRACING_ENABLED
 		for (auto& data : mRTRenderData)
 		{
@@ -243,6 +284,40 @@ namespace erm::ecs {
 #endif
 	}
 
+	void RenderingSystem::UpdateCameraID()
+	{
+		if (mCachedCameraId != INVALID_ID && mCameraSystem->GetComponent(mCachedCameraId))
+			return;
+
+		mCachedCameraId = INVALID_ID;
+
+		for (ID i = 0; i < MAX_ID; ++i)
+		{
+			if (mCameraSystem->GetComponent(i))
+			{
+				mCachedCameraId = i;
+				break;
+			}
+		}
+	}
+
+	void RenderingSystem::UpdateLightID()
+	{
+		if (mCachedLightId != INVALID_ID && mLightSystem->GetComponent(mCachedLightId))
+			return;
+
+		mCachedLightId = INVALID_ID;
+
+		for (ID i = 0; i < MAX_ID; ++i)
+		{
+			if (mLightSystem->GetComponent(i))
+			{
+				mCachedLightId = i;
+				break;
+			}
+		}
+	}
+
 	void RenderingSystem::ProcessForRasterization(
 		Model& model,
 		RenderingComponent& renderingComponent,
@@ -254,6 +329,8 @@ namespace erm::ecs {
 		const math::mat4& modelMat,
 		const math::vec3& lightPos)
 	{
+		PROFILE_FUNCTION();
+
 		std::vector<Mesh>& meshes = model.GetMeshes();
 
 		for (RenderData& data : renderingComponent.mRenderData)
@@ -388,6 +465,7 @@ namespace erm::ecs {
 		const math::mat4& view,
 		const math::vec3& lightPos)
 	{
+		PROFILE_FUNCTION();
 		ASSERT(light);
 
 		for (RTRenderData& data : mRTRenderData)
@@ -428,8 +506,11 @@ namespace erm::ecs {
 	void RenderingSystem::ProcessForRayTracing(
 		Model& model,
 		RenderingComponent& renderingComponent,
-		const math::mat4& modelMat)
+		const math::mat4& modelMat,
+		vk::CommandBuffer& cmd)
 	{
+		PROFILE_FUNCTION();
+
 		RTRenderData& data = GetDefaultRTRenderData();
 
 		data.mForceUpdate |= !renderingComponent.mCustomIndex.has_value();
@@ -450,10 +531,9 @@ namespace erm::ecs {
 			data.AddSbo(StorageBufferType::INDICES, customIdx, model.GetIndicesBuffer());
 			data.AddSbo(StorageBufferType::INSTANCE_DATA, customIdx, *instanceDataBuffer);
 		}
-
 		data.AddOrUpdateInstance(&model.GetBlas(), modelMat, renderingComponent.GetCustomIndex().value());
 		InstanceData iData {modelMat, glm::inverse(glm::transpose(modelMat))};
-		renderingComponent.mInstanceDataBuffer->Update(&iData);
+		renderingComponent.mInstanceDataBuffer->Update(cmd, &iData);
 	}
 #endif
 

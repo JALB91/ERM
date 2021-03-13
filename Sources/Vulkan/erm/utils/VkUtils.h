@@ -7,6 +7,10 @@
 
 #include <vector>
 
+namespace erm {
+	class Device;
+}
+
 #define VK_CHECK(OP)                            \
 	{                                           \
 		const auto result = OP;                 \
@@ -39,14 +43,10 @@ namespace erm::VkUtils {
 		uint32_t typeFilter,
 		vk::MemoryPropertyFlags properties);
 
-	extern vk::CommandBuffer BeginSingleTimeCommands(
-		vk::CommandPool commandPool,
-		vk::Device device);
+	extern vk::CommandBuffer BeginSingleTimeCommands(Device& device);
 
 	extern void EndSingleTimeCommands(
-		vk::Queue graphicsQueue,
-		vk::CommandPool commandPool,
-		vk::Device device,
+		Device& device,
 		vk::CommandBuffer commandBuffer);
 
 	extern void CreateBuffer(
@@ -68,9 +68,7 @@ namespace erm::VkUtils {
 		vk::UniqueDeviceMemory& bufferMemory);
 
 	extern void CopyBufferToBuffer(
-		vk::CommandPool commandPool,
-		vk::Device device,
-		vk::Queue graphicsQueue,
+		Device& device,
 		vk::Buffer& srcBuffer,
 		vk::Buffer& dstBuffer,
 		vk::DeviceSize size);
@@ -112,18 +110,14 @@ namespace erm::VkUtils {
 		vk::ImageAspectFlags aspectFlags);
 
 	extern void TransitionImageLayout(
-		vk::Queue graphicsQueue,
-		vk::CommandPool commandPool,
-		vk::Device device,
+		Device& device,
 		vk::Image image,
 		vk::Format /*format*/,
 		vk::ImageLayout oldLayout,
 		vk::ImageLayout newLayout);
 
 	extern void CopyBufferToImage(
-		vk::Queue graphicsQueue,
-		vk::CommandPool commandPool,
-		vk::Device device,
+		Device& device,
 		vk::Buffer& buffer,
 		vk::Image image,
 		uint32_t width,

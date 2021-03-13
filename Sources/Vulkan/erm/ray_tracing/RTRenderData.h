@@ -40,18 +40,19 @@ namespace erm {
 			return *this;
 		}
 
-		inline RTInstanceData& AddOrUpdateInstance(RTBlas* blas, const math::mat4& transform, uint32_t index)
+		inline void AddOrUpdateInstance(RTBlas* blas, const math::mat4& transform, uint32_t index)
 		{
 			if (auto it = mInstancesMap.find(index); it != mInstancesMap.cend())
 			{
 				it->second.Update(blas, transform);
 			}
-
-			auto it = mInstancesMap.emplace(
-				std::piecewise_construct,
-				std::forward_as_tuple(index),
-				std::forward_as_tuple(blas, transform));
-			return it.first->second;
+			else
+			{
+				mInstancesMap.emplace(
+					std::piecewise_construct,
+					std::forward_as_tuple(index),
+					std::forward_as_tuple(blas, transform));
+			}
 		}
 
 		inline void ClearDataForIndex(uint32_t id)

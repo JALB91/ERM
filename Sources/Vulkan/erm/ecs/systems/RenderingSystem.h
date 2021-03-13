@@ -14,6 +14,8 @@
 
 #include "erm/rendering/data_structs/RenderData.h"
 
+#include <vulkan/vulkan.hpp>
+
 namespace erm {
 	class Engine;
 	class Model;
@@ -59,6 +61,9 @@ namespace erm::ecs {
 		// ISystem
 		void OnComponentBeingRemoved(EntityId id) override;
 
+		void UpdateCameraID();
+		void UpdateLightID();
+
 		void ProcessForRasterization(
 			Model& model,
 			RenderingComponent& renderingComponent,
@@ -80,7 +85,8 @@ namespace erm::ecs {
 		void ProcessForRayTracing(
 			Model& model,
 			RenderingComponent& renderingComponent,
-			const math::mat4& modelMat);
+			const math::mat4& modelMat,
+			vk::CommandBuffer& cmd);
 #endif
 
 		Engine& mEngine;
@@ -92,6 +98,9 @@ namespace erm::ecs {
 		ModelSystem* mModelSystem;
 		CameraSystem* mCameraSystem;
 		LightSystem* mLightSystem;
+
+		ID mCachedCameraId;
+		ID mCachedLightId;
 
 #ifdef ERM_RAY_TRACING_ENABLED
 		std::vector<RTRenderData> mRTRenderData;

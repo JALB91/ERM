@@ -136,9 +136,9 @@ namespace erm {
 
 		ImGui_ImplVulkan_Init(&info, mRenderPass);
 
-		vk::CommandBuffer command_buffer = VkUtils::BeginSingleTimeCommands(mDevice.GetCommandPool(), mDevice.GetVkDevice());
+		vk::CommandBuffer command_buffer = VkUtils::BeginSingleTimeCommands(mDevice);
 		ImGui_ImplVulkan_CreateFontsTexture(command_buffer);
-		VkUtils::EndSingleTimeCommands(mDevice.GetGraphicsQueue(), mDevice.GetCommandPool(), mDevice.GetVkDevice(), command_buffer);
+		VkUtils::EndSingleTimeCommands(mDevice, command_buffer);
 	}
 
 	void ImGuiHandle::Cleanup()

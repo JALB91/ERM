@@ -5,13 +5,9 @@
 
 #include "erm/ecs/EntityId.h"
 
-// clang-format off
-#ifdef ERM_RAY_TRACING_ENABLED
 #include "erm/rendering/buffers/DeviceBuffer.h"
 
 #include "erm/rendering/data_structs/Model.h"
-#endif
-// clang-format on
 #include "erm/rendering/data_structs/RenderData.h"
 #include "erm/rendering/data_structs/StandaloneMesh.h"
 
