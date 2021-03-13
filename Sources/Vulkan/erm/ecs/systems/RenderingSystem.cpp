@@ -146,52 +146,15 @@ namespace erm::ecs {
 		if (mCachedCameraId == INVALID_ID || mCachedLightId == INVALID_ID)
 			return;
 
-		if (mCachedCameraId != INVALID_ID && mCameraSystem->GetComponent(mCachedCameraId))
-		{
-			camera = mCameraSystem->GetComponent(mCachedCameraId);
-			cameraTransform = mTransformSystem->RequireComponent(mCachedCameraId);
-		}
-		else
-		{
-			for (ID i = 0; i < MAX_ID; ++i)
-			{
-				if ((camera = mCameraSystem->GetComponent(i)))
-				{
-					cameraTransform = mTransformSystem->RequireComponent(i);
-					mCachedCameraId = i;
-					break;
-				}
-			}
-		}
+		camera = mCameraSystem->GetComponent(mCachedCameraId);
+		cameraTransform = mTransformSystem->RequireComponent(mCachedCameraId);
 
-		if (!cameraTransform || !camera)
-			return;
-
-		if (mCachedLightId != INVALID_ID && mLightSystem->GetComponent(mCachedLightId))
-		{
-			light = mLightSystem->GetComponent(mCachedLightId);
-			TransformComponent* lTransform = mTransformSystem->GetComponent(mCachedLightId);
-			if (EntityId parent = lTransform->GetParent(); parent.IsValid())
-				lightPos = mTransformSystem->GetComponent(parent)->mWorldTransform * math::vec4(lTransform->mTranslation, 1.0f);
-			else
-				lightPos = lTransform->mTranslation;
-		}
+		light = mLightSystem->GetComponent(mCachedLightId);
+		TransformComponent* lTransform = mTransformSystem->GetComponent(mCachedLightId);
+		if (EntityId parent = lTransform->GetParent(); parent.IsValid())
+			lightPos = mTransformSystem->GetComponent(parent)->mWorldTransform * math::vec4(lTransform->mTranslation, 1.0f);
 		else
-		{
-			for (ID i = 0; i < MAX_ID; ++i)
-			{
-				if (light = mLightSystem->GetComponent(i))
-				{
-					TransformComponent* lTransform = mTransformSystem->GetComponent(i);
-					if (EntityId parent = lTransform->GetParent(); parent.IsValid())
-						lightPos = mTransformSystem->GetComponent(parent)->mWorldTransform * math::vec4(lTransform->mTranslation, 1.0f);
-					else
-						lightPos = lTransform->mTranslation;
-					mCachedLightId = i;
-					break;
-				}
-			}
-		}
+			lightPos = lTransform->mTranslation;
 
 		const math::mat4& proj = camera->GetProjectionMatrix();
 		const math::mat4& view = cameraTransform->mWorldTransform;
