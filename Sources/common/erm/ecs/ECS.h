@@ -71,7 +71,7 @@ namespace erm::ecs {
 		ADD_SYSTEM(ModelSystem)
 		ADD_SYSTEM(CameraSystem)
 		ADD_SYSTEM(RenderingSystem)
-		ADD_SYSTEM(EditorSystem);
+		ADD_SYSTEM(EditorSystem)
 
 		std::array<std::unique_ptr<Entity>, MAX_ID> mEntities;
 	};

@@ -201,14 +201,14 @@ namespace erm::ecs {
 					const std::unique_ptr<BonesTree>& root = skeleton->GetSkin()->mRootBone;
 
 					UboBonesDebug ubo;
-					int index = 0;
+					unsigned int index = 0;
 
 					std::vector<StandaloneMesh>& meshes = mBonesMeshes[i];
 
 					while (root->GetSize() < meshes.size())
 						meshes.pop_back();
 
-					root->ForEachDo([&data, &ubo, &index, &meshes, this](const BonesTree& node) {
+					root->ForEachDo([&ubo, &index, &meshes, this](const BonesTree& node) {
 						if (index >= MAX_BONES)
 							return;
 
@@ -217,7 +217,7 @@ namespace erm::ecs {
 						StandaloneMesh* mesh = nullptr;
 						for (StandaloneMesh& m : meshes)
 						{
-							if (m.GetVerticesData()[0].mDebugBoneId == index)
+							if (m.GetVerticesData()[0].mDebugBoneId == static_cast<int>(index))
 							{
 								mesh = &m;
 								break;
@@ -246,7 +246,7 @@ namespace erm::ecs {
 		}
 	}
 
-	void EditorSystem::OnComponentAdded(EntityId id)
+	void EditorSystem::OnComponentAdded(EntityId /*id*/)
 	{}
 
 	void EditorSystem::OnComponentBeingRemoved(EntityId id)

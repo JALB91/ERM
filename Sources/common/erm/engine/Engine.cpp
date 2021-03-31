@@ -53,9 +53,14 @@ namespace {
 namespace erm {
 
 	Engine::Engine()
-		: mWindow(std::make_unique<Window>())
-		, mMaxFPS(144)
+		: mMaxFPS(144)
+		, mWindow(std::make_unique<Window>())
 	{
+		UNUSED(kRoyalGuardPath);
+		UNUSED(kTreeModelPath);
+		UNUSED(kModelToUse);
+		UNUSED(kEntities);
+		UNUSED(kDefaultRotX);
 		UNUSED(kLamborghiniModelPath);
 		UNUSED(kSpaceshipModelPath);
 		UNUSED(kIronManModelPath);
@@ -115,25 +120,25 @@ namespace erm {
 			ent->AddChild(*entity);
 		}
 
-		{
-			auto entity = mECS->GetOrCreateEntity();
-			Model* model = mResourcesManager->GetOrCreateModel("res/models/untitled.fbx");
-			auto comp = entity->RequireComponent<ecs::ModelComponent>(model);
-			auto transform = entity->RequireComponent<ecs::TransformComponent>();
-			transform->mTranslation.x = -2.5f;
-			root->AddChild(*entity);
-		}
+		//		{
+		//			auto entity = mECS->GetOrCreateEntity();
+		//			Model* model = mResourcesManager->GetOrCreateModel("res/models/untitled.dae");
+		//			entity->RequireComponent<ecs::ModelComponent>(model);
+		//			auto transform = entity->RequireComponent<ecs::TransformComponent>();
+		//			transform->mTranslation.x = -2.5f;
+		//			root->AddChild(*entity);
+		//		}
 
 		{
 			auto entity = mECS->GetOrCreateEntity();
 			Model* model = mResourcesManager->GetOrCreateModel("res/models/untitled.dae");
-			auto comp = entity->RequireComponent<ecs::ModelComponent>(model);
+			entity->RequireComponent<ecs::ModelComponent>(model);
 			auto transform = entity->RequireComponent<ecs::TransformComponent>();
 			transform->mTranslation.x = 2.5f;
 			root->AddChild(*entity);
 		}
 
-		for (int i = 0; i < ecs::MAX_ID - 10 && false; ++i)
+		for (int i = 0; i < 0 && false; ++i)
 		{
 			auto entity = mECS->GetOrCreateEntity();
 			Model* model = nullptr;
@@ -141,7 +146,7 @@ namespace erm {
 			switch (rnd)
 			{
 				case 0:
-					model = mResourcesManager->GetOrCreateModel("res/models/sphere.fbx");
+					//model = mResourcesManager->GetOrCreateModel("res/models/sphere.fbx");
 					break;
 				case 1:
 					model = mResourcesManager->GetOrCreateModel(kIronManModelPath);
@@ -169,7 +174,7 @@ namespace erm {
 					break;
 			}
 
-			auto mComp = entity->RequireComponent<ecs::ModelComponent>(model);
+			entity->RequireComponent<ecs::ModelComponent>(model);
 			auto tComp = entity->RequireComponent<ecs::TransformComponent>();
 
 			static const int dist = 400;

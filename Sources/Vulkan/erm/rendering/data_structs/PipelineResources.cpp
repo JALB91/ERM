@@ -35,7 +35,7 @@ namespace erm {
 	PipelineResources::~PipelineResources()
 	{}
 
-	void PipelineResources::UpdateResources(vk::CommandBuffer& cmd, RenderData& renderData, uint32_t imageIndex)
+	void PipelineResources::UpdateResources(vk::CommandBuffer& cmd, RenderData& renderData, uint32_t /*imageIndex*/)
 	{
 		if (mDescriptorSetLayouts.empty())
 			return;
@@ -46,6 +46,8 @@ namespace erm {
 
 	void PipelineResources::UpdateCommandBuffer(vk::CommandBuffer& cmd, RenderData& renderData, uint32_t imageIndex)
 	{
+		UNUSED(imageIndex);
+
 		if (mDescriptorSetLayouts.empty())
 			return;
 
@@ -85,14 +87,19 @@ namespace erm {
 			const BufferHandle& vHandle = mesh.GetVertBufferHandle();
 			const BufferHandle& iHandle = mesh.GetIndBufferHandle();
 
-			vk::DeviceSize offsets = {0};
+			vk::Buffer vBuffers[] = {vHandle.mBuffer};
+			vk::DeviceSize offsets[] = {0};
 
-			cmd.bindVertexBuffers(0, 1, &vHandle.mBuffer, &offsets);
+			cmd.bindVertexBuffers(0, 1, vBuffers, offsets);
 			cmd.bindIndexBuffer(iHandle.mBuffer, iHandle.mInfo.mOffset, vk::IndexType::eUint32);
 			cmd.drawIndexed(static_cast<uint32_t>(mesh.GetIndicesData().size()), 1, 0, 0, 0);
 		}
+	}
 
-		data.PostDraw();
+	void PipelineResources::PostDraw()
+	{
+		for (auto& data : mData)
+			data.PostDraw();
 	}
 
 	void PipelineResources::CreatePipeline()

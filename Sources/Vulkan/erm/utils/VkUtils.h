@@ -118,7 +118,7 @@ namespace erm::VkUtils {
 
 	extern void CopyBufferToImage(
 		Device& device,
-		vk::Buffer& buffer,
+		vk::Buffer buffer,
 		vk::Image image,
 		uint32_t width,
 		uint32_t height);

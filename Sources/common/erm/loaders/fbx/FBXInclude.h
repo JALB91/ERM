@@ -1,5 +1,5 @@
-#ifdef ERM_FBX_ENABLED
-#	ifdef OSX
+#if defined(ERM_FBX_ENABLED)
+#	if defined(ERM_OSX)
 #		pragma clang diagnostic push
 #		pragma clang diagnostic ignored "-Wall"
 #		pragma clang diagnostic ignored "-Wextra"

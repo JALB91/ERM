@@ -233,6 +233,8 @@ namespace erm::ecs {
 
 	void RenderingSystem::OnComponentBeingRemoved(EntityId id)
 	{
+		UNUSED(id);
+
 #ifdef ERM_RAY_TRACING_ENABLED
 		if (RenderingComponent* comp = GetComponent(id))
 		{
@@ -382,7 +384,7 @@ namespace erm::ecs {
 				ubo.mView = viewInv;
 				ubo.mProjection = proj;
 
-				skeletonComponent->GetSkin()->mRootBone->ForEachDo([&ubo, &data](BonesTree& bone) {
+				skeletonComponent->GetSkin()->mRootBone->ForEachDo([&ubo](BonesTree& bone) {
 					if (bone.GetId() >= MAX_BONES)
 						return;
 

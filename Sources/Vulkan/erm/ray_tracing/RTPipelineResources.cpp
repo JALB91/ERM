@@ -34,13 +34,16 @@ namespace erm {
 		CreatePipelineData();
 	}
 
-	void RTPipelineResources::UpdateResources(vk::CommandBuffer& cmd, RTRenderData& renderData, uint32_t imageIndex)
+	void RTPipelineResources::UpdateResources(vk::CommandBuffer& cmd, RTRenderData& renderData, uint32_t /*imageIndex*/)
 	{
 		PROFILE_FUNCTION();
 		mPipelineData->UpdateResources(cmd, renderData);
 	}
 
-	void RTPipelineResources::UpdateCommandBuffer(vk::CommandBuffer& cmd, RTRenderData& renderData, uint32_t imageIndex)
+	void RTPipelineResources::UpdateCommandBuffer(
+		vk::CommandBuffer& cmd,
+		RTRenderData& /*renderData*/,
+		uint32_t /*imageIndex*/)
 	{
 		PROFILE_FUNCTION();
 

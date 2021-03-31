@@ -48,7 +48,7 @@ namespace erm {
 					if (!skip && mat)
 					{
 						mutex.lock();
-						Material* material = &(*resourcesManager.GetMaterials().emplace_back(std::make_unique<Material>(std::move(mat.value()))));
+						resourcesManager.GetMaterials().emplace_back(std::make_unique<Material>(std::move(mat.value())));
 						mutex.unlock();
 					}
 
@@ -129,7 +129,7 @@ namespace erm {
 		if (!skip && mat)
 		{
 			mutex.lock();
-			Material* material = &(*resourcesManager.GetMaterials().emplace_back(std::make_unique<Material>(std::move(mat.value()))));
+			resourcesManager.GetMaterials().emplace_back(std::make_unique<Material>(std::move(mat.value())));
 			mutex.unlock();
 		}
 

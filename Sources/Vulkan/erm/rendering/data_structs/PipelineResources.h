@@ -36,6 +36,7 @@ namespace erm {
 
 		void UpdateResources(vk::CommandBuffer& cmd, RenderData& renderData, uint32_t imageIndex);
 		void UpdateCommandBuffer(vk::CommandBuffer& cmd, RenderData& renderData, uint32_t imageIndex);
+		void PostDraw();
 
 		inline const RenderConfigs& GetRenderConfigs() const { return mRenderConfigs; }
 

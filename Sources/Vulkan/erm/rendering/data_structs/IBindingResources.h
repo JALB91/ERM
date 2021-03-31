@@ -69,7 +69,7 @@ namespace erm {
 				descriptorWrite.dstArrayElement = 0;
 				descriptorWrite.descriptorType = vk::DescriptorType::eUniformBuffer;
 				descriptorWrite.descriptorCount = 1;
-				descriptorWrite.pBufferInfo = &infos[i];
+				descriptorWrite.pBufferInfo = &bufferInfo;
 			}
 		}
 

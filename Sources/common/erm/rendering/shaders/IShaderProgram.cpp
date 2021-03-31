@@ -275,6 +275,8 @@ namespace erm {
 		ShaderType shaderType,
 		DescriptorType descriptorType)
 	{
+		UNUSED(shaderType);
+
 		switch (descriptorType)
 		{
 			case DescriptorType::UNIFORM_BUFFER:
