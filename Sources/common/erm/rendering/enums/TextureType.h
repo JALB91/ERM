@@ -7,6 +7,7 @@ namespace erm {
 		DIFFUSE = 0,
 		NORMAL,
 		SPECULAR,
+		CUBE_MAP,
 		COUNT
 	};
 

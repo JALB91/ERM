@@ -5,6 +5,7 @@
 #include "erm/managers/ResourcesManager.h"
 
 #include "erm/rendering/Device.h"
+#include "erm/rendering/textures/CubeMap.h"
 
 #include "erm/utils/Utils.h"
 #include "erm/utils/VkUtils.h"
@@ -162,29 +163,61 @@ namespace erm {
 		mSwapChainImageViews.resize(mSwapChainImages.size());
 		for (size_t i = 0; i < mSwapChainImages.size(); ++i)
 		{
+			vk::ImageViewCreateInfo viewInfo {};
+			viewInfo.image = mSwapChainImages[i];
+			viewInfo.viewType = vk::ImageViewType::e2D;
+			viewInfo.format = mSwapChainImageFormat;
+			viewInfo.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
+			viewInfo.subresourceRange.baseMipLevel = 0;
+			viewInfo.subresourceRange.levelCount = 1;
+			viewInfo.subresourceRange.baseArrayLayer = 0;
+			viewInfo.subresourceRange.layerCount = 1;
+
 			mSwapChainImageViews[i] = VkUtils::CreateImageView(
 				mDevice.GetVkDevice(),
-				mSwapChainImages[i],
-				mSwapChainImageFormat,
-				vk::ImageAspectFlagBits::eColor);
+				viewInfo);
 		}
 	}
 
 	void IRenderer::CreateDepthResources()
 	{
 		vk::Format depthFormat = VkUtils::FindDepthFormat(mDevice.GetVkPhysicalDevice());
+
+		vk::ImageCreateInfo imageInfo {};
+		imageInfo.imageType = vk::ImageType::e2D;
+		imageInfo.extent.width = mSwapChainExtent.width;
+		imageInfo.extent.height = mSwapChainExtent.height;
+		imageInfo.extent.depth = 1;
+		imageInfo.mipLevels = 1;
+		imageInfo.arrayLayers = 1;
+		imageInfo.format = depthFormat;
+		imageInfo.tiling = vk::ImageTiling::eOptimal;
+		imageInfo.initialLayout = vk::ImageLayout::eUndefined;
+		imageInfo.usage = vk::ImageUsageFlagBits::eDepthStencilAttachment;
+		imageInfo.samples = vk::SampleCountFlagBits::e1;
+		imageInfo.sharingMode = vk::SharingMode::eExclusive;
+
 		VkUtils::CreateImage(
 			mDevice.GetVkPhysicalDevice(),
 			mDevice.GetVkDevice(),
-			mSwapChainExtent.width,
-			mSwapChainExtent.height,
-			depthFormat,
-			vk::ImageTiling::eOptimal,
-			vk::ImageUsageFlagBits::eDepthStencilAttachment,
+			imageInfo,
 			vk::MemoryPropertyFlagBits::eDeviceLocal,
 			mDepthImage,
 			mDepthImageMemory);
-		mDepthImageView = VkUtils::CreateImageView(mDevice.GetVkDevice(), mDepthImage, depthFormat, vk::ImageAspectFlagBits::eDepth);
+
+		vk::ImageViewCreateInfo viewInfo {};
+		viewInfo.image = mDepthImage;
+		viewInfo.viewType = vk::ImageViewType::e2D;
+		viewInfo.format = depthFormat;
+		viewInfo.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eDepth;
+		viewInfo.subresourceRange.baseMipLevel = 0;
+		viewInfo.subresourceRange.levelCount = 1;
+		viewInfo.subresourceRange.baseArrayLayer = 0;
+		viewInfo.subresourceRange.layerCount = 1;
+
+		mDepthImageView = VkUtils::CreateImageView(
+			mDevice.GetVkDevice(),
+			viewInfo);
 	}
 
 	void IRenderer::CreateTextureSampler()
@@ -229,7 +262,7 @@ namespace erm {
 		}
 	}
 
-	Texture* IRenderer::GetFallbackTexture(TextureType type) const
+	Texture* IRenderer::GetDefaultTexture(TextureType type) const
 	{
 		switch (type)
 		{
@@ -239,11 +272,18 @@ namespace erm {
 				return mResourcesManager.GetOrCreateTexture("res/textures/viking_room.png");
 			case TextureType::SPECULAR:
 				return mResourcesManager.GetOrCreateTexture("res/textures/viking_room.png");
+			case TextureType::CUBE_MAP:
+				return GetDefaultCubeMap();
 			default:
 				ASSERT(false);
 		}
 
 		return nullptr;
+	}
+
+	CubeMap* IRenderer::GetDefaultCubeMap() const
+	{
+		return mResourcesManager.GetOrCreateCubeMap("res/cube_maps/ArstaBridge");
 	}
 
 } // namespace erm

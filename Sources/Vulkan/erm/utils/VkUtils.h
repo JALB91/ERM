@@ -76,11 +76,7 @@ namespace erm::VkUtils {
 	extern void CreateImage(
 		vk::PhysicalDevice physicalDevice,
 		vk::Device device,
-		uint32_t width,
-		uint32_t height,
-		vk::Format format,
-		vk::ImageTiling tiling,
-		vk::ImageUsageFlags usage,
+		const vk::ImageCreateInfo& createInfo,
 		vk::MemoryPropertyFlags properties,
 		vk::Image& image,
 		vk::DeviceMemory& imageMemory);
@@ -88,40 +84,34 @@ namespace erm::VkUtils {
 	extern void CreateImageUnique(
 		vk::PhysicalDevice physicalDevice,
 		vk::Device device,
-		uint32_t width,
-		uint32_t height,
-		vk::Format format,
-		vk::ImageTiling tiling,
-		vk::ImageUsageFlags usage,
+		const vk::ImageCreateInfo& createInfo,
 		vk::MemoryPropertyFlags properties,
 		vk::UniqueImage& image,
 		vk::UniqueDeviceMemory& imageMemory);
 
 	extern vk::ImageView CreateImageView(
 		vk::Device device,
-		vk::Image image,
-		vk::Format format,
-		vk::ImageAspectFlags aspectFlags);
+		const vk::ImageViewCreateInfo& createInfo);
 
 	extern vk::UniqueImageView CreateImageViewUnique(
 		vk::Device device,
-		vk::Image image,
-		vk::Format format,
-		vk::ImageAspectFlags aspectFlags);
+		const vk::ImageViewCreateInfo& createInfo);
 
 	extern void TransitionImageLayout(
 		Device& device,
 		vk::Image image,
 		vk::Format /*format*/,
 		vk::ImageLayout oldLayout,
-		vk::ImageLayout newLayout);
+		vk::ImageLayout newLayout,
+		uint32_t layerCount = 1);
 
 	extern void CopyBufferToImage(
 		Device& device,
 		vk::Buffer& buffer,
 		vk::Image image,
 		uint32_t width,
-		uint32_t height);
+		uint32_t height,
+		uint32_t layerCount = 1);
 
 	extern void CreateDeviceLocalBuffer(
 		vk::Queue queue,

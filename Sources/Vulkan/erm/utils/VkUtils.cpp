@@ -301,30 +301,12 @@ namespace erm::VkUtils {
 	void CreateImage(
 		vk::PhysicalDevice physicalDevice,
 		vk::Device device,
-		uint32_t width,
-		uint32_t height,
-		vk::Format format,
-		vk::ImageTiling tiling,
-		vk::ImageUsageFlags usage,
+		const vk::ImageCreateInfo& createInfo,
 		vk::MemoryPropertyFlags properties,
 		vk::Image& image,
 		vk::DeviceMemory& imageMemory)
 	{
-		vk::ImageCreateInfo imageInfo {};
-		imageInfo.imageType = vk::ImageType::e2D;
-		imageInfo.extent.width = width;
-		imageInfo.extent.height = height;
-		imageInfo.extent.depth = 1;
-		imageInfo.mipLevels = 1;
-		imageInfo.arrayLayers = 1;
-		imageInfo.format = format;
-		imageInfo.tiling = tiling;
-		imageInfo.initialLayout = vk::ImageLayout::eUndefined;
-		imageInfo.usage = usage;
-		imageInfo.samples = vk::SampleCountFlagBits::e1;
-		imageInfo.sharingMode = vk::SharingMode::eExclusive;
-
-		VK_CHECK(device.createImage(&imageInfo, nullptr, &image));
+		VK_CHECK(device.createImage(&createInfo, nullptr, &image));
 
 		vk::MemoryRequirements memRequirements;
 		device.getImageMemoryRequirements(image, &memRequirements);
@@ -340,30 +322,12 @@ namespace erm::VkUtils {
 	void CreateImageUnique(
 		vk::PhysicalDevice physicalDevice,
 		vk::Device device,
-		uint32_t width,
-		uint32_t height,
-		vk::Format format,
-		vk::ImageTiling tiling,
-		vk::ImageUsageFlags usage,
+		const vk::ImageCreateInfo& createInfo,
 		vk::MemoryPropertyFlags properties,
 		vk::UniqueImage& image,
 		vk::UniqueDeviceMemory& imageMemory)
 	{
-		vk::ImageCreateInfo imageInfo {};
-		imageInfo.imageType = vk::ImageType::e2D;
-		imageInfo.extent.width = width;
-		imageInfo.extent.height = height;
-		imageInfo.extent.depth = 1;
-		imageInfo.mipLevels = 1;
-		imageInfo.arrayLayers = 1;
-		imageInfo.format = format;
-		imageInfo.tiling = tiling;
-		imageInfo.initialLayout = vk::ImageLayout::eUndefined;
-		imageInfo.usage = usage;
-		imageInfo.samples = vk::SampleCountFlagBits::e1;
-		imageInfo.sharingMode = vk::SharingMode::eExclusive;
-
-		image = device.createImageUnique(imageInfo);
+		image = device.createImageUnique(createInfo);
 
 		vk::MemoryRequirements memRequirements;
 		device.getImageMemoryRequirements(image.get(), &memRequirements);
@@ -378,43 +342,19 @@ namespace erm::VkUtils {
 
 	vk::ImageView CreateImageView(
 		vk::Device device,
-		vk::Image image,
-		vk::Format format,
-		vk::ImageAspectFlags aspectFlags)
+		const vk::ImageViewCreateInfo& createInfo)
 	{
-		vk::ImageViewCreateInfo viewInfo {};
-		viewInfo.image = image;
-		viewInfo.viewType = vk::ImageViewType::e2D;
-		viewInfo.format = format;
-		viewInfo.subresourceRange.aspectMask = aspectFlags;
-		viewInfo.subresourceRange.baseMipLevel = 0;
-		viewInfo.subresourceRange.levelCount = 1;
-		viewInfo.subresourceRange.baseArrayLayer = 0;
-		viewInfo.subresourceRange.layerCount = 1;
-
 		vk::ImageView imageView;
-		VK_CHECK(device.createImageView(&viewInfo, nullptr, &imageView));
+		VK_CHECK(device.createImageView(&createInfo, nullptr, &imageView));
 
 		return imageView;
 	}
 
 	vk::UniqueImageView CreateImageViewUnique(
 		vk::Device device,
-		vk::Image image,
-		vk::Format format,
-		vk::ImageAspectFlags aspectFlags)
+		const vk::ImageViewCreateInfo& createInfo)
 	{
-		vk::ImageViewCreateInfo viewInfo {};
-		viewInfo.image = image;
-		viewInfo.viewType = vk::ImageViewType::e2D;
-		viewInfo.format = format;
-		viewInfo.subresourceRange.aspectMask = aspectFlags;
-		viewInfo.subresourceRange.baseMipLevel = 0;
-		viewInfo.subresourceRange.levelCount = 1;
-		viewInfo.subresourceRange.baseArrayLayer = 0;
-		viewInfo.subresourceRange.layerCount = 1;
-
-		return device.createImageViewUnique(viewInfo);
+		return device.createImageViewUnique(createInfo);
 	}
 
 	void TransitionImageLayout(
@@ -422,7 +362,8 @@ namespace erm::VkUtils {
 		vk::Image image,
 		vk::Format /*format*/,
 		vk::ImageLayout oldLayout,
-		vk::ImageLayout newLayout)
+		vk::ImageLayout newLayout,
+		uint32_t layerCount /* = 1*/)
 	{
 		vk::CommandBuffer commandBuffer = BeginSingleTimeCommands(device);
 
@@ -436,7 +377,7 @@ namespace erm::VkUtils {
 		barrier.subresourceRange.baseMipLevel = 0;
 		barrier.subresourceRange.levelCount = 1;
 		barrier.subresourceRange.baseArrayLayer = 0;
-		barrier.subresourceRange.layerCount = 1;
+		barrier.subresourceRange.layerCount = layerCount;
 
 		vk::PipelineStageFlags sourceStage;
 		vk::PipelineStageFlags destinationStage;
@@ -472,7 +413,8 @@ namespace erm::VkUtils {
 		vk::Buffer& buffer,
 		vk::Image image,
 		uint32_t width,
-		uint32_t height)
+		uint32_t height,
+		uint32_t layerCount /* = 1*/)
 	{
 		vk::CommandBuffer commandBuffer = BeginSingleTimeCommands(device);
 
@@ -483,7 +425,7 @@ namespace erm::VkUtils {
 		region.imageSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
 		region.imageSubresource.mipLevel = 0;
 		region.imageSubresource.baseArrayLayer = 0;
-		region.imageSubresource.layerCount = 1;
+		region.imageSubresource.layerCount = layerCount;
 		region.imageOffset = vk::Offset3D(0, 0, 0);
 		region.imageExtent = vk::Extent3D(width, height, 1);
 

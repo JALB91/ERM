@@ -20,6 +20,16 @@ struct InstanceData
 	mat4 transformIT;
 };
 
+struct hitPayload
+{
+	vec3 hitValue;
+	vec3 atten;
+	vec3 origin;
+	vec3 dir;
+	int depth;
+	int done;
+};
+
 hitAttributeEXT vec2 attribs;
 
 layout(binding = 0, set = 0) uniform accelerationStructureEXT topLevelAS;
@@ -35,7 +45,7 @@ layout(binding = 8, set = 1) uniform Light {
 	vec3 specular;
 } light;
 
-layout(location = 0) rayPayloadInEXT vec4 hitValue;
+layout(location = 0) rayPayloadInEXT hitPayload prd;
 layout(location = 1) rayPayloadEXT bool isShadowed;
 
 void main()
@@ -67,8 +77,9 @@ void main()
 
 	vec3 lDir = light.position - worldPos;
 	float dist = length(lDir);
+	float intensity = 10.0 / (dist * dist);
 	vec3 L = normalize(lDir);
-	float dotNL = max(dot(normal, L), 0.1);
+	float dotNL = clamp(dot(normal, L), 0.0, 1.0);
 
 	// Tracing shadow ray only if the light is visible from the surface
 	if (dot(normal, L) > 0)
@@ -99,5 +110,12 @@ void main()
 		}
 	}
 
-	hitValue.rgb = vec3(dotNL);
+	if (gl_InstanceCustomIndexEXT >= 20)
+	{
+		prd.done = 0;
+	}
+
+	prd.origin = worldPos;
+	prd.dir = reflect(gl_WorldRayDirectionEXT, normal);
+	prd.hitValue.rgb *= vec3(dotNL * intensity);
 }

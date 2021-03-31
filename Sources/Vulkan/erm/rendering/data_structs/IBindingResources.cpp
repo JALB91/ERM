@@ -86,7 +86,7 @@ namespace erm {
 			const SamplerData& sData = samplerData[i];
 			Texture* texture = mConfigs.GetTexture(sData.mTextureType);
 			if (!texture)
-				texture = mRenderer.GetFallbackTexture(sData.mTextureType);
+				texture = mRenderer.GetDefaultTexture(sData.mTextureType);
 
 			vk::DescriptorImageInfo& imageInfo = infos[i];
 			imageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;

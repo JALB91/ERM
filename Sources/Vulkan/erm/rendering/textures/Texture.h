@@ -17,7 +17,9 @@ namespace erm {
 	{
 	public:
 		Texture(Device& device, const char* path);
-		~Texture();
+		virtual ~Texture();
+
+		void Init();
 
 		Texture(Texture&&) = delete;
 		Texture(const Texture&) = delete;
@@ -30,9 +32,9 @@ namespace erm {
 
 		inline vk::ImageView& GetImageView() { return mTextureImageView.get(); }
 
-	private:
-		void CreateTextureImage();
-		void CreateTextureImageView();
+	protected:
+		virtual void CreateTextureImage();
+		virtual void CreateTextureImageView();
 
 		Device& mDevice;
 		unsigned char* mLocalBuffer;

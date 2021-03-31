@@ -7,6 +7,7 @@
 
 namespace erm {
 	class Device;
+	class CubeMap;
 	class ShaderProgram;
 	class RTShaderProgram;
 	class Texture;
@@ -22,6 +23,7 @@ namespace erm {
 	template<typename T>
 	using Handle = std::unique_ptr<T>;
 
+	using CubeMaps = std::vector<Handle<CubeMap>>;
 	using Shaders = std::vector<Handle<ShaderProgram>>;
 	using Materials = std::vector<Handle<Material>>;
 	using PBMaterials = std::vector<Handle<PBMaterial>>;
@@ -59,6 +61,9 @@ namespace erm {
 		inline Textures& GetTextures() { return mTextures; }
 		Texture* GetOrCreateTexture(const char* texturePath);
 
+		inline CubeMaps& GetCubeMaps() { return mCubeMaps; }
+		CubeMap* GetOrCreateCubeMap(const char* path);
+
 		inline Models& GetModels() { return mModels; }
 		Model* GetOrCreateModel(const char* modelPath);
 
@@ -80,6 +85,7 @@ namespace erm {
 		Device& mDevice;
 		ResourcesLoader mResourcesLoader;
 
+		CubeMaps mCubeMaps;
 		Shaders mShaderPrograms;
 		Materials mMaterials;
 		PBMaterials mPBMaterials;

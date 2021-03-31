@@ -13,6 +13,7 @@ namespace erm {
 	class Engine;
 	class ResourcesManager;
 	class Texture;
+	class CubeMap;
 	class Window;
 	struct RenderData;
 } // namespace erm
@@ -46,7 +47,8 @@ namespace erm {
 		inline const std::vector<vk::ImageView>& GetSwapChainImageViews() const { return mSwapChainImageViews; }
 		inline const vk::ImageView& GetDepthImageView() const { return mDepthImageView; }
 
-		Texture* GetFallbackTexture(TextureType type) const;
+		Texture* GetDefaultTexture(TextureType type) const;
+		CubeMap* GetDefaultCubeMap() const;
 
 	protected:
 		void RecreateSwapChain();

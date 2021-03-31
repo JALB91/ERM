@@ -8,6 +8,7 @@
 #include "erm/rendering/enums/ShaderType.h"
 #include "erm/rendering/shaders/ShaderProgram.h"
 #include "erm/rendering/shaders/ShaderUtils.h"
+#include "erm/rendering/textures/CubeMap.h"
 #include "erm/rendering/textures/Texture.h"
 // clang-format off
 #ifdef ERM_RAY_TRACING_ENABLED
@@ -70,6 +71,23 @@ namespace erm {
 	bool ResourcesManager::IsStillLoading(const Model& model) const
 	{
 		return mResourcesLoader.IsStillLoading(model);
+	}
+
+	CubeMap* ResourcesManager::GetOrCreateCubeMap(const char* path)
+	{
+		auto it = std::find_if(
+			mCubeMaps.begin(),
+			mCubeMaps.end(),
+			[path](Handle<CubeMap>& cubeMap) {
+				return cubeMap->mPath == path;
+			});
+
+		if (it != mCubeMaps.end())
+			return (*it).get();
+
+		Handle<CubeMap> result = std::make_unique<CubeMap>(mDevice, path);
+		result->Init();
+		return mCubeMaps.emplace_back(std::move(result)).get();
 	}
 
 	ShaderProgram* ResourcesManager::GetOrCreateShaderProgram(const char* shaderProgramPath)
@@ -167,6 +185,7 @@ namespace erm {
 		stream.close();
 
 		std::unique_ptr<Texture> texture = std::make_unique<Texture>(mDevice, texturePath);
+		texture->Init();
 		return mTextures.emplace_back(std::move(texture)).get();
 	}
 

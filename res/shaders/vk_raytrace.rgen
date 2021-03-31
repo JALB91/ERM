@@ -2,7 +2,15 @@
 #extension GL_EXT_ray_tracing : require
 #extension GL_GOOGLE_include_directive : enable
 
-#include "imp_vk_rtpayload.glsl"
+struct hitPayload
+{
+    vec3 hitValue;
+    vec3 atten;
+    vec3 origin;
+    vec3 dir;
+    int depth;
+    int done;
+};
 
 layout(binding = 0, set = 0) uniform accelerationStructureEXT topLevelAS;
 layout(binding = 1, set = 0, rgba32f) uniform image2D image;
@@ -26,21 +34,43 @@ void main()
     float tMin     = 0.001;
     float tMax     = 10000.0;
 
-    traceRayEXT(
-        topLevelAS,     // acceleration structure
-        rayFlags,       // rayFlags
-        0xFF,           // cullMask
-        0,              // sbtRecordOffset
-        0,              // sbtRecordStride
-        0,              // missIndex
-        origin.xyz,     // ray origin
-        tMin,           // ray min range
-        direction.xyz,  // ray direction
-        tMax,           // ray max range
-        0               // payload (location = 0)
-    );
+    prd.depth = 0;
+    prd.hitValue = vec3(0);
+    prd.atten = vec3(1.0);
+    prd.done = 1;
+    prd.origin = origin.xyz;
+    prd.dir = direction.xyz;
+
+    vec3 hitValue = vec3(0.0);
+
+    for (;;)
+    {
+        traceRayEXT(
+            topLevelAS,     // acceleration structure
+            rayFlags,       // rayFlags
+            0xFF,           // cullMask
+            0,              // sbtRecordOffset
+            0,              // sbtRecordStride
+            0,              // missIndex
+            origin.xyz,     // ray origin
+            tMin,           // ray min range
+            direction.xyz,  // ray direction
+            tMax,           // ray max range
+            0               // payload (location = 0)
+        );
+
+        hitValue += prd.hitValue * prd.atten;
+        prd.depth++;
+
+        if (prd.done == 1 || prd.depth > 10)
+            break;
+        
+        origin.xyz    = prd.origin;
+        direction.xyz = prd.dir;
+        prd.done      = 1;
+    }
 
     const ivec2 p = ivec2(gl_LaunchIDEXT.x, gl_LaunchSizeEXT.y-gl_LaunchIDEXT.y);
 
-    imageStore(image, p, prd.hitValue);
+    imageStore(image, p, vec4(hitValue, 1.0));
 }

@@ -1,12 +1,21 @@
 #version 460
 #extension GL_EXT_ray_tracing : require
 
-layout(binding = 1, set = 0, rgba32f) uniform image2D image;
+struct hitPayload
+{
+    vec3 hitValue;
+    vec3 atten;
+    vec3 origin;
+    vec3 dir;
+    int depth;
+    int done;
+};
 
-layout(location = 0) rayPayloadInEXT vec4 hitValue;
+layout(binding = 20, set = 0) uniform samplerCube cubeMap;
+
+layout(location = 0) rayPayloadInEXT hitPayload prd;
 
 void main()
 {
-    const ivec2 p = ivec2(gl_LaunchIDEXT.x, gl_LaunchSizeEXT.y-gl_LaunchIDEXT.y);
-    hitValue = imageLoad(image, p);
+    prd.hitValue = vec3(texture(cubeMap, gl_WorldRayDirectionEXT));
 }

@@ -20,12 +20,15 @@ namespace erm {
 		, mWidth(0)
 		, mHeight(0)
 		, mBPP(0)
+	{}
+
+	Texture::~Texture() = default;
+
+	void Texture::Init()
 	{
 		CreateTextureImage();
 		CreateTextureImageView();
 	}
-
-	Texture::~Texture() = default;
 
 	void Texture::CreateTextureImage()
 	{
@@ -39,14 +42,24 @@ namespace erm {
 
 		stbi_image_free(mLocalBuffer);
 
+		vk::ImageCreateInfo imageInfo {};
+		imageInfo.imageType = vk::ImageType::e2D;
+		imageInfo.extent.width = mWidth;
+		imageInfo.extent.height = mHeight;
+		imageInfo.extent.depth = 1;
+		imageInfo.mipLevels = 1;
+		imageInfo.arrayLayers = 1;
+		imageInfo.format = vk::Format::eR8G8B8A8Srgb;
+		imageInfo.tiling = vk::ImageTiling::eOptimal;
+		imageInfo.initialLayout = vk::ImageLayout::eUndefined;
+		imageInfo.usage = vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled;
+		imageInfo.samples = vk::SampleCountFlagBits::e1;
+		imageInfo.sharingMode = vk::SharingMode::eExclusive;
+
 		VkUtils::CreateImageUnique(
 			mDevice.GetVkPhysicalDevice(),
 			mDevice.GetVkDevice(),
-			mWidth,
-			mHeight,
-			vk::Format::eR8G8B8A8Srgb,
-			vk::ImageTiling::eOptimal,
-			vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
+			imageInfo,
 			vk::MemoryPropertyFlagBits::eDeviceLocal,
 			mTextureImage,
 			mTextureImageMemory);
@@ -75,7 +88,19 @@ namespace erm {
 
 	void Texture::CreateTextureImageView()
 	{
-		mTextureImageView = VkUtils::CreateImageViewUnique(mDevice.GetVkDevice(), mTextureImage.get(), vk::Format::eR8G8B8A8Srgb, vk::ImageAspectFlagBits::eColor);
+		vk::ImageViewCreateInfo viewInfo {};
+		viewInfo.image = mTextureImage.get();
+		viewInfo.viewType = vk::ImageViewType::e2D;
+		viewInfo.format = vk::Format::eR8G8B8Srgb;
+		viewInfo.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
+		viewInfo.subresourceRange.baseMipLevel = 0;
+		viewInfo.subresourceRange.levelCount = 1;
+		viewInfo.subresourceRange.baseArrayLayer = 0;
+		viewInfo.subresourceRange.layerCount = 1;
+
+		mTextureImageView = VkUtils::CreateImageViewUnique(
+			mDevice.GetVkDevice(),
+			viewInfo);
 	}
 
 } // namespace erm

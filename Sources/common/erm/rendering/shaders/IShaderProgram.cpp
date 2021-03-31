@@ -97,6 +97,8 @@ namespace {
 			return makeSamplerData(erm::TextureType::NORMAL);
 		else if (resource.name.compare("specularSampler") == 0)
 			return makeSamplerData(erm::TextureType::SPECULAR);
+		else if (resource.name.compare("cubeMap") == 0)
+			return makeSamplerData(erm::TextureType::CUBE_MAP);
 
 		ASSERT(false);
 
