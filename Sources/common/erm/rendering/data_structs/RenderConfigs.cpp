@@ -8,7 +8,12 @@ namespace erm {
 				AttachmentLoadOp::CLEAR,
 				AttachmentStoreOp::STORE,
 				ImageLayout::UNDEFINED,
-				ImageLayout::GENERAL),
+#ifdef ERM_RAY_TRACING_ENABLED
+				ImageLayout::GENERAL
+#else
+				ImageLayout::COLOR_ATTACHMENT_OPTIMAL
+#endif
+				),
 			AttachmentData(
 				AttachmentLoadOp::CLEAR,
 				AttachmentStoreOp::DONT_CARE,

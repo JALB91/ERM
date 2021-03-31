@@ -77,7 +77,7 @@ namespace erm {
 				description.format = vk::Format::eR32Sint;
 				description.offset = offsetof(VertexData, mBoneNum);
 			}
-			else if (res.name.compare("inDebugBoneId") == 0)
+			else if (res.name.compare("inBoneDebugId") == 0)
 			{
 				description.format = vk::Format::eR32Sint;
 				description.offset = offsetof(VertexData, mDebugBoneId);
