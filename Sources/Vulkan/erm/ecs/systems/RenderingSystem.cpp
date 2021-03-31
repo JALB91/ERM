@@ -66,7 +66,7 @@ namespace {
 	static erm::RTRenderData GetDefaultRTRenderData(erm::Engine& engine)
 	{
 		erm::RTRenderData data(engine.GetDevice());
-		data.mRenderConfigs.mShaderProgram = engine.GetResourcesManager().GetOrCreateRTShaderProgram("res/shaders/vk_raytrace");
+		data.mRenderConfigs.mShaderProgram = engine.GetResourcesManager().GetOrCreateRTShaderProgram("res/shaders/Vulkan/ray_tracing/vk_raytrace");
 		data.mRenderConfigs.mMaterial = &erm::Material::DEFAULT;
 		data.mRenderConfigs.mPBMaterial = &erm::PBMaterial::DEFAULT;
 
@@ -438,7 +438,7 @@ namespace erm::ecs {
 			RTRenderConfigs& configs = data.mRenderConfigs;
 			configs.mMaterial = configs.mMaterial ? configs.mMaterial : &Material::DEFAULT;
 			configs.mPBMaterial = configs.mPBMaterial ? configs.mPBMaterial : &PBMaterial::DEFAULT;
-			configs.mShaderProgram = configs.mShaderProgram ? configs.mShaderProgram : mResourcesManager.GetOrCreateRTShaderProgram("res/shaders/vk_raytrace");
+			configs.mShaderProgram = configs.mShaderProgram ? configs.mShaderProgram : mResourcesManager.GetOrCreateRTShaderProgram("res/shaders/Vulkan/ray_tracing/vk_raytrace");
 
 			{
 				UboLight ubo;
