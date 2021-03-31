@@ -8,6 +8,7 @@ function(target_setup_project TARGET)
 	target_compile_definitions(
 		"${TARGET}"
 		PRIVATE 
+			ERM_OSX
 			$<$<STREQUAL:"${TARGET_API}","OpenGl">:GL_DO_NOT_WARN_IF_MULTI_GL_VERSION_HEADERS_INCLUDED>
 			$<$<STREQUAL:"${TARGET_API}","OpenGl">:GL_SILENCE_DEPRECATION>
 	)
@@ -20,8 +21,8 @@ function(target_setup_project TARGET)
 
 	if("${TARGET_API}" STREQUAL "Vulkan")
 		set(SHADERS_COMPILER "glslc --target-spv=spv1.5" PARENT_SCOPE)
-		set(ERM_FLIP_VIEWPORT OFF CACHE BOOL "" FORCE)
-		set(ERM_FLIP_PROJECTION ON CACHE BOOL "" FORCE)
+		set(ERM_FLIP_VIEWPORT ON CACHE BOOL "" FORCE)
+		set(ERM_FLIP_PROJECTION OFF CACHE BOOL "" FORCE)
 	else()
 		set(ERM_FLIP_VIEWPORT OFF CACHE BOOL "" FORCE)
 		set(ERM_FLIP_PROJECTION OFF CACHE BOOL "" FORCE)
