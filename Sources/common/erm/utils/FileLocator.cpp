@@ -23,7 +23,13 @@ namespace {
 	const char* const kJpegTextureExtension = ".jpeg";
 
 	const char* const kModelsDir = "models/";
-	const char* const kShadersDir = "shaders/";
+#if defined(ERM_VULKAN)
+	const char* const kShadersDir = "shaders/Vulkan/";
+#elif defined(ERM_OPENGL)
+	const char* const kShadersDir = "shaders/OpenGl/";
+#elif defined(ERM_DX12)
+	const char* const kShadersDir = "shaders/DX12/";
+#endif
 	const char* const kTexturesDir = "textures/";
 
 	std::array kSupportedModelsExtensions
