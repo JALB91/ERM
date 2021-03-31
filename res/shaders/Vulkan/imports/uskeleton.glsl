@@ -1,4 +1,4 @@
-#include "imp_vk_macros.glsl"
+#include "macros.glsl"
 
 layout(binding = VK_USKELETON_BINDING, set = 1) uniform Skeleton {
 	mat4 model;

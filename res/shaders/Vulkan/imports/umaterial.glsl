@@ -1,4 +1,4 @@
-#include "imp_vk_macros.glsl"
+#include "macros.glsl"
 
 layout(binding = VK_UMATERIAL_BINDING, set = 1) uniform Material {
 	vec3 ambient;

@@ -2,10 +2,10 @@
 #extension GL_ARB_separate_shader_objects : enable
 #extension GL_GOOGLE_include_directive : enable
 
-#include "imp_vk_raster_macros.glsl"
-#include "imp_vk_vertex_data.glsl"
-#include "imp_vk_umvp.glsl"
-#include "imp_vk_unormal.glsl"
+#include "raster_macros.glsl"
+#include "vertex_data.glsl"
+#include "umvp.glsl"
+#include "unormal.glsl"
 
 layout(location = 0) out vec3 outFragPos;
 layout(location = 1) out vec3 outNormal;

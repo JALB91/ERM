@@ -2,11 +2,11 @@
 #extension GL_ARB_separate_shader_objects : enable
 #extension GL_GOOGLE_include_directive : enable
 
-#include "imp_vk_umaterial.glsl"
-#include "imp_vk_ulight.glsl"
-#include "imp_vk_uview.glsl"
-#include "imp_vk_udiffuse.glsl"
-#include "imp_vk_raster_utils.glsl"
+#include "umaterial.glsl"
+#include "ulight.glsl"
+#include "uview.glsl"
+#include "udiffuse.glsl"
+#include "raster_utils.glsl"
 
 layout(location = 0) in vec3 FragPos;
 layout(location = 1) in vec3 Normal;

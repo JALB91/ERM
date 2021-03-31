@@ -1,4 +1,4 @@
-#include "imp_vk_macros.glsl"
+#include "macros.glsl"
 
 layout(binding = VK_UPBMAT_BINDING, set = 1) uniform PBMaterial {
     vec3 albedo;

@@ -1,4 +1,4 @@
-#include "imp_vk_macros.glsl"
+#include "macros.glsl"
 
 layout(binding = VK_UBONESDEBUG_BINDING, set = 1) uniform BonesDebug {
 	mat4 bonesModels[MAX_BONES];
