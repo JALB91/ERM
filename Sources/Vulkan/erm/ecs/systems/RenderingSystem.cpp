@@ -36,7 +36,7 @@ namespace {
 	std::string GetShaderForConfig(const erm::BindingConfigs& config, const erm::ecs::LightComponent* light, const erm::ecs::SkeletonComponent* skeleton)
 	{
 		if (!light)
-			return "res/shaders/Vulkan/vk_basic";
+			return "res/shaders/Vulkan/rasterization/vk_basic";
 
 		const erm::PBMaterial* pbMat = config.mPBMaterial;
 		const erm::Material* mat = config.mMaterial;
@@ -44,7 +44,7 @@ namespace {
 		const erm::Texture* normalMap = config.GetTexture(erm::TextureType::NORMAL);
 		const erm::Texture* specularMap = config.GetTexture(erm::TextureType::SPECULAR);
 
-		std::string result = "res/shaders/Vulkan/";
+		std::string result = "res/shaders/Vulkan/rasterization/";
 		result += skeleton && skeleton->GetSkin() ? "vk_skeleton" : "vk_model";
 
 		if (pbMat)

@@ -37,7 +37,7 @@ namespace erm::ecs {
 		RenderConfigs configs(RenderConfigs::MODELS_RENDER_CONFIGS);
 		configs.SetNormViewport(engine.GetWindow().GetNormalizedViewport());
 		configs.SetCullMode(CullMode::NONE);
-		configs.mShaderProgram = engine.GetResourcesManager().GetOrCreateShaderProgram("res/shaders/Vulkan/vk_basic");
+		configs.mShaderProgram = engine.GetResourcesManager().GetOrCreateShaderProgram("res/shaders/Vulkan/rasterization/vk_basic");
 
 		return configs;
 	}
@@ -46,7 +46,7 @@ namespace erm::ecs {
 	{
 		RenderConfigs configs(RenderConfigs::MODELS_RENDER_CONFIGS);
 		configs.SetNormViewport(engine.GetWindow().GetNormalizedViewport());
-		configs.mShaderProgram = engine.GetResourcesManager().GetOrCreateShaderProgram("res/shaders/Vulkan/vk_basic");
+		configs.mShaderProgram = engine.GetResourcesManager().GetOrCreateShaderProgram("res/shaders/Vulkan/rasterization/vk_basic");
 
 		return configs;
 	}
@@ -57,7 +57,7 @@ namespace erm::ecs {
 		configs.SetCullMode(CullMode::NONE);
 		configs.SetPolygonMode(PolygonMode::LINE);
 		configs.SetNormViewport(engine.GetWindow().GetNormalizedViewport());
-		configs.mShaderProgram = engine.GetResourcesManager().GetOrCreateShaderProgram("res/shaders/Vulkan/vk_basic");
+		configs.mShaderProgram = engine.GetResourcesManager().GetOrCreateShaderProgram("res/shaders/Vulkan/rasterization/vk_basic");
 
 		return configs;
 	}
@@ -66,7 +66,7 @@ namespace erm::ecs {
 	{
 		RenderConfigs configs = RenderConfigs::MODELS_RENDER_CONFIGS;
 		configs.SetNormViewport(engine.GetWindow().GetNormalizedViewport());
-		configs.mShaderProgram = engine.GetResourcesManager().GetOrCreateShaderProgram("res/shaders/Vulkan/vk_bones_debug");
+		configs.mShaderProgram = engine.GetResourcesManager().GetOrCreateShaderProgram("res/shaders/Vulkan/rasterization/vk_bones_debug");
 
 		return configs;
 	}

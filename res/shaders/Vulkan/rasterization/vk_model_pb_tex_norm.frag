@@ -2,10 +2,11 @@
 #extension GL_ARB_separate_shader_objects : enable
 #extension GL_GOOGLE_include_directive : enable
 
-#include "imports/imp_vk_upbmaterial.glsl"
-#include "imports/imp_vk_upblight.glsl"
-#include "imports/imp_vk_uview.glsl"
-#include "imports/imp_vk_pbutils.glsl"
+#include "imp_vk_upbmaterial.glsl"
+#include "imp_vk_upblight.glsl"
+#include "imp_vk_uview.glsl"
+#include "imp_vk_udiffuse.glsl"
+#include "imp_vk_pbutils.glsl"
 
 layout(location = 0) in vec3 FragPos;
 layout(location = 1) in vec3 Normal;
@@ -25,7 +26,7 @@ void main()
 
     // reflectance equation
     vec3 Lo = vec3(0.0);
-    for(int i = 0; i < 1; ++i) 
+    for(int i = 0; i < 1; ++i)
     {
         // calculate per-light radiance
         vec3 L = normalize(pbLight.position - FragPos);
@@ -73,4 +74,5 @@ void main()
     color = pow(color, vec3(1.0/2.2)); 
 
     outColor = vec4(color, 1.0);
+    outColor += texture(diffuseSampler, TexCoord);
 }

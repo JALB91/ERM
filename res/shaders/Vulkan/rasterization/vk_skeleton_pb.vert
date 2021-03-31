@@ -2,15 +2,12 @@
 #extension GL_ARB_separate_shader_objects : enable
 #extension GL_GOOGLE_include_directive : enable
 
-#include "imports/imp_vk_raster_macros.glsl"
-#include "imports/imp_vk_vertex_data.glsl"
-#include "imports/imp_vk_uskeleton.glsl"
+#include "imp_vk_raster_macros.glsl"
+#include "imp_vk_vertex_data.glsl"
+#include "imp_vk_uskeleton.glsl"
 
 layout(location = 0) out vec3 outFragPos;
 layout(location = 1) out vec3 outNormal;
-layout(location = 2) out vec4 outBoneWeights;
-layout(location = 3) flat out ivec4 outBoneIds;
-layout(location = 4) flat out int outBoneNum;
 
 void main()
 {
@@ -28,8 +25,5 @@ void main()
 
 	outFragPos = vec3(localPos);
 	outNormal = vec3(localNormal);
-	outBoneWeights = inBoneWeights;
-	outBoneIds = inBoneIds;
-	outBoneNum = inBoneNum;
 	gl_Position = ubo.projection * ubo.view * localPos;
 }

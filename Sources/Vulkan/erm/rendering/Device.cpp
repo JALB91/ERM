@@ -19,6 +19,9 @@ namespace {
 	const std::vector<const char*> kDeviceExtensions
 	{
 		VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+#if defined(ERM_OSX)
+			"VK_KHR_portability_subset",
+#endif
 #if defined(ERM_FLIP_VIEWPORT) && !defined(ERM_RAY_TRACING_ENABLED)
 			VK_KHR_MAINTENANCE1_EXTENSION_NAME,
 #elif defined(ERM_RAY_TRACING_ENABLED)
@@ -133,7 +136,7 @@ namespace erm {
 
 		std::vector<vk::ExtensionProperties> extensions = vk::enumerateInstanceExtensionProperties();
 
-		std::cout << extensions.size() << "Instance extensions supported" << std::endl;
+		std::cout << extensions.size() << " Instance extensions supported" << std::endl;
 
 		for (const vk::ExtensionProperties& extension : extensions)
 		{
@@ -160,9 +163,9 @@ namespace erm {
 
 		vk::ApplicationInfo appInfo = {};
 		appInfo.pApplicationName = "ERM Vulkan";
-		appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
+		appInfo.applicationVersion = VK_MAKE_VERSION(0, 0, 1);
 		appInfo.pEngineName = "ERM";
-		appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
+		appInfo.engineVersion = VK_MAKE_VERSION(0, 0, 1);
 		appInfo.apiVersion = VK_API_VERSION_1_2;
 
 		vk::InstanceCreateInfo createInfo = {};
@@ -178,7 +181,7 @@ namespace erm {
 #else
 		std::vector<vk::LayerProperties> availableLayers = vk::enumerateInstanceLayerProperties();
 
-		std::cout << availableLayers.size() << "Layers supported" << std::endl;
+		std::cout << availableLayers.size() << " Layers supported" << std::endl;
 
 		for (const vk::LayerProperties& layer : availableLayers)
 		{
@@ -278,7 +281,7 @@ namespace erm {
 		vkEnumerateDeviceExtensionProperties(mPhysicalDevice, nullptr, &count, extensionProperties.data());
 		extensionProperties.resize(std::min(extensionProperties.size(), size_t(count)));
 
-		std::cout << "Available device extensions" << std::endl;
+		std::cout << count << " Available device extensions" << std::endl;
 		for (const VkExtensionProperties& prop : extensionProperties)
 			std::cout << "\t" << prop.extensionName << std::endl;
 

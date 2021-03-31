@@ -2,11 +2,11 @@
 #extension GL_ARB_separate_shader_objects : enable
 #extension GL_GOOGLE_include_directive : enable
 
-#include "imports/imp_vk_upbmaterial.glsl"
-#include "imports/imp_vk_upblight.glsl"
-#include "imports/imp_vk_uview.glsl"
-#include "imports/imp_vk_udiffuse.glsl"
-#include "imports/imp_vk_pbutils.glsl"
+#include "imp_vk_upbmaterial.glsl"
+#include "imp_vk_upblight.glsl"
+#include "imp_vk_uview.glsl"
+#include "imp_vk_uspecular.glsl"
+#include "imp_vk_pbutils.glsl"
 
 layout(location = 0) in vec3 FragPos;
 layout(location = 1) in vec3 Normal;
@@ -43,6 +43,7 @@ void main()
         vec3 nominator    = NDF * G * F; 
         float denominator = 4 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0);
         vec3 specular = nominator / max(denominator, 0.001); // prevent divide by zero for NdotV=0.0 or NdotL=0.0
+        specular *= vec3(texture(specularSampler, TexCoord));
         
         // kS is equal to Fresnel
         vec3 kS = F;
@@ -74,5 +75,4 @@ void main()
     color = pow(color, vec3(1.0/2.2)); 
 
     outColor = vec4(color, 1.0);
-    outColor += texture(diffuseSampler, TexCoord);
 }

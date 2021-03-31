@@ -2,12 +2,10 @@
 #extension GL_ARB_separate_shader_objects : enable
 #extension GL_GOOGLE_include_directive : enable
 
-#include "imports/imp_vk_upbmaterial.glsl"
-#include "imports/imp_vk_upblight.glsl"
-#include "imports/imp_vk_uview.glsl"
-#include "imports/imp_vk_udiffuse.glsl"
-#include "imports/imp_vk_uspecular.glsl"
-#include "imports/imp_vk_pbutils.glsl"
+#include "imp_vk_upbmaterial.glsl"
+#include "imp_vk_upblight.glsl"
+#include "imp_vk_uview.glsl"
+#include "imp_vk_pbutils.glsl"
 
 layout(location = 0) in vec3 FragPos;
 layout(location = 1) in vec3 Normal;
@@ -19,13 +17,11 @@ void main()
 {		
     vec3 N = normalize(Normal);
     vec3 V = normalize(view.position - FragPos);
-    vec3 albedo = pow(vec3(texture(diffuseSampler, TexCoord)), vec3(2.2));
 
     // calculate reflectance at normal incidence; if dia-electric (like plastic) use F0 
     // of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow)    
-    //vec3 F0 = vec3(0.04);
-    vec3 F0 = albedo;
-    F0 = mix(F0, albedo, pbMaterial.metallic);
+    vec3 F0 = vec3(0.04); 
+    F0 = mix(F0, pbMaterial.albedo, pbMaterial.metallic);
 
     // reflectance equation
     vec3 Lo = vec3(0.0);
@@ -46,7 +42,6 @@ void main()
         vec3 nominator    = NDF * G * F; 
         float denominator = 4 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0);
         vec3 specular = nominator / max(denominator, 0.001); // prevent divide by zero for NdotV=0.0 or NdotL=0.0
-        specular *= vec3(texture(specularSampler, TexCoord));
         
         // kS is equal to Fresnel
         vec3 kS = F;
@@ -63,12 +58,12 @@ void main()
         float NdotL = max(dot(N, L), 0.0);        
 
         // add to outgoing radiance Lo
-        Lo += (kD * albedo / PI + specular) * radiance * NdotL;  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
+        Lo += (kD * pbMaterial.albedo / PI + specular) * radiance * NdotL;  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
     }   
     
     // ambient lighting (note that the next IBL tutorial will replace 
     // this ambient lighting with environment lighting).
-    vec3 ambient = vec3(0.03) * albedo * pbMaterial.ao;
+    vec3 ambient = vec3(0.03) * pbMaterial.albedo * pbMaterial.ao;
 
     vec3 color = ambient + Lo;
 
@@ -78,5 +73,4 @@ void main()
     color = pow(color, vec3(1.0/2.2)); 
 
     outColor = vec4(color, 1.0);
-    outColor += texture(diffuseSampler, TexCoord);
 }
