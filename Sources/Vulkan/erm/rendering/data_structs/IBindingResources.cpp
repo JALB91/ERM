@@ -94,7 +94,7 @@ namespace erm {
 			imageInfo.sampler = mRenderer.GetTextureSampler();
 
 			vk::WriteDescriptorSet& descriptorWrite = writes[i + writeOffset];
-			descriptorWrite.dstSet = mDescriptorSets[0].get();
+			descriptorWrite.dstSet = descriptorSet;
 			descriptorWrite.dstBinding = sData.mBinding;
 			descriptorWrite.dstArrayElement = 0;
 			descriptorWrite.descriptorType = vk::DescriptorType::eCombinedImageSampler;
@@ -132,7 +132,7 @@ namespace erm {
 			imageInfo.imageView = mRenderer.GetSwapChainImageViews()[mRenderer.GetCurrentImageIndex()];
 
 			vk::WriteDescriptorSet& descriptorWrite = writes[i + writeOffset];
-			descriptorWrite.dstSet = mDescriptorSets[0].get();
+			descriptorWrite.dstSet = descriptorSet;
 			descriptorWrite.dstBinding = sData.mBinding;
 			descriptorWrite.dstArrayElement = 0;
 			descriptorWrite.descriptorType = vk::DescriptorType::eStorageImage;
@@ -158,7 +158,7 @@ namespace erm {
 			info.pAccelerationStructures = as;
 
 			vk::WriteDescriptorSet& write = writes[writeOffset];
-			write.dstSet = mDescriptorSets[0].get();
+			write.dstSet = descriptorSet;
 			write.dstBinding = asData[0].mBinding;
 			write.dstArrayElement = 0;
 			write.descriptorCount = 1;
