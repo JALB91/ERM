@@ -65,7 +65,7 @@ namespace erm {
 			ForEachChildDo([&currentNode](const Tree& node) mutable {
 				currentNode = &(currentNode->AddChild(Utils::Clone(node.GetId()), Utils::Clone(node.GetPayload())));
 			},
-						   [&currentNode](const Tree& node) mutable {
+						   [&currentNode](const Tree& /*node*/) mutable {
 							   currentNode = currentNode->GetParent();
 						   });
 

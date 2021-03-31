@@ -84,8 +84,8 @@ namespace ImGui {
 		{
 			ImGui::Indent();
 
-			ImGui::Text("Vertices: %u", mesh.GetVerticesData().size());
-			ImGui::Text("Indices: %u", mesh.GetIndicesData().size());
+			ImGui::Text("Vertices: %zu", mesh.GetVerticesData().size());
+			ImGui::Text("Indices: %zu", mesh.GetIndicesData().size());
 			ImGui::ShowPBMaterialDebug(engine, mesh);
 			ImGui::ShowMaterialDebug(engine, mesh);
 

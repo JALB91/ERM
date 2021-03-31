@@ -30,7 +30,6 @@ namespace erm {
 
 	void ProcessMesh(
 		std::mutex& mutex,
-		std::atomic<bool>& stop,
 		const char* path,
 		Model& model,
 		uint32_t& indicesOffset,
@@ -69,7 +68,7 @@ namespace erm {
 
 			FbxNode* child = node->GetChild(i);
 			if (FbxMesh* mesh = child->GetMesh())
-				ProcessMesh(mutex, stop, path, model, indicesOffset, resourcesManager, bonesTree, mesh);
+				ProcessMesh(mutex, path, model, indicesOffset, resourcesManager, bonesTree, mesh);
 
 			ProcessNode(mutex, stop, path, model, indicesOffset, resourcesManager, bonesTree, child);
 		}
@@ -77,7 +76,6 @@ namespace erm {
 
 	void ProcessMesh(
 		std::mutex& mutex,
-		std::atomic<bool>& stop,
 		const char* path,
 		Model& model,
 		uint32_t& indicesOffset,
@@ -198,7 +196,7 @@ namespace erm {
 		Material* mat = nullptr;
 		if (pMesh->GetElementMaterialCount() > 0)
 		{
-			mat = ParseFBXMaterial(mutex, stop, path, pMesh, resourcesManager);
+			mat = ParseFBXMaterial(mutex, path, pMesh, resourcesManager);
 		}
 
 		RenderConfigs conf = RenderConfigs::MODELS_RENDER_CONFIGS;

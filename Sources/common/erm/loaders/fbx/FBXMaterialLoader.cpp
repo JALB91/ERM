@@ -10,11 +10,10 @@
 
 namespace erm {
 
-	const char* GetTextureName(FbxProperty& pProperty);
+	const char* GetTextureName(FbxProperty pProperty);
 
 	Material* ParseFBXMaterial(
 		std::mutex& mutex,
-		std::atomic<bool>& stop,
 		const char* path,
 		FbxMesh* pMesh,
 		ResourcesManager& resourcesManager)
@@ -57,7 +56,7 @@ namespace erm {
 		return nullptr;
 	}
 
-	const char* GetTextureName(FbxProperty& pProperty)
+	const char* GetTextureName(FbxProperty pProperty)
 	{
 		int lLayeredTextureCount = pProperty.GetSrcObjectCount<FbxLayeredTexture>();
 		if (lLayeredTextureCount > 0)

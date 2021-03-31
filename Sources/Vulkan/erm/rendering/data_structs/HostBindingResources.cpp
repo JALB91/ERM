@@ -71,12 +71,12 @@ namespace erm {
 		return mDescriptorSets[mCurrentBufferIndex].get();
 	}
 
-	void HostBindingResources::UpdateResources(vk::CommandBuffer& cmd, IRenderData& data)
+	void HostBindingResources::UpdateResources(vk::CommandBuffer& /*cmd*/, IRenderData& data)
 	{
 		for (auto& pair : mUniformBuffers[mCurrentBufferIndex])
 		{
 			ASSERT(data.HasUbo(pair.first));
-			static_cast<HostBuffer&>(pair.second).Update(data.mUbos[pair.first].get());
+			pair.second.Update(data.mUbos[pair.first].get());
 		}
 	}
 

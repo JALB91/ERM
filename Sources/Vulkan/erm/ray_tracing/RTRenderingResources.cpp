@@ -35,6 +35,7 @@ namespace erm {
 	void RTRenderingResources::Update(RTRenderData& renderData, uint32_t imageIndex)
 	{
 		PROFILE_FUNCTION();
+		UNUSED(imageIndex);
 
 		const bool forceUpdate = renderData.mForceUpdate || (mPipelineResources && mPipelineResources->GetMaxInstancesCount() != renderData.mInstancesMap.size());
 

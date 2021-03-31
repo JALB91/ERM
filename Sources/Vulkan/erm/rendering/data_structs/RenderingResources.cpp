@@ -79,7 +79,15 @@ namespace erm {
 		cmd.endRenderPass();
 		cmd.end();
 
+		PostDraw();
+
 		return cmd;
+	}
+
+	void RenderingResources::PostDraw()
+	{
+		for (auto& res : mPipelineResources)
+			res->PostDraw();
 	}
 
 	void RenderingResources::AddSubpass(const SubpassData& data)

@@ -32,11 +32,12 @@ namespace erm {
 		RenderingResources& operator=(const RenderingResources&) = delete;
 		RenderingResources& operator=(RenderingResources&&) = delete;
 
+		void Refresh();
 		vk::CommandBuffer UpdateCommandBuffer(std::vector<RenderData*>& renderData, uint32_t imageIndex);
+		void PostDraw();
 
 		void AddSubpass(const SubpassData& data);
 		bool IsSubpassCompatible(const SubpassData& subpass) const;
-		void Refresh();
 
 	private:
 		vk::AttachmentDescription CreateAttachmentDescription(const erm::AttachmentData& data, vk::Format format) const;

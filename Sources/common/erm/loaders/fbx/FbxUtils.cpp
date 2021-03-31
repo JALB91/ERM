@@ -141,7 +141,7 @@ namespace erm {
 			bool skip = false;
 			for (int i = 0; i < BoneIds::length(); ++i)
 			{
-				if (data.mBoneIds[i] == id && data.mBoneWeights[i] > 0.0f)
+				if (data.mBoneIds[i] == static_cast<int>(id) && data.mBoneWeights[i] > 0.0f)
 				{
 					skip = true;
 					break;

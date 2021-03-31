@@ -14,10 +14,10 @@ namespace erm {
 	Model::Model(Device& device, const char* path, const char* name)
 		: IAsset(path, name)
 		, mDevice(device)
-		, mIsDirty(false)
 #ifdef ERM_RAY_TRACING_ENABLED
 		, mBlas(device, *this)
 #endif
+		, mIsDirty(false)
 	{}
 
 	Model::~Model()

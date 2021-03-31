@@ -97,8 +97,8 @@ namespace ImGui {
 
 				ShowPathOptions(engine, modelComponent);
 				ImGui::Text("Name: %s", model->mName.c_str());
-				ImGui::Text("Vertices: %d", vertices);
-				ImGui::Text("Indices: %d", indices);
+				ImGui::Text("Vertices: %zu", vertices);
+				ImGui::Text("Indices: %zu", indices);
 
 				bool shouldShowBoundingBox = modelComponent.GetShouldShowBoundingBox();
 				ImGui::Checkbox("Show Bounding Box", &shouldShowBoundingBox);

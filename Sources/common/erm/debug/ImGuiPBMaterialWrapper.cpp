@@ -15,7 +15,7 @@
 
 namespace ImGui {
 
-	void ShowPBMaterialDebug(erm::Engine& engine, erm::Mesh& mesh)
+	void ShowPBMaterialDebug(erm::Engine& /*engine*/, erm::Mesh& mesh)
 	{
 		if (ImGui::CollapsingHeader("PBMaterial"))
 		{

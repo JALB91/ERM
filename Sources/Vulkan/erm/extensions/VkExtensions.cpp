@@ -11,6 +11,14 @@ static PFN_vkCmdDebugMarkerBeginEXT pfn_vkCmdDebugMarkerBeginEXT = 0;
 static PFN_vkCmdDebugMarkerEndEXT pfn_vkCmdDebugMarkerEndEXT = 0;
 static PFN_vkCmdDebugMarkerInsertEXT pfn_vkCmdDebugMarkerInsertEXT = 0;
 
+#	if defined(ERM_OSX)
+#		pragma clang diagnostic push
+#		pragma clang diagnostic ignored "-Wall"
+#		pragma clang diagnostic ignored "-pedantic-errors"
+#		pragma clang diagnostic ignored "-pedantic"
+#		pragma clang diagnostic ignored "-Wextra"
+#	endif
+
 VKAPI_ATTR VkResult VKAPI_CALL vkDebugMarkerSetObjectTagEXT(
 	VkDevice device,
 	const VkDebugMarkerObjectTagInfoEXT* pTagInfo)
@@ -1730,3 +1738,7 @@ void reset_VK_EXTENSION_SUBSET()
 	PFN_vkDestroyIndirectCommandsLayoutNV pfn_vkDestroyIndirectCommandsLayoutNV = 0;
 #endif
 }
+
+#if defined(ERM_OSX)
+#	pragma clang diagnostic pop
+#endif
