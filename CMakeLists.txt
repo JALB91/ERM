@@ -187,7 +187,7 @@ if("${TARGET_API}" STREQUAL "Vulkan")
 endif("${TARGET_API}" STREQUAL "Vulkan")
 
 if(${ERM_RAY_TRACING_ENABLED})
-	list(APPEND PIPELINE_ARGS --rtx-enabled)
+	list(APPEND PIPELINE_ARGS --rtx-enabled True)
 endif(${ERM_RAY_TRACING_ENABLED})
 
 set(PIPELINE_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/scripts/resources_pipeline.py")
