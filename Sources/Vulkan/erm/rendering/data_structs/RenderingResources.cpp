@@ -187,6 +187,7 @@ void RenderingResources::Cleanup()
 
 void RenderingResources::CreateRenderPass()
 {
+	std::deque<vk::AttachmentReference> attachmentRefs;
 	std::vector<vk::AttachmentDescription> attachments;
 	std::vector<vk::SubpassDescription> subpasses(mSubpassData.size());
 	std::vector<vk::SubpassDependency> dependencies(mSubpassData.size());
@@ -200,7 +201,7 @@ void RenderingResources::CreateRenderPass()
 
 		attachments.emplace_back(CreateAttachmentDescription(data.mColorAttachment, mRenderer.GetSwapChainImageFormat()));
 
-		vk::AttachmentReference colorAttachmentRef = {};
+		vk::AttachmentReference& colorAttachmentRef = attachmentRefs.emplace_back();
 		colorAttachmentRef.attachment = 0;
 #ifdef ERM_RAY_TRACING_ENABLED
 		colorAttachmentRef.layout = vk::ImageLayout::eGeneral;
@@ -214,7 +215,7 @@ void RenderingResources::CreateRenderPass()
 		{
 			attachments.emplace_back(CreateAttachmentDescription(data.mDepthAttachment.value(), VkUtils::FindDepthFormat(mDevice.GetVkPhysicalDevice())));
 
-			vk::AttachmentReference depthAttachmentRef {};
+			vk::AttachmentReference& depthAttachmentRef = attachmentRefs.emplace_back();
 			depthAttachmentRef.attachment = 1;
 			depthAttachmentRef.layout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
 
