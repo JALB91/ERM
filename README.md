@@ -6,13 +6,11 @@ From the root directory execute the `setup.sh` script.
 
 Available parameters:
 - `-h` Help
-- `-S` *SublimeText* generator (with *Make* as default build system)
-- `-M` Use *Make* build system
-- `-N` Use *Ninja* build system
-- `-t` Target API [*OpenGl*/*Vulkan* (default)]
-- `-r` Release mode
-- `-i` Run *CMake* in interactive mode
-- `-o` Generate and open project
-- `-c` Compile the project
-- `-f` Compile and runs
-- `-v` Run *CMake* in debug mode (verbose)
+- `-t` `--target-api` Target rendering API [*OpenGl*/*Vulkan* (default)]
+- `-r` `--release` Release mode (overwrite the config if specified)
+- `-o` `--open` Open project after generation
+- `--rtx` Enable ray tracing
+- `--interactive` Run *CMake* in interactive mode
+- `--config` Target build configuration [*Release*/*Debug* (default)]
+- `--compile` Compile the project after generation
+- `--verbose` Prints *CMake* environment variables
