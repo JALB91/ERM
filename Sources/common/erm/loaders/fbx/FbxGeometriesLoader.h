@@ -13,20 +13,20 @@
 // clang-format on
 
 namespace erm {
-	class Model;
-	class ResourcesManager;
+class Model;
+class ResourcesManager;
 } // namespace erm
 
 namespace erm {
 
-	extern void ProcessGeometries(
-		std::mutex& mutex,
-		std::atomic<bool>& stop,
-		const char* path,
-		Model& model,
-		ResourcesManager& resourcesManager,
-		std::unique_ptr<BonesTree>& bonesTree,
-		FbxScene& scene);
+extern void ProcessGeometries(
+	std::mutex& mutex,
+	std::atomic<bool>& stop,
+	const char* path,
+	Model& model,
+	ResourcesManager& resourcesManager,
+	std::unique_ptr<BonesTree>& bonesTree,
+	FbxScene& scene);
 
 }
 

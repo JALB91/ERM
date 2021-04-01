@@ -2,11 +2,11 @@
 
 namespace erm {
 
-	enum class PolygonMode : short
-	{
-		POINT,
-		LINE,
-		FILL
-	};
+enum class PolygonMode : short
+{
+	POINT,
+	LINE,
+	FILL
+};
 
 }

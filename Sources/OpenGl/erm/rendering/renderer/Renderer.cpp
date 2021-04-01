@@ -16,47 +16,47 @@
 
 namespace erm {
 
-	Renderer::Renderer(Engine& engine)
-		: mEngine(engine)
-	{
-		UNUSED(mEngine);
+Renderer::Renderer(Engine& engine)
+	: mEngine(engine)
+{
+	UNUSED(mEngine);
 
-		mRenderContext.SetDepthEnabled(true);
-		mRenderContext.SetDepthFunction(DepthFunction::LESS);
+	mRenderContext.SetDepthEnabled(true);
+	mRenderContext.SetDepthFunction(DepthFunction::LESS);
 
-		mRenderContext.SetBlendEnabled(true);
-		mRenderContext.SetBlendFunction(BlendFunction::SRC_ALPHA, BlendFunction::ONE_MINUS_SRC_ALPHA);
+	mRenderContext.SetBlendEnabled(true);
+	mRenderContext.SetBlendFunction(BlendFunction::SRC_ALPHA, BlendFunction::ONE_MINUS_SRC_ALPHA);
 
-		mRenderContext.SetCullFaceEnabled(true);
-		mRenderContext.SetCullMode(CullMode::FRONT);
+	mRenderContext.SetCullFaceEnabled(true);
+	mRenderContext.SetCullMode(CullMode::FRONT);
 #if defined(GLM_FORCE_LEFT_HANDED)
-		mRenderContext.SetFrontFace(FrontFace::CCW);
+	mRenderContext.SetFrontFace(FrontFace::CCW);
 #else
-		mRenderContext.SetFrontFace(FrontFace::CW);
+	mRenderContext.SetFrontFace(FrontFace::CW);
 #endif
 
-		mRenderContext.SetClearColor(math::vec4(0.25f, 0.25f, 0.25f, 1.0f));
+	mRenderContext.SetClearColor(math::vec4(0.25f, 0.25f, 0.25f, 1.0f));
 
-		std::cout << "OpenGL " << glGetString(GL_VERSION) << std::endl;
-		std::cout << "GLSL " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
-	}
+	std::cout << "OpenGL " << glGetString(GL_VERSION) << std::endl;
+	std::cout << "GLSL " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
+}
 
-	void Renderer::OnPreRender()
-	{
-		mRenderContext.Clear();
-	}
+void Renderer::OnPreRender()
+{
+	mRenderContext.Clear();
+}
 
-	void Renderer::OnRender()
-	{}
+void Renderer::OnRender()
+{}
 
-	void Renderer::OnPostRender()
-	{}
+void Renderer::OnPostRender()
+{}
 
-	void Renderer::Draw(DrawMode drawMode, const VertexBuffer& vb, const IndexBuffer& ib) const
-	{
-		vb.BindVA();
-		ib.Bind();
-		mRenderContext.Draw(drawMode, ib.GetCount());
-	}
+void Renderer::Draw(DrawMode drawMode, const VertexBuffer& vb, const IndexBuffer& ib) const
+{
+	vb.BindVA();
+	ib.Bind();
+	mRenderContext.Draw(drawMode, ib.GetCount());
+}
 
 } // namespace erm

@@ -14,105 +14,105 @@
 
 namespace ImGui {
 
-	void ShowPathOptions(erm::Engine& engine, erm::ecs::ModelComponent& modelComponent)
+void ShowPathOptions(erm::Engine& engine, erm::ecs::ModelComponent& modelComponent)
+{
+	const std::vector<std::string>& all = engine.GetFileLocator().GetModels();
+
+	erm::Model* model = modelComponent.GetModel();
+	std::string currentPath = model ? model->mPath : "";
+
+	if (ImGui::BeginCombo("Path", currentPath.c_str()))
 	{
-		const std::vector<std::string>& all = engine.GetFileLocator().GetModels();
-
-		erm::Model* model = modelComponent.GetModel();
-		std::string currentPath = model ? model->mPath : "";
-
-		if (ImGui::BeginCombo("Path", currentPath.c_str()))
+		bool isSelected = currentPath == "";
+		if (ImGui::Selectable("", &isSelected))
 		{
-			bool isSelected = currentPath == "";
-			if (ImGui::Selectable("", &isSelected))
-			{
-				currentPath = "";
-				modelComponent.SetModel(nullptr);
-			}
+			currentPath = "";
+			modelComponent.SetModel(nullptr);
+		}
 
-			for (unsigned int i = 0; i < all.size(); ++i)
+		for (unsigned int i = 0; i < all.size(); ++i)
+		{
+			isSelected = currentPath == all[i];
+			if (ImGui::Selectable(all[i].c_str(), &isSelected))
 			{
-				isSelected = currentPath == all[i];
-				if (ImGui::Selectable(all[i].c_str(), &isSelected))
+				if (currentPath != all[i])
 				{
-					if (currentPath != all[i])
-					{
-						currentPath = all[i];
-						modelComponent.SetModel(engine.GetResourcesManager().GetOrCreateModel(all[i].c_str()));
-					}
+					currentPath = all[i];
+					modelComponent.SetModel(engine.GetResourcesManager().GetOrCreateModel(all[i].c_str()));
 				}
 			}
-			ImGui::EndCombo();
 		}
+		ImGui::EndCombo();
+	}
+}
+
+bool ShowModelComponentDebugWindow(erm::Engine& engine, erm::ecs::ModelComponent& modelComponent)
+{
+	const bool headerOpen = ImGui::CollapsingHeader("Model");
+
+	if (ImGui::IsItemClicked(1))
+	{
+		ImGui::OpenPopup("ModelPopup");
 	}
 
-	bool ShowModelComponentDebugWindow(erm::Engine& engine, erm::ecs::ModelComponent& modelComponent)
+	bool shouldRemove = false;
+
+	if (ImGui::BeginPopup("ModelPopup"))
 	{
-		const bool headerOpen = ImGui::CollapsingHeader("Model");
-
-		if (ImGui::IsItemClicked(1))
+		if (ImGui::Button("Remove..."))
 		{
-			ImGui::OpenPopup("ModelPopup");
+			shouldRemove = true;
+			ImGui::CloseCurrentPopup();
 		}
 
-		bool shouldRemove = false;
+		ImGui::EndPopup();
+	}
 
-		if (ImGui::BeginPopup("ModelPopup"))
+	if (headerOpen)
+	{
+		ImGui::Indent();
+
+		if (erm::Model* model = modelComponent.GetModel())
 		{
-			if (ImGui::Button("Remove..."))
-			{
-				shouldRemove = true;
-				ImGui::CloseCurrentPopup();
-			}
+			size_t vertices = 0;
+			size_t indices = 0;
+			std::vector<erm::Mesh>& meshes = model->GetMeshes();
 
-			ImGui::EndPopup();
-		}
+			bool showMeshes = ImGui::CollapsingHeader("Meshes");
 
-		if (headerOpen)
-		{
 			ImGui::Indent();
-
-			if (erm::Model* model = modelComponent.GetModel())
+			for (unsigned int i = 0; i < meshes.size(); ++i)
 			{
-				size_t vertices = 0;
-				size_t indices = 0;
-				std::vector<erm::Mesh>& meshes = model->GetMeshes();
+				erm::Mesh& mesh = meshes[i];
 
-				bool showMeshes = ImGui::CollapsingHeader("Meshes");
-
-				ImGui::Indent();
-				for (unsigned int i = 0; i < meshes.size(); ++i)
+				if (showMeshes)
 				{
-					erm::Mesh& mesh = meshes[i];
-
-					if (showMeshes)
-					{
-						ImGui::ShowMeshDebugWindow(engine, mesh, i);
-					}
-
-					vertices += mesh.GetVerticesData().size();
-					indices += mesh.GetIndicesData().size();
+					ImGui::ShowMeshDebugWindow(engine, mesh, i);
 				}
-				ImGui::Unindent();
 
-				ShowPathOptions(engine, modelComponent);
-				ImGui::Text("Name: %s", model->mName.c_str());
-				ImGui::Text("Vertices: %zu", vertices);
-				ImGui::Text("Indices: %zu", indices);
-
-				bool shouldShowBoundingBox = modelComponent.GetShouldShowBoundingBox();
-				ImGui::Checkbox("Show Bounding Box", &shouldShowBoundingBox);
-				modelComponent.SetShouldShowBoundingBox(shouldShowBoundingBox);
+				vertices += mesh.GetVerticesData().size();
+				indices += mesh.GetIndicesData().size();
 			}
-			else
-			{
-				ShowPathOptions(engine, modelComponent);
-			}
-
 			ImGui::Unindent();
+
+			ShowPathOptions(engine, modelComponent);
+			ImGui::Text("Name: %s", model->mName.c_str());
+			ImGui::Text("Vertices: %zu", vertices);
+			ImGui::Text("Indices: %zu", indices);
+
+			bool shouldShowBoundingBox = modelComponent.GetShouldShowBoundingBox();
+			ImGui::Checkbox("Show Bounding Box", &shouldShowBoundingBox);
+			modelComponent.SetShouldShowBoundingBox(shouldShowBoundingBox);
+		}
+		else
+		{
+			ShowPathOptions(engine, modelComponent);
 		}
 
-		return shouldRemove;
+		ImGui::Unindent();
 	}
+
+	return shouldRemove;
+}
 
 } // namespace ImGui

@@ -2,11 +2,11 @@
 
 namespace erm {
 
-	enum class AttachmentLoadOp : char
-	{
-		CLEAR,
-		LOAD,
-		DONT_CARE
-	};
+enum class AttachmentLoadOp : char
+{
+	CLEAR,
+	LOAD,
+	DONT_CARE
+};
 
 }

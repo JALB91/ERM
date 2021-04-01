@@ -8,14 +8,14 @@
 
 namespace erm {
 
-	struct BufferLayout
-	{
-		BufferLayout()
-			: mBuffer(nullptr)
-		{}
+struct BufferLayout
+{
+	BufferLayout()
+		: mBuffer(nullptr)
+	{}
 
-		vk::Buffer mBuffer;
-		std::vector<BufferInfo> mInfos;
-	};
+	vk::Buffer mBuffer;
+	std::vector<BufferInfo> mInfos;
+};
 
 } // namespace erm

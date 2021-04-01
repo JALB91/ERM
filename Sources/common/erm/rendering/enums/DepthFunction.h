@@ -2,16 +2,16 @@
 
 namespace erm {
 
-	enum class DepthFunction : short
-	{
-		ALWAYS,
-		NEVER,
-		LESS,
-		EQUAL,
-		LEQUAL,
-		GREATER,
-		NOT_EQUAL,
-		GEQUAL
-	};
+enum class DepthFunction : short
+{
+	ALWAYS,
+	NEVER,
+	LESS,
+	EQUAL,
+	LEQUAL,
+	GREATER,
+	NOT_EQUAL,
+	GEQUAL
+};
 
 }

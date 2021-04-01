@@ -4,29 +4,29 @@
 
 namespace erm::ecs {
 
-	struct EntityId
+struct EntityId
+{
+public:
+	EntityId(ID id = INVALID_ID)
+		: mId(id)
+	{}
+
+	inline ID operator()() const { return mId; }
+	inline bool operator==(EntityId other) const { return mId == other.mId; }
+	inline bool operator!=(EntityId other) const { return mId != other.mId; }
+	inline bool operator<(EntityId other) const { return mId < other.mId; }
+
+	inline bool IsValid() const
 	{
-	public:
-		EntityId(ID id = INVALID_ID)
-			: mId(id)
-		{}
+		return mId >= ROOT_ID && mId < MAX_ID;
+	}
 
-		inline ID operator()() const { return mId; }
-		inline bool operator==(EntityId other) const { return mId == other.mId; }
-		inline bool operator!=(EntityId other) const { return mId != other.mId; }
-		inline bool operator<(EntityId other) const { return mId < other.mId; }
+	inline ID Get() const { return mId; }
+	inline void Set(ID id) { mId = id; }
+	inline void Reset() { mId = INVALID_ID; }
 
-		inline bool IsValid() const
-		{
-			return mId >= ROOT_ID && mId < MAX_ID;
-		}
-
-		inline ID Get() const { return mId; }
-		inline void Set(ID id) { mId = id; }
-		inline void Reset() { mId = INVALID_ID; }
-
-	private:
-		ID mId;
-	};
+private:
+	ID mId;
+};
 
 } // namespace erm::ecs

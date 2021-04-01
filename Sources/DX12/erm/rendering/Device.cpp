@@ -2,8 +2,8 @@
 
 namespace erm {
 
-	Device::Device(GLFWwindow* window)
-		: mWindow(window)
-	{}
+Device::Device(GLFWwindow* window)
+	: mWindow(window)
+{}
 
 } // namespace erm

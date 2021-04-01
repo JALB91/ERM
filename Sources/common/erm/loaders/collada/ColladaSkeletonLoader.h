@@ -5,13 +5,13 @@
 #include <map>
 
 namespace tinyxml2 {
-	class XMLDocument;
+class XMLDocument;
 }
 
 namespace erm {
 
-	void ProcessSkeleton(
-		tinyxml2::XMLDocument& document,
-		std::map<std::string, ColladaSkinData>& skinsData);
+void ProcessSkeleton(
+	tinyxml2::XMLDocument& document,
+	std::map<std::string, ColladaSkinData>& skinsData);
 
 }

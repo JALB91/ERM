@@ -16,25 +16,25 @@
 
 namespace erm {
 
-	extern bool GLLogCall(const char* function, const char* file, int line);
-	extern void GLClearError();
+extern bool GLLogCall(const char* function, const char* file, int line);
+extern void GLClearError();
 
-	extern int DepthFunctionToInt(DepthFunction function);
-	extern DepthFunction IntToDepthFunction(int function);
+extern int DepthFunctionToInt(DepthFunction function);
+extern DepthFunction IntToDepthFunction(int function);
 
-	extern int BlendFunctionToInt(BlendFunction function);
-	extern BlendFunction IntToBlendFunction(int function);
+extern int BlendFunctionToInt(BlendFunction function);
+extern BlendFunction IntToBlendFunction(int function);
 
-	extern int PolygonModeToInt(PolygonMode mode);
-	extern PolygonMode IntToPolygonMode(int mode);
+extern int PolygonModeToInt(PolygonMode mode);
+extern PolygonMode IntToPolygonMode(int mode);
 
-	extern int DrawModeToInt(DrawMode mode);
-	extern DrawMode IntToDrawMode(int mode);
+extern int DrawModeToInt(DrawMode mode);
+extern DrawMode IntToDrawMode(int mode);
 
-	extern int CullModeToInt(CullMode mode);
-	extern CullMode IntToCullMode(int mode);
+extern int CullModeToInt(CullMode mode);
+extern CullMode IntToCullMode(int mode);
 
-	extern int FrontFaceToInt(FrontFace face);
-	extern FrontFace IntToFrontFace(int face);
+extern int FrontFaceToInt(FrontFace face);
+extern FrontFace IntToFrontFace(int face);
 
 } // namespace erm

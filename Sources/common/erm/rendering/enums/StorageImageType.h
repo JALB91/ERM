@@ -2,11 +2,11 @@
 
 namespace erm {
 
-	enum class StorageImageType
-	{
-		FRAME_BUFFER,
-		DEPTH_BUFFER,
-		COUNT
-	};
+enum class StorageImageType
+{
+	FRAME_BUFFER,
+	DEPTH_BUFFER,
+	COUNT
+};
 
 }

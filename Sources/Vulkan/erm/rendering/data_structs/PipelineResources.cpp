@@ -17,357 +17,357 @@
 
 namespace erm {
 
-	PipelineResources::PipelineResources(
-		Device& device,
-		Renderer& renderer,
-		const vk::RenderPass* renderPass,
-		const vk::DescriptorPool* descriptorPool,
-		const RenderConfigs& renderConfigs)
-		: mDevice(device)
-		, mRenderer(renderer)
-		, mRenderPass(renderPass)
-		, mDescriptorPool(descriptorPool)
-		, mRenderConfigs(renderConfigs)
-	{
-		CreatePipeline();
-	}
+PipelineResources::PipelineResources(
+	Device& device,
+	Renderer& renderer,
+	const vk::RenderPass* renderPass,
+	const vk::DescriptorPool* descriptorPool,
+	const RenderConfigs& renderConfigs)
+	: mDevice(device)
+	, mRenderer(renderer)
+	, mRenderPass(renderPass)
+	, mDescriptorPool(descriptorPool)
+	, mRenderConfigs(renderConfigs)
+{
+	CreatePipeline();
+}
 
-	PipelineResources::~PipelineResources()
-	{}
+PipelineResources::~PipelineResources()
+{}
 
-	void PipelineResources::UpdateResources(vk::CommandBuffer& cmd, RenderData& renderData, uint32_t /*imageIndex*/)
-	{
-		if (mDescriptorSetLayouts.empty())
-			return;
+void PipelineResources::UpdateResources(vk::CommandBuffer& cmd, RenderData& renderData, uint32_t /*imageIndex*/)
+{
+	if (mDescriptorSetLayouts.empty())
+		return;
 
-		auto& data = GetOrCreatePipelineData(renderData);
-		data.UpdateResources(cmd, renderData);
-	}
+	auto& data = GetOrCreatePipelineData(renderData);
+	data.UpdateResources(cmd, renderData);
+}
 
-	void PipelineResources::UpdateCommandBuffer(vk::CommandBuffer& cmd, RenderData& renderData, uint32_t imageIndex)
-	{
-		UNUSED(imageIndex);
+void PipelineResources::UpdateCommandBuffer(vk::CommandBuffer& cmd, RenderData& renderData, uint32_t imageIndex)
+{
+	UNUSED(imageIndex);
 
-		if (mDescriptorSetLayouts.empty())
-			return;
+	if (mDescriptorSetLayouts.empty())
+		return;
 
-		cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, mPipeline.get());
+	cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, mPipeline.get());
 
 #ifdef ERM_FLIP_VIEWPORT
-		const BoundingBox2D& normViewport = mRenderConfigs.GetNormViewport();
-		const math::vec2 normViewportSize = normViewport.GetSize();
-		const vk::Extent2D& extent = mRenderer.GetSwapChainExtent();
+	const BoundingBox2D& normViewport = mRenderConfigs.GetNormViewport();
+	const math::vec2 normViewportSize = normViewport.GetSize();
+	const vk::Extent2D& extent = mRenderer.GetSwapChainExtent();
 
-		vk::Viewport viewport = {};
-		viewport.x = static_cast<float>(extent.width) * normViewport.mMin.x;
-		viewport.y = (static_cast<float>(extent.height) * normViewportSize.y) - (static_cast<float>(extent.height) * normViewport.mMin.y);
-		viewport.width = static_cast<float>(extent.width) * normViewportSize.x;
-		viewport.height = -(static_cast<float>(extent.height) * normViewportSize.y);
-		viewport.minDepth = 0.0f;
-		viewport.maxDepth = 1.0f;
+	vk::Viewport viewport = {};
+	viewport.x = static_cast<float>(extent.width) * normViewport.mMin.x;
+	viewport.y = (static_cast<float>(extent.height) * normViewportSize.y) - (static_cast<float>(extent.height) * normViewport.mMin.y);
+	viewport.width = static_cast<float>(extent.width) * normViewportSize.x;
+	viewport.height = -(static_cast<float>(extent.height) * normViewportSize.y);
+	viewport.minDepth = 0.0f;
+	viewport.maxDepth = 1.0f;
 
-		cmd.setViewport(0, 1, &viewport);
+	cmd.setViewport(0, 1, &viewport);
 #endif
 
-		auto& data = GetOrCreatePipelineData(renderData);
-		auto ds = data.GetDescriptorSets(mEmptySet.get());
+	auto& data = GetOrCreatePipelineData(renderData);
+	auto ds = data.GetDescriptorSets(mEmptySet.get());
 
-		cmd.bindDescriptorSets(
-			vk::PipelineBindPoint::eGraphics,
-			mPipelineLayout.get(),
-			0,
-			static_cast<uint32_t>(ds.size()),
-			ds.data(),
-			0,
-			nullptr);
+	cmd.bindDescriptorSets(
+		vk::PipelineBindPoint::eGraphics,
+		mPipelineLayout.get(),
+		0,
+		static_cast<uint32_t>(ds.size()),
+		ds.data(),
+		0,
+		nullptr);
 
-		for (size_t i = 0; i < renderData.mMeshes.size(); ++i)
-		{
-			const Mesh& mesh = *renderData.mMeshes[i];
-			const BufferHandle& vHandle = mesh.GetVertBufferHandle();
-			const BufferHandle& iHandle = mesh.GetIndBufferHandle();
-
-			vk::Buffer vBuffers[] = {vHandle.mBuffer};
-			vk::DeviceSize offsets[] = {0};
-
-			cmd.bindVertexBuffers(0, 1, vBuffers, offsets);
-			cmd.bindIndexBuffer(iHandle.mBuffer, iHandle.mInfo.mOffset, vk::IndexType::eUint32);
-			cmd.drawIndexed(static_cast<uint32_t>(mesh.GetIndicesData().size()), 1, 0, 0, 0);
-		}
-	}
-
-	void PipelineResources::PostDraw()
+	for (size_t i = 0; i < renderData.mMeshes.size(); ++i)
 	{
-		for (auto& data : mData)
-			data.PostDraw();
+		const Mesh& mesh = *renderData.mMeshes[i];
+		const BufferHandle& vHandle = mesh.GetVertBufferHandle();
+		const BufferHandle& iHandle = mesh.GetIndBufferHandle();
+
+		vk::Buffer vBuffers[] = {vHandle.mBuffer};
+		vk::DeviceSize offsets[] = {0};
+
+		cmd.bindVertexBuffers(0, 1, vBuffers, offsets);
+		cmd.bindIndexBuffer(iHandle.mBuffer, iHandle.mInfo.mOffset, vk::IndexType::eUint32);
+		cmd.drawIndexed(static_cast<uint32_t>(mesh.GetIndicesData().size()), 1, 0, 0, 0);
 	}
+}
 
-	void PipelineResources::CreatePipeline()
-	{
-		const BoundingBox2D& normViewport = mRenderConfigs.GetNormViewport();
-		const math::vec2 normViewportSize = normViewport.GetSize();
-		const vk::Extent2D& extent = mRenderer.GetSwapChainExtent();
+void PipelineResources::PostDraw()
+{
+	for (auto& data : mData)
+		data.PostDraw();
+}
 
-		ShaderProgram* shader = mRenderConfigs.mShaderProgram;
+void PipelineResources::CreatePipeline()
+{
+	const BoundingBox2D& normViewport = mRenderConfigs.GetNormViewport();
+	const math::vec2 normViewportSize = normViewport.GetSize();
+	const vk::Extent2D& extent = mRenderer.GetSwapChainExtent();
 
-		ASSERT(shader);
+	ShaderProgram* shader = mRenderConfigs.mShaderProgram;
 
-		/*
+	ASSERT(shader);
+
+	/*
 			LOAD SHADERS
 		*/
-		std::vector<vk::UniqueShaderModule> vertShaderModules = shader->CreateShaderModules(ShaderType::VERTEX);
-		std::vector<vk::UniqueShaderModule> fragShaderModules = shader->CreateShaderModules(ShaderType::FRAGMENT);
+	std::vector<vk::UniqueShaderModule> vertShaderModules = shader->CreateShaderModules(ShaderType::VERTEX);
+	std::vector<vk::UniqueShaderModule> fragShaderModules = shader->CreateShaderModules(ShaderType::FRAGMENT);
 
-		ASSERT(vertShaderModules.size() == 1);
-		ASSERT(fragShaderModules.size() == 1);
+	ASSERT(vertShaderModules.size() == 1);
+	ASSERT(fragShaderModules.size() == 1);
 
-		vk::PipelineShaderStageCreateInfo vertShaderStageInfo = {};
-		vertShaderStageInfo.stage = vk::ShaderStageFlagBits::eVertex;
-		vertShaderStageInfo.module = vertShaderModules[0].get();
-		vertShaderStageInfo.pName = "main";
+	vk::PipelineShaderStageCreateInfo vertShaderStageInfo = {};
+	vertShaderStageInfo.stage = vk::ShaderStageFlagBits::eVertex;
+	vertShaderStageInfo.module = vertShaderModules[0].get();
+	vertShaderStageInfo.pName = "main";
 
-		vk::PipelineShaderStageCreateInfo fragShaderStageInfo = {};
-		fragShaderStageInfo.stage = vk::ShaderStageFlagBits::eFragment;
-		fragShaderStageInfo.module = fragShaderModules[0].get();
-		fragShaderStageInfo.pName = "main";
+	vk::PipelineShaderStageCreateInfo fragShaderStageInfo = {};
+	fragShaderStageInfo.stage = vk::ShaderStageFlagBits::eFragment;
+	fragShaderStageInfo.module = fragShaderModules[0].get();
+	fragShaderStageInfo.pName = "main";
 
-		vk::PipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};
+	vk::PipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};
 
-		/*
+	/*
 			SETUP VERTEX INPUT
 		*/
-		vk::VertexInputBindingDescription bindingDescription = shader->GetVertexBindingDescription();
-		std::vector<vk::VertexInputAttributeDescription> attributeDescriptions = shader->GetVertexAttributeDescriptions();
+	vk::VertexInputBindingDescription bindingDescription = shader->GetVertexBindingDescription();
+	std::vector<vk::VertexInputAttributeDescription> attributeDescriptions = shader->GetVertexAttributeDescriptions();
 
-		vk::PipelineVertexInputStateCreateInfo vertexInputInfo = {};
-		vertexInputInfo.vertexBindingDescriptionCount = 1;
-		vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
-		vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
-		vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
+	vk::PipelineVertexInputStateCreateInfo vertexInputInfo = {};
+	vertexInputInfo.vertexBindingDescriptionCount = 1;
+	vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
+	vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
+	vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
-		/*
+	/*
 			SETUP INPUT ASSEMBLY
 		*/
-		vk::PipelineInputAssemblyStateCreateInfo inputAssembly = {};
-		inputAssembly.topology = VkUtils::ToVulkanValue<vk::PrimitiveTopology>(mRenderConfigs.GetDrawMode());
-		inputAssembly.primitiveRestartEnable = VK_FALSE;
+	vk::PipelineInputAssemblyStateCreateInfo inputAssembly = {};
+	inputAssembly.topology = VkUtils::ToVulkanValue<vk::PrimitiveTopology>(mRenderConfigs.GetDrawMode());
+	inputAssembly.primitiveRestartEnable = VK_FALSE;
 
-		/*
+	/*
 			SETUP VIEWPORT AND SCISSOR
 		*/
-		vk::Viewport viewport = {};
-		viewport.x = static_cast<float>(extent.width) * normViewport.mMin.x;
-		viewport.y = static_cast<float>(extent.height) * normViewport.mMin.y;
-		viewport.width = static_cast<float>(extent.width) * normViewportSize.x;
-		viewport.height = static_cast<float>(extent.height) * normViewportSize.y;
-		viewport.minDepth = 0.0f;
-		viewport.maxDepth = 1.0f;
+	vk::Viewport viewport = {};
+	viewport.x = static_cast<float>(extent.width) * normViewport.mMin.x;
+	viewport.y = static_cast<float>(extent.height) * normViewport.mMin.y;
+	viewport.width = static_cast<float>(extent.width) * normViewportSize.x;
+	viewport.height = static_cast<float>(extent.height) * normViewportSize.y;
+	viewport.minDepth = 0.0f;
+	viewport.maxDepth = 1.0f;
 
-		vk::Rect2D scissor = {};
-		scissor.offset = vk::Offset2D(static_cast<uint32_t>(viewport.x), static_cast<uint32_t>(viewport.y));
-		scissor.extent = vk::Extent2D(static_cast<uint32_t>(viewport.width), static_cast<uint32_t>(viewport.height));
+	vk::Rect2D scissor = {};
+	scissor.offset = vk::Offset2D(static_cast<uint32_t>(viewport.x), static_cast<uint32_t>(viewport.y));
+	scissor.extent = vk::Extent2D(static_cast<uint32_t>(viewport.width), static_cast<uint32_t>(viewport.height));
 
-		vk::PipelineViewportStateCreateInfo viewportState = {};
-		viewportState.viewportCount = 1;
-		viewportState.pViewports = &viewport;
-		viewportState.scissorCount = 1;
-		viewportState.pScissors = &scissor;
+	vk::PipelineViewportStateCreateInfo viewportState = {};
+	viewportState.viewportCount = 1;
+	viewportState.pViewports = &viewport;
+	viewportState.scissorCount = 1;
+	viewportState.pScissors = &scissor;
 
-		/*
+	/*
 			SETUP RASTERIZER
 		*/
-		vk::PipelineRasterizationStateCreateInfo rasterizer = {};
-		rasterizer.depthClampEnable = VK_FALSE;
-		rasterizer.rasterizerDiscardEnable = VK_FALSE;
-		rasterizer.polygonMode = VkUtils::ToVulkanValue<vk::PolygonMode>(mRenderConfigs.GetPolygonMode());
-		rasterizer.lineWidth = 1.0f;
-		rasterizer.cullMode = VkUtils::ToVulkanValue<vk::CullModeFlagBits>(mRenderConfigs.GetCullMode());
-		rasterizer.frontFace = VkUtils::ToVulkanValue<vk::FrontFace>(mRenderConfigs.GetFrontFace());
-		rasterizer.depthBiasEnable = VK_FALSE;
-		rasterizer.depthBiasConstantFactor = 0.0f;
-		rasterizer.depthBiasClamp = 0.0f;
-		rasterizer.depthBiasSlopeFactor = 0.0f;
+	vk::PipelineRasterizationStateCreateInfo rasterizer = {};
+	rasterizer.depthClampEnable = VK_FALSE;
+	rasterizer.rasterizerDiscardEnable = VK_FALSE;
+	rasterizer.polygonMode = VkUtils::ToVulkanValue<vk::PolygonMode>(mRenderConfigs.GetPolygonMode());
+	rasterizer.lineWidth = 1.0f;
+	rasterizer.cullMode = VkUtils::ToVulkanValue<vk::CullModeFlagBits>(mRenderConfigs.GetCullMode());
+	rasterizer.frontFace = VkUtils::ToVulkanValue<vk::FrontFace>(mRenderConfigs.GetFrontFace());
+	rasterizer.depthBiasEnable = VK_FALSE;
+	rasterizer.depthBiasConstantFactor = 0.0f;
+	rasterizer.depthBiasClamp = 0.0f;
+	rasterizer.depthBiasSlopeFactor = 0.0f;
 
-		/*
+	/*
 			SETUP MULTISAMPLING
 		*/
-		vk::PipelineMultisampleStateCreateInfo multisampling = {};
-		multisampling.sampleShadingEnable = VK_FALSE;
-		multisampling.rasterizationSamples = vk::SampleCountFlagBits::e1;
-		multisampling.minSampleShading = 1.0f;
-		multisampling.pSampleMask = nullptr;
-		multisampling.alphaToCoverageEnable = VK_FALSE;
-		multisampling.alphaToOneEnable = VK_FALSE;
+	vk::PipelineMultisampleStateCreateInfo multisampling = {};
+	multisampling.sampleShadingEnable = VK_FALSE;
+	multisampling.rasterizationSamples = vk::SampleCountFlagBits::e1;
+	multisampling.minSampleShading = 1.0f;
+	multisampling.pSampleMask = nullptr;
+	multisampling.alphaToCoverageEnable = VK_FALSE;
+	multisampling.alphaToOneEnable = VK_FALSE;
 
-		/*
+	/*
 			SETUP COLOR BLENDING
 		*/
-		vk::PipelineColorBlendAttachmentState colorBlendAttachment = {};
-		colorBlendAttachment.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
-		colorBlendAttachment.blendEnable = mRenderConfigs.GetBlendEnabled() ? VK_TRUE : VK_FALSE;
-		colorBlendAttachment.srcColorBlendFactor = vk::BlendFactor::eSrcAlpha;
-		colorBlendAttachment.dstColorBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha;
-		colorBlendAttachment.colorBlendOp = vk::BlendOp::eAdd;
-		colorBlendAttachment.srcAlphaBlendFactor = vk::BlendFactor::eOne;
-		colorBlendAttachment.dstAlphaBlendFactor = vk::BlendFactor::eZero;
-		colorBlendAttachment.alphaBlendOp = vk::BlendOp::eAdd;
+	vk::PipelineColorBlendAttachmentState colorBlendAttachment = {};
+	colorBlendAttachment.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
+	colorBlendAttachment.blendEnable = mRenderConfigs.GetBlendEnabled() ? VK_TRUE : VK_FALSE;
+	colorBlendAttachment.srcColorBlendFactor = vk::BlendFactor::eSrcAlpha;
+	colorBlendAttachment.dstColorBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha;
+	colorBlendAttachment.colorBlendOp = vk::BlendOp::eAdd;
+	colorBlendAttachment.srcAlphaBlendFactor = vk::BlendFactor::eOne;
+	colorBlendAttachment.dstAlphaBlendFactor = vk::BlendFactor::eZero;
+	colorBlendAttachment.alphaBlendOp = vk::BlendOp::eAdd;
 
-		vk::PipelineColorBlendStateCreateInfo colorBlending = {};
-		colorBlending.logicOpEnable = VK_FALSE;
-		colorBlending.logicOp = vk::LogicOp::eCopy;
-		colorBlending.attachmentCount = 1;
-		colorBlending.pAttachments = &colorBlendAttachment;
-		colorBlending.blendConstants[0] = 0.0f;
-		colorBlending.blendConstants[1] = 0.0f;
-		colorBlending.blendConstants[2] = 0.0f;
-		colorBlending.blendConstants[3] = 0.0f;
+	vk::PipelineColorBlendStateCreateInfo colorBlending = {};
+	colorBlending.logicOpEnable = VK_FALSE;
+	colorBlending.logicOp = vk::LogicOp::eCopy;
+	colorBlending.attachmentCount = 1;
+	colorBlending.pAttachments = &colorBlendAttachment;
+	colorBlending.blendConstants[0] = 0.0f;
+	colorBlending.blendConstants[1] = 0.0f;
+	colorBlending.blendConstants[2] = 0.0f;
+	colorBlending.blendConstants[3] = 0.0f;
 
-		/*
+	/*
 			SETUP DESCRIPTOR SET LAYOUT
 		*/
-		const LayoutBindingsMap& bindings = shader->GetLayoutBindingsMap();
-		uint32_t maxSet = 0;
-		std::for_each(bindings.begin(), bindings.end(), [&maxSet](const auto& pair) {
-			maxSet = std::max(maxSet, pair.first);
-		});
-		mDescriptorSetLayouts.reserve(maxSet + 1);
+	const LayoutBindingsMap& bindings = shader->GetLayoutBindingsMap();
+	uint32_t maxSet = 0;
+	std::for_each(bindings.begin(), bindings.end(), [&maxSet](const auto& pair) {
+		maxSet = std::max(maxSet, pair.first);
+	});
+	mDescriptorSetLayouts.reserve(maxSet + 1);
 
-		for (uint32_t i = 0; i <= maxSet; ++i)
+	for (uint32_t i = 0; i <= maxSet; ++i)
+	{
+		vk::DescriptorSetLayoutCreateInfo layoutInfo {};
+
+		if (bindings.find(i) == bindings.end())
 		{
-			vk::DescriptorSetLayoutCreateInfo layoutInfo {};
+			layoutInfo.bindingCount = 0;
+			layoutInfo.pBindings = nullptr;
+		}
+		else
+		{
+			auto& data = bindings.at(i);
 
-			if (bindings.find(i) == bindings.end())
-			{
-				layoutInfo.bindingCount = 0;
-				layoutInfo.pBindings = nullptr;
-			}
-			else
-			{
-				auto& data = bindings.at(i);
-
-				layoutInfo.bindingCount = static_cast<uint32_t>(data.size());
-				layoutInfo.pBindings = data.data();
-			}
-
-			mDescriptorSetLayouts.emplace_back(mDevice->createDescriptorSetLayoutUnique(layoutInfo));
+			layoutInfo.bindingCount = static_cast<uint32_t>(data.size());
+			layoutInfo.pBindings = data.data();
 		}
 
-		vk::DescriptorSetLayoutCreateInfo emptyLayoutInfo;
-		emptyLayoutInfo.bindingCount = 0;
-		emptyLayoutInfo.pBindings = nullptr;
+		mDescriptorSetLayouts.emplace_back(mDevice->createDescriptorSetLayoutUnique(layoutInfo));
+	}
 
-		mEmptySetLayout = mDevice->createDescriptorSetLayoutUnique(emptyLayoutInfo);
+	vk::DescriptorSetLayoutCreateInfo emptyLayoutInfo;
+	emptyLayoutInfo.bindingCount = 0;
+	emptyLayoutInfo.pBindings = nullptr;
 
-		vk::DescriptorSetAllocateInfo info {};
-		info.setDescriptorPool(*mDescriptorPool);
-		info.setDescriptorSetCount(1);
-		info.setPSetLayouts(&mEmptySetLayout.get());
+	mEmptySetLayout = mDevice->createDescriptorSetLayoutUnique(emptyLayoutInfo);
 
-		mEmptySet = std::move(mDevice->allocateDescriptorSetsUnique(info)[0]);
+	vk::DescriptorSetAllocateInfo info {};
+	info.setDescriptorPool(*mDescriptorPool);
+	info.setDescriptorSetCount(1);
+	info.setPSetLayouts(&mEmptySetLayout.get());
 
-		/*
+	mEmptySet = std::move(mDevice->allocateDescriptorSetsUnique(info)[0]);
+
+	/*
 			SETUP PIPELINE LAYOUT
 		*/
-		std::vector<vk::DescriptorSetLayout> layouts(mDescriptorSetLayouts.size());
-		for (size_t i = 0; i < mDescriptorSetLayouts.size(); ++i)
-			layouts[i] = mDescriptorSetLayouts[i].get();
+	std::vector<vk::DescriptorSetLayout> layouts(mDescriptorSetLayouts.size());
+	for (size_t i = 0; i < mDescriptorSetLayouts.size(); ++i)
+		layouts[i] = mDescriptorSetLayouts[i].get();
 
-		vk::PipelineLayoutCreateInfo pipelineLayoutInfo = {};
-		pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(layouts.size());
-		pipelineLayoutInfo.pSetLayouts = layouts.data();
-		pipelineLayoutInfo.pushConstantRangeCount = 0;
-		pipelineLayoutInfo.pPushConstantRanges = nullptr;
+	vk::PipelineLayoutCreateInfo pipelineLayoutInfo = {};
+	pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(layouts.size());
+	pipelineLayoutInfo.pSetLayouts = layouts.data();
+	pipelineLayoutInfo.pushConstantRangeCount = 0;
+	pipelineLayoutInfo.pPushConstantRanges = nullptr;
 
-		mPipelineLayout = mDevice->createPipelineLayoutUnique(pipelineLayoutInfo);
+	mPipelineLayout = mDevice->createPipelineLayoutUnique(pipelineLayoutInfo);
 
-		/*
+	/*
 			SETUP STENCIL AND DEPTH TESTS
 		*/
-		vk::PipelineDepthStencilStateCreateInfo depthStencil {};
-		depthStencil.depthTestEnable = mRenderConfigs.GetDepthTestEnabled() ? VK_TRUE : VK_FALSE;
-		depthStencil.depthWriteEnable = mRenderConfigs.GetDepthWriteEnabled() ? VK_TRUE : VK_FALSE;
-		depthStencil.depthCompareOp = VkUtils::ToVulkanValue<vk::CompareOp>(mRenderConfigs.GetDepthFunction());
-		depthStencil.depthBoundsTestEnable = VK_FALSE;
-		depthStencil.minDepthBounds = 0.0f;
-		depthStencil.maxDepthBounds = 1.0f;
-		depthStencil.stencilTestEnable = VK_FALSE;
+	vk::PipelineDepthStencilStateCreateInfo depthStencil {};
+	depthStencil.depthTestEnable = mRenderConfigs.GetDepthTestEnabled() ? VK_TRUE : VK_FALSE;
+	depthStencil.depthWriteEnable = mRenderConfigs.GetDepthWriteEnabled() ? VK_TRUE : VK_FALSE;
+	depthStencil.depthCompareOp = VkUtils::ToVulkanValue<vk::CompareOp>(mRenderConfigs.GetDepthFunction());
+	depthStencil.depthBoundsTestEnable = VK_FALSE;
+	depthStencil.minDepthBounds = 0.0f;
+	depthStencil.maxDepthBounds = 1.0f;
+	depthStencil.stencilTestEnable = VK_FALSE;
 
-		/*
+	/*
 			DYNAMIC STATES
 		*/
-		std::vector<vk::DynamicState> dynamicStates {
+	std::vector<vk::DynamicState> dynamicStates {
 #ifdef ERM_FLIP_VIEWPORT
-			vk::DynamicState::eViewport
+		vk::DynamicState::eViewport
 #endif
-		};
+	};
 
-		vk::PipelineDynamicStateCreateInfo dynamicInfo;
-		dynamicInfo.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
-		dynamicInfo.pDynamicStates = dynamicStates.data();
+	vk::PipelineDynamicStateCreateInfo dynamicInfo;
+	dynamicInfo.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
+	dynamicInfo.pDynamicStates = dynamicStates.data();
 
-		/*
+	/*
 			CREATE PIPELINE
 		*/
-		vk::GraphicsPipelineCreateInfo pipelineInfo = {};
-		pipelineInfo.stageCount = 2;
-		pipelineInfo.pStages = shaderStages;
-		pipelineInfo.pVertexInputState = &vertexInputInfo;
-		pipelineInfo.pInputAssemblyState = &inputAssembly;
-		pipelineInfo.pViewportState = &viewportState;
-		pipelineInfo.pRasterizationState = &rasterizer;
-		pipelineInfo.pMultisampleState = &multisampling;
-		pipelineInfo.pDepthStencilState = &depthStencil;
-		pipelineInfo.pColorBlendState = &colorBlending;
-		pipelineInfo.pDynamicState = &dynamicInfo;
-		pipelineInfo.layout = mPipelineLayout.get();
-		pipelineInfo.renderPass = *mRenderPass;
-		pipelineInfo.subpass = 0;
-		pipelineInfo.basePipelineHandle = nullptr;
-		pipelineInfo.basePipelineIndex = -1;
+	vk::GraphicsPipelineCreateInfo pipelineInfo = {};
+	pipelineInfo.stageCount = 2;
+	pipelineInfo.pStages = shaderStages;
+	pipelineInfo.pVertexInputState = &vertexInputInfo;
+	pipelineInfo.pInputAssemblyState = &inputAssembly;
+	pipelineInfo.pViewportState = &viewportState;
+	pipelineInfo.pRasterizationState = &rasterizer;
+	pipelineInfo.pMultisampleState = &multisampling;
+	pipelineInfo.pDepthStencilState = &depthStencil;
+	pipelineInfo.pColorBlendState = &colorBlending;
+	pipelineInfo.pDynamicState = &dynamicInfo;
+	pipelineInfo.layout = mPipelineLayout.get();
+	pipelineInfo.renderPass = *mRenderPass;
+	pipelineInfo.subpass = 0;
+	pipelineInfo.basePipelineHandle = nullptr;
+	pipelineInfo.basePipelineIndex = -1;
 
-		auto result = mDevice->createGraphicsPipelineUnique(mDevice.GetPipelineCache(), pipelineInfo);
-		ASSERT(result.result == vk::Result::eSuccess);
-		mPipeline = std::move(result.value);
-	}
+	auto result = mDevice->createGraphicsPipelineUnique(mDevice.GetPipelineCache(), pipelineInfo);
+	ASSERT(result.result == vk::Result::eSuccess);
+	mPipeline = std::move(result.value);
+}
 
-	PipelineData& PipelineResources::GetOrCreatePipelineData(RenderData& renderData)
+PipelineData& PipelineResources::GetOrCreatePipelineData(RenderData& renderData)
+{
+	auto it = std::find_if(mData.begin(), mData.end(), [&renderData](PipelineData& data) {
+		return data.IsCompatible(renderData.mRenderConfigs);
+	});
+	if (it != mData.end())
+		return *it;
+
+	auto& data = mData.emplace_back(renderData.mRenderConfigs);
+	const auto& sbm = renderData.mRenderConfigs.mShaderProgram->GetShaderBindingsMap();
+
+	for (const auto& [set, bindings] : sbm)
 	{
-		auto it = std::find_if(mData.begin(), mData.end(), [&renderData](PipelineData& data) {
-			return data.IsCompatible(renderData.mRenderConfigs);
-		});
-		if (it != mData.end())
-			return *it;
+		BindingResources resources;
+		if (set % 2 == 0)
+			resources = std::make_unique<DeviceBindingResources>(
+				mDevice,
+				mRenderer,
+				set,
+				*mDescriptorPool,
+				*renderData.mRenderConfigs.mShaderProgram,
+				renderData.mRenderConfigs,
+				renderData,
+				mDescriptorSetLayouts[set].get());
+		else
+			resources = std::make_unique<HostBindingResources>(
+				mDevice,
+				mRenderer,
+				set,
+				*mDescriptorPool,
+				*renderData.mRenderConfigs.mShaderProgram,
+				renderData.mRenderConfigs,
+				mDescriptorSetLayouts[set].get());
 
-		auto& data = mData.emplace_back(renderData.mRenderConfigs);
-		const auto& sbm = renderData.mRenderConfigs.mShaderProgram->GetShaderBindingsMap();
-
-		for (const auto& [set, bindings] : sbm)
-		{
-			BindingResources resources;
-			if (set % 2 == 0)
-				resources = std::make_unique<DeviceBindingResources>(
-					mDevice,
-					mRenderer,
-					set,
-					*mDescriptorPool,
-					*renderData.mRenderConfigs.mShaderProgram,
-					renderData.mRenderConfigs,
-					renderData,
-					mDescriptorSetLayouts[set].get());
-			else
-				resources = std::make_unique<HostBindingResources>(
-					mDevice,
-					mRenderer,
-					set,
-					*mDescriptorPool,
-					*renderData.mRenderConfigs.mShaderProgram,
-					renderData.mRenderConfigs,
-					mDescriptorSetLayouts[set].get());
-
-			data.AddResources(set, std::move(resources));
-		}
-
-		return data;
+		data.AddResources(set, std::move(resources));
 	}
+
+	return data;
+}
 
 } // namespace erm

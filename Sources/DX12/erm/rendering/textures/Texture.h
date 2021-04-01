@@ -3,18 +3,18 @@
 #include "erm/rendering/data_structs/IAsset.h"
 
 namespace erm {
-	class Device;
+class Device;
 }
 
 namespace erm {
 
-	class Texture : public IAsset
-	{
-	public:
-		Texture(Device& device, const char* path);
+class Texture : public IAsset
+{
+public:
+	Texture(Device& device, const char* path);
 
-	private:
-		Device& mDevice;
-	};
+private:
+	Device& mDevice;
+};
 
 } // namespace erm

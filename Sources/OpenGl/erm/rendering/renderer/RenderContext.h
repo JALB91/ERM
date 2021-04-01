@@ -11,38 +11,38 @@
 
 namespace erm {
 
-	class RenderContext
-	{
-	public:
-		RenderContext();
+class RenderContext
+{
+public:
+	RenderContext();
 
-		void Draw(DrawMode drawMode, uint64_t count) const;
+	void Draw(DrawMode drawMode, uint64_t count) const;
 
-		void Clear() const;
+	void Clear() const;
 
-		bool IsDepthEnabled() const;
-		DepthFunction GetDepthFunction() const;
-		void SetDepthEnabled(bool enabled) const;
-		void SetDepthFunction(DepthFunction depthFunc) const;
+	bool IsDepthEnabled() const;
+	DepthFunction GetDepthFunction() const;
+	void SetDepthEnabled(bool enabled) const;
+	void SetDepthFunction(DepthFunction depthFunc) const;
 
-		bool IsBlendEnabled() const;
-		BlendFunction GetBlendSourceFactor() const;
-		BlendFunction GetBlendDestinationFactor() const;
-		void SetBlendEnabled(bool enabled) const;
-		void SetBlendFunction(BlendFunction sFactor, BlendFunction dFactor) const;
+	bool IsBlendEnabled() const;
+	BlendFunction GetBlendSourceFactor() const;
+	BlendFunction GetBlendDestinationFactor() const;
+	void SetBlendEnabled(bool enabled) const;
+	void SetBlendFunction(BlendFunction sFactor, BlendFunction dFactor) const;
 
-		bool IsCullFaceEnabled() const;
-		CullMode GetCullMode() const;
-		FrontFace GetFrontFace() const;
-		void SetCullFaceEnabled(bool enabled) const;
-		void SetCullMode(CullMode cullMode) const;
-		void SetFrontFace(FrontFace frontFace) const;
+	bool IsCullFaceEnabled() const;
+	CullMode GetCullMode() const;
+	FrontFace GetFrontFace() const;
+	void SetCullFaceEnabled(bool enabled) const;
+	void SetCullMode(CullMode cullMode) const;
+	void SetFrontFace(FrontFace frontFace) const;
 
-		PolygonMode GetPolygonMode() const;
-		void SetPolygonMode(PolygonMode mode) const;
+	PolygonMode GetPolygonMode() const;
+	void SetPolygonMode(PolygonMode mode) const;
 
-		math::vec4 GetClearColor() const;
-		void SetClearColor(const math::vec4& clearColor) const;
-	};
+	math::vec4 GetClearColor() const;
+	void SetClearColor(const math::vec4& clearColor) const;
+};
 
 } // namespace erm

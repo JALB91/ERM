@@ -3,18 +3,18 @@
 #include "erm/rendering/data_structs/BindingConfigs.h"
 
 namespace erm {
-	class RTShaderProgram;
+class RTShaderProgram;
 }
 
 namespace erm {
 
-	struct RTRenderConfigs : public BindingConfigs
-	{
-		RTRenderConfigs()
-			: mShaderProgram(nullptr)
-		{}
+struct RTRenderConfigs : public BindingConfigs
+{
+	RTRenderConfigs()
+		: mShaderProgram(nullptr)
+	{}
 
-		RTShaderProgram* mShaderProgram;
-	};
+	RTShaderProgram* mShaderProgram;
+};
 
 } // namespace erm

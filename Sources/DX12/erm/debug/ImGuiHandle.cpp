@@ -2,24 +2,24 @@
 
 namespace erm {
 
-	ImGuiHandle::ImGuiHandle(Engine& engine)
-		: mEngine(engine)
-	{}
+ImGuiHandle::ImGuiHandle(Engine& engine)
+	: mEngine(engine)
+{}
 
-	void ImGuiHandle::OnUpdate()
-	{
-	}
+void ImGuiHandle::OnUpdate()
+{
+}
 
-	void ImGuiHandle::OnPreRender()
-	{
-	}
+void ImGuiHandle::OnPreRender()
+{
+}
 
-	void ImGuiHandle::OnRender()
-	{
-	}
+void ImGuiHandle::OnRender()
+{
+}
 
-	void ImGuiHandle::OnPostRender()
-	{
-	}
+void ImGuiHandle::OnPostRender()
+{
+}
 
 } // namespace erm

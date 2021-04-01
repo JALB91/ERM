@@ -6,11 +6,11 @@
 
 namespace erm {
 
-	struct SwapChainSupportDetails
-	{
-		vk::SurfaceCapabilitiesKHR mCapabilities;
-		std::vector<vk::SurfaceFormatKHR> mFormats;
-		std::vector<vk::PresentModeKHR> mPresentModes;
-	};
+struct SwapChainSupportDetails
+{
+	vk::SurfaceCapabilitiesKHR mCapabilities;
+	std::vector<vk::SurfaceFormatKHR> mFormats;
+	std::vector<vk::PresentModeKHR> mPresentModes;
+};
 
 } // namespace erm

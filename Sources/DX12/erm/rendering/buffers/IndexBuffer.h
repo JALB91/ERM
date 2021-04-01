@@ -2,7 +2,7 @@
 
 namespace erm {
 
-	class IndexBuffer
-	{};
+class IndexBuffer
+{};
 
 } // namespace erm

@@ -7,29 +7,29 @@
 
 namespace erm {
 
-	using LayoutBindingsMap = std::unordered_map<SetIdx, std::vector<vk::DescriptorSetLayoutBinding>>;
+using LayoutBindingsMap = std::unordered_map<SetIdx, std::vector<vk::DescriptorSetLayoutBinding>>;
 
-	class VulkanShaderProgram : public IShaderProgram
-	{
-	public:
-		VulkanShaderProgram(Device& device, const char* shaderPath);
-		virtual ~VulkanShaderProgram() = default;
+class VulkanShaderProgram : public IShaderProgram
+{
+public:
+	VulkanShaderProgram(Device& device, const char* shaderPath);
+	virtual ~VulkanShaderProgram() = default;
 
-		inline const LayoutBindingsMap& GetLayoutBindingsMap() const { return mLayoutBindingsMap; }
+	inline const LayoutBindingsMap& GetLayoutBindingsMap() const { return mLayoutBindingsMap; }
 
-		std::vector<vk::UniqueShaderModule> CreateShaderModules(ShaderType shaderType) const;
+	std::vector<vk::UniqueShaderModule> CreateShaderModules(ShaderType shaderType) const;
 
-	protected:
-		// IShaderProgram
-		void UpdateBindingData() override;
-		void UpdateResourceBindings(
-			const spirv_cross::Compiler& compiler,
-			const spirv_cross::Resource& res,
-			SetIdx targetSet,
-			ShaderType shaderType,
-			DescriptorType descriptorType) override;
+protected:
+	// IShaderProgram
+	void UpdateBindingData() override;
+	void UpdateResourceBindings(
+		const spirv_cross::Compiler& compiler,
+		const spirv_cross::Resource& res,
+		SetIdx targetSet,
+		ShaderType shaderType,
+		DescriptorType descriptorType) override;
 
-		LayoutBindingsMap mLayoutBindingsMap;
-	};
+	LayoutBindingsMap mLayoutBindingsMap;
+};
 
 } // namespace erm

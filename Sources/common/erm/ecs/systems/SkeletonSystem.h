@@ -5,16 +5,16 @@
 
 namespace erm::ecs {
 
-	class SkeletonSystem : public ISystem<SkeletonComponent>
-	{
-	public:
-		SkeletonSystem(ECS& ecs)
-			: ISystem(ecs)
-		{}
+class SkeletonSystem : public ISystem<SkeletonComponent>
+{
+public:
+	SkeletonSystem(ECS& ecs)
+		: ISystem(ecs)
+	{}
 
-		// ISystem
-		void Init() override {}
-		void OnPostUpdate() override;
-	};
+	// ISystem
+	void Init() override {}
+	void OnPostUpdate() override;
+};
 
 } // namespace erm::ecs

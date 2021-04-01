@@ -13,39 +13,39 @@
 // clang-format on
 
 namespace erm {
-	class DeviceBuffer;
-	namespace ecs {
-		class RenderingSystem;
-	}
+class DeviceBuffer;
+namespace ecs {
+class RenderingSystem;
+}
 } // namespace erm
 
 namespace erm::ecs {
 
-	struct RenderingComponent : public IComponent
-	{
-	public:
-		typedef RenderingSystem SYSTEM_TYPE;
-		friend class RenderingSystem;
+struct RenderingComponent : public IComponent
+{
+public:
+	typedef RenderingSystem SYSTEM_TYPE;
+	friend class RenderingSystem;
 
-	public:
-		RenderingComponent()
+public:
+	RenderingComponent()
 #ifdef ERM_RAY_TRACING_ENABLED
-			: mUseRayTracing(true)
+		: mUseRayTracing(true)
 #endif
-		{}
+	{}
 
 #ifdef ERM_RAY_TRACING_ENABLED
-		SENSIBLE_MEMBER(CustomIndex, std::optional<uint32_t>, mCustomIndex)
-		SENSIBLE_MEMBER(UseRayTracing, bool, mUseRayTracing)
+	SENSIBLE_MEMBER(CustomIndex, std::optional<uint32_t>, mCustomIndex)
+	SENSIBLE_MEMBER(UseRayTracing, bool, mUseRayTracing)
 #endif
 
-	private:
-		std::vector<RenderData> mRenderData;
+private:
+	std::vector<RenderData> mRenderData;
 #ifdef ERM_RAY_TRACING_ENABLED
-		std::optional<uint32_t> mCustomIndex;
-		std::unique_ptr<DeviceBuffer> mInstanceDataBuffer;
-		bool mUseRayTracing;
+	std::optional<uint32_t> mCustomIndex;
+	std::unique_ptr<DeviceBuffer> mInstanceDataBuffer;
+	bool mUseRayTracing;
 #endif
-	};
+};
 
 } // namespace erm::ecs

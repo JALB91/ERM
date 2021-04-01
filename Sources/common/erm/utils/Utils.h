@@ -21,29 +21,29 @@ public:                                                                 \
 
 namespace erm::Utils {
 
-	extern bool LogCall(bool cond, const char* msg, const char* function, const char* file, int line);
-	extern std::vector<std::string> SplitString(const std::string& str, char ch);
-	extern std::string StripFunctionName(const char* fn);
-	extern std::string ReadFromFile(const char* path);
-	extern void WriteToFile(const char* path, const std::string& data);
-	extern bool CompareNoCaseSensitive(const std::string& a, const std::string& b);
-	extern bool EndsWith(const std::string& s, const std::string& c);
+extern bool LogCall(bool cond, const char* msg, const char* function, const char* file, int line);
+extern std::vector<std::string> SplitString(const std::string& str, char ch);
+extern std::string StripFunctionName(const char* fn);
+extern std::string ReadFromFile(const char* path);
+extern void WriteToFile(const char* path, const std::string& data);
+extern bool CompareNoCaseSensitive(const std::string& a, const std::string& b);
+extern bool EndsWith(const std::string& s, const std::string& c);
 
-	template<
-		typename T,
-		typename Enable = std::enable_if_t<std::is_copy_constructible_v<T> && !std::is_pointer_v<T>>>
-	T Clone(const T& value)
-	{
-		return T(value);
-	}
+template<
+	typename T,
+	typename Enable = std::enable_if_t<std::is_copy_constructible_v<T> && !std::is_pointer_v<T>>>
+T Clone(const T& value)
+{
+	return T(value);
+}
 
-	template<
-		typename T,
-		typename Enable = std::enable_if_t<std::is_copy_constructible_v<T> && !std::is_pointer_v<T>>>
-	std::unique_ptr<T> Clone(const std::unique_ptr<T>& value)
-	{
-		ASSERT(value);
-		return std::make_unique<T>(*value.get());
-	}
+template<
+	typename T,
+	typename Enable = std::enable_if_t<std::is_copy_constructible_v<T> && !std::is_pointer_v<T>>>
+std::unique_ptr<T> Clone(const std::unique_ptr<T>& value)
+{
+	ASSERT(value);
+	return std::make_unique<T>(*value.get());
+}
 
 } // namespace erm::Utils

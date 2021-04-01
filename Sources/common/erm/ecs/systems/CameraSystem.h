@@ -4,30 +4,30 @@
 #include "erm/ecs/components/CameraComponent.h"
 
 namespace erm {
-	class IWindow;
-	namespace ecs {
-		class TransformSystem;
-		struct TransformComponent;
-	} // namespace ecs
+class IWindow;
+namespace ecs {
+class TransformSystem;
+struct TransformComponent;
+} // namespace ecs
 } // namespace erm
 
 namespace erm::ecs {
 
-	class CameraSystem : public ISystem<CameraComponent>
-	{
-	public:
-		CameraSystem(ECS& ecs, const IWindow& window);
+class CameraSystem : public ISystem<CameraComponent>
+{
+public:
+	CameraSystem(ECS& ecs, const IWindow& window);
 
-		// ISystem
-		void Init() override;
-		void OnUpdate(float dt) override;
-		void OnPostUpdate() override;
+	// ISystem
+	void Init() override;
+	void OnUpdate(float dt) override;
+	void OnPostUpdate() override;
 
-	private:
-		void UpdateCameraComponent(CameraComponent& camera, TransformComponent& transform, float dt);
+private:
+	void UpdateCameraComponent(CameraComponent& camera, TransformComponent& transform, float dt);
 
-		TransformSystem* mTransformSystem;
-		const IWindow& mWindow;
-	};
+	TransformSystem* mTransformSystem;
+	const IWindow& mWindow;
+};
 
 } // namespace erm::ecs

@@ -27,60 +27,60 @@
 
 namespace {
 
-	static std::mutex sFbxMutex;
-	static FbxManager* sManager = nullptr;
-	static FbxIOSettings* sIOSettings = nullptr;
-	static FbxImporter* sImporter = nullptr;
+static std::mutex sFbxMutex;
+static FbxManager* sManager = nullptr;
+static FbxIOSettings* sIOSettings = nullptr;
+static FbxImporter* sImporter = nullptr;
 
-	void InitFBXManager()
-	{
-		ASSERT(!sManager && !sIOSettings && !sImporter);
+void InitFBXManager()
+{
+	ASSERT(!sManager && !sIOSettings && !sImporter);
 
-		sManager = FbxManager::Create();
+	sManager = FbxManager::Create();
 
-		sIOSettings = FbxIOSettings::Create(sManager, IOSROOT);
-		sManager->SetIOSettings(sIOSettings);
+	sIOSettings = FbxIOSettings::Create(sManager, IOSROOT);
+	sManager->SetIOSettings(sIOSettings);
 
-		sImporter = FbxImporter::Create(sManager, "");
-	}
+	sImporter = FbxImporter::Create(sManager, "");
+}
 
 } // namespace
 
 namespace erm {
 
-	void ParseFBXModel(
-		std::mutex& mutex,
-		std::atomic<bool>& stop,
-		const char* path,
-		Model& model,
-		ResourcesManager& resourcesManager)
+void ParseFBXModel(
+	std::mutex& mutex,
+	std::atomic<bool>& stop,
+	const char* path,
+	Model& model,
+	ResourcesManager& resourcesManager)
+{
+	sFbxMutex.lock();
+	if (!sManager)
+		InitFBXManager();
+
+	if (!sImporter->Initialize(path, -1, sManager->GetIOSettings()))
 	{
-		sFbxMutex.lock();
-		if (!sManager)
-			InitFBXManager();
-
-		if (!sImporter->Initialize(path, -1, sManager->GetIOSettings()))
-		{
-			printf("Call to FbxImporter::Initialize() failed.\n");
-			printf("Error returned: %s\n\n", sImporter->GetStatus().GetErrorString());
-		}
-
-		FbxScene* lScene = FbxScene::Create(sManager, "myScene");
-		sImporter->Import(lScene);
-		sFbxMutex.unlock();
-
-		std::unique_ptr<BonesTree> bonesTree;
-
-		ProcessSkeleton(mutex, stop, bonesTree, *lScene);
-		ProcessGeometries(mutex, stop, path, model, resourcesManager, bonesTree, *lScene);
-
-		if (bonesTree)
-		{
-			mutex.lock();
-			resourcesManager.GetSkins().emplace_back(std::make_unique<Skin>(path, path, std::move(bonesTree)));
-			mutex.unlock();
-		}
+		printf("Call to FbxImporter::Initialize() failed.\n");
+		printf("Error returned: %s\n\n", sImporter->GetStatus().GetErrorString());
 	}
+
+	FbxScene* lScene = FbxScene::Create(sManager, "myScene");
+	sImporter->Import(lScene);
+	sFbxMutex.unlock();
+
+	std::unique_ptr<BonesTree> bonesTree;
+
+	ProcessSkeleton(mutex, stop, bonesTree, *lScene);
+	ProcessGeometries(mutex, stop, path, model, resourcesManager, bonesTree, *lScene);
+
+	if (bonesTree)
+	{
+		mutex.lock();
+		resourcesManager.GetSkins().emplace_back(std::make_unique<Skin>(path, path, std::move(bonesTree)));
+		mutex.unlock();
+	}
+}
 
 } // namespace erm
 

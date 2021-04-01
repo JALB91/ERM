@@ -8,26 +8,26 @@
 #include <vector>
 
 namespace erm {
-	class Device;
+class Device;
 }
 
 namespace erm {
 
-	class CubeMap : public Texture
-	{
-	public:
-		CubeMap(Device& device, const char* path);
-		~CubeMap();
+class CubeMap : public Texture
+{
+public:
+	CubeMap(Device& device, const char* path);
+	~CubeMap();
 
-		CubeMap(CubeMap&&) = delete;
-		CubeMap(const CubeMap&) = delete;
+	CubeMap(CubeMap&&) = delete;
+	CubeMap(const CubeMap&) = delete;
 
-		CubeMap& operator=(CubeMap&&) = delete;
-		CubeMap& operator=(const CubeMap&) = delete;
+	CubeMap& operator=(CubeMap&&) = delete;
+	CubeMap& operator=(const CubeMap&) = delete;
 
-	private:
-		void CreateTextureImage() override;
-		void CreateTextureImageView() override;
-	};
+private:
+	void CreateTextureImage() override;
+	void CreateTextureImageView() override;
+};
 
 } // namespace erm

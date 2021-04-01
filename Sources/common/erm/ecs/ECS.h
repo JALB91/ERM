@@ -18,62 +18,62 @@ private:                           \
 	std::unique_ptr<NAME> m##NAME;
 
 namespace erm {
-	class Engine;
-	class Renderer;
-	namespace ecs {
-		struct Entity;
-		class TransformSystem;
-		class LightSystem;
-		class SkeletonSystem;
-		class AnimationSystem;
-		class ModelSystem;
-		class CameraSystem;
-		class RenderingSystem;
-		class EditorSystem;
-	} // namespace ecs
+class Engine;
+class Renderer;
+namespace ecs {
+struct Entity;
+class TransformSystem;
+class LightSystem;
+class SkeletonSystem;
+class AnimationSystem;
+class ModelSystem;
+class CameraSystem;
+class RenderingSystem;
+class EditorSystem;
+} // namespace ecs
 } // namespace erm
 
 namespace erm::ecs {
 
-	class ECS
-	{
-	public:
-		ECS(Engine& engine);
-		~ECS();
+class ECS
+{
+public:
+	ECS(Engine& engine);
+	~ECS();
 
-		void OnPreUpdate();
-		void OnUpdate(float dt);
-		void OnPostUpdate();
-		void OnPreRender();
-		void OnRender();
-		void OnPostRender();
+	void OnPreUpdate();
+	void OnUpdate(float dt);
+	void OnPostUpdate();
+	void OnPreRender();
+	void OnRender();
+	void OnPostRender();
 
-		template<typename T>
-		T& GetSystem() const;
+	template<typename T>
+	T& GetSystem() const;
 
-		void RemoveEntity(EntityId id);
-		void OnEntityBeingRemoved(EntityId id);
+	void RemoveEntity(EntityId id);
+	void OnEntityBeingRemoved(EntityId id);
 
-		Entity* GetRoot();
-		Entity* GetOrCreateEntity(const char* name = "Unknown");
-		Entity* GetEntityById(EntityId id);
+	Entity* GetRoot();
+	Entity* GetOrCreateEntity(const char* name = "Unknown");
+	Entity* GetEntityById(EntityId id);
 
-	private:
-		template<typename T>
-		void ForEachSystem(const T& function);
+private:
+	template<typename T>
+	void ForEachSystem(const T& function);
 
-		Engine& mEngine;
+	Engine& mEngine;
 
-		ADD_SYSTEM(TransformSystem)
-		ADD_SYSTEM(LightSystem)
-		ADD_SYSTEM(SkeletonSystem)
-		ADD_SYSTEM(AnimationSystem)
-		ADD_SYSTEM(ModelSystem)
-		ADD_SYSTEM(CameraSystem)
-		ADD_SYSTEM(RenderingSystem)
-		ADD_SYSTEM(EditorSystem)
+	ADD_SYSTEM(TransformSystem)
+	ADD_SYSTEM(LightSystem)
+	ADD_SYSTEM(SkeletonSystem)
+	ADD_SYSTEM(AnimationSystem)
+	ADD_SYSTEM(ModelSystem)
+	ADD_SYSTEM(CameraSystem)
+	ADD_SYSTEM(RenderingSystem)
+	ADD_SYSTEM(EditorSystem)
 
-		std::array<std::unique_ptr<Entity>, MAX_ID> mEntities;
-	};
+	std::array<std::unique_ptr<Entity>, MAX_ID> mEntities;
+};
 
 } // namespace erm::ecs

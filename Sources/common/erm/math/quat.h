@@ -4,6 +4,6 @@
 
 namespace erm::math {
 
-	typedef glm::quat quat;
+typedef glm::quat quat;
 
 }

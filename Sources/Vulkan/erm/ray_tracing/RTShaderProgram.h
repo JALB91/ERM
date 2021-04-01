@@ -4,10 +4,10 @@
 
 namespace erm {
 
-	class RTShaderProgram : public VulkanShaderProgram
-	{
-	public:
-		RTShaderProgram(Device& device, const char* shaderPath);
-	};
+class RTShaderProgram : public VulkanShaderProgram
+{
+public:
+	RTShaderProgram(Device& device, const char* shaderPath);
+};
 
 } // namespace erm

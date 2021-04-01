@@ -1,13 +1,13 @@
 #pragma once
 
 namespace erm {
-	namespace ecs {
-		struct TransformComponent;
-	}
+namespace ecs {
+struct TransformComponent;
+}
 } // namespace erm
 
 namespace ImGui {
 
-	extern bool ShowTransformComponentDebugWindow(erm::ecs::TransformComponent& transformComponent);
+extern bool ShowTransformComponentDebugWindow(erm::ecs::TransformComponent& transformComponent);
 
 }

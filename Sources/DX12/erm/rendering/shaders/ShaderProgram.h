@@ -4,10 +4,10 @@
 
 namespace erm {
 
-	class ShaderProgram : public IShaderProgram
-	{
-	public:
-		ShaderProgram(Device& device, const char* path);
-	};
+class ShaderProgram : public IShaderProgram
+{
+public:
+	ShaderProgram(Device& device, const char* path);
+};
 
 } // namespace erm

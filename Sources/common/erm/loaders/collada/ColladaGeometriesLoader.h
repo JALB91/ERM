@@ -8,19 +8,19 @@
 #include <string>
 
 namespace tinyxml2 {
-	class XMLDocument;
+class XMLDocument;
 }
 namespace erm {
-	class Model;
+class Model;
 } // namespace erm
 
 namespace erm {
 
-	extern void ProcessGeometries(
-		std::mutex& mutex,
-		std::atomic<bool>& stop,
-		tinyxml2::XMLDocument& document,
-		Model& model,
-		const std::map<std::string, ColladaSkinData>& skinsData);
+extern void ProcessGeometries(
+	std::mutex& mutex,
+	std::atomic<bool>& stop,
+	tinyxml2::XMLDocument& document,
+	Model& model,
+	const std::map<std::string, ColladaSkinData>& skinsData);
 
 }

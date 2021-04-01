@@ -2,7 +2,7 @@
 
 namespace erm {
 
-	class VertexBuffer
-	{};
+class VertexBuffer
+{};
 
 } // namespace erm

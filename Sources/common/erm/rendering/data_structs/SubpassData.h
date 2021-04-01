@@ -6,20 +6,20 @@
 
 namespace erm {
 
-	struct SubpassData
+struct SubpassData
+{
+	SubpassData(AttachmentData colorAttachment, std::optional<AttachmentData> depthAttachment = {})
+		: mColorAttachment(colorAttachment)
+		, mDepthAttachment(depthAttachment)
+	{}
+
+	inline bool operator==(const SubpassData& other) const
 	{
-		SubpassData(AttachmentData colorAttachment, std::optional<AttachmentData> depthAttachment = {})
-			: mColorAttachment(colorAttachment)
-			, mDepthAttachment(depthAttachment)
-		{}
+		return mColorAttachment == other.mColorAttachment && mDepthAttachment == other.mDepthAttachment;
+	}
 
-		inline bool operator==(const SubpassData& other) const
-		{
-			return mColorAttachment == other.mColorAttachment && mDepthAttachment == other.mDepthAttachment;
-		}
-
-		AttachmentData mColorAttachment;
-		std::optional<AttachmentData> mDepthAttachment;
-	};
+	AttachmentData mColorAttachment;
+	std::optional<AttachmentData> mDepthAttachment;
+};
 
 } // namespace erm

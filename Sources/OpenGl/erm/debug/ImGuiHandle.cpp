@@ -12,47 +12,47 @@
 
 namespace {
 
-	const char* const kGlslVersion = "#version 330";
+const char* const kGlslVersion = "#version 330";
 
 }
 
 namespace erm {
 
-	ImGuiHandle::ImGuiHandle(Engine& engine)
-		: mEngine(engine)
-	{
-		ImGui::CreateContext();
-		ImGui::StyleColorsDark();
-		ImGui_ImplGlfw_InitForOpenGL(mEngine.GetWindow().GetWindow(), true);
-		ImGui_ImplOpenGL3_Init(kGlslVersion);
-	}
+ImGuiHandle::ImGuiHandle(Engine& engine)
+	: mEngine(engine)
+{
+	ImGui::CreateContext();
+	ImGui::StyleColorsDark();
+	ImGui_ImplGlfw_InitForOpenGL(mEngine.GetWindow().GetWindow(), true);
+	ImGui_ImplOpenGL3_Init(kGlslVersion);
+}
 
-	ImGuiHandle::~ImGuiHandle()
-	{
-		ImGui_ImplOpenGL3_Shutdown();
-		ImGui_ImplGlfw_Shutdown();
-		ImGui::DestroyContext();
-	}
+ImGuiHandle::~ImGuiHandle()
+{
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
+}
 
-	void ImGuiHandle::OnUpdate()
-	{}
+void ImGuiHandle::OnUpdate()
+{}
 
-	void ImGuiHandle::OnPreRender()
-	{}
+void ImGuiHandle::OnPreRender()
+{}
 
-	void ImGuiHandle::OnRender()
-	{
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();
+void ImGuiHandle::OnRender()
+{
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
 
-		ImGui::ShowEngineDebug(mEngine);
+	ImGui::ShowEngineDebug(mEngine);
 
-		ImGui::Render();
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-	}
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
 
-	void ImGuiHandle::OnPostRender()
-	{}
+void ImGuiHandle::OnPostRender()
+{}
 
 } // namespace erm

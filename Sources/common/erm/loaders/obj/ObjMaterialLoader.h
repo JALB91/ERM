@@ -4,15 +4,15 @@
 #include <mutex>
 
 namespace erm {
-	class ResourcesManager;
+class ResourcesManager;
 }
 
 namespace erm {
 
-	extern bool ParseMaterialsLib(
-		std::mutex& mutex,
-		std::atomic<bool>& stop,
-		const char* path,
-		ResourcesManager& resourcesManager);
+extern bool ParseMaterialsLib(
+	std::mutex& mutex,
+	std::atomic<bool>& stop,
+	const char* path,
+	ResourcesManager& resourcesManager);
 
 }

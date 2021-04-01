@@ -2,29 +2,29 @@
 
 namespace erm {
 
-	IWindow::IWindow()
-		: mMousePosX(0.0)
-		, mPrevMousePosX(0.0)
-		, mMousePosY(0.0)
-		, mPrevMousePosY(0.0)
-		, mFrameBufferSize()
-		, mWindowSize()
-		, mViewport({0.0f, 0.0f}, {0.0f, 0.0f})
-		, mAspectRatio(0.0f)
-	{}
+IWindow::IWindow()
+	: mMousePosX(0.0)
+	, mPrevMousePosX(0.0)
+	, mMousePosY(0.0)
+	, mPrevMousePosY(0.0)
+	, mFrameBufferSize()
+	, mWindowSize()
+	, mViewport({0.0f, 0.0f}, {0.0f, 0.0f})
+	, mAspectRatio(0.0f)
+{}
 
-	void IWindow::AddListener(IWindowListener& listener)
-	{
-		mWindowListeners.insert(&listener);
-	}
+void IWindow::AddListener(IWindowListener& listener)
+{
+	mWindowListeners.insert(&listener);
+}
 
-	void IWindow::RemoveListener(IWindowListener& listener)
+void IWindow::RemoveListener(IWindowListener& listener)
+{
+	auto it = mWindowListeners.find(&listener);
+	if (it != mWindowListeners.end())
 	{
-		auto it = mWindowListeners.find(&listener);
-		if (it != mWindowListeners.end())
-		{
-			mWindowListeners.erase(it);
-		}
+		mWindowListeners.erase(it);
 	}
+}
 
 } // namespace erm

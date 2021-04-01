@@ -4,15 +4,15 @@
 
 namespace erm {
 
-	struct QueueFamilyIndices
+struct QueueFamilyIndices
+{
+	inline bool IsComplete() const
 	{
-		inline bool IsComplete() const
-		{
-			return (mGraphicsFamily.has_value() && mPresentFamily.has_value());
-		}
+		return (mGraphicsFamily.has_value() && mPresentFamily.has_value());
+	}
 
-		std::optional<uint32_t> mGraphicsFamily;
-		std::optional<uint32_t> mPresentFamily;
-	};
+	std::optional<uint32_t> mGraphicsFamily;
+	std::optional<uint32_t> mPresentFamily;
+};
 
 } // namespace erm

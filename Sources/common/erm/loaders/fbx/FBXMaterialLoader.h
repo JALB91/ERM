@@ -9,17 +9,17 @@
 // clang-format on
 
 namespace erm {
-	class ResourcesManager;
-	struct Material;
+class ResourcesManager;
+struct Material;
 } // namespace erm
 
 namespace erm {
 
-	Material* ParseFBXMaterial(
-		std::mutex& mutex,
-		const char* path,
-		FbxMesh* pMesh,
-		ResourcesManager& resourcesManager);
+Material* ParseFBXMaterial(
+	std::mutex& mutex,
+	const char* path,
+	FbxMesh* pMesh,
+	ResourcesManager& resourcesManager);
 
 }
 

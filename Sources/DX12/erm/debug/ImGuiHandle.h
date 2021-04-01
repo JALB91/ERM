@@ -1,23 +1,23 @@
 #pragma once
 
 namespace erm {
-	class Engine;
+class Engine;
 }
 
 namespace erm {
 
-	class ImGuiHandle
-	{
-	public:
-		ImGuiHandle(Engine& engine);
+class ImGuiHandle
+{
+public:
+	ImGuiHandle(Engine& engine);
 
-		void OnUpdate();
-		void OnPreRender();
-		void OnRender();
-		void OnPostRender();
+	void OnUpdate();
+	void OnPreRender();
+	void OnRender();
+	void OnPostRender();
 
-	private:
-		Engine& mEngine;
-	};
+private:
+	Engine& mEngine;
+};
 
 } // namespace erm

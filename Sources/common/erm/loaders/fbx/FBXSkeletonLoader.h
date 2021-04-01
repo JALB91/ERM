@@ -13,16 +13,16 @@
 // clang-format on
 
 namespace erm {
-	class ResourcesManager;
+class ResourcesManager;
 }
 
 namespace erm {
 
-	void ProcessSkeleton(
-		std::mutex& mutex,
-		std::atomic<bool>& stop,
-		std::unique_ptr<BonesTree>& bonesTree,
-		FbxScene& scene);
+void ProcessSkeleton(
+	std::mutex& mutex,
+	std::atomic<bool>& stop,
+	std::unique_ptr<BonesTree>& bonesTree,
+	FbxScene& scene);
 
 }
 

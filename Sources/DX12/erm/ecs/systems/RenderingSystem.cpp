@@ -2,8 +2,8 @@
 
 namespace erm::ecs {
 
-	RenderingSystem::RenderingSystem(ECS& ecs)
-		: ISystem(ecs)
-	{}
+RenderingSystem::RenderingSystem(ECS& ecs)
+	: ISystem(ecs)
+{}
 
 } // namespace erm::ecs

@@ -13,33 +13,33 @@
 
 namespace erm {
 
-	class Profiler
+class Profiler
+{
+public:
+	struct Profile
 	{
-	public:
-		struct Profile
-		{
-			Profile(short frameId, double time = 0.0)
-				: mFrameId(frameId)
-				, mTime(time)
-			{}
+		Profile(short frameId, double time = 0.0)
+			: mFrameId(frameId)
+			, mTime(time)
+		{}
 
-			short mFrameId;
-			double mTime;
-		};
-
-		using ProfilingTree = Tree<std::string, Profile>;
-
-	public:
-		Profiler(const std::string& id);
-		~Profiler();
-
-		static const ProfilingTree& GetRoot();
-
-	private:
-		static std::unique_ptr<ProfilingTree> sTree;
-		static ProfilingTree* sCurrentNode;
-
-		const Timer mTimer;
+		short mFrameId;
+		double mTime;
 	};
+
+	using ProfilingTree = Tree<std::string, Profile>;
+
+public:
+	Profiler(const std::string& id);
+	~Profiler();
+
+	static const ProfilingTree& GetRoot();
+
+private:
+	static std::unique_ptr<ProfilingTree> sTree;
+	static ProfilingTree* sCurrentNode;
+
+	const Timer mTimer;
+};
 
 } // namespace erm

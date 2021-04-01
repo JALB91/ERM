@@ -5,16 +5,16 @@
 
 namespace erm::ecs {
 
-	class LightSystem : public ISystem<LightComponent>
-	{
-	public:
-		LightSystem(ECS& ecs)
-			: ISystem(ecs)
-		{}
-		~LightSystem() = default;
+class LightSystem : public ISystem<LightComponent>
+{
+public:
+	LightSystem(ECS& ecs)
+		: ISystem(ecs)
+	{}
+	~LightSystem() = default;
 
-		// ISystem
-		void Init() override {}
-	};
+	// ISystem
+	void Init() override {}
+};
 
 } // namespace erm::ecs

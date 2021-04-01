@@ -15,21 +15,21 @@
 
 namespace ImGui {
 
-	void ShowPBMaterialDebug(erm::Engine& /*engine*/, erm::Mesh& mesh)
+void ShowPBMaterialDebug(erm::Engine& /*engine*/, erm::Mesh& mesh)
+{
+	if (ImGui::CollapsingHeader("PBMaterial"))
 	{
-		if (ImGui::CollapsingHeader("PBMaterial"))
-		{
-			erm::PBMaterial* material = mesh.GetRenderConfigs().mPBMaterial ? mesh.GetRenderConfigs().mPBMaterial : &erm::PBMaterial::DEFAULT;
+		erm::PBMaterial* material = mesh.GetRenderConfigs().mPBMaterial ? mesh.GetRenderConfigs().mPBMaterial : &erm::PBMaterial::DEFAULT;
 
-			ImGui::Indent();
+		ImGui::Indent();
 
-			ImGui::SliderFloat3("Albedo", &material->mAlbedo.x, 0.0f, 1.0f);
-			ImGui::SliderFloat("Metallic", &material->mMetallic, 0.0f, 1.0f);
-			ImGui::SliderFloat("Roughness", &material->mRoughness, 0.0f, 1.0f);
-			ImGui::SliderFloat("AO", &material->mAO, 0.0f, 10.0f);
+		ImGui::SliderFloat3("Albedo", &material->mAlbedo.x, 0.0f, 1.0f);
+		ImGui::SliderFloat("Metallic", &material->mMetallic, 0.0f, 1.0f);
+		ImGui::SliderFloat("Roughness", &material->mRoughness, 0.0f, 1.0f);
+		ImGui::SliderFloat("AO", &material->mAO, 0.0f, 10.0f);
 
-			ImGui::Unindent();
-		}
+		ImGui::Unindent();
 	}
+}
 
 } // namespace ImGui

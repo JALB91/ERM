@@ -5,28 +5,28 @@
 
 namespace erm {
 
-	Model::Model(Device& device, const char* path, const char* name)
-		: IAsset(path, name)
-		, mDevice(device)
-	{}
+Model::Model(Device& device, const char* path, const char* name)
+	: IAsset(path, name)
+	, mDevice(device)
+{}
 
-	Model::~Model()
-	{}
+Model::~Model()
+{}
 
-	void Model::AddMesh(Mesh&& mesh)
-	{}
+void Model::AddMesh(Mesh&& mesh)
+{}
 
-	void Model::AddMesh(
-		std::vector<VertexData>&& vertices,
-		std::vector<IndexData>&& indices,
-		const RenderConfigs& configs /*= RenderConfigs::MODELS_RENDER_CONFIGS*/,
-		const char* name /*= ""*/)
-	{}
+void Model::AddMesh(
+	std::vector<VertexData>&& vertices,
+	std::vector<IndexData>&& indices,
+	const RenderConfigs& configs /*= RenderConfigs::MODELS_RENDER_CONFIGS*/,
+	const char* name /*= ""*/)
+{}
 
-	void Model::UpdateLocalBound()
-	{}
+void Model::UpdateLocalBound()
+{}
 
-	void Model::UpdateBuffers()
-	{}
+void Model::UpdateBuffers()
+{}
 
 } // namespace erm

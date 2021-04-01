@@ -8,28 +8,28 @@
 
 namespace erm {
 
-	class RTAccelerationStructure
+class RTAccelerationStructure
+{
+public:
+	RTAccelerationStructure() = default;
+	virtual ~RTAccelerationStructure() = default;
+
+	inline void Reset()
 	{
-	public:
-		RTAccelerationStructure() = default;
-		virtual ~RTAccelerationStructure() = default;
+		mBuffer.reset();
+		mAccelerationStructure.reset();
+	}
 
-		inline void Reset()
-		{
-			mBuffer.reset();
-			mAccelerationStructure.reset();
-		}
+	inline void SetBuffer(std::unique_ptr<DeviceBuffer>&& buffer) { mBuffer = std::move(buffer); }
+	inline void SetAS(vk::UniqueAccelerationStructureKHR&& as) { mAccelerationStructure = std::move(as); }
 
-		inline void SetBuffer(std::unique_ptr<DeviceBuffer>&& buffer) { mBuffer = std::move(buffer); }
-		inline void SetAS(vk::UniqueAccelerationStructureKHR&& as) { mAccelerationStructure = std::move(as); }
+	inline bool IsReady() const { return mBuffer && mAccelerationStructure; }
+	inline const DeviceBuffer& GetBuffer() const { return *mBuffer; }
+	inline const vk::AccelerationStructureKHR& GetAS() const { return mAccelerationStructure.get(); }
 
-		inline bool IsReady() const { return mBuffer && mAccelerationStructure; }
-		inline const DeviceBuffer& GetBuffer() const { return *mBuffer; }
-		inline const vk::AccelerationStructureKHR& GetAS() const { return mAccelerationStructure.get(); }
-
-	private:
-		std::unique_ptr<DeviceBuffer> mBuffer;
-		vk::UniqueAccelerationStructureKHR mAccelerationStructure;
-	};
+private:
+	std::unique_ptr<DeviceBuffer> mBuffer;
+	vk::UniqueAccelerationStructureKHR mAccelerationStructure;
+};
 
 } // namespace erm

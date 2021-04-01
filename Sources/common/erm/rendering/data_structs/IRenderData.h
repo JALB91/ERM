@@ -11,58 +11,58 @@
 
 namespace erm {
 
-	using UbosMap = std::unordered_map<UboId, std::unique_ptr<IUbo>>;
-	using StorageBuffersMap = std::unordered_map<StorageBufferType, StorageBufferResources>;
+using UbosMap = std::unordered_map<UboId, std::unique_ptr<IUbo>>;
+using StorageBuffersMap = std::unordered_map<StorageBufferType, StorageBufferResources>;
 
-	struct IRenderData
+struct IRenderData
+{
+	IRenderData() = default;
+	virtual ~IRenderData() = default;
+
+	IRenderData(IRenderData&& other)
+		: mUbos(std::move(other.mUbos))
+		, mSbos(std::move(other.mSbos))
+	{}
+
+	IRenderData& operator=(IRenderData&& other)
 	{
-		IRenderData() = default;
-		virtual ~IRenderData() = default;
+		mUbos = std::move(other.mUbos);
+		mSbos = std::move(other.mSbos);
+		return *this;
+	}
 
-		IRenderData(IRenderData&& other)
-			: mUbos(std::move(other.mUbos))
-			, mSbos(std::move(other.mSbos))
-		{}
+	template<typename T>
+	inline void SetUbo(T ubo)
+	{
+		if (mUbos.find(T::ID) == mUbos.end())
+			mUbos[T::ID] = std::make_unique<T>();
 
-		IRenderData& operator=(IRenderData&& other)
-		{
-			mUbos = std::move(other.mUbos);
-			mSbos = std::move(other.mSbos);
-			return *this;
-		}
+		*static_cast<T*>(mUbos[T::ID].get()) = ubo;
+	}
 
-		template<typename T>
-		inline void SetUbo(T ubo)
-		{
-			if (mUbos.find(T::ID) == mUbos.end())
-				mUbos[T::ID] = std::make_unique<T>();
+	inline bool HasUbo(UboId id) const
+	{
+		return mUbos.find(id) != mUbos.cend();
+	}
 
-			*static_cast<T*>(mUbos[T::ID].get()) = ubo;
-		}
+	inline void AddSbo(StorageBufferType type, uint32_t id, const DeviceBuffer& buffer)
+	{
+		mSbos[type].AddBuffer(id, buffer);
+	}
 
-		inline bool HasUbo(UboId id) const
-		{
-			return mUbos.find(id) != mUbos.cend();
-		}
+	inline void RemoveSbos(uint32_t id)
+	{
+		for (auto& [type, resources] : mSbos)
+			resources.ClearBuffer(id);
+	}
 
-		inline void AddSbo(StorageBufferType type, uint32_t id, const DeviceBuffer& buffer)
-		{
-			mSbos[type].AddBuffer(id, buffer);
-		}
+	inline bool HasSbos(StorageBufferType type) const
+	{
+		return mSbos.find(type) != mSbos.cend();
+	}
 
-		inline void RemoveSbos(uint32_t id)
-		{
-			for (auto& [type, resources] : mSbos)
-				resources.ClearBuffer(id);
-		}
-
-		inline bool HasSbos(StorageBufferType type) const
-		{
-			return mSbos.find(type) != mSbos.cend();
-		}
-
-		UbosMap mUbos;
-		StorageBuffersMap mSbos;
-	};
+	UbosMap mUbos;
+	StorageBuffersMap mSbos;
+};
 
 } // namespace erm

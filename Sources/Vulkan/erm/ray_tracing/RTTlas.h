@@ -4,6 +4,6 @@
 
 namespace erm {
 
-	using RTTlas = RTAccelerationStructure;
+using RTTlas = RTAccelerationStructure;
 
 }

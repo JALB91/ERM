@@ -4,60 +4,60 @@
 
 namespace erm {
 
-	const BindingConfigs BindingConfigs::MODELS_BINDING_CONFIGS = {};
+const BindingConfigs BindingConfigs::MODELS_BINDING_CONFIGS = {};
 
-	BindingConfigs::BindingConfigs()
-		: mPBMaterial(nullptr)
-		, mMaterial(nullptr)
-	{}
+BindingConfigs::BindingConfigs()
+	: mPBMaterial(nullptr)
+	, mMaterial(nullptr)
+{}
 
-	bool BindingConfigs::IsBindingLevelCompatible(const BindingConfigs& other) const
+bool BindingConfigs::IsBindingLevelCompatible(const BindingConfigs& other) const
+{
+	return IsMaterialCompatible(other) && AreTexturesCompatible(other);
+}
+
+Texture* BindingConfigs::GetTexture(TextureType type) const
+{
 	{
-		return IsMaterialCompatible(other) && AreTexturesCompatible(other);
+		auto it = mTexturesMaps.find(type);
+		if (it != mTexturesMaps.end() && it->second)
+			return it->second;
 	}
 
-	Texture* BindingConfigs::GetTexture(TextureType type) const
+	if (mMaterial)
 	{
-		{
-			auto it = mTexturesMaps.find(type);
-			if (it != mTexturesMaps.end() && it->second)
-				return it->second;
-		}
-
-		if (mMaterial)
-		{
-			auto it = mMaterial->mTexturesMaps.find(type);
-			if (it != mMaterial->mTexturesMaps.end() && it->second)
-				return it->second;
-		}
-
-		return nullptr;
+		auto it = mMaterial->mTexturesMaps.find(type);
+		if (it != mMaterial->mTexturesMaps.end() && it->second)
+			return it->second;
 	}
 
-	bool BindingConfigs::IsMaterialCompatible(const BindingConfigs& other) const
-	{
-		return mPBMaterial == other.mPBMaterial && mMaterial == other.mMaterial;
-	}
+	return nullptr;
+}
 
-	bool BindingConfigs::AreTexturesCompatible(const BindingConfigs& other) const
+bool BindingConfigs::IsMaterialCompatible(const BindingConfigs& other) const
+{
+	return mPBMaterial == other.mPBMaterial && mMaterial == other.mMaterial;
+}
+
+bool BindingConfigs::AreTexturesCompatible(const BindingConfigs& other) const
+{
+	for (int i = 0; i < static_cast<int>(TextureType::COUNT); ++i)
 	{
-		for (int i = 0; i < static_cast<int>(TextureType::COUNT); ++i)
+		auto it1 = mTexturesMaps.find(static_cast<TextureType>(i));
+		auto it2 = other.mTexturesMaps.find(static_cast<TextureType>(i));
+
+		if (it1 != mTexturesMaps.end() && it2 != other.mTexturesMaps.end())
 		{
-			auto it1 = mTexturesMaps.find(static_cast<TextureType>(i));
-			auto it2 = other.mTexturesMaps.find(static_cast<TextureType>(i));
-
-			if (it1 != mTexturesMaps.end() && it2 != other.mTexturesMaps.end())
-			{
-				if (it1->second != it2->second)
-					return false;
-			}
-			else if (it1 != mTexturesMaps.end() || it2 != other.mTexturesMaps.end())
-			{
+			if (it1->second != it2->second)
 				return false;
-			}
 		}
-
-		return true;
+		else if (it1 != mTexturesMaps.end() || it2 != other.mTexturesMaps.end())
+		{
+			return false;
+		}
 	}
+
+	return true;
+}
 
 } // namespace erm

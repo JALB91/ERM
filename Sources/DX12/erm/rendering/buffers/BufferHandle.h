@@ -2,8 +2,8 @@
 
 namespace erm {
 
-	struct BufferHandle
-	{
-	};
+struct BufferHandle
+{
+};
 
 } // namespace erm

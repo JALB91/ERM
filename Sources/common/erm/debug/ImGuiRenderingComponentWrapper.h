@@ -1,11 +1,11 @@
 #pragma once
 
 namespace erm::ecs {
-	struct RenderingComponent;
+struct RenderingComponent;
 }
 
 namespace ImGui {
 
-	extern bool ShowRenderingComponentDebug(erm::ecs::RenderingComponent& renderingComponent);
+extern bool ShowRenderingComponentDebug(erm::ecs::RenderingComponent& renderingComponent);
 
 }

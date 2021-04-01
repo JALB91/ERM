@@ -12,49 +12,49 @@
 
 namespace erm::ecs {
 
-	ModelSystem::ModelSystem(ECS& ecs)
-		: ISystem<ModelComponent>(ecs)
-		, mTransformSystem(nullptr)
-	{}
+ModelSystem::ModelSystem(ECS& ecs)
+	: ISystem<ModelComponent>(ecs)
+	, mTransformSystem(nullptr)
+{}
 
-	void ModelSystem::Init()
-	{
-		mTransformSystem = &mECS.GetSystem<TransformSystem>();
-	}
+void ModelSystem::Init()
+{
+	mTransformSystem = &mECS.GetSystem<TransformSystem>();
+}
 
-	void ModelSystem::OnPostUpdate()
-	{
-		PROFILE_FUNCTION();
+void ModelSystem::OnPostUpdate()
+{
+	PROFILE_FUNCTION();
 
-		ForEachComponentIndexed([this](ModelComponent& component, ID id) {
-			Model* model = component.mModel;
+	ForEachComponentIndexed([this](ModelComponent& component, ID id) {
+		Model* model = component.mModel;
 
-			if (!component.IsDirty() && (!model || !model->IsDirty()))
-				return;
+		if (!component.IsDirty() && (!model || !model->IsDirty()))
+			return;
 
-			if (model)
-			{
-				TransformComponent* transformComponent = mTransformSystem->RequireComponent(id);
-				component.mWorldBounds = model->GetLocalBounds().Expand(transformComponent->mWorldTransform);
-				model->SetDirty(false);
-			}
-			else
-			{
-				component.mWorldBounds.Empty();
-			}
+		if (model)
+		{
+			TransformComponent* transformComponent = mTransformSystem->RequireComponent(id);
+			component.mWorldBounds = model->GetLocalBounds().Expand(transformComponent->mWorldTransform);
+			model->SetDirty(false);
+		}
+		else
+		{
+			component.mWorldBounds.Empty();
+		}
 
-			RenderingSystem& sys = mECS.GetSystem<RenderingSystem>();
-			if (auto* comp = sys.GetComponent(id))
-				comp->SetDirty(true);
-
-			component.SetDirty(false);
-		});
-	}
-
-	void ModelSystem::OnComponentBeingRemoved(EntityId id)
-	{
-		if (auto* comp = mECS.GetSystem<RenderingSystem>().GetComponent(id))
+		RenderingSystem& sys = mECS.GetSystem<RenderingSystem>();
+		if (auto* comp = sys.GetComponent(id))
 			comp->SetDirty(true);
-	}
+
+		component.SetDirty(false);
+	});
+}
+
+void ModelSystem::OnComponentBeingRemoved(EntityId id)
+{
+	if (auto* comp = mECS.GetSystem<RenderingSystem>().GetComponent(id))
+		comp->SetDirty(true);
+}
 
 } // namespace erm::ecs

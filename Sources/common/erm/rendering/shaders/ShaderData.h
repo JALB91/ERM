@@ -8,11 +8,11 @@
 
 namespace erm {
 
-	struct ShaderData
-	{
-		std::string mShaderSource;
-		std::vector<char> mShaderByteCode;
-		std::unique_ptr<spirv_cross::Compiler> mShaderCompiler;
-	};
+struct ShaderData
+{
+	std::string mShaderSource;
+	std::vector<char> mShaderByteCode;
+	std::unique_ptr<spirv_cross::Compiler> mShaderCompiler;
+};
 
 } // namespace erm

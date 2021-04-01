@@ -13,47 +13,47 @@
 #include <vector>
 
 namespace erm {
-	class RenderingResources;
-	struct RenderData;
+class RenderingResources;
+struct RenderData;
 #ifdef ERM_RAY_TRACING_ENABLED
-	struct RTRenderData;
+struct RTRenderData;
 #endif
 } // namespace erm
 
 namespace erm {
 
-	class Renderer : public IRenderer
-	{
-	public:
-		Renderer(Engine& engine);
-		~Renderer();
+class Renderer : public IRenderer
+{
+public:
+	Renderer(Engine& engine);
+	~Renderer();
 
-		void OnPreRender() override;
-		void OnRender() override;
-		void OnPostRender() override;
+	void OnPreRender() override;
+	void OnRender() override;
+	void OnPostRender() override;
 
-		void SubmitRenderData(RenderData& data);
+	void SubmitRenderData(RenderData& data);
 
-	private:
-		using RasterData = std::map<std::unique_ptr<RenderingResources>, std::vector<RenderData*>>;
+private:
+	using RasterData = std::map<std::unique_ptr<RenderingResources>, std::vector<RenderData*>>;
 #ifdef ERM_RAY_TRACING_ENABLED
-		using RayTracingData = std::map<std::unique_ptr<RTRenderingResources>, RTRenderData*>;
+	using RayTracingData = std::map<std::unique_ptr<RTRenderingResources>, RTRenderData*>;
 #endif
 
-	private:
-		std::vector<vk::CommandBuffer> RetrieveCommandBuffers();
+private:
+	std::vector<vk::CommandBuffer> RetrieveCommandBuffers();
 
-		RasterData::value_type& GetOrCreateFramesData(const RenderConfigs& renderConfigs);
+	RasterData::value_type& GetOrCreateFramesData(const RenderConfigs& renderConfigs);
 
-		RasterData mRasterData;
+	RasterData mRasterData;
 
 #ifdef ERM_RAY_TRACING_ENABLED
-	public:
-		void SubmitRTRenderData(RTRenderData& data);
+public:
+	void SubmitRTRenderData(RTRenderData& data);
 
-	private:
-		RayTracingData mRTRenderData;
+private:
+	RayTracingData mRTRenderData;
 #endif
-	};
+};
 
 } // namespace erm

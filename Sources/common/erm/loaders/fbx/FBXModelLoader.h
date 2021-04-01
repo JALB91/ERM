@@ -8,18 +8,18 @@
 // clang-format on
 
 namespace erm {
-	class Model;
-	class ResourcesManager;
+class Model;
+class ResourcesManager;
 } // namespace erm
 
 namespace erm {
 
-	extern void ParseFBXModel(
-		std::mutex& mutex,
-		std::atomic<bool>& stop,
-		const char* path,
-		Model& model,
-		ResourcesManager& resourcesManager);
+extern void ParseFBXModel(
+	std::mutex& mutex,
+	std::atomic<bool>& stop,
+	const char* path,
+	Model& model,
+	ResourcesManager& resourcesManager);
 
 }
 

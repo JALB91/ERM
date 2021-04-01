@@ -2,28 +2,28 @@
 
 namespace erm {
 
-	class VertexBuffer;
-	class VertexBufferLayout;
+class VertexBuffer;
+class VertexBufferLayout;
 
-	class VertexArray
-	{
-	public:
-		VertexArray();
-		~VertexArray();
+class VertexArray
+{
+public:
+	VertexArray();
+	~VertexArray();
 
-		VertexArray(VertexArray&&) = delete;
-		VertexArray(const VertexArray&) = delete;
+	VertexArray(VertexArray&&) = delete;
+	VertexArray(const VertexArray&) = delete;
 
-		VertexArray& operator=(VertexArray&&) = delete;
-		VertexArray& operator=(const VertexArray&) = delete;
+	VertexArray& operator=(VertexArray&&) = delete;
+	VertexArray& operator=(const VertexArray&) = delete;
 
-		void AddBuffer(const VertexBuffer& vb, const VertexBufferLayout& vbl) const;
+	void AddBuffer(const VertexBuffer& vb, const VertexBufferLayout& vbl) const;
 
-		void Bind() const;
-		void Unbind() const;
+	void Bind() const;
+	void Unbind() const;
 
-	private:
-		unsigned int mRendererId;
-	};
+private:
+	unsigned int mRendererId;
+};
 
 } // namespace erm

@@ -2,12 +2,12 @@
 
 namespace erm {
 
-	enum class StorageBufferType
-	{
-		VERTICES,
-		INDICES,
-		INSTANCE_DATA,
-		COUNT
-	};
+enum class StorageBufferType
+{
+	VERTICES,
+	INDICES,
+	INSTANCE_DATA,
+	COUNT
+};
 
 }

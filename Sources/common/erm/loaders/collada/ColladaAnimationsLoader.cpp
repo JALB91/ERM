@@ -15,117 +15,117 @@ using namespace tinyxml2;
 
 namespace erm {
 
-	void ProcessAnimations(
-		std::mutex& mutex,
-		tinyxml2::XMLDocument& document,
-		const std::map<std::string, ColladaSkinData>& skinsData,
-		const char* path,
-		Animations& animations)
+void ProcessAnimations(
+	std::mutex& mutex,
+	tinyxml2::XMLDocument& document,
+	const std::map<std::string, ColladaSkinData>& skinsData,
+	const char* path,
+	Animations& animations)
+{
+	XMLElement* animationsLibrary = document.RootElement()->FirstChildElement("library_animations");
+	if (!animationsLibrary)
+		return;
+	XMLElement* animationSource = animationsLibrary->FirstChildElement("animation");
+
+	std::vector<KeyFrame> keyFrames;
+	std::vector<float> timestamps;
+
+	while (animationSource)
 	{
-		XMLElement* animationsLibrary = document.RootElement()->FirstChildElement("library_animations");
-		if (!animationsLibrary)
-			return;
-		XMLElement* animationSource = animationsLibrary->FirstChildElement("animation");
+		XMLElement* samplerElement = animationSource->FirstChildElement("sampler");
+		std::string boneId = animationSource->FirstChildElement("channel")->Attribute("target");
+		boneId = boneId.substr(0, boneId.find("/"));
 
-		std::vector<KeyFrame> keyFrames;
-		std::vector<float> timestamps;
+		int targetBone = -1;
 
-		while (animationSource)
+		for (const auto& entry : skinsData)
 		{
-			XMLElement* samplerElement = animationSource->FirstChildElement("sampler");
-			std::string boneId = animationSource->FirstChildElement("channel")->Attribute("target");
-			boneId = boneId.substr(0, boneId.find("/"));
-
-			int targetBone = -1;
-
-			for (const auto& entry : skinsData)
+			const std::vector<std::string>& boneNames = entry.second.mBoneNames;
+			for (unsigned int i = 0; i < boneNames.size(); ++i)
 			{
-				const std::vector<std::string>& boneNames = entry.second.mBoneNames;
-				for (unsigned int i = 0; i < boneNames.size(); ++i)
+				if (boneNames[i] == boneId || ("Armature_" + boneNames[i]) == boneId)
 				{
-					if (boneNames[i] == boneId || ("Armature_" + boneNames[i]) == boneId)
-					{
-						targetBone = i;
-						break;
-					}
+					targetBone = i;
+					break;
 				}
 			}
+		}
 
-			if (targetBone < 0)
+		if (targetBone < 0)
+		{
+			animationSource = animationSource->NextSiblingElement("animation");
+			continue;
+		}
+
+		if (samplerElement)
+		{
+			std::vector<math::mat4> matrices;
+
+			XMLElement* input = samplerElement->FirstChildElement("input");
+
+			while (input)
 			{
-				animationSource = animationSource->NextSiblingElement("animation");
-				continue;
-			}
+				bool isInput = std::strcmp(input->Attribute("semantic"), "INPUT") == 0;
+				bool isOutput = std::strcmp(input->Attribute("semantic"), "OUTPUT") == 0;
 
-			if (samplerElement)
-			{
-				std::vector<math::mat4> matrices;
-
-				XMLElement* input = samplerElement->FirstChildElement("input");
-
-				while (input)
+				if (isInput || isOutput)
 				{
-					bool isInput = std::strcmp(input->Attribute("semantic"), "INPUT") == 0;
-					bool isOutput = std::strcmp(input->Attribute("semantic"), "OUTPUT") == 0;
+					std::string targetSource = input->Attribute("source");
+					targetSource = targetSource.substr(1);
 
-					if (isInput || isOutput)
+					XMLElement* source = animationSource->FirstChildElement("source");
+
+					while (source)
 					{
-						std::string targetSource = input->Attribute("source");
-						targetSource = targetSource.substr(1);
-
-						XMLElement* source = animationSource->FirstChildElement("source");
-
-						while (source)
+						if (source->Attribute("id") == targetSource)
 						{
-							if (source->Attribute("id") == targetSource)
-							{
-								std::vector<std::string> values = Utils::SplitString(source->FirstChildElement("float_array")->GetText(), ' ');
+							std::vector<std::string> values = Utils::SplitString(source->FirstChildElement("float_array")->GetText(), ' ');
 
-								if (isInput && values.size() > timestamps.size())
+							if (isInput && values.size() > timestamps.size())
+							{
+								for (unsigned int i = static_cast<unsigned int>(timestamps.size()); i < values.size(); ++i)
 								{
-									for (unsigned int i = static_cast<unsigned int>(timestamps.size()); i < values.size(); ++i)
-									{
-										timestamps.emplace_back(static_cast<float>(std::atof(values[i].c_str())));
-									}
-								}
-								else if (isOutput)
-								{
-									for (int i = 0; i < source->FirstChildElement("technique_common")->FirstChildElement("accessor")->IntAttribute("count"); ++i)
-									{
-										ParseMatrix(values, i, matrices.emplace_back());
-									}
+									timestamps.emplace_back(static_cast<float>(std::atof(values[i].c_str())));
 								}
 							}
-							source = source->NextSiblingElement("source");
+							else if (isOutput)
+							{
+								for (int i = 0; i < source->FirstChildElement("technique_common")->FirstChildElement("accessor")->IntAttribute("count"); ++i)
+								{
+									ParseMatrix(values, i, matrices.emplace_back());
+								}
+							}
 						}
+						source = source->NextSiblingElement("source");
 					}
-					input = input->NextSiblingElement("input");
 				}
-
-				for (unsigned int i = static_cast<unsigned int>(keyFrames.size()); i < static_cast<unsigned int>(timestamps.size()); ++i)
-				{
-					keyFrames.emplace_back(KeyFrame(timestamps[i]));
-				}
-
-				for (unsigned int i = 0; i < static_cast<unsigned int>(keyFrames.size()); ++i)
-				{
-					Pose& currentPose = keyFrames[i].mTransforms[targetBone];
-					math::DecomposeMatrix(
-						matrices[i],
-						currentPose.mTranslation,
-						currentPose.mRotation,
-						currentPose.mScale);
-				}
+				input = input->NextSiblingElement("input");
 			}
-			animationSource = animationSource->NextSiblingElement("animation");
-		}
 
-		if (keyFrames.size() > 0)
-		{
-			mutex.lock();
-			animations.emplace_back(std::make_unique<SkeletonAnimation>(keyFrames, keyFrames.back().mTimestamp, path));
-			mutex.unlock();
+			for (unsigned int i = static_cast<unsigned int>(keyFrames.size()); i < static_cast<unsigned int>(timestamps.size()); ++i)
+			{
+				keyFrames.emplace_back(KeyFrame(timestamps[i]));
+			}
+
+			for (unsigned int i = 0; i < static_cast<unsigned int>(keyFrames.size()); ++i)
+			{
+				Pose& currentPose = keyFrames[i].mTransforms[targetBone];
+				math::DecomposeMatrix(
+					matrices[i],
+					currentPose.mTranslation,
+					currentPose.mRotation,
+					currentPose.mScale);
+			}
 		}
+		animationSource = animationSource->NextSiblingElement("animation");
 	}
+
+	if (keyFrames.size() > 0)
+	{
+		mutex.lock();
+		animations.emplace_back(std::make_unique<SkeletonAnimation>(keyFrames, keyFrames.back().mTimestamp, path));
+		mutex.unlock();
+	}
+}
 
 } // namespace erm

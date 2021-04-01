@@ -2,20 +2,20 @@
 
 namespace erm {
 
-	Renderer::Renderer(Engine& engine)
-		: mEngine(engine)
-	{}
+Renderer::Renderer(Engine& engine)
+	: mEngine(engine)
+{}
 
-	void Renderer::OnPreRender()
-	{
-	}
+void Renderer::OnPreRender()
+{
+}
 
-	void Renderer::OnRender()
-	{
-	}
+void Renderer::OnRender()
+{
+}
 
-	void Renderer::OnPostRender()
-	{
-	}
+void Renderer::OnPostRender()
+{
+}
 
 } // namespace erm

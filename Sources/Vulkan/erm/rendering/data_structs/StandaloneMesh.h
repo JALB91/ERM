@@ -5,36 +5,36 @@
 #include "erm/rendering/data_structs/Mesh.h"
 
 namespace erm {
-	class Device;
+class Device;
 }
 
 namespace erm {
 
-	class StandaloneMesh : public Mesh
-	{
-	public:
-		StandaloneMesh(Device& device, Mesh&& mesh);
-		StandaloneMesh(
-			Device& device,
-			std::vector<VertexData>&& vertices,
-			std::vector<IndexData>&& indices,
-			const RenderConfigs& configs = RenderConfigs::MODELS_RENDER_CONFIGS,
-			const char* name = "");
-		~StandaloneMesh();
+class StandaloneMesh : public Mesh
+{
+public:
+	StandaloneMesh(Device& device, Mesh&& mesh);
+	StandaloneMesh(
+		Device& device,
+		std::vector<VertexData>&& vertices,
+		std::vector<IndexData>&& indices,
+		const RenderConfigs& configs = RenderConfigs::MODELS_RENDER_CONFIGS,
+		const char* name = "");
+	~StandaloneMesh();
 
-		StandaloneMesh(StandaloneMesh&& other);
-		StandaloneMesh(const StandaloneMesh&) = delete;
+	StandaloneMesh(StandaloneMesh&& other);
+	StandaloneMesh(const StandaloneMesh&) = delete;
 
-		StandaloneMesh& operator=(StandaloneMesh&&) = delete;
-		StandaloneMesh& operator=(const StandaloneMesh&) = delete;
+	StandaloneMesh& operator=(StandaloneMesh&&) = delete;
+	StandaloneMesh& operator=(const StandaloneMesh&) = delete;
 
-		inline const IndexBuffer& GetIndexBuffer() const { return mIndexBuffer; }
-		inline const VertexBuffer& GetVertexBuffer() const { return mVertexBuffer; }
+	inline const IndexBuffer& GetIndexBuffer() const { return mIndexBuffer; }
+	inline const VertexBuffer& GetVertexBuffer() const { return mVertexBuffer; }
 
-	private:
-		Device& mDevice;
-		IndexBuffer mIndexBuffer;
-		VertexBuffer mVertexBuffer;
-	};
+private:
+	Device& mDevice;
+	IndexBuffer mIndexBuffer;
+	VertexBuffer mVertexBuffer;
+};
 
 } // namespace erm

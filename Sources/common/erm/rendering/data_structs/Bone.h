@@ -11,30 +11,30 @@
 
 namespace erm {
 
-	typedef unsigned int BoneId;
+typedef unsigned int BoneId;
 
-	static const BoneId MAX_BONES = 100;
+static const BoneId MAX_BONES = 100;
 
-	struct Bone
-	{
-		Bone(
-			const math::mat4& localTransform,
-			const math::mat4& inverseBindTransform,
-			const char* name)
-			: mInverseBindTransform(inverseBindTransform)
-			, mAnimatedTransform(glm::identity<math::mat4>())
-			, mLocalTransform(localTransform)
-			, mWorldTransform(glm::identity<math::mat4>())
-			, mName(name)
-		{}
+struct Bone
+{
+	Bone(
+		const math::mat4& localTransform,
+		const math::mat4& inverseBindTransform,
+		const char* name)
+		: mInverseBindTransform(inverseBindTransform)
+		, mAnimatedTransform(glm::identity<math::mat4>())
+		, mLocalTransform(localTransform)
+		, mWorldTransform(glm::identity<math::mat4>())
+		, mName(name)
+	{}
 
-		math::mat4 mInverseBindTransform;
-		math::mat4 mAnimatedTransform;
-		math::mat4 mLocalTransform;
-		math::mat4 mWorldTransform;
-		std::string mName;
-	};
+	math::mat4 mInverseBindTransform;
+	math::mat4 mAnimatedTransform;
+	math::mat4 mLocalTransform;
+	math::mat4 mWorldTransform;
+	std::string mName;
+};
 
-	typedef Tree<BoneId, std::unique_ptr<Bone>> BonesTree;
+typedef Tree<BoneId, std::unique_ptr<Bone>> BonesTree;
 
 } // namespace erm

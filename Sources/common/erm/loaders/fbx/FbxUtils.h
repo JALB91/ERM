@@ -18,17 +18,17 @@
 
 namespace erm {
 
-	extern math::mat4 ToMat4(const FbxMatrix& matrix);
-	extern math::mat4 ToMat4(const FbxAMatrix& matrix);
-	extern math::vec3 ToVec3(const FbxVector4& vec);
-	extern math::vec2 ToVec2(const FbxVector2& vec);
-	extern math::vec3 GetNormal(FbxMesh* pMesh, int vertexId);
-	extern math::vec2 GetUV(FbxMesh* pMesh, int controlPointId, int polygonIndex, int positionInPolygon);
-	extern void GetBonesData(
-		const std::map<int, std::vector<FbxSkeletonData>>& skeletonData,
-		BonesTree* bonesTree,
-		VertexData& data,
-		int controlPointIndex);
+extern math::mat4 ToMat4(const FbxMatrix& matrix);
+extern math::mat4 ToMat4(const FbxAMatrix& matrix);
+extern math::vec3 ToVec3(const FbxVector4& vec);
+extern math::vec2 ToVec2(const FbxVector2& vec);
+extern math::vec3 GetNormal(FbxMesh* pMesh, int vertexId);
+extern math::vec2 GetUV(FbxMesh* pMesh, int controlPointId, int polygonIndex, int positionInPolygon);
+extern void GetBonesData(
+	const std::map<int, std::vector<FbxSkeletonData>>& skeletonData,
+	BonesTree* bonesTree,
+	VertexData& data,
+	int controlPointIndex);
 
 } // namespace erm
 

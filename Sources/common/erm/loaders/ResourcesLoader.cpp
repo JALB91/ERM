@@ -20,87 +20,109 @@
 
 namespace erm {
 
-	ResourcesLoader::ResourcesLoader(Device& device)
-		: mDevice(device)
-		, mStop(false)
-	{}
+ResourcesLoader::ResourcesLoader(Device& device)
+	: mDevice(device)
+	, mStop(false)
+{}
 
-	ResourcesLoader::~ResourcesLoader()
+ResourcesLoader::~ResourcesLoader()
+{
+	mStop = true;
+	for (const std::future<void>& future : mFutures)
 	{
-		mStop = true;
-		for (const std::future<void>& future : mFutures)
+		future.wait();
+	}
+	mFutures.clear();
+	mLoadingModels.clear();
+}
+
+void ResourcesLoader::OnUpdate()
+{
+	if (!mMutex.try_lock())
+	{
+		return;
+	}
+
+	for (int i = 0; i < static_cast<int>(mFutures.size()); ++i)
+	{
+		std::future<void>& future = mFutures[i];
+
+		if (future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
 		{
-			future.wait();
+			mLoadingModels[i]->UpdateBuffers();
+			mFutures.erase(mFutures.begin() + i);
+			mLoadingModels.erase(mLoadingModels.begin() + i);
+			--i;
 		}
-		mFutures.clear();
-		mLoadingModels.clear();
 	}
 
-	void ResourcesLoader::OnUpdate()
+	mMutex.unlock();
+}
+
+void ResourcesLoader::OnPreRender()
+{
+	mMutex.lock();
+}
+
+void ResourcesLoader::OnPostRender()
+{
+	mMutex.unlock();
+}
+
+bool ResourcesLoader::IsStillLoading(const Model& model) const
+{
+	return std::find(mLoadingModels.begin(), mLoadingModels.end(), &model) != mLoadingModels.end();
+}
+
+bool ResourcesLoader::ParseModel(
+	const char* path,
+	ResourcesManager& resourcesManager,
+	bool async /*= true*/)
+{
+	if (!std::filesystem::exists(path))
 	{
-		if (!mMutex.try_lock())
-		{
-			return;
-		}
-
-		for (int i = 0; i < static_cast<int>(mFutures.size()); ++i)
-		{
-			std::future<void>& future = mFutures[i];
-
-			if (future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
-			{
-				mLoadingModels[i]->UpdateBuffers();
-				mFutures.erase(mFutures.begin() + i);
-				mLoadingModels.erase(mLoadingModels.begin() + i);
-				--i;
-			}
-		}
-
-		mMutex.unlock();
+		std::cout << "No such file: " << path << std::endl;
+		return false;
 	}
 
-	void ResourcesLoader::OnPreRender()
-	{
-		mMutex.lock();
-	}
+	std::string pathStr = path;
+	std::string name = pathStr.substr(pathStr.rfind("/") + 1, pathStr.rfind("."));
+	std::string extension = pathStr.substr(pathStr.rfind("."));
 
-	void ResourcesLoader::OnPostRender()
-	{
-		mMutex.unlock();
-	}
+	Model& model = *resourcesManager.GetModels().emplace_back(std::make_unique<Model>(mDevice, path, name.c_str()));
 
-	bool ResourcesLoader::IsStillLoading(const Model& model) const
-	{
-		return std::find(mLoadingModels.begin(), mLoadingModels.end(), &model) != mLoadingModels.end();
-	}
-
-	bool ResourcesLoader::ParseModel(
-		const char* path,
-		ResourcesManager& resourcesManager,
-		bool async /*= true*/)
-	{
-		if (!std::filesystem::exists(path))
-		{
-			std::cout << "No such file: " << path << std::endl;
-			return false;
-		}
-
-		std::string pathStr = path;
-		std::string name = pathStr.substr(pathStr.rfind("/") + 1, pathStr.rfind("."));
-		std::string extension = pathStr.substr(pathStr.rfind("."));
-
-		Model& model = *resourcesManager.GetModels().emplace_back(std::make_unique<Model>(mDevice, path, name.c_str()));
-
-		if (async)
-			mLoadingModels.emplace_back(&model);
+	if (async)
+		mLoadingModels.emplace_back(&model);
 
 #ifdef ERM_ASSIMP_ENABLED
+	if (async)
+	{
+		mFutures.emplace_back(
+			std::async(
+				std::launch::async,
+				&AssimpParseModel,
+				std::ref(mMutex),
+				std::ref(mStop),
+				path,
+				std::ref(model),
+				std::ref(resourcesManager)));
+	}
+	else
+	{
+		AssimpParseModel(mMutex, mStop, path, model, resourcesManager);
+		model.UpdateBuffers();
+	}
+
+	return true;
+#else
+	if (Utils::CompareNoCaseSensitive(extension, ".obj"))
+	{
 		if (async)
 		{
 			mFutures.emplace_back(
 				std::async(
 					std::launch::async,
-					&AssimpParseModel,
+					&ParseObjModel,
 					std::ref(mMutex),
 					std::ref(mStop),
 					path,
@@ -109,83 +131,61 @@ namespace erm {
 		}
 		else
 		{
-			AssimpParseModel(mMutex, mStop, path, model, resourcesManager);
+			ParseObjModel(mMutex, mStop, path, model, resourcesManager);
 			model.UpdateBuffers();
 		}
 
 		return true;
-#else
-		if (Utils::CompareNoCaseSensitive(extension, ".obj"))
+	}
+	else if (Utils::CompareNoCaseSensitive(extension, ".dae"))
+	{
+		if (async)
 		{
-			if (async)
-			{
-				mFutures.emplace_back(
-					std::async(
-						std::launch::async,
-						&ParseObjModel,
-						std::ref(mMutex),
-						std::ref(mStop),
-						path,
-						std::ref(model),
-						std::ref(resourcesManager)));
-			}
-			else
-			{
-				ParseObjModel(mMutex, mStop, path, model, resourcesManager);
-				model.UpdateBuffers();
-			}
-
-			return true;
+			mFutures.emplace_back(
+				std::async(
+					std::launch::async,
+					&ParseColladaModel,
+					std::ref(mMutex),
+					std::ref(mStop),
+					path,
+					std::ref(model),
+					std::ref(resourcesManager)));
 		}
-		else if (Utils::CompareNoCaseSensitive(extension, ".dae"))
+		else
 		{
-			if (async)
-			{
-				mFutures.emplace_back(
-					std::async(
-						std::launch::async,
-						&ParseColladaModel,
-						std::ref(mMutex),
-						std::ref(mStop),
-						path,
-						std::ref(model),
-						std::ref(resourcesManager)));
-			}
-			else
-			{
-				ParseColladaModel(mMutex, mStop, path, model, resourcesManager);
-				model.UpdateBuffers();
-			}
-
-			return true;
+			ParseColladaModel(mMutex, mStop, path, model, resourcesManager);
+			model.UpdateBuffers();
 		}
+
+		return true;
+	}
 #	ifdef ERM_FBX_ENABLED
-		else if (Utils::CompareNoCaseSensitive(extension, ".fbx"))
+	else if (Utils::CompareNoCaseSensitive(extension, ".fbx"))
+	{
+		if (async)
 		{
-			if (async)
-			{
-				mFutures.emplace_back(
-					std::async(
-						std::launch::async,
-						&ParseFBXModel,
-						std::ref(mMutex),
-						std::ref(mStop),
-						path,
-						std::ref(model),
-						std::ref(resourcesManager)));
-			}
-			else
-			{
-				ParseFBXModel(mMutex, mStop, path, model, resourcesManager);
-				model.UpdateBuffers();
-			}
-
-			return true;
+			mFutures.emplace_back(
+				std::async(
+					std::launch::async,
+					&ParseFBXModel,
+					std::ref(mMutex),
+					std::ref(mStop),
+					path,
+					std::ref(model),
+					std::ref(resourcesManager)));
 		}
+		else
+		{
+			ParseFBXModel(mMutex, mStop, path, model, resourcesManager);
+			model.UpdateBuffers();
+		}
+
+		return true;
+	}
 #	endif
 
-		return false;
+	return false;
 #endif
-	}
+}
 
 } // namespace erm

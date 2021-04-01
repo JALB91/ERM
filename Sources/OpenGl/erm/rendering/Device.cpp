@@ -4,9 +4,9 @@
 
 namespace erm {
 
-	Device::Device(GLFWwindow* window)
-	{
-		UNUSED(window);
-	}
+Device::Device(GLFWwindow* window)
+{
+	UNUSED(window);
+}
 
 } // namespace erm

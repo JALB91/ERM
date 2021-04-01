@@ -4,6 +4,6 @@
 
 namespace erm {
 
-	typedef uint32_t IndexData;
+typedef uint32_t IndexData;
 
 }

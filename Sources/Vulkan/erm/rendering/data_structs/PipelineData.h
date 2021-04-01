@@ -10,61 +10,61 @@
 
 namespace erm {
 
-	using BindingResources = std::unique_ptr<IBindingResources>;
+using BindingResources = std::unique_ptr<IBindingResources>;
 
-	class PipelineData
+class PipelineData
+{
+public:
+	PipelineData(const BindingConfigs& configs)
+		: mConfigs(configs)
+		, mMaxSet(0)
+	{}
+
+	bool IsCompatible(const BindingConfigs& other) const
 	{
-	public:
-		PipelineData(const BindingConfigs& configs)
-			: mConfigs(configs)
-			, mMaxSet(0)
-		{}
+		return mConfigs.IsBindingLevelCompatible(other);
+	}
 
-		bool IsCompatible(const BindingConfigs& other) const
+	void UpdateResources(vk::CommandBuffer& cmd, IRenderData& renderData)
+	{
+		for (auto& res : mBindingResources)
+			res->UpdateResources(cmd, renderData);
+	}
+
+	void PostDraw()
+	{
+		for (auto& res : mBindingResources)
+			res->PostDraw();
+	}
+
+	std::vector<vk::DescriptorSet> GetDescriptorSets(vk::DescriptorSet& emptySet)
+	{
+		std::vector<vk::DescriptorSet> result(mMaxSet + 1);
+		for (uint32_t i = 0; i < mMaxSet + 1; ++i)
 		{
-			return mConfigs.IsBindingLevelCompatible(other);
+			auto it = std::find_if(mBindingResources.begin(), mBindingResources.end(), [i](const BindingResources& res) {
+				return res->GetTargetSet() == i;
+			});
+
+			if (it != mBindingResources.cend())
+				result[i] = (*it)->GetDescriptorSet();
+			else
+				result[i] = emptySet;
 		}
+		return result;
+	}
 
-		void UpdateResources(vk::CommandBuffer& cmd, IRenderData& renderData)
-		{
-			for (auto& res : mBindingResources)
-				res->UpdateResources(cmd, renderData);
-		}
+	void AddResources(uint32_t set, BindingResources&& resources)
+	{
+		ASSERT(resources->GetRenderConfigs().IsBindingLevelCompatible(mConfigs));
+		mMaxSet = std::max(mMaxSet, set);
+		mBindingResources.emplace_back(std::move(resources));
+	}
 
-		void PostDraw()
-		{
-			for (auto& res : mBindingResources)
-				res->PostDraw();
-		}
-
-		std::vector<vk::DescriptorSet> GetDescriptorSets(vk::DescriptorSet& emptySet)
-		{
-			std::vector<vk::DescriptorSet> result(mMaxSet + 1);
-			for (uint32_t i = 0; i < mMaxSet + 1; ++i)
-			{
-				auto it = std::find_if(mBindingResources.begin(), mBindingResources.end(), [i](const BindingResources& res) {
-					return res->GetTargetSet() == i;
-				});
-
-				if (it != mBindingResources.cend())
-					result[i] = (*it)->GetDescriptorSet();
-				else
-					result[i] = emptySet;
-			}
-			return result;
-		}
-
-		void AddResources(uint32_t set, BindingResources&& resources)
-		{
-			ASSERT(resources->GetRenderConfigs().IsBindingLevelCompatible(mConfigs));
-			mMaxSet = std::max(mMaxSet, set);
-			mBindingResources.emplace_back(std::move(resources));
-		}
-
-	private:
-		const BindingConfigs mConfigs;
-		std::vector<BindingResources> mBindingResources;
-		uint32_t mMaxSet;
-	};
+private:
+	const BindingConfigs mConfigs;
+	std::vector<BindingResources> mBindingResources;
+	uint32_t mMaxSet;
+};
 
 } // namespace erm

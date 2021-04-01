@@ -5,11 +5,11 @@
 
 namespace erm {
 
-	struct Pose
-	{
-		math::vec3 mTranslation;
-		math::vec3 mScale;
-		math::quat mRotation;
-	};
+struct Pose
+{
+	math::vec3 mTranslation;
+	math::vec3 mScale;
+	math::quat mRotation;
+};
 
 } // namespace erm

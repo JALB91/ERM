@@ -33,473 +33,473 @@
 
 namespace {
 
-	std::string GetShaderForConfig(const erm::BindingConfigs& config, const erm::ecs::LightComponent* light, const erm::ecs::SkeletonComponent* skeleton)
-	{
-		if (!light)
-			return "res/shaders/Vulkan/rasterization/vk_basic";
+std::string GetShaderForConfig(const erm::BindingConfigs& config, const erm::ecs::LightComponent* light, const erm::ecs::SkeletonComponent* skeleton)
+{
+	if (!light)
+		return "res/shaders/Vulkan/rasterization/vk_basic";
 
-		const erm::PBMaterial* pbMat = config.mPBMaterial;
-		const erm::Material* mat = config.mMaterial;
-		const erm::Texture* diffuseMap = config.GetTexture(erm::TextureType::DIFFUSE);
-		const erm::Texture* normalMap = config.GetTexture(erm::TextureType::NORMAL);
-		const erm::Texture* specularMap = config.GetTexture(erm::TextureType::SPECULAR);
+	const erm::PBMaterial* pbMat = config.mPBMaterial;
+	const erm::Material* mat = config.mMaterial;
+	const erm::Texture* diffuseMap = config.GetTexture(erm::TextureType::DIFFUSE);
+	const erm::Texture* normalMap = config.GetTexture(erm::TextureType::NORMAL);
+	const erm::Texture* specularMap = config.GetTexture(erm::TextureType::SPECULAR);
 
-		std::string result = "res/shaders/Vulkan/rasterization/";
-		result += skeleton && skeleton->GetSkin() ? "vk_skeleton" : "vk_model";
+	std::string result = "res/shaders/Vulkan/rasterization/";
+	result += skeleton && skeleton->GetSkin() ? "vk_skeleton" : "vk_model";
 
-		if (pbMat)
-			result += "_pb";
-		else if (mat)
-			result += "_mat";
+	if (pbMat)
+		result += "_pb";
+	else if (mat)
+		result += "_mat";
 
-		if (diffuseMap)
-			result += "_tex";
-		if (normalMap)
-			result += "_norm";
-		if (specularMap)
-			result += "_spec";
+	if (diffuseMap)
+		result += "_tex";
+	if (normalMap)
+		result += "_norm";
+	if (specularMap)
+		result += "_spec";
 
-		return result;
-	}
+	return result;
+}
 
 #ifdef ERM_RAY_TRACING_ENABLED
-	static erm::RTRenderData GetDefaultRTRenderData(erm::Engine& engine)
-	{
-		erm::RTRenderData data(engine.GetDevice());
-		data.mRenderConfigs.mShaderProgram = engine.GetResourcesManager().GetOrCreateRTShaderProgram("res/shaders/Vulkan/ray_tracing/vk_raytrace");
-		data.mRenderConfigs.mMaterial = &erm::Material::DEFAULT;
-		data.mRenderConfigs.mPBMaterial = &erm::PBMaterial::DEFAULT;
+static erm::RTRenderData GetDefaultRTRenderData(erm::Engine& engine)
+{
+	erm::RTRenderData data(engine.GetDevice());
+	data.mRenderConfigs.mShaderProgram = engine.GetResourcesManager().GetOrCreateRTShaderProgram("res/shaders/Vulkan/ray_tracing/vk_raytrace");
+	data.mRenderConfigs.mMaterial = &erm::Material::DEFAULT;
+	data.mRenderConfigs.mPBMaterial = &erm::PBMaterial::DEFAULT;
 
-		return data;
-	}
+	return data;
+}
 #endif
 
 } // namespace
 
 namespace erm::ecs {
 
-	RenderingSystem::RenderingSystem(ECS& ecs, Engine& engine)
-		: ISystem(ecs)
-		, mEngine(engine)
-		, mRenderer(engine.GetRenderer())
-		, mResourcesManager(engine.GetResourcesManager())
-		, mCachedCameraId(INVALID_ID)
-		, mCachedLightId(INVALID_ID)
-	{
+RenderingSystem::RenderingSystem(ECS& ecs, Engine& engine)
+	: ISystem(ecs)
+	, mEngine(engine)
+	, mRenderer(engine.GetRenderer())
+	, mResourcesManager(engine.GetResourcesManager())
+	, mCachedCameraId(INVALID_ID)
+	, mCachedLightId(INVALID_ID)
+{
 #ifdef ERM_RAY_TRACING_ENABLED
-		mRTRenderData.emplace_back(::GetDefaultRTRenderData(engine));
+	mRTRenderData.emplace_back(::GetDefaultRTRenderData(engine));
 #endif
-	}
+}
 
-	RenderingSystem::~RenderingSystem()
-	{}
+RenderingSystem::~RenderingSystem()
+{}
 
-	void RenderingSystem::Init()
-	{
-		mTransformSystem = &mECS.GetSystem<TransformSystem>();
-		mSkeletonSystem = &mECS.GetSystem<SkeletonSystem>();
-		mModelSystem = &mECS.GetSystem<ModelSystem>();
-		mCameraSystem = &mECS.GetSystem<CameraSystem>();
-		mLightSystem = &mECS.GetSystem<LightSystem>();
-	}
+void RenderingSystem::Init()
+{
+	mTransformSystem = &mECS.GetSystem<TransformSystem>();
+	mSkeletonSystem = &mECS.GetSystem<SkeletonSystem>();
+	mModelSystem = &mECS.GetSystem<ModelSystem>();
+	mCameraSystem = &mECS.GetSystem<CameraSystem>();
+	mLightSystem = &mECS.GetSystem<LightSystem>();
+}
 
-	void RenderingSystem::OnPostUpdate()
-	{
-		PROFILE_FUNCTION();
+void RenderingSystem::OnPostUpdate()
+{
+	PROFILE_FUNCTION();
 
-		ForEachComponent([&](RenderingComponent& component) {
-			if (!component.IsDirty())
-				return;
-
-#ifdef ERM_RAY_TRACING_ENABLED
-			if (component.mCustomIndex.has_value())
-			{
-				for (RTRenderData& data : mRTRenderData)
-				{
-					if (data.HasInstanceWithId(component.mCustomIndex.value()))
-					{
-						data.mForceUpdate = true;
-						data.ClearDataForIndex(component.mCustomIndex.value());
-					}
-				}
-
-				component.mCustomIndex.reset();
-			}
-#endif
-
-			component.SetDirty(false);
-		});
-	}
-
-	void RenderingSystem::OnPreRender()
-	{
-		PROFILE_FUNCTION();
-
-		TransformComponent* cameraTransform = nullptr;
-		CameraComponent* camera = nullptr;
-		LightComponent* light = nullptr;
-		math::vec3 lightPos = math::vec3(0.0f);
-
-		UpdateCameraID();
-		UpdateLightID();
-
-		if (mCachedCameraId == INVALID_ID || mCachedLightId == INVALID_ID)
+	ForEachComponent([&](RenderingComponent& component) {
+		if (!component.IsDirty())
 			return;
 
-		camera = mCameraSystem->GetComponent(mCachedCameraId);
-		cameraTransform = mTransformSystem->RequireComponent(mCachedCameraId);
+#ifdef ERM_RAY_TRACING_ENABLED
+		if (component.mCustomIndex.has_value())
+		{
+			for (RTRenderData& data : mRTRenderData)
+			{
+				if (data.HasInstanceWithId(component.mCustomIndex.value()))
+				{
+					data.mForceUpdate = true;
+					data.ClearDataForIndex(component.mCustomIndex.value());
+				}
+			}
 
-		light = mLightSystem->GetComponent(mCachedLightId);
-		TransformComponent* lTransform = mTransformSystem->GetComponent(mCachedLightId);
-		if (EntityId parent = lTransform->GetParent(); parent.IsValid())
-			lightPos = mTransformSystem->GetComponent(parent)->mWorldTransform * math::vec4(lTransform->mTranslation, 1.0f);
+			component.mCustomIndex.reset();
+		}
+#endif
+
+		component.SetDirty(false);
+	});
+}
+
+void RenderingSystem::OnPreRender()
+{
+	PROFILE_FUNCTION();
+
+	TransformComponent* cameraTransform = nullptr;
+	CameraComponent* camera = nullptr;
+	LightComponent* light = nullptr;
+	math::vec3 lightPos = math::vec3(0.0f);
+
+	UpdateCameraID();
+	UpdateLightID();
+
+	if (mCachedCameraId == INVALID_ID || mCachedLightId == INVALID_ID)
+		return;
+
+	camera = mCameraSystem->GetComponent(mCachedCameraId);
+	cameraTransform = mTransformSystem->RequireComponent(mCachedCameraId);
+
+	light = mLightSystem->GetComponent(mCachedLightId);
+	TransformComponent* lTransform = mTransformSystem->GetComponent(mCachedLightId);
+	if (EntityId parent = lTransform->GetParent(); parent.IsValid())
+		lightPos = mTransformSystem->GetComponent(parent)->mWorldTransform * math::vec4(lTransform->mTranslation, 1.0f);
+	else
+		lightPos = lTransform->mTranslation;
+
+	const math::mat4& proj = camera->GetProjectionMatrix();
+	const math::mat4& view = cameraTransform->mWorldTransform;
+	const math::mat4 viewInv = glm::inverse(view);
+
+#ifdef ERM_RAY_TRACING_ENABLED
+	UpdateRTData(
+		light,
+		proj,
+		view,
+		lightPos);
+#endif
+
+	auto cmd = VkUtils::BeginSingleTimeCommands(mEngine.GetDevice());
+
+	mModelSystem->ForEachComponentIndexed([&](ModelComponent& component, ID id) {
+		if (!component.GetModel())
+			return;
+
+		Model& model = *component.GetModel();
+
+		if (mResourcesManager.IsStillLoading(model))
+			return;
+
+		const TransformComponent* modelTransform = mTransformSystem->GetComponent(id);
+		const math::mat4& modelMat = modelTransform->mWorldTransform;
+
+		RenderingComponent* renderingComponent = RequireComponent(id);
+		SkeletonComponent* skeletonComponent = mSkeletonSystem->GetComponent(id);
+
+#ifdef ERM_RAY_TRACING_ENABLED
+		if (renderingComponent->GetUseRayTracing())
+		{
+			ProcessForRayTracing(
+				model,
+				*renderingComponent,
+				modelMat,
+				cmd);
+		}
 		else
-			lightPos = lTransform->mTranslation;
+#endif
+		{
+			ProcessForRasterization(
+				model,
+				*renderingComponent,
+				light,
+				skeletonComponent,
+				*cameraTransform,
+				proj,
+				viewInv,
+				modelMat,
+				lightPos);
+		}
+	});
 
-		const math::mat4& proj = camera->GetProjectionMatrix();
-		const math::mat4& view = cameraTransform->mWorldTransform;
-		const math::mat4 viewInv = glm::inverse(view);
+	VkUtils::EndSingleTimeCommands(mEngine.GetDevice(), cmd);
 
 #ifdef ERM_RAY_TRACING_ENABLED
-		UpdateRTData(
-			light,
-			proj,
-			view,
-			lightPos);
+	for (RTRenderData& data : mRTRenderData)
+		if (!data.mInstancesMap.empty())
+			mRenderer.SubmitRTRenderData(data);
 #endif
+}
 
-		auto cmd = VkUtils::BeginSingleTimeCommands(mEngine.GetDevice());
-
-		mModelSystem->ForEachComponentIndexed([&](ModelComponent& component, ID id) {
-			if (!component.GetModel())
-				return;
-
-			Model& model = *component.GetModel();
-
-			if (mResourcesManager.IsStillLoading(model))
-				return;
-
-			const TransformComponent* modelTransform = mTransformSystem->GetComponent(id);
-			const math::mat4& modelMat = modelTransform->mWorldTransform;
-
-			RenderingComponent* renderingComponent = RequireComponent(id);
-			SkeletonComponent* skeletonComponent = mSkeletonSystem->GetComponent(id);
+void RenderingSystem::OnPostRender()
+{
+	PROFILE_FUNCTION();
 
 #ifdef ERM_RAY_TRACING_ENABLED
-			if (renderingComponent->GetUseRayTracing())
-			{
-				ProcessForRayTracing(
-					model,
-					*renderingComponent,
-					modelMat,
-					cmd);
-			}
-			else
+	for (auto& data : mRTRenderData)
+	{
+		data.mForceUpdate = false;
+	}
 #endif
+}
+
+void RenderingSystem::OnComponentBeingRemoved(EntityId id)
+{
+	UNUSED(id);
+
+#ifdef ERM_RAY_TRACING_ENABLED
+	if (RenderingComponent* comp = GetComponent(id))
+	{
+		if (comp->mCustomIndex.has_value())
+		{
+			for (auto& data : mRTRenderData)
 			{
-				ProcessForRasterization(
-					model,
-					*renderingComponent,
-					light,
-					skeletonComponent,
-					*cameraTransform,
-					proj,
-					viewInv,
-					modelMat,
-					lightPos);
+				data.ClearDataForIndex(comp->mCustomIndex.value());
 			}
+		}
+	}
+#endif
+}
+
+void RenderingSystem::UpdateCameraID()
+{
+	if (mCachedCameraId != INVALID_ID && mCameraSystem->GetComponent(mCachedCameraId))
+		return;
+
+	mCachedCameraId = INVALID_ID;
+
+	for (ID i = 0; i < MAX_ID; ++i)
+	{
+		if (mCameraSystem->GetComponent(i))
+		{
+			mCachedCameraId = i;
+			break;
+		}
+	}
+}
+
+void RenderingSystem::UpdateLightID()
+{
+	if (mCachedLightId != INVALID_ID && mLightSystem->GetComponent(mCachedLightId))
+		return;
+
+	mCachedLightId = INVALID_ID;
+
+	for (ID i = 0; i < MAX_ID; ++i)
+	{
+		if (mLightSystem->GetComponent(i))
+		{
+			mCachedLightId = i;
+			break;
+		}
+	}
+}
+
+void RenderingSystem::ProcessForRasterization(
+	Model& model,
+	RenderingComponent& renderingComponent,
+	LightComponent* light,
+	SkeletonComponent* skeletonComponent,
+	TransformComponent& cameraTransform,
+	const math::mat4& proj,
+	const math::mat4& viewInv,
+	const math::mat4& modelMat,
+	const math::vec3& lightPos)
+{
+	PROFILE_FUNCTION();
+
+	std::vector<Mesh>& meshes = model.GetMeshes();
+
+	for (RenderData& data : renderingComponent.mRenderData)
+		data.mMeshes.clear();
+
+	for (size_t i = 0; i < meshes.size(); ++i)
+	{
+		Mesh& mesh = meshes[i];
+		RenderConfigs& configs = mesh.GetRenderConfigs();
+
+		if (!configs.mPBMaterial)
+			configs.mPBMaterial = &PBMaterial::DEFAULT;
+		if (!configs.mMaterial)
+			configs.mMaterial = &Material::DEFAULT;
+
+		configs.mShaderProgram = mResourcesManager.GetOrCreateShaderProgram(GetShaderForConfig(configs, light, skeletonComponent).c_str());
+		configs.SetNormViewport(mEngine.GetWindow().GetNormalizedViewport());
+
+		RenderData* data = nullptr;
+
+		auto it = std::find_if(renderingComponent.mRenderData.begin(), renderingComponent.mRenderData.end(), [&configs](const RenderData& data) {
+			return data.mRenderConfigs == configs;
 		});
 
-		VkUtils::EndSingleTimeCommands(mEngine.GetDevice(), cmd);
-
-#ifdef ERM_RAY_TRACING_ENABLED
-		for (RTRenderData& data : mRTRenderData)
-			if (!data.mInstancesMap.empty())
-				mRenderer.SubmitRTRenderData(data);
-#endif
-	}
-
-	void RenderingSystem::OnPostRender()
-	{
-		PROFILE_FUNCTION();
-
-#ifdef ERM_RAY_TRACING_ENABLED
-		for (auto& data : mRTRenderData)
+		if (it == renderingComponent.mRenderData.end())
 		{
-			data.mForceUpdate = false;
+			data = &renderingComponent.mRenderData.emplace_back(mesh.GetRenderConfigs());
 		}
-#endif
-	}
-
-	void RenderingSystem::OnComponentBeingRemoved(EntityId id)
-	{
-		UNUSED(id);
-
-#ifdef ERM_RAY_TRACING_ENABLED
-		if (RenderingComponent* comp = GetComponent(id))
+		else
 		{
-			if (comp->mCustomIndex.has_value())
-			{
-				for (auto& data : mRTRenderData)
-				{
-					data.ClearDataForIndex(comp->mCustomIndex.value());
-				}
-			}
+			data = &(*it);
 		}
-#endif
-	}
 
-	void RenderingSystem::UpdateCameraID()
-	{
-		if (mCachedCameraId != INVALID_ID && mCameraSystem->GetComponent(mCachedCameraId))
-			return;
-
-		mCachedCameraId = INVALID_ID;
-
-		for (ID i = 0; i < MAX_ID; ++i)
 		{
-			if (mCameraSystem->GetComponent(i))
-			{
-				mCachedCameraId = i;
-				break;
-			}
+			UboBasic ubo;
+			ubo.mMVP = proj * viewInv * modelMat;
+			data->SetUbo(std::move(ubo));
 		}
-	}
 
-	void RenderingSystem::UpdateLightID()
-	{
-		if (mCachedLightId != INVALID_ID && mLightSystem->GetComponent(mCachedLightId))
-			return;
-
-		mCachedLightId = INVALID_ID;
-
-		for (ID i = 0; i < MAX_ID; ++i)
 		{
-			if (mLightSystem->GetComponent(i))
-			{
-				mCachedLightId = i;
-				break;
-			}
+			PBMaterial& pbMaterial = *configs.mPBMaterial;
+
+			UboPBMaterial ubo;
+			ubo.mAlbedo = pbMaterial.mAlbedo;
+			ubo.mMetallic = pbMaterial.mMetallic;
+			ubo.mRoughness = pbMaterial.mRoughness;
+			ubo.mAO = pbMaterial.mAO;
+
+			data->SetUbo(std::move(ubo));
 		}
-	}
 
-	void RenderingSystem::ProcessForRasterization(
-		Model& model,
-		RenderingComponent& renderingComponent,
-		LightComponent* light,
-		SkeletonComponent* skeletonComponent,
-		TransformComponent& cameraTransform,
-		const math::mat4& proj,
-		const math::mat4& viewInv,
-		const math::mat4& modelMat,
-		const math::vec3& lightPos)
-	{
-		PROFILE_FUNCTION();
-
-		std::vector<Mesh>& meshes = model.GetMeshes();
-
-		for (RenderData& data : renderingComponent.mRenderData)
-			data.mMeshes.clear();
-
-		for (size_t i = 0; i < meshes.size(); ++i)
 		{
-			Mesh& mesh = meshes[i];
-			RenderConfigs& configs = mesh.GetRenderConfigs();
+			Material& material = *configs.mMaterial;
 
-			if (!configs.mPBMaterial)
-				configs.mPBMaterial = &PBMaterial::DEFAULT;
-			if (!configs.mMaterial)
-				configs.mMaterial = &Material::DEFAULT;
+			UboMaterial ubo;
+			ubo.mShininess = material.mShininess;
+			ubo.mSpecular = material.mSpecular;
+			ubo.mDiffuse = material.mDiffuse;
+			ubo.mAmbient = material.mAmbient;
 
-			configs.mShaderProgram = mResourcesManager.GetOrCreateShaderProgram(GetShaderForConfig(configs, light, skeletonComponent).c_str());
-			configs.SetNormViewport(mEngine.GetWindow().GetNormalizedViewport());
+			data->SetUbo(std::move(ubo));
+		}
 
-			RenderData* data = nullptr;
+		{
+			UboLight ubo;
+			ubo.mAmbient = light->mAmbient;
+			ubo.mDiffuse = light->mDiffuse;
+			ubo.mSpecular = light->mSpecular;
+			ubo.mPosition = lightPos;
 
-			auto it = std::find_if(renderingComponent.mRenderData.begin(), renderingComponent.mRenderData.end(), [&configs](const RenderData& data) {
-				return data.mRenderConfigs == configs;
+			data->SetUbo(std::move(ubo));
+		}
+
+		{
+			UboPBLight ubo;
+			ubo.mPosition = lightPos;
+			ubo.mColor = light->mAmbient;
+
+			data->SetUbo(std::move(ubo));
+		}
+
+		if (skeletonComponent && skeletonComponent->GetSkin())
+		{
+			UboSkeleton ubo;
+			ubo.mModel = modelMat;
+			ubo.mView = viewInv;
+			ubo.mProjection = proj;
+
+			skeletonComponent->GetSkin()->mRootBone->ForEachDo([&ubo](BonesTree& bone) {
+				if (bone.GetId() >= MAX_BONES)
+					return;
+
+				ubo.mBonesTransforms[bone.GetId()] = bone.GetPayload()->mAnimatedTransform;
 			});
 
-			if (it == renderingComponent.mRenderData.end())
-			{
-				data = &renderingComponent.mRenderData.emplace_back(mesh.GetRenderConfigs());
-			}
-			else
-			{
-				data = &(*it);
-			}
-
-			{
-				UboBasic ubo;
-				ubo.mMVP = proj * viewInv * modelMat;
-				data->SetUbo(std::move(ubo));
-			}
-
-			{
-				PBMaterial& pbMaterial = *configs.mPBMaterial;
-
-				UboPBMaterial ubo;
-				ubo.mAlbedo = pbMaterial.mAlbedo;
-				ubo.mMetallic = pbMaterial.mMetallic;
-				ubo.mRoughness = pbMaterial.mRoughness;
-				ubo.mAO = pbMaterial.mAO;
-
-				data->SetUbo(std::move(ubo));
-			}
-
-			{
-				Material& material = *configs.mMaterial;
-
-				UboMaterial ubo;
-				ubo.mShininess = material.mShininess;
-				ubo.mSpecular = material.mSpecular;
-				ubo.mDiffuse = material.mDiffuse;
-				ubo.mAmbient = material.mAmbient;
-
-				data->SetUbo(std::move(ubo));
-			}
-
-			{
-				UboLight ubo;
-				ubo.mAmbient = light->mAmbient;
-				ubo.mDiffuse = light->mDiffuse;
-				ubo.mSpecular = light->mSpecular;
-				ubo.mPosition = lightPos;
-
-				data->SetUbo(std::move(ubo));
-			}
-
-			{
-				UboPBLight ubo;
-				ubo.mPosition = lightPos;
-				ubo.mColor = light->mAmbient;
-
-				data->SetUbo(std::move(ubo));
-			}
-
-			if (skeletonComponent && skeletonComponent->GetSkin())
-			{
-				UboSkeleton ubo;
-				ubo.mModel = modelMat;
-				ubo.mView = viewInv;
-				ubo.mProjection = proj;
-
-				skeletonComponent->GetSkin()->mRootBone->ForEachDo([&ubo](BonesTree& bone) {
-					if (bone.GetId() >= MAX_BONES)
-						return;
-
-					ubo.mBonesTransforms[bone.GetId()] = bone.GetPayload()->mAnimatedTransform;
-				});
-
-				data->SetUbo(std::move(ubo));
-			}
-
-			{
-				UboModelViewProj ubo;
-				ubo.mModel = modelMat;
-				ubo.mView = viewInv;
-				ubo.mProjection = proj;
-
-				data->SetUbo(std::move(ubo));
-			}
-
-			{
-				UboView ubo;
-				if (EntityId parent = cameraTransform.GetParent(); parent.IsValid())
-					ubo.mPosition = mTransformSystem->GetComponent(parent)->mWorldTransform * math::vec4(cameraTransform.mTranslation, 1.0f);
-				else
-					ubo.mPosition = cameraTransform.mTranslation;
-
-				data->SetUbo(std::move(ubo));
-			}
-
-			data->mMeshes.emplace_back(&mesh);
+			data->SetUbo(std::move(ubo));
 		}
 
-		for (RenderData& data : renderingComponent.mRenderData)
 		{
-			if (!data.mMeshes.empty())
-				mRenderer.SubmitRenderData(data);
+			UboModelViewProj ubo;
+			ubo.mModel = modelMat;
+			ubo.mView = viewInv;
+			ubo.mProjection = proj;
+
+			data->SetUbo(std::move(ubo));
 		}
+
+		{
+			UboView ubo;
+			if (EntityId parent = cameraTransform.GetParent(); parent.IsValid())
+				ubo.mPosition = mTransformSystem->GetComponent(parent)->mWorldTransform * math::vec4(cameraTransform.mTranslation, 1.0f);
+			else
+				ubo.mPosition = cameraTransform.mTranslation;
+
+			data->SetUbo(std::move(ubo));
+		}
+
+		data->mMeshes.emplace_back(&mesh);
 	}
+
+	for (RenderData& data : renderingComponent.mRenderData)
+	{
+		if (!data.mMeshes.empty())
+			mRenderer.SubmitRenderData(data);
+	}
+}
 
 #ifdef ERM_RAY_TRACING_ENABLED
-	void RenderingSystem::UpdateRTData(
-		LightComponent* light,
-		const math::mat4& proj,
-		const math::mat4& view,
-		const math::vec3& lightPos)
+void RenderingSystem::UpdateRTData(
+	LightComponent* light,
+	const math::mat4& proj,
+	const math::mat4& view,
+	const math::vec3& lightPos)
+{
+	PROFILE_FUNCTION();
+	ASSERT(light);
+
+	for (RTRenderData& data : mRTRenderData)
 	{
-		PROFILE_FUNCTION();
-		ASSERT(light);
+		RTRenderConfigs& configs = data.mRenderConfigs;
+		configs.mMaterial = configs.mMaterial ? configs.mMaterial : &Material::DEFAULT;
+		configs.mPBMaterial = configs.mPBMaterial ? configs.mPBMaterial : &PBMaterial::DEFAULT;
+		configs.mShaderProgram = configs.mShaderProgram ? configs.mShaderProgram : mResourcesManager.GetOrCreateRTShaderProgram("res/shaders/Vulkan/ray_tracing/vk_raytrace");
 
-		for (RTRenderData& data : mRTRenderData)
 		{
-			RTRenderConfigs& configs = data.mRenderConfigs;
-			configs.mMaterial = configs.mMaterial ? configs.mMaterial : &Material::DEFAULT;
-			configs.mPBMaterial = configs.mPBMaterial ? configs.mPBMaterial : &PBMaterial::DEFAULT;
-			configs.mShaderProgram = configs.mShaderProgram ? configs.mShaderProgram : mResourcesManager.GetOrCreateRTShaderProgram("res/shaders/Vulkan/ray_tracing/vk_raytrace");
+			UboLight ubo;
+			ubo.mAmbient = light->mAmbient;
+			ubo.mDiffuse = light->mDiffuse;
+			ubo.mSpecular = light->mSpecular;
+			ubo.mPosition = lightPos;
 
-			{
-				UboLight ubo;
-				ubo.mAmbient = light->mAmbient;
-				ubo.mDiffuse = light->mDiffuse;
-				ubo.mSpecular = light->mSpecular;
-				ubo.mPosition = lightPos;
+			data.SetUbo(std::move(ubo));
+		}
 
-				data.SetUbo(std::move(ubo));
-			}
+		{
+			UboPBLight ubo;
+			ubo.mPosition = lightPos;
+			ubo.mColor = light->mAmbient;
 
-			{
-				UboPBLight ubo;
-				ubo.mPosition = lightPos;
-				ubo.mColor = light->mAmbient;
+			data.SetUbo(std::move(ubo));
+		}
 
-				data.SetUbo(std::move(ubo));
-			}
+		{
+			UboRTBasic ubo;
+			ubo.mProjInv = glm::inverse(proj);
+			ubo.mViewInv = view;
 
-			{
-				UboRTBasic ubo;
-				ubo.mProjInv = glm::inverse(proj);
-				ubo.mViewInv = view;
-
-				data.SetUbo(std::move(ubo));
-			}
+			data.SetUbo(std::move(ubo));
 		}
 	}
+}
 
-	void RenderingSystem::ProcessForRayTracing(
-		Model& model,
-		RenderingComponent& renderingComponent,
-		const math::mat4& modelMat,
-		vk::CommandBuffer& cmd)
+void RenderingSystem::ProcessForRayTracing(
+	Model& model,
+	RenderingComponent& renderingComponent,
+	const math::mat4& modelMat,
+	vk::CommandBuffer& cmd)
+{
+	PROFILE_FUNCTION();
+
+	RTRenderData& data = GetDefaultRTRenderData();
+
+	data.mForceUpdate |= !renderingComponent.mCustomIndex.has_value();
+
+	if (!renderingComponent.mCustomIndex.has_value())
 	{
-		PROFILE_FUNCTION();
+		uint32_t customIdx = 20;
 
-		RTRenderData& data = GetDefaultRTRenderData();
+		while (data.HasInstanceWithId(customIdx))
+			customIdx++;
 
-		data.mForceUpdate |= !renderingComponent.mCustomIndex.has_value();
+		renderingComponent.mCustomIndex = customIdx;
+		auto& instanceDataBuffer = renderingComponent.mInstanceDataBuffer;
+		if (!instanceDataBuffer)
+			instanceDataBuffer = std::make_unique<DeviceBuffer>(mEngine.GetDevice(), sizeof(InstanceData), vk::BufferUsageFlagBits::eStorageBuffer);
 
-		if (!renderingComponent.mCustomIndex.has_value())
-		{
-			uint32_t customIdx = 20;
-
-			while (data.HasInstanceWithId(customIdx))
-				customIdx++;
-
-			renderingComponent.mCustomIndex = customIdx;
-			auto& instanceDataBuffer = renderingComponent.mInstanceDataBuffer;
-			if (!instanceDataBuffer)
-				instanceDataBuffer = std::make_unique<DeviceBuffer>(mEngine.GetDevice(), sizeof(InstanceData), vk::BufferUsageFlagBits::eStorageBuffer);
-
-			data.AddSbo(StorageBufferType::VERTICES, customIdx, model.GetVerticesBuffer());
-			data.AddSbo(StorageBufferType::INDICES, customIdx, model.GetIndicesBuffer());
-			data.AddSbo(StorageBufferType::INSTANCE_DATA, customIdx, *instanceDataBuffer);
-		}
-		data.AddOrUpdateInstance(&model.GetBlas(), modelMat, renderingComponent.GetCustomIndex().value());
-		InstanceData iData {modelMat, glm::inverse(glm::transpose(modelMat))};
-		renderingComponent.mInstanceDataBuffer->Update(cmd, &iData);
+		data.AddSbo(StorageBufferType::VERTICES, customIdx, model.GetVerticesBuffer());
+		data.AddSbo(StorageBufferType::INDICES, customIdx, model.GetIndicesBuffer());
+		data.AddSbo(StorageBufferType::INSTANCE_DATA, customIdx, *instanceDataBuffer);
 	}
+	data.AddOrUpdateInstance(&model.GetBlas(), modelMat, renderingComponent.GetCustomIndex().value());
+	InstanceData iData {modelMat, glm::inverse(glm::transpose(modelMat))};
+	renderingComponent.mInstanceDataBuffer->Update(cmd, &iData);
+}
 #endif
 
 } // namespace erm::ecs

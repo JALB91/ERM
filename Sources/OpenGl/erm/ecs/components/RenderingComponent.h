@@ -4,16 +4,16 @@
 #include "erm/rendering/data_structs/RenderConfigs.h"
 
 namespace erm::ecs {
-	class RenderingSystem;
+class RenderingSystem;
 }
 
 namespace erm::ecs {
 
-	struct RenderingComponent : public IComponent
-	{
-	public:
-		typedef RenderingSystem SYSTEM_TYPE;
-		friend class RenderingSystem;
-	};
+struct RenderingComponent : public IComponent
+{
+public:
+	typedef RenderingSystem SYSTEM_TYPE;
+	friend class RenderingSystem;
+};
 
 } // namespace erm::ecs

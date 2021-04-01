@@ -7,14 +7,14 @@
 
 namespace erm {
 
-	struct KeyFrame
-	{
-		KeyFrame(float timestamp)
-			: mTimestamp(timestamp)
-		{}
+struct KeyFrame
+{
+	KeyFrame(float timestamp)
+		: mTimestamp(timestamp)
+	{}
 
-		std::array<Pose, MAX_BONES> mTransforms;
-		float mTimestamp;
-	};
+	std::array<Pose, MAX_BONES> mTransforms;
+	float mTimestamp;
+};
 
 } // namespace erm

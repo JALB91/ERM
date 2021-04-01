@@ -2,10 +2,10 @@
 
 namespace erm {
 
-	enum class FrontFace : bool
-	{
-		CW,
-		CCW
-	};
+enum class FrontFace : bool
+{
+	CW,
+	CCW
+};
 
 }

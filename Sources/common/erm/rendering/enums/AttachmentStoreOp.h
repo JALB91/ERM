@@ -2,10 +2,10 @@
 
 namespace erm {
 
-	enum class AttachmentStoreOp
-	{
-		STORE,
-		DONT_CARE
-	};
+enum class AttachmentStoreOp
+{
+	STORE,
+	DONT_CARE
+};
 
 }

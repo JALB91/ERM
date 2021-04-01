@@ -6,44 +6,44 @@
 
 namespace ImGui {
 
-	bool ShowRenderingComponentDebug(erm::ecs::RenderingComponent& renderingComponent)
+bool ShowRenderingComponentDebug(erm::ecs::RenderingComponent& renderingComponent)
+{
+	UNUSED(renderingComponent);
+
+	const bool headerOpen = ImGui::CollapsingHeader("Rendering");
+
+	if (ImGui::IsItemClicked(1))
 	{
-		UNUSED(renderingComponent);
+		ImGui::OpenPopup("RenderingComponentPopup");
+	}
 
-		const bool headerOpen = ImGui::CollapsingHeader("Rendering");
+	bool shouldRemove = false;
 
-		if (ImGui::IsItemClicked(1))
+	if (ImGui::BeginPopup("RenderingComponentPopup"))
+	{
+		if (ImGui::Button("Remove..."))
 		{
-			ImGui::OpenPopup("RenderingComponentPopup");
+			shouldRemove = true;
+			ImGui::CloseCurrentPopup();
 		}
 
-		bool shouldRemove = false;
+		ImGui::EndPopup();
+	}
 
-		if (ImGui::BeginPopup("RenderingComponentPopup"))
-		{
-			if (ImGui::Button("Remove..."))
-			{
-				shouldRemove = true;
-				ImGui::CloseCurrentPopup();
-			}
-
-			ImGui::EndPopup();
-		}
-
-		if (headerOpen)
-		{
-			ImGui::Indent();
+	if (headerOpen)
+	{
+		ImGui::Indent();
 
 #ifdef ERM_RAY_TRACING_ENABLED
-			bool useRayTracing = renderingComponent.GetUseRayTracing();
-			ImGui::Checkbox("Use RTX", &useRayTracing);
-			renderingComponent.SetUseRayTracing(useRayTracing);
+		bool useRayTracing = renderingComponent.GetUseRayTracing();
+		ImGui::Checkbox("Use RTX", &useRayTracing);
+		renderingComponent.SetUseRayTracing(useRayTracing);
 #endif
 
-			ImGui::Unindent();
-		}
-
-		return shouldRemove;
+		ImGui::Unindent();
 	}
+
+	return shouldRemove;
+}
 
 } // namespace ImGui

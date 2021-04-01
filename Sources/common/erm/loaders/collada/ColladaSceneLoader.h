@@ -9,16 +9,16 @@
 #include <string>
 
 namespace tinyxml2 {
-	class XMLDocument;
+class XMLDocument;
 }
 
 namespace erm {
 
-	extern void ProcessScene(
-		std::mutex& mutex,
-		const char* path,
-		tinyxml2::XMLDocument& document,
-		Skins& skins,
-		const std::map<std::string, ColladaSkinData>& skinsData);
+extern void ProcessScene(
+	std::mutex& mutex,
+	const char* path,
+	tinyxml2::XMLDocument& document,
+	Skins& skins,
+	const std::map<std::string, ColladaSkinData>& skinsData);
 
 }

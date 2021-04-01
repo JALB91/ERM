@@ -4,25 +4,25 @@
 #include "erm/ecs/components/ModelComponent.h"
 
 namespace erm::ecs {
-	class TransformSystem;
+class TransformSystem;
 }
 
 namespace erm::ecs {
 
-	class ModelSystem : public ISystem<ModelComponent>
-	{
-	public:
-		ModelSystem(ECS& ecs);
+class ModelSystem : public ISystem<ModelComponent>
+{
+public:
+	ModelSystem(ECS& ecs);
 
-		// ISystem
-		void Init() override;
-		void OnPostUpdate() override;
+	// ISystem
+	void Init() override;
+	void OnPostUpdate() override;
 
-	private:
-		// ISystem
-		void OnComponentBeingRemoved(EntityId id) override;
+private:
+	// ISystem
+	void OnComponentBeingRemoved(EntityId id) override;
 
-		TransformSystem* mTransformSystem;
-	};
+	TransformSystem* mTransformSystem;
+};
 
 } // namespace erm::ecs
