@@ -113,8 +113,8 @@ void PipelineResources::CreatePipeline()
 	ASSERT(shader);
 
 	/*
-			LOAD SHADERS
-		*/
+		LOAD SHADERS
+	*/
 	std::vector<vk::UniqueShaderModule> vertShaderModules = shader->CreateShaderModules(ShaderType::VERTEX);
 	std::vector<vk::UniqueShaderModule> fragShaderModules = shader->CreateShaderModules(ShaderType::FRAGMENT);
 
@@ -134,8 +134,8 @@ void PipelineResources::CreatePipeline()
 	vk::PipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};
 
 	/*
-			SETUP VERTEX INPUT
-		*/
+		SETUP VERTEX INPUT
+	*/
 	vk::VertexInputBindingDescription bindingDescription = shader->GetVertexBindingDescription();
 	std::vector<vk::VertexInputAttributeDescription> attributeDescriptions = shader->GetVertexAttributeDescriptions();
 
@@ -146,15 +146,15 @@ void PipelineResources::CreatePipeline()
 	vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
 	/*
-			SETUP INPUT ASSEMBLY
-		*/
+		SETUP INPUT ASSEMBLY
+	*/
 	vk::PipelineInputAssemblyStateCreateInfo inputAssembly = {};
 	inputAssembly.topology = VkUtils::ToVulkanValue<vk::PrimitiveTopology>(mRenderConfigs.GetDrawMode());
 	inputAssembly.primitiveRestartEnable = VK_FALSE;
 
 	/*
-			SETUP VIEWPORT AND SCISSOR
-		*/
+		SETUP VIEWPORT AND SCISSOR
+	*/
 	vk::Viewport viewport = {};
 	viewport.x = static_cast<float>(extent.width) * normViewport.mMin.x;
 	viewport.y = static_cast<float>(extent.height) * normViewport.mMin.y;
@@ -174,8 +174,8 @@ void PipelineResources::CreatePipeline()
 	viewportState.pScissors = &scissor;
 
 	/*
-			SETUP RASTERIZER
-		*/
+		SETUP RASTERIZER
+	*/
 	vk::PipelineRasterizationStateCreateInfo rasterizer = {};
 	rasterizer.depthClampEnable = VK_FALSE;
 	rasterizer.rasterizerDiscardEnable = VK_FALSE;
@@ -189,8 +189,8 @@ void PipelineResources::CreatePipeline()
 	rasterizer.depthBiasSlopeFactor = 0.0f;
 
 	/*
-			SETUP MULTISAMPLING
-		*/
+		SETUP MULTISAMPLING
+	*/
 	vk::PipelineMultisampleStateCreateInfo multisampling = {};
 	multisampling.sampleShadingEnable = VK_FALSE;
 	multisampling.rasterizationSamples = vk::SampleCountFlagBits::e1;
@@ -200,8 +200,8 @@ void PipelineResources::CreatePipeline()
 	multisampling.alphaToOneEnable = VK_FALSE;
 
 	/*
-			SETUP COLOR BLENDING
-		*/
+		SETUP COLOR BLENDING
+	*/
 	vk::PipelineColorBlendAttachmentState colorBlendAttachment = {};
 	colorBlendAttachment.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
 	colorBlendAttachment.blendEnable = mRenderConfigs.GetBlendEnabled() ? VK_TRUE : VK_FALSE;
@@ -223,8 +223,8 @@ void PipelineResources::CreatePipeline()
 	colorBlending.blendConstants[3] = 0.0f;
 
 	/*
-			SETUP DESCRIPTOR SET LAYOUT
-		*/
+		SETUP DESCRIPTOR SET LAYOUT
+	*/
 	const LayoutBindingsMap& bindings = shader->GetLayoutBindingsMap();
 	uint32_t maxSet = 0;
 	std::for_each(bindings.begin(), bindings.end(), [&maxSet](const auto& pair) {
@@ -266,8 +266,8 @@ void PipelineResources::CreatePipeline()
 	mEmptySet = std::move(mDevice->allocateDescriptorSetsUnique(info)[0]);
 
 	/*
-			SETUP PIPELINE LAYOUT
-		*/
+		SETUP PIPELINE LAYOUT
+	*/
 	std::vector<vk::DescriptorSetLayout> layouts(mDescriptorSetLayouts.size());
 	for (size_t i = 0; i < mDescriptorSetLayouts.size(); ++i)
 		layouts[i] = mDescriptorSetLayouts[i].get();
@@ -281,8 +281,8 @@ void PipelineResources::CreatePipeline()
 	mPipelineLayout = mDevice->createPipelineLayoutUnique(pipelineLayoutInfo);
 
 	/*
-			SETUP STENCIL AND DEPTH TESTS
-		*/
+		SETUP STENCIL AND DEPTH TESTS
+	*/
 	vk::PipelineDepthStencilStateCreateInfo depthStencil {};
 	depthStencil.depthTestEnable = mRenderConfigs.GetDepthTestEnabled() ? VK_TRUE : VK_FALSE;
 	depthStencil.depthWriteEnable = mRenderConfigs.GetDepthWriteEnabled() ? VK_TRUE : VK_FALSE;
@@ -293,8 +293,8 @@ void PipelineResources::CreatePipeline()
 	depthStencil.stencilTestEnable = VK_FALSE;
 
 	/*
-			DYNAMIC STATES
-		*/
+		DYNAMIC STATES
+	*/
 	std::vector<vk::DynamicState> dynamicStates {
 #ifdef ERM_FLIP_VIEWPORT
 		vk::DynamicState::eViewport
@@ -306,8 +306,8 @@ void PipelineResources::CreatePipeline()
 	dynamicInfo.pDynamicStates = dynamicStates.data();
 
 	/*
-			CREATE PIPELINE
-		*/
+		CREATE PIPELINE
+	*/
 	vk::GraphicsPipelineCreateInfo pipelineInfo = {};
 	pipelineInfo.stageCount = 2;
 	pipelineInfo.pStages = shaderStages;

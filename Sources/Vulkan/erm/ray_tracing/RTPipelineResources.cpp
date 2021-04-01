@@ -70,8 +70,8 @@ void RTPipelineResources::CreatePipeline()
 	ASSERT(shader);
 
 	/*
-			LOAD SHADERS
-		*/
+		LOAD SHADERS
+	*/
 	std::vector<vk::UniqueShaderModule> rayGenShaderModules = shader->CreateShaderModules(ShaderType::RT_RAY_GEN);
 	std::vector<vk::UniqueShaderModule> missShaderModules = shader->CreateShaderModules(ShaderType::RT_MISS);
 	std::vector<vk::UniqueShaderModule> closestHitShaderModules = shader->CreateShaderModules(ShaderType::RT_CLOSEST_HIT);
@@ -137,8 +137,8 @@ void RTPipelineResources::CreatePipeline()
 	}
 
 	/*
-			SETUP DESCRIPTOR SET LAYOUT
-		*/
+		SETUP DESCRIPTOR SET LAYOUT
+	*/
 	const LayoutBindingsMap& bindings = shader->GetLayoutBindingsMap();
 	uint32_t maxSet = 0;
 	std::for_each(bindings.begin(), bindings.end(), [&maxSet](const auto& pair) {
@@ -193,8 +193,8 @@ void RTPipelineResources::CreatePipeline()
 	mEmptySet = std::move(mDevice->allocateDescriptorSetsUnique(info)[0]);
 
 	/*
-			SETUP PIPELINE LAYOUT
-		*/
+		SETUP PIPELINE LAYOUT
+	*/
 	std::vector<vk::DescriptorSetLayout> layouts(mDescriptorSetLayouts.size());
 	for (size_t i = 0; i < mDescriptorSetLayouts.size(); ++i)
 		layouts[i] = mDescriptorSetLayouts[i].get();
@@ -208,8 +208,8 @@ void RTPipelineResources::CreatePipeline()
 	mPipelineLayout = mDevice->createPipelineLayoutUnique(pipelineLayoutInfo);
 
 	/*
-			CREATE PIPELINE
-		*/
+		CREATE PIPELINE
+	*/
 	vk::RayTracingPipelineCreateInfoKHR pipelineInfo = {};
 	pipelineInfo.setPGroups(shaderGroups.data());
 	pipelineInfo.setGroupCount(static_cast<uint32_t>(shaderGroups.size()));

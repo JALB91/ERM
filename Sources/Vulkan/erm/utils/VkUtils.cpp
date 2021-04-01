@@ -91,7 +91,7 @@ vk::SurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormat
 {
 	for (const vk::SurfaceFormatKHR& availableFormat : availableFormats)
 	{
-#ifdef ERM_RAY_TRACING_ENABLED
+#if defined(ERM_RAY_TRACING_ENABLED)
 		if (availableFormat.format == vk::Format::eR8G8B8A8Unorm)
 #else
 		if (availableFormat.format == vk::Format::eB8G8R8A8Srgb && availableFormat.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear)
