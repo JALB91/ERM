@@ -55,7 +55,7 @@ if __name__ == "__main__":
         '-DCMAKE_BUILD_TYPE=' + args.config,
         '-DTARGET_API=' + args.api,
         '-DERM_RAY_TRACING_ENABLED=' + ('ON' if args.rtx else 'OFF'),
-        '-DNDEBUG=' + ('ON' if release else 'OFF'),
+        '-DNDEBUG=ON' if release else '',
         '-G', generator,
         '-A', architecture,
         '../..'], cwd=targetBuildPath)

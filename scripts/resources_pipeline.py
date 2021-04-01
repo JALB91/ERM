@@ -3,10 +3,7 @@ import sys, argparse, shutil, os
 def compile_shaders(shaders_compiler, res_folder, rtx_enabled):
     for root, subdir, files in os.walk(os.path.join(res_folder, "shaders")):
         for shader in files:
-            print(rtx_enabled)
-            print(root)
             if (root.endswith("rasterization") or (rtx_enabled and root.endswith("ray_tracing"))) and not shader.endswith(".cmp"):
-                print("Compiliiiing")
                 shader_path = os.path.join(root, shader)
                 if not os.path.exists(shader_path + ".cmp"):
                     os.system(shaders_compiler + " -c " + shader_path + " -o " + shader_path + ".cmp")
