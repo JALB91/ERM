@@ -11,6 +11,7 @@
 #include "erm/rendering/data_structs/IndexData.h"
 #include "erm/rendering/data_structs/RenderConfigs.h"
 #include "erm/rendering/data_structs/Model.h"
+#include "erm/rendering/materials/Material.h"
 
 #include <map>
 #include <vector>
@@ -201,7 +202,7 @@ void ProcessMesh(
 
 	RenderConfigs conf = RenderConfigs::MODELS_RENDER_CONFIGS;
 	conf.mMaterial.mType = MaterialType::LEGACY;
-	conf.mMaterial.mData = mat;
+	conf.mMaterial.mData = mat ? mat : &Material::DEFAULT;
 
 	indicesOffset += static_cast<uint32_t>(vData.size());
 

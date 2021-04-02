@@ -633,6 +633,7 @@ vk::ShaderStageFlagBits ToVulkanValue(ShaderType shaderType)
 			return vk::ShaderStageFlagBits::eVertex;
 		case erm::ShaderType::FRAGMENT:
 			return vk::ShaderStageFlagBits::eFragment;
+#ifdef ERM_RAY_TRACING_ENABLED
 		case erm::ShaderType::RT_ANY_HIT:
 			return vk::ShaderStageFlagBits::eAnyHitKHR;
 		case erm::ShaderType::RT_CALLABLE:
@@ -645,6 +646,7 @@ vk::ShaderStageFlagBits ToVulkanValue(ShaderType shaderType)
 			return vk::ShaderStageFlagBits::eMissKHR;
 		case erm::ShaderType::RT_RAY_GEN:
 			return vk::ShaderStageFlagBits::eRaygenKHR;
+#endif
 		default:
 			ASSERT(false);
 			return vk::ShaderStageFlagBits::eAll;

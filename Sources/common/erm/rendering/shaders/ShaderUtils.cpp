@@ -28,6 +28,7 @@ const char* GetExtensionForShaderType(ShaderType shaderType)
 			return ".vert";
 		case ShaderType::FRAGMENT:
 			return ".frag";
+#ifdef ERM_RAY_TRACING_ENABLED
 		case ShaderType::RT_ANY_HIT:
 			return ".rahit";
 		case ShaderType::RT_CALLABLE:
@@ -40,6 +41,7 @@ const char* GetExtensionForShaderType(ShaderType shaderType)
 			return ".rmiss";
 		case ShaderType::RT_RAY_GEN:
 			return ".rgen";
+#endif
 		default:
 			ASSERT(false);
 			return "";
