@@ -27,6 +27,10 @@ if __name__ == "__main__":
         print("OS not supported")
         exit(1)
 
+    if args.rtx and args.api != "Vulkan":
+        print("RayTracing not available when using " + args.api + " API")
+        exit(1)
+
     if args.release:
         args.config = "Release"
 
