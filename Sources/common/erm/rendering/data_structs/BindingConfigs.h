@@ -1,7 +1,7 @@
 #pragma once
 
-#include "erm/rendering/data_structs/MaterialHandle.h"
 #include "erm/rendering/enums/TextureType.h"
+#include "erm/rendering/materials/MaterialHandle.h"
 
 #include <map>
 

@@ -1,4 +1,4 @@
-#include "erm/rendering/data_structs/PBMaterial.h"
+#include "erm/rendering/materials/PBMaterial.h"
 
 namespace erm {
 

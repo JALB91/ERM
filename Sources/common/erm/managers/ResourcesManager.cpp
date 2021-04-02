@@ -1,11 +1,11 @@
 #include "erm/managers/ResourcesManager.h"
 
 #include "erm/rendering/animations/SkeletonAnimation.h"
-#include "erm/rendering/data_structs/Material.h"
 #include "erm/rendering/data_structs/Model.h"
-#include "erm/rendering/data_structs/PBMaterial.h"
 #include "erm/rendering/data_structs/Skin.h"
 #include "erm/rendering/enums/ShaderType.h"
+#include "erm/rendering/materials/Material.h"
+#include "erm/rendering/materials/PBMaterial.h"
 #include "erm/rendering/shaders/ShaderProgram.h"
 #include "erm/rendering/shaders/ShaderUtils.h"
 #include "erm/rendering/textures/CubeMap.h"

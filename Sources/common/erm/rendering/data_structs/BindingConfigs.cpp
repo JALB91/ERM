@@ -1,6 +1,6 @@
 #include "erm/rendering/data_structs/BindingConfigs.h"
 
-#include "erm/rendering/data_structs/Material.h"
+#include "erm/rendering/materials/Material.h"
 
 namespace erm {
 

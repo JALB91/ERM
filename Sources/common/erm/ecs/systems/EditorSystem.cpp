@@ -18,8 +18,8 @@
 #include "erm/ray_tracing/RTRenderData.h"
 
 #include "erm/rendering/data_structs/InstanceData.h"
-#include "erm/rendering/data_structs/Material.h"
-#include "erm/rendering/data_structs/PBMaterial.h"
+#include "erm/rendering/materials/Material.h"
+#include "erm/rendering/materials/PBMaterial.h"
 #endif
 // clang-format on
 #include "erm/rendering/data_structs/RenderData.h"

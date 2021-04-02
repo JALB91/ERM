@@ -7,9 +7,9 @@
 #include "erm/math/math.h"
 
 #include "erm/rendering/data_structs/IndexData.h"
-#include "erm/rendering/data_structs/Material.h"
 #include "erm/rendering/data_structs/Model.h"
 #include "erm/rendering/data_structs/VertexData.h"
+#include "erm/rendering/materials/Material.h"
 
 #include "erm/utils/Utils.h"
 

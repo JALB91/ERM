@@ -2,7 +2,6 @@
 
 #include "erm/rendering/Device.h"
 #include "erm/rendering/buffers/DeviceBuffer.h"
-#include "erm/rendering/data_structs/Material.h"
 #include "erm/rendering/data_structs/RenderData.h"
 #include "erm/rendering/data_structs/RenderingResources.h"
 #include "erm/rendering/renderer/IRenderer.h"

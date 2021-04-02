@@ -4,9 +4,9 @@
 
 #include "erm/managers/ResourcesManager.h"
 
-#include "erm/rendering/data_structs/Material.h"
 #include "erm/rendering/data_structs/Mesh.h"
-#include "erm/rendering/data_structs/PBMaterial.h"
+#include "erm/rendering/materials/Material.h"
+#include "erm/rendering/materials/PBMaterial.h"
 
 #include "erm/utils/Utils.h"
 
