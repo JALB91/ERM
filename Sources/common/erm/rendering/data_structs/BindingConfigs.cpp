@@ -6,11 +6,6 @@ namespace erm {
 
 const BindingConfigs BindingConfigs::MODELS_BINDING_CONFIGS = {};
 
-BindingConfigs::BindingConfigs()
-	: mPBMaterial(nullptr)
-	, mMaterial(nullptr)
-{}
-
 bool BindingConfigs::IsBindingLevelCompatible(const BindingConfigs& other) const
 {
 	return IsMaterialCompatible(other) && AreTexturesCompatible(other);
@@ -24,10 +19,11 @@ Texture* BindingConfigs::GetTexture(TextureType type) const
 			return it->second;
 	}
 
-	if (mMaterial)
+	if (mMaterial.mType == MaterialType::LEGACY)
 	{
-		auto it = mMaterial->mTexturesMaps.find(type);
-		if (it != mMaterial->mTexturesMaps.end() && it->second)
+		Material* material = static_cast<Material*>(mMaterial.mData);
+		auto it = material->mTexturesMaps.find(type);
+		if (it != material->mTexturesMaps.end() && it->second)
 			return it->second;
 	}
 
@@ -36,7 +32,7 @@ Texture* BindingConfigs::GetTexture(TextureType type) const
 
 bool BindingConfigs::IsMaterialCompatible(const BindingConfigs& other) const
 {
-	return mPBMaterial == other.mPBMaterial && mMaterial == other.mMaterial;
+	return mMaterial.mData == other.mMaterial.mData;
 }
 
 bool BindingConfigs::AreTexturesCompatible(const BindingConfigs& other) const

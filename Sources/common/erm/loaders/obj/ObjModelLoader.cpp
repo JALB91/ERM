@@ -340,7 +340,8 @@ void AddMesh(
 	indicesOffset += static_cast<uint32_t>(vertices.size());
 
 	RenderConfigs configs = RenderConfigs::MODELS_RENDER_CONFIGS;
-	configs.mMaterial = material ? material : &Material::DEFAULT;
+	configs.mMaterial.mType = MaterialType::LEGACY;
+	configs.mMaterial.mData = material ? material : &Material::DEFAULT;
 
 	mutex.lock();
 	model.AddMesh(std::move(vertices), std::move(indices), configs, meshName.c_str());

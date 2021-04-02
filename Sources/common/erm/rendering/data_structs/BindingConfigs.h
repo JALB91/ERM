@@ -1,13 +1,12 @@
 #pragma once
 
+#include "erm/rendering/data_structs/MaterialHandle.h"
 #include "erm/rendering/enums/TextureType.h"
 
 #include <map>
 
 namespace erm {
 class Texture;
-struct Material;
-struct PBMaterial;
 } // namespace erm
 
 namespace erm {
@@ -16,7 +15,7 @@ struct BindingConfigs
 {
 	static const BindingConfigs MODELS_BINDING_CONFIGS;
 
-	BindingConfigs();
+	BindingConfigs() = default;
 	virtual ~BindingConfigs() = default;
 
 	Texture* GetTexture(TextureType type) const;
@@ -26,8 +25,7 @@ struct BindingConfigs
 	bool IsMaterialCompatible(const BindingConfigs& other) const;
 	bool AreTexturesCompatible(const BindingConfigs& other) const;
 
-	PBMaterial* mPBMaterial;
-	Material* mMaterial;
+	MaterialHandle mMaterial;
 	std::map<TextureType, Texture*> mTexturesMaps;
 };
 

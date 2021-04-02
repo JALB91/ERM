@@ -38,8 +38,7 @@ std::string GetShaderForConfig(const erm::BindingConfigs& config, const erm::ecs
 	if (!light)
 		return "res/shaders/Vulkan/rasterization/vk_basic";
 
-	const erm::PBMaterial* pbMat = config.mPBMaterial;
-	const erm::Material* mat = config.mMaterial;
+	const erm::MaterialHandle& material = config.mMaterial;
 	const erm::Texture* diffuseMap = config.GetTexture(erm::TextureType::DIFFUSE);
 	const erm::Texture* normalMap = config.GetTexture(erm::TextureType::NORMAL);
 	const erm::Texture* specularMap = config.GetTexture(erm::TextureType::SPECULAR);
@@ -47,10 +46,17 @@ std::string GetShaderForConfig(const erm::BindingConfigs& config, const erm::ecs
 	std::string result = "res/shaders/Vulkan/rasterization/";
 	result += skeleton && skeleton->GetSkin() ? "vk_skeleton" : "vk_model";
 
-	if (pbMat)
-		result += "_pb";
-	else if (mat)
-		result += "_mat";
+	switch (material.mType)
+	{
+		default:
+			ASSERT(false);
+		case erm::MaterialType::LEGACY:
+			result += "_mat";
+			break;
+		case erm::MaterialType::PBR:
+			result += "_pb";
+			break;
+	}
 
 	if (diffuseMap)
 		result += "_tex";
@@ -67,8 +73,6 @@ static erm::RTRenderData GetDefaultRTRenderData(erm::Engine& engine)
 {
 	erm::RTRenderData data(engine.GetDevice());
 	data.mRenderConfigs.mShaderProgram = engine.GetResourcesManager().GetOrCreateRTShaderProgram("res/shaders/Vulkan/ray_tracing/vk_raytrace");
-	data.mRenderConfigs.mMaterial = &erm::Material::DEFAULT;
-	data.mRenderConfigs.mPBMaterial = &erm::PBMaterial::DEFAULT;
 
 	return data;
 }
@@ -306,11 +310,6 @@ void RenderingSystem::ProcessForRasterization(
 		Mesh& mesh = meshes[i];
 		RenderConfigs& configs = mesh.GetRenderConfigs();
 
-		if (!configs.mPBMaterial)
-			configs.mPBMaterial = &PBMaterial::DEFAULT;
-		if (!configs.mMaterial)
-			configs.mMaterial = &Material::DEFAULT;
-
 		configs.mShaderProgram = mResourcesManager.GetOrCreateShaderProgram(GetShaderForConfig(configs, light, skeletonComponent).c_str());
 		configs.SetNormViewport(mEngine.GetWindow().GetNormalizedViewport());
 
@@ -335,26 +334,27 @@ void RenderingSystem::ProcessForRasterization(
 			data->SetUbo(std::move(ubo));
 		}
 
+		if (configs.mMaterial.mType == MaterialType::PBR)
 		{
-			PBMaterial& pbMaterial = *configs.mPBMaterial;
+			PBMaterial* pbMaterial = static_cast<PBMaterial*>(configs.mMaterial.mData);
 
 			UboPBMaterial ubo;
-			ubo.mAlbedo = pbMaterial.mAlbedo;
-			ubo.mMetallic = pbMaterial.mMetallic;
-			ubo.mRoughness = pbMaterial.mRoughness;
-			ubo.mAO = pbMaterial.mAO;
+			ubo.mAlbedo = pbMaterial->mAlbedo;
+			ubo.mMetallic = pbMaterial->mMetallic;
+			ubo.mRoughness = pbMaterial->mRoughness;
+			ubo.mAO = pbMaterial->mAO;
 
 			data->SetUbo(std::move(ubo));
 		}
-
+		else if (configs.mMaterial.mType == MaterialType::LEGACY)
 		{
-			Material& material = *configs.mMaterial;
+			Material* material = static_cast<Material*>(configs.mMaterial.mData);
 
 			UboMaterial ubo;
-			ubo.mShininess = material.mShininess;
-			ubo.mSpecular = material.mSpecular;
-			ubo.mDiffuse = material.mDiffuse;
-			ubo.mAmbient = material.mAmbient;
+			ubo.mShininess = material->mShininess;
+			ubo.mSpecular = material->mSpecular;
+			ubo.mDiffuse = material->mDiffuse;
+			ubo.mAmbient = material->mAmbient;
 
 			data->SetUbo(std::move(ubo));
 		}
@@ -436,8 +436,6 @@ void RenderingSystem::UpdateRTData(
 	for (RTRenderData& data : mRTRenderData)
 	{
 		RTRenderConfigs& configs = data.mRenderConfigs;
-		configs.mMaterial = configs.mMaterial ? configs.mMaterial : &Material::DEFAULT;
-		configs.mPBMaterial = configs.mPBMaterial ? configs.mPBMaterial : &PBMaterial::DEFAULT;
 		configs.mShaderProgram = configs.mShaderProgram ? configs.mShaderProgram : mResourcesManager.GetOrCreateRTShaderProgram("res/shaders/Vulkan/ray_tracing/vk_raytrace");
 
 		{

@@ -200,7 +200,8 @@ void ProcessMesh(
 	}
 
 	RenderConfigs conf = RenderConfigs::MODELS_RENDER_CONFIGS;
-	conf.mMaterial = mat;
+	conf.mMaterial.mType = MaterialType::LEGACY;
+	conf.mMaterial.mData = mat;
 
 	indicesOffset += static_cast<uint32_t>(vData.size());
 

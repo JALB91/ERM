@@ -1,6 +1,5 @@
 #include "erm/debug/ImGuiMeshWrapper.h"
 #include "erm/debug/ImGuiMaterialWrapper.h"
-#include "erm/debug/ImGuiPBMaterialWrapper.h"
 
 #include "erm/engine/Engine.h"
 
@@ -86,7 +85,6 @@ void ShowMeshDebugWindow(erm::Engine& engine, erm::Mesh& mesh, unsigned int mesh
 
 		ImGui::Text("Vertices: %zu", mesh.GetVerticesData().size());
 		ImGui::Text("Indices: %zu", mesh.GetIndicesData().size());
-		ImGui::ShowPBMaterialDebug(engine, mesh);
 		ImGui::ShowMaterialDebug(engine, mesh);
 
 		ShowShaderPathOptions(engine, mesh);

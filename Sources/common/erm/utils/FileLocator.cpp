@@ -24,11 +24,14 @@ const char* const kJpegTextureExtension = ".jpeg";
 
 const char* const kModelsDir = "models/";
 #if defined(ERM_VULKAN)
-const char* const kShadersDir = "shaders/Vulkan/";
+const char* const kShadersDir = "shaders/Vulkan/rasterization/";
 #elif defined(ERM_OPENGL)
 const char* const kShadersDir = "shaders/OpenGl/";
 #elif defined(ERM_DX12)
 const char* const kShadersDir = "shaders/DX12/";
+#endif
+#if defined(ERM_RAY_TRACING_ENABLED)
+const char* const kRTShadersDir = "shaders/Vulkan/ray_tracing";
 #endif
 const char* const kTexturesDir = "textures/";
 
@@ -58,7 +61,7 @@ std::map<std::string, std::vector<const char*>> kFilesAssociations
 		{kObjMaterialExtension, {kModelsDir}},
 		{kVertexShaderExtension, {kShadersDir}},
 #ifdef ERM_RAY_TRACING_ENABLED
-		{kRayGenShaderExtension, {kShadersDir}},
+		{kRayGenShaderExtension, {kRTShadersDir}},
 #endif
 		{kPngTextureExtension, {kTexturesDir}},
 		{kJpegTextureExtension, {kTexturesDir}},
