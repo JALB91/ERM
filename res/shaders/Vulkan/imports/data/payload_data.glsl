@@ -1,3 +1,6 @@
+#ifndef PAYLOAD_DATA_GLSL
+#define PAYLOAD_DATA_GLSL
+
 struct HitPayload
 {
 	vec3 mHitValue;
@@ -7,3 +10,5 @@ struct HitPayload
 	int mDepth;
 	int mDone;
 };
+
+#endif

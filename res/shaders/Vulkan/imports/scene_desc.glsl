@@ -1,4 +1,0 @@
-struct SceneDesc
-{
-    int mId;
-};

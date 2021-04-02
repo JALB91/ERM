@@ -1,3 +1,6 @@
+#ifndef VERTEX_DATA_GLSL
+#define VERTEX_DATA_GLSL
+
 #if defined(ERM_RTX)
 struct Vertex
 {
@@ -17,4 +20,6 @@ layout (location = 3) in vec4 inBoneWeights;
 layout (location = 4) in ivec4 inBoneIds;
 layout (location = 5) in int inBoneNum;
 layout (location = 6) in int inBoneDebugId;
+#endif
+
 #endif

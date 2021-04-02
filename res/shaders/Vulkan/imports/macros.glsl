@@ -1,3 +1,6 @@
+#ifndef MACROS_GLSL
+#define MACROS_GLSL
+
 // SET 0
 #define VK_UCUBEMAP_BINDING         0
 #define VK_UDIFFUSE_BINDING         1
@@ -23,3 +26,6 @@
 #define VK_URTBASIC_BINDING         9
 
 #define MAX_BONES                   100
+#define PI                          3.14159265359
+
+#endif

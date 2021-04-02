@@ -143,7 +143,7 @@ void EditorSystem::OnRender()
 
 	// GRID RENDERING
 	{
-		UboBasic ubo;
+		UBOMVPOnly ubo;
 		math::mat4 transform = glm::identity<math::mat4>();
 		transform = glm::rotate(transform, static_cast<float>(M_PI * 0.5), math::vec3(1.0f, 0.0f, 0.0f));
 		ubo.mMVP = proj * viewInv * transform;
@@ -180,7 +180,7 @@ void EditorSystem::OnRender()
 			RenderData& data = GetOrCreateRenderDataForBBox(i);
 
 			{
-				UboBasic ubo;
+				UBOMVPOnly ubo;
 				ubo.mMVP = proj * viewInv * transform;
 
 				data.SetUbo(std::move(ubo));

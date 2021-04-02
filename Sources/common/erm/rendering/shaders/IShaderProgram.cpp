@@ -54,32 +54,32 @@ erm::UboData GetUboData(const spirv_cross::Compiler& compiler, const spirv_cross
 			compiler.get_decoration(resource.id, spv::Decoration::DecorationDescriptorSet)};
 	};
 
-	if (resource.name.compare("UniformBufferObject") == 0)
-		return makeUboData(erm::UboBasic::ID, sizeof(erm::UboBasic));
-	else if (resource.name.compare("ModelViewProj") == 0)
+	if (resource.name.compare("UMVPOnly") == 0)
+		return makeUboData(erm::UBOMVPOnly::ID, sizeof(erm::UBOMVPOnly));
+	else if (resource.name.compare("UModelViewProj") == 0)
 		return makeUboData(erm::UboModelViewProj::ID, sizeof(erm::UboModelViewProj));
-	else if (resource.name.compare("Material") == 0)
+	else if (resource.name.compare("UMaterial") == 0)
 		return makeUboData(erm::UboMaterial::ID, sizeof(erm::UboMaterial));
-	else if (resource.name.compare("Light") == 0)
+	else if (resource.name.compare("ULight") == 0)
 		return makeUboData(erm::UboLight::ID, sizeof(erm::UboLight));
-	else if (resource.name.compare("View") == 0)
+	else if (resource.name.compare("UView") == 0)
 		return makeUboData(erm::UboView::ID, sizeof(erm::UboView));
-	else if (resource.name.compare("Skeleton") == 0)
+	else if (resource.name.compare("USkeleton") == 0)
 		return makeUboData(erm::UboSkeleton::ID, sizeof(erm::UboSkeleton));
-	else if (resource.name.compare("PBMaterial") == 0)
+	else if (resource.name.compare("UPBMaterial") == 0)
 		return makeUboData(erm::UboPBMaterial::ID, sizeof(erm::UboPBMaterial));
-	else if (resource.name.compare("PBLight") == 0)
+	else if (resource.name.compare("UPBLight") == 0)
 		return makeUboData(erm::UboPBLight::ID, sizeof(erm::UboPBLight));
-	else if (resource.name.compare("BonesDebug") == 0)
+	else if (resource.name.compare("UBonesDebug") == 0)
 		return makeUboData(erm::UboBonesDebug::ID, sizeof(erm::UboBonesDebug));
 #ifdef ERM_RAY_TRACING_ENABLED
-	else if (resource.name.compare("UboRTBasic") == 0)
+	else if (resource.name.compare("URTBasic") == 0)
 		return makeUboData(erm::UboRTBasic::ID, sizeof(erm::UboRTBasic));
 #endif
 
 	ASSERT(false);
 
-	return {erm::UboBasic::ID, sizeof(erm::UboBasic), 0, 0, 0};
+	return {erm::UBOMVPOnly::ID, sizeof(erm::UBOMVPOnly), 0, 0, 0};
 }
 
 erm::SamplerData GetSamplerData(const spirv_cross::Compiler& compiler, const spirv_cross::Resource& resource)

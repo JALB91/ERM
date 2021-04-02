@@ -4,15 +4,15 @@
 #extension GL_EXT_nonuniform_qualifier : enable
 #extension GL_GOOGLE_include_directive : enable
 
-#include "bvertices.glsl"
-#include "instance_data.glsl"
-#include "payload_data.glsl"
-#include "utlas.glsl"
-#include "uimage.glsl"
-#include "udepth.glsl"
-#include "bindices.glsl"
-#include "binstances.glsl"
-#include "ulight.glsl"
+#include "buffers/bvertices.glsl"
+#include "buffers/bindices.glsl"
+#include "buffers/binstances.glsl"
+#include "data/instance_data.glsl"
+#include "data/payload_data.glsl"
+#include "ubos/utlas.glsl"
+#include "ubos/uimage.glsl"
+#include "ubos/udepth.glsl"
+#include "ubos/ulight.glsl"
 
 hitAttributeEXT vec2 attribs;
 

@@ -3,9 +3,9 @@
 #extension GL_GOOGLE_include_directive : enable
 
 #include "raster_macros.glsl"
-#include "upbmaterial.glsl"
-#include "upblight.glsl"
-#include "uview.glsl"
+#include "ubos/upbmaterial.glsl"
+#include "ubos/upblight.glsl"
+#include "ubos/uview.glsl"
 #include "pbutils.glsl"
 
 layout(location = 0) in vec3 FragPos;

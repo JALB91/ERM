@@ -112,6 +112,15 @@ else()
 endif()
 target_setup_project("${PROJECT_NAME}")
 
+# SETUP SHADER COMPILER ARGS
+if(SHADERS_COMPILER)
+	if(ERM_RAY_TRACING_ENABLED)
+		set(SHADERS_COMPILER "${SHADERS_COMPILER} --target-spv=spv1.5 -I ${RES_DEST}/shaders/Vulkan/imports/")
+	else()
+		set(SHADERS_COMPILER "${SHADERS_COMPILER} --target-spv=spv1.3 -I ${RES_DEST}/shaders/Vulkan/imports/")
+	endif(ERM_RAY_TRACING_ENABLED)
+endif(SHADERS_COMPILER)
+
 # TARGET INCLUDE DIRECTORIES
 target_include_directories(
 	"${PROJECT_NAME}"

@@ -330,7 +330,7 @@ void RenderingSystem::ProcessForRasterization(
 		}
 
 		{
-			UboBasic ubo;
+			UBOMVPOnly ubo;
 			ubo.mMVP = proj * viewInv * modelMat;
 			data->SetUbo(std::move(ubo));
 		}

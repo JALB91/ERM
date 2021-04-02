@@ -2,10 +2,10 @@
 #extension GL_EXT_ray_tracing : require
 #extension GL_GOOGLE_include_directive : enable
 
-#include "payload_data.glsl"
-#include "utlas.glsl"
-#include "uimage.glsl"
-#include "urtbasic.glsl"
+#include "data/payload_data.glsl"
+#include "ubos/utlas.glsl"
+#include "ubos/uimage.glsl"
+#include "ubos/urtbasic.glsl"
 
 layout(location = 0) rayPayloadEXT HitPayload prd;
 

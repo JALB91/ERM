@@ -2,9 +2,9 @@
 #extension GL_ARB_separate_shader_objects : enable
 #extension GL_GOOGLE_include_directive : enable
 
-#include "upbmaterial.glsl"
-#include "upblight.glsl"
-#include "uview.glsl"
+#include "ubos/upbmaterial.glsl"
+#include "ubos/upblight.glsl"
+#include "ubos/uview.glsl"
 #include "pbutils.glsl"
 
 layout(location = 0) in vec3 FragPos;

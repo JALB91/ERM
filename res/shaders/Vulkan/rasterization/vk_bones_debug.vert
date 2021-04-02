@@ -3,8 +3,8 @@
 #extension GL_GOOGLE_include_directive : enable
 
 #include "raster_macros.glsl"
-#include "vertex_data.glsl"
-#include "ubonesdebug.glsl"
+#include "data/vertex_data.glsl"
+#include "ubos/ubonesdebug.glsl"
 
 void main()
 {

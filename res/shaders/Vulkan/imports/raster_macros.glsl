@@ -1,1 +1,6 @@
+#ifndef RASTER_MACROS_GLSL
+#define RASTER_MACROS_GLSL
+
 #define ERM_RASTER
+
+#endif

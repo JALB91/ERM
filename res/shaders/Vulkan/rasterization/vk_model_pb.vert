@@ -3,8 +3,8 @@
 #extension GL_GOOGLE_include_directive : enable
 
 #include "raster_macros.glsl"
-#include "vertex_data.glsl"
-#include "umvp.glsl"
+#include "data/vertex_data.glsl"
+#include "ubos/umvp.glsl"
 
 layout(location = 0) out vec3 outFragPos;
 layout(location = 1) out vec3 outNormal;

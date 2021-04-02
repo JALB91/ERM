@@ -2,9 +2,9 @@
 #extension GL_ARB_separate_shader_objects : enable
 #extension GL_GOOGLE_include_directive : enable
 
-#include "umaterial.glsl"
-#include "ulight.glsl"
-#include "uview.glsl"
+#include "ubos/umaterial.glsl"
+#include "ubos/ulight.glsl"
+#include "ubos/uview.glsl"
 #include "raster_utils.glsl"
 
 layout(location = 0) in vec3 FragPos;
