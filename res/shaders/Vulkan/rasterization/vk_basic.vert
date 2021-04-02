@@ -6,6 +6,7 @@
 #include "data/vertex_data.glsl"
 #include "ubos/umvp_only.glsl"
 
-void main() {
+void main() 
+{
 	gl_Position = mvpOnly.mvp * vec4(inPosition, 1.0);
 }
