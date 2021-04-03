@@ -91,7 +91,7 @@ void Texture::CreateTextureImageView()
 	vk::ImageViewCreateInfo viewInfo {};
 	viewInfo.image = mTextureImage.get();
 	viewInfo.viewType = vk::ImageViewType::e2D;
-	viewInfo.format = vk::Format::eR8G8B8Srgb;
+	viewInfo.format = vk::Format::eR8G8B8A8Srgb;
 	viewInfo.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
 	viewInfo.subresourceRange.baseMipLevel = 0;
 	viewInfo.subresourceRange.levelCount = 1;
