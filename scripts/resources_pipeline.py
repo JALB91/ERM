@@ -13,7 +13,6 @@ if __name__ == "__main__":
     parser.add_argument("--shaders-compiler", dest="shaders_compiler", type=str, help="Path to the shaders compilation command for Vulkan")
     parser.add_argument("--res-dest", dest="res_dest", type=str, help="Resources destination path")
     parser.add_argument("--res-src", dest="res_src", type=str, help="Resources source path")
-    parser.add_argument("--rtx-enabled", dest="rtx_enabled", type=bool, help="Is ray tracing enabled")
     args = parser.parse_args()
 
     if not os.path.exists(args.res_src):

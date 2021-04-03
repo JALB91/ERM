@@ -134,11 +134,11 @@ erm::StorageBufferData GetStorageBufferData(const spirv_cross::Compiler& compile
 			compiler.get_decoration(resource.id, spv::Decoration::DecorationDescriptorSet)};
 	};
 
-	if (resource.name.compare("Vertices") == 0)
+	if (resource.name.compare("BVertices") == 0)
 		return makeStorageBufferData(erm::StorageBufferType::VERTICES);
-	else if (resource.name.compare("Indices") == 0)
+	else if (resource.name.compare("BIndices") == 0)
 		return makeStorageBufferData(erm::StorageBufferType::INDICES);
-	else if (resource.name.compare("InstancesData") == 0)
+	else if (resource.name.compare("BInstancesData") == 0)
 		return makeStorageBufferData(erm::StorageBufferType::INSTANCE_DATA);
 
 	ASSERT(false);
