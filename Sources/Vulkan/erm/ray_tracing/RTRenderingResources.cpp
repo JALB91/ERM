@@ -5,11 +5,11 @@
 #include "erm/ray_tracing/RTBlas.h"
 #include "erm/ray_tracing/RTPipelineResources.h"
 #include "erm/ray_tracing/RTRenderData.h"
-#include "erm/ray_tracing/RTShaderProgram.h"
 
 #include "erm/rendering/Device.h"
 #include "erm/rendering/buffers/DeviceBuffer.h"
 #include "erm/rendering/renderer/IRenderer.h"
+#include "erm/rendering/shaders/IShaderProgram.h"
 
 #include "erm/utils/Profiler.h"
 #include "erm/utils/VkUtils.h"
@@ -79,7 +79,7 @@ vk::CommandBuffer RTRenderingResources::UpdateCommandBuffer(RTRenderData& render
 	uint32_t groupStride = groupSize;
 	vk::DeviceAddress sbtAddress = mDevice->getBufferAddress({mPipelineResources->GetSBTBuffer()});
 
-	const RTShaderProgram& shader = *mRenderConfigs.mShaderProgram;
+	const IShaderProgram& shader = *mRenderConfigs.mShaderProgram;
 	const auto& shadersData = shader.GetShadersDataMap();
 	const size_t genNum = shadersData.at(ShaderType::RT_RAY_GEN).size();
 	const size_t missNum = shadersData.at(ShaderType::RT_MISS).size();

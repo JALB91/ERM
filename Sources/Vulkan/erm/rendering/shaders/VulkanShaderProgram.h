@@ -19,6 +19,9 @@ public:
 
 	std::vector<vk::UniqueShaderModule> CreateShaderModules(ShaderType shaderType) const;
 
+	vk::VertexInputBindingDescription GetVertexBindingDescription();
+	std::vector<vk::VertexInputAttributeDescription> GetVertexAttributeDescriptions();
+
 protected:
 	// IShaderProgram
 	void UpdateBindingData() override;

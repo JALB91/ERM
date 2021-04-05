@@ -41,6 +41,8 @@ private:
 #endif
 
 private:
+	void RecreateSwapChain() override;
+
 	std::vector<vk::CommandBuffer> RetrieveCommandBuffers();
 
 	RasterData::value_type& GetOrCreateFramesData(const RenderConfigs& renderConfigs);

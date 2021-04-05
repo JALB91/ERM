@@ -7,7 +7,7 @@
 #include "erm/rendering/data_structs/RenderConfigs.h"
 #include "erm/rendering/data_structs/RenderData.h"
 #include "erm/rendering/renderer/Renderer.h"
-#include "erm/rendering/shaders/ShaderProgram.h"
+#include "erm/rendering/shaders/IShaderProgram.h"
 #include "erm/rendering/textures/Texture.h"
 
 #include "erm/utils/Utils.h"

@@ -4,7 +4,7 @@
 
 #include "erm/managers/ResourcesManager.h"
 
-#include "erm/rendering/shaders/ShaderProgram.h"
+#include "erm/rendering/shaders/IShaderProgram.h"
 #include "erm/rendering/shaders/ShaderUtils.h"
 #include "erm/rendering/window/Window.h"
 
@@ -19,7 +19,7 @@ namespace ImGui {
 void ShowShadersDebug(erm::Engine& engine, bool& open)
 {
 	const std::vector<std::string>& shaders = engine.GetFileLocator().GetShaderPrograms();
-	static erm::ShaderProgram* selected = nullptr;
+	static erm::IShaderProgram* selected = nullptr;
 	const erm::Window& window = engine.GetWindow();
 
 	ImGui::SetNextWindowSize(ImVec2(600, 600), ImGuiCond_FirstUseEver);

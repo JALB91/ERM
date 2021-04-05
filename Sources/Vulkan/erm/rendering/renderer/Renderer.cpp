@@ -24,7 +24,7 @@
 #include "erm/rendering/enums/CullMode.h"
 #include "erm/rendering/enums/DepthFunction.h"
 #include "erm/rendering/enums/FrontFace.h"
-#include "erm/rendering/shaders/ShaderProgram.h"
+#include "erm/rendering/shaders/IShaderProgram.h"
 #include "erm/rendering/window/Window.h"
 
 #include "erm/utils/Profiler.h"
@@ -37,7 +37,9 @@ namespace erm {
 
 Renderer::Renderer(Engine& engine)
 	: IRenderer(engine)
-{}
+{
+	GetOrCreateFramesData(RenderConfigs::MODELS_RENDER_CONFIGS);
+}
 
 Renderer::~Renderer()
 {}
@@ -56,13 +58,6 @@ void Renderer::OnPreRender()
 	}
 #endif
 
-	if (mRasterData.empty()
-#ifdef ERM_RAY_TRACING_ENABLED
-		&& mRTRenderData.empty()
-#endif
-	)
-		return;
-
 	for (const auto& [renderingResources, renderData] : mRasterData)
 	{
 		renderingResources->Refresh();
@@ -79,10 +74,6 @@ void Renderer::OnPreRender()
 	if (result == vk::Result::eErrorOutOfDateKHR)
 	{
 		RecreateSwapChain();
-		mRasterData.clear();
-#ifdef ERM_RAY_TRACING_ENABLED
-		mRTRenderData.clear();
-#endif
 		return;
 	}
 	else if (result != vk::Result::eSuccess && result != vk::Result::eSuboptimalKHR)
@@ -156,10 +147,6 @@ void Renderer::OnPostRender()
 	{
 		mFramebufferResized = false;
 		RecreateSwapChain();
-		mRasterData.clear();
-#ifdef ERM_RAY_TRACING_ENABLED
-		mRTRenderData.clear();
-#endif
 	}
 	else if (result != vk::Result::eSuccess)
 	{
@@ -200,6 +187,17 @@ void Renderer::SubmitRTRenderData(RTRenderData& data)
 }
 #endif
 
+void Renderer::RecreateSwapChain()
+{
+	IRenderer::RecreateSwapChain();
+
+	mRasterData.clear();
+	GetOrCreateFramesData(RenderConfigs::MODELS_RENDER_CONFIGS);
+#ifdef ERM_RAY_TRACING_ENABLED
+	mRTRenderData.clear();
+#endif
+}
+
 std::vector<vk::CommandBuffer> Renderer::RetrieveCommandBuffers()
 {
 	PROFILE_FUNCTION();
@@ -212,9 +210,9 @@ std::vector<vk::CommandBuffer> Renderer::RetrieveCommandBuffers()
 
 	size_t index = 0;
 
-	for (RasterData::value_type& data : mRasterData)
+	for (auto& [renderingResources, configs] : mRasterData)
 	{
-		commandBuffers[index++] = data.first->UpdateCommandBuffer(data.second, mCurrentImageIndex);
+		commandBuffers[index++] = renderingResources->UpdateCommandBuffer(configs, mCurrentImageIndex);
 	}
 
 #ifdef ERM_RAY_TRACING_ENABLED

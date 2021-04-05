@@ -174,6 +174,17 @@ IShaderProgram::IShaderProgram(Device& device, const char* shaderPath)
 	, mNeedsReload(false)
 {}
 
+void IShaderProgram::Init()
+{
+	for (int i = 0; i < static_cast<int>(ShaderType::COUNT); ++i)
+	{
+		UpdateShadersData(static_cast<ShaderType>(i));
+	}
+
+	ValidateShaders();
+	UpdateBindingData();
+}
+
 void IShaderProgram::SetShadersSources(const std::unordered_map<ShaderType, std::vector<std::string>>& shadersSources)
 {
 	for (const auto& [type, sources] : shadersSources)
@@ -193,7 +204,8 @@ void IShaderProgram::SetShadersSources(const std::unordered_map<ShaderType, std:
 
 void IShaderProgram::UpdateShadersData(ShaderType shaderType)
 {
-	std::vector<ShaderData>& data = mShadersDataMap[shaderType];
+	if (auto it = mShadersDataMap.find(shaderType); it != mShadersDataMap.cend())
+		it->second.clear();
 
 	size_t index = 0;
 
@@ -204,9 +216,11 @@ void IShaderProgram::UpdateShadersData(ShaderType shaderType)
 		if (!std::filesystem::exists(shaderPath))
 			break;
 
+		++index;
+
+		std::vector<ShaderData>& data = mShadersDataMap[shaderType];
 		const std::string compiledShaderPath = shaderPath + ".cmp";
-		ShaderData& d = data.size() > index ? data[index] : data.emplace_back();
-		index++;
+		ShaderData& d = data.emplace_back();
 
 		d.mShaderSource = Utils::ReadFromFile(shaderPath.c_str());
 		d.mShaderByteCode = ReadShaderCompiled(compiledShaderPath.c_str());
@@ -300,7 +314,33 @@ void IShaderProgram::UpdateResourceBindings(
 #endif
 		default:
 			ASSERT(false);
+			break;
 	}
+}
+
+void IShaderProgram::ValidateShaders() const
+{
+#if not defined(NDEBUG)
+	static const std::array<ShaderType, 2> sRequiredShaderTypes {ShaderType::VERTEX, ShaderType::FRAGMENT};
+
+	bool hasRequiredShaders = true;
+
+	for (const ShaderType type : sRequiredShaderTypes)
+		hasRequiredShaders &= mShadersDataMap.find(type) != mShadersDataMap.cend();
+
+#	if defined(ERM_RAY_TRACING_ENABLED)
+	static const std::array<ShaderType, 3> sRequiredRTShaderTypes {ShaderType::RT_RAY_GEN, ShaderType::RT_MISS, ShaderType::RT_CLOSEST_HIT};
+
+	bool hasRequiredRTShaders = true;
+
+	for (const ShaderType type : sRequiredRTShaderTypes)
+		hasRequiredRTShaders &= mShadersDataMap.find(type) != mShadersDataMap.cend();
+
+	ASSERT((!hasRequiredShaders && hasRequiredRTShaders) || (hasRequiredShaders && !hasRequiredRTShaders));
+#	else
+	ASSERT(hasRequiredShaders);
+#	endif
+#endif
 }
 
 } // namespace erm

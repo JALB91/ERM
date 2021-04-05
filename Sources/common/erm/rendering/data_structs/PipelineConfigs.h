@@ -11,7 +11,7 @@
 #include "erm/utils/Utils.h"
 
 namespace erm {
-class ShaderProgram;
+class IShaderProgram;
 }
 
 namespace erm {
@@ -41,7 +41,7 @@ struct PipelineConfigs : public BindingConfigs
 	DECL_SET_GET_OPT_WITH_DEFAULT(DepthFunction, DepthFunction, DepthFunction::LESS);
 	DECL_SET_GET_OPT_WITH_DEFAULT(DrawMode, DrawMode, DrawMode::TRIANGLES);
 	DECL_SET_GET_OPT_WITH_DEFAULT(PolygonMode, PolygonMode, PolygonMode::FILL);
-	ShaderProgram* mShaderProgram;
+	IShaderProgram* mShaderProgram;
 };
 
 } // namespace erm

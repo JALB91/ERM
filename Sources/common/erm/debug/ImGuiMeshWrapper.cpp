@@ -6,7 +6,7 @@
 #include "erm/managers/ResourcesManager.h"
 
 #include "erm/rendering/data_structs/Mesh.h"
-#include "erm/rendering/shaders/ShaderProgram.h"
+#include "erm/rendering/shaders/IShaderProgram.h"
 #include "erm/rendering/textures/Texture.h"
 
 #include <imgui.h>
@@ -17,7 +17,7 @@ void ShowShaderPathOptions(erm::Engine& engine, erm::Mesh& mesh)
 {
 	const std::vector<std::string>& all = engine.GetFileLocator().GetShaderPrograms();
 
-	erm::ShaderProgram* shader = mesh.GetRenderConfigs().mShaderProgram;
+	erm::IShaderProgram* shader = mesh.GetRenderConfigs().mShaderProgram;
 	std::string currentPath = shader ? shader->mPath : "";
 
 	if (ImGui::BeginCombo("Shader", currentPath.c_str()))

@@ -5,7 +5,6 @@
 #include "erm/rendering/data_structs/RenderData.h"
 #include "erm/rendering/data_structs/RenderingResources.h"
 #include "erm/rendering/renderer/IRenderer.h"
-#include "erm/rendering/shaders/ShaderProgram.h"
 #include "erm/rendering/textures/Texture.h"
 
 #include "erm/utils/VkUtils.h"

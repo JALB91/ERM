@@ -51,7 +51,7 @@ public:
 	CubeMap* GetDefaultCubeMap() const;
 
 protected:
-	void RecreateSwapChain();
+	virtual void RecreateSwapChain();
 	void CleanupSwapChain();
 
 	void CreateSwapChain();

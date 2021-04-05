@@ -35,6 +35,8 @@ public:
 	inline bool NeedsReload() const { return mNeedsReload; }
 	inline void OnReloaded() { mNeedsReload = false; }
 
+	void Init();
+
 	void SetShadersSources(const std::unordered_map<ShaderType, std::vector<std::string>>& shadersSources);
 
 	inline const ShadersDataMap& GetShadersDataMap() const { return mShadersDataMap; }
@@ -56,6 +58,8 @@ protected:
 		SetIdx targetSet,
 		ShaderType shaderType,
 		DescriptorType descriptorType);
+
+	void ValidateShaders() const;
 
 	Device& mDevice;
 	ShadersDataMap mShadersDataMap;

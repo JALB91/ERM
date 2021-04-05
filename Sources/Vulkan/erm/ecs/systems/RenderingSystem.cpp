@@ -21,7 +21,7 @@
 #include "erm/rendering/materials/Material.h"
 #include "erm/rendering/materials/PBMaterial.h"
 #include "erm/rendering/renderer/Renderer.h"
-#include "erm/rendering/shaders/ShaderProgram.h"
+#include "erm/rendering/shaders/IShaderProgram.h"
 #include "erm/rendering/shaders/Uniform.h"
 #include "erm/rendering/window/Window.h"
 
@@ -72,7 +72,7 @@ std::string GetShaderForConfig(const erm::BindingConfigs& config, const erm::ecs
 static erm::RTRenderData GetDefaultRTRenderData(erm::Engine& engine)
 {
 	erm::RTRenderData data(engine.GetDevice());
-	data.mRenderConfigs.mShaderProgram = engine.GetResourcesManager().GetOrCreateRTShaderProgram("res/shaders/Vulkan/ray_tracing/vk_raytrace");
+	data.mRenderConfigs.mShaderProgram = engine.GetResourcesManager().GetOrCreateShaderProgram("res/shaders/Vulkan/ray_tracing/vk_raytrace");
 
 	return data;
 }
@@ -436,7 +436,7 @@ void RenderingSystem::UpdateRTData(
 	for (RTRenderData& data : mRTRenderData)
 	{
 		RTRenderConfigs& configs = data.mRenderConfigs;
-		configs.mShaderProgram = configs.mShaderProgram ? configs.mShaderProgram : mResourcesManager.GetOrCreateRTShaderProgram("res/shaders/Vulkan/ray_tracing/vk_raytrace");
+		configs.mShaderProgram = configs.mShaderProgram ? configs.mShaderProgram : mResourcesManager.GetOrCreateShaderProgram("res/shaders/Vulkan/ray_tracing/vk_raytrace");
 
 		{
 			UboLight ubo;

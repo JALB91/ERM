@@ -134,7 +134,7 @@ void FileLocator::Refresh()
 	for (const char* ext : kSupportedRTShadersExtensions)
 	{
 		std::vector<std::string> result = GetResourcesWithExtension(ext, false);
-		mRTShaderPrograms.insert(mRTShaderPrograms.end(), result.begin(), result.end());
+		mShaderPrograms.insert(mShaderPrograms.end(), result.begin(), result.end());
 	}
 #endif
 }

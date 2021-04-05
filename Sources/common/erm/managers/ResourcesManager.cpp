@@ -6,15 +6,12 @@
 #include "erm/rendering/enums/ShaderType.h"
 #include "erm/rendering/materials/Material.h"
 #include "erm/rendering/materials/PBMaterial.h"
-#include "erm/rendering/shaders/ShaderProgram.h"
 #include "erm/rendering/shaders/ShaderUtils.h"
+#if defined(ERM_VULKAN)
+#	include "erm/rendering/shaders/VulkanShaderProgram.h"
+#endif
 #include "erm/rendering/textures/CubeMap.h"
 #include "erm/rendering/textures/Texture.h"
-// clang-format off
-#ifdef ERM_RAY_TRACING_ENABLED
-#include "erm/ray_tracing/RTShaderProgram.h"
-#endif
-// clang-format on
 
 #include "erm/utils/MeshUtils.h"
 #include "erm/utils/Utils.h"
@@ -90,39 +87,22 @@ CubeMap* ResourcesManager::GetOrCreateCubeMap(const char* path)
 	return mCubeMaps.emplace_back(std::move(result)).get();
 }
 
-ShaderProgram* ResourcesManager::GetOrCreateShaderProgram(const char* shaderProgramPath)
+IShaderProgram* ResourcesManager::GetOrCreateShaderProgram(const char* shaderProgramPath)
 {
 	auto it = std::find_if(
 		mShaderPrograms.begin(),
 		mShaderPrograms.end(),
-		[shaderProgramPath](Handle<ShaderProgram>& program) {
+		[shaderProgramPath](Handle<IShaderProgram>& program) {
 			return program->mPath.compare(shaderProgramPath) == 0;
 		});
 
 	if (it != mShaderPrograms.end())
 		return (*it).get();
 
-	static const std::array<ShaderType, 2> kRequiredShaders {
-		ShaderType::VERTEX,
-		ShaderType::FRAGMENT};
-
-	for (auto type : kRequiredShaders)
-	{
-		char buffer[256] {0};
-		std::strcat(buffer, shaderProgramPath);
-		std::strcat(buffer, ShaderUtils::GetSuffixForShaderIndex(0).c_str());
-		std::strcat(buffer, ShaderUtils::GetExtensionForShaderType(type));
-
-		std::ifstream stream(buffer);
-		if (!stream.is_open())
-		{
-			std::cout << "No such file: " << shaderProgramPath << std::endl;
-			return nullptr;
-		}
-		stream.close();
-	}
-
-	std::unique_ptr<ShaderProgram> shaderProgram = std::make_unique<ShaderProgram>(mDevice, shaderProgramPath);
+#if defined(ERM_VULKAN)
+	std::unique_ptr<VulkanShaderProgram> shaderProgram = std::make_unique<VulkanShaderProgram>(mDevice, shaderProgramPath);
+#endif
+	shaderProgram->Init();
 	return mShaderPrograms.emplace_back(std::move(shaderProgram)).get();
 }
 
@@ -228,44 +208,5 @@ SkeletonAnimation* ResourcesManager::GetAnimation(const char* name)
 
 	return (it != mAnimations.end() ? (*it).get() : nullptr);
 }
-
-#ifdef ERM_RAY_TRACING_ENABLED
-RTShaderProgram* ResourcesManager::GetOrCreateRTShaderProgram(const char* path)
-{
-	auto it = std::find_if(
-		mRTShaders.begin(),
-		mRTShaders.end(),
-		[path](Handle<RTShaderProgram>& program) {
-			return program->mPath.compare(path) == 0;
-		});
-
-	if (it != mRTShaders.end())
-		return (*it).get();
-
-	static const std::array<ShaderType, 3> kRequiredShaders {
-		ShaderType::RT_RAY_GEN,
-		ShaderType::RT_MISS,
-		ShaderType::RT_CLOSEST_HIT};
-
-	for (auto type : kRequiredShaders)
-	{
-		char buffer[256] {0};
-		std::strcat(buffer, path);
-		std::strcat(buffer, ShaderUtils::GetSuffixForShaderIndex(0).c_str());
-		std::strcat(buffer, ShaderUtils::GetExtensionForShaderType(type));
-
-		std::ifstream stream(buffer);
-		if (!stream.is_open())
-		{
-			std::cout << "No such file: " << path << std::endl;
-			return nullptr;
-		}
-		stream.close();
-	}
-
-	std::unique_ptr<RTShaderProgram> shaderProgram = std::make_unique<RTShaderProgram>(mDevice, path);
-	return mRTShaders.emplace_back(std::move(shaderProgram)).get();
-}
-#endif
 
 } // namespace erm

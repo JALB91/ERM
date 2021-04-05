@@ -72,13 +72,6 @@ void ImGuiHandle::OnPostRender()
 
 vk::CommandBuffer& ImGuiHandle::GetCommandBuffer(uint32_t imageIndex)
 {
-	std::array<vk::ClearValue, 2> clearValues {};
-	clearValues[0].color.float32[0] = 0.0f;
-	clearValues[0].color.float32[1] = 0.0f;
-	clearValues[0].color.float32[2] = 0.0f;
-	clearValues[0].color.float32[3] = 1.0f;
-	clearValues[1].setDepthStencil({1.0f, 0});
-
 	vk::CommandBuffer& cmd = mCommandBuffers[imageIndex];
 	cmd.reset({});
 
@@ -92,8 +85,8 @@ vk::CommandBuffer& ImGuiHandle::GetCommandBuffer(uint32_t imageIndex)
 	info.renderPass = mRenderPass;
 	info.framebuffer = mSwapChainFramebuffers[imageIndex];
 	info.renderArea.extent = mRenderer.GetSwapChainExtent();
-	info.clearValueCount = static_cast<uint32_t>(clearValues.size());
-	info.pClearValues = clearValues.data();
+	info.clearValueCount = 0;
+	info.pClearValues = nullptr;
 	cmd.beginRenderPass(info, vk::SubpassContents::eInline);
 
 	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmd);

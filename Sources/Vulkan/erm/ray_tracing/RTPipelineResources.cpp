@@ -4,11 +4,11 @@
 
 #include "erm/ray_tracing/RTRenderConfigs.h"
 #include "erm/ray_tracing/RTRenderData.h"
-#include "erm/ray_tracing/RTShaderProgram.h"
 
 #include "erm/rendering/Device.h"
 #include "erm/rendering/data_structs/DeviceBindingResources.h"
 #include "erm/rendering/data_structs/HostBindingResources.h"
+#include "erm/rendering/shaders/VulkanShaderProgram.h"
 
 #include "erm/utils/Profiler.h"
 #include "erm/utils/Utils.h"
@@ -65,7 +65,7 @@ void RTPipelineResources::UpdateCommandBuffer(
 
 void RTPipelineResources::CreatePipeline()
 {
-	RTShaderProgram* shader = mRenderData.mRenderConfigs.mShaderProgram;
+	VulkanShaderProgram* shader = static_cast<VulkanShaderProgram*>(mRenderData.mRenderConfigs.mShaderProgram);
 
 	ASSERT(shader);
 
@@ -224,7 +224,7 @@ void RTPipelineResources::CreatePipeline()
 
 void RTPipelineResources::CreateBindingTable()
 {
-	RTShaderProgram& shader = *mRenderData.mRenderConfigs.mShaderProgram;
+	IShaderProgram& shader = *mRenderData.mRenderConfigs.mShaderProgram;
 
 	uint32_t groupCount = 0;
 

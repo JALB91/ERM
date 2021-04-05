@@ -3,7 +3,7 @@
 #include "erm/rendering/data_structs/BindingConfigs.h"
 
 namespace erm {
-class RTShaderProgram;
+class IShaderProgram;
 }
 
 namespace erm {
@@ -14,7 +14,7 @@ struct RTRenderConfigs : public BindingConfigs
 		: mShaderProgram(nullptr)
 	{}
 
-	RTShaderProgram* mShaderProgram;
+	IShaderProgram* mShaderProgram;
 };
 
 } // namespace erm
