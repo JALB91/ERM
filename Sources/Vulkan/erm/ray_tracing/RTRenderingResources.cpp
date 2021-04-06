@@ -20,11 +20,9 @@ namespace erm {
 
 RTRenderingResources::RTRenderingResources(
 	Device& device,
-	IRenderer& renderer,
-	const RTRenderConfigs& renderConfigs)
+	IRenderer& renderer)
 	: mDevice(device)
 	, mRenderer(renderer)
-	, mRenderConfigs(renderConfigs)
 {
 	CreateDescriptorPool();
 	CreateCommandBuffers();
@@ -79,7 +77,7 @@ vk::CommandBuffer RTRenderingResources::UpdateCommandBuffer(RTRenderData& render
 	uint32_t groupStride = groupSize;
 	vk::DeviceAddress sbtAddress = mDevice->getBufferAddress({mPipelineResources->GetSBTBuffer()});
 
-	const IShaderProgram& shader = *mRenderConfigs.mShaderProgram;
+	const IShaderProgram& shader = *renderData.mPipelineConfigs.mShaderProgram;
 	const auto& shadersData = shader.GetShadersDataMap();
 	const size_t genNum = shadersData.at(ShaderType::RT_RAY_GEN).size();
 	const size_t missNum = shadersData.at(ShaderType::RT_MISS).size();
@@ -435,10 +433,16 @@ void RTRenderingResources::UpdateTopLevelAS(RTRenderData& data, vk::BuildAcceler
 
 void RTRenderingResources::Refresh()
 {
-	if (mRenderConfigs.mShaderProgram->NeedsReload())
+	if (!mPipelineResources)
+		return;
+
+	const RTRenderData& data = mPipelineResources->GetRenderData();
+	const PipelineConfigs& configs = data.mPipelineConfigs;
+	IShaderProgram* shaderProgram = configs.mShaderProgram;
+	if (shaderProgram->NeedsReload())
 	{
 		Reload();
-		mRenderConfigs.mShaderProgram->OnReloaded();
+		shaderProgram->OnReloaded();
 	}
 }
 

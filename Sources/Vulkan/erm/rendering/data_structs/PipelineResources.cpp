@@ -1,16 +1,15 @@
 #include "erm/rendering/data_structs/PipelineResources.h"
 
+#include "erm/engine/Engine.h"
+
 #include "erm/rendering/Device.h"
-#include "erm/rendering/buffers/IndexBuffer.h"
-#include "erm/rendering/buffers/VertexBuffer.h"
 #include "erm/rendering/data_structs/DeviceBindingResources.h"
 #include "erm/rendering/data_structs/HostBindingResources.h"
 #include "erm/rendering/data_structs/Mesh.h"
-#include "erm/rendering/data_structs/RenderConfigs.h"
 #include "erm/rendering/data_structs/RenderData.h"
 #include "erm/rendering/renderer/Renderer.h"
 #include "erm/rendering/shaders/VulkanShaderProgram.h"
-#include "erm/rendering/textures/Texture.h"
+#include "erm/rendering/window/Window.h"
 
 #include "erm/utils/Utils.h"
 #include "erm/utils/VkUtils.h"
@@ -18,16 +17,16 @@
 namespace erm {
 
 PipelineResources::PipelineResources(
-	Device& device,
-	Renderer& renderer,
+	Engine& engine,
 	const vk::RenderPass* renderPass,
 	const vk::DescriptorPool* descriptorPool,
-	const RenderConfigs& renderConfigs)
-	: mDevice(device)
-	, mRenderer(renderer)
+	const PipelineConfigs& pipelineConfigs)
+	: mDevice(engine.GetDevice())
+	, mWindow(engine.GetWindow())
+	, mRenderer(engine.GetRenderer())
 	, mRenderPass(renderPass)
 	, mDescriptorPool(descriptorPool)
-	, mRenderConfigs(renderConfigs)
+	, mPipelineConfigs(pipelineConfigs)
 {
 	CreatePipeline();
 }
@@ -54,7 +53,7 @@ void PipelineResources::UpdateCommandBuffer(vk::CommandBuffer& cmd, RenderData& 
 	cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, mPipeline.get());
 
 #ifdef ERM_FLIP_VIEWPORT
-	const BoundingBox2D& normViewport = mRenderConfigs.GetNormViewport();
+	const BoundingBox2D normViewport = mWindow.GetNormalizedViewport();
 	const math::vec2 normViewportSize = normViewport.GetSize();
 	const vk::Extent2D& extent = mRenderer.GetSwapChainExtent();
 
@@ -104,11 +103,11 @@ void PipelineResources::PostDraw()
 
 void PipelineResources::CreatePipeline()
 {
-	const BoundingBox2D& normViewport = mRenderConfigs.GetNormViewport();
+	const BoundingBox2D normViewport = mWindow.GetNormalizedViewport();
 	const math::vec2 normViewportSize = normViewport.GetSize();
 	const vk::Extent2D& extent = mRenderer.GetSwapChainExtent();
 
-	VulkanShaderProgram* shader = static_cast<VulkanShaderProgram*>(mRenderConfigs.mShaderProgram);
+	VulkanShaderProgram* shader = static_cast<VulkanShaderProgram*>(mPipelineConfigs.mShaderProgram);
 
 	ASSERT(shader);
 
@@ -149,7 +148,7 @@ void PipelineResources::CreatePipeline()
 		SETUP INPUT ASSEMBLY
 	*/
 	vk::PipelineInputAssemblyStateCreateInfo inputAssembly = {};
-	inputAssembly.topology = VkUtils::ToVulkanValue<vk::PrimitiveTopology>(mRenderConfigs.GetDrawMode());
+	inputAssembly.topology = VkUtils::ToVulkanValue<vk::PrimitiveTopology>(mPipelineConfigs.GetDrawMode());
 	inputAssembly.primitiveRestartEnable = VK_FALSE;
 
 	/*
@@ -179,10 +178,10 @@ void PipelineResources::CreatePipeline()
 	vk::PipelineRasterizationStateCreateInfo rasterizer = {};
 	rasterizer.depthClampEnable = VK_FALSE;
 	rasterizer.rasterizerDiscardEnable = VK_FALSE;
-	rasterizer.polygonMode = VkUtils::ToVulkanValue<vk::PolygonMode>(mRenderConfigs.GetPolygonMode());
+	rasterizer.polygonMode = VkUtils::ToVulkanValue<vk::PolygonMode>(mPipelineConfigs.GetPolygonMode());
 	rasterizer.lineWidth = 1.0f;
-	rasterizer.cullMode = VkUtils::ToVulkanValue<vk::CullModeFlagBits>(mRenderConfigs.GetCullMode());
-	rasterizer.frontFace = VkUtils::ToVulkanValue<vk::FrontFace>(mRenderConfigs.GetFrontFace());
+	rasterizer.cullMode = VkUtils::ToVulkanValue<vk::CullModeFlagBits>(mPipelineConfigs.GetCullMode());
+	rasterizer.frontFace = VkUtils::ToVulkanValue<vk::FrontFace>(mPipelineConfigs.GetFrontFace());
 	rasterizer.depthBiasEnable = VK_FALSE;
 	rasterizer.depthBiasConstantFactor = 0.0f;
 	rasterizer.depthBiasClamp = 0.0f;
@@ -204,7 +203,7 @@ void PipelineResources::CreatePipeline()
 	*/
 	vk::PipelineColorBlendAttachmentState colorBlendAttachment = {};
 	colorBlendAttachment.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
-	colorBlendAttachment.blendEnable = mRenderConfigs.GetBlendEnabled() ? VK_TRUE : VK_FALSE;
+	colorBlendAttachment.blendEnable = mPipelineConfigs.GetBlendEnabled() ? VK_TRUE : VK_FALSE;
 	colorBlendAttachment.srcColorBlendFactor = vk::BlendFactor::eSrcAlpha;
 	colorBlendAttachment.dstColorBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha;
 	colorBlendAttachment.colorBlendOp = vk::BlendOp::eAdd;
@@ -284,9 +283,9 @@ void PipelineResources::CreatePipeline()
 		SETUP STENCIL AND DEPTH TESTS
 	*/
 	vk::PipelineDepthStencilStateCreateInfo depthStencil {};
-	depthStencil.depthTestEnable = mRenderConfigs.GetDepthTestEnabled() ? VK_TRUE : VK_FALSE;
-	depthStencil.depthWriteEnable = mRenderConfigs.GetDepthWriteEnabled() ? VK_TRUE : VK_FALSE;
-	depthStencil.depthCompareOp = VkUtils::ToVulkanValue<vk::CompareOp>(mRenderConfigs.GetDepthFunction());
+	depthStencil.depthTestEnable = mPipelineConfigs.GetDepthTestEnabled() ? VK_TRUE : VK_FALSE;
+	depthStencil.depthWriteEnable = mPipelineConfigs.GetDepthWriteEnabled() ? VK_TRUE : VK_FALSE;
+	depthStencil.depthCompareOp = VkUtils::ToVulkanValue<vk::CompareOp>(mPipelineConfigs.GetDepthFunction());
 	depthStencil.depthBoundsTestEnable = VK_FALSE;
 	depthStencil.minDepthBounds = 0.0f;
 	depthStencil.maxDepthBounds = 1.0f;
@@ -333,13 +332,13 @@ void PipelineResources::CreatePipeline()
 PipelineData& PipelineResources::GetOrCreatePipelineData(RenderData& renderData)
 {
 	auto it = std::find_if(mData.begin(), mData.end(), [&renderData](PipelineData& data) {
-		return data.IsCompatible(renderData.mRenderConfigs);
+		return data.IsCompatible(renderData.mPipelineConfigs);
 	});
 	if (it != mData.end())
 		return *it;
 
-	auto& data = mData.emplace_back(renderData.mRenderConfigs);
-	const auto& sbm = renderData.mRenderConfigs.mShaderProgram->GetShaderBindingsMap();
+	auto& data = mData.emplace_back(renderData.mPipelineConfigs);
+	const auto& sbm = renderData.mPipelineConfigs.mShaderProgram->GetShaderBindingsMap();
 
 	for (const auto& [set, bindings] : sbm)
 	{
@@ -350,8 +349,8 @@ PipelineData& PipelineResources::GetOrCreatePipelineData(RenderData& renderData)
 				mRenderer,
 				set,
 				*mDescriptorPool,
-				*renderData.mRenderConfigs.mShaderProgram,
-				renderData.mRenderConfigs,
+				*renderData.mPipelineConfigs.mShaderProgram,
+				renderData.mPipelineConfigs,
 				renderData,
 				mDescriptorSetLayouts[set].get());
 		else
@@ -360,8 +359,8 @@ PipelineData& PipelineResources::GetOrCreatePipelineData(RenderData& renderData)
 				mRenderer,
 				set,
 				*mDescriptorPool,
-				*renderData.mRenderConfigs.mShaderProgram,
-				renderData.mRenderConfigs,
+				*renderData.mPipelineConfigs.mShaderProgram,
+				renderData.mPipelineConfigs,
 				mDescriptorSetLayouts[set].get());
 
 		data.AddResources(set, std::move(resources));

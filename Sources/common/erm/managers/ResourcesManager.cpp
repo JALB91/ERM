@@ -3,7 +3,6 @@
 #include "erm/rendering/animations/SkeletonAnimation.h"
 #include "erm/rendering/data_structs/Model.h"
 #include "erm/rendering/data_structs/Skin.h"
-#include "erm/rendering/enums/ShaderType.h"
 #include "erm/rendering/materials/Material.h"
 #include "erm/rendering/materials/PBMaterial.h"
 #include "erm/rendering/shaders/ShaderUtils.h"
@@ -17,8 +16,6 @@
 #include "erm/utils/Utils.h"
 
 #include <algorithm>
-#include <fstream>
-#include <iostream>
 
 namespace erm {
 
@@ -153,16 +150,6 @@ Texture* ResourcesManager::GetOrCreateTexture(const char* texturePath)
 	{
 		return (*it).get();
 	}
-
-	std::ifstream stream(texturePath);
-
-	if (!stream.is_open())
-	{
-		std::cout << "No such file: " << texturePath << std::endl;
-		return nullptr;
-	}
-
-	stream.close();
 
 	std::unique_ptr<Texture> texture = std::make_unique<Texture>(mDevice, texturePath);
 	texture->Init();

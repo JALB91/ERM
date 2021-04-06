@@ -2,7 +2,7 @@
 
 namespace erm {
 
-const PipelineConfigs PipelineConfigs::MODELS_PIPELINE_CONFIGS = {};
+const PipelineConfigs PipelineConfigs::DEFAULT_PIPELINE_CONFIGS = {};
 
 PipelineConfigs::PipelineConfigs()
 	: mShaderProgram(nullptr)

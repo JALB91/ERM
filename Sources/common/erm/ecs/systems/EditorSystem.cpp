@@ -22,9 +22,7 @@
 #include "erm/rendering/materials/PBMaterial.h"
 #endif
 // clang-format on
-#include "erm/rendering/data_structs/RenderData.h"
 #include "erm/rendering/renderer/Renderer.h"
-#include "erm/rendering/window/Window.h"
 
 #include "erm/utils/MeshUtils.h"
 
@@ -32,40 +30,36 @@
 
 namespace erm::ecs {
 
-static RenderConfigs GetGridRenderConfigs(Engine& engine)
+static PipelineConfigs GetGridPipelineConfigs(Engine& engine)
 {
-	RenderConfigs configs(RenderConfigs::MODELS_RENDER_CONFIGS);
-	configs.SetNormViewport(engine.GetWindow().GetNormalizedViewport());
+	PipelineConfigs configs = PipelineConfigs::DEFAULT_PIPELINE_CONFIGS;
 	configs.SetCullMode(CullMode::NONE);
 	configs.mShaderProgram = engine.GetResourcesManager().GetOrCreateShaderProgram("res/shaders/Vulkan/rasterization/vk_basic");
 
 	return configs;
 }
 
-static RenderConfigs GetArrowsRenderConfigs(Engine& engine)
+static PipelineConfigs GetArrowsPipelineConfigs(Engine& engine)
 {
-	RenderConfigs configs(RenderConfigs::MODELS_RENDER_CONFIGS);
-	configs.SetNormViewport(engine.GetWindow().GetNormalizedViewport());
+	PipelineConfigs configs = PipelineConfigs::DEFAULT_PIPELINE_CONFIGS;
 	configs.mShaderProgram = engine.GetResourcesManager().GetOrCreateShaderProgram("res/shaders/Vulkan/rasterization/vk_basic");
 
 	return configs;
 }
 
-static RenderConfigs GetBBoxRenderConfigs(Engine& engine)
+static PipelineConfigs GetBBoxPipelineConfigs(Engine& engine)
 {
-	RenderConfigs configs = RenderConfigs::MODELS_RENDER_CONFIGS;
+	PipelineConfigs configs = PipelineConfigs::DEFAULT_PIPELINE_CONFIGS;
 	configs.SetCullMode(CullMode::NONE);
 	configs.SetPolygonMode(PolygonMode::LINE);
-	configs.SetNormViewport(engine.GetWindow().GetNormalizedViewport());
 	configs.mShaderProgram = engine.GetResourcesManager().GetOrCreateShaderProgram("res/shaders/Vulkan/rasterization/vk_basic");
 
 	return configs;
 }
 
-static RenderConfigs GetBonesRenderConfigs(Engine& engine)
+static PipelineConfigs GetBonesPipelineConfigs(Engine& engine)
 {
-	RenderConfigs configs = RenderConfigs::MODELS_RENDER_CONFIGS;
-	configs.SetNormViewport(engine.GetWindow().GetNormalizedViewport());
+	PipelineConfigs configs = PipelineConfigs::DEFAULT_PIPELINE_CONFIGS;
 	configs.mShaderProgram = engine.GetResourcesManager().GetOrCreateShaderProgram("res/shaders/Vulkan/rasterization/vk_bones_debug");
 
 	return configs;
@@ -80,11 +74,11 @@ EditorSystem::EditorSystem(ECS& ecs, Engine& engine)
 	, mPlaneModel(mEngine.GetDevice(), "Plane", "Plane")
 	, mInstanceDataBuffer(mEngine.GetDevice(), sizeof(InstanceData), vk::BufferUsageFlagBits::eStorageBuffer)
 #endif
-	, mGridRenderData(GetGridRenderConfigs(mEngine))
+	, mGridRenderData(GetGridPipelineConfigs(mEngine))
 	, mGridMesh(mEngine.GetDevice(), MeshUtils::CreateSquare(1000.0f, 1000.0f))
-	, mBBoxRenderConfigs(GetBBoxRenderConfigs(mEngine))
-	, mArrowsRenderData(GetArrowsRenderConfigs(mEngine))
-	, mBonesRenderConfigs(GetBonesRenderConfigs(mEngine))
+	, mBBoxPipelineConfigs(GetBBoxPipelineConfigs(mEngine))
+	, mArrowsRenderData(GetArrowsPipelineConfigs(mEngine))
+	, mBonesPipelineConfigs(GetBonesPipelineConfigs(mEngine))
 {
 	mGridRenderData.mMeshes.emplace_back(&mGridMesh);
 }
@@ -162,7 +156,7 @@ void EditorSystem::OnRender()
 
 		if (!editorCmp && model)
 		{
-			editorCmp = RequireComponent(i, mBonesRenderConfigs);
+			editorCmp = RequireComponent(i, mBonesPipelineConfigs);
 		}
 		else if ((editorCmp && !model) || (!editorCmp && !model))
 		{
@@ -277,7 +271,7 @@ RenderData& EditorSystem::GetOrCreateRenderDataForBBox(EntityId id)
 		auto val = mBBoxesRenderData.emplace(
 			std::piecewise_construct,
 			std::forward_as_tuple(id),
-			std::forward_as_tuple(std::make_pair(mBBoxRenderConfigs, StandaloneMesh(mEngine.GetDevice(), MeshUtils::CreateCube()))));
+			std::forward_as_tuple(std::make_pair(mBBoxPipelineConfigs, StandaloneMesh(mEngine.GetDevice(), MeshUtils::CreateCube()))));
 		data = &val.first->second;
 	}
 

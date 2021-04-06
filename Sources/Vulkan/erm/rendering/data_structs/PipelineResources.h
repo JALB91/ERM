@@ -1,8 +1,7 @@
 #pragma once
 
-#include "erm/rendering/data_structs/IBindingResources.h"
+#include "erm/rendering/data_structs/PipelineConfigs.h"
 #include "erm/rendering/data_structs/PipelineData.h"
-#include "erm/rendering/data_structs/RenderConfigs.h"
 
 #include <vulkan/vulkan.hpp>
 
@@ -11,6 +10,8 @@
 
 namespace erm {
 class Device;
+class Engine;
+class IWindow;
 class Renderer;
 struct RenderData;
 } // namespace erm
@@ -21,11 +22,10 @@ class PipelineResources
 {
 public:
 	PipelineResources(
-		Device& device,
-		Renderer& renderer,
+		Engine& engine,
 		const vk::RenderPass* renderPass,
 		const vk::DescriptorPool* descriptorPool,
-		const RenderConfigs& renderConfigs);
+		const PipelineConfigs& pipelineConfigs);
 	~PipelineResources();
 
 	PipelineResources(PipelineResources&&) = delete;
@@ -38,18 +38,19 @@ public:
 	void UpdateCommandBuffer(vk::CommandBuffer& cmd, RenderData& renderData, uint32_t imageIndex);
 	void PostDraw();
 
-	inline const RenderConfigs& GetRenderConfigs() const { return mRenderConfigs; }
+	inline const PipelineConfigs& GetPipelineConfigs() const { return mPipelineConfigs; }
 
 private:
 	void CreatePipeline();
 	PipelineData& GetOrCreatePipelineData(RenderData& renderData);
 
 	Device& mDevice;
+	IWindow& mWindow;
 	Renderer& mRenderer;
 	const vk::RenderPass* mRenderPass;
 	const vk::DescriptorPool* mDescriptorPool;
 
-	const RenderConfigs mRenderConfigs;
+	const PipelineConfigs mPipelineConfigs;
 	vk::UniquePipelineLayout mPipelineLayout;
 	vk::UniquePipeline mPipeline;
 

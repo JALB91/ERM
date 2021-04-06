@@ -1,10 +1,10 @@
 #pragma once
 
 #include "erm/ray_tracing/RTInstanceData.h"
-#include "erm/ray_tracing/RTRenderConfigs.h"
 
 #include "erm/rendering/Device.h"
 #include "erm/rendering/data_structs/IRenderData.h"
+#include "erm/rendering/data_structs/PipelineConfigs.h"
 
 #include <unordered_map>
 
@@ -12,16 +12,16 @@ namespace erm {
 
 struct RTRenderData : public IRenderData
 {
-	RTRenderData(Device& device, const RTRenderConfigs& renderConfigs = {})
+	RTRenderData(Device& device, const PipelineConfigs& pipelineConfigs = PipelineConfigs::DEFAULT_PIPELINE_CONFIGS)
 		: mDevice(device)
-		, mRenderConfigs(renderConfigs)
+		, mPipelineConfigs(pipelineConfigs)
 		, mForceUpdate(true)
 	{}
 
 	RTRenderData(RTRenderData&& other)
 		: IRenderData(std::move(other))
 		, mDevice(other.mDevice)
-		, mRenderConfigs(std::move(other.mRenderConfigs))
+		, mPipelineConfigs(std::move(other.mPipelineConfigs))
 		, mInstancesMap(std::move(other.mInstancesMap))
 		, mForceUpdate(other.mForceUpdate)
 	{}
@@ -33,7 +33,7 @@ struct RTRenderData : public IRenderData
 
 		ASSERT(&mDevice == &other.mDevice);
 		IRenderData::operator=(std::move(other));
-		mRenderConfigs = std::move(other.mRenderConfigs);
+		mPipelineConfigs = std::move(other.mPipelineConfigs);
 		mInstancesMap = std::move(other.mInstancesMap);
 		mForceUpdate = other.mForceUpdate;
 
@@ -71,7 +71,7 @@ struct RTRenderData : public IRenderData
 	}
 
 	Device& mDevice;
-	RTRenderConfigs mRenderConfigs;
+	PipelineConfigs mPipelineConfigs;
 	std::unordered_map<uint32_t, RTInstanceData> mInstancesMap;
 	bool mForceUpdate;
 };

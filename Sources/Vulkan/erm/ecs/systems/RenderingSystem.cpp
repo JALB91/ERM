@@ -22,10 +22,7 @@
 #include "erm/rendering/materials/PBMaterial.h"
 #include "erm/rendering/renderer/Renderer.h"
 #include "erm/rendering/shaders/IShaderProgram.h"
-#include "erm/rendering/shaders/Uniform.h"
-#include "erm/rendering/window/Window.h"
 
-#include "erm/utils/MeshUtils.h"
 #include "erm/utils/Profiler.h"
 #include "erm/utils/VkUtils.h"
 
@@ -72,7 +69,7 @@ std::string GetShaderForConfig(const erm::BindingConfigs& config, const erm::ecs
 static erm::RTRenderData GetDefaultRTRenderData(erm::Engine& engine)
 {
 	erm::RTRenderData data(engine.GetDevice());
-	data.mRenderConfigs.mShaderProgram = engine.GetResourcesManager().GetOrCreateShaderProgram("res/shaders/Vulkan/ray_tracing/vk_raytrace");
+	data.mPipelineConfigs.mShaderProgram = engine.GetResourcesManager().GetOrCreateShaderProgram("res/shaders/Vulkan/ray_tracing/vk_raytrace");
 
 	return data;
 }
@@ -308,20 +305,19 @@ void RenderingSystem::ProcessForRasterization(
 	for (size_t i = 0; i < meshes.size(); ++i)
 	{
 		Mesh& mesh = meshes[i];
-		RenderConfigs& configs = mesh.GetRenderConfigs();
+		PipelineConfigs& configs = mesh.GetPipelineConfigs();
 
 		configs.mShaderProgram = mResourcesManager.GetOrCreateShaderProgram(GetShaderForConfig(configs, light, skeletonComponent).c_str());
-		configs.SetNormViewport(mEngine.GetWindow().GetNormalizedViewport());
 
 		RenderData* data = nullptr;
 
 		auto it = std::find_if(renderingComponent.mRenderData.begin(), renderingComponent.mRenderData.end(), [&configs](const RenderData& data) {
-			return data.mRenderConfigs == configs;
+			return data.mPipelineConfigs.IsPipelineLevelCompatible(configs);
 		});
 
 		if (it == renderingComponent.mRenderData.end())
 		{
-			data = &renderingComponent.mRenderData.emplace_back(mesh.GetRenderConfigs());
+			data = &renderingComponent.mRenderData.emplace_back(mesh.GetPipelineConfigs());
 		}
 		else
 		{
@@ -435,7 +431,7 @@ void RenderingSystem::UpdateRTData(
 
 	for (RTRenderData& data : mRTRenderData)
 	{
-		RTRenderConfigs& configs = data.mRenderConfigs;
+		PipelineConfigs& configs = data.mPipelineConfigs;
 		configs.mShaderProgram = configs.mShaderProgram ? configs.mShaderProgram : mResourcesManager.GetOrCreateShaderProgram("res/shaders/Vulkan/ray_tracing/vk_raytrace");
 
 		{

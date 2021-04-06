@@ -1,10 +1,13 @@
 #include "erm/rendering/data_structs/BindingConfigs.h"
 
 #include "erm/rendering/materials/Material.h"
+#include "erm/rendering/materials/PBMaterial.h"
 
 namespace erm {
 
-const BindingConfigs BindingConfigs::MODELS_BINDING_CONFIGS = {};
+BindingConfigs::BindingConfigs()
+	: mMaterial(MaterialType::PBR, &PBMaterial::DEFAULT)
+{}
 
 bool BindingConfigs::IsBindingLevelCompatible(const BindingConfigs& other) const
 {

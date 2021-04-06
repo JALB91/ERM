@@ -1,9 +1,12 @@
 #pragma once
 
-#include "erm/rendering/buffers/HostBuffer.h"
 #include "erm/rendering/buffers/IBuffer.h"
 
 #include <memory>
+
+namespace erm {
+class HostBuffer;
+}
 
 namespace erm {
 
@@ -13,9 +16,8 @@ public:
 	DeviceBuffer(
 		Device& device,
 		size_t size,
-		vk::BufferUsageFlags buf)
-		: IBuffer(device, size, buf | vk::BufferUsageFlagBits::eTransferDst, vk::MemoryPropertyFlagBits::eDeviceLocal)
-	{}
+		vk::BufferUsageFlags buf);
+	~DeviceBuffer();
 
 	DeviceBuffer(DeviceBuffer&& other);
 	DeviceBuffer(const DeviceBuffer&) = delete;

@@ -95,7 +95,7 @@ void ShowMaterialDebug(erm::Engine& engine, erm::Mesh& mesh)
 	{
 		ImGui::Indent();
 
-		erm::BindingConfigs& configs = mesh.GetRenderConfigs();
+		erm::BindingConfigs& configs = mesh.GetPipelineConfigs();
 		erm::MaterialHandle& material = configs.mMaterial;
 
 		const bool isLegacy = material.mType == erm::MaterialType::LEGACY;

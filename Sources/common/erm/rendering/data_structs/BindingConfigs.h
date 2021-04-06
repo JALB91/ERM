@@ -13,9 +13,7 @@ namespace erm {
 
 struct BindingConfigs
 {
-	static const BindingConfigs MODELS_BINDING_CONFIGS;
-
-	BindingConfigs() = default;
+	BindingConfigs();
 	virtual ~BindingConfigs() = default;
 
 	Texture* GetTexture(TextureType type) const;

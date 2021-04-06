@@ -12,7 +12,6 @@
 // clang-format on
 
 #include <memory>
-#include <string>
 #include <vector>
 
 namespace erm {
@@ -58,7 +57,7 @@ public:
 	void AddMesh(
 		std::vector<VertexData>&& vertices,
 		std::vector<IndexData>&& indices,
-		const RenderConfigs& configs = RenderConfigs::MODELS_RENDER_CONFIGS,
+		const PipelineConfigs& configs = PipelineConfigs::DEFAULT_PIPELINE_CONFIGS,
 		const char* name = "");
 	void UpdateLocalBound();
 	void UpdateBuffers();

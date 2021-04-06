@@ -1,35 +1,31 @@
 #include "erm/rendering/data_structs/RenderingResources.h"
 
+#include "erm/engine/Engine.h"
+
 #include "erm/rendering/Device.h"
-#include "erm/rendering/buffers/IndexBuffer.h"
-#include "erm/rendering/buffers/VertexBuffer.h"
-#include "erm/rendering/data_structs/Mesh.h"
+#include "erm/rendering/data_structs/AttachmentData.h"
 #include "erm/rendering/data_structs/RenderConfigs.h"
 #include "erm/rendering/data_structs/RenderData.h"
 #include "erm/rendering/renderer/Renderer.h"
 #include "erm/rendering/shaders/IShaderProgram.h"
-#include "erm/rendering/textures/Texture.h"
 
 #include "erm/utils/Utils.h"
 #include "erm/utils/VkUtils.h"
 
 namespace erm {
 
-RenderingResources::RenderingResources(
-	Device& device,
-	Renderer& renderer,
-	const std::vector<SubpassData>& subpassData)
-	: mDevice(device)
-	, mRenderer(renderer)
-	, mSubpassData(subpassData)
+RenderingResources::RenderingResources(Engine& engine)
+	: mEngine(engine)
+	, mDevice(engine.GetDevice())
+	, mRenderer(engine.GetRenderer())
 {
 	Reload();
 }
 
 RenderingResources::RenderingResources(RenderingResources&& other)
-	: mDevice(other.mDevice)
+	: mEngine(other.mEngine)
+	, mDevice(other.mDevice)
 	, mRenderer(other.mRenderer)
-	, mSubpassData(std::move(other.mSubpassData))
 	, mRenderPass(std::move(other.mRenderPass))
 	, mSwapChainFramebuffers(std::move(other.mSwapChainFramebuffers))
 	, mDescriptorPool(std::move(other.mDescriptorPool))
@@ -49,7 +45,7 @@ vk::CommandBuffer RenderingResources::UpdateCommandBuffer(std::vector<RenderData
 
 	for (size_t i = 0; i < renderData.size(); ++i)
 	{
-		PipelineResources& resources = GetOrCreatePipelineResources(renderData[i]->mRenderConfigs);
+		PipelineResources& resources = GetOrCreatePipelineResources(renderData[i]->mPipelineConfigs);
 		resources.UpdateResources(cmd, *renderData[i], imageIndex);
 	}
 
@@ -72,7 +68,7 @@ vk::CommandBuffer RenderingResources::UpdateCommandBuffer(std::vector<RenderData
 
 	for (size_t i = 0; i < renderData.size(); ++i)
 	{
-		PipelineResources& resources = GetOrCreatePipelineResources(renderData[i]->mRenderConfigs);
+		PipelineResources& resources = GetOrCreatePipelineResources(renderData[i]->mPipelineConfigs);
 		resources.UpdateCommandBuffer(cmd, *renderData[i], imageIndex);
 	}
 
@@ -90,35 +86,13 @@ void RenderingResources::PostDraw()
 		res->PostDraw();
 }
 
-void RenderingResources::AddSubpass(const SubpassData& data)
-{
-	for (const SubpassData& subpass : mSubpassData)
-	{
-		if (subpass == data)
-			return;
-	}
-
-	mSubpassData.emplace_back(data);
-	Reload();
-}
-
-bool RenderingResources::IsSubpassCompatible(const SubpassData& subpass) const
-{
-	for (const SubpassData& data : mSubpassData)
-	{
-		if (data == subpass)
-			return true;
-	}
-	return false;
-}
-
 void RenderingResources::Refresh()
 {
-	std::vector<RenderConfigs> configsToRecreate;
+	std::vector<PipelineConfigs> configsToRecreate;
 	for (int i = 0; i < static_cast<int>(mPipelineResources.size()); ++i)
 	{
 		const PipelineResources& res = *mPipelineResources[i];
-		if (const RenderConfigs& configs = res.GetRenderConfigs(); configs.mShaderProgram->NeedsReload())
+		if (const PipelineConfigs& configs = res.GetPipelineConfigs(); configs.mShaderProgram->NeedsReload())
 		{
 			if (configsToRecreate.empty())
 				mDevice->waitIdle();
@@ -129,12 +103,12 @@ void RenderingResources::Refresh()
 		}
 	}
 
-	for (const RenderConfigs& config : configsToRecreate)
+	for (const PipelineConfigs& config : configsToRecreate)
 	{
-		mPipelineResources.emplace_back(std::make_unique<PipelineResources>(mDevice, mRenderer, &mRenderPass.get(), &mDescriptorPool.get(), config));
+		mPipelineResources.emplace_back(std::make_unique<PipelineResources>(mEngine, &mRenderPass.get(), &mDescriptorPool.get(), config));
 	}
 
-	for (const RenderConfigs& config : configsToRecreate)
+	for (const PipelineConfigs& config : configsToRecreate)
 	{
 		config.mShaderProgram->OnReloaded();
 	}
@@ -154,17 +128,17 @@ vk::AttachmentDescription RenderingResources::CreateAttachmentDescription(const 
 	return attachment;
 }
 
-PipelineResources& RenderingResources::GetOrCreatePipelineResources(const RenderConfigs& renderConfigs)
+PipelineResources& RenderingResources::GetOrCreatePipelineResources(const PipelineConfigs& pipelineConfigs)
 {
 	for (const std::unique_ptr<PipelineResources>& resources : mPipelineResources)
 	{
-		if (renderConfigs.IsPipelineLevelCompatible(resources->GetRenderConfigs()))
+		if (pipelineConfigs.IsPipelineLevelCompatible(resources->GetPipelineConfigs()))
 		{
 			return *resources;
 		}
 	}
 
-	return *mPipelineResources.emplace_back(std::make_unique<PipelineResources>(mDevice, mRenderer, &mRenderPass.get(), &mDescriptorPool.get(), renderConfigs));
+	return *mPipelineResources.emplace_back(std::make_unique<PipelineResources>(mEngine, &mRenderPass.get(), &mDescriptorPool.get(), pipelineConfigs));
 }
 
 void RenderingResources::Reload()
@@ -187,59 +161,55 @@ void RenderingResources::Cleanup()
 
 void RenderingResources::CreateRenderPass()
 {
+	const RenderConfigs& configs = RenderConfigs::DEFAULT_RENDER_CONFIGS;
+
 	std::deque<vk::AttachmentReference> attachmentRefs;
 	std::vector<vk::AttachmentDescription> attachments;
-	std::vector<vk::SubpassDescription> subpasses(mSubpassData.size());
-	std::vector<vk::SubpassDependency> dependencies(mSubpassData.size());
+	vk::SubpassDescription subpass;
+	vk::SubpassDependency dependency;
 
-	for (size_t i = 0; i < mSubpassData.size(); ++i)
-	{
-		const SubpassData& data = mSubpassData[i];
+	const SubpassData& data = configs.mSubpassData;
 
-		subpasses[i].pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
-		subpasses[i].colorAttachmentCount = 1;
+	subpass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
+	subpass.colorAttachmentCount = 1;
 
-		attachments.emplace_back(CreateAttachmentDescription(data.mColorAttachment, mRenderer.GetSwapChainImageFormat()));
+	attachments.emplace_back(CreateAttachmentDescription(data.mColorAttachment, mRenderer.GetSwapChainImageFormat()));
 
-		vk::AttachmentReference& colorAttachmentRef = attachmentRefs.emplace_back();
-		colorAttachmentRef.attachment = 0;
+	vk::AttachmentReference& colorAttachmentRef = attachmentRefs.emplace_back();
+	colorAttachmentRef.attachment = 0;
 #ifdef ERM_RAY_TRACING_ENABLED
-		colorAttachmentRef.layout = vk::ImageLayout::eGeneral;
+	colorAttachmentRef.layout = vk::ImageLayout::eGeneral;
 #else
-		colorAttachmentRef.layout = vk::ImageLayout::eColorAttachmentOptimal;
+	colorAttachmentRef.layout = vk::ImageLayout::eColorAttachmentOptimal;
 #endif
 
-		subpasses[i].pColorAttachments = &colorAttachmentRef;
+	subpass.pColorAttachments = &colorAttachmentRef;
 
-		if (data.mDepthAttachment.has_value())
-		{
-			attachments.emplace_back(CreateAttachmentDescription(data.mDepthAttachment.value(), VkUtils::FindDepthFormat(mDevice.GetVkPhysicalDevice())));
+	if (data.mDepthAttachment.has_value())
+	{
+		attachments.emplace_back(CreateAttachmentDescription(data.mDepthAttachment.value(), VkUtils::FindDepthFormat(mDevice.GetVkPhysicalDevice())));
 
-			vk::AttachmentReference& depthAttachmentRef = attachmentRefs.emplace_back();
-			depthAttachmentRef.attachment = 1;
-			depthAttachmentRef.layout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
+		vk::AttachmentReference& depthAttachmentRef = attachmentRefs.emplace_back();
+		depthAttachmentRef.attachment = 1;
+		depthAttachmentRef.layout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
 
-			subpasses[i].pDepthStencilAttachment = &depthAttachmentRef;
-		}
-
-		vk::SubpassDependency dependency = {};
-		dependency.srcSubpass = static_cast<uint32_t>((i == 0) ? VK_SUBPASS_EXTERNAL : i - 1);
-		dependency.dstSubpass = static_cast<uint32_t>((i == (mSubpassData.size() - 1) && mSubpassData.size() > 1) ? VK_SUBPASS_EXTERNAL : i);
-		dependency.srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
-		dependency.srcAccessMask = {};
-		dependency.dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
-		dependency.dstAccessMask = vk::AccessFlagBits::eColorAttachmentRead | vk::AccessFlagBits::eColorAttachmentWrite;
-
-		dependencies[i] = dependency;
+		subpass.pDepthStencilAttachment = &depthAttachmentRef;
 	}
+
+	dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+	dependency.dstSubpass = 0;
+	dependency.srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+	dependency.srcAccessMask = {};
+	dependency.dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+	dependency.dstAccessMask = vk::AccessFlagBits::eColorAttachmentRead | vk::AccessFlagBits::eColorAttachmentWrite;
 
 	vk::RenderPassCreateInfo renderPassInfo = {};
 	renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
 	renderPassInfo.pAttachments = attachments.data();
-	renderPassInfo.subpassCount = static_cast<uint32_t>(subpasses.size());
-	renderPassInfo.pSubpasses = subpasses.data();
-	renderPassInfo.dependencyCount = static_cast<uint32_t>(dependencies.size());
-	renderPassInfo.pDependencies = dependencies.data();
+	renderPassInfo.subpassCount = 1;
+	renderPassInfo.pSubpasses = &subpass;
+	renderPassInfo.dependencyCount = 1;
+	renderPassInfo.pDependencies = &dependency;
 
 	mRenderPass = mDevice->createRenderPassUnique(renderPassInfo);
 }

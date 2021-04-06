@@ -1,7 +1,6 @@
 #pragma once
 
 #include "erm/rendering/data_structs/PipelineResources.h"
-#include "erm/rendering/data_structs/RenderConfigs.h"
 
 #include <vulkan/vulkan.hpp>
 
@@ -10,7 +9,10 @@
 
 namespace erm {
 class Device;
+class Engine;
 class Renderer;
+struct AttachmentData;
+struct PipelineConfigs;
 struct RenderData;
 } // namespace erm
 
@@ -19,11 +21,7 @@ namespace erm {
 class RenderingResources
 {
 public:
-	RenderingResources(
-		Device& device,
-		Renderer& renderer,
-		const std::vector<SubpassData>& renderConfigs);
-	~RenderingResources() = default;
+	RenderingResources(Engine& engine);
 
 	RenderingResources(RenderingResources&& other);
 
@@ -36,12 +34,9 @@ public:
 	vk::CommandBuffer UpdateCommandBuffer(std::vector<RenderData*>& renderData, uint32_t imageIndex);
 	void PostDraw();
 
-	void AddSubpass(const SubpassData& data);
-	bool IsSubpassCompatible(const SubpassData& subpass) const;
-
 private:
 	vk::AttachmentDescription CreateAttachmentDescription(const erm::AttachmentData& data, vk::Format format) const;
-	PipelineResources& GetOrCreatePipelineResources(const RenderConfigs& renderConfigs);
+	PipelineResources& GetOrCreatePipelineResources(const PipelineConfigs& pipelineConfigs);
 
 	void Reload();
 	void Cleanup();
@@ -51,9 +46,9 @@ private:
 	void CreateDescriptorPool();
 	void CreateCommandBuffers();
 
+	Engine& mEngine;
 	Device& mDevice;
 	Renderer& mRenderer;
-	std::vector<SubpassData> mSubpassData;
 	vk::UniqueRenderPass mRenderPass;
 	std::vector<vk::UniqueFramebuffer> mSwapChainFramebuffers;
 	vk::UniqueDescriptorPool mDescriptorPool;

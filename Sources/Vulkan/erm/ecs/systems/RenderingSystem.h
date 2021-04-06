@@ -8,13 +8,12 @@
 // clang-format off
 #ifdef ERM_RAY_TRACING_ENABLED
 #include "erm/ray_tracing/RTRenderData.h"
+
+#include <vulkan/vulkan.hpp>
+
 #include <vector>
 #endif
 // clang-format on
-
-#include "erm/rendering/data_structs/RenderData.h"
-
-#include <vulkan/vulkan.hpp>
 
 namespace erm {
 class Engine;

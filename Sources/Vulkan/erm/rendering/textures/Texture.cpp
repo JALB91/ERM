@@ -8,9 +8,6 @@
 
 #include <stb_image.h>
 
-#include <fstream>
-#include <iostream>
-
 namespace erm {
 
 Texture::Texture(Device& device, const char* path)

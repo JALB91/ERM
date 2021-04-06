@@ -1,6 +1,8 @@
 #include "erm/utils/VkUtils.h"
 
 #include "erm/rendering/Device.h"
+#include "erm/rendering/data_structs/QueueFamilyIndices.h"
+#include "erm/rendering/data_structs/SwapChainSupportDetails.h"
 #include "erm/rendering/enums/AttachmentLoadOp.h"
 #include "erm/rendering/enums/AttachmentStoreOp.h"
 #include "erm/rendering/enums/CullMode.h"
@@ -15,7 +17,6 @@
 #include "erm/utils/Utils.h"
 
 #include <algorithm>
-#include <array>
 #include <iostream>
 #include <set>
 #include <stdexcept>

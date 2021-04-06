@@ -5,8 +5,6 @@
 #include "erm/rendering/renderer/IRenderer.h"
 #include "erm/rendering/shaders/IShaderProgram.h"
 
-#include "erm/utils/VkUtils.h"
-
 namespace erm {
 
 HostBindingResources::HostBindingResources(

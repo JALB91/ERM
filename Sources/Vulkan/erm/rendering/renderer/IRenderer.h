@@ -1,6 +1,5 @@
 #pragma once
 
-#include "erm/rendering/ISwapChainListener.h"
 #include "erm/rendering/enums/TextureType.h"
 
 #include <vulkan/vulkan.hpp>
@@ -11,6 +10,7 @@
 namespace erm {
 class Device;
 class Engine;
+class ISwapChainListener;
 class ResourcesManager;
 class Texture;
 class CubeMap;

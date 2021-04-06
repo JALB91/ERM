@@ -1,7 +1,7 @@
 #pragma once
 
 #include "erm/rendering/data_structs/IRenderData.h"
-#include "erm/rendering/data_structs/RenderConfigs.h"
+#include "erm/rendering/data_structs/PipelineConfigs.h"
 
 #include <vector>
 
@@ -13,22 +13,19 @@ namespace erm {
 
 struct RenderData : public IRenderData
 {
-	RenderData(const RenderConfigs& renderConfigs)
-		: mRenderConfigs(renderConfigs)
-	{}
-	RenderData(const SubpassData& subpassData)
-		: mRenderConfigs(subpassData)
+	RenderData(const PipelineConfigs& pipelineConfigs)
+		: mPipelineConfigs(pipelineConfigs)
 	{}
 
 	RenderData(RenderData&& other)
 		: IRenderData(std::move(other))
-		, mRenderConfigs(other.mRenderConfigs)
+		, mPipelineConfigs(other.mPipelineConfigs)
 		, mMeshes(std::move(other.mMeshes))
 	{}
 
 	RenderData& operator=(RenderData&& other)
 	{
-		mRenderConfigs = other.mRenderConfigs;
+		mPipelineConfigs = other.mPipelineConfigs;
 		mUbos = std::move(other.mUbos);
 		mMeshes = std::move(other.mMeshes);
 
@@ -43,7 +40,7 @@ struct RenderData : public IRenderData
 		return std::find(mMeshes.cbegin(), mMeshes.cend(), mesh) != mMeshes.cend();
 	}
 
-	RenderConfigs mRenderConfigs;
+	PipelineConfigs mPipelineConfigs;
 	std::vector<const Mesh*> mMeshes;
 };
 

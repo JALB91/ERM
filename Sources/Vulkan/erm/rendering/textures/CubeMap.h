@@ -2,11 +2,6 @@
 
 #include "erm/rendering/textures/Texture.h"
 
-#include <vulkan/vulkan.hpp>
-
-#include <string>
-#include <vector>
-
 namespace erm {
 class Device;
 }

@@ -2,7 +2,7 @@
 
 #include "erm/rendering/buffers/BufferHandle.h"
 #include "erm/rendering/data_structs/IndexData.h"
-#include "erm/rendering/data_structs/RenderConfigs.h"
+#include "erm/rendering/data_structs/PipelineConfigs.h"
 #include "erm/rendering/data_structs/VertexData.h"
 
 #include <string>
@@ -23,7 +23,7 @@ public:
 	Mesh(
 		std::vector<VertexData>&& vertices,
 		std::vector<IndexData>&& indices,
-		const RenderConfigs& configs = RenderConfigs::MODELS_RENDER_CONFIGS,
+		const PipelineConfigs& configs = PipelineConfigs::DEFAULT_PIPELINE_CONFIGS,
 		const char* name = "");
 	~Mesh();
 
@@ -42,14 +42,13 @@ public:
 	inline const std::string& GetName() const { return mName; }
 	inline void SetName(const char* name) { mName = name; }
 
-	inline RenderConfigs& GetRenderConfigs() { return mRenderConfigs; }
-	inline const RenderConfigs& GetRenderConfigs() const { return mRenderConfigs; }
-	inline void SetRenderConfigs(const RenderConfigs& configs) { mRenderConfigs = configs; }
+	inline PipelineConfigs& GetPipelineConfigs() { return mPipelineConfigs; }
+	inline const PipelineConfigs& GetPipelineConfigs() const { return mPipelineConfigs; }
 
 protected:
 	std::vector<VertexData> mVerticesData;
 	std::vector<IndexData> mIndicesData;
-	RenderConfigs mRenderConfigs;
+	PipelineConfigs mPipelineConfigs;
 	BufferHandle mVertBuffer;
 	BufferHandle mIndBuffer;
 	std::string mName;

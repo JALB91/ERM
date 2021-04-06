@@ -2,7 +2,7 @@
 
 namespace erm {
 
-const RenderConfigs RenderConfigs::MODELS_RENDER_CONFIGS {
+const RenderConfigs RenderConfigs::DEFAULT_RENDER_CONFIGS {
 	SubpassData {
 		AttachmentData(
 			AttachmentLoadOp::CLEAR,
@@ -26,9 +26,7 @@ RenderConfigs::RenderConfigs(const SubpassData& subpassData)
 
 bool RenderConfigs::operator==(const RenderConfigs& other) const
 {
-	return IsRenderPassLevelCompatible(other) &&
-		IsPipelineLevelCompatible(other) &&
-		IsBindingLevelCompatible(other);
+	return IsRenderPassLevelCompatible(other);
 }
 
 bool RenderConfigs::operator!=(const RenderConfigs& other) const

@@ -2,12 +2,12 @@
 
 #include "erm/math/math.h"
 
-#include "erm/ray_tracing/RTRenderConfigs.h"
 #include "erm/ray_tracing/RTRenderData.h"
 
 #include "erm/rendering/Device.h"
 #include "erm/rendering/data_structs/DeviceBindingResources.h"
 #include "erm/rendering/data_structs/HostBindingResources.h"
+#include "erm/rendering/data_structs/PipelineData.h"
 #include "erm/rendering/shaders/VulkanShaderProgram.h"
 
 #include "erm/utils/Profiler.h"
@@ -33,6 +33,8 @@ RTPipelineResources::RTPipelineResources(
 	CreateBindingTable();
 	CreatePipelineData();
 }
+
+RTPipelineResources::~RTPipelineResources() = default;
 
 void RTPipelineResources::UpdateResources(vk::CommandBuffer& cmd, RTRenderData& renderData, uint32_t /*imageIndex*/)
 {
@@ -65,7 +67,7 @@ void RTPipelineResources::UpdateCommandBuffer(
 
 void RTPipelineResources::CreatePipeline()
 {
-	VulkanShaderProgram* shader = static_cast<VulkanShaderProgram*>(mRenderData.mRenderConfigs.mShaderProgram);
+	VulkanShaderProgram* shader = static_cast<VulkanShaderProgram*>(mRenderData.mPipelineConfigs.mShaderProgram);
 
 	ASSERT(shader);
 
@@ -224,7 +226,7 @@ void RTPipelineResources::CreatePipeline()
 
 void RTPipelineResources::CreateBindingTable()
 {
-	IShaderProgram& shader = *mRenderData.mRenderConfigs.mShaderProgram;
+	IShaderProgram& shader = *mRenderData.mPipelineConfigs.mShaderProgram;
 
 	uint32_t groupCount = 0;
 
@@ -262,7 +264,7 @@ void RTPipelineResources::CreateBindingTable()
 
 void RTPipelineResources::CreatePipelineData()
 {
-	const RTRenderConfigs& configs = mRenderData.mRenderConfigs;
+	const PipelineConfigs& configs = mRenderData.mPipelineConfigs;
 	mPipelineData = std::make_unique<PipelineData>(configs);
 	const auto& sbm = configs.mShaderProgram->GetShaderBindingsMap();
 

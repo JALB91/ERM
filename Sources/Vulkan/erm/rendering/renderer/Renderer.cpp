@@ -4,42 +4,25 @@
 
 #include "erm/engine/Engine.h"
 
-#include "erm/managers/ResourcesManager.h"
-
 // clang-format off
 #ifdef ERM_RAY_TRACING_ENABLED
-#include "erm/ray_tracing/RTBlas.h"
-#include "erm/ray_tracing/RTRenderData.h"
 #include "erm/ray_tracing/RTRenderingResources.h"
 #endif
 // clang-format on
 
 #include "erm/rendering/Device.h"
-#include "erm/rendering/buffers/IndexBuffer.h"
-#include "erm/rendering/buffers/VertexBuffer.h"
-#include "erm/rendering/data_structs/Mesh.h"
 #include "erm/rendering/data_structs/RenderData.h"
 #include "erm/rendering/data_structs/RenderingResources.h"
-#include "erm/rendering/enums/BlendFunction.h"
-#include "erm/rendering/enums/CullMode.h"
-#include "erm/rendering/enums/DepthFunction.h"
-#include "erm/rendering/enums/FrontFace.h"
-#include "erm/rendering/shaders/IShaderProgram.h"
-#include "erm/rendering/window/Window.h"
 
 #include "erm/utils/Profiler.h"
 #include "erm/utils/Utils.h"
 #include "erm/utils/VkUtils.h"
 
-#include <iostream>
-
 namespace erm {
 
 Renderer::Renderer(Engine& engine)
 	: IRenderer(engine)
-{
-	GetOrCreateFramesData(RenderConfigs::MODELS_RENDER_CONFIGS);
-}
+{}
 
 Renderer::~Renderer()
 {}
@@ -48,23 +31,13 @@ void Renderer::OnPreRender()
 {
 	PROFILE_FUNCTION();
 
+	if (!mRenderingResources)
+		mRenderingResources = std::make_unique<RenderingResources>(mEngine);
+	mRenderingResources->Refresh();
 #ifdef ERM_RAY_TRACING_ENABLED
-	for (auto it = mRTRenderData.begin(); it != mRTRenderData.end();)
-	{
-		if (it->second == nullptr)
-			it = mRTRenderData.erase(it);
-		else
-			++it;
-	}
-#endif
-
-	for (const auto& [renderingResources, renderData] : mRasterData)
-	{
-		renderingResources->Refresh();
-	}
-#ifdef ERM_RAY_TRACING_ENABLED
-	for (const auto& [resources, data] : mRTRenderData)
-		resources->Refresh();
+	if (!mRTRenderingResources)
+		mRTRenderingResources = std::make_unique<RTRenderingResources>(mDevice, *this);
+	mRTRenderingResources->Refresh();
 #endif
 
 	VK_CHECK(mDevice->waitForFences(1, &mInFlightFences[mCurrentFrame], VK_TRUE, UINT64_MAX));
@@ -119,14 +92,9 @@ void Renderer::OnPostRender()
 {
 	PROFILE_FUNCTION();
 
-	for (RasterData::value_type& data : mRasterData)
-	{
-		data.second.clear();
-	}
-
+	mRenderData.clear();
 #ifdef ERM_RAY_TRACING_ENABLED
-	for (auto& [resources, data] : mRTRenderData)
-		data = nullptr;
+	mRTRenderData = nullptr;
 #endif
 
 	if (!mIsImageIndexValid)
@@ -162,28 +130,14 @@ void Renderer::SubmitRenderData(RenderData& data)
 {
 	ASSERT(!data.mMeshes.empty());
 
-	RasterData::value_type& framesData = GetOrCreateFramesData(data.mRenderConfigs);
-
-	framesData.second.emplace_back(&data);
+	mRenderData.emplace_back(&data);
 }
 
 #ifdef ERM_RAY_TRACING_ENABLED
 void Renderer::SubmitRTRenderData(RTRenderData& data)
 {
-	for (auto& [resources, rtData] : mRTRenderData)
-	{
-		if (resources->GetRenderConfigs().mShaderProgram == data.mRenderConfigs.mShaderProgram)
-		{
-			ASSERT(rtData == nullptr);
-			rtData = &data;
-			return;
-		}
-	}
-
-	mRTRenderData.emplace(
-		std::piecewise_construct,
-		std::forward_as_tuple(std::make_unique<RTRenderingResources>(mDevice, *this, data.mRenderConfigs)),
-		std::forward_as_tuple(&data));
+	ASSERT(!mRTRenderData);
+	mRTRenderData = &data;
 }
 #endif
 
@@ -191,10 +145,12 @@ void Renderer::RecreateSwapChain()
 {
 	IRenderer::RecreateSwapChain();
 
-	mRasterData.clear();
-	GetOrCreateFramesData(RenderConfigs::MODELS_RENDER_CONFIGS);
+	mRenderingResources.reset();
+	mRenderData.clear();
+
 #ifdef ERM_RAY_TRACING_ENABLED
-	mRTRenderData.clear();
+	mRTRenderingResources.reset();
+	mRTRenderData = nullptr;
 #endif
 }
 
@@ -202,49 +158,29 @@ std::vector<vk::CommandBuffer> Renderer::RetrieveCommandBuffers()
 {
 	PROFILE_FUNCTION();
 
-	std::vector<vk::CommandBuffer> commandBuffers(mRasterData.size() +
+	std::vector<vk::CommandBuffer> commandBuffers(
+		(mRenderingResources ? 1 : 0) +
 #ifdef ERM_RAY_TRACING_ENABLED
-												  mRTRenderData.size() +
+		((mRTRenderData && mRTRenderingResources) ? 1 : 0) +
 #endif
-												  1);
+		1);
 
 	size_t index = 0;
 
-	for (auto& [renderingResources, configs] : mRasterData)
-	{
-		commandBuffers[index++] = renderingResources->UpdateCommandBuffer(configs, mCurrentImageIndex);
-	}
+	if (mRenderingResources)
+		commandBuffers[index++] = mRenderingResources->UpdateCommandBuffer(mRenderData, mCurrentImageIndex);
 
 #ifdef ERM_RAY_TRACING_ENABLED
-	for (auto& [resources, data] : mRTRenderData)
+	if (mRTRenderData && mRTRenderingResources)
 	{
-		ASSERT(data);
-		resources->Update(*data, mCurrentImageIndex);
-		commandBuffers[index++] = resources->UpdateCommandBuffer(*data, mCurrentImageIndex);
+		mRTRenderingResources->Update(*mRTRenderData, mCurrentImageIndex);
+		commandBuffers[index++] = mRTRenderingResources->UpdateCommandBuffer(*mRTRenderData, mCurrentImageIndex);
 	}
 #endif
 
 	commandBuffers[index] = mEngine.GetImGuiHandle().GetCommandBuffer(mCurrentImageIndex);
 
 	return commandBuffers;
-}
-
-Renderer::RasterData::value_type& Renderer::GetOrCreateFramesData(const RenderConfigs& renderConfigs)
-{
-	for (RasterData::value_type& data : mRasterData)
-	{
-		if (data.first->IsSubpassCompatible(renderConfigs.mSubpassData))
-			return data;
-	}
-
-	std::vector<SubpassData> data = {renderConfigs.mSubpassData};
-
-	auto it = mRasterData.emplace(
-		std::piecewise_construct,
-		std::forward_as_tuple(std::make_unique<RenderingResources>(mDevice, *this, std::move(data))),
-		std::forward_as_tuple());
-
-	return *it.first;
 }
 
 } // namespace erm

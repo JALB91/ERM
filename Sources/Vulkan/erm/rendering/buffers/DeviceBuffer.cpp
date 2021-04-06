@@ -8,6 +8,15 @@
 
 namespace erm {
 
+DeviceBuffer::DeviceBuffer(
+	Device& device,
+	size_t size,
+	vk::BufferUsageFlags buf)
+	: IBuffer(device, size, buf | vk::BufferUsageFlagBits::eTransferDst, vk::MemoryPropertyFlagBits::eDeviceLocal)
+{}
+
+DeviceBuffer::~DeviceBuffer() = default;
+
 DeviceBuffer::DeviceBuffer(DeviceBuffer&& other)
 	: IBuffer(std::move(other))
 	, mStagingBuffer(std::move(other.mStagingBuffer))

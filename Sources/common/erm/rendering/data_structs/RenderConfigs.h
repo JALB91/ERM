@@ -1,17 +1,12 @@
 #pragma once
 
-#include "erm/math/BoundingBox.h"
-
-#include "erm/rendering/data_structs/PipelineConfigs.h"
 #include "erm/rendering/data_structs/SubpassData.h"
-
-#include "erm/utils/Utils.h"
 
 namespace erm {
 
-struct RenderConfigs : public PipelineConfigs
+struct RenderConfigs
 {
-	static const RenderConfigs MODELS_RENDER_CONFIGS;
+	static const RenderConfigs DEFAULT_RENDER_CONFIGS;
 
 	RenderConfigs(const SubpassData& subpassData);
 
@@ -23,7 +18,6 @@ struct RenderConfigs : public PipelineConfigs
 	bool IsSubpassCompatible(const RenderConfigs& other) const;
 
 	SubpassData mSubpassData;
-	DECL_SET_GET_OPT_WITH_DEFAULT(NormViewport, BoundingBox2D, BoundingBox2D({0.0f, 0.0f}, {1.0f, 1.0f}));
 };
 
 } // namespace erm

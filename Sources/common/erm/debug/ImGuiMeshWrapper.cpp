@@ -17,7 +17,8 @@ void ShowShaderPathOptions(erm::Engine& engine, erm::Mesh& mesh)
 {
 	const std::vector<std::string>& all = engine.GetFileLocator().GetShaderPrograms();
 
-	erm::IShaderProgram* shader = mesh.GetRenderConfigs().mShaderProgram;
+	erm::PipelineConfigs& configs = mesh.GetPipelineConfigs();
+	erm::IShaderProgram* shader = configs.mShaderProgram;
 	std::string currentPath = shader ? shader->mPath : "";
 
 	if (ImGui::BeginCombo("Shader", currentPath.c_str()))
@@ -26,7 +27,7 @@ void ShowShaderPathOptions(erm::Engine& engine, erm::Mesh& mesh)
 		if (ImGui::Selectable("", &isSelected))
 		{
 			currentPath = "";
-			mesh.GetRenderConfigs().mShaderProgram = nullptr;
+			configs.mShaderProgram = nullptr;
 		}
 		for (unsigned int i = 0; i < all.size(); ++i)
 		{
@@ -36,7 +37,7 @@ void ShowShaderPathOptions(erm::Engine& engine, erm::Mesh& mesh)
 				if (currentPath != all[i])
 				{
 					currentPath = all[i];
-					mesh.GetRenderConfigs().mShaderProgram = engine.GetResourcesManager().GetOrCreateShaderProgram(all[i].c_str());
+					configs.mShaderProgram = engine.GetResourcesManager().GetOrCreateShaderProgram(all[i].c_str());
 				}
 			}
 		}
@@ -87,10 +88,12 @@ void ShowMeshDebugWindow(erm::Engine& engine, erm::Mesh& mesh, unsigned int mesh
 		ImGui::Text("Indices: %zu", mesh.GetIndicesData().size());
 		ImGui::ShowMaterialDebug(engine, mesh);
 
+		erm::PipelineConfigs& configs = mesh.GetPipelineConfigs();
+
 		ShowShaderPathOptions(engine, mesh);
-		ShowTexturePathOptions(engine, &mesh.GetRenderConfigs().mTexturesMaps[erm::TextureType::DIFFUSE], "Diffuse Map");
-		ShowTexturePathOptions(engine, &mesh.GetRenderConfigs().mTexturesMaps[erm::TextureType::NORMAL], "Normal Map");
-		ShowTexturePathOptions(engine, &mesh.GetRenderConfigs().mTexturesMaps[erm::TextureType::SPECULAR], "Specular Map");
+		ShowTexturePathOptions(engine, &configs.mTexturesMaps[erm::TextureType::DIFFUSE], "Diffuse Map");
+		ShowTexturePathOptions(engine, &configs.mTexturesMaps[erm::TextureType::NORMAL], "Normal Map");
+		ShowTexturePathOptions(engine, &configs.mTexturesMaps[erm::TextureType::SPECULAR], "Specular Map");
 
 		ImGui::Unindent();
 	}

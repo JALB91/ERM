@@ -56,7 +56,7 @@ public:
 
 	void AddResources(uint32_t set, BindingResources&& resources)
 	{
-		ASSERT(resources->GetRenderConfigs().IsBindingLevelCompatible(mConfigs));
+		ASSERT(resources->GetBindingConfigs().IsBindingLevelCompatible(mConfigs));
 		mMaxSet = std::max(mMaxSet, set);
 		mBindingResources.emplace_back(std::move(resources));
 	}

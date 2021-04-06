@@ -2,12 +2,13 @@
 
 #include "erm/extensions/VkExtensions.h"
 
+#include "erm/rendering/data_structs/QueueFamilyIndices.h"
+
 #include "erm/utils/Utils.h"
 #include "erm/utils/VkUtils.h"
 
 #include <GLFW/glfw3.h>
 
-#include <array>
 #include <iostream>
 #include <set>
 

@@ -2,10 +2,6 @@
 
 #include "erm/rendering/window/IWindow.h"
 
-#include "erm/math/vec.h"
-
-#include <set>
-
 struct GLFWwindow;
 
 namespace erm {

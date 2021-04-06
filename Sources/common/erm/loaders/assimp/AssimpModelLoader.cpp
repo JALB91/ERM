@@ -177,7 +177,7 @@ void ProcessMeshes(
 			}
 		}
 
-		RenderConfigs config = RenderConfigs::MODELS_RENDER_CONFIGS;
+		PipelineConfigs config = PipelineConfigs::DEFAULT_PIPELINE_CONFIGS;
 
 		if (mesh->mMaterialIndex < pbMaterials.size())
 			config.mPBMaterial = pbMaterials[mesh->mMaterialIndex];

@@ -19,7 +19,6 @@
 #include "erm/rendering/data_structs/VertexData.h"
 #include "erm/rendering/data_structs/Bone.h"
 #include "erm/rendering/data_structs/Model.h"
-#include "erm/rendering/data_structs/RenderConfigs.h"
 
 #include <map>
 #include <vector>

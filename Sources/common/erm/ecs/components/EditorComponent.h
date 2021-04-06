@@ -2,7 +2,7 @@
 
 #include "erm/ecs/IComponent.h"
 
-#include "erm/rendering/data_structs/RenderConfigs.h"
+#include "erm/rendering/data_structs/PipelineConfigs.h"
 #include "erm/rendering/data_structs/RenderData.h"
 
 namespace erm::ecs {
@@ -18,9 +18,9 @@ public:
 	friend class EditorSystem;
 
 public:
-	EditorComponent(const RenderConfigs& bonesRenderConfig = RenderConfigs::MODELS_RENDER_CONFIGS)
+	EditorComponent(const PipelineConfigs& bonesPipelineConfig = PipelineConfigs::DEFAULT_PIPELINE_CONFIGS)
 		: mIsSelected(false)
-		, mBonesRenderData(bonesRenderConfig)
+		, mBonesRenderData(bonesPipelineConfig)
 	{}
 
 	SENSIBLE_MEMBER(IsSelected, bool, mIsSelected)

@@ -68,13 +68,13 @@ private:
 	RenderData mGridRenderData;
 	StandaloneMesh mGridMesh;
 
-	RenderConfigs mBBoxRenderConfigs;
+	PipelineConfigs mBBoxPipelineConfigs;
 	std::map<EntityId, std::pair<RenderData, StandaloneMesh>> mBBoxesRenderData;
 
 	RenderData mArrowsRenderData;
 	std::vector<StandaloneMesh> mArrowsMeshes;
 
-	RenderConfigs mBonesRenderConfigs;
+	PipelineConfigs mBonesPipelineConfigs;
 	std::map<EntityId, std::vector<StandaloneMesh>> mBonesMeshes;
 };
 

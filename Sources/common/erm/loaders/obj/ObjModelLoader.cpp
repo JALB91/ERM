@@ -339,7 +339,7 @@ void AddMesh(
 {
 	indicesOffset += static_cast<uint32_t>(vertices.size());
 
-	RenderConfigs configs = RenderConfigs::MODELS_RENDER_CONFIGS;
+	PipelineConfigs configs = PipelineConfigs::DEFAULT_PIPELINE_CONFIGS;
 	configs.mMaterial.mType = MaterialType::LEGACY;
 	configs.mMaterial.mData = material ? material : &Material::DEFAULT;
 

@@ -1,12 +1,9 @@
 #include "erm/rendering/data_structs/DeviceBindingResources.h"
 
 #include "erm/rendering/Device.h"
-#include "erm/rendering/data_structs/RenderData.h"
-#include "erm/rendering/renderer/IRenderer.h"
+#include "erm/rendering/data_structs/IRenderData.h"
 #include "erm/rendering/shaders/IShaderProgram.h"
 #include "erm/rendering/textures/Texture.h"
-
-#include "erm/utils/VkUtils.h"
 
 namespace erm {
 

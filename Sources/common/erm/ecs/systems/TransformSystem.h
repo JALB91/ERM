@@ -1,6 +1,5 @@
 #pragma once
 
-#include "erm/ecs/EntityId.h"
 #include "erm/ecs/ISystem.h"
 #include "erm/ecs/components/TransformComponent.h"
 

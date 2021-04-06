@@ -1,6 +1,5 @@
 #pragma once
 
-#include "erm/ray_tracing/RTRenderConfigs.h"
 #include "erm/ray_tracing/RTTlas.h"
 
 #include <vulkan/vulkan.hpp>
@@ -23,11 +22,8 @@ class RTRenderingResources
 public:
 	RTRenderingResources(
 		Device& device,
-		IRenderer& renderer,
-		const RTRenderConfigs& renderConfigs);
+		IRenderer& renderer);
 	~RTRenderingResources();
-
-	inline const RTRenderConfigs& GetRenderConfigs() const { return mRenderConfigs; }
 
 	void Update(RTRenderData& renderData, uint32_t imageIndex);
 	vk::CommandBuffer UpdateCommandBuffer(RTRenderData& renderData, uint32_t imageIndex);
@@ -46,7 +42,6 @@ private:
 
 	Device& mDevice;
 	IRenderer& mRenderer;
-	const RTRenderConfigs mRenderConfigs;
 
 	vk::UniqueDescriptorPool mDescriptorPool;
 	std::vector<vk::UniqueCommandBuffer> mCommandBuffers;

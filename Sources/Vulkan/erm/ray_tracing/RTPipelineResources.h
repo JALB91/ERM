@@ -1,15 +1,15 @@
 #pragma once
 
 #include "erm/rendering/buffers/HostBuffer.h"
-#include "erm/rendering/data_structs/PipelineData.h"
 
 #include <vulkan/vulkan.hpp>
 
-#include <deque>
+#include <vector>
 
 namespace erm {
 class Device;
 class IRenderer;
+class PipelineData;
 struct RTRenderData;
 } // namespace erm
 
@@ -24,6 +24,7 @@ public:
 		const RTRenderData& renderData,
 		const vk::DescriptorPool& descriptorPool,
 		const vk::AccelerationStructureKHR* topLevelAS);
+	~RTPipelineResources();
 
 	void UpdateResources(vk::CommandBuffer& cmd, RTRenderData& renderData, uint32_t imageIndex);
 	void UpdateCommandBuffer(vk::CommandBuffer& cmd, RTRenderData& renderData, uint32_t imageIndex);

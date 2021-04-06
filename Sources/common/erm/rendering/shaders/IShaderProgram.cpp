@@ -320,7 +320,7 @@ void IShaderProgram::UpdateResourceBindings(
 
 void IShaderProgram::ValidateShaders() const
 {
-#if not defined(NDEBUG)
+#if !defined(NDEBUG)
 	static const std::array<ShaderType, 2> sRequiredShaderTypes {ShaderType::VERTEX, ShaderType::FRAGMENT};
 
 	bool hasRequiredShaders = true;

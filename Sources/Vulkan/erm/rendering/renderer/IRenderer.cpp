@@ -5,12 +5,14 @@
 #include "erm/managers/ResourcesManager.h"
 
 #include "erm/rendering/Device.h"
+#include "erm/rendering/ISwapChainListener.h"
+#include "erm/rendering/data_structs/QueueFamilyIndices.h"
+#include "erm/rendering/data_structs/SwapChainSupportDetails.h"
 #include "erm/rendering/textures/CubeMap.h"
+#include "erm/rendering/window/Window.h"
 
 #include "erm/utils/Utils.h"
 #include "erm/utils/VkUtils.h"
-
-#include "erm/rendering/window/Window.h"
 
 namespace erm {
 

@@ -79,9 +79,6 @@ Engine::Engine()
 
 Engine::~Engine()
 {
-#ifdef ERM_VULKAN
-	(*mDevice)->waitIdle();
-#endif
 	mWindow->RemoveListener(*this);
 }
 

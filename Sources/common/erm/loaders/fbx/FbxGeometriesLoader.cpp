@@ -9,7 +9,6 @@
 
 #include "erm/rendering/data_structs/VertexData.h"
 #include "erm/rendering/data_structs/IndexData.h"
-#include "erm/rendering/data_structs/RenderConfigs.h"
 #include "erm/rendering/data_structs/Model.h"
 #include "erm/rendering/materials/Material.h"
 
@@ -200,7 +199,7 @@ void ProcessMesh(
 		mat = ParseFBXMaterial(mutex, path, pMesh, resourcesManager);
 	}
 
-	RenderConfigs conf = RenderConfigs::MODELS_RENDER_CONFIGS;
+	PipelineConfigs conf = PipelineConfigs::DEFAULT_PIPELINE_CONFIGS;
 	conf.mMaterial.mType = MaterialType::LEGACY;
 	conf.mMaterial.mData = mat ? mat : &Material::DEFAULT;
 

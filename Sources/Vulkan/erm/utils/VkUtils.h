@@ -1,15 +1,14 @@
 #pragma once
 
-#include "erm/rendering/data_structs/QueueFamilyIndices.h"
-#include "erm/rendering/data_structs/SwapChainSupportDetails.h"
-
 #include <vulkan/vulkan.hpp>
 
 #include <vector>
 
 namespace erm {
 class Device;
-}
+struct QueueFamilyIndices;
+struct SwapChainSupportDetails;
+} // namespace erm
 
 #define VK_CHECK(OP)                            \
 	{                                           \

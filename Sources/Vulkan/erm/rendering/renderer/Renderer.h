@@ -1,14 +1,7 @@
 #pragma once
 
-#include "erm/rendering/data_structs/RenderConfigs.h"
 #include "erm/rendering/renderer/IRenderer.h"
-// clang-format off
-#ifdef ERM_RAY_TRACING_ENABLED
-#include "erm/ray_tracing/RTRenderingResources.h"
-#endif
-// clang-format on
 
-#include <map>
 #include <memory>
 #include <vector>
 
@@ -16,6 +9,7 @@ namespace erm {
 class RenderingResources;
 struct RenderData;
 #ifdef ERM_RAY_TRACING_ENABLED
+class RTRenderingResources;
 struct RTRenderData;
 #endif
 } // namespace erm
@@ -33,11 +27,8 @@ public:
 	void OnPostRender() override;
 
 	void SubmitRenderData(RenderData& data);
-
-private:
-	using RasterData = std::map<std::unique_ptr<RenderingResources>, std::vector<RenderData*>>;
 #ifdef ERM_RAY_TRACING_ENABLED
-	using RayTracingData = std::map<std::unique_ptr<RTRenderingResources>, RTRenderData*>;
+	void SubmitRTRenderData(RTRenderData& data);
 #endif
 
 private:
@@ -45,16 +36,12 @@ private:
 
 	std::vector<vk::CommandBuffer> RetrieveCommandBuffers();
 
-	RasterData::value_type& GetOrCreateFramesData(const RenderConfigs& renderConfigs);
-
-	RasterData mRasterData;
+	std::unique_ptr<RenderingResources> mRenderingResources;
+	std::vector<RenderData*> mRenderData;
 
 #ifdef ERM_RAY_TRACING_ENABLED
-public:
-	void SubmitRTRenderData(RTRenderData& data);
-
-private:
-	RayTracingData mRTRenderData;
+	std::unique_ptr<RTRenderingResources> mRTRenderingResources;
+	RTRenderData* mRTRenderData;
 #endif
 };
 

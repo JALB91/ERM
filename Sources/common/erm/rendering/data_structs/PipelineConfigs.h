@@ -18,7 +18,7 @@ namespace erm {
 
 struct PipelineConfigs : public BindingConfigs
 {
-	static const PipelineConfigs MODELS_PIPELINE_CONFIGS;
+	static const PipelineConfigs DEFAULT_PIPELINE_CONFIGS;
 
 	PipelineConfigs();
 	virtual ~PipelineConfigs() = default;

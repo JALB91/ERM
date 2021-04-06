@@ -1,8 +1,7 @@
 #pragma once
 
-#include "erm/rendering/buffers/DeviceBuffer.h"
+#include "erm/rendering/data_structs/BindingConfigs.h"
 #include "erm/rendering/data_structs/IRenderData.h"
-#include "erm/rendering/data_structs/RenderConfigs.h"
 #include "erm/rendering/data_structs/UniformBufferData.h"
 #include "erm/rendering/data_structs/UniformBufferObject.h"
 
@@ -14,6 +13,7 @@ namespace erm {
 class Device;
 class IRenderer;
 class IShaderProgram;
+struct IRenderData;
 } // namespace erm
 
 namespace erm {
@@ -37,7 +37,7 @@ public:
 	IBindingResources& operator=(IBindingResources&&) = delete;
 
 	inline uint32_t GetTargetSet() const { return mTargetSet; }
-	inline const BindingConfigs& GetRenderConfigs() const { return mConfigs; }
+	inline const BindingConfigs& GetBindingConfigs() const { return mConfigs; }
 	virtual const vk::DescriptorSet GetDescriptorSet() const = 0;
 
 	virtual void UpdateResources(vk::CommandBuffer& cmd, IRenderData& data) = 0;
