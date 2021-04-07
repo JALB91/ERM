@@ -11,16 +11,17 @@ file(GLOB_RECURSE SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/imgui/imgui_demo.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/imgui/imgui_draw.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/imgui/imgui_widgets.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/imgui/examples/imgui_impl_glfw.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/imgui/examples/imgui_impl_glfw.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/imgui/imgui_tables.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/imgui/backends/imgui_impl_glfw.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/imgui/backends/imgui_impl_glfw.cpp"
 )
 
 add_library("${PROJECT_NAME}"
 	${SOURCES}
-	$<$<STREQUAL:"${TARGET_API}","OpenGl">:${CMAKE_CURRENT_SOURCE_DIR}/imgui/examples/imgui_impl_opengl3.h>
-	$<$<STREQUAL:"${TARGET_API}","OpenGl">:${CMAKE_CURRENT_SOURCE_DIR}/imgui/examples/imgui_impl_opengl3.cpp>
-	$<$<STREQUAL:"${TARGET_API}","Vulkan">:${CMAKE_CURRENT_SOURCE_DIR}/imgui/examples/imgui_impl_vulkan.h>
-	$<$<STREQUAL:"${TARGET_API}","Vulkan">:${CMAKE_CURRENT_SOURCE_DIR}/imgui/examples/imgui_impl_vulkan.cpp>
+	$<$<STREQUAL:"${TARGET_API}","OpenGl">:${CMAKE_CURRENT_SOURCE_DIR}/imgui/backends/imgui_impl_opengl3.h>
+	$<$<STREQUAL:"${TARGET_API}","OpenGl">:${CMAKE_CURRENT_SOURCE_DIR}/imgui/backends/imgui_impl_opengl3.cpp>
+	$<$<STREQUAL:"${TARGET_API}","Vulkan">:${CMAKE_CURRENT_SOURCE_DIR}/imgui/backends/imgui_impl_vulkan.h>
+	$<$<STREQUAL:"${TARGET_API}","Vulkan">:${CMAKE_CURRENT_SOURCE_DIR}/imgui/backends/imgui_impl_vulkan.cpp>
 )
 
 target_include_directories(
@@ -29,7 +30,7 @@ target_include_directories(
 		"${TARGET_API_INCLUDE_DIR}"
 	PUBLIC 
 		"${CMAKE_CURRENT_SOURCE_DIR}/imgui/"
-		"${CMAKE_CURRENT_SOURCE_DIR}/imgui/examples/"
+		"${CMAKE_CURRENT_SOURCE_DIR}/imgui/backends/"
 )
 
 target_compile_definitions(

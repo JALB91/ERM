@@ -117,6 +117,7 @@ void ImGuiHandle::SwapChainCreated()
 	ImGui_ImplVulkan_InitInfo info;
 	info.Allocator = nullptr;
 	info.CheckVkResultFn = nullptr;
+	info.Subpass = 0;
 	info.DescriptorPool = mDescriptorPool;
 	info.Device = mDevice.GetVkDevice();
 	info.ImageCount = mRenderer.GetImageCount();
