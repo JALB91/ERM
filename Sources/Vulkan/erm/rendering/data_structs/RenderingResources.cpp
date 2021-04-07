@@ -7,10 +7,11 @@
 #include "erm/rendering/data_structs/RenderConfigs.h"
 #include "erm/rendering/data_structs/RenderData.h"
 #include "erm/rendering/renderer/Renderer.h"
-#include "erm/rendering/shaders/IShaderProgram.h"
 
 #include "erm/utils/Utils.h"
 #include "erm/utils/VkUtils.h"
+
+#include <deque>
 
 namespace erm {
 
@@ -21,16 +22,6 @@ RenderingResources::RenderingResources(Engine& engine)
 {
 	Reload();
 }
-
-RenderingResources::RenderingResources(RenderingResources&& other)
-	: mEngine(other.mEngine)
-	, mDevice(other.mDevice)
-	, mRenderer(other.mRenderer)
-	, mRenderPass(std::move(other.mRenderPass))
-	, mSwapChainFramebuffers(std::move(other.mSwapChainFramebuffers))
-	, mDescriptorPool(std::move(other.mDescriptorPool))
-	, mCommandBuffers(std::move(other.mCommandBuffers))
-{}
 
 vk::CommandBuffer RenderingResources::UpdateCommandBuffer(std::vector<RenderData*>& renderData, uint32_t imageIndex)
 {
@@ -88,30 +79,8 @@ void RenderingResources::PostDraw()
 
 void RenderingResources::Refresh()
 {
-	std::vector<PipelineConfigs> configsToRecreate;
-	for (int i = 0; i < static_cast<int>(mPipelineResources.size()); ++i)
-	{
-		const PipelineResources& res = *mPipelineResources[i];
-		if (const PipelineConfigs& configs = res.GetPipelineConfigs(); configs.mShaderProgram->NeedsReload())
-		{
-			if (configsToRecreate.empty())
-				mDevice->waitIdle();
-
-			configsToRecreate.emplace_back(configs);
-			mPipelineResources.erase(mPipelineResources.begin() + i);
-			--i;
-		}
-	}
-
-	for (const PipelineConfigs& config : configsToRecreate)
-	{
-		mPipelineResources.emplace_back(std::make_unique<PipelineResources>(mEngine, &mRenderPass.get(), &mDescriptorPool.get(), config));
-	}
-
-	for (const PipelineConfigs& config : configsToRecreate)
-	{
-		config.mShaderProgram->OnReloaded();
-	}
+	for (auto& resources : mPipelineResources)
+		resources->Refresh();
 }
 
 vk::AttachmentDescription RenderingResources::CreateAttachmentDescription(const erm::AttachmentData& data, vk::Format format) const

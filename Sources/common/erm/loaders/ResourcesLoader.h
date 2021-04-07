@@ -1,9 +1,9 @@
 #pragma once
 
 #include <atomic>
-#include <deque>
 #include <future>
 #include <mutex>
+#include <vector>
 
 namespace erm {
 class Device;
@@ -34,8 +34,8 @@ private:
 	Device& mDevice;
 	std::mutex mMutex;
 	std::atomic<bool> mStop;
-	std::deque<erm::Model*> mLoadingModels;
-	std::deque<std::future<void>> mFutures;
+	std::vector<erm::Model*> mLoadingModels;
+	std::vector<std::future<void>> mFutures;
 };
 
 } // namespace erm

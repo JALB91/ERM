@@ -26,10 +26,10 @@ public:
 		const vk::AccelerationStructureKHR* topLevelAS);
 	~RTPipelineResources();
 
-	void UpdateResources(vk::CommandBuffer& cmd, RTRenderData& renderData, uint32_t imageIndex);
+	void Refresh();
+
 	void UpdateCommandBuffer(vk::CommandBuffer& cmd, RTRenderData& renderData, uint32_t imageIndex);
 
-	inline const RTRenderData& GetRenderData() const { return mRenderData; }
 	inline const vk::Buffer GetSBTBuffer() const { return mSBTBuffer->GetBuffer(); }
 	inline size_t GetMaxInstancesCount() const { return mMaxInstancesCount; }
 

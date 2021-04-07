@@ -16,7 +16,11 @@ const RenderConfigs RenderConfigs::DEFAULT_RENDER_CONFIGS {
 			),
 		AttachmentData(
 			AttachmentLoadOp::CLEAR,
+#ifdef ERM_RAY_TRACING_ENABLED
+			AttachmentStoreOp::STORE,
+#else
 			AttachmentStoreOp::DONT_CARE,
+#endif
 			ImageLayout::UNDEFINED,
 			ImageLayout::DEPTH_STENCIL_ATTACHMENT_OPTIMAL)}};
 

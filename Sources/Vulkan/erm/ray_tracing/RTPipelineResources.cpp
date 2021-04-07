@@ -36,18 +36,29 @@ RTPipelineResources::RTPipelineResources(
 
 RTPipelineResources::~RTPipelineResources() = default;
 
-void RTPipelineResources::UpdateResources(vk::CommandBuffer& cmd, RTRenderData& renderData, uint32_t /*imageIndex*/)
+void RTPipelineResources::Refresh()
 {
-	PROFILE_FUNCTION();
-	mPipelineData->UpdateResources(cmd, renderData);
+	if (mRenderData.mPipelineConfigs.mShaderProgram->NeedsReload())
+	{
+		mPipelineData.reset();
+		mDescriptorSetLayouts.clear();
+
+		CreatePipeline();
+		CreateBindingTable();
+		CreatePipelineData();
+
+		mRenderData.mPipelineConfigs.mShaderProgram->OnReloaded();
+	}
 }
 
 void RTPipelineResources::UpdateCommandBuffer(
 	vk::CommandBuffer& cmd,
-	RTRenderData& /*renderData*/,
+	RTRenderData& renderData,
 	uint32_t /*imageIndex*/)
 {
 	PROFILE_FUNCTION();
+
+	mPipelineData->UpdateResources(cmd, renderData);
 
 	cmd.bindPipeline(vk::PipelineBindPoint::eRayTracingKHR, mPipeline.get());
 
@@ -218,6 +229,7 @@ void RTPipelineResources::CreatePipeline()
 	pipelineInfo.setPStages(shaderStages.data());
 	pipelineInfo.setStageCount(static_cast<uint32_t>(shaderStages.size()));
 	pipelineInfo.setLayout(mPipelineLayout.get());
+	pipelineInfo.setBasePipelineHandle(mPipeline.get());
 
 	auto result = mDevice->createRayTracingPipelineKHRUnique(nullptr, mDevice.GetPipelineCache(), pipelineInfo);
 	ASSERT(result.result == vk::Result::eSuccess);
@@ -226,6 +238,7 @@ void RTPipelineResources::CreatePipeline()
 
 void RTPipelineResources::CreateBindingTable()
 {
+	const vk::PhysicalDeviceRayTracingPipelinePropertiesKHR& rtProps = mDevice.GetRayTracingProperties();
 	IShaderProgram& shader = *mRenderData.mPipelineConfigs.mShaderProgram;
 
 	uint32_t groupCount = 0;
@@ -233,9 +246,9 @@ void RTPipelineResources::CreateBindingTable()
 	for (const auto& [type, data] : shader.GetShadersDataMap())
 		groupCount += static_cast<uint32_t>(data.size());
 
-	uint32_t groupHandleSize = mDevice.GetRayTracingProperties().shaderGroupHandleSize; // Size of a program identifier
+	uint32_t groupHandleSize = rtProps.shaderGroupHandleSize; // Size of a program identifier
 	// Compute the actual size needed per SBT entry (round-up to alignment needed).
-	uint32_t groupSizeAligned = math::align_up(groupHandleSize, mDevice.GetRayTracingProperties().shaderGroupBaseAlignment);
+	uint32_t groupSizeAligned = math::align_up(groupHandleSize, rtProps.shaderGroupBaseAlignment);
 	// Bytes needed for the SBT.
 	uint32_t sbtSize = groupCount * groupSizeAligned;
 
@@ -244,11 +257,14 @@ void RTPipelineResources::CreateBindingTable()
 	std::vector<uint8_t> shaderHandleStorage(sbtSize);
 	VK_CHECK(mDevice->getRayTracingShaderGroupHandlesKHR(mPipeline.get(), 0, groupCount, sbtSize, shaderHandleStorage.data()));
 
-	// Allocate a buffer for storing the SBT.
-	mSBTBuffer = std::make_unique<HostBuffer>(
-		mDevice,
-		sbtSize,
-		vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eShaderDeviceAddress | vk::BufferUsageFlagBits::eShaderBindingTableKHR);
+	if (!mSBTBuffer || mSBTBuffer->GetBufferSize() != sbtSize)
+	{
+		// Allocate a buffer for storing the SBT.
+		mSBTBuffer = std::make_unique<HostBuffer>(
+			mDevice,
+			sbtSize,
+			vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eShaderDeviceAddress | vk::BufferUsageFlagBits::eShaderBindingTableKHR);
+	}
 
 	// Map the SBT buffer and write in the handles.
 	void* mapped = nullptr;

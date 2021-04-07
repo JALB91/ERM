@@ -20,6 +20,12 @@ public:
 		, mMaxSet(0)
 	{}
 
+	PipelineData(PipelineData&& other)
+		: mConfigs(other.mConfigs)
+		, mBindingResources(std::move(other.mBindingResources))
+		, mMaxSet(other.mMaxSet)
+	{}
+
 	bool IsCompatible(const BindingConfigs& other) const
 	{
 		return mConfigs.IsBindingLevelCompatible(other);

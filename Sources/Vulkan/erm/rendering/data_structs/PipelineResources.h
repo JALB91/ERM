@@ -5,7 +5,6 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include <deque>
 #include <vector>
 
 namespace erm {
@@ -34,6 +33,8 @@ public:
 	PipelineResources(const PipelineResources&) = delete;
 	PipelineResources& operator=(const PipelineResources&) = delete;
 
+	void Refresh();
+
 	void UpdateResources(vk::CommandBuffer& cmd, RenderData& renderData, uint32_t imageIndex);
 	void UpdateCommandBuffer(vk::CommandBuffer& cmd, RenderData& renderData, uint32_t imageIndex);
 	void PostDraw();
@@ -57,7 +58,7 @@ private:
 	vk::UniqueDescriptorSetLayout mEmptySetLayout;
 	vk::UniqueDescriptorSet mEmptySet;
 	std::vector<vk::UniqueDescriptorSetLayout> mDescriptorSetLayouts;
-	std::deque<PipelineData> mData;
+	std::vector<PipelineData> mData;
 };
 
 } // namespace erm

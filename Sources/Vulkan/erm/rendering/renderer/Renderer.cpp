@@ -172,10 +172,7 @@ std::vector<vk::CommandBuffer> Renderer::RetrieveCommandBuffers()
 
 #ifdef ERM_RAY_TRACING_ENABLED
 	if (mRTRenderData && mRTRenderingResources)
-	{
-		mRTRenderingResources->Update(*mRTRenderData, mCurrentImageIndex);
 		commandBuffers[index++] = mRTRenderingResources->UpdateCommandBuffer(*mRTRenderData, mCurrentImageIndex);
-	}
 #endif
 
 	commandBuffers[index] = mEngine.GetImGuiHandle().GetCommandBuffer(mCurrentImageIndex);

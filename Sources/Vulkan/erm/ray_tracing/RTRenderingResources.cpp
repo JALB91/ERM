@@ -30,33 +30,13 @@ RTRenderingResources::RTRenderingResources(
 
 RTRenderingResources::~RTRenderingResources() = default;
 
-void RTRenderingResources::Update(RTRenderData& renderData, uint32_t imageIndex)
-{
-	PROFILE_FUNCTION();
-	UNUSED(imageIndex);
-
-	const bool forceUpdate = renderData.mForceUpdate || (mPipelineResources && mPipelineResources->GetMaxInstancesCount() != renderData.mInstancesMap.size());
-
-	if (forceUpdate)
-		mTopLevelAS.Reset();
-
-	BuildBlas(renderData, vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace);
-	UpdateTopLevelAS(renderData, vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace | vk::BuildAccelerationStructureFlagBitsKHR::eAllowUpdate);
-
-	if (!mPipelineResources || forceUpdate)
-		mPipelineResources = std::make_unique<RTPipelineResources>(
-			mDevice,
-			mRenderer,
-			renderData,
-			mDescriptorPool.get(),
-			&mTopLevelAS.GetAS());
-}
-
 vk::CommandBuffer RTRenderingResources::UpdateCommandBuffer(RTRenderData& renderData, uint32_t imageIndex)
 {
 	PROFILE_FUNCTION();
 
 	ASSERT(!renderData.mInstancesMap.empty());
+
+	UpdateResources(renderData, imageIndex);
 
 	const vk::Extent2D& extent = mRenderer.GetSwapChainExtent();
 
@@ -69,11 +49,12 @@ vk::CommandBuffer RTRenderingResources::UpdateCommandBuffer(RTRenderData& render
 
 	cmd.begin(beginInfo);
 
-	mPipelineResources->UpdateResources(cmd, renderData, imageIndex);
 	mPipelineResources->UpdateCommandBuffer(cmd, renderData, imageIndex);
 
+	const vk::PhysicalDeviceRayTracingPipelinePropertiesKHR& rtProps = mDevice.GetRayTracingProperties();
+
 	// Size of a program identifier
-	uint32_t groupSize = math::align_up(mDevice.GetRayTracingProperties().shaderGroupHandleSize, mDevice.GetRayTracingProperties().shaderGroupBaseAlignment);
+	uint32_t groupSize = math::align_up(rtProps.shaderGroupHandleSize, rtProps.shaderGroupBaseAlignment);
 	uint32_t groupStride = groupSize;
 	vk::DeviceAddress sbtAddress = mDevice->getBufferAddress({mPipelineResources->GetSBTBuffer()});
 
@@ -102,6 +83,28 @@ vk::CommandBuffer RTRenderingResources::UpdateCommandBuffer(RTRenderData& render
 	cmd.end();
 
 	return cmd;
+}
+
+void RTRenderingResources::UpdateResources(RTRenderData& renderData, uint32_t imageIndex)
+{
+	PROFILE_FUNCTION();
+	UNUSED(imageIndex);
+
+	const bool forceUpdate = renderData.mForceUpdate || (mPipelineResources && mPipelineResources->GetMaxInstancesCount() != renderData.mInstancesMap.size());
+
+	if (forceUpdate)
+		mTopLevelAS.Reset();
+
+	BuildBlas(renderData, vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace);
+	UpdateTopLevelAS(renderData, vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace | vk::BuildAccelerationStructureFlagBitsKHR::eAllowUpdate);
+
+	if (!mPipelineResources || forceUpdate)
+		mPipelineResources = std::make_unique<RTPipelineResources>(
+			mDevice,
+			mRenderer,
+			renderData,
+			mDescriptorPool.get(),
+			&mTopLevelAS.GetAS());
 }
 
 void RTRenderingResources::BuildBlas(RTRenderData& data, vk::BuildAccelerationStructureFlagsKHR flags)
@@ -433,17 +436,8 @@ void RTRenderingResources::UpdateTopLevelAS(RTRenderData& data, vk::BuildAcceler
 
 void RTRenderingResources::Refresh()
 {
-	if (!mPipelineResources)
-		return;
-
-	const RTRenderData& data = mPipelineResources->GetRenderData();
-	const PipelineConfigs& configs = data.mPipelineConfigs;
-	IShaderProgram* shaderProgram = configs.mShaderProgram;
-	if (shaderProgram->NeedsReload())
-	{
-		Reload();
-		shaderProgram->OnReloaded();
-	}
+	if (mPipelineResources)
+		mPipelineResources->Refresh();
 }
 
 void RTRenderingResources::Reload()

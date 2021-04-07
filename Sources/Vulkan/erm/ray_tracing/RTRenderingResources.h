@@ -25,12 +25,12 @@ public:
 		IRenderer& renderer);
 	~RTRenderingResources();
 
-	void Update(RTRenderData& renderData, uint32_t imageIndex);
 	vk::CommandBuffer UpdateCommandBuffer(RTRenderData& renderData, uint32_t imageIndex);
 
 	void Refresh();
 
 private:
+	void UpdateResources(RTRenderData& renderData, uint32_t imageIndex);
 	void BuildBlas(RTRenderData& data, vk::BuildAccelerationStructureFlagsKHR flags);
 	void UpdateTopLevelAS(RTRenderData& data, vk::BuildAccelerationStructureFlagsKHR flags);
 

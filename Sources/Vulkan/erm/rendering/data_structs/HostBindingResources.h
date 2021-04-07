@@ -3,7 +3,7 @@
 #include "erm/rendering/buffers/UniformBuffer.h"
 #include "erm/rendering/data_structs/IBindingResources.h"
 
-#include <deque>
+#include <vector>
 
 namespace erm {
 
@@ -26,7 +26,7 @@ public:
 
 private:
 	using UniformBuffers = std::map<UboId, UniformBuffer<HostBuffer>>;
-	using SwapChainUniformBuffers = std::deque<UniformBuffers>;
+	using SwapChainUniformBuffers = std::vector<UniformBuffers>;
 
 private:
 	void CreateUniformBuffers(const std::vector<UboData>& ubosData);

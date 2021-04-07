@@ -31,8 +31,20 @@ PipelineResources::PipelineResources(
 	CreatePipeline();
 }
 
-PipelineResources::~PipelineResources()
-{}
+PipelineResources::~PipelineResources() = default;
+
+void PipelineResources::Refresh()
+{
+	if (mPipelineConfigs.mShaderProgram->NeedsReload())
+	{
+		mData.clear();
+		mDescriptorSetLayouts.clear();
+
+		CreatePipeline();
+
+		mPipelineConfigs.mShaderProgram->OnReloaded();
+	}
+}
 
 void PipelineResources::UpdateResources(vk::CommandBuffer& cmd, RenderData& renderData, uint32_t /*imageIndex*/)
 {
@@ -321,7 +333,7 @@ void PipelineResources::CreatePipeline()
 	pipelineInfo.layout = mPipelineLayout.get();
 	pipelineInfo.renderPass = *mRenderPass;
 	pipelineInfo.subpass = 0;
-	pipelineInfo.basePipelineHandle = nullptr;
+	pipelineInfo.basePipelineHandle = mPipeline.get();
 	pipelineInfo.basePipelineIndex = -1;
 
 	auto result = mDevice->createGraphicsPipelineUnique(mDevice.GetPipelineCache(), pipelineInfo);

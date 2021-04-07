@@ -23,12 +23,11 @@ class RenderingResources
 public:
 	RenderingResources(Engine& engine);
 
-	RenderingResources(RenderingResources&& other);
-
+	RenderingResources(RenderingResources&& other) = delete;
 	RenderingResources(const RenderingResources&) = delete;
 
-	RenderingResources& operator=(const RenderingResources&) = delete;
 	RenderingResources& operator=(RenderingResources&&) = delete;
+	RenderingResources& operator=(const RenderingResources&) = delete;
 
 	void Refresh();
 	vk::CommandBuffer UpdateCommandBuffer(std::vector<RenderData*>& renderData, uint32_t imageIndex);
