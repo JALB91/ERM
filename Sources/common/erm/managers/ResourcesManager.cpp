@@ -16,6 +16,7 @@
 #include "erm/utils/Utils.h"
 
 #include <algorithm>
+#include <filesystem>
 
 namespace erm {
 
@@ -79,6 +80,9 @@ CubeMap* ResourcesManager::GetOrCreateCubeMap(const char* path)
 	if (it != mCubeMaps.end())
 		return (*it).get();
 
+	if (!std::filesystem::exists(path))
+		return nullptr;
+
 	Handle<CubeMap> result = std::make_unique<CubeMap>(mDevice, path);
 	result->Init();
 	return mCubeMaps.emplace_back(std::move(result)).get();
@@ -95,6 +99,20 @@ IShaderProgram* ResourcesManager::GetOrCreateShaderProgram(const char* shaderPro
 
 	if (it != mShaderPrograms.end())
 		return (*it).get();
+
+	bool found = false;
+	for (int i = 0; i < static_cast<int>(ShaderType::COUNT); ++i)
+	{
+		std::string path = ShaderUtils::GetShaderFilename(shaderProgramPath, 0, static_cast<ShaderType>(i));
+		if (std::filesystem::exists(path))
+		{
+			found = true;
+			break;
+		}
+	}
+
+	if (!found)
+		return nullptr;
 
 #if defined(ERM_VULKAN)
 	std::unique_ptr<VulkanShaderProgram> shaderProgram = std::make_unique<VulkanShaderProgram>(mDevice, shaderProgramPath);
@@ -150,6 +168,9 @@ Texture* ResourcesManager::GetOrCreateTexture(const char* texturePath)
 	{
 		return (*it).get();
 	}
+
+	if (!std::filesystem::exists(texturePath))
+		return nullptr;
 
 	std::unique_ptr<Texture> texture = std::make_unique<Texture>(mDevice, texturePath);
 	texture->Init();
