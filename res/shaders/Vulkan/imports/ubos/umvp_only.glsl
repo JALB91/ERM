@@ -4,7 +4,7 @@
 #include "macros.glsl"
 #include "data/mvp_only_data.glsl"
 
-layout(binding = VK_UBO_BINDING, set = 1) uniform UMVPOnly
+layout(binding = VK_UMVP_ONLY_BINDING, set = 1) uniform UMVPOnly
 {
 	MVPOnly mvpOnly;
 };

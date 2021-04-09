@@ -18,7 +18,7 @@
 #define VK_UPBMAT_BINDING           1
 #define VK_UPBLIGHT_BINDING         2
 #define VK_UVIEW_BINDING            3
-#define VK_UBO_BINDING              4
+#define VK_UMVP_ONLY_BINDING        4
 #define VK_UBONESDEBUG_BINDING      5
 #define VK_UMATERIAL_BINDING        6
 #define VK_ULIGHT_BINDING           7
