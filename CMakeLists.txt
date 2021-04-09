@@ -88,7 +88,7 @@ file(GLOB_RECURSE SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/Sources/${TARGET_API}/*.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Sources/common/*.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Sources/${TARGET_API}/*.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/res/shaders/*"
+	"${CMAKE_CURRENT_SOURCE_DIR}/res/shaders/${TARGET_API}/*"
 )
 if(NOT ERM_RAY_TRACING_ENABLED)
 	list(FILTER SOURCES EXCLUDE REGEX ".*/ray_tracing/.*")
