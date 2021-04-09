@@ -117,14 +117,14 @@ bool Engine::Init()
 		ent->AddChild(*entity);
 	}
 
-	//		{
-	//			auto entity = mECS->GetOrCreateEntity();
-	//			Model* model = mResourcesManager->GetOrCreateModel("res/models/untitled.dae");
-	//			entity->RequireComponent<ecs::ModelComponent>(model);
-	//			auto transform = entity->RequireComponent<ecs::TransformComponent>();
-	//			transform->mTranslation.x = -2.5f;
-	//			root->AddChild(*entity);
-	//		}
+	{
+		auto entity = mECS->GetOrCreateEntity();
+		Model* model = mResourcesManager->GetOrCreateModel("res/models/untitled.dae");
+		entity->RequireComponent<ecs::ModelComponent>(model);
+		auto transform = entity->RequireComponent<ecs::TransformComponent>();
+		transform->mTranslation.x = -2.5f;
+		root->AddChild(*entity);
+	}
 
 	{
 		auto entity = mECS->GetOrCreateEntity();
@@ -135,7 +135,17 @@ bool Engine::Init()
 		root->AddChild(*entity);
 	}
 
-	for (int i = 0; i < 0 && false; ++i)
+	{
+		auto entity = mECS->GetOrCreateEntity();
+		Model* model = mResourcesManager->GetOrCreateModel(kIronManModelPath);
+		entity->RequireComponent<ecs::ModelComponent>(model);
+		auto transform = entity->RequireComponent<ecs::TransformComponent>();
+		transform->mScale = math::vec3(0.01f);
+		transform->mTranslation.x = 2.5f;
+		root->AddChild(*entity);
+	}
+
+	for (int i = 0; i < 0; ++i)
 	{
 		auto entity = mECS->GetOrCreateEntity();
 		Model* model = nullptr;
@@ -143,7 +153,7 @@ bool Engine::Init()
 		switch (rnd)
 		{
 			case 0:
-				//model = mResourcesManager->GetOrCreateModel("res/models/sphere.fbx");
+				model = mResourcesManager->GetOrCreateModel("res/models/sphere.fbx");
 				break;
 			case 1:
 				model = mResourcesManager->GetOrCreateModel(kIronManModelPath);
@@ -155,10 +165,10 @@ bool Engine::Init()
 				model = mResourcesManager->GetOrCreateModel(kModelModelPath);
 				break;
 			case 4:
-				model = mResourcesManager->GetOrCreateModel(kAventModelPath);
+				//model = mResourcesManager->GetOrCreateModel(kAventModelPath);
 				break;
 			case 5:
-				model = mResourcesManager->GetOrCreateModel(kLamborghiniModelPath);
+				//				model = mResourcesManager->GetOrCreateModel(kLamborghiniModelPath);
 				break;
 			case 6:
 				model = mResourcesManager->GetOrCreateModel("res/models/Orc_lowpoly.obj");

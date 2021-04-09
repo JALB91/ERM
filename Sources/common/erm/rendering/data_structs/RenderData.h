@@ -3,6 +3,7 @@
 #include "erm/rendering/data_structs/IRenderData.h"
 #include "erm/rendering/data_structs/PipelineConfigs.h"
 
+#include <optional>
 #include <vector>
 
 namespace erm {
@@ -21,6 +22,7 @@ struct RenderData : public IRenderData
 		: IRenderData(std::move(other))
 		, mPipelineConfigs(other.mPipelineConfigs)
 		, mMeshes(std::move(other.mMeshes))
+		, mRenderingId(std::move(other.mRenderingId))
 	{}
 
 	RenderData& operator=(RenderData&& other)
@@ -28,6 +30,7 @@ struct RenderData : public IRenderData
 		mPipelineConfigs = other.mPipelineConfigs;
 		mUbos = std::move(other.mUbos);
 		mMeshes = std::move(other.mMeshes);
+		mRenderingId = std::move(other.mRenderingId);
 
 		return *this;
 	}
@@ -42,6 +45,7 @@ struct RenderData : public IRenderData
 
 	PipelineConfigs mPipelineConfigs;
 	std::vector<const Mesh*> mMeshes;
+	std::optional<uint32_t> mRenderingId;
 };
 
 } // namespace erm

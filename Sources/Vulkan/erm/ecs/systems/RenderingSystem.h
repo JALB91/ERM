@@ -74,6 +74,16 @@ private:
 		const math::mat4& modelMat,
 		const math::vec3& lightPos);
 
+	void UpdateUbos(
+		RenderData& data,
+		const math::mat4& proj,
+		const math::mat4& viewInv,
+		const math::mat4& modelMat,
+		const LightComponent& light,
+		const math::vec3& lightPos,
+		const SkeletonComponent* skeletonComponent,
+		const TransformComponent& cameraTransform);
+
 #ifdef ERM_RAY_TRACING_ENABLED
 	void UpdateRTData(
 		LightComponent* light,

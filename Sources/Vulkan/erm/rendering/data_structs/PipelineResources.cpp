@@ -109,7 +109,7 @@ void PipelineResources::UpdateCommandBuffer(vk::CommandBuffer& cmd, RenderData& 
 
 void PipelineResources::PostDraw()
 {
-	for (auto& data : mData)
+	for (auto& [id, data] : mData)
 		data.PostDraw();
 }
 
@@ -343,13 +343,32 @@ void PipelineResources::CreatePipeline()
 
 PipelineData& PipelineResources::GetOrCreatePipelineData(RenderData& renderData)
 {
-	auto it = std::find_if(mData.begin(), mData.end(), [&renderData](PipelineData& data) {
-		return data.IsCompatible(renderData.mPipelineConfigs);
-	});
-	if (it != mData.end())
-		return *it;
+	if (renderData.mRenderingId.has_value())
+	{
+		auto it = mData.find(renderData.mRenderingId.value());
+		if (it != mData.end())
+			return it->second;
+	}
+	else
+	{
+		for (uint32_t i = 0; i < static_cast<uint32_t>(mData.size()); ++i)
+		{
+			if (mData.find(i) == mData.end())
+			{
+				renderData.mRenderingId = i;
+				break;
+			}
+		}
 
-	auto& data = mData.emplace_back(renderData.mPipelineConfigs);
+		if (!renderData.mRenderingId.has_value())
+			renderData.mRenderingId = static_cast<uint32_t>(mData.size());
+	}
+
+	auto result = mData.emplace(
+		std::piecewise_construct,
+		std::forward_as_tuple(renderData.mRenderingId.value()),
+		std::forward_as_tuple(renderData.mPipelineConfigs));
+	auto& data = result.first->second;
 	const auto& sbm = renderData.mPipelineConfigs.mShaderProgram->GetShaderBindingsMap();
 
 	for (const auto& [set, bindings] : sbm)

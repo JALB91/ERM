@@ -5,6 +5,7 @@
 
 #include <vulkan/vulkan.hpp>
 
+#include <map>
 #include <vector>
 
 namespace erm {
@@ -58,7 +59,7 @@ private:
 	vk::UniqueDescriptorSetLayout mEmptySetLayout;
 	vk::UniqueDescriptorSet mEmptySet;
 	std::vector<vk::UniqueDescriptorSetLayout> mDescriptorSetLayouts;
-	std::vector<PipelineData> mData;
+	std::map<uint32_t, PipelineData> mData;
 };
 
 } // namespace erm
