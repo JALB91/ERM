@@ -136,7 +136,6 @@ void Renderer::SubmitRenderData(RenderData& data)
 #ifdef ERM_RAY_TRACING_ENABLED
 void Renderer::SubmitRTRenderData(RTRenderData& data)
 {
-	ASSERT(!mRTRenderData);
 	mRTRenderData = &data;
 }
 #endif

@@ -20,7 +20,7 @@ public:
 		vk::MemoryPropertyFlags mpf);
 	virtual ~IBuffer() = default;
 
-	IBuffer(const IBuffer&) = delete;
+	IBuffer(const IBuffer&);
 	IBuffer(IBuffer&& other);
 
 	IBuffer& operator=(const IBuffer&) = delete;
@@ -40,6 +40,8 @@ protected:
 	size_t mBufferSize;
 	BufferLayout mLayout;
 
+	vk::BufferUsageFlags mBuf;
+	vk::MemoryPropertyFlags mMpf;
 	vk::UniqueBuffer mBuffer;
 	vk::UniqueDeviceMemory mBufferMemory;
 };

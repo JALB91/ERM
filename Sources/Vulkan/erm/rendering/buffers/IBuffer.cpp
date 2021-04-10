@@ -14,6 +14,8 @@ IBuffer::IBuffer(
 	vk::MemoryPropertyFlags mpf)
 	: mDevice(device)
 	, mBufferSize(size)
+	, mBuf(buf)
+	, mMpf(mpf)
 {
 	VkUtils::CreateBufferUnique(
 		device.GetVkPhysicalDevice(),
@@ -28,10 +30,31 @@ IBuffer::IBuffer(
 	mLayout.mInfos.emplace_back(BufferInfo {0, mBufferSize});
 }
 
+IBuffer::IBuffer(const IBuffer& other)
+	: mDevice(other.mDevice)
+	, mBufferSize(other.mBufferSize)
+	, mBuf(other.mBuf)
+	, mMpf(other.mMpf)
+{
+	VkUtils::CreateBufferUnique(
+		mDevice.GetVkPhysicalDevice(),
+		mDevice.GetVkDevice(),
+		mBufferSize,
+		mBuf,
+		mMpf,
+		mBuffer,
+		mBufferMemory);
+
+	mLayout.mBuffer = mBuffer.get();
+	mLayout.mInfos.emplace_back(BufferInfo {0, mBufferSize});
+}
+
 IBuffer::IBuffer(IBuffer&& other)
 	: mDevice(other.mDevice)
 	, mBufferSize(other.mBufferSize)
 	, mLayout(std::move(other.mLayout))
+	, mBuf(std::move(other.mBuf))
+	, mMpf(std::move(other.mMpf))
 	, mBuffer(std::move(other.mBuffer))
 	, mBufferMemory(std::move(other.mBufferMemory))
 {}
@@ -43,6 +66,8 @@ IBuffer& IBuffer::operator=(IBuffer&& other)
 
 	ASSERT(&mDevice == &other.mDevice);
 	mBufferSize = other.mBufferSize;
+	mBuf = std::move(other.mBuf);
+	mMpf = std::move(other.mMpf);
 	mBuffer = std::move(other.mBuffer);
 	mBufferMemory = std::move(other.mBufferMemory);
 
