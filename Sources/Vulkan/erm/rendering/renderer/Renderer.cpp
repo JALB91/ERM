@@ -22,6 +22,10 @@ namespace erm {
 
 Renderer::Renderer(Engine& engine)
 	: IRenderer(engine)
+	, mRenderingResources(nullptr)
+#ifdef ERM_RAY_TRACING_ENABLED
+	, mRTRenderData(nullptr)
+#endif
 {}
 
 Renderer::~Renderer()
