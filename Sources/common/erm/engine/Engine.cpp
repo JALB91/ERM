@@ -137,7 +137,7 @@ bool Engine::Init()
 
 	{
 		auto entity = mECS->GetOrCreateEntity();
-		Model* model = mResourcesManager->GetOrCreateModel(kIronManModelPath);
+		Model* model = mResourcesManager->GetOrCreateModel(kModelModelPath);
 		entity->RequireComponent<ecs::ModelComponent>(model);
 		auto transform = entity->RequireComponent<ecs::TransformComponent>();
 		transform->mScale = math::vec3(0.01f);

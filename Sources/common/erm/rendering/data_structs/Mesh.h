@@ -17,9 +17,6 @@ namespace erm {
 class Mesh
 {
 public:
-	friend class Model;
-
-public:
 	Mesh(
 		std::vector<VertexData>&& vertices,
 		std::vector<IndexData>&& indices,
@@ -36,7 +33,10 @@ public:
 	inline const std::vector<VertexData>& GetVerticesData() const { return mVerticesData; }
 	inline const std::vector<IndexData>& GetIndicesData() const { return mIndicesData; }
 
+	inline void SetVertBufferHandle(BufferHandle&& handle) { mVertBuffer = std::move(handle); }
 	inline const BufferHandle& GetVertBufferHandle() const { return mVertBuffer; }
+
+	inline void SetIndBufferHandle(BufferHandle&& handle) { mIndBuffer = std::move(handle); }
 	inline const BufferHandle& GetIndBufferHandle() const { return mIndBuffer; }
 
 	inline const std::string& GetName() const { return mName; }

@@ -77,8 +77,13 @@ void Model::UpdateBuffers()
 		totalIndices += static_cast<uint32_t>(mesh.GetIndicesData().size());
 	}
 
-	mVerticesBuffer = std::make_unique<VertexBuffer>(mDevice, vTargetOffset);
-	mIndicesBuffer = std::make_unique<IndexBuffer>(mDevice, iTargetOffset, totalIndices);
+	if (!mVerticesBuffer || mVerticesBuffer->GetBufferSize() < vTargetOffset)
+		mVerticesBuffer = std::make_unique<VertexBuffer>(mDevice, vTargetOffset);
+	if (!mIndicesBuffer || mIndicesBuffer->GetBufferSize() < iTargetOffset)
+		mIndicesBuffer = std::make_unique<IndexBuffer>(mDevice, iTargetOffset, totalIndices);
+
+	if (mIndicesBuffer->GetIndicesCount() != totalIndices)
+		mIndicesBuffer->SetIndicesCount(totalIndices);
 
 	vLayout.mBuffer = mVerticesBuffer->GetBuffer();
 	iLayout.mBuffer = mIndicesBuffer->GetBuffer();
@@ -89,8 +94,8 @@ void Model::UpdateBuffers()
 		const BufferInfo& vInfo = vLayout.mInfos[i];
 		const BufferInfo& iInfo = iLayout.mInfos[i];
 
-		mesh.mVertBuffer = BufferHandle(mVerticesBuffer->GetBuffer(), vInfo);
-		mesh.mIndBuffer = BufferHandle(mIndicesBuffer->GetBuffer(), iInfo);
+		mesh.SetVertBufferHandle(BufferHandle(mVerticesBuffer->GetBuffer(), vInfo));
+		mesh.SetIndBufferHandle(BufferHandle(mIndicesBuffer->GetBuffer(), iInfo));
 
 		mVerticesBuffer->Update(mesh.GetVerticesData().data(), vInfo);
 		mIndicesBuffer->Update(mesh.GetIndicesData().data(), iInfo);
