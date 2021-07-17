@@ -124,25 +124,25 @@ public:
 	template<typename T>
 	const T* GetComponent(EntityId id) const
 	{
-		return static_cast<const T::SYSTEM_TYPE*>(this)->GetComponent(id);
+		return static_cast<const typename T::SYSTEM_TYPE*>(this)->GetComponent(id);
 	}
 
 	template<typename T>
 	T* GetComponent(EntityId id)
 	{
-		return static_cast<T::SYSTEM_TYPE*>(this)->GetComponent(id);
+		return static_cast<typename T::SYSTEM_TYPE*>(this)->GetComponent(id);
 	}
 
 	template<typename T, typename... Args>
 	T* AddComponent(EntityId id, Args&&... args)
 	{
-		return static_cast<T::SYSTEM_TYPE*>(this)->AddComponent(id, std::forward<Args>(args)...);
+		return static_cast<typename T::SYSTEM_TYPE*>(this)->AddComponent(id, std::forward<Args>(args)...);
 	}
 
 	template<typename T, typename... Args>
 	T* RequireComponent(EntityId id, Args&&... args)
 	{
-		return static_cast<T::SYSTEM_TYPE*>(this)->RequireComponent(id, std::forward<Args>(args)...);
+		return static_cast<typename T::SYSTEM_TYPE*>(this)->RequireComponent(id, std::forward<Args>(args)...);
 	}
 
 	virtual void RemoveComponent(EntityId id) = 0;
