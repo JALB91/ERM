@@ -9,8 +9,10 @@
 
 namespace erm::ecs {
 
-TransformSystem::TransformSystem(ECS& ecs)
-	: ISystem<TransformComponent>(ecs)
+ERM_SYSTEM_IMPL(Transform)
+
+TransformSystem::TransformSystem(Engine& engine)
+	: ISystem(engine)
 {}
 
 void TransformSystem::OnComponentAdded(EntityId id)

@@ -94,6 +94,7 @@ bool Engine::Init()
 	mRenderer = std::make_unique<Renderer>(*this);
 	mImGuiHandle = std::make_unique<ImGuiHandle>(*this);
 	mECS = std::make_unique<ecs::ECS>(*this);
+	mECS->Init();
 
 	mResourcesManager->LoadDefaultResources();
 

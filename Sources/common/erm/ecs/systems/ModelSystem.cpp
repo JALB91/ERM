@@ -12,21 +12,25 @@
 
 namespace erm::ecs {
 
-ModelSystem::ModelSystem(ECS& ecs)
-	: ISystem<ModelComponent>(ecs)
+ERM_SYSTEM_IMPL(Model)
+
+ModelSystem::ModelSystem(Engine& engine)
+	: ISystem(engine)
 	, mTransformSystem(nullptr)
+	, mRenderingSystem(nullptr)
 {}
 
 void ModelSystem::Init()
 {
-	mTransformSystem = &mECS.GetSystem<TransformSystem>();
+	mTransformSystem = mECS.GetSystem<TransformSystem>();
+	mRenderingSystem = mECS.GetSystem<RenderingSystem>();
 }
 
 void ModelSystem::OnPostUpdate()
 {
 	PROFILE_FUNCTION();
 
-	ForEachComponentIndexed([this](ModelComponent& component, ID id) {
+	ForEachComponent([this](ModelComponent& component, ID id) {
 		Model* model = component.mModel;
 
 		if (!component.IsDirty() && (!model || !model->IsDirty()))
@@ -43,8 +47,7 @@ void ModelSystem::OnPostUpdate()
 			component.mWorldBounds.Empty();
 		}
 
-		RenderingSystem& sys = mECS.GetSystem<RenderingSystem>();
-		if (auto* comp = sys.GetComponent(id))
+		if (auto* comp = mRenderingSystem->GetComponent(id))
 			comp->SetDirty(true);
 
 		component.SetDirty(false);
@@ -53,7 +56,7 @@ void ModelSystem::OnPostUpdate()
 
 void ModelSystem::OnComponentBeingRemoved(EntityId id)
 {
-	if (auto* comp = mECS.GetSystem<RenderingSystem>().GetComponent(id))
+	if (auto* comp = mRenderingSystem->GetComponent(id))
 		comp->SetDirty(true);
 }
 

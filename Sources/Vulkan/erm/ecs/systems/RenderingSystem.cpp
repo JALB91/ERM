@@ -79,16 +79,18 @@ static erm::RTRenderData GetDefaultRTRenderData(erm::Engine& engine)
 
 namespace erm::ecs {
 
-RenderingSystem::RenderingSystem(ECS& ecs, Engine& engine)
-	: ISystem(ecs)
-	, mEngine(engine)
+ERM_SYSTEM_IMPL(Rendering)
+
+RenderingSystem::RenderingSystem(Engine& engine)
+	: ISystem(engine)
+	, mDevice(mEngine.GetDevice())
 	, mRenderer(mEngine.GetRenderer())
 	, mResourcesManager(mEngine.GetResourcesManager())
 	, mCachedCameraId(INVALID_ID)
 	, mCachedLightId(INVALID_ID)
 {
 #ifdef ERM_RAY_TRACING_ENABLED
-	mRTRenderData.emplace_back(::GetDefaultRTRenderData(engine));
+	mRTRenderData.emplace_back(::GetDefaultRTRenderData(mEngine));
 #endif
 }
 
@@ -96,18 +98,18 @@ RenderingSystem::~RenderingSystem() = default;
 
 void RenderingSystem::Init()
 {
-	mTransformSystem = &mECS.GetSystem<TransformSystem>();
-	mSkeletonSystem = &mECS.GetSystem<SkeletonSystem>();
-	mModelSystem = &mECS.GetSystem<ModelSystem>();
-	mCameraSystem = &mECS.GetSystem<CameraSystem>();
-	mLightSystem = &mECS.GetSystem<LightSystem>();
+	mTransformSystem = mECS.GetSystem<TransformSystem>();
+	mSkeletonSystem = mECS.GetSystem<SkeletonSystem>();
+	mModelSystem = mECS.GetSystem<ModelSystem>();
+	mCameraSystem = mECS.GetSystem<CameraSystem>();
+	mLightSystem = mECS.GetSystem<LightSystem>();
 }
 
 void RenderingSystem::OnPostUpdate()
 {
 	PROFILE_FUNCTION();
 
-	ForEachComponent([&](RenderingComponent& component) {
+	ForEachComponent([&](RenderingComponent& component, ID /*id*/) {
 		if (!component.IsDirty())
 			return;
 
@@ -169,10 +171,10 @@ void RenderingSystem::OnPreRender()
 		view,
 		lightPos);
 
-	auto cmd = VkUtils::BeginSingleTimeCommands(mEngine.GetDevice());
+	auto cmd = VkUtils::BeginSingleTimeCommands(mDevice);
 #endif
 
-	mModelSystem->ForEachComponentIndexed([&](ModelComponent& component, ID id) {
+	mModelSystem->ForEachComponent([&](ModelComponent& component, ID id) {
 		if (!component.GetModel())
 			return;
 
@@ -213,7 +215,7 @@ void RenderingSystem::OnPreRender()
 	});
 
 #ifdef ERM_RAY_TRACING_ENABLED
-	VkUtils::EndSingleTimeCommands(mEngine.GetDevice(), cmd);
+	VkUtils::EndSingleTimeCommands(mDevice, cmd);
 
 	for (RTRenderData& data : mRTRenderData)
 		if (!data.mInstancesMap.empty())
@@ -499,7 +501,7 @@ void RenderingSystem::ProcessForRayTracing(
 		renderingComponent.mCustomIndex = customIdx;
 		auto& instanceDataBuffer = renderingComponent.mInstanceDataBuffer;
 		if (!instanceDataBuffer)
-			instanceDataBuffer = std::make_unique<DeviceBuffer>(mEngine.GetDevice(), sizeof(InstanceData), vk::BufferUsageFlagBits::eStorageBuffer);
+			instanceDataBuffer = std::make_unique<DeviceBuffer>(mDevice, sizeof(InstanceData), vk::BufferUsageFlagBits::eStorageBuffer);
 
 		data.AddSbo(StorageBufferType::VERTICES, customIdx, model.GetVerticesBuffer());
 		data.AddSbo(StorageBufferType::INDICES, customIdx, model.GetIndicesBuffer());

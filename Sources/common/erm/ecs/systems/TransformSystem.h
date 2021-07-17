@@ -5,10 +5,12 @@
 
 namespace erm::ecs {
 
-class TransformSystem : public ISystem<TransformComponent>
+class TransformSystem : public ISystem
 {
+	ERM_SYSTEM_DECL(Transform)
+
 public:
-	TransformSystem(ECS& ecs);
+	TransformSystem(Engine& engine);
 
 	// ISystem
 	void Init() override {}

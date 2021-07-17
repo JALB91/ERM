@@ -3,33 +3,17 @@
 #include "erm/ecs/ECSConfig.h"
 #include "erm/ecs/EntityId.h"
 
+#include "erm/utils/Utils.h"
+
 #include <array>
 #include <memory>
-
-#define ADD_SYSTEM(NAME)           \
-public:                            \
-	template<>                     \
-	inline NAME& GetSystem() const \
-	{                              \
-		return *m##NAME;           \
-	}                              \
-                                   \
-private:                           \
-	std::unique_ptr<NAME> m##NAME;
+#include <vector>
 
 namespace erm {
 class Engine;
-class Renderer;
 namespace ecs {
 struct Entity;
-class TransformSystem;
-class LightSystem;
-class SkeletonSystem;
-class AnimationSystem;
-class ModelSystem;
-class CameraSystem;
-class RenderingSystem;
-class EditorSystem;
+class ISystem;
 } // namespace ecs
 } // namespace erm
 
@@ -41,6 +25,8 @@ public:
 	ECS(Engine& engine);
 	~ECS();
 
+	void Init();
+
 	void OnPreUpdate();
 	void OnUpdate(float dt);
 	void OnPostUpdate();
@@ -49,7 +35,22 @@ public:
 	void OnPostRender();
 
 	template<typename T>
-	T& GetSystem() const;
+	T& AddSystem()
+	{
+		if (EXPECT(mSystems.size() <= T::SYSTEM_ID || mSystems[T::SYSTEM_ID] == nullptr, "Trying to add a system twice"))
+		{
+			mSystems.resize(std::max(static_cast<int>(mSystems.size()), static_cast<int>(T::SYSTEM_ID + 1)));
+			mSystems[T::SYSTEM_ID] = std::make_unique<T>(mEngine);
+		}
+
+		return static_cast<T&>(*mSystems[T::SYSTEM_ID]);
+	}
+
+	template<typename T>
+	T* GetSystem()
+	{
+		return static_cast<T*>(mSystems[T::SYSTEM_ID].get());
+	}
 
 	void RemoveEntity(EntityId id);
 	void OnEntityBeingRemoved(EntityId id);
@@ -63,16 +64,7 @@ private:
 	void ForEachSystem(const T& function);
 
 	Engine& mEngine;
-
-	ADD_SYSTEM(TransformSystem)
-	ADD_SYSTEM(LightSystem)
-	ADD_SYSTEM(SkeletonSystem)
-	ADD_SYSTEM(AnimationSystem)
-	ADD_SYSTEM(ModelSystem)
-	ADD_SYSTEM(CameraSystem)
-	ADD_SYSTEM(RenderingSystem)
-	ADD_SYSTEM(EditorSystem)
-
+	std::vector<std::unique_ptr<ISystem>> mSystems;
 	std::array<std::unique_ptr<Entity>, MAX_ID> mEntities;
 };
 

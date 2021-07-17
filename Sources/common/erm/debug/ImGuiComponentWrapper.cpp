@@ -29,12 +29,12 @@ namespace ImGui {
 template<typename T>
 void ShowComponentDebugWindow(erm::Engine& engine, erm::ecs::EntityId entity, const std::function<bool(T&)>& callback, const char* name)
 {
-	if (T* component = engine.GetECS().GetSystem<typename T::SYSTEM_TYPE>().GetComponent(entity))
+	if (T* component = engine.GetECS().GetSystem<typename T::SYSTEM_TYPE>()->GetComponent(entity))
 	{
 		ImGui::PushID(name);
 		if (callback(*component))
 		{
-			engine.GetECS().GetSystem<typename T::SYSTEM_TYPE>().RemoveComponent(entity);
+			engine.GetECS().GetSystem<typename T::SYSTEM_TYPE>()->RemoveComponent(entity);
 		}
 		ImGui::PopID();
 	}

@@ -13,10 +13,12 @@ struct TransformComponent;
 
 namespace erm::ecs {
 
-class CameraSystem : public ISystem<CameraComponent>
+class CameraSystem : public ISystem
 {
+	ERM_SYSTEM_DECL(Camera)
+
 public:
-	CameraSystem(ECS& ecs, const IWindow& window);
+	CameraSystem(Engine& engine);
 
 	// ISystem
 	void Init() override;

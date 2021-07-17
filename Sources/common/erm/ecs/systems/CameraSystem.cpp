@@ -3,7 +3,9 @@
 #include "erm/ecs/ECS.h"
 #include "erm/ecs/systems/TransformSystem.h"
 
-#include "erm/rendering/window/IWindow.h"
+#include "erm/engine/Engine.h"
+
+#include "erm/rendering/window/Window.h"
 
 #include "erm/input/Keys.h"
 #include "erm/input/Mouse.h"
@@ -17,14 +19,17 @@
 
 namespace erm::ecs {
 
-CameraSystem::CameraSystem(ECS& ecs, const IWindow& window)
-	: ISystem<CameraComponent>(ecs)
-	, mWindow(window)
+ERM_SYSTEM_IMPL(Camera)
+
+CameraSystem::CameraSystem(Engine& engine)
+	: ISystem(engine)
+	, mTransformSystem(nullptr)
+	, mWindow(mEngine.GetWindow())
 {}
 
 void CameraSystem::Init()
 {
-	mTransformSystem = &mECS.GetSystem<TransformSystem>();
+	mTransformSystem = mECS.GetSystem<TransformSystem>();
 }
 
 void CameraSystem::OnUpdate(float dt)

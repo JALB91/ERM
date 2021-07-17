@@ -5,11 +5,13 @@
 
 namespace erm::ecs {
 
-class LightSystem : public ISystem<LightComponent>
+class LightSystem : public ISystem
 {
+	ERM_SYSTEM_DECL(Light)
+
 public:
-	LightSystem(ECS& ecs)
-		: ISystem(ecs)
+	LightSystem(Engine& engine)
+		: ISystem(engine)
 	{}
 	~LightSystem() = default;
 

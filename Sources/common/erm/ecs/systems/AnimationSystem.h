@@ -10,10 +10,12 @@ class SkeletonSystem;
 
 namespace erm::ecs {
 
-class AnimationSystem : public ISystem<AnimationComponent>
+class AnimationSystem : public ISystem
 {
+	ERM_SYSTEM_DECL(Animation)
+
 public:
-	AnimationSystem(ECS& ecs);
+	AnimationSystem(Engine& engine);
 
 	// ISystem
 	void Init() override;

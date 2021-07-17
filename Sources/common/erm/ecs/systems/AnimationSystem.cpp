@@ -11,13 +11,16 @@
 
 namespace erm::ecs {
 
-AnimationSystem::AnimationSystem(ECS& ecs)
-	: ISystem(ecs)
+ERM_SYSTEM_IMPL(Animation)
+
+AnimationSystem::AnimationSystem(Engine& engine)
+	: ISystem(engine)
+	, mSkeletonSystem(nullptr)
 {}
 
 void AnimationSystem::Init()
 {
-	mSkeletonSystem = &mECS.GetSystem<SkeletonSystem>();
+	mSkeletonSystem = mECS.GetSystem<SkeletonSystem>();
 }
 
 void AnimationSystem::OnUpdate(float dt)

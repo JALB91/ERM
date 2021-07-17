@@ -5,14 +5,17 @@
 
 namespace erm::ecs {
 class TransformSystem;
-}
+class RenderingSystem;
+} // namespace erm::ecs
 
 namespace erm::ecs {
 
-class ModelSystem : public ISystem<ModelComponent>
+class ModelSystem : public ISystem
 {
+	ERM_SYSTEM_DECL(Model)
+
 public:
-	ModelSystem(ECS& ecs);
+	ModelSystem(Engine& engine);
 
 	// ISystem
 	void Init() override;
@@ -23,6 +26,7 @@ private:
 	void OnComponentBeingRemoved(EntityId id) override;
 
 	TransformSystem* mTransformSystem;
+	RenderingSystem* mRenderingSystem;
 };
 
 } // namespace erm::ecs

@@ -10,33 +10,34 @@
 #include "erm/ecs/systems/SkeletonSystem.h"
 #include "erm/ecs/systems/TransformSystem.h"
 
-#include "erm/engine/Engine.h"
-
-#include "erm/rendering/window/Window.h"
-
 #include "erm/utils/Profiler.h"
 
 namespace erm::ecs {
 
 ECS::ECS(Engine& engine)
 	: mEngine(engine)
-	, mTransformSystem(std::make_unique<TransformSystem>(*this))
-	, mLightSystem(std::make_unique<LightSystem>(*this))
-	, mSkeletonSystem(std::make_unique<SkeletonSystem>(*this))
-	, mAnimationSystem(std::make_unique<AnimationSystem>(*this))
-	, mModelSystem(std::make_unique<ModelSystem>(*this))
-	, mCameraSystem(std::make_unique<CameraSystem>(*this, mEngine.GetWindow()))
-	, mRenderingSystem(std::make_unique<RenderingSystem>(*this, mEngine))
-	, mEditorSystem(std::make_unique<EditorSystem>(*this, mEngine))
-{
-	ForEachSystem([](auto& system) {
-		system.Init();
-	});
-	mEntities[ROOT_ID].reset(new Entity(ROOT_ID, *this, "Root"));
-}
+{}
 
 ECS::~ECS()
 {}
+
+void ECS::Init()
+{
+	AddSystem<TransformSystem>();
+	AddSystem<CameraSystem>();
+	AddSystem<RenderingSystem>();
+	AddSystem<EditorSystem>();
+	AddSystem<SkeletonSystem>();
+	AddSystem<AnimationSystem>();
+	AddSystem<LightSystem>();
+	AddSystem<ModelSystem>();
+
+	ForEachSystem([](auto& system) {
+		system.Init();
+	});
+
+	mEntities[ROOT_ID].reset(new Entity(*this, ROOT_ID, "Root"));
+}
 
 void ECS::OnPreUpdate()
 {
@@ -122,7 +123,7 @@ Entity* ECS::GetOrCreateEntity(const char* name /*= "Unknown"*/)
 	{
 		if (!mEntities[i] || !mEntities[i]->IsValid())
 		{
-			mEntities[i].reset(new Entity(i, *this, name));
+			mEntities[i].reset(new Entity(*this, i, name));
 			return mEntities[i].get();
 		}
 	}
@@ -138,14 +139,8 @@ Entity* ECS::GetEntityById(EntityId id)
 template<typename T>
 void ECS::ForEachSystem(const T& function)
 {
-	function(*mTransformSystem);
-	function(*mLightSystem);
-	function(*mSkeletonSystem);
-	function(*mAnimationSystem);
-	function(*mModelSystem);
-	function(*mCameraSystem);
-	function(*mRenderingSystem);
-	function(*mEditorSystem);
+	for (auto& system : mSystems)
+		function(*system);
 }
 
 } // namespace erm::ecs

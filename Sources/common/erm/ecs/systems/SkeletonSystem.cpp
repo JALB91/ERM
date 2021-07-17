@@ -4,6 +4,8 @@
 
 namespace erm::ecs {
 
+ERM_SYSTEM_IMPL(Skeleton)
+
 void SkeletonSystem::OnPostUpdate()
 {
 	PROFILE_FUNCTION();

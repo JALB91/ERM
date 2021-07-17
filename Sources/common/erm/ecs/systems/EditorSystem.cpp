@@ -65,11 +65,13 @@ static PipelineConfigs GetBonesPipelineConfigs(Engine& engine)
 	return configs;
 }
 
-EditorSystem::EditorSystem(ECS& ecs, Engine& engine)
-	: ISystem(ecs)
-	, mEngine(engine)
+ERM_SYSTEM_IMPL(Editor)
+
+EditorSystem::EditorSystem(Engine& engine)
+	: ISystem(engine)
+	, mDevice(mEngine.GetDevice())
 	, mRenderer(mEngine.GetRenderer())
-	, mResourcesManager(engine.GetResourcesManager())
+	, mResourcesManager(mEngine.GetResourcesManager())
 #ifdef ERM_RAY_TRACING_ENABLED
 	, mPlaneModel(mEngine.GetDevice(), "Plane", "Plane")
 	, mInstanceDataBuffer(mEngine.GetDevice(), sizeof(InstanceData), vk::BufferUsageFlagBits::eStorageBuffer)
@@ -88,12 +90,12 @@ EditorSystem::~EditorSystem()
 
 void EditorSystem::Init()
 {
-	mTransformSystem = &mECS.GetSystem<TransformSystem>();
-	mSkeletonSystem = &mECS.GetSystem<SkeletonSystem>();
-	mModelSystem = &mECS.GetSystem<ModelSystem>();
-	mCameraSystem = &mECS.GetSystem<CameraSystem>();
-	mLightSystem = &mECS.GetSystem<LightSystem>();
-	mRenderingSystem = &mECS.GetSystem<RenderingSystem>();
+	mTransformSystem = mECS.GetSystem<TransformSystem>();
+	mSkeletonSystem = mECS.GetSystem<SkeletonSystem>();
+	mModelSystem = mECS.GetSystem<ModelSystem>();
+	mCameraSystem = mECS.GetSystem<CameraSystem>();
+	mLightSystem = mECS.GetSystem<LightSystem>();
+	mRenderingSystem = mECS.GetSystem<RenderingSystem>();
 
 #ifdef ERM_RAY_TRACING_ENABLED
 	mPlaneModel.AddMesh(MeshUtils::CreateSquare(1000, 1000));
@@ -219,7 +221,7 @@ void EditorSystem::OnRender()
 					}
 
 					if (!mesh)
-						mesh = &meshes.emplace_back(mEngine.GetDevice(), MeshUtils::CreateSpike(1.0f, 1.0f, 1.0f, index));
+						mesh = &meshes.emplace_back(mDevice, MeshUtils::CreateSpike(1.0f, 1.0f, 1.0f, index));
 
 					++index;
 				});
@@ -271,7 +273,7 @@ RenderData& EditorSystem::GetOrCreateRenderDataForBBox(EntityId id)
 		auto val = mBBoxesRenderData.emplace(
 			std::piecewise_construct,
 			std::forward_as_tuple(id),
-			std::forward_as_tuple(std::make_pair(mBBoxPipelineConfigs, StandaloneMesh(mEngine.GetDevice(), MeshUtils::CreateCube()))));
+			std::forward_as_tuple(std::make_pair(mBBoxPipelineConfigs, StandaloneMesh(mDevice, MeshUtils::CreateCube()))));
 		data = &val.first->second;
 	}
 

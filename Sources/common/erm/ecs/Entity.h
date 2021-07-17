@@ -43,46 +43,46 @@ public:
 	template<typename T>
 	inline bool HasComponent() const
 	{
-		return mECS.GetSystem<typename T::SYSTEM_TYPE>().HasComponent(mId);
+		return mECS.GetSystem<typename T::SYSTEM_TYPE>()->HasComponent(mId);
 	}
 
 	template<typename T>
 	inline T* GetComponent() const
 	{
-		return mECS.GetSystem<typename T::SYSTEM_TYPE>().GetComponent(mId);
+		return mECS.GetSystem<typename T::SYSTEM_TYPE>()->GetComponent(mId);
 	}
 
 	template<typename T, typename... Args>
 	inline T* AddComponent(Args&&... args) const
 	{
-		return mECS.GetSystem<typename T::SYSTEM_TYPE>().AddComponent(mId, std::forward<Args>(args)...);
+		return mECS.GetSystem<typename T::SYSTEM_TYPE>()->AddComponent(mId, std::forward<Args>(args)...);
 	}
 
 	template<typename T, typename... Args>
 	inline T* RequireComponent(Args&&... args) const
 	{
-		return mECS.GetSystem<typename T::SYSTEM_TYPE>().RequireComponent(mId, std::forward<Args>(args)...);
+		return mECS.GetSystem<typename T::SYSTEM_TYPE>()->RequireComponent(mId, std::forward<Args>(args)...);
 	}
 
 	inline EntityId GetParent() const { return mTransformComponent.GetParent(); }
 	inline const std::vector<EntityId>& GetChildren() const { return mTransformComponent.GetChildren(); }
 
-	inline void RemoveFromParent() { mTransformSystem.RemoveFromParent(mId); }
-	inline void AddChild(Entity& child) { mTransformSystem.AddChild(mId, child.mId); }
+	inline void RemoveFromParent() { mTransformSystem->RemoveFromParent(mId); }
+	inline void AddChild(Entity& child) { mTransformSystem->AddChild(mId, child.mId); }
 
 private:
-	inline Entity(EntityId id, ECS& ecs, const std::string& name)
-		: mId(id)
-		, mECS(ecs)
+	inline Entity(ECS& ecs, EntityId id, const std::string& name)
+		: mECS(ecs)
+		, mId(id)
 		, mName(name)
 		, mTransformSystem(mECS.GetSystem<TransformSystem>())
 		, mTransformComponent(*RequireComponent<TransformComponent>())
 	{}
 
-	const EntityId mId;
 	ECS& mECS;
+	const EntityId mId;
 	std::string mName;
-	TransformSystem& mTransformSystem;
+	TransformSystem* mTransformSystem;
 	TransformComponent& mTransformComponent;
 };
 

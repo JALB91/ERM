@@ -5,11 +5,13 @@
 
 namespace erm::ecs {
 
-class SkeletonSystem : public ISystem<SkeletonComponent>
+class SkeletonSystem : public ISystem
 {
+	ERM_SYSTEM_DECL(Skeleton)
+
 public:
-	SkeletonSystem(ECS& ecs)
-		: ISystem(ecs)
+	SkeletonSystem(Engine& engine)
+		: ISystem(engine)
 	{}
 
 	// ISystem

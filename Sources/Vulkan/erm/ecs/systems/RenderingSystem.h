@@ -16,7 +16,7 @@
 // clang-format on
 
 namespace erm {
-class Engine;
+class Device;
 class Model;
 class Renderer;
 class ShaderProgram;
@@ -36,10 +36,12 @@ struct TransformComponent;
 
 namespace erm::ecs {
 
-class RenderingSystem : public ISystem<RenderingComponent>
+class RenderingSystem : public ISystem
 {
+	ERM_SYSTEM_DECL(Rendering)
+
 public:
-	RenderingSystem(ECS& ecs, Engine& engine);
+	RenderingSystem(Engine& engine);
 	~RenderingSystem();
 
 	// ISystem
@@ -98,7 +100,7 @@ private:
 		vk::CommandBuffer& cmd);
 #endif
 
-	Engine& mEngine;
+	Device& mDevice;
 	Renderer& mRenderer;
 	ResourcesManager& mResourcesManager;
 

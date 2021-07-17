@@ -15,6 +15,7 @@
 #include <vector>
 
 namespace erm {
+class Device;
 class Engine;
 class Renderer;
 class ShaderProgram;
@@ -32,10 +33,12 @@ struct Entity;
 
 namespace erm::ecs {
 
-class EditorSystem : public ISystem<EditorComponent>
+class EditorSystem : public ISystem
 {
+	ERM_SYSTEM_DECL(Editor)
+
 public:
-	EditorSystem(ECS& ecs, Engine& engine);
+	EditorSystem(Engine& engine);
 	~EditorSystem();
 
 	// ISystem
@@ -49,7 +52,7 @@ private:
 
 	RenderData& GetOrCreateRenderDataForBBox(EntityId id);
 
-	Engine& mEngine;
+	Device& mDevice;
 	Renderer& mRenderer;
 	ResourcesManager& mResourcesManager;
 
