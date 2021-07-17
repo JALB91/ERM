@@ -55,7 +55,7 @@ erm::UboData GetUboData(const spirv_cross::Compiler& compiler, const spirv_cross
 	};
 
 	if (resource.name.compare("UMVPOnly") == 0)
-		return makeUboData(erm::UBOMVPOnly::ID, sizeof(erm::UBOMVPOnly));
+		return makeUboData(erm::UboMVPOnly::ID, sizeof(erm::UboMVPOnly));
 	else if (resource.name.compare("UModelViewProj") == 0)
 		return makeUboData(erm::UboModelViewProj::ID, sizeof(erm::UboModelViewProj));
 	else if (resource.name.compare("UMaterial") == 0)
@@ -79,7 +79,7 @@ erm::UboData GetUboData(const spirv_cross::Compiler& compiler, const spirv_cross
 
 	ASSERT(false);
 
-	return {erm::UBOMVPOnly::ID, sizeof(erm::UBOMVPOnly), 0, 0, 0};
+	return {erm::UboMVPOnly::ID, sizeof(erm::UboMVPOnly), 0, 0, 0};
 }
 
 erm::SamplerData GetSamplerData(const spirv_cross::Compiler& compiler, const spirv_cross::Resource& resource)

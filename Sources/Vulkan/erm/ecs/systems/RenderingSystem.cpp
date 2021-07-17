@@ -349,7 +349,7 @@ void RenderingSystem::UpdateUbos(
 	const PipelineConfigs& configs = data.mPipelineConfigs;
 
 	{
-		UBOMVPOnly ubo;
+		UboMVPOnly ubo;
 		ubo.mMVP = proj * viewInv * modelMat;
 		data.SetUbo(std::move(ubo));
 	}

@@ -12,7 +12,7 @@ typedef uint8_t UboId;
 struct IUbo
 {};
 
-struct UBOMVPOnly : public IUbo
+struct UboMVPOnly : public IUbo
 {
 	static constexpr UboId ID = 0;
 
