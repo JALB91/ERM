@@ -12,6 +12,7 @@ public:
 
 	void Refresh();
 
+	inline const std::vector<std::string>& GetSounds() const { return mSounds; }
 	inline const std::vector<std::string>& GetModels() const { return mModels; }
 	inline const std::vector<std::string>& GetTextures() const { return mTextures; }
 	inline const std::vector<std::string>& GetMaterials() const { return mMaterials; }
@@ -20,6 +21,7 @@ public:
 
 private:
 	std::string mResourcesRoot;
+	std::vector<std::string> mSounds;
 	std::vector<std::string> mModels;
 	std::vector<std::string> mTextures;
 	std::vector<std::string> mMaterials;

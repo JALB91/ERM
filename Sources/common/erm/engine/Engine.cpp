@@ -1,15 +1,8 @@
 #include "erm/engine/Engine.h"
 
+#include "erm/audio/AudioManager.h"
+
 #include "erm/debug/ImGuiHandle.h"
-
-#include "erm/rendering/Device.h"
-#include "erm/rendering/data_structs/Bone.h"
-#include "erm/rendering/data_structs/Model.h"
-#include "erm/rendering/renderer/Renderer.h"
-#include "erm/rendering/window/Window.h"
-
-#include "erm/utils/Profiler.h"
-#include "erm/utils/Utils.h"
 
 #include "erm/ecs/Entity.h"
 #include "erm/ecs/systems/CameraSystem.h"
@@ -23,6 +16,16 @@
 #include "erm/managers/ResourcesManager.h"
 
 #include "erm/math/vec.h"
+
+#include "erm/rendering/Device.h"
+#include "erm/rendering/data_structs/Bone.h"
+#include "erm/rendering/data_structs/Model.h"
+#include "erm/rendering/renderer/Renderer.h"
+#include "erm/rendering/window/Window.h"
+
+#include "erm/utils/Profiler.h"
+#include "erm/utils/UpdateManager.h"
+#include "erm/utils/Utils.h"
 
 #include <random>
 
@@ -51,6 +54,8 @@ const int kEntities = 1;
 } // namespace
 
 namespace erm {
+
+Engine* gEngine = nullptr;
 
 Engine::Engine()
 	: mMaxFPS(144)
@@ -89,6 +94,8 @@ bool Engine::Init()
 		return false;
 	}
 
+	mUpdateManager = std::make_unique<UpdateManager>();
+	mAudioManager = std::make_unique<AudioManager>();
 	mDevice = std::make_unique<Device>(mWindow->GetWindow());
 	mResourcesManager = std::make_unique<ResourcesManager>(*mDevice);
 	mRenderer = std::make_unique<Renderer>(*this);
@@ -250,6 +257,7 @@ void Engine::OnPreUpdate()
 {
 	PROFILE_FUNCTION();
 
+	mUpdateManager->OnPreUpdate();
 	mECS->OnPreUpdate();
 }
 
@@ -261,6 +269,8 @@ void Engine::OnUpdate(float dt)
 	mECS->OnUpdate(dt);
 	mWindow->OnUpdate();
 	mResourcesManager->OnUpdate();
+	mAudioManager->OnUpdate(dt);
+	mUpdateManager->Update(dt);
 }
 
 void Engine::OnPostUpdate()
@@ -268,6 +278,7 @@ void Engine::OnPostUpdate()
 	PROFILE_FUNCTION();
 
 	mECS->OnPostUpdate();
+	mUpdateManager->OnPostUpdate();
 }
 
 void Engine::OnPreRender()

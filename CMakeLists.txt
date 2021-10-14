@@ -77,6 +77,7 @@ add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/imgui")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/tinyxml")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/stb_image")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/SPIRV-Cross")
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/fmod")
 
 if(ERM_ASSIMP_ENABLED)
 	add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/assimp")
@@ -179,6 +180,8 @@ target_link_libraries(
 		$<$<BOOL:${ERM_ASSIMP_ENABLED}>:assimp>
 		stb_image
 		spirv-cross-cpp
+		fmod_core
+		fmod_studio
 		debug "${PRIVATE_DEBUG_DEPENDENCIES}"
 		optimized "${PRIVATE_RELEASE_DEPENDENCIES}"
 	PUBLIC 
