@@ -27,19 +27,15 @@ std::vector<char> ReadShaderCompiled(const char* path)
 
 	stream.seekg(0);
 	stream.read(buffer.data(), fileSize);
-
 	stream.close();
 
 	return buffer;
 }
 
-std::vector<uint32_t> LoadSpirvFile(const char* path)
+std::vector<uint32_t> LoadSpirvFile(const std::vector<char>& compiledShader)
 {
-	std::vector<char> file = ReadShaderCompiled(path);
-
-	std::vector<uint32_t> buffer(file.size() / sizeof(uint32_t));
-	memcpy(buffer.data(), file.data(), file.size());
-
+	std::vector<uint32_t> buffer(compiledShader.size() / sizeof(uint32_t));
+	memcpy(buffer.data(), compiledShader.data(), compiledShader.size());
 	return buffer;
 }
 
@@ -224,7 +220,7 @@ void IShaderProgram::UpdateShadersData(ShaderType shaderType)
 
 		d.mShaderSource = Utils::ReadFromFile(shaderPath.c_str());
 		d.mShaderByteCode = ReadShaderCompiled(compiledShaderPath.c_str());
-		d.mShaderCompiler = std::make_unique<spirv_cross::Compiler>(LoadSpirvFile(compiledShaderPath.c_str()));
+		d.mShaderCompiler = std::make_unique<spirv_cross::Compiler>(LoadSpirvFile(d.mShaderByteCode));
 	}
 }
 
