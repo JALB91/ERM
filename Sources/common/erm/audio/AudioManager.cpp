@@ -48,6 +48,7 @@ AudioManager::AudioManager()
 	, mCoreSystem(nullptr)
 	, mChannels({})
 	, mPlayInBackground(true)
+	, mSuspended(false)
 {
 	ERM_CHECK_FMOD_RESULT(FMOD::Studio::System::create(&mStudioSystem))
 	ERM_CHECK_FMOD_RESULT(mStudioSystem->initialize(MAX_CHANNELS, FMOD_STUDIO_INIT_NORMAL, FMOD_INIT_NORMAL, 0))
@@ -71,9 +72,10 @@ AudioManager::~AudioManager()
 
 void AudioManager::Suspend()
 {
+	mSuspended = true;
 	for (auto& repro : mReproductions)
 	{
-		if (repro.IsPlaying())
+		if (!repro.IsPaused())
 		{
 			repro.Pause();
 			mReproductionsToResume.emplace_back(repro);
@@ -83,6 +85,7 @@ void AudioManager::Suspend()
 
 void AudioManager::Resume()
 {
+	mSuspended = false;
 	for (auto repro : mReproductionsToResume)
 		repro.get().Resume();
 

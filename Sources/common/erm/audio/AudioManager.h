@@ -63,6 +63,7 @@ private:
 	std::vector<Reproduction> mReproductions;
 	std::vector<std::reference_wrapper<Reproduction>> mReproductionsToResume;
 	bool mPlayInBackground;
+	bool mSuspended;
 };
 
 } // namespace erm

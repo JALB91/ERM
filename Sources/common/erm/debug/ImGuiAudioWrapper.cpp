@@ -121,7 +121,12 @@ void ShowAudioDebugWindow(erm::Engine& engine, bool& open)
 				ImGui::SameLine();
 
 				if (ImGui::Button("O"))
+				{
 					repro.Stop();
+					ImGui::EndChild();
+					ImGui::PopID();
+					continue;
+				}
 
 				ImGui::SameLine();
 				ImGui::Text("%s", repro.GetCurrentSoundName());

@@ -54,6 +54,7 @@ public:
 	bool IsPaused() const;
 	bool IsEnded() const;
 	bool IsLooping() const;
+	bool IsStopped() const;
 
 	void Resume() const;
 	void Pause() const;
@@ -62,6 +63,7 @@ public:
 private:
 	float mDuration;
 	unsigned int mLoops;
+	mutable bool mStopped;
 };
 
 } // namespace erm

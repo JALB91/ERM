@@ -52,6 +52,7 @@ Reproduction::Reproduction(
 	, Channel(channel)
 	, mDuration(static_cast<float>(GetLenght()) / 1000.0f)
 	, mLoops(0)
+	, mStopped(false)
 {
 	ERM_CHECK_FMOD_RESULT(mChannel->setUserData(this));
 	ERM_CHECK_FMOD_RESULT(mChannel->setCallback(ChannelCallback));
@@ -168,7 +169,7 @@ bool Reproduction::IsPaused() const
 
 bool Reproduction::IsEnded() const
 {
-	return GetTimeLeft() <= 0.0f && !IsLooping();
+	return IsStopped() || (GetTimeLeft() <= 0.0f && !IsLooping());
 }
 
 bool Reproduction::IsLooping() const
@@ -191,6 +192,11 @@ bool Reproduction::IsLooping() const
 	return looping && GetMode() & FMOD_LOOP_NORMAL;
 }
 
+bool Reproduction::IsStopped() const
+{
+	return mStopped;
+}
+
 void Reproduction::Resume() const
 {
 	ERM_CHECK_FMOD_RESULT(mChannel->setPaused(false));
@@ -204,6 +210,7 @@ void Reproduction::Pause() const
 void Reproduction::Stop() const
 {
 	ERM_CHECK_FMOD_RESULT(mChannel->stop());
+	mStopped = true;
 }
 
 } // namespace erm

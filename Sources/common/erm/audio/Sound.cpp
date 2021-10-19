@@ -20,8 +20,10 @@ Sound::~Sound()
 
 const char* Sound::GetName() const
 {
-	static char name[128];
-	ERM_CHECK_FMOD_RESULT(mSound->getName(name, 128));
+	static char name[256];
+
+	strcpy(name, "Unknown");
+	ERM_CHECK_FMOD_RESULT(mSound->getName(name, sizeof(name)));
 	return name;
 }
 
