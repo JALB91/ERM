@@ -61,7 +61,7 @@ public:
 
 private:
 	float mDuration;
-	int mLoops;
+	unsigned int mLoops;
 };
 
 } // namespace erm

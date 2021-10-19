@@ -17,6 +17,34 @@ void ShowAudioDebugWindow(erm::Engine& engine, bool& open)
 	{
 		erm::AudioManager& audioManager = engine.GetAudioManager();
 		const auto& sounds = engine.GetFileLocator().GetSounds();
+		const auto& drivers = audioManager.GetDrivers();
+		const auto& currentDriver = drivers.at(audioManager.GetDriver());
+
+		bool playInBackground = audioManager.ShouldPlayInBackground();
+		if (ImGui::Checkbox("Play in background", &playInBackground))
+			audioManager.SetPlayInBackground(playInBackground);
+
+		if (ImGui::Button("R"))
+			audioManager.UpdateDrivers();
+
+		ImGui::SameLine();
+
+		if (ImGui::BeginCombo("Drivers", currentDriver.mName.data()))
+		{
+			for (const auto& [id, driver] : drivers)
+			{
+				bool selected = id == audioManager.GetDriver();
+				if (ImGui::Selectable(driver.mName.data(), &selected))
+				{
+					audioManager.SetDriver(id);
+				}
+			}
+
+			ImGui::EndCombo();
+		}
+
+		ImGui::Separator();
+
 		bool play = ImGui::Button("+");
 
 		ImGui::SameLine();
@@ -144,7 +172,6 @@ void ShowAudioDebugWindow(erm::Engine& engine, bool& open)
 
 				if (setFrequency || invertFrequency)
 					repro.SetFrequency(frequency * (invertFrequency ? -1.0f : 1.0f));
-
 				ImGui::EndChild();
 
 				ImGui::SameLine();

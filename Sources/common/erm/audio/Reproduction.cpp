@@ -1,5 +1,7 @@
 #include "erm/audio/Reproduction.h"
 
+#include "erm/audio/AudioUtils.h"
+
 #include "erm/engine/Engine.h"
 
 #include <fmod.hpp>
@@ -22,8 +24,8 @@ FMOD_RESULT ChannelCallback(
 
 	FMOD::Channel* channel = (FMOD::Channel*)channelcontrol;
 	void* data;
-	channel->getUserData(&data);
-	Reproduction* repro = (Reproduction*)data;
+	ERM_CHECK_FMOD_RESULT(channel->getUserData(&data));
+	Reproduction* repro = static_cast<Reproduction*>(data);
 
 	switch (callbacktype)
 	{
@@ -51,8 +53,8 @@ Reproduction::Reproduction(
 	, mDuration(static_cast<float>(GetLenght()) / 1000.0f)
 	, mLoops(0)
 {
-	mChannel->setUserData(this);
-	mChannel->setCallback(ChannelCallback);
+	ERM_CHECK_FMOD_RESULT(mChannel->setUserData(this));
+	ERM_CHECK_FMOD_RESULT(mChannel->setCallback(ChannelCallback));
 }
 
 Reproduction::~Reproduction()
@@ -75,100 +77,92 @@ float Reproduction::GetElapsedTime() const
 
 void Reproduction::SetMode(FMOD_MODE mode) const
 {
-	mChannel->setMode(mode);
+	ERM_CHECK_FMOD_RESULT(mChannel->setMode(mode));
 }
 
 FMOD_MODE Reproduction::GetMode() const
 {
 	FMOD_MODE mode = FMOD_2D;
-	mChannel->getMode(&mode);
-
+	ERM_CHECK_FMOD_RESULT(mChannel->getMode(&mode));
 	return mode;
 }
 
 void Reproduction::SetLoopCount(LoopCount count) const
 {
-	mChannel->setLoopCount(static_cast<int>(count));
+	ERM_CHECK_FMOD_RESULT(mChannel->setLoopCount(static_cast<int>(count)));
 }
 
 LoopCount Reproduction::GetLoopCount() const
 {
 	int count = 0;
-	mChannel->getLoopCount(&count);
-
+	ERM_CHECK_FMOD_RESULT(mChannel->getLoopCount(&count));
 	return static_cast<LoopCount>(count);
 }
 
 void Reproduction::SetMuted(bool muted) const
 {
-	mChannel->setMute(muted);
+	ERM_CHECK_FMOD_RESULT(mChannel->setMute(muted));
 }
 
 bool Reproduction::IsMuted() const
 {
 	bool muted = false;
-	mChannel->getMute(&muted);
-
+	ERM_CHECK_FMOD_RESULT(mChannel->getMute(&muted));
 	return muted;
 }
 
 void Reproduction::SetPosition(float position) const
 {
-	mChannel->setPosition(static_cast<unsigned int>(position * GetLenght()), FMOD_TIMEUNIT_MS);
+	ERM_CHECK_FMOD_RESULT(mChannel->setPosition(static_cast<unsigned int>(position * GetLenght()), FMOD_TIMEUNIT_MS));
 }
 
 float Reproduction::GetPosition() const
 {
 	unsigned int position = 0;
-	mChannel->getPosition(&position, FMOD_TIMEUNIT_MS);
-
+	ERM_CHECK_FMOD_RESULT(mChannel->getPosition(&position, FMOD_TIMEUNIT_MS));
 	return static_cast<float>(position) / static_cast<float>(GetLenght());
 }
 
 void Reproduction::SetVolume(float volume) const
 {
-	mChannel->setVolume(volume);
+	ERM_CHECK_FMOD_RESULT(mChannel->setVolume(volume));
 }
 
 float Reproduction::GetVolume() const
 {
 	float volume = 0.0f;
-	mChannel->getVolume(&volume);
-
+	ERM_CHECK_FMOD_RESULT(mChannel->getVolume(&volume));
 	return volume;
 }
 
 void Reproduction::SetFrequency(float frequency) const
 {
-	mChannel->setFrequency(frequency);
+	ERM_CHECK_FMOD_RESULT(mChannel->setFrequency(frequency));
 }
 
 float Reproduction::GetFrequency() const
 {
 	float frequency = 44100.0f;
-	mChannel->getFrequency(&frequency);
-
+	ERM_CHECK_FMOD_RESULT(mChannel->getFrequency(&frequency));
 	return frequency;
 }
 
 void Reproduction::SetPitch(float pitch) const
 {
-	mChannel->setPitch(pitch);
+	ERM_CHECK_FMOD_RESULT(mChannel->setPitch(pitch));
 }
 
 float Reproduction::GetPitch() const
 {
 	float pitch = 1.0f;
-	mChannel->getPitch(&pitch);
-
+	ERM_CHECK_FMOD_RESULT(mChannel->getPitch(&pitch));
 	return pitch;
 }
 
 bool Reproduction::IsPaused() const
 {
 	bool isPaused = false;
-	mChannel->getPaused(&isPaused);
-
+	ERM_CHECK_FMOD_RESULT(mChannel->getPaused(&isPaused));
 	return isPaused;
 }
 
@@ -199,17 +193,17 @@ bool Reproduction::IsLooping() const
 
 void Reproduction::Resume() const
 {
-	mChannel->setPaused(false);
+	ERM_CHECK_FMOD_RESULT(mChannel->setPaused(false));
 }
 
 void Reproduction::Pause() const
 {
-	mChannel->setPaused(true);
+	ERM_CHECK_FMOD_RESULT(mChannel->setPaused(true));
 }
 
 void Reproduction::Stop() const
 {
-	mChannel->stop();
+	ERM_CHECK_FMOD_RESULT(mChannel->stop());
 }
 
 } // namespace erm

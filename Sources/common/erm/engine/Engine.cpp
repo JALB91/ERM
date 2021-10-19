@@ -312,6 +312,18 @@ void Engine::OnPostRender()
 	mResourcesManager->OnPostRender();
 }
 
+void Engine::OnFocusChanged()
+{
+	if (mWindow->HasFocus())
+	{
+		mAudioManager->Resume();
+	}
+	else if (!mAudioManager->ShouldPlayInBackground())
+	{
+		mAudioManager->Suspend();
+	}
+}
+
 void Engine::OnKeyPressed(Key /*keyCode*/)
 {}
 

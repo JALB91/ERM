@@ -1,5 +1,7 @@
 #include "erm/audio/Channel.h"
 
+#include "erm/audio/AudioUtils.h"
+
 #include <fmod.hpp>
 
 namespace erm {
@@ -16,9 +18,8 @@ bool Channel::IsPlaying() const
 	if (!mChannel)
 		return false;
 
-	bool isPlaying;
-	mChannel->isPlaying(&isPlaying);
-
+	bool isPlaying = false;
+	ERM_CHECK_FMOD_RESULT(mChannel->isPlaying(&isPlaying));
 	return isPlaying;
 }
 

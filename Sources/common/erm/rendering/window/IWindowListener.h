@@ -16,6 +16,7 @@ public:
 	virtual void OnMouseButtonPressed(MouseButton mouseButton) = 0;
 	virtual void OnMouseButtonReleased(MouseButton mouseButton) = 0;
 	virtual void OnMouseMoved(double xPos, double yPos) = 0;
+	virtual void OnFocusChanged() = 0;
 };
 
 } // namespace erm

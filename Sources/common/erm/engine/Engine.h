@@ -72,6 +72,7 @@ private:
 	void OnMouseButtonReleased(MouseButton mouseButton) override;
 	void OnMouseMoved(double xPos, double yPos) override;
 	void OnSizeChanged(int width, int height) override;
+	void OnFocusChanged() override;
 
 	Timer mTimer;
 	unsigned int mFPS;
