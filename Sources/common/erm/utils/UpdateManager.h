@@ -2,6 +2,7 @@
 
 #include "erm/utils/IUpdatable.h"
 
+#include <functional>
 #include <vector>
 
 namespace erm {
