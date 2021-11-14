@@ -22,7 +22,12 @@ const RenderConfigs RenderConfigs::DEFAULT_RENDER_CONFIGS {
 			AttachmentStoreOp::DONT_CARE,
 #endif
 			ImageLayout::UNDEFINED,
-			ImageLayout::DEPTH_STENCIL_ATTACHMENT_OPTIMAL)}};
+#ifdef ERM_RAY_TRACING_ENABLED
+			ImageLayout::GENERAL
+#else
+			ImageLayout::DEPTH_STENCIL_ATTACHMENT_OPTIMAL
+#endif
+			)}};
 
 RenderConfigs::RenderConfigs(const SubpassData& subpassData)
 	: mSubpassData(subpassData)

@@ -8,7 +8,8 @@ struct HitPayload
 	vec3 mOrigin;
 	vec3 mDir;
 	int mDepth;
-	int mDone;
+	bool mDone;
+	bool mSkip;
 };
 
 #endif

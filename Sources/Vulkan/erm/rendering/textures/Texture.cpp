@@ -10,19 +10,34 @@
 
 namespace erm {
 
-Texture::Texture(Device& device, const char* path)
+Texture::Texture(
+	Device& device,
+	const char* path,
+	vk::Image image /* = nullptr*/,
+	vk::ImageView imageView /* = nullptr*/,
+	vk::DeviceMemory imageMemory /* = nullptr*/)
 	: IAsset(path, "")
 	, mDevice(device)
 	, mLocalBuffer(nullptr)
 	, mWidth(0)
 	, mHeight(0)
 	, mBPP(0)
+	, mTextureImage(image)
+	, mTextureImageView(imageView)
+	, mTextureImageMemory(imageMemory)
+	, mImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal)
 {}
 
-Texture::~Texture() = default;
+Texture::~Texture()
+{
+	mDevice->destroyImage(mTextureImage);
+	mDevice->destroyImageView(mTextureImageView);
+	mDevice->freeMemory(mTextureImageMemory);
+}
 
 void Texture::Init()
 {
+	ASSERT(!mTextureImage && !mTextureImageView && !mTextureImageMemory);
 	CreateTextureImage();
 	CreateTextureImageView();
 }
@@ -53,7 +68,7 @@ void Texture::CreateTextureImage()
 	imageInfo.samples = vk::SampleCountFlagBits::e1;
 	imageInfo.sharingMode = vk::SharingMode::eExclusive;
 
-	VkUtils::CreateImageUnique(
+	VkUtils::CreateImage(
 		mDevice.GetVkPhysicalDevice(),
 		mDevice.GetVkDevice(),
 		imageInfo,
@@ -63,7 +78,7 @@ void Texture::CreateTextureImage()
 
 	VkUtils::TransitionImageLayout(
 		mDevice,
-		mTextureImage.get(),
+		mTextureImage,
 		vk::Format::eR8G8B8A8Srgb,
 		vk::ImageLayout::eUndefined,
 		vk::ImageLayout::eTransferDstOptimal);
@@ -71,13 +86,13 @@ void Texture::CreateTextureImage()
 	VkUtils::CopyBufferToImage(
 		mDevice,
 		stagingBuffer.GetBuffer(),
-		mTextureImage.get(),
+		mTextureImage,
 		static_cast<uint32_t>(mWidth),
 		static_cast<uint32_t>(mHeight));
 
 	VkUtils::TransitionImageLayout(
 		mDevice,
-		mTextureImage.get(),
+		mTextureImage,
 		vk::Format::eR8G8B8A8Srgb,
 		vk::ImageLayout::eTransferDstOptimal,
 		vk::ImageLayout::eShaderReadOnlyOptimal);
@@ -86,7 +101,7 @@ void Texture::CreateTextureImage()
 void Texture::CreateTextureImageView()
 {
 	vk::ImageViewCreateInfo viewInfo {};
-	viewInfo.image = mTextureImage.get();
+	viewInfo.image = mTextureImage;
 	viewInfo.viewType = vk::ImageViewType::e2D;
 	viewInfo.format = vk::Format::eR8G8B8A8Srgb;
 	viewInfo.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
@@ -95,7 +110,7 @@ void Texture::CreateTextureImageView()
 	viewInfo.subresourceRange.baseArrayLayer = 0;
 	viewInfo.subresourceRange.layerCount = 1;
 
-	mTextureImageView = VkUtils::CreateImageViewUnique(
+	mTextureImageView = VkUtils::CreateImageView(
 		mDevice.GetVkDevice(),
 		viewInfo);
 }

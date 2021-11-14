@@ -10,8 +10,6 @@
 #include "erm/ray_tracing/RTRenderData.h"
 
 #include <vulkan/vulkan.hpp>
-
-#include <vector>
 #endif
 // clang-format on
 
@@ -28,6 +26,7 @@ class ModelSystem;
 class CameraSystem;
 class LightSystem;
 struct Entity;
+struct CameraComponent;
 struct LightComponent;
 struct SkeletonComponent;
 struct TransformComponent;
@@ -51,8 +50,7 @@ public:
 #ifdef ERM_RAY_TRACING_ENABLED
 	inline RTRenderData& GetDefaultRTRenderData()
 	{
-		ASSERT(!mRTRenderData.empty());
-		return mRTRenderData[0];
+		return mRTRenderData;
 	}
 #endif
 
@@ -60,13 +58,14 @@ private:
 	// ISystem
 	void OnComponentBeingRemoved(EntityId id) override;
 
-	void UpdateCameraID();
-	void UpdateLightID();
+	template<typename T>
+	void UpdateComponentID(ID& componentId, ISystem<T>& system);
 
 	void ProcessForRasterization(
 		Model& model,
 		RenderingComponent& renderingComponent,
 		LightComponent* light,
+		CameraComponent* camera,
 		SkeletonComponent* skeletonComponent,
 		TransformComponent& cameraTransform,
 		const math::mat4& proj,
@@ -80,6 +79,7 @@ private:
 		const math::mat4& viewInv,
 		const math::mat4& modelMat,
 		const LightComponent& light,
+		const CameraComponent& camera,
 		const math::vec3& lightPos,
 		const SkeletonComponent* skeletonComponent,
 		const TransformComponent& cameraTransform);
@@ -87,9 +87,11 @@ private:
 #ifdef ERM_RAY_TRACING_ENABLED
 	void UpdateRTData(
 		LightComponent* light,
+		CameraComponent* camera,
 		const math::mat4& proj,
 		const math::mat4& view,
-		const math::vec3& lightPos);
+		const math::vec3& lightPos,
+		const math::vec3& cameraPos);
 
 	void ProcessForRayTracing(
 		Model& model,
@@ -112,7 +114,7 @@ private:
 	ID mCachedLightId;
 
 #ifdef ERM_RAY_TRACING_ENABLED
-	std::vector<RTRenderData> mRTRenderData;
+	RTRenderData mRTRenderData;
 #endif
 };
 

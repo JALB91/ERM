@@ -68,6 +68,8 @@ erm::UboData GetUboData(const spirv_cross::Compiler& compiler, const spirv_cross
 		return makeUboData(erm::UboPBLight::ID, sizeof(erm::UboPBLight));
 	else if (resource.name.compare("UBonesDebug") == 0)
 		return makeUboData(erm::UboBonesDebug::ID, sizeof(erm::UboBonesDebug));
+	else if (resource.name.compare("UCamera") == 0)
+		return makeUboData(erm::UboCamera::ID, sizeof(erm::UboCamera));
 #ifdef ERM_RAY_TRACING_ENABLED
 	else if (resource.name.compare("URTBasic") == 0)
 		return makeUboData(erm::UboRTBasic::ID, sizeof(erm::UboRTBasic));
@@ -93,8 +95,10 @@ erm::SamplerData GetSamplerData(const spirv_cross::Compiler& compiler, const spi
 		return makeSamplerData(erm::TextureType::NORMAL);
 	else if (resource.name.compare("specularSampler") == 0)
 		return makeSamplerData(erm::TextureType::SPECULAR);
-	else if (resource.name.compare("cubeMap") == 0)
+	else if (resource.name.compare("cubeMapSampler") == 0)
 		return makeSamplerData(erm::TextureType::CUBE_MAP);
+	else if (resource.name.compare("depthSampler") == 0)
+		return makeSamplerData(erm::TextureType::DEPTH);
 
 	ASSERT(false);
 

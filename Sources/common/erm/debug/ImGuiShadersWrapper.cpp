@@ -55,6 +55,7 @@ void ShowShadersDebug(erm::Engine& engine, bool& open)
 
 		if (selected && hasChanged)
 		{
+			shaderSources.clear();
 			const std::unordered_map<erm::ShaderType, std::vector<erm::ShaderData>>& dataMap = selected->GetShadersDataMap();
 
 			for (const auto& [type, data] : dataMap)

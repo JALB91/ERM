@@ -160,7 +160,11 @@ void RenderingResources::CreateRenderPass()
 
 		vk::AttachmentReference& depthAttachmentRef = attachmentRefs.emplace_back();
 		depthAttachmentRef.attachment = 1;
+#ifdef ERM_RAY_TRACING_ENABLED
+		depthAttachmentRef.layout = vk::ImageLayout::eGeneral;
+#else
 		depthAttachmentRef.layout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
+#endif
 
 		subpass.pDepthStencilAttachment = &depthAttachmentRef;
 	}

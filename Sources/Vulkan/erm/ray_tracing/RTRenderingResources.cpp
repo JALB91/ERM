@@ -1,5 +1,7 @@
 #include "erm/ray_tracing/RTRenderingResources.h"
 
+#include "erm/engine/Engine.h"
+
 #include "erm/math/math.h"
 
 #include "erm/ray_tracing/RTBlas.h"
@@ -8,7 +10,7 @@
 
 #include "erm/rendering/Device.h"
 #include "erm/rendering/buffers/DeviceBuffer.h"
-#include "erm/rendering/renderer/IRenderer.h"
+#include "erm/rendering/renderer/Renderer.h"
 #include "erm/rendering/shaders/IShaderProgram.h"
 
 #include "erm/utils/Profiler.h"
@@ -18,11 +20,9 @@
 
 namespace erm {
 
-RTRenderingResources::RTRenderingResources(
-	Device& device,
-	IRenderer& renderer)
-	: mDevice(device)
-	, mRenderer(renderer)
+RTRenderingResources::RTRenderingResources(Engine& engine)
+	: mDevice(engine.GetDevice())
+	, mRenderer(engine.GetRenderer())
 {
 	CreateDescriptorPool();
 	CreateCommandBuffers();

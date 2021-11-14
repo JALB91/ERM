@@ -40,7 +40,7 @@ void Renderer::OnPreRender()
 	mRenderingResources->Refresh();
 #ifdef ERM_RAY_TRACING_ENABLED
 	if (!mRTRenderingResources)
-		mRTRenderingResources = std::make_unique<RTRenderingResources>(mDevice, *this);
+		mRTRenderingResources = std::make_unique<RTRenderingResources>(mEngine);
 	mRTRenderingResources->Refresh();
 #endif
 

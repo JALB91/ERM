@@ -75,7 +75,7 @@ EditorSystem::EditorSystem(ECS& ecs, Engine& engine)
 	, mInstanceDataBuffer(mEngine.GetDevice(), sizeof(InstanceData), vk::BufferUsageFlagBits::eStorageBuffer)
 #endif
 	, mGridRenderData(GetGridPipelineConfigs(mEngine))
-	, mGridMesh(mEngine.GetDevice(), MeshUtils::CreateSquare(1000.0f, 1000.0f))
+	, mGridMesh(mEngine.GetDevice(), MeshUtils::CreateCube(10.0f, 10.0f, 2.0f))
 	, mBBoxPipelineConfigs(GetBBoxPipelineConfigs(mEngine))
 	, mArrowsRenderData(GetArrowsPipelineConfigs(mEngine))
 	, mBonesPipelineConfigs(GetBonesPipelineConfigs(mEngine))

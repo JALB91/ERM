@@ -35,7 +35,7 @@ const char* const kShadersDir = "shaders/OpenGl/";
 const char* const kShadersDir = "shaders/DX12/";
 #endif
 #if defined(ERM_RAY_TRACING_ENABLED)
-const char* const kRTShadersDir = "shaders/Vulkan/ray_tracing";
+const char* const kRTShadersDir = "shaders/Vulkan/ray_tracing/";
 #endif
 const char* const kTexturesDir = "textures/";
 

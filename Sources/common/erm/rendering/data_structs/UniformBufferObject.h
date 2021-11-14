@@ -93,10 +93,20 @@ struct UboBonesDebug : public IUbo
 	alignas(16) math::mat4 mProj;
 };
 
+struct UboCamera : public IUbo
+{
+	static constexpr UboId ID = 9;
+
+	alignas(16) math::vec3 mPosition;
+	alignas(4) float mZNear;
+	alignas(4) float mZFar;
+	alignas(4) float mFov;
+};
+
 #ifdef ERM_RAY_TRACING_ENABLED
 struct UboRTBasic : public IUbo
 {
-	static constexpr UboId ID = 9;
+	static constexpr UboId ID = 10;
 
 	alignas(16) math::mat4 mProjInv;
 	alignas(16) math::mat4 mViewInv;
