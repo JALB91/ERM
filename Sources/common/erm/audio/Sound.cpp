@@ -22,7 +22,7 @@ const char* Sound::GetName() const
 {
 	static char name[256];
 
-	strcpy(name, "Unknown");
+	strcpy_s(name, "Unknown");
 	ERM_CHECK_FMOD_RESULT(mSound->getName(name, sizeof(name)));
 	return name;
 }
