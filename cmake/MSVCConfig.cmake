@@ -11,6 +11,7 @@ function(target_setup_project TARGET)
 		PRIVATE 
 			_USE_MATH_DEFINES
 			NOMINMAX
+			strcpy=strcpy_s
 	)
 
 	target_compile_options(
