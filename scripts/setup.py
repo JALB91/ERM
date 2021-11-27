@@ -1,4 +1,4 @@
-import sys, argparse, shutil, os, platform, subprocess
+import argparse, os, platform, subprocess
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

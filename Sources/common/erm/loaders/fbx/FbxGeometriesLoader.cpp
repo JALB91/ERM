@@ -193,6 +193,9 @@ void ProcessMesh(
 		}
 	}
 
+	if (vData.empty() || iData.empty())
+		return;
+
 	Material* mat = nullptr;
 	if (pMesh->GetElementMaterialCount() > 0)
 	{
