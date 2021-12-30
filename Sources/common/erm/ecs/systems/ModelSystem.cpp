@@ -35,7 +35,7 @@ void ModelSystem::OnPostUpdate()
 		if (model)
 		{
 			TransformComponent* transformComponent = mTransformSystem->RequireComponent(id);
-			component.mWorldBounds = model->GetLocalBounds().Expand(transformComponent->mWorldTransform);
+			component.mWorldBounds = model->GetLocalBounds().Expand(transformComponent->GetWorldTransform());
 			model->SetDirty(false);
 		}
 		else

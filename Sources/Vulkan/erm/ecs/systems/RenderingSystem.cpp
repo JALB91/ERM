@@ -150,12 +150,12 @@ void RenderingSystem::OnPreRender()
 	light = mLightSystem->GetComponent(mCachedLightId);
 	TransformComponent* lTransform = mTransformSystem->GetComponent(mCachedLightId);
 	if (EntityId parent = lTransform->GetParent(); parent.IsValid())
-		lightPos = mTransformSystem->GetComponent(parent)->mWorldTransform * math::vec4(lTransform->mTranslation, 1.0f);
+		lightPos = mTransformSystem->GetComponent(parent)->GetWorldTransform() * math::vec4(lTransform->GetTranslation(), 1.0f);
 	else
-		lightPos = lTransform->mTranslation;
+		lightPos = lTransform->GetTranslation();
 
 	const math::mat4& proj = camera->GetProjectionMatrix();
-	const math::mat4& view = cameraTransform->mWorldTransform;
+	const math::mat4& view = cameraTransform->GetWorldTransform();
 	const math::mat4 viewInv = glm::inverse(view);
 
 #ifdef ERM_RAY_TRACING_ENABLED
@@ -165,7 +165,7 @@ void RenderingSystem::OnPreRender()
 		proj,
 		view,
 		lightPos,
-		cameraTransform->mTranslation);
+		cameraTransform->GetTranslation());
 
 	auto cmd = VkUtils::BeginSingleTimeCommands(mEngine.GetDevice());
 #endif
@@ -180,7 +180,7 @@ void RenderingSystem::OnPreRender()
 			return;
 
 		const TransformComponent* modelTransform = mTransformSystem->GetComponent(id);
-		const math::mat4& modelMat = modelTransform->mWorldTransform;
+		const math::mat4& modelMat = modelTransform->GetWorldTransform();
 
 		RenderingComponent* renderingComponent = RequireComponent(id);
 		SkeletonComponent* skeletonComponent = mSkeletonSystem->GetComponent(id);
@@ -399,16 +399,16 @@ void RenderingSystem::UpdateUbos(
 	{
 		UboView ubo;
 		if (EntityId parent = cameraTransform.GetParent(); parent.IsValid())
-			ubo.mPosition = mTransformSystem->GetComponent(parent)->mWorldTransform * math::vec4(cameraTransform.mTranslation, 1.0f);
+			ubo.mPosition = mTransformSystem->GetComponent(parent)->GetWorldTransform() * math::vec4(cameraTransform.GetTranslation(), 1.0f);
 		else
-			ubo.mPosition = cameraTransform.mTranslation;
+			ubo.mPosition = cameraTransform.GetTranslation();
 
 		data.SetUbo(std::move(ubo));
 	}
 
 	{
 		UboCamera ubo;
-		ubo.mPosition = cameraTransform.mTranslation;
+		ubo.mPosition = cameraTransform.GetTranslation();
 		ubo.mZNear = camera.GetZNear();
 		ubo.mZFar = camera.GetZFar();
 		ubo.mFov = camera.GetZFar();

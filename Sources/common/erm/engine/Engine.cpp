@@ -107,7 +107,7 @@ bool Engine::Init()
 	auto camera = mECS->GetOrCreateEntity("Camera");
 	camera->AddComponent<ecs::LightComponent>();
 	camera->RequireComponent<ecs::CameraComponent>();
-	camera->GetComponent<ecs::TransformComponent>()->mTranslation = math::vec3(0.0f, 1.0f, 10.0f);
+	camera->GetComponent<ecs::TransformComponent>()->SetTranslation(math::vec3(0.0f, 1.0f, 10.0f));
 
 	auto root = mECS->GetRoot();
 	root->AddChild(*camera);
@@ -117,10 +117,10 @@ bool Engine::Init()
 		root->AddChild(*ent);
 
 		auto entity = mECS->GetOrCreateEntity();
-		entity->AddComponent<ecs::LightComponent>();
+		Model* model = mResourcesManager->GetOrCreateModel("res/models/sphere.fbx");
+		entity->RequireComponent<ecs::ModelComponent>(model);
 		auto transform = entity->RequireComponent<ecs::TransformComponent>();
-		transform->mTranslation.x = -20.5f;
-		transform->mTranslation.y = 80.0f;
+		transform->SetTranslationY(2.5f);
 		ent->AddChild(*entity);
 	}
 
@@ -129,7 +129,7 @@ bool Engine::Init()
 		Model* model = mResourcesManager->GetOrCreateModel("res/models/untitled.dae");
 		entity->RequireComponent<ecs::ModelComponent>(model);
 		auto transform = entity->RequireComponent<ecs::TransformComponent>();
-		transform->mTranslation.x = -2.5f;
+		transform->SetTranslationX(-2.5f);
 		root->AddChild(*entity);
 	}
 
@@ -138,7 +138,7 @@ bool Engine::Init()
 		Model* model = mResourcesManager->GetOrCreateModel("res/models/untitled.dae");
 		entity->RequireComponent<ecs::ModelComponent>(model);
 		auto transform = entity->RequireComponent<ecs::TransformComponent>();
-		transform->mTranslation.x = 2.5f;
+		transform->SetTranslationX(2.5f);
 		root->AddChild(*entity);
 	}
 
@@ -147,8 +147,8 @@ bool Engine::Init()
 		Model* model = mResourcesManager->GetOrCreateModel(kModelModelPath);
 		entity->RequireComponent<ecs::ModelComponent>(model);
 		auto transform = entity->RequireComponent<ecs::TransformComponent>();
-		transform->mScale = math::vec3(0.01f);
-		transform->mTranslation.x = 2.5f;
+		transform->SetScale(math::vec3(0.01f));
+		transform->SetTranslationX(2.5f);
 		root->AddChild(*entity);
 	}
 
@@ -195,14 +195,14 @@ bool Engine::Init()
 		float x = static_cast<float>((std::rand() % dist) - dist / 2);
 		float y = static_cast<float>(std::rand() % 100);
 		float z = static_cast<float>((std::rand() % dist) - dist / 2);
-		tComp->mTranslation = math::vec3(x, y, z);
+		tComp->SetTranslation(math::vec3(x, y, z));
 		if (rnd == 1 || rnd == 5)
-			tComp->mScale = math::vec3(0.1f, 0.1f, 0.1f);
+			tComp->SetScale(math::vec3(0.1f, 0.1f, 0.1f));
 		else if (rnd == 4)
-			tComp->mScale = math::vec3(15.0f, 15.0f, 15.0f);
+			tComp->SetScale(math::vec3(15.0f, 15.0f, 15.0f));
 		else if (rnd == 3)
-			tComp->mRotation = math::vec3(-static_cast<float>(M_PI) * 0.5f, 0.0f, 0.0f);
-		tComp->mRotation.y = static_cast<float>(M_PI) * (static_cast<float>((rand() % 100)) / 100.0f);
+			tComp->SetRotation(math::vec3(-static_cast<float>(M_PI) * 0.5f, 0.0f, 0.0f));
+		tComp->SetRotationY(static_cast<float>(M_PI) * (static_cast<float>((rand() % 100)) / 100.0f));
 		root->AddChild(*entity);
 	}
 

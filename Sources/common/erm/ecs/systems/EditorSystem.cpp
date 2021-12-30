@@ -132,7 +132,7 @@ void EditorSystem::OnRender()
 	TransformComponent* cameraTransform = mTransformSystem->GetComponent(cameraId);
 
 	const math::mat4& proj = camera->GetProjectionMatrix();
-	const math::mat4& view = cameraTransform->mWorldTransform;
+	const math::mat4& view = cameraTransform->GetWorldTransform();
 	const math::mat4 viewInv = glm::inverse(view);
 
 	// GRID RENDERING
@@ -167,7 +167,7 @@ void EditorSystem::OnRender()
 		if (modelCmp->GetShouldShowBoundingBox())
 		{
 			const BoundingBox3D& objBBox = model->GetLocalBounds();
-			math::mat4 transform(mTransformSystem->GetComponent(i)->mWorldTransform);
+			math::mat4 transform(mTransformSystem->GetComponent(i)->GetWorldTransform());
 			transform = glm::translate(transform, (objBBox.mMax + objBBox.mMin) * 0.5f);
 			transform = glm::scale(transform, objBBox.GetSize());
 
@@ -224,7 +224,7 @@ void EditorSystem::OnRender()
 					++index;
 				});
 
-				ubo.mModel = mTransformSystem->GetComponent(i)->mWorldTransform;
+				ubo.mModel = mTransformSystem->GetComponent(i)->GetWorldTransform();
 				ubo.mView = viewInv;
 				ubo.mProj = proj;
 

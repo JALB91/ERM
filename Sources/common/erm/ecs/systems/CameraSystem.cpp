@@ -79,7 +79,7 @@ void CameraSystem::UpdateCameraComponent(CameraComponent& camera, TransformCompo
 			(mWindow.GetPreviousMousePosY() - mWindow.GetMousePosY()),
 			(mWindow.GetPreviousMousePosX() - mWindow.GetMousePosX()),
 			0.0f);
-		rotation = glm::radians(rotation * camera.mMouseSensibility) + transform.mRotation;
+		rotation = glm::radians(rotation * camera.mMouseSensibility) + transform.GetRotation();
 
 		if (rotation.x > camera.mAngleLimit)
 		{
@@ -90,7 +90,7 @@ void CameraSystem::UpdateCameraComponent(CameraComponent& camera, TransformCompo
 			rotation.x = -camera.mAngleLimit;
 		}
 
-		transform.mRotation = rotation;
+		transform.SetRotation(rotation);
 	}
 	else if (mWindow.IsMouseButtonDown(MOUSE_BUTTON_2))
 	{
@@ -126,14 +126,15 @@ void CameraSystem::UpdateCameraComponent(CameraComponent& camera, TransformCompo
 
 	if (translation.x != 0.0f || translation.z != 0.0f || translation.y != 0.0f)
 	{
+		const math::vec3& rotation = transform.GetRotation();
 		math::mat4 rotationMatrix(glm::identity<math::mat4>());
-		rotationMatrix = glm::rotate(rotationMatrix, transform.mRotation.z, math::vec3(0.0f, 0.0f, 1.0f));
-		rotationMatrix = glm::rotate(rotationMatrix, transform.mRotation.y, math::vec3(0.0f, 1.0f, 0.0f));
-		rotationMatrix = glm::rotate(rotationMatrix, transform.mRotation.x, math::vec3(1.0f, 0.0f, 0.0f));
+		rotationMatrix = glm::rotate(rotationMatrix, rotation.z, math::vec3(0.0f, 0.0f, 1.0f));
+		rotationMatrix = glm::rotate(rotationMatrix, rotation.y, math::vec3(0.0f, 1.0f, 0.0f));
+		rotationMatrix = glm::rotate(rotationMatrix, rotation.x, math::vec3(1.0f, 0.0f, 0.0f));
 
 		translation = rotationMatrix * math::vec4(translation, 1.0f);
 
-		transform.mTranslation += translation;
+		transform.SetTranslation(transform.GetTranslation() + translation);
 	}
 }
 

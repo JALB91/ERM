@@ -30,12 +30,12 @@ bool ShowTransformComponentDebugWindow(erm::ecs::TransformComponent& transformCo
 
 	if (headerOpen)
 	{
-		erm::math::vec3& translation = transformComponent.mTranslation;
-		erm::math::vec3& rotation = transformComponent.mRotation;
-		erm::math::vec3& scale = transformComponent.mScale;
+		erm::math::vec3 translation = transformComponent.GetTranslation();
+		erm::math::vec3 rotation = transformComponent.GetRotation();
+		erm::math::vec3 scale = transformComponent.GetScale();
 
 		ImGui::Indent();
-		bool reset = ImGui::Button("Reset");
+		const bool reset = ImGui::Button("Reset");
 		ImGui::InputFloat3("Translation", &translation.x);
 		ImGui::SliderFloat3("Rotation", &rotation.x, -static_cast<float>(M_PI), static_cast<float>(M_PI));
 		ImGui::InputFloat3("Scale", &scale.x);
@@ -47,6 +47,10 @@ bool ShowTransformComponentDebugWindow(erm::ecs::TransformComponent& transformCo
 			rotation = erm::math::vec3(0.0f);
 			scale = erm::math::vec3(1.0f);
 		}
+
+		transformComponent.SetTranslation(std::move(translation));
+		transformComponent.SetRotation(std::move(rotation));
+		transformComponent.SetScale(std::move(scale));
 	}
 
 	return shouldRemove;

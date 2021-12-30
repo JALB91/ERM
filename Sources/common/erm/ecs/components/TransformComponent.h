@@ -24,22 +24,89 @@ public:
 
 public:
 	TransformComponent(EntityId parent = {})
-		: mWorldTransform(glm::identity<math::mat4>())
-		, mLocalTransform(glm::identity<math::mat4>())
-		, mTranslation(0.0f)
-		, mRotation(0.0f)
-		, mScale(1.0f)
-		, mParent(parent)
+		: mParent(parent)
 	{}
 
 	inline EntityId GetParent() const { return mParent; }
 	inline const std::vector<EntityId>& GetChildren() const { return mChildren; }
 
-	math::mat4 mWorldTransform;
-	math::mat4 mLocalTransform;
-	math::vec3 mTranslation;
-	math::vec3 mRotation;
-	math::vec3 mScale;
+	SENSIBLE_MEMBER(WorldTransform, math::mat4, glm::identity<math::mat4>());
+	SENSIBLE_MEMBER(LocalTransform, math::mat4, glm::identity<math::mat4>());
+	SENSIBLE_MEMBER(Translation, math::vec3, math::vec3(0.0f));
+	SENSIBLE_MEMBER(Rotation, math::vec3, math::vec3(0.0f));
+	SENSIBLE_MEMBER(Scale, math::vec3, math::vec3(1.0f));
+
+	inline void SetTranslationX(float x)
+	{
+		if (mTranslation.x == x)
+			return;
+		mTranslation.x = x;
+		SetDirty(true);
+	}
+
+	inline void SetTranslationY(float y)
+	{
+		if (mTranslation.y == y)
+			return;
+		mTranslation.y = y;
+		SetDirty(true);
+	}
+
+	inline void SetTranslationZ(float z)
+	{
+		if (mTranslation.z == z)
+			return;
+		mTranslation.z = z;
+		SetDirty(true);
+	}
+
+	inline void SetRotationX(float x)
+	{
+		if (mRotation.x == x)
+			return;
+		mRotation.x = x;
+		SetDirty(true);
+	}
+
+	inline void SetRotationY(float y)
+	{
+		if (mRotation.y == y)
+			return;
+		mRotation.y = y;
+		SetDirty(true);
+	}
+
+	inline void SetRotationZ(float z)
+	{
+		if (mRotation.z == z)
+			return;
+		mRotation.z = z;
+		SetDirty(true);
+	}
+
+	inline void SetScaleX(float x)
+	{
+		if (mScale.x == x)
+			return;
+		mScale.x = x;
+		SetDirty(true);
+	}
+
+	inline void SetScaleY(float y)
+	{
+		if (mScale.y == y)
+			return;
+		mScale.y = y;
+		SetDirty(true);
+	}
+
+	inline void SetScaleZ(float z)
+	{
+		if (mScale.z == z)
+			return;
+		mScale.z = z;
+		SetDirty(true);
+	}
 
 private:
 	EntityId mParent;
