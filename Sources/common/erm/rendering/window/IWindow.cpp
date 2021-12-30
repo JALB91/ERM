@@ -11,6 +11,7 @@ IWindow::IWindow()
 	, mWindowSize()
 	, mViewport({0.0f, 0.0f}, {0.0f, 0.0f})
 	, mAspectRatio(0.0f)
+	, mHasFocus(true)
 {}
 
 void IWindow::AddListener(IWindowListener& listener)
@@ -25,6 +26,16 @@ void IWindow::RemoveListener(IWindowListener& listener)
 	{
 		mWindowListeners.erase(it);
 	}
+}
+
+void IWindow::OnFocusLost()
+{
+	mHasFocus = false;
+}
+
+void IWindow::OnFocus()
+{
+	mHasFocus = true;
 }
 
 } // namespace erm

@@ -28,23 +28,15 @@ public:
 	friend class RenderingSystem;
 
 public:
-	RenderingComponent()
 #ifdef ERM_RAY_TRACING_ENABLED
-		: mUseRayTracing(true)
-#endif
-	{}
-
-#ifdef ERM_RAY_TRACING_ENABLED
-	SENSIBLE_MEMBER(CustomIndex, std::optional<uint32_t>, mCustomIndex)
-	SENSIBLE_MEMBER(UseRayTracing, bool, mUseRayTracing)
+	SENSIBLE_MEMBER(CustomIndex, std::optional<uint32_t>, {})
+	SENSIBLE_MEMBER(UseRayTracing, bool, true)
 #endif
 
 private:
 	std::vector<RenderData> mRenderData;
 #ifdef ERM_RAY_TRACING_ENABLED
-	std::optional<uint32_t> mCustomIndex;
 	std::unique_ptr<DeviceBuffer> mInstanceDataBuffer;
-	bool mUseRayTracing;
 #endif
 };
 

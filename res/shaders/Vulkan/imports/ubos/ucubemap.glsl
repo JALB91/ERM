@@ -3,6 +3,6 @@
 
 #include "macros.glsl"
 
-layout(binding = VK_UCUBEMAP_BINDING, set = 0) uniform samplerCube cubeMap;
+layout(binding = VK_UCUBEMAP_BINDING, set = 0) uniform samplerCube cubeMapSampler;
 
 #endif

@@ -60,16 +60,13 @@ void ImGuiHandle::OnUpdate()
 }
 
 void ImGuiHandle::OnPreRender()
-{
-}
+{}
 
 void ImGuiHandle::OnRender()
-{
-}
+{}
 
 void ImGuiHandle::OnPostRender()
-{
-}
+{}
 
 vk::CommandBuffer& ImGuiHandle::GetCommandBuffer(uint32_t imageIndex)
 {
@@ -88,6 +85,7 @@ vk::CommandBuffer& ImGuiHandle::GetCommandBuffer(uint32_t imageIndex)
 	info.renderArea.extent = mRenderer.GetSwapChainExtent();
 	info.clearValueCount = 0;
 	info.pClearValues = nullptr;
+
 	cmd.beginRenderPass(info, vk::SubpassContents::eInline);
 
 	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmd);

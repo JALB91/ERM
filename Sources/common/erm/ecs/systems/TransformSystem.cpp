@@ -36,6 +36,20 @@ void TransformSystem::OnComponentBeingRemoved(EntityId id)
 	RemoveFromParent(id);
 }
 
+void TransformSystem::SetDirtyRecursive(EntityId id)
+{
+	TransformComponent* transform = GetComponent(id);
+
+	if (!transform)
+		return;
+
+	transform->SetDirty(true);
+	for (const auto& entityId : transform->mChildren)
+	{
+		SetDirtyRecursive(entityId);
+	}
+}
+
 void TransformSystem::OnPostUpdate()
 {
 	PROFILE_FUNCTION();
@@ -44,7 +58,17 @@ void TransformSystem::OnPostUpdate()
 	{
 		TransformComponent* transform = GetComponent(i);
 
-		if (!transform)
+		if (!transform || !transform->IsDirty())
+			continue;
+
+		SetDirtyRecursive(i);
+	}
+
+	for (ID i = ROOT_ID; i < MAX_ID; ++i)
+	{
+		TransformComponent* transform = GetComponent(i);
+
+		if (!transform || !transform->IsDirty())
 			continue;
 
 		transform->mWorldTransform = glm::identity<math::mat4>();

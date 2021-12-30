@@ -97,9 +97,7 @@ void IRenderer::CleanupSwapChain()
 	{
 		mDevice->destroyImageView(mSwapChainImageViews[i], nullptr);
 	}
-	mDevice->destroyImageView(mDepthImageView);
-	mDevice->destroyImage(mDepthImage);
-	mDevice->freeMemory(mDepthImageMemory);
+	mDepthTexture.reset();
 	mDevice->destroySwapchainKHR(mSwapChain, nullptr);
 }
 
@@ -184,6 +182,9 @@ void IRenderer::CreateImageViews()
 void IRenderer::CreateDepthResources()
 {
 	vk::Format depthFormat = VkUtils::FindDepthFormat(mDevice.GetVkPhysicalDevice());
+	vk::Image depthImage;
+	vk::ImageView depthImageView;
+	vk::DeviceMemory depthImageMemory;
 
 	vk::ImageCreateInfo imageInfo {};
 	imageInfo.imageType = vk::ImageType::e2D;
@@ -195,7 +196,7 @@ void IRenderer::CreateDepthResources()
 	imageInfo.format = depthFormat;
 	imageInfo.tiling = vk::ImageTiling::eOptimal;
 	imageInfo.initialLayout = vk::ImageLayout::eUndefined;
-	imageInfo.usage = vk::ImageUsageFlagBits::eDepthStencilAttachment;
+	imageInfo.usage = vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eSampled;
 	imageInfo.samples = vk::SampleCountFlagBits::e1;
 	imageInfo.sharingMode = vk::SharingMode::eExclusive;
 
@@ -204,11 +205,11 @@ void IRenderer::CreateDepthResources()
 		mDevice.GetVkDevice(),
 		imageInfo,
 		vk::MemoryPropertyFlagBits::eDeviceLocal,
-		mDepthImage,
-		mDepthImageMemory);
+		depthImage,
+		depthImageMemory);
 
 	vk::ImageViewCreateInfo viewInfo {};
-	viewInfo.image = mDepthImage;
+	viewInfo.image = depthImage;
 	viewInfo.viewType = vk::ImageViewType::e2D;
 	viewInfo.format = depthFormat;
 	viewInfo.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eDepth;
@@ -217,9 +218,22 @@ void IRenderer::CreateDepthResources()
 	viewInfo.subresourceRange.baseArrayLayer = 0;
 	viewInfo.subresourceRange.layerCount = 1;
 
-	mDepthImageView = VkUtils::CreateImageView(
+	depthImageView = VkUtils::CreateImageView(
 		mDevice.GetVkDevice(),
 		viewInfo);
+
+	mDepthTexture = std::make_unique<Texture>(
+		mDevice,
+		"DepthTexture",
+		depthImage,
+		depthImageView,
+		depthImageMemory);
+
+#ifdef ERM_RAY_TRACING_ENABLED
+	mDepthTexture->SetImageLayout(vk::ImageLayout::eGeneral);
+#else
+	mDepthTexture->SetImageLayout(vk::ImageLayout::eColorAttachmentOptimal);
+#endif
 }
 
 void IRenderer::CreateTextureSampler()
@@ -276,6 +290,8 @@ Texture* IRenderer::GetDefaultTexture(TextureType type) const
 			return mResourcesManager.GetOrCreateTexture("res/textures/viking_room.png");
 		case TextureType::CUBE_MAP:
 			return GetDefaultCubeMap();
+		case TextureType::DEPTH:
+			return mDepthTexture.get();
 		default:
 			ASSERT(false);
 	}
@@ -285,7 +301,7 @@ Texture* IRenderer::GetDefaultTexture(TextureType type) const
 
 CubeMap* IRenderer::GetDefaultCubeMap() const
 {
-	return mResourcesManager.GetOrCreateCubeMap("res/cube_maps/ArstaBridge");
+	return mResourcesManager.GetOrCreateCubeMap("res/cube_maps/skybox");
 }
 
 } // namespace erm

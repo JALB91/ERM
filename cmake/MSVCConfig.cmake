@@ -8,7 +8,8 @@ function(target_setup_project TARGET)
 
 	target_compile_definitions(
 		"${TARGET}"
-		PRIVATE 
+		PRIVATE
+			_CRT_SECURE_NO_WARNINGS
 			_USE_MATH_DEFINES
 			NOMINMAX
 	)

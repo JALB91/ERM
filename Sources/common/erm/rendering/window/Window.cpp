@@ -64,9 +64,12 @@ bool firstRefresh = true;
 */
 namespace internal {
 
-void OnFocus(GLFWwindow* window, int /*focus*/)
+void FocusCallback(GLFWwindow* window, int focused)
 {
-	static_cast<erm::Window*>(glfwGetWindowUserPointer(window))->OnFocus();
+	if (focused)
+		static_cast<erm::Window*>(glfwGetWindowUserPointer(window))->OnFocus();
+	else
+		static_cast<erm::Window*>(glfwGetWindowUserPointer(window))->OnFocusLost();
 }
 
 void OnMouseButton(GLFWwindow* window, int button, int action, int mods)
@@ -170,7 +173,7 @@ bool Window::Init()
 
 	glfwSetWindowUserPointer(mWindow, this);
 
-	glfwSetWindowFocusCallback(mWindow, internal::OnFocus);
+	glfwSetWindowFocusCallback(mWindow, internal::FocusCallback);
 	glfwSetMouseButtonCallback(mWindow, internal::OnMouseButton);
 	glfwSetCursorPosCallback(mWindow, internal::OnMousePos);
 	glfwSetKeyCallback(mWindow, internal::OnKey);
@@ -291,8 +294,31 @@ void Window::OnMaximised(bool /*wasMaximised*/)
 	OnSizeChanged();
 }
 
+void Window::OnFocusLost()
+{
+	const bool hadFocus = HasFocus();
+	IWindow::OnFocusLost();
+
+	if (hadFocus)
+	{
+		SafeForEach<IWindowListener>(mWindowListeners, [](IWindowListener* listener) {
+			listener->OnFocusChanged();
+		});
+	}
+}
+
 void Window::OnFocus()
 {
+	const bool hadFocus = HasFocus();
+	IWindow::OnFocus();
+
+	if (!hadFocus)
+	{
+		SafeForEach<IWindowListener>(mWindowListeners, [](IWindowListener* listener) {
+			listener->OnFocusChanged();
+		});
+	}
+
 	int width, height;
 	glfwGetWindowSize(mWindow, &width, &height);
 

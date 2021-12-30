@@ -1,5 +1,5 @@
 #ifndef LIGHT_DATA_GLSL
-#define LIGHT_DATA
+#define LIGHT_DATA_GLSL
 
 struct Light 
 {

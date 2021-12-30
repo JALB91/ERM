@@ -6,13 +6,16 @@
 #include "erm/utils/Timer.h"
 
 #include <memory>
+#include <vector>
 
 namespace erm {
-class ResourcesManager;
-class Window;
+class AudioManager;
 class Device;
-class Renderer;
 class ImGuiHandle;
+class Renderer;
+class ResourcesManager;
+class UpdateManager;
+class Window;
 namespace ecs {
 class ECS;
 struct Entity;
@@ -20,6 +23,9 @@ struct Entity;
 } // namespace erm
 
 namespace erm {
+
+class Engine;
+extern Engine* gEngine;
 
 class Engine : private IWindowListener
 {
@@ -50,11 +56,13 @@ public:
 	inline const Timer& GetTimer() const { return mTimer; }
 	inline const FileLocator& GetFileLocator() const { return mFileLocator; }
 	inline ResourcesManager& GetResourcesManager() const { return *mResourcesManager; }
+	inline AudioManager& GetAudioManager() const { return *mAudioManager; }
 	inline Window& GetWindow() const { return *mWindow; }
 	inline Device& GetDevice() const { return *mDevice; }
 	inline Renderer& GetRenderer() const { return *mRenderer; }
 	inline ImGuiHandle& GetImGuiHandle() const { return *mImGuiHandle; }
 	inline ecs::ECS& GetECS() const { return *mECS; }
+	inline UpdateManager& GetUpdateManager() const { return *mUpdateManager; }
 
 private:
 	// IWindowListener
@@ -64,6 +72,7 @@ private:
 	void OnMouseButtonReleased(MouseButton mouseButton) override;
 	void OnMouseMoved(double xPos, double yPos) override;
 	void OnSizeChanged(int width, int height) override;
+	void OnFocusChanged() override;
 
 	Timer mTimer;
 	unsigned int mFPS;
@@ -72,6 +81,8 @@ private:
 	FileLocator mFileLocator;
 
 	std::unique_ptr<Window> mWindow;
+	std::unique_ptr<UpdateManager> mUpdateManager;
+	std::unique_ptr<AudioManager> mAudioManager;
 	std::unique_ptr<Device> mDevice;
 	std::unique_ptr<ResourcesManager> mResourcesManager;
 	std::unique_ptr<Renderer> mRenderer;

@@ -12,6 +12,7 @@
 #define VK_BVERTICES_BINDING        7
 #define VK_BINDICES_BINDING         8
 #define VK_BINSTANCES_BINDING       9
+#define VK_UDEPTH_SAMPLER_BINDING   10
 
 // SET 1
 #define VK_UMVP_BINDING             0
@@ -24,6 +25,7 @@
 #define VK_ULIGHT_BINDING           7
 #define VK_USKELETON_BINDING        8
 #define VK_URTBASIC_BINDING         9
+#define VK_UCAMERA_BINDING          10
 
 #define MAX_BONES                   100
 #define PI                          3.14159265359

@@ -82,7 +82,7 @@ void IBindingResources::CreateSamplerDescriptorWritesAndInfos(
 			texture = mRenderer.GetDefaultTexture(sData.mTextureType);
 
 		vk::DescriptorImageInfo& imageInfo = infos[i];
-		imageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+		imageInfo.imageLayout = texture->GetImageLayout();
 		imageInfo.imageView = texture->GetImageView();
 		imageInfo.sampler = mRenderer.GetTextureSampler();
 
@@ -121,8 +121,12 @@ void IBindingResources::CreateStorageImagesDescriptorWritesAndInfos(
 		}
 
 		vk::DescriptorImageInfo& imageInfo = infos[i];
+#ifdef ERM_RAY_TRACING_ENABLED
 		imageInfo.imageLayout = vk::ImageLayout::eGeneral;
-		imageInfo.imageView = mRenderer.GetSwapChainImageViews()[mRenderer.GetCurrentImageIndex()];
+#else
+		imageInfo.imageLayout = vk::ImageLayout::eColorAttachmentOptimal;
+#endif
+		imageInfo.imageView = targetImage;
 
 		vk::WriteDescriptorSet& descriptorWrite = writes[i + writeOffset];
 		descriptorWrite.dstSet = descriptorSet;

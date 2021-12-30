@@ -619,6 +619,8 @@ vk::ImageLayout ToVulkanValue(ImageLayout layout)
 			return vk::ImageLayout::eDepthStencilReadOnlyOptimal;
 		case ImageLayout::GENERAL:
 			return vk::ImageLayout::eGeneral;
+		case ImageLayout::SHADER_READ_ONLY_OPTIMAL:
+			return vk::ImageLayout::eShaderReadOnlyOptimal;
 		default:
 		case ImageLayout::PRESENT_SRC:
 			return vk::ImageLayout::ePresentSrcKHR;

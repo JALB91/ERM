@@ -11,8 +11,10 @@
 #include "data/payload_data.glsl"
 #include "ubos/utlas.glsl"
 #include "ubos/uimage.glsl"
-#include "ubos/udepth.glsl"
 #include "ubos/ulight.glsl"
+#include "ubos/udepth_sampler.glsl"
+#include "ubos/ucamera.glsl"
+#include "utils.glsl"
 
 hitAttributeEXT vec2 attribs;
 
@@ -47,8 +49,17 @@ void main()
 	worldPos = vec3(instancesData[gl_InstanceCustomIndexEXT].i.transform * vec4(worldPos, 1.0));
 
 	vec3 lDir = light.position - worldPos;
-	float dist = length(lDir);
-	float intensity = 10.0 / (dist * dist);
+	float lDist = length(lDir);
+
+	vec3 cDir = camera.position - worldPos;
+	float cDist = length(cDir);
+
+	const vec2 p2 = vec2(float(gl_LaunchIDEXT.x) / float(gl_LaunchSizeEXT.x), 1.0 - float(gl_LaunchIDEXT.y) / (gl_LaunchSizeEXT.y));
+    vec4 depth = texture(depthSampler, p2);
+
+	payload.mSkip = depth.x != 1.0 && depthFromDist(lDist, camera.zNear, camera.zFar) > depth.x;
+
+	float intensity = 10.0 / (lDist * lDist);
 	vec3 L = normalize(lDir);
 	float dotNL = clamp(dot(normal, L), 0.0, 1.0);
 
@@ -56,7 +67,7 @@ void main()
 	if (dot(normal, L) > 0)
 	{
 		float tMin   = 0.1;
-		float tMax   = dist;
+		float tMax   = lDist;
 		vec3  origin = gl_WorldRayOriginEXT + gl_WorldRayDirectionEXT * gl_HitTEXT;
 		vec3  rayDir = L;
 		uint  flags  = gl_RayFlagsTerminateOnFirstHitEXT | gl_RayFlagsOpaqueEXT | gl_RayFlagsSkipClosestHitShaderEXT;
@@ -83,10 +94,10 @@ void main()
 
 	if (gl_InstanceCustomIndexEXT >= 20)
 	{
-		payload.mDone = 0;
+		payload.mDone = false;
 	}
 
 	payload.mOrigin = worldPos;
 	payload.mDir = reflect(gl_WorldRayDirectionEXT, normal);
-	payload.mHitValue.rgb *= vec3(dotNL * intensity);
+	payload.mHitValue *= vec3(dotNL * intensity);
 }

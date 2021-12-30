@@ -27,19 +27,15 @@ std::vector<char> ReadShaderCompiled(const char* path)
 
 	stream.seekg(0);
 	stream.read(buffer.data(), fileSize);
-
 	stream.close();
 
 	return buffer;
 }
 
-std::vector<uint32_t> LoadSpirvFile(const char* path)
+std::vector<uint32_t> LoadSpirvFile(const std::vector<char>& compiledShader)
 {
-	std::vector<char> file = ReadShaderCompiled(path);
-
-	std::vector<uint32_t> buffer(file.size() / sizeof(uint32_t));
-	memcpy(buffer.data(), file.data(), file.size());
-
+	std::vector<uint32_t> buffer(compiledShader.size() / sizeof(uint32_t));
+	memcpy(buffer.data(), compiledShader.data(), compiledShader.size());
 	return buffer;
 }
 
@@ -55,7 +51,7 @@ erm::UboData GetUboData(const spirv_cross::Compiler& compiler, const spirv_cross
 	};
 
 	if (resource.name.compare("UMVPOnly") == 0)
-		return makeUboData(erm::UBOMVPOnly::ID, sizeof(erm::UBOMVPOnly));
+		return makeUboData(erm::UboMVPOnly::ID, sizeof(erm::UboMVPOnly));
 	else if (resource.name.compare("UModelViewProj") == 0)
 		return makeUboData(erm::UboModelViewProj::ID, sizeof(erm::UboModelViewProj));
 	else if (resource.name.compare("UMaterial") == 0)
@@ -72,6 +68,8 @@ erm::UboData GetUboData(const spirv_cross::Compiler& compiler, const spirv_cross
 		return makeUboData(erm::UboPBLight::ID, sizeof(erm::UboPBLight));
 	else if (resource.name.compare("UBonesDebug") == 0)
 		return makeUboData(erm::UboBonesDebug::ID, sizeof(erm::UboBonesDebug));
+	else if (resource.name.compare("UCamera") == 0)
+		return makeUboData(erm::UboCamera::ID, sizeof(erm::UboCamera));
 #ifdef ERM_RAY_TRACING_ENABLED
 	else if (resource.name.compare("URTBasic") == 0)
 		return makeUboData(erm::UboRTBasic::ID, sizeof(erm::UboRTBasic));
@@ -79,7 +77,7 @@ erm::UboData GetUboData(const spirv_cross::Compiler& compiler, const spirv_cross
 
 	ASSERT(false);
 
-	return {erm::UBOMVPOnly::ID, sizeof(erm::UBOMVPOnly), 0, 0, 0};
+	return {erm::UboMVPOnly::ID, sizeof(erm::UboMVPOnly), 0, 0, 0};
 }
 
 erm::SamplerData GetSamplerData(const spirv_cross::Compiler& compiler, const spirv_cross::Resource& resource)
@@ -97,8 +95,10 @@ erm::SamplerData GetSamplerData(const spirv_cross::Compiler& compiler, const spi
 		return makeSamplerData(erm::TextureType::NORMAL);
 	else if (resource.name.compare("specularSampler") == 0)
 		return makeSamplerData(erm::TextureType::SPECULAR);
-	else if (resource.name.compare("cubeMap") == 0)
+	else if (resource.name.compare("cubeMapSampler") == 0)
 		return makeSamplerData(erm::TextureType::CUBE_MAP);
+	else if (resource.name.compare("depthSampler") == 0)
+		return makeSamplerData(erm::TextureType::DEPTH);
 
 	ASSERT(false);
 
@@ -224,7 +224,7 @@ void IShaderProgram::UpdateShadersData(ShaderType shaderType)
 
 		d.mShaderSource = Utils::ReadFromFile(shaderPath.c_str());
 		d.mShaderByteCode = ReadShaderCompiled(compiledShaderPath.c_str());
-		d.mShaderCompiler = std::make_unique<spirv_cross::Compiler>(LoadSpirvFile(compiledShaderPath.c_str()));
+		d.mShaderCompiler = std::make_unique<spirv_cross::Compiler>(LoadSpirvFile(d.mShaderByteCode));
 	}
 }
 

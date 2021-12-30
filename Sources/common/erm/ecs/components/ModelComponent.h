@@ -22,19 +22,16 @@ public:
 public:
 	ModelComponent(Model* model = nullptr)
 		: mModel(model)
-		, mShouldShowBoundingBox(false)
 	{}
 
-	SENSIBLE_MEMBER(Model, Model*, mModel)
-	SENSIBLE_MEMBER(ShouldShowBoundingBox, bool, mShouldShowBoundingBox)
+	SENSIBLE_MEMBER(Model, Model*, nullptr)
+	SENSIBLE_MEMBER(ShouldShowBoundingBox, bool, false)
 
 	inline BoundingBox3D GetWorldBounds() { return mWorldBounds; }
 	inline const BoundingBox3D& GetWorldBounds() const { return mWorldBounds; }
 
 private:
-	Model* mModel;
 	BoundingBox3D mWorldBounds;
-	bool mShouldShowBoundingBox;
 };
 
 } // namespace erm::ecs

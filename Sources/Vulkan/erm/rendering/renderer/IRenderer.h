@@ -1,6 +1,7 @@
 #pragma once
 
 #include "erm/rendering/enums/TextureType.h"
+#include "erm/rendering/textures/Texture.h"
 
 #include <vulkan/vulkan.hpp>
 
@@ -23,7 +24,7 @@ namespace erm {
 class IRenderer
 {
 public:
-	static constexpr uint32_t kMaxFramesInFlight = 2;
+	static constexpr uint32_t kMaxFramesInFlight = 3;
 
 public:
 	IRenderer(Engine& engine);
@@ -45,7 +46,7 @@ public:
 	inline vk::Sampler GetTextureSampler() const { return mTextureSampler; }
 	inline vk::Format GetSwapChainImageFormat() const { return mSwapChainImageFormat; }
 	inline const std::vector<vk::ImageView>& GetSwapChainImageViews() const { return mSwapChainImageViews; }
-	inline const vk::ImageView& GetDepthImageView() const { return mDepthImageView; }
+	inline const vk::ImageView& GetDepthImageView() const { return mDepthTexture->GetImageView(); }
 
 	Texture* GetDefaultTexture(TextureType type) const;
 	CubeMap* GetDefaultCubeMap() const;
@@ -72,9 +73,7 @@ protected:
 	std::vector<vk::Image> mSwapChainImages;
 	std::vector<vk::ImageView> mSwapChainImageViews;
 
-	vk::Image mDepthImage;
-	vk::DeviceMemory mDepthImageMemory;
-	vk::ImageView mDepthImageView;
+	std::unique_ptr<Texture> mDepthTexture;
 
 	vk::Sampler mTextureSampler;
 

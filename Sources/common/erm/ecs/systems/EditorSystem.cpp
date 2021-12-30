@@ -77,7 +77,7 @@ EditorSystem::EditorSystem(Engine& engine)
 	, mInstanceDataBuffer(mEngine.GetDevice(), sizeof(InstanceData), vk::BufferUsageFlagBits::eStorageBuffer)
 #endif
 	, mGridRenderData(GetGridPipelineConfigs(mEngine))
-	, mGridMesh(mEngine.GetDevice(), MeshUtils::CreateSquare(1000.0f, 1000.0f))
+	, mGridMesh(mEngine.GetDevice(), MeshUtils::CreateCube(10.0f, 10.0f, 2.0f))
 	, mBBoxPipelineConfigs(GetBBoxPipelineConfigs(mEngine))
 	, mArrowsRenderData(GetArrowsPipelineConfigs(mEngine))
 	, mBonesPipelineConfigs(GetBonesPipelineConfigs(mEngine))
@@ -134,12 +134,12 @@ void EditorSystem::OnRender()
 	TransformComponent* cameraTransform = mTransformSystem->GetComponent(cameraId);
 
 	const math::mat4& proj = camera->GetProjectionMatrix();
-	const math::mat4& view = cameraTransform->mWorldTransform;
+	const math::mat4& view = cameraTransform->GetWorldTransform();
 	const math::mat4 viewInv = glm::inverse(view);
 
 	// GRID RENDERING
 	{
-		UBOMVPOnly ubo;
+		UboMVPOnly ubo;
 		math::mat4 transform = glm::identity<math::mat4>();
 		transform = glm::rotate(transform, static_cast<float>(M_PI * 0.5), math::vec3(1.0f, 0.0f, 0.0f));
 		ubo.mMVP = proj * viewInv * transform;
@@ -169,14 +169,14 @@ void EditorSystem::OnRender()
 		if (modelCmp->GetShouldShowBoundingBox())
 		{
 			const BoundingBox3D& objBBox = model->GetLocalBounds();
-			math::mat4 transform(mTransformSystem->GetComponent(i)->mWorldTransform);
+			math::mat4 transform(mTransformSystem->GetComponent(i)->GetWorldTransform());
 			transform = glm::translate(transform, (objBBox.mMax + objBBox.mMin) * 0.5f);
 			transform = glm::scale(transform, objBBox.GetSize());
 
 			RenderData& data = GetOrCreateRenderDataForBBox(i);
 
 			{
-				UBOMVPOnly ubo;
+				UboMVPOnly ubo;
 				ubo.mMVP = proj * viewInv * transform;
 
 				data.SetUbo(std::move(ubo));
@@ -226,7 +226,7 @@ void EditorSystem::OnRender()
 					++index;
 				});
 
-				ubo.mModel = mTransformSystem->GetComponent(i)->mWorldTransform;
+				ubo.mModel = mTransformSystem->GetComponent(i)->GetWorldTransform();
 				ubo.mView = viewInv;
 				ubo.mProj = proj;
 

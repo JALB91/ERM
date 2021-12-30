@@ -76,7 +76,7 @@ void CubeMap::CreateTextureImage()
 	imageInfo.sharingMode = vk::SharingMode::eExclusive;
 	imageInfo.flags = vk::ImageCreateFlagBits::eCubeCompatible;
 
-	VkUtils::CreateImageUnique(
+	VkUtils::CreateImage(
 		mDevice.GetVkPhysicalDevice(),
 		mDevice.GetVkDevice(),
 		imageInfo,
@@ -86,7 +86,7 @@ void CubeMap::CreateTextureImage()
 
 	VkUtils::TransitionImageLayout(
 		mDevice,
-		mTextureImage.get(),
+		mTextureImage,
 		vk::Format::eR8G8B8A8Srgb,
 		vk::ImageLayout::eUndefined,
 		vk::ImageLayout::eTransferDstOptimal,
@@ -95,14 +95,14 @@ void CubeMap::CreateTextureImage()
 	VkUtils::CopyBufferToImage(
 		mDevice,
 		stagingBuffer->GetBuffer(),
-		mTextureImage.get(),
+		mTextureImage,
 		static_cast<uint32_t>(mWidth),
 		static_cast<uint32_t>(mHeight),
 		6);
 
 	VkUtils::TransitionImageLayout(
 		mDevice,
-		mTextureImage.get(),
+		mTextureImage,
 		vk::Format::eR8G8B8A8Srgb,
 		vk::ImageLayout::eTransferDstOptimal,
 		vk::ImageLayout::eShaderReadOnlyOptimal,
@@ -112,7 +112,7 @@ void CubeMap::CreateTextureImage()
 void CubeMap::CreateTextureImageView()
 {
 	vk::ImageViewCreateInfo viewInfo {};
-	viewInfo.image = mTextureImage.get();
+	viewInfo.image = mTextureImage;
 	viewInfo.viewType = vk::ImageViewType::eCube;
 	viewInfo.format = vk::Format::eR8G8B8A8Srgb;
 	viewInfo.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
@@ -121,7 +121,7 @@ void CubeMap::CreateTextureImageView()
 	viewInfo.subresourceRange.baseArrayLayer = 0;
 	viewInfo.subresourceRange.layerCount = 6;
 
-	mTextureImageView = VkUtils::CreateImageViewUnique(
+	mTextureImageView = VkUtils::CreateImageView(
 		mDevice.GetVkDevice(),
 		viewInfo);
 }

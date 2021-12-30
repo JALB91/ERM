@@ -8,6 +8,7 @@
 #include <vector>
 
 namespace erm {
+class Engine;
 class Device;
 class IRenderer;
 class RTBlas;
@@ -20,9 +21,7 @@ namespace erm {
 class RTRenderingResources
 {
 public:
-	RTRenderingResources(
-		Device& device,
-		IRenderer& renderer);
+	RTRenderingResources(Engine& engine);
 	~RTRenderingResources();
 
 	vk::CommandBuffer UpdateCommandBuffer(RTRenderData& renderData, uint32_t imageIndex);

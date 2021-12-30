@@ -1,15 +1,8 @@
 #include "erm/engine/Engine.h"
 
+#include "erm/audio/AudioManager.h"
+
 #include "erm/debug/ImGuiHandle.h"
-
-#include "erm/rendering/Device.h"
-#include "erm/rendering/data_structs/Bone.h"
-#include "erm/rendering/data_structs/Model.h"
-#include "erm/rendering/renderer/Renderer.h"
-#include "erm/rendering/window/Window.h"
-
-#include "erm/utils/Profiler.h"
-#include "erm/utils/Utils.h"
 
 #include "erm/ecs/Entity.h"
 #include "erm/ecs/systems/CameraSystem.h"
@@ -23,6 +16,16 @@
 #include "erm/managers/ResourcesManager.h"
 
 #include "erm/math/vec.h"
+
+#include "erm/rendering/Device.h"
+#include "erm/rendering/data_structs/Bone.h"
+#include "erm/rendering/data_structs/Model.h"
+#include "erm/rendering/renderer/Renderer.h"
+#include "erm/rendering/window/Window.h"
+
+#include "erm/utils/Profiler.h"
+#include "erm/utils/UpdateManager.h"
+#include "erm/utils/Utils.h"
 
 #include <random>
 
@@ -51,6 +54,8 @@ const int kEntities = 1;
 } // namespace
 
 namespace erm {
+
+Engine* gEngine = nullptr;
 
 Engine::Engine()
 	: mMaxFPS(144)
@@ -89,6 +94,8 @@ bool Engine::Init()
 		return false;
 	}
 
+	mUpdateManager = std::make_unique<UpdateManager>();
+	mAudioManager = std::make_unique<AudioManager>();
 	mDevice = std::make_unique<Device>(mWindow->GetWindow());
 	mResourcesManager = std::make_unique<ResourcesManager>(*mDevice);
 	mRenderer = std::make_unique<Renderer>(*this);
@@ -101,7 +108,7 @@ bool Engine::Init()
 	auto camera = mECS->GetOrCreateEntity("Camera");
 	camera->AddComponent<ecs::LightComponent>();
 	camera->RequireComponent<ecs::CameraComponent>();
-	camera->GetComponent<ecs::TransformComponent>()->mTranslation = math::vec3(0.0f, 1.0f, 10.0f);
+	camera->GetComponent<ecs::TransformComponent>()->SetTranslation(math::vec3(0.0f, 1.0f, 10.0f));
 
 	auto root = mECS->GetRoot();
 	root->AddChild(*camera);
@@ -111,10 +118,10 @@ bool Engine::Init()
 		root->AddChild(*ent);
 
 		auto entity = mECS->GetOrCreateEntity();
-		entity->AddComponent<ecs::LightComponent>();
+		Model* model = mResourcesManager->GetOrCreateModel("res/models/sphere.fbx");
+		entity->RequireComponent<ecs::ModelComponent>(model);
 		auto transform = entity->RequireComponent<ecs::TransformComponent>();
-		transform->mTranslation.x = -20.5f;
-		transform->mTranslation.y = 80.0f;
+		transform->SetTranslationY(2.5f);
 		ent->AddChild(*entity);
 	}
 
@@ -123,7 +130,7 @@ bool Engine::Init()
 		Model* model = mResourcesManager->GetOrCreateModel("res/models/untitled.dae");
 		entity->RequireComponent<ecs::ModelComponent>(model);
 		auto transform = entity->RequireComponent<ecs::TransformComponent>();
-		transform->mTranslation.x = -2.5f;
+		transform->SetTranslationX(-2.5f);
 		root->AddChild(*entity);
 	}
 
@@ -132,7 +139,7 @@ bool Engine::Init()
 		Model* model = mResourcesManager->GetOrCreateModel("res/models/untitled.dae");
 		entity->RequireComponent<ecs::ModelComponent>(model);
 		auto transform = entity->RequireComponent<ecs::TransformComponent>();
-		transform->mTranslation.x = 2.5f;
+		transform->SetTranslationX(2.5f);
 		root->AddChild(*entity);
 	}
 
@@ -141,8 +148,8 @@ bool Engine::Init()
 		Model* model = mResourcesManager->GetOrCreateModel(kModelModelPath);
 		entity->RequireComponent<ecs::ModelComponent>(model);
 		auto transform = entity->RequireComponent<ecs::TransformComponent>();
-		transform->mScale = math::vec3(0.01f);
-		transform->mTranslation.x = 2.5f;
+		transform->SetScale(math::vec3(0.01f));
+		transform->SetTranslationX(2.5f);
 		root->AddChild(*entity);
 	}
 
@@ -189,14 +196,14 @@ bool Engine::Init()
 		float x = static_cast<float>((std::rand() % dist) - dist / 2);
 		float y = static_cast<float>(std::rand() % 100);
 		float z = static_cast<float>((std::rand() % dist) - dist / 2);
-		tComp->mTranslation = math::vec3(x, y, z);
+		tComp->SetTranslation(math::vec3(x, y, z));
 		if (rnd == 1 || rnd == 5)
-			tComp->mScale = math::vec3(0.1f, 0.1f, 0.1f);
+			tComp->SetScale(math::vec3(0.1f, 0.1f, 0.1f));
 		else if (rnd == 4)
-			tComp->mScale = math::vec3(15.0f, 15.0f, 15.0f);
+			tComp->SetScale(math::vec3(15.0f, 15.0f, 15.0f));
 		else if (rnd == 3)
-			tComp->mRotation = math::vec3(-static_cast<float>(M_PI) * 0.5f, 0.0f, 0.0f);
-		tComp->mRotation.y = static_cast<float>(M_PI) * (static_cast<float>((rand() % 100)) / 100.0f);
+			tComp->SetRotation(math::vec3(-static_cast<float>(M_PI) * 0.5f, 0.0f, 0.0f));
+		tComp->SetRotationY(static_cast<float>(M_PI) * (static_cast<float>((rand() % 100)) / 100.0f));
 		root->AddChild(*entity);
 	}
 
@@ -251,6 +258,7 @@ void Engine::OnPreUpdate()
 {
 	PROFILE_FUNCTION();
 
+	mUpdateManager->OnPreUpdate();
 	mECS->OnPreUpdate();
 }
 
@@ -262,6 +270,8 @@ void Engine::OnUpdate(float dt)
 	mECS->OnUpdate(dt);
 	mWindow->OnUpdate();
 	mResourcesManager->OnUpdate();
+	mAudioManager->OnUpdate(dt);
+	mUpdateManager->Update(dt);
 }
 
 void Engine::OnPostUpdate()
@@ -269,6 +279,7 @@ void Engine::OnPostUpdate()
 	PROFILE_FUNCTION();
 
 	mECS->OnPostUpdate();
+	mUpdateManager->OnPostUpdate();
 }
 
 void Engine::OnPreRender()
@@ -300,6 +311,18 @@ void Engine::OnPostRender()
 	mImGuiHandle->OnPostRender();
 	mWindow->OnPostRender();
 	mResourcesManager->OnPostRender();
+}
+
+void Engine::OnFocusChanged()
+{
+	if (mWindow->HasFocus())
+	{
+		mAudioManager->Resume();
+	}
+	else if (!mAudioManager->ShouldPlayInBackground())
+	{
+		mAudioManager->Suspend();
+	}
 }
 
 void Engine::OnKeyPressed(Key /*keyCode*/)

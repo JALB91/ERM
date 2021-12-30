@@ -99,4 +99,24 @@ bool EndsWith(const std::string& s, const std::string& c)
 	return true;
 }
 
+std::string FormatTime(unsigned int seconds)
+{
+	unsigned int minutes = seconds / 60;
+	unsigned int hours = minutes / 60;
+	minutes %= 60;
+	seconds %= 60;
+
+	std::string result;
+
+	if (hours > 0)
+		result += std::to_string(hours) + "h:";
+
+	if (minutes > 0)
+		result += std::to_string(minutes) + "m:";
+
+	result += std::to_string(seconds) + "s";
+
+	return result;
+}
+
 } // namespace erm::Utils

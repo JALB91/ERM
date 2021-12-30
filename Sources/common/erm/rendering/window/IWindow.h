@@ -27,8 +27,10 @@ public:
 	virtual void OnMousePos(double xPos, double yPos) = 0;
 	virtual void OnSizeChanged() = 0;
 	virtual void OnMaximised(bool wasMaximised) = 0;
-	virtual void OnFocus() = 0;
+	virtual void OnFocusLost();
+	virtual void OnFocus();
 
+	inline bool HasFocus() const { return mHasFocus; }
 	inline bool IsKeyDown(Key keyCode) const { return mPressedKeys.find(keyCode) != mPressedKeys.end(); }
 
 	inline double GetMousePosX() const { return mMousePosX; }
@@ -57,6 +59,7 @@ protected:
 	math::vec<2, int> mWindowSize;
 	BoundingBox2D mViewport;
 	float mAspectRatio;
+	bool mHasFocus;
 };
 
 } // namespace erm

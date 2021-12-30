@@ -41,7 +41,7 @@ void AnimationSystem::OnPostUpdate()
 			continue;
 
 		SkeletonAnimation* currentAnimation = animationComponent->mSkeletonAnimation;
-		Skin* skin = skeletonComponent->GetSkin();
+		const Skin* skin = skeletonComponent->GetSkin();
 
 		if (!currentAnimation || !skin)
 			continue;

@@ -19,14 +19,12 @@ public:
 
 public:
 	EditorComponent(const PipelineConfigs& bonesPipelineConfig = PipelineConfigs::DEFAULT_PIPELINE_CONFIGS)
-		: mIsSelected(false)
-		, mBonesRenderData(bonesPipelineConfig)
+		: mBonesRenderData(bonesPipelineConfig)
 	{}
 
-	SENSIBLE_MEMBER(IsSelected, bool, mIsSelected)
+	SENSIBLE_MEMBER(IsSelected, bool, false)
 
 private:
-	bool mIsSelected;
 	RenderData mBonesRenderData;
 };
 

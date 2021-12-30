@@ -127,19 +127,36 @@ void DeviceBindingResources::UpdateResources(vk::CommandBuffer& cmd, IRenderData
 
 	const auto& shaderBindingData = mShaderProgram.GetShaderBindingsData(mTargetSet);
 	const auto& storageImageData = shaderBindingData.mStorageImagesData;
-	if (storageImageData.empty())
-		return;
+	if (!storageImageData.empty())
+	{
+		std::vector<vk::DescriptorImageInfo> storageImagesInfos(storageImageData.size());
+		std::vector<vk::WriteDescriptorSet> writes(storageImageData.size());
 
-	std::vector<vk::DescriptorImageInfo> storageImagesInfos(storageImageData.size());
-	std::vector<vk::WriteDescriptorSet> writes(storageImageData.size());
+		CreateStorageImagesDescriptorWritesAndInfos(
+			storageImagesInfos,
+			writes,
+			storageImageData,
+			mDescriptorSets[0].get());
 
-	CreateStorageImagesDescriptorWritesAndInfos(
-		storageImagesInfos,
-		writes,
-		storageImageData,
-		mDescriptorSets[0].get());
+		mDevice->updateDescriptorSets(static_cast<uint32_t>(writes.size()), writes.data(), 0, nullptr);
+	}
 
-	mDevice->updateDescriptorSets(static_cast<uint32_t>(writes.size()), writes.data(), 0, nullptr);
+	const auto& samplersData = shaderBindingData.mSamplersData;
+	if (!samplersData.empty())
+	{
+		std::vector<vk::DescriptorImageInfo> samplerInfos(samplersData.size());
+		std::vector<vk::WriteDescriptorSet> writes(samplersData.size());
+		const std::vector<SamplerData>& samplerData = shaderBindingData.mSamplersData;
+
+		CreateSamplerDescriptorWritesAndInfos(
+			samplerInfos,
+			writes,
+			samplerData,
+			mDescriptorSets[0].get(),
+			0);
+
+		mDevice->updateDescriptorSets(static_cast<uint32_t>(writes.size()), writes.data(), 0, nullptr);
+	}
 }
 
 void DeviceBindingResources::CreateUniformBuffers(const std::vector<UboData>& ubosData)

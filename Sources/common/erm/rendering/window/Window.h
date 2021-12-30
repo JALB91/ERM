@@ -32,6 +32,7 @@ public:
 	void OnMousePos(double xPos, double yPos) override;
 	void OnSizeChanged() override;
 	void OnMaximised(bool wasMaximised) override;
+	void OnFocusLost() override;
 	void OnFocus() override;
 	BoundingBox2D GetNormalizedViewport() const override;
 

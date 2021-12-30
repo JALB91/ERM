@@ -8,6 +8,8 @@
 
 namespace {
 
+const char* const kWavSoundExtension = ".wav";
+const char* const kMp3SoundExtension = ".mp3";
 const char* const kObjModelExtension = ".obj";
 const char* const kColladaModelExtension = ".dae";
 #if defined(ERM_FBX_ENABLED) || defined(ERM_ASSIMP_ENABLED)
@@ -22,6 +24,8 @@ const char* const kPngTextureExtension = ".png";
 const char* const kJpgTextureExtension = ".jpg";
 const char* const kJpegTextureExtension = ".jpeg";
 
+const char* const kMusicsDir = "sounds/musics/";
+const char* const kEffectsDir = "sounds/effects/";
 const char* const kModelsDir = "models/";
 #if defined(ERM_VULKAN)
 const char* const kShadersDir = "shaders/Vulkan/rasterization/";
@@ -31,10 +35,11 @@ const char* const kShadersDir = "shaders/OpenGl/";
 const char* const kShadersDir = "shaders/DX12/";
 #endif
 #if defined(ERM_RAY_TRACING_ENABLED)
-const char* const kRTShadersDir = "shaders/Vulkan/ray_tracing";
+const char* const kRTShadersDir = "shaders/Vulkan/ray_tracing/";
 #endif
 const char* const kTexturesDir = "textures/";
 
+std::array kSupportedAudioExtensions {kWavSoundExtension, kMp3SoundExtension};
 std::array kSupportedModelsExtensions
 {
 	kObjModelExtension,
@@ -48,12 +53,13 @@ std::array kSupportedShadersExtensions {kVertexShaderExtension};
 #ifdef ERM_RAY_TRACING_ENABLED
 std::array kSupportedRTShadersExtensions {kRayGenShaderExtension};
 #endif
-
 std::array kSupportedTexturesExtensions {kPngTextureExtension, kJpgTextureExtension, kJpegTextureExtension};
 
 std::map<std::string, std::vector<const char*>> kFilesAssociations
 {
-	{kObjModelExtension, {kModelsDir}},
+	{kWavSoundExtension, {kMusicsDir, kEffectsDir}},
+		{kMp3SoundExtension, {kMusicsDir, kEffectsDir}},
+		{kObjModelExtension, {kModelsDir}},
 		{kColladaModelExtension, {kModelsDir}},
 #if defined(ERM_FBX_ENABLED) || defined(ERM_ASSIMP_ENABLED)
 		{kFbxModelExtension, {kModelsDir}},
@@ -94,6 +100,7 @@ FileLocator::FileLocator()
 
 void FileLocator::Refresh()
 {
+	mSounds.clear();
 	mModels.clear();
 	mTextures.clear();
 	mMaterials.clear();
@@ -105,6 +112,12 @@ void FileLocator::Refresh()
 	mModels.emplace_back("Defaults/Sphere");
 	mModels.emplace_back("Defaults/Spike");
 	mModels.emplace_back("Defaults/Grid");
+
+	for (const char* ext : kSupportedAudioExtensions)
+	{
+		std::vector<std::string> result = GetResourcesWithExtension(ext);
+		mSounds.insert(mSounds.end(), result.begin(), result.end());
+	}
 
 	for (const char* ext : kSupportedModelsExtensions)
 	{

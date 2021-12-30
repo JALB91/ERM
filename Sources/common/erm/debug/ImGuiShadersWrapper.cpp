@@ -55,6 +55,7 @@ void ShowShadersDebug(erm::Engine& engine, bool& open)
 
 		if (selected && hasChanged)
 		{
+			shaderSources.clear();
 			const std::unordered_map<erm::ShaderType, std::vector<erm::ShaderData>>& dataMap = selected->GetShadersDataMap();
 
 			for (const auto& [type, data] : dataMap)
@@ -87,7 +88,7 @@ void ShowShadersDebug(erm::Engine& engine, bool& open)
 
 					if (ImGui::BeginTabItem(shaderId.c_str()))
 					{
-						std::strcpy(current, shaderSources[type][i].c_str());
+						strcpy(current, shaderSources[type][i].c_str());
 						ImGui::InputTextMultiline(shaderId.c_str(), current, IM_ARRAYSIZE(current), ImVec2(-1.0f, ImGui::GetTextLineHeight() * 50), ImGuiInputTextFlags_AllowTabInput);
 						ImGui::EndTabItem();
 

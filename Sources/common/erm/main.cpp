@@ -5,6 +5,7 @@
 int main(int /*argc*/, char** /*argv*/)
 {
 	erm::Engine engine;
+	erm::gEngine = &engine;
 
 	if (engine.Init())
 	{
