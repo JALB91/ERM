@@ -140,7 +140,8 @@ template<typename T>
 void ECS::ForEachSystem(const T& function)
 {
 	for (auto& system : mSystems)
-		function(*system);
+		if (system)
+			function(*system);
 }
 
 } // namespace erm::ecs
