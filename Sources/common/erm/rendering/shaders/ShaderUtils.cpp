@@ -43,7 +43,7 @@ const char* GetExtensionForShaderType(ShaderType shaderType)
 			return ".rgen";
 #endif
 		default:
-			ASSERT(false);
+			ERM_ASSERT(false);
 			return "";
 	}
 }

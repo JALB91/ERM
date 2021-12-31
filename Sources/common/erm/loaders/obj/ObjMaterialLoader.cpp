@@ -55,7 +55,7 @@ bool ParseMaterialsLib(
 				mat.reset();
 				skip = false;
 
-				ASSERT(splitted.size() >= 2);
+				ERM_ASSERT(splitted.size() >= 2);
 				std::string name = splitted[splitted.size() - 1];
 				mutex.lock();
 				const Materials& materials = resourcesManager.GetMaterials();
@@ -78,7 +78,7 @@ bool ParseMaterialsLib(
 			}
 			else if (splitted[0].compare("Ka") == 0)
 			{
-				ASSERT(splitted.size() >= 4);
+				ERM_ASSERT(splitted.size() >= 4);
 				mat->mAmbient = math::vec3(
 					std::atof(splitted[splitted.size() - 3].c_str()),
 					std::atof(splitted[splitted.size() - 2].c_str()),
@@ -86,7 +86,7 @@ bool ParseMaterialsLib(
 			}
 			else if (splitted[0].compare("Kd") == 0)
 			{
-				ASSERT(splitted.size() >= 4);
+				ERM_ASSERT(splitted.size() >= 4);
 				mat->mDiffuse = math::vec3(
 					std::atof(splitted[splitted.size() - 3].c_str()),
 					std::atof(splitted[splitted.size() - 2].c_str()),
@@ -94,7 +94,7 @@ bool ParseMaterialsLib(
 			}
 			else if (splitted[0].compare("Ks") == 0)
 			{
-				ASSERT(splitted.size() >= 4);
+				ERM_ASSERT(splitted.size() >= 4);
 				mat->mSpecular = math::vec3(
 					std::atof(splitted[splitted.size() - 3].c_str()),
 					std::atof(splitted[splitted.size() - 2].c_str()),
@@ -102,7 +102,7 @@ bool ParseMaterialsLib(
 			}
 			else if (splitted[0].compare("Ns") == 0)
 			{
-				ASSERT(splitted.size() >= 2);
+				ERM_ASSERT(splitted.size() >= 2);
 				mat->mShininess = static_cast<float>(std::atof(splitted[splitted.size() - 1].c_str()));
 			}
 			else if (splitted[0].compare("map_Kd") == 0)

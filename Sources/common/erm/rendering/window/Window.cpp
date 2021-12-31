@@ -191,7 +191,7 @@ bool Window::ShouldClose()
 
 void Window::OnUpdate()
 {
-	PROFILE_FUNCTION();
+	ERM_PROFILE_FUNCTION();
 
 	mPrevMousePosX = mMousePosX;
 	mPrevMousePosY = mMousePosY;
@@ -200,21 +200,21 @@ void Window::OnUpdate()
 
 void Window::OnRender()
 {
-	PROFILE_FUNCTION();
+	ERM_PROFILE_FUNCTION();
 
 	glfwSwapBuffers(mWindow);
 }
 
 void Window::OnPostRender()
 {
-	PROFILE_FUNCTION();
+	ERM_PROFILE_FUNCTION();
 
 	glfwPollEvents();
 }
 
 void Window::OnKey(int key, int /*scanCode*/, int action, int /*mods*/)
 {
-	PROFILE_FUNCTION();
+	ERM_PROFILE_FUNCTION();
 
 	if (ImGui::GetIO().WantCaptureKeyboard)
 		return;
@@ -241,7 +241,7 @@ void Window::OnKey(int key, int /*scanCode*/, int action, int /*mods*/)
 
 void Window::OnMouseButton(int button, int action, int /*mods*/)
 {
-	PROFILE_FUNCTION();
+	ERM_PROFILE_FUNCTION();
 
 	if (ImGui::GetIO().WantCaptureMouse)
 		return;
@@ -278,7 +278,7 @@ void Window::OnMousePos(double xPos, double yPos)
 
 void Window::OnSizeChanged()
 {
-	PROFILE_FUNCTION();
+	ERM_PROFILE_FUNCTION();
 
 	glfwGetWindowSize(mWindow, &mWindowSize.x, &mWindowSize.y);
 	glfwGetFramebufferSize(mWindow, &mFrameBufferSize.x, &mFrameBufferSize.y);

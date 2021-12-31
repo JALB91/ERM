@@ -34,7 +34,7 @@ void CameraSystem::Init()
 
 void CameraSystem::OnUpdate(float dt)
 {
-	PROFILE_FUNCTION();
+	ERM_PROFILE_FUNCTION();
 
 	for (ID i = 0; i < MAX_ID; ++i)
 	{
@@ -51,7 +51,7 @@ void CameraSystem::OnUpdate(float dt)
 
 void CameraSystem::OnPostUpdate()
 {
-	PROFILE_FUNCTION();
+	ERM_PROFILE_FUNCTION();
 
 	for (ID i = 0; i < MAX_ID; ++i)
 	{

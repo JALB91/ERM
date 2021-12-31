@@ -6,11 +6,11 @@
 #include <string>
 #include <vector>
 
-#define UNUSED(x)	   (void)x;
-#define ASSERT(x)	   assert(x)
-#define EXPECT(x, msg) erm::Utils::LogCall((x), msg, #x, __FILE__, __LINE__)
+#define ERM_UNUSED(x)	   (void)x;
+#define ERM_ASSERT(x)	   assert(x)
+#define ERM_EXPECT(x, msg) erm::Utils::LogCall((x), msg, #x, __FILE__, __LINE__)
 
-#define DECL_SET_GET_OPT_WITH_DEFAULT(NAME, TYPE, DEFAULT)              \
+#define ERM_DECL_SET_GET_OPT_WITH_DEFAULT(NAME, TYPE, DEFAULT)          \
 private:                                                                \
 	std::optional<TYPE> m##NAME;                                        \
                                                                         \
@@ -35,7 +35,7 @@ template<
 	typename Enable = std::enable_if_t<std::is_copy_constructible_v<T> && !std::is_pointer_v<T>>>
 T Clone(const T& value)
 {
-	return T(value);
+	return T {value};
 }
 
 template<
@@ -43,7 +43,7 @@ template<
 	typename Enable = std::enable_if_t<std::is_copy_constructible_v<T> && !std::is_pointer_v<T>>>
 std::unique_ptr<T> Clone(const std::unique_ptr<T>& value)
 {
-	ASSERT(value);
+	ERM_ASSERT(value);
 	return std::make_unique<T>(*value.get());
 }
 

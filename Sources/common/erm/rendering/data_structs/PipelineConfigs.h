@@ -32,15 +32,15 @@ struct PipelineConfigs : public BindingConfigs
 	bool IsDrawModeCompatible(const PipelineConfigs& other) const;
 	bool IsPolyModeCompatible(const PipelineConfigs& other) const;
 
-	DECL_SET_GET_OPT_WITH_DEFAULT(CullMode, CullMode, CullMode::BACK);
-	DECL_SET_GET_OPT_WITH_DEFAULT(FrontFace, FrontFace, FrontFace::CCW);
-	DECL_SET_GET_OPT_WITH_DEFAULT(BlendEnabled, bool, true);
-	DECL_SET_GET_OPT_WITH_DEFAULT(BlendFunction, BlendFunction, BlendFunction::ONE_MINUS_SRC_ALPHA);
-	DECL_SET_GET_OPT_WITH_DEFAULT(DepthTestEnabled, bool, true);
-	DECL_SET_GET_OPT_WITH_DEFAULT(DepthWriteEnabled, bool, true);
-	DECL_SET_GET_OPT_WITH_DEFAULT(DepthFunction, DepthFunction, DepthFunction::LESS);
-	DECL_SET_GET_OPT_WITH_DEFAULT(DrawMode, DrawMode, DrawMode::TRIANGLES);
-	DECL_SET_GET_OPT_WITH_DEFAULT(PolygonMode, PolygonMode, PolygonMode::FILL);
+	ERM_DECL_SET_GET_OPT_WITH_DEFAULT(CullMode, CullMode, CullMode::BACK);
+	ERM_DECL_SET_GET_OPT_WITH_DEFAULT(FrontFace, FrontFace, FrontFace::CCW);
+	ERM_DECL_SET_GET_OPT_WITH_DEFAULT(BlendEnabled, bool, true);
+	ERM_DECL_SET_GET_OPT_WITH_DEFAULT(BlendFunction, BlendFunction, BlendFunction::ONE_MINUS_SRC_ALPHA);
+	ERM_DECL_SET_GET_OPT_WITH_DEFAULT(DepthTestEnabled, bool, true);
+	ERM_DECL_SET_GET_OPT_WITH_DEFAULT(DepthWriteEnabled, bool, true);
+	ERM_DECL_SET_GET_OPT_WITH_DEFAULT(DepthFunction, DepthFunction, DepthFunction::LESS);
+	ERM_DECL_SET_GET_OPT_WITH_DEFAULT(DrawMode, DrawMode, DrawMode::TRIANGLES);
+	ERM_DECL_SET_GET_OPT_WITH_DEFAULT(PolygonMode, PolygonMode, PolygonMode::FILL);
 	IShaderProgram* mShaderProgram;
 };
 

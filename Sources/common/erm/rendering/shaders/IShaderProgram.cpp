@@ -75,7 +75,7 @@ erm::UboData GetUboData(const spirv_cross::Compiler& compiler, const spirv_cross
 		return makeUboData(erm::UboRTBasic::ID, sizeof(erm::UboRTBasic));
 #endif
 
-	ASSERT(false);
+	ERM_ASSERT(false);
 
 	return {erm::UboMVPOnly::ID, sizeof(erm::UboMVPOnly), 0, 0, 0};
 }
@@ -100,7 +100,7 @@ erm::SamplerData GetSamplerData(const spirv_cross::Compiler& compiler, const spi
 	else if (resource.name.compare("depthSampler") == 0)
 		return makeSamplerData(erm::TextureType::DEPTH);
 
-	ASSERT(false);
+	ERM_ASSERT(false);
 
 	return {0, 0, erm::TextureType::DIFFUSE};
 }
@@ -119,7 +119,7 @@ erm::StorageImageData GetStorageImageData(const spirv_cross::Compiler& compiler,
 	else if (resource.name.compare("depth") == 0)
 		return makeStorageImageData(erm::StorageImageType::DEPTH_BUFFER);
 
-	ASSERT(false);
+	ERM_ASSERT(false);
 
 	return {erm::StorageImageType::FRAME_BUFFER, 0, 0};
 }
@@ -141,7 +141,7 @@ erm::StorageBufferData GetStorageBufferData(const spirv_cross::Compiler& compile
 	else if (resource.name.compare("BInstancesData") == 0)
 		return makeStorageBufferData(erm::StorageBufferType::INSTANCE_DATA);
 
-	ASSERT(false);
+	ERM_ASSERT(false);
 
 	return {erm::StorageBufferType::VERTICES, 0, 0, 0};
 }
@@ -158,7 +158,7 @@ erm::AccelerationStructureData GetAccelerationStructureData(const spirv_cross::C
 	if (resource.name.compare("topLevelAS") == 0)
 		return makeAccelerationStructureData();
 
-	ASSERT(false);
+	ERM_ASSERT(false);
 
 	return {0, 0};
 }
@@ -230,7 +230,7 @@ void IShaderProgram::UpdateShadersData(ShaderType shaderType)
 
 void IShaderProgram::CompileShadersSources(ShaderType shaderType) const
 {
-	ASSERT(mShadersDataMap.find(shaderType) != mShadersDataMap.end());
+	ERM_ASSERT(mShadersDataMap.find(shaderType) != mShadersDataMap.end());
 	const std::vector<ShaderData>& data = mShadersDataMap.at(shaderType);
 
 	for (size_t i = 0; i < data.size(); ++i)
@@ -242,7 +242,7 @@ void IShaderProgram::CompileShadersSources(ShaderType shaderType) const
 		compilationCommand += " " + shaderPath + " -o " + compiledShaderPath;
 		system(compilationCommand.c_str());
 #else
-		ASSERT(false);
+		ERM_ASSERT(false);
 #endif
 	}
 }
@@ -255,7 +255,7 @@ void IShaderProgram::UpdateBindingData()
 	{
 		for (const auto& data : shadersData)
 		{
-			ASSERT(data.mShaderCompiler);
+			ERM_ASSERT(data.mShaderCompiler);
 			UpdateShaderBindings(*data.mShaderCompiler, shaderType);
 		}
 	}
@@ -291,7 +291,7 @@ void IShaderProgram::UpdateResourceBindings(
 	ShaderType shaderType,
 	DescriptorType descriptorType)
 {
-	UNUSED(shaderType);
+	ERM_UNUSED(shaderType);
 
 	switch (descriptorType)
 	{
@@ -313,7 +313,7 @@ void IShaderProgram::UpdateResourceBindings(
 			break;
 #endif
 		default:
-			ASSERT(false);
+			ERM_ASSERT(false);
 			break;
 	}
 }
@@ -336,9 +336,9 @@ void IShaderProgram::ValidateShaders() const
 	for (const ShaderType type : sRequiredRTShaderTypes)
 		hasRequiredRTShaders &= mShadersDataMap.find(type) != mShadersDataMap.cend();
 
-	ASSERT((!hasRequiredShaders && hasRequiredRTShaders) || (hasRequiredShaders && !hasRequiredRTShaders));
+	ERM_ASSERT((!hasRequiredShaders && hasRequiredRTShaders) || (hasRequiredShaders && !hasRequiredRTShaders));
 #	else
-	ASSERT(hasRequiredShaders);
+	ERM_ASSERT(hasRequiredShaders);
 #	endif
 #endif
 }

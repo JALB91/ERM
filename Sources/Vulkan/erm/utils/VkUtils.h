@@ -10,10 +10,10 @@ struct QueueFamilyIndices;
 struct SwapChainSupportDetails;
 } // namespace erm
 
-#define VK_CHECK(OP)                            \
-	{                                           \
-		const auto result = OP;                 \
-		ASSERT(result == vk::Result::eSuccess); \
+#define ERM_VK_CHECK(OP)                            \
+	{                                               \
+		const auto result = OP;                     \
+		ERM_ASSERT(result == vk::Result::eSuccess); \
 	}
 
 namespace erm::VkUtils {

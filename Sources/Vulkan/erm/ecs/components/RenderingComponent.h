@@ -29,8 +29,8 @@ public:
 
 public:
 #ifdef ERM_RAY_TRACING_ENABLED
-	SENSIBLE_MEMBER(CustomIndex, std::optional<uint32_t>, {})
-	SENSIBLE_MEMBER(UseRayTracing, bool, true)
+	ERM_SENSIBLE_MEMBER(CustomIndex, std::optional<uint32_t>, {})
+	ERM_SENSIBLE_MEMBER(UseRayTracing, bool, true)
 #endif
 
 private:

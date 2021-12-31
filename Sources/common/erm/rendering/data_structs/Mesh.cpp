@@ -15,7 +15,7 @@ Mesh::Mesh(
 	, mIndBuffer(nullptr, {})
 	, mName(name)
 {
-	ASSERT(!mVerticesData.empty() && !mIndicesData.empty());
+	ERM_ASSERT(!mVerticesData.empty() && !mIndicesData.empty());
 }
 
 Mesh::~Mesh() = default;

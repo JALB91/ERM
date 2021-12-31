@@ -2,8 +2,8 @@
 
 #include "erm/utils/Utils.h"
 
-#define ERM_CHECK_FMOD_RESULT(call) \
-	{                               \
-		const auto result = call;   \
-		ASSERT(result == FMOD_OK);  \
+#define ERM_CHECK_FMOD_RESULT(call)    \
+	{                                  \
+		const auto result = call;      \
+		ERM_ASSERT(result == FMOD_OK); \
 	}

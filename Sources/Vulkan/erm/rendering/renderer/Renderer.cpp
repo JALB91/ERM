@@ -33,7 +33,7 @@ Renderer::~Renderer()
 
 void Renderer::OnPreRender()
 {
-	PROFILE_FUNCTION();
+	ERM_PROFILE_FUNCTION();
 
 	if (!mRenderingResources)
 		mRenderingResources = std::make_unique<RenderingResources>(mEngine);
@@ -44,7 +44,7 @@ void Renderer::OnPreRender()
 	mRTRenderingResources->Refresh();
 #endif
 
-	VK_CHECK(mDevice->waitForFences(1, &mInFlightFences[mCurrentFrame], VK_TRUE, UINT64_MAX));
+	ERM_VK_CHECK(mDevice->waitForFences(1, &mInFlightFences[mCurrentFrame], VK_TRUE, UINT64_MAX));
 
 	const vk::Result result = mDevice->acquireNextImageKHR(mSwapChain, UINT64_MAX, mImageAvailableSemaphores[mCurrentFrame], {}, &mCurrentImageIndex);
 
@@ -61,7 +61,7 @@ void Renderer::OnPreRender()
 	// Check if a previous frame is using this image (i.e. there is its fence to wait on)
 	if (mImagesInFlight[mCurrentImageIndex])
 	{
-		VK_CHECK(mDevice->waitForFences(1, &mImagesInFlight[mCurrentImageIndex], VK_TRUE, UINT64_MAX));
+		ERM_VK_CHECK(mDevice->waitForFences(1, &mImagesInFlight[mCurrentImageIndex], VK_TRUE, UINT64_MAX));
 	}
 	// Mark the image as now being in use by this frame
 	mImagesInFlight[mCurrentImageIndex] = mInFlightFences[mCurrentFrame];
@@ -71,7 +71,7 @@ void Renderer::OnPreRender()
 
 void Renderer::OnRender()
 {
-	PROFILE_FUNCTION();
+	ERM_PROFILE_FUNCTION();
 
 	if (!mIsImageIndexValid)
 		return;
@@ -88,13 +88,13 @@ void Renderer::OnRender()
 	submitInfo.signalSemaphoreCount = 1;
 	submitInfo.pSignalSemaphores = &mRenderFinishedSemaphores[mCurrentFrame];
 
-	VK_CHECK(mDevice->resetFences(1, &mInFlightFences[mCurrentFrame]));
-	VK_CHECK(mDevice.GetGraphicsQueue().submit(1, &submitInfo, mInFlightFences[mCurrentFrame]));
+	ERM_VK_CHECK(mDevice->resetFences(1, &mInFlightFences[mCurrentFrame]));
+	ERM_VK_CHECK(mDevice.GetGraphicsQueue().submit(1, &submitInfo, mInFlightFences[mCurrentFrame]));
 }
 
 void Renderer::OnPostRender()
 {
-	PROFILE_FUNCTION();
+	ERM_PROFILE_FUNCTION();
 
 	mRenderData.clear();
 #ifdef ERM_RAY_TRACING_ENABLED
@@ -132,7 +132,7 @@ void Renderer::OnPostRender()
 
 void Renderer::SubmitRenderData(RenderData& data)
 {
-	ASSERT(!data.mMeshes.empty());
+	ERM_ASSERT(!data.mMeshes.empty());
 
 	mRenderData.emplace_back(&data);
 }
@@ -159,7 +159,7 @@ void Renderer::RecreateSwapChain()
 
 std::vector<vk::CommandBuffer> Renderer::RetrieveCommandBuffers()
 {
-	PROFILE_FUNCTION();
+	ERM_PROFILE_FUNCTION();
 
 	std::vector<vk::CommandBuffer> commandBuffers(
 		(mRenderingResources ? 1 : 0) +

@@ -20,11 +20,13 @@ public:                                                                         
                                                                                                       \
 	static const ID SYSTEM_ID;                                                                        \
                                                                                                       \
+public:                                                                                               \
 	void RemoveComponent(EntityId id) override;                                                       \
 	const NAME##Component* GetComponent(EntityId id) const;                                           \
 	NAME##Component* GetComponent(EntityId id);                                                       \
+                                                                                                      \
 	template<typename... Args>                                                                        \
-	NAME##Component* AddComponent(EntityId id, Args&&... args)                                        \
+	inline NAME##Component* AddComponent(EntityId id, Args&&... args)                                 \
 	{                                                                                                 \
 		if (!HasComponent(id))                                                                        \
 		{                                                                                             \
@@ -38,13 +40,13 @@ public:                                                                         
 	}                                                                                                 \
                                                                                                       \
 	template<typename... Args>                                                                        \
-	NAME##Component* RequireComponent(EntityId id, Args&&... args)                                    \
+	inline NAME##Component* RequireComponent(EntityId id, Args&&... args)                             \
 	{                                                                                                 \
 		return (HasComponent(id) ? GetComponent(id) : AddComponent(id, std::forward<Args>(args)...)); \
 	}                                                                                                 \
                                                                                                       \
 	template<typename F>                                                                              \
-	void ForEachComponent(F f)                                                                        \
+	inline void ForEachComponent(F f)                                                                 \
 	{                                                                                                 \
 		for (ID i = 0; i < MAX_ID; ++i)                                                               \
 		{                                                                                             \
@@ -56,7 +58,7 @@ public:                                                                         
 	}                                                                                                 \
                                                                                                       \
 	template<typename F>                                                                              \
-	void ForEachComponent(F f) const                                                                  \
+	inline void ForEachComponent(F f) const                                                           \
 	{                                                                                                 \
 		for (ID i = 0; i < MAX_ID; ++i)                                                               \
 		{                                                                                             \
@@ -116,31 +118,31 @@ public:
 	virtual void OnRender() {}
 	virtual void OnPostRender() {}
 
-	virtual bool HasComponent(EntityId id) const final
+	inline virtual bool HasComponent(EntityId id) const final
 	{
 		return (id.IsValid() && mComponentsBitmask[id()]);
 	}
 
 	template<typename T>
-	const T* GetComponent(EntityId id) const
+	inline const T* GetComponent(EntityId id) const
 	{
 		return static_cast<const typename T::SYSTEM_TYPE*>(this)->GetComponent(id);
 	}
 
 	template<typename T>
-	T* GetComponent(EntityId id)
+	inline T* GetComponent(EntityId id)
 	{
 		return static_cast<typename T::SYSTEM_TYPE*>(this)->GetComponent(id);
 	}
 
 	template<typename T, typename... Args>
-	T* AddComponent(EntityId id, Args&&... args)
+	inline T* AddComponent(EntityId id, Args&&... args)
 	{
 		return static_cast<typename T::SYSTEM_TYPE*>(this)->AddComponent(id, std::forward<Args>(args)...);
 	}
 
 	template<typename T, typename... Args>
-	T* RequireComponent(EntityId id, Args&&... args)
+	inline T* RequireComponent(EntityId id, Args&&... args)
 	{
 		return static_cast<typename T::SYSTEM_TYPE*>(this)->RequireComponent(id, std::forward<Args>(args)...);
 	}
@@ -148,11 +150,11 @@ public:
 	virtual void RemoveComponent(EntityId id) = 0;
 
 protected:
-	virtual void OnComponentBeingAdded(EntityId /*id*/) {}
-	virtual void OnComponentAdded(EntityId /*id*/) {}
+	inline virtual void OnComponentBeingAdded(EntityId /*id*/) {}
+	inline virtual void OnComponentAdded(EntityId /*id*/) {}
 
-	virtual void OnComponentBeingRemoved(EntityId /*id*/) {}
-	virtual void OnComponentRemoved(EntityId /*id*/) {}
+	inline virtual void OnComponentBeingRemoved(EntityId /*id*/) {}
+	inline virtual void OnComponentRemoved(EntityId /*id*/) {}
 
 	Engine& mEngine;
 	ECS& mECS;

@@ -41,7 +41,7 @@ void ECS::Init()
 
 void ECS::OnPreUpdate()
 {
-	PROFILE_FUNCTION();
+	ERM_PROFILE_FUNCTION();
 
 	ForEachSystem([](auto& system) {
 		system.OnPreUpdate();
@@ -50,7 +50,7 @@ void ECS::OnPreUpdate()
 
 void ECS::OnUpdate(float dt)
 {
-	PROFILE_FUNCTION();
+	ERM_PROFILE_FUNCTION();
 
 	ForEachSystem([dt](auto& system) {
 		system.OnUpdate(dt);
@@ -59,7 +59,7 @@ void ECS::OnUpdate(float dt)
 
 void ECS::OnPostUpdate()
 {
-	PROFILE_FUNCTION();
+	ERM_PROFILE_FUNCTION();
 
 	ForEachSystem([](auto& system) {
 		system.OnPostUpdate();
@@ -68,7 +68,7 @@ void ECS::OnPostUpdate()
 
 void ECS::OnPreRender()
 {
-	PROFILE_FUNCTION();
+	ERM_PROFILE_FUNCTION();
 
 	ForEachSystem([](auto& system) {
 		system.OnPreRender();
@@ -77,7 +77,7 @@ void ECS::OnPreRender()
 
 void ECS::OnRender()
 {
-	PROFILE_FUNCTION();
+	ERM_PROFILE_FUNCTION();
 
 	ForEachSystem([](auto& system) {
 		system.OnRender();
@@ -86,7 +86,7 @@ void ECS::OnRender()
 
 void ECS::OnPostRender()
 {
-	PROFILE_FUNCTION();
+	ERM_PROFILE_FUNCTION();
 
 	ForEachSystem([](auto& system) {
 		system.OnPostRender();

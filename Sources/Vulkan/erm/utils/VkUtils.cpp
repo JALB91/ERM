@@ -155,7 +155,7 @@ vk::CommandBuffer BeginSingleTimeCommands(Device& device)
 	allocInfo.commandBufferCount = 1;
 
 	vk::CommandBuffer commandBuffer;
-	VK_CHECK(device->allocateCommandBuffers(&allocInfo, &commandBuffer));
+	ERM_VK_CHECK(device->allocateCommandBuffers(&allocInfo, &commandBuffer));
 
 	vk::CommandBufferBeginInfo beginInfo {};
 	beginInfo.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit;
@@ -175,7 +175,7 @@ void EndSingleTimeCommands(
 	submitInfo.commandBufferCount = 1;
 	submitInfo.pCommandBuffers = &commandBuffer;
 
-	VK_CHECK(device.GetGraphicsQueue().submit(1, &submitInfo, nullptr));
+	ERM_VK_CHECK(device.GetGraphicsQueue().submit(1, &submitInfo, nullptr));
 	device.GetGraphicsQueue().waitIdle();
 
 	device->freeCommandBuffers(device.GetCommandPool(), 1, &commandBuffer);
@@ -234,7 +234,7 @@ void CreateBuffer(
 	bufferInfo.usage = usage;
 	bufferInfo.sharingMode = vk::SharingMode::eExclusive;
 
-	VK_CHECK(device.createBuffer(&bufferInfo, nullptr, &buffer));
+	ERM_VK_CHECK(device.createBuffer(&bufferInfo, nullptr, &buffer));
 
 	vk::MemoryRequirements memRequirements;
 	device.getBufferMemoryRequirements(buffer, &memRequirements);
@@ -248,7 +248,7 @@ void CreateBuffer(
 		flagsInfo.flags = vk::MemoryAllocateFlagBits::eDeviceAddress;
 	allocInfo.pNext = &flagsInfo;
 
-	VK_CHECK(device.allocateMemory(&allocInfo, nullptr, &bufferMemory));
+	ERM_VK_CHECK(device.allocateMemory(&allocInfo, nullptr, &bufferMemory));
 	device.bindBufferMemory(buffer, bufferMemory, 0);
 }
 
@@ -307,7 +307,7 @@ void CreateImage(
 	vk::Image& image,
 	vk::DeviceMemory& imageMemory)
 {
-	VK_CHECK(device.createImage(&createInfo, nullptr, &image));
+	ERM_VK_CHECK(device.createImage(&createInfo, nullptr, &image));
 
 	vk::MemoryRequirements memRequirements;
 	device.getImageMemoryRequirements(image, &memRequirements);
@@ -316,7 +316,7 @@ void CreateImage(
 	allocInfo.allocationSize = memRequirements.size;
 	allocInfo.memoryTypeIndex = FindMemoryType(physicalDevice, memRequirements.memoryTypeBits, properties);
 
-	VK_CHECK(device.allocateMemory(&allocInfo, nullptr, &imageMemory));
+	ERM_VK_CHECK(device.allocateMemory(&allocInfo, nullptr, &imageMemory));
 	device.bindImageMemory(image, imageMemory, 0);
 }
 
@@ -346,7 +346,7 @@ vk::ImageView CreateImageView(
 	const vk::ImageViewCreateInfo& createInfo)
 {
 	vk::ImageView imageView;
-	VK_CHECK(device.createImageView(&createInfo, nullptr, &imageView));
+	ERM_VK_CHECK(device.createImageView(&createInfo, nullptr, &imageView));
 
 	return imageView;
 }
@@ -456,7 +456,7 @@ void CreateDeviceLocalBuffer(
 		stagingBufferMemory);
 
 	void* data = nullptr;
-	VK_CHECK(device->mapMemory(stagingBufferMemory, 0, bufferSize, {}, &data));
+	ERM_VK_CHECK(device->mapMemory(stagingBufferMemory, 0, bufferSize, {}, &data));
 	memcpy(data, bufferData, static_cast<size_t>(bufferSize));
 	device->unmapMemory(stagingBufferMemory);
 
@@ -651,7 +651,7 @@ vk::ShaderStageFlagBits ToVulkanValue(ShaderType shaderType)
 			return vk::ShaderStageFlagBits::eRaygenKHR;
 #endif
 		default:
-			ASSERT(false);
+			ERM_ASSERT(false);
 			return vk::ShaderStageFlagBits::eAll;
 	}
 }
@@ -674,7 +674,7 @@ vk::DescriptorType ToVulkanValue(DescriptorType type)
 			return vk::DescriptorType::eAccelerationStructureKHR;
 #endif
 		default:
-			ASSERT(false);
+			ERM_ASSERT(false);
 			return vk::DescriptorType::eUniformBuffer;
 	}
 }

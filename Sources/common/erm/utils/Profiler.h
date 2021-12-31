@@ -4,11 +4,11 @@
 #include "erm/utils/Tree.h"
 #include "erm/utils/Utils.h"
 
-#define PROFILE(name) erm::Profiler p(name)
+#define ERM_PROFILE(name) erm::Profiler p(name)
 #ifdef WIN32
-#	define PROFILE_FUNCTION() PROFILE(Utils::StripFunctionName(__FUNCSIG__))
+#	define ERM_PROFILE_FUNCTION() ERM_PROFILE(Utils::StripFunctionName(__FUNCSIG__))
 #else
-#	define PROFILE_FUNCTION() PROFILE(Utils::StripFunctionName(__PRETTY_FUNCTION__))
+#	define ERM_PROFILE_FUNCTION() ERM_PROFILE(Utils::StripFunctionName(__PRETTY_FUNCTION__))
 #endif
 
 namespace erm {

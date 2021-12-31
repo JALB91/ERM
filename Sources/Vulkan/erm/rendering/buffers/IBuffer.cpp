@@ -64,7 +64,7 @@ IBuffer& IBuffer::operator=(IBuffer&& other)
 	if (this == &other)
 		return *this;
 
-	ASSERT(&mDevice == &other.mDevice);
+	ERM_ASSERT(&mDevice == &other.mDevice);
 	mBufferSize = other.mBufferSize;
 	mBuf = std::move(other.mBuf);
 	mMpf = std::move(other.mMpf);

@@ -19,12 +19,12 @@ public:
 	friend class CameraSystem;
 
 public:
-	SENSIBLE_MEMBER(MovementSpeed, float, 10.0f)
-	SENSIBLE_MEMBER(MouseSensibility, float, 0.5f)
-	SENSIBLE_MEMBER(AngleLimit, float, static_cast<float>(M_PI) * 0.35f)
-	SENSIBLE_MEMBER(FOV, float, 45.0f)
-	SENSIBLE_MEMBER(ZNear, float, 0.1f)
-	SENSIBLE_MEMBER(ZFar, float, 10000.0f)
+	ERM_SENSIBLE_MEMBER(MovementSpeed, float, 10.0f)
+	ERM_SENSIBLE_MEMBER(MouseSensibility, float, 0.5f)
+	ERM_SENSIBLE_MEMBER(AngleLimit, float, static_cast<float>(M_PI) * 0.35f)
+	ERM_SENSIBLE_MEMBER(FOV, float, 45.0f)
+	ERM_SENSIBLE_MEMBER(ZNear, float, 0.1f)
+	ERM_SENSIBLE_MEMBER(ZFar, float, 10000.0f)
 
 	inline const math::mat4& GetProjectionMatrix() const { return mProjectionMatrix; }
 

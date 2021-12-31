@@ -14,7 +14,7 @@ bool LogCall(bool cond, const char* msg, const char* function, const char* file,
 	if (!cond)
 	{
 		std::cout << "[Assert] (" << msg << ") " << function << " " << file << ":" << line << std::endl;
-		ASSERT(cond);
+		ERM_ASSERT(cond);
 	}
 	return cond;
 }
@@ -47,7 +47,7 @@ std::string ReadFromFile(const char* path)
 {
 	std::ifstream stream(path);
 
-	if (!EXPECT(stream.is_open(), "Failed to open file"))
+	if (!ERM_EXPECT(stream.is_open(), "Failed to open file"))
 		return "";
 
 	std::string result;
@@ -65,7 +65,7 @@ void WriteToFile(const char* path, const std::string& data)
 {
 	std::ofstream stream(path);
 
-	if (EXPECT(stream.is_open(), "Failed to open file"))
+	if (ERM_EXPECT(stream.is_open(), "Failed to open file"))
 		stream.write(data.c_str(), data.size());
 }
 

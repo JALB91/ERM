@@ -180,7 +180,7 @@ void ReadVerticesSources(
 	XMLElement* pSource = FindChildWithAttribute(mesh, "source", "id", pSourceStr.c_str());
 	const std::vector<std::string> pSourceVec(Utils::SplitString(pSource->FirstChildElement("float_array")->GetText(), ' '));
 
-	ASSERT(pSourceVec.size() % 3 == 0);
+	ERM_ASSERT(pSourceVec.size() % 3 == 0);
 
 	pVertices.reserve(pSourceVec.size() / 3);
 
@@ -206,7 +206,7 @@ void ReadVerticesSources(
 		{
 			std::vector<std::string> nSourceVec(Utils::SplitString(nSource->FirstChildElement("float_array")->GetText(), ' '));
 
-			ASSERT(nSourceVec.size() % 3 == 0);
+			ERM_ASSERT(nSourceVec.size() % 3 == 0);
 
 			nVertices.reserve(nSourceVec.size() / 3);
 
@@ -230,7 +230,7 @@ void ReadVerticesSources(
 		{
 			std::vector<std::string> uvSourceVec(Utils::SplitString(uvSource->FirstChildElement("float_array")->GetText(), ' '));
 
-			ASSERT(uvSourceVec.size() % 2 == 0);
+			ERM_ASSERT(uvSourceVec.size() % 2 == 0);
 
 			uvVertices.reserve(uvSourceVec.size() / 3);
 

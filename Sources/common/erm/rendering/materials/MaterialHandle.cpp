@@ -16,7 +16,7 @@ MaterialHandle::MaterialHandle(MaterialType materialType)
 	switch (mType)
 	{
 		default:
-			ASSERT(false);
+			ERM_ASSERT(false);
 		case MaterialType::LEGACY:
 			mData = &Material::DEFAULT;
 			break;

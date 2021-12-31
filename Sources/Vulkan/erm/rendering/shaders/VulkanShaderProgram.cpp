@@ -35,7 +35,7 @@ std::vector<vk::UniqueShaderModule> VulkanShaderProgram::CreateShaderModules(Sha
 
 vk::VertexInputBindingDescription VulkanShaderProgram::GetVertexBindingDescription()
 {
-	ASSERT(mShadersDataMap[ShaderType::VERTEX].size() == 1);
+	ERM_ASSERT(mShadersDataMap[ShaderType::VERTEX].size() == 1);
 
 	spirv_cross::ShaderResources resources = mShadersDataMap[ShaderType::VERTEX][0].mShaderCompiler->get_shader_resources();
 
@@ -53,7 +53,7 @@ vk::VertexInputBindingDescription VulkanShaderProgram::GetVertexBindingDescripti
 
 std::vector<vk::VertexInputAttributeDescription> VulkanShaderProgram::GetVertexAttributeDescriptions()
 {
-	ASSERT(mShadersDataMap[ShaderType::VERTEX].size() == 1);
+	ERM_ASSERT(mShadersDataMap[ShaderType::VERTEX].size() == 1);
 
 	const ShaderData& data = mShadersDataMap[ShaderType::VERTEX][0];
 	spirv_cross::ShaderResources resources = data.mShaderCompiler->get_shader_resources();
@@ -129,7 +129,7 @@ void VulkanShaderProgram::UpdateResourceBindings(
 		if (layoutBinding.binding == binding)
 		{
 			// TODO: Should find a way to assert also based on the contents of the binding
-			ASSERT(layoutBinding.descriptorType == VkUtils::ToVulkanValue<vk::DescriptorType>(descriptorType));
+			ERM_ASSERT(layoutBinding.descriptorType == VkUtils::ToVulkanValue<vk::DescriptorType>(descriptorType));
 			layoutBinding.stageFlags |= VkUtils::ToVulkanValue<vk::ShaderStageFlagBits>(shaderType);
 			return;
 		}

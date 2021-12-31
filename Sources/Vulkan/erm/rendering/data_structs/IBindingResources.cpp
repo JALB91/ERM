@@ -117,7 +117,7 @@ void IBindingResources::CreateStorageImagesDescriptorWritesAndInfos(
 				targetImage = mRenderer.GetDepthImageView();
 				break;
 			default:
-				ASSERT(false);
+				ERM_ASSERT(false);
 		}
 
 		vk::DescriptorImageInfo& imageInfo = infos[i];
@@ -149,7 +149,7 @@ void IBindingResources::CreateASDescriptorWritesAndInfos(
 {
 	if (!asData.empty())
 	{
-		ASSERT(asData.size() == 1);
+		ERM_ASSERT(asData.size() == 1);
 		vk::WriteDescriptorSetAccelerationStructureKHR& info = infos[0];
 		info.accelerationStructureCount = 1;
 		info.pAccelerationStructures = as;

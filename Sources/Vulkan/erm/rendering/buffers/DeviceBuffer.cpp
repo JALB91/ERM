@@ -44,7 +44,7 @@ void DeviceBuffer::Update(vk::CommandBuffer& cmd, const void* data, const Buffer
 {
 	const size_t targetStride = info.mStride == VK_WHOLE_SIZE ? mBufferSize : info.mStride;
 
-	ASSERT(targetStride + info.mOffset <= mBufferSize);
+	ERM_ASSERT(targetStride + info.mOffset <= mBufferSize);
 
 	if (targetStride >= 65536)
 	{

@@ -4,7 +4,7 @@
 
 namespace erm::ecs {
 
-#define SENSIBLE_MEMBER(NAME, TYPE, DEFAULT)                                          \
+#define ERM_SENSIBLE_MEMBER(NAME, TYPE, DEFAULT)                                      \
 private:                                                                              \
 	TYPE m##NAME = DEFAULT;                                                           \
                                                                                       \

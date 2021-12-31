@@ -22,7 +22,7 @@ public:
 		: mBonesRenderData(bonesPipelineConfig)
 	{}
 
-	SENSIBLE_MEMBER(IsSelected, bool, false)
+	ERM_SENSIBLE_MEMBER(IsSelected, bool, false)
 
 private:
 	RenderData mBonesRenderData;

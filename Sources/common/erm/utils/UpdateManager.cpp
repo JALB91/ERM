@@ -75,7 +75,7 @@ void UpdateManager::ForEach(const std::function<void(IUpdatable*)>& func)
 
 void UpdateManager::OnPreUpdate()
 {
-	PROFILE_FUNCTION();
+	ERM_PROFILE_FUNCTION();
 	Refresh();
 	ForEach([](IUpdatable* updatable) {
 		updatable->OnPreUpdate();
@@ -84,7 +84,7 @@ void UpdateManager::OnPreUpdate()
 
 void UpdateManager::Update(float dt)
 {
-	PROFILE_FUNCTION();
+	ERM_PROFILE_FUNCTION();
 	ForEach([dt](IUpdatable* updatable) {
 		updatable->OnUpdate(dt);
 	});
@@ -92,7 +92,7 @@ void UpdateManager::Update(float dt)
 
 void UpdateManager::OnPostUpdate()
 {
-	PROFILE_FUNCTION();
+	ERM_PROFILE_FUNCTION();
 	ForEach([](IUpdatable* updatable) {
 		updatable->OnPostUpdate();
 	});

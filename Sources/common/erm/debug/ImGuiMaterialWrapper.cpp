@@ -119,7 +119,7 @@ void ShowMaterialDebug(erm::Engine& engine, erm::Mesh& mesh)
 		switch (configs.mMaterial.mType)
 		{
 			default:
-				ASSERT(false);
+				ERM_ASSERT(false);
 			case erm::MaterialType::LEGACY:
 				ShowLegacyMaterialDebug(engine, configs);
 				break;

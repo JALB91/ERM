@@ -33,7 +33,7 @@ static FbxImporter* sImporter = nullptr;
 
 void InitFBXManager()
 {
-	ASSERT(!sManager && !sIOSettings && !sImporter);
+	ERM_ASSERT(!sManager && !sIOSettings && !sImporter);
 
 	sManager = FbxManager::Create();
 

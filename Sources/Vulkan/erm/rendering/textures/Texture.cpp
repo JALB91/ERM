@@ -37,7 +37,7 @@ Texture::~Texture()
 
 void Texture::Init()
 {
-	ASSERT(!mTextureImage && !mTextureImageView && !mTextureImageMemory);
+	ERM_ASSERT(!mTextureImage && !mTextureImageView && !mTextureImageMemory);
 	CreateTextureImage();
 	CreateTextureImageView();
 }
@@ -47,7 +47,7 @@ void Texture::CreateTextureImage()
 	stbi_set_flip_vertically_on_load(1);
 	mLocalBuffer = stbi_load(mPath.c_str(), &mWidth, &mHeight, &mBPP, STBI_rgb_alpha);
 	vk::DeviceSize imageSize = mWidth * mHeight * 4;
-	ASSERT(mLocalBuffer);
+	ERM_ASSERT(mLocalBuffer);
 
 	HostBuffer stagingBuffer(mDevice, imageSize, vk::BufferUsageFlagBits::eTransferSrc);
 	stagingBuffer.Update(mLocalBuffer);

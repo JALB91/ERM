@@ -18,9 +18,9 @@ static FMOD_RESULT SystemCallback(
 	void* commanddata2,
 	void* userdata)
 {
-	UNUSED(system);
-	UNUSED(commanddata1);
-	UNUSED(commanddata2);
+	ERM_UNUSED(system);
+	ERM_UNUSED(commanddata1);
+	ERM_UNUSED(commanddata2);
 
 	if (type != FMOD_SYSTEM_CALLBACK_DEVICELISTCHANGED)
 		return FMOD_OK;
@@ -170,7 +170,7 @@ bool AudioManager::ShouldPlayInBackground() const
 
 Sound* AudioManager::GetSound(const char* path, bool create /* = false*/)
 {
-	PROFILE_FUNCTION();
+	ERM_PROFILE_FUNCTION();
 
 	for (Sound& current : mSounds)
 	{
@@ -217,7 +217,7 @@ Channel* AudioManager::GetFreeChannel()
 
 Reproduction* AudioManager::PlaySound(const char* path)
 {
-	PROFILE_FUNCTION();
+	ERM_PROFILE_FUNCTION();
 
 	Sound* sound = GetSound(path, true);
 	FMOD::Channel* channel;
@@ -231,7 +231,7 @@ Reproduction* AudioManager::PlaySound(const char* path)
 
 Reproduction* AudioManager::PlaySound(Sound& sound)
 {
-	PROFILE_FUNCTION();
+	ERM_PROFILE_FUNCTION();
 
 	FMOD::Channel* channel;
 	auto result = mCoreSystem->playSound(sound.mSound, 0, false, &channel);

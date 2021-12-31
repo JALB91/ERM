@@ -293,7 +293,7 @@ Texture* IRenderer::GetDefaultTexture(TextureType type) const
 		case TextureType::DEPTH:
 			return mDepthTexture.get();
 		default:
-			ASSERT(false);
+			ERM_ASSERT(false);
 	}
 
 	return nullptr;

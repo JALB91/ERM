@@ -21,8 +21,8 @@ public:
 		: mSkin(skin)
 	{}
 
-	SENSIBLE_MEMBER(Skin, Skin*, nullptr);
-	SENSIBLE_MEMBER(DisplayBones, bool, false);
+	ERM_SENSIBLE_MEMBER(Skin, Skin*, nullptr);
+	ERM_SENSIBLE_MEMBER(DisplayBones, bool, false);
 };
 
 } // namespace erm::ecs

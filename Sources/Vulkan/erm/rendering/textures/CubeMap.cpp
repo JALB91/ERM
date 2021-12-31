@@ -52,7 +52,7 @@ void CubeMap::CreateTextureImage()
 	{
 		mLocalBuffer = stbi_load((mPath + "/" + kFaces[i] + targetExt).c_str(), &mWidth, &mHeight, &mBPP, STBI_rgb_alpha);
 		vk::DeviceSize imageSize = mWidth * mHeight * 4;
-		ASSERT(mLocalBuffer);
+		ERM_ASSERT(mLocalBuffer);
 
 		if (!stagingBuffer)
 			stagingBuffer = std::make_unique<HostBuffer>(mDevice, imageSize * kFaces.size(), vk::BufferUsageFlagBits::eTransferSrc);

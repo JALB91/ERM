@@ -34,11 +34,11 @@ HostBindingResources::HostBindingResources(
 	const ShaderBindingData& shaderBindings = mShaderProgram.GetShaderBindingsData(mTargetSet);
 	const std::vector<UboData>& ubosData = shaderBindings.mUbosData;
 
-	ASSERT(shaderBindings.mSamplersData.empty());
-	ASSERT(shaderBindings.mStorageImagesData.empty());
-	ASSERT(shaderBindings.mStorageBuffersData.empty());
+	ERM_ASSERT(shaderBindings.mSamplersData.empty());
+	ERM_ASSERT(shaderBindings.mStorageImagesData.empty());
+	ERM_ASSERT(shaderBindings.mStorageBuffersData.empty());
 #ifdef ERM_RAY_TRACING_ENABLED
-	ASSERT(shaderBindings.mASData.empty());
+	ERM_ASSERT(shaderBindings.mASData.empty());
 #endif
 
 	// UNIFORM BUFFERS
@@ -73,7 +73,7 @@ void HostBindingResources::UpdateResources(vk::CommandBuffer& /*cmd*/, IRenderDa
 {
 	for (auto& pair : mUniformBuffers[mCurrentBufferIndex])
 	{
-		ASSERT(data.HasUbo(pair.first));
+		ERM_ASSERT(data.HasUbo(pair.first));
 		pair.second.Update(data.mUbos[pair.first].get());
 	}
 }

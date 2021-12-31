@@ -46,7 +46,7 @@ std::string GetShaderForConfig(const erm::BindingConfigs& config, const erm::ecs
 	switch (material.mType)
 	{
 		default:
-			ASSERT(false);
+			ERM_ASSERT(false);
 		case erm::MaterialType::LEGACY:
 			result += "_mat";
 			break;
@@ -106,7 +106,7 @@ void RenderingSystem::Init()
 
 void RenderingSystem::OnPostUpdate()
 {
-	PROFILE_FUNCTION();
+	ERM_PROFILE_FUNCTION();
 
 	ForEachComponent([&](RenderingComponent& component, ID /*id*/) {
 		if (!component.IsDirty())
@@ -133,7 +133,7 @@ void RenderingSystem::OnPostUpdate()
 
 void RenderingSystem::OnPreRender()
 {
-	PROFILE_FUNCTION();
+	ERM_PROFILE_FUNCTION();
 
 	TransformComponent* cameraTransform = nullptr;
 	CameraComponent* camera = nullptr;
@@ -224,7 +224,7 @@ void RenderingSystem::OnPreRender()
 void RenderingSystem::OnPostRender()
 {
 #ifdef ERM_RAY_TRACING_ENABLED
-	PROFILE_FUNCTION();
+	ERM_PROFILE_FUNCTION();
 	mRTRenderData.mForceUpdate = false;
 #endif
 }
@@ -232,13 +232,13 @@ void RenderingSystem::OnPostRender()
 void RenderingSystem::OnComponentBeingRemoved(EntityId id)
 {
 #ifdef ERM_RAY_TRACING_ENABLED
-	PROFILE_FUNCTION();
+	ERM_PROFILE_FUNCTION();
 
 	if (RenderingComponent* comp = GetComponent(id))
 		if (comp->mCustomIndex.has_value())
 			mRTRenderData.ClearDataForIndex(comp->mCustomIndex.value());
 #else
-	UNUSED(id);
+	ERM_UNUSED(id);
 #endif
 }
 
@@ -272,7 +272,7 @@ void RenderingSystem::ProcessForRasterization(
 	const math::mat4& modelMat,
 	const math::vec3& lightPos)
 {
-	PROFILE_FUNCTION();
+	ERM_PROFILE_FUNCTION();
 
 	std::vector<Mesh>& meshes = model.GetMeshes();
 
@@ -428,8 +428,8 @@ void RenderingSystem::UpdateRTData(
 	const math::vec3& lightPos,
 	const math::vec3& cameraPos)
 {
-	PROFILE_FUNCTION();
-	ASSERT(light);
+	ERM_PROFILE_FUNCTION();
+	ERM_ASSERT(light);
 
 	PipelineConfigs& configs = mRTRenderData.mPipelineConfigs;
 	configs.mShaderProgram = configs.mShaderProgram ? configs.mShaderProgram : mResourcesManager.GetOrCreateShaderProgram("res/shaders/Vulkan/ray_tracing/vk_raytrace");
@@ -477,7 +477,7 @@ void RenderingSystem::ProcessForRayTracing(
 	const math::mat4& modelMat,
 	vk::CommandBuffer& cmd)
 {
-	PROFILE_FUNCTION();
+	ERM_PROFILE_FUNCTION();
 
 	RTRenderData& data = GetDefaultRTRenderData();
 

@@ -8,7 +8,7 @@ namespace ImGui {
 
 bool ShowRenderingComponentDebug(erm::ecs::RenderingComponent& renderingComponent)
 {
-	UNUSED(renderingComponent);
+	ERM_UNUSED(renderingComponent);
 
 	const bool headerOpen = ImGui::CollapsingHeader("Rendering");
 

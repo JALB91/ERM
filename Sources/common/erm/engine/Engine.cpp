@@ -61,23 +61,23 @@ Engine::Engine()
 	: mMaxFPS(144)
 	, mWindow(std::make_unique<Window>())
 {
-	UNUSED(kRoyalGuardPath);
-	UNUSED(kTreeModelPath);
-	UNUSED(kModelToUse);
-	UNUSED(kEntities);
-	UNUSED(kDefaultRotX);
-	UNUSED(kLamborghiniModelPath);
-	UNUSED(kSpaceshipModelPath);
-	UNUSED(kIronManModelPath);
-	UNUSED(kIphoneModelPath);
-	UNUSED(kCrateModelPath);
-	UNUSED(kChairModelPath);
-	UNUSED(kAventModelPath);
-	UNUSED(kCubeModelPath);
-	UNUSED(kHandgunModelPath);
-	UNUSED(kModelModelPath);
-	UNUSED(kVikingRoomModelPath);
-	UNUSED(kDefaultScale);
+	ERM_UNUSED(kRoyalGuardPath);
+	ERM_UNUSED(kTreeModelPath);
+	ERM_UNUSED(kModelToUse);
+	ERM_UNUSED(kEntities);
+	ERM_UNUSED(kDefaultRotX);
+	ERM_UNUSED(kLamborghiniModelPath);
+	ERM_UNUSED(kSpaceshipModelPath);
+	ERM_UNUSED(kIronManModelPath);
+	ERM_UNUSED(kIphoneModelPath);
+	ERM_UNUSED(kCrateModelPath);
+	ERM_UNUSED(kChairModelPath);
+	ERM_UNUSED(kAventModelPath);
+	ERM_UNUSED(kCubeModelPath);
+	ERM_UNUSED(kHandgunModelPath);
+	ERM_UNUSED(kModelModelPath);
+	ERM_UNUSED(kVikingRoomModelPath);
+	ERM_UNUSED(kDefaultScale);
 	std::srand(static_cast<unsigned int>(time(NULL)));
 	mWindow->AddListener(*this);
 }
@@ -214,7 +214,7 @@ void Engine::Run()
 {
 	while (mWindow && !mWindow->ShouldClose())
 	{
-		PROFILE_FUNCTION();
+		ERM_PROFILE_FUNCTION();
 
 		static double frameElapsedTime = 0.0;
 		static double elapsedTime = 0.0;
@@ -256,7 +256,7 @@ void Engine::Run()
 
 void Engine::OnPreUpdate()
 {
-	PROFILE_FUNCTION();
+	ERM_PROFILE_FUNCTION();
 
 	mUpdateManager->OnPreUpdate();
 	mECS->OnPreUpdate();
@@ -264,7 +264,7 @@ void Engine::OnPreUpdate()
 
 void Engine::OnUpdate(float dt)
 {
-	PROFILE_FUNCTION();
+	ERM_PROFILE_FUNCTION();
 
 	mImGuiHandle->OnUpdate();
 	mECS->OnUpdate(dt);
@@ -276,7 +276,7 @@ void Engine::OnUpdate(float dt)
 
 void Engine::OnPostUpdate()
 {
-	PROFILE_FUNCTION();
+	ERM_PROFILE_FUNCTION();
 
 	mECS->OnPostUpdate();
 	mUpdateManager->OnPostUpdate();
@@ -284,7 +284,7 @@ void Engine::OnPostUpdate()
 
 void Engine::OnPreRender()
 {
-	PROFILE_FUNCTION();
+	ERM_PROFILE_FUNCTION();
 
 	mResourcesManager->OnPreRender();
 	mECS->OnPreRender();
@@ -294,7 +294,7 @@ void Engine::OnPreRender()
 
 void Engine::OnRender()
 {
-	PROFILE_FUNCTION();
+	ERM_PROFILE_FUNCTION();
 
 	mECS->OnRender();
 	mRenderer->OnRender();
@@ -304,7 +304,7 @@ void Engine::OnRender()
 
 void Engine::OnPostRender()
 {
-	PROFILE_FUNCTION();
+	ERM_PROFILE_FUNCTION();
 
 	mECS->OnPostRender();
 	mRenderer->OnPostRender();

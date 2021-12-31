@@ -78,7 +78,7 @@ void ParseObjModel(
 		{
 			if (splitted[0].compare("o") == 0)
 			{
-				ASSERT(splitted.size() >= 2);
+				ERM_ASSERT(splitted.size() >= 2);
 				name = splitted[splitted.size() - 1];
 
 				if (!verticesData.empty() && !indicesData.empty())
@@ -126,7 +126,7 @@ void ParseObjModel(
 					indicesData.clear();
 				}
 
-				ASSERT(splitted.size() >= 4);
+				ERM_ASSERT(splitted.size() >= 4);
 				pVertices.emplace_back(
 					std::atof(splitted[splitted.size() - 3].c_str()),
 					std::atof(splitted[splitted.size() - 2].c_str()),
@@ -134,7 +134,7 @@ void ParseObjModel(
 			}
 			else if (splitted[0].compare("vn") == 0)
 			{
-				ASSERT(splitted.size() >= 4);
+				ERM_ASSERT(splitted.size() >= 4);
 				nVertices.emplace_back(
 					std::atof(splitted[splitted.size() - 3].c_str()),
 					std::atof(splitted[splitted.size() - 2].c_str()),
@@ -142,7 +142,7 @@ void ParseObjModel(
 			}
 			else if (splitted[0].compare("vt") == 0)
 			{
-				ASSERT(splitted.size() >= 3);
+				ERM_ASSERT(splitted.size() >= 3);
 				uvVertices.emplace_back(
 					std::atof(splitted[splitted.size() - 2].c_str()),
 					std::atof(splitted[splitted.size() - 1].c_str()));
@@ -158,7 +158,7 @@ void ParseObjModel(
 					material = &Material::DEFAULT;
 					continue;
 				}
-				ASSERT(splitted.size() >= 2);
+				ERM_ASSERT(splitted.size() >= 2);
 				std::string materialName = splitted[splitted.size() - 1];
 				mutex.lock();
 				const Materials& materials = resourcesManager.GetMaterials();
@@ -228,7 +228,7 @@ void ParseFace(
 		}
 
 		const std::vector<std::string> indices = Utils::SplitString(split, '/');
-		ASSERT(indices.size() <= 3);
+		ERM_ASSERT(indices.size() <= 3);
 		VertexData vertex;
 
 		const unsigned int positionIndex = std::atoi(indices[kVertexIndex].c_str()) - 1;
@@ -249,18 +249,18 @@ void ParseFace(
 			}
 		}
 
-		ASSERT(positionIndex < pVertices.size());
+		ERM_ASSERT(positionIndex < pVertices.size());
 		vertex.mPositionVertex = pVertices[positionIndex];
 
 		if (nPositionIndex >= 0 && nPositionIndex < static_cast<int>(nVertices.size()))
 		{
-			ASSERT(nPositionIndex < static_cast<int>(nVertices.size()));
+			ERM_ASSERT(nPositionIndex < static_cast<int>(nVertices.size()));
 			vertex.mNormalVertex = nVertices[nPositionIndex];
 		}
 
 		if (uvPositionIndex >= 0 && uvPositionIndex < static_cast<int>(uvVertices.size()))
 		{
-			ASSERT(uvPositionIndex < static_cast<int>(uvVertices.size()));
+			ERM_ASSERT(uvPositionIndex < static_cast<int>(uvVertices.size()));
 			vertex.mUVVertex = uvVertices[uvPositionIndex];
 		}
 

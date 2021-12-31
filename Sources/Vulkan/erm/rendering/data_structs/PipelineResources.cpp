@@ -57,7 +57,7 @@ void PipelineResources::UpdateResources(vk::CommandBuffer& cmd, RenderData& rend
 
 void PipelineResources::UpdateCommandBuffer(vk::CommandBuffer& cmd, RenderData& renderData, uint32_t imageIndex)
 {
-	UNUSED(imageIndex);
+	ERM_UNUSED(imageIndex);
 
 	if (mDescriptorSetLayouts.empty())
 		return;
@@ -121,7 +121,7 @@ void PipelineResources::CreatePipeline()
 
 	VulkanShaderProgram* shader = static_cast<VulkanShaderProgram*>(mPipelineConfigs.mShaderProgram);
 
-	ASSERT(shader);
+	ERM_ASSERT(shader);
 
 	/*
 		LOAD SHADERS
@@ -129,8 +129,8 @@ void PipelineResources::CreatePipeline()
 	std::vector<vk::UniqueShaderModule> vertShaderModules = shader->CreateShaderModules(ShaderType::VERTEX);
 	std::vector<vk::UniqueShaderModule> fragShaderModules = shader->CreateShaderModules(ShaderType::FRAGMENT);
 
-	ASSERT(vertShaderModules.size() == 1);
-	ASSERT(fragShaderModules.size() == 1);
+	ERM_ASSERT(vertShaderModules.size() == 1);
+	ERM_ASSERT(fragShaderModules.size() == 1);
 
 	vk::PipelineShaderStageCreateInfo vertShaderStageInfo = {};
 	vertShaderStageInfo.stage = vk::ShaderStageFlagBits::eVertex;
@@ -337,7 +337,7 @@ void PipelineResources::CreatePipeline()
 	pipelineInfo.basePipelineIndex = -1;
 
 	auto result = mDevice->createGraphicsPipelineUnique(mDevice.GetPipelineCache(), pipelineInfo);
-	ASSERT(result.result == vk::Result::eSuccess);
+	ERM_ASSERT(result.result == vk::Result::eSuccess);
 	mPipeline = std::move(result.value);
 }
 

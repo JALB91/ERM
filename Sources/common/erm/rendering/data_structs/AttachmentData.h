@@ -39,8 +39,8 @@ struct AttachmentData
 	AttachmentStoreOp mStoreOp;
 	ImageLayout mInitialLayout;
 	ImageLayout mFinalLayout;
-	DECL_SET_GET_OPT_WITH_DEFAULT(StencilLoadOp, AttachmentLoadOp, AttachmentLoadOp::DONT_CARE);
-	DECL_SET_GET_OPT_WITH_DEFAULT(StencilStoreOp, AttachmentStoreOp, AttachmentStoreOp::DONT_CARE);
+	ERM_DECL_SET_GET_OPT_WITH_DEFAULT(StencilLoadOp, AttachmentLoadOp, AttachmentLoadOp::DONT_CARE);
+	ERM_DECL_SET_GET_OPT_WITH_DEFAULT(StencilStoreOp, AttachmentStoreOp, AttachmentStoreOp::DONT_CARE);
 };
 
 } // namespace erm

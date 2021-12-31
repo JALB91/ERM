@@ -24,8 +24,8 @@ public:
 		: mModel(model)
 	{}
 
-	SENSIBLE_MEMBER(Model, Model*, nullptr)
-	SENSIBLE_MEMBER(ShouldShowBoundingBox, bool, false)
+	ERM_SENSIBLE_MEMBER(Model, Model*, nullptr)
+	ERM_SENSIBLE_MEMBER(ShouldShowBoundingBox, bool, false)
 
 	inline BoundingBox3D GetWorldBounds() { return mWorldBounds; }
 	inline const BoundingBox3D& GetWorldBounds() const { return mWorldBounds; }

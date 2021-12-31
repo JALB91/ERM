@@ -52,7 +52,7 @@ void TransformSystem::SetDirtyRecursive(EntityId id)
 
 void TransformSystem::OnPostUpdate()
 {
-	PROFILE_FUNCTION();
+	ERM_PROFILE_FUNCTION();
 
 	for (ID i = ROOT_ID; i < MAX_ID; ++i)
 	{

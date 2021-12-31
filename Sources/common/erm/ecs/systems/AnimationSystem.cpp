@@ -30,7 +30,7 @@ void AnimationSystem::OnUpdate(float dt)
 
 void AnimationSystem::OnPostUpdate()
 {
-	PROFILE_FUNCTION();
+	ERM_PROFILE_FUNCTION();
 
 	for (ID i = ROOT_ID; i < MAX_ID; ++i)
 	{

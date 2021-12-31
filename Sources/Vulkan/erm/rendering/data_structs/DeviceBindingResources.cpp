@@ -113,7 +113,7 @@ DeviceBindingResources::DeviceBindingResources(
 
 const vk::DescriptorSet DeviceBindingResources::GetDescriptorSet() const
 {
-	ASSERT(!mDescriptorSets.empty());
+	ERM_ASSERT(!mDescriptorSets.empty());
 	return mDescriptorSets[0].get();
 }
 
@@ -121,7 +121,7 @@ void DeviceBindingResources::UpdateResources(vk::CommandBuffer& cmd, IRenderData
 {
 	for (const auto& [id, buffer] : mUniformBuffers)
 	{
-		ASSERT(data.HasUbo(id));
+		ERM_ASSERT(data.HasUbo(id));
 		buffer.Update(cmd, data.mUbos[id].get());
 	}
 

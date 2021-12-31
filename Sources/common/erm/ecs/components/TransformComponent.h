@@ -30,11 +30,11 @@ public:
 	inline EntityId GetParent() const { return mParent; }
 	inline const std::vector<EntityId>& GetChildren() const { return mChildren; }
 
-	SENSIBLE_MEMBER(WorldTransform, math::mat4, glm::identity<math::mat4>());
-	SENSIBLE_MEMBER(LocalTransform, math::mat4, glm::identity<math::mat4>());
-	SENSIBLE_MEMBER(Translation, math::vec3, math::vec3(0.0f));
-	SENSIBLE_MEMBER(Rotation, math::vec3, math::vec3(0.0f));
-	SENSIBLE_MEMBER(Scale, math::vec3, math::vec3(1.0f));
+	ERM_SENSIBLE_MEMBER(WorldTransform, math::mat4, glm::identity<math::mat4>());
+	ERM_SENSIBLE_MEMBER(LocalTransform, math::mat4, glm::identity<math::mat4>());
+	ERM_SENSIBLE_MEMBER(Translation, math::vec3, math::vec3(0.0f));
+	ERM_SENSIBLE_MEMBER(Rotation, math::vec3, math::vec3(0.0f));
+	ERM_SENSIBLE_MEMBER(Scale, math::vec3, math::vec3(1.0f));
 
 	inline void SetTranslationX(float x)
 	{

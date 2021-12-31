@@ -8,7 +8,7 @@ ERM_SYSTEM_IMPL(Skeleton)
 
 void SkeletonSystem::OnPostUpdate()
 {
-	PROFILE_FUNCTION();
+	ERM_PROFILE_FUNCTION();
 
 	for (ID i = ROOT_ID; i < MAX_ID; ++i)
 	{

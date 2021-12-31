@@ -28,7 +28,7 @@ void ModelSystem::Init()
 
 void ModelSystem::OnPostUpdate()
 {
-	PROFILE_FUNCTION();
+	ERM_PROFILE_FUNCTION();
 
 	ForEachComponent([this](ModelComponent& component, ID id) {
 		Model* model = component.mModel;

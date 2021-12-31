@@ -62,7 +62,7 @@ public:
 
 	void AddResources(uint32_t set, BindingResources&& resources)
 	{
-		ASSERT(resources->GetBindingConfigs().IsBindingLevelCompatible(mConfigs));
+		ERM_ASSERT(resources->GetBindingConfigs().IsBindingLevelCompatible(mConfigs));
 		mMaxSet = std::max(mMaxSet, set);
 		mBindingResources.emplace_back(std::move(resources));
 	}
