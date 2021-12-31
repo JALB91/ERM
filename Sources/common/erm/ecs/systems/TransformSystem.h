@@ -24,7 +24,7 @@ private:
 	void OnComponentAdded(EntityId id) override;
 	void OnComponentBeingRemoved(EntityId id) override;
 
-	void SetDirtyRecursive(EntityId id);
+	void UpdateDirtyRecursive(EntityId id);
 };
 
 } // namespace erm::ecs

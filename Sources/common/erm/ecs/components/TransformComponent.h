@@ -27,6 +27,9 @@ public:
 		: mParent(parent)
 	{}
 
+	// IComponent
+	void SetDirty(bool isDirty) override;
+
 	inline EntityId GetParent() const { return mParent; }
 	inline const std::vector<EntityId>& GetChildren() const { return mChildren; }
 

@@ -25,6 +25,8 @@ void TransformSystem::OnComponentBeingRemoved(EntityId id)
 {
 	TransformComponent* transform = GetComponent(id);
 
+	ERM_ASSERT(transform);
+
 	for (EntityId entityId : transform->mChildren)
 	{
 		TransformComponent* entityTransform = GetComponent(entityId);
@@ -36,41 +38,17 @@ void TransformSystem::OnComponentBeingRemoved(EntityId id)
 	RemoveFromParent(id);
 }
 
-void TransformSystem::SetDirtyRecursive(EntityId id)
+void TransformSystem::UpdateDirtyRecursive(EntityId id)
 {
 	TransformComponent* transform = GetComponent(id);
+
+	ERM_ASSERT(transform);
 
 	if (!transform)
 		return;
 
-	transform->SetDirty(true);
-	for (const auto& entityId : transform->mChildren)
+	if (transform->IsDirty())
 	{
-		SetDirtyRecursive(entityId);
-	}
-}
-
-void TransformSystem::OnPostUpdate()
-{
-	ERM_PROFILE_FUNCTION();
-
-	for (ID i = ROOT_ID; i < MAX_ID; ++i)
-	{
-		TransformComponent* transform = GetComponent(i);
-
-		if (!transform || !transform->IsDirty())
-			continue;
-
-		SetDirtyRecursive(i);
-	}
-
-	for (ID i = ROOT_ID; i < MAX_ID; ++i)
-	{
-		TransformComponent* transform = GetComponent(i);
-
-		if (!transform || !transform->IsDirty())
-			continue;
-
 		transform->mWorldTransform = glm::identity<math::mat4>();
 		transform->mLocalTransform = glm::identity<math::mat4>();
 
@@ -94,6 +72,18 @@ void TransformSystem::OnPostUpdate()
 
 		transform->SetDirty(false);
 	}
+
+	for (const auto& entityId : transform->mChildren)
+	{
+		UpdateDirtyRecursive(entityId);
+	}
+}
+
+void TransformSystem::OnPostUpdate()
+{
+	ERM_PROFILE_FUNCTION();
+
+	UpdateDirtyRecursive(ROOT_ID);
 }
 
 void TransformSystem::RemoveFromParent(EntityId id)
