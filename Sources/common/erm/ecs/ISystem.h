@@ -5,6 +5,8 @@
 
 #include "erm/engine/Engine.h"
 
+#include "erm/utils/Utils.h"
+
 #include <array>
 #include <memory>
 #include <type_traits>
@@ -28,10 +30,11 @@ public:                                                                         
 	template<typename... Args>                                                                        \
 	inline NAME##Component* AddComponent(EntityId id, Args&&... args)                                 \
 	{                                                                                                 \
+		ERM_ASSERT(id.IsValid());                                                                     \
 		if (!HasComponent(id))                                                                        \
 		{                                                                                             \
 			OnComponentBeingAdded(id);                                                                \
-			mComponentsBitmask[id()] = true;                                                          \
+			ISystem::AddComponent(id);                                                                \
 			mComponents[id()] = NAME##Component(std::forward<Args>(args)...);                         \
 			OnComponentAdded(id);                                                                     \
 		}                                                                                             \
@@ -42,6 +45,7 @@ public:                                                                         
 	template<typename... Args>                                                                        \
 	inline NAME##Component* RequireComponent(EntityId id, Args&&... args)                             \
 	{                                                                                                 \
+		ERM_ASSERT(id.IsValid());                                                                     \
 		return (HasComponent(id) ? GetComponent(id) : AddComponent(id, std::forward<Args>(args)...)); \
 	}                                                                                                 \
                                                                                                       \
@@ -92,7 +96,7 @@ private:                                                                        
 			return;                                                      \
 		}                                                                \
 		OnComponentBeingRemoved(id);                                     \
-		mComponentsBitmask[id()] = false;                                \
+		ISystem::RemoveComponent(id);                                    \
 		mComponents[id()] = {};                                          \
 		OnComponentRemoved(id);                                          \
 	}
@@ -118,36 +122,16 @@ public:
 	virtual void OnRender() {}
 	virtual void OnPostRender() {}
 
+	inline virtual void RemoveComponent(EntityId id)
+	{
+		ERM_ASSERT(id.IsValid());
+		mComponentsBitmask[id()] = false;
+	}
+
 	inline virtual bool HasComponent(EntityId id) const final
 	{
 		return (id.IsValid() && mComponentsBitmask[id()]);
 	}
-
-	template<typename T>
-	inline const T* GetComponent(EntityId id) const
-	{
-		return static_cast<const typename T::SYSTEM_TYPE*>(this)->GetComponent(id);
-	}
-
-	template<typename T>
-	inline T* GetComponent(EntityId id)
-	{
-		return static_cast<typename T::SYSTEM_TYPE*>(this)->GetComponent(id);
-	}
-
-	template<typename T, typename... Args>
-	inline T* AddComponent(EntityId id, Args&&... args)
-	{
-		return static_cast<typename T::SYSTEM_TYPE*>(this)->AddComponent(id, std::forward<Args>(args)...);
-	}
-
-	template<typename T, typename... Args>
-	inline T* RequireComponent(EntityId id, Args&&... args)
-	{
-		return static_cast<typename T::SYSTEM_TYPE*>(this)->RequireComponent(id, std::forward<Args>(args)...);
-	}
-
-	virtual void RemoveComponent(EntityId id) = 0;
 
 protected:
 	inline virtual void OnComponentBeingAdded(EntityId /*id*/) {}
@@ -156,8 +140,15 @@ protected:
 	inline virtual void OnComponentBeingRemoved(EntityId /*id*/) {}
 	inline virtual void OnComponentRemoved(EntityId /*id*/) {}
 
+	inline virtual void AddComponent(EntityId id) final
+	{
+		mComponentsBitmask[id()] = true;
+	}
+
 	Engine& mEngine;
 	ECS& mECS;
+
+private:
 	std::array<bool, MAX_ID> mComponentsBitmask;
 };
 
