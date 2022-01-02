@@ -56,7 +56,7 @@ void RTPipelineResources::UpdateCommandBuffer(
 	RTRenderData& renderData,
 	uint32_t /*imageIndex*/)
 {
-	PROFILE_FUNCTION();
+	ERM_PROFILE_FUNCTION();
 
 	mPipelineData->UpdateResources(cmd, renderData);
 
@@ -80,7 +80,7 @@ void RTPipelineResources::CreatePipeline()
 {
 	VulkanShaderProgram* shader = static_cast<VulkanShaderProgram*>(mRenderData.mPipelineConfigs.mShaderProgram);
 
-	ASSERT(shader);
+	ERM_ASSERT(shader);
 
 	/*
 		LOAD SHADERS
@@ -89,9 +89,9 @@ void RTPipelineResources::CreatePipeline()
 	std::vector<vk::UniqueShaderModule> missShaderModules = shader->CreateShaderModules(ShaderType::RT_MISS);
 	std::vector<vk::UniqueShaderModule> closestHitShaderModules = shader->CreateShaderModules(ShaderType::RT_CLOSEST_HIT);
 
-	ASSERT(rayGenShaderModules.size() == 1);
-	ASSERT(!missShaderModules.empty());
-	ASSERT(!closestHitShaderModules.empty());
+	ERM_ASSERT(rayGenShaderModules.size() == 1);
+	ERM_ASSERT(!missShaderModules.empty());
+	ERM_ASSERT(!closestHitShaderModules.empty());
 
 	std::vector<vk::PipelineShaderStageCreateInfo> shaderStages(1 + missShaderModules.size() + closestHitShaderModules.size());
 
@@ -232,7 +232,7 @@ void RTPipelineResources::CreatePipeline()
 	pipelineInfo.setBasePipelineHandle(mPipeline.get());
 
 	auto result = mDevice->createRayTracingPipelineKHRUnique(nullptr, mDevice.GetPipelineCache(), pipelineInfo);
-	ASSERT(result.result == vk::Result::eSuccess);
+	ERM_ASSERT(result.result == vk::Result::eSuccess);
 	mPipeline = std::move(result.value);
 }
 
@@ -255,7 +255,7 @@ void RTPipelineResources::CreateBindingTable()
 	// Fetch all the shader handles used in the pipeline. This is opaque data,
 	// so we store it in a vector of bytes.
 	std::vector<uint8_t> shaderHandleStorage(sbtSize);
-	VK_CHECK(mDevice->getRayTracingShaderGroupHandlesKHR(mPipeline.get(), 0, groupCount, sbtSize, shaderHandleStorage.data()));
+	ERM_VK_CHECK(mDevice->getRayTracingShaderGroupHandlesKHR(mPipeline.get(), 0, groupCount, sbtSize, shaderHandleStorage.data()));
 
 	if (!mSBTBuffer || mSBTBuffer->GetBufferSize() != sbtSize)
 	{
@@ -268,7 +268,7 @@ void RTPipelineResources::CreateBindingTable()
 
 	// Map the SBT buffer and write in the handles.
 	void* mapped = nullptr;
-	VK_CHECK(mDevice->mapMemory(mSBTBuffer->GetBufferMemory(), 0, mSBTBuffer->GetBufferSize(), {}, &mapped));
+	ERM_VK_CHECK(mDevice->mapMemory(mSBTBuffer->GetBufferMemory(), 0, mSBTBuffer->GetBufferSize(), {}, &mapped));
 	uint8_t* pData = reinterpret_cast<uint8_t*>(mapped);
 	for (uint32_t g = 0; g < groupCount; ++g)
 	{

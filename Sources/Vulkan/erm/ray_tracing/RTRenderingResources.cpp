@@ -32,9 +32,9 @@ RTRenderingResources::~RTRenderingResources() = default;
 
 vk::CommandBuffer RTRenderingResources::UpdateCommandBuffer(RTRenderData& renderData, uint32_t imageIndex)
 {
-	PROFILE_FUNCTION();
+	ERM_PROFILE_FUNCTION();
 
-	ASSERT(!renderData.mInstancesMap.empty());
+	ERM_ASSERT(!renderData.mInstancesMap.empty());
 
 	UpdateResources(renderData, imageIndex);
 
@@ -87,8 +87,8 @@ vk::CommandBuffer RTRenderingResources::UpdateCommandBuffer(RTRenderData& render
 
 void RTRenderingResources::UpdateResources(RTRenderData& renderData, uint32_t imageIndex)
 {
-	PROFILE_FUNCTION();
-	UNUSED(imageIndex);
+	ERM_PROFILE_FUNCTION();
+	ERM_UNUSED(imageIndex);
 
 	const bool forceUpdate = renderData.mForceUpdate || (mPipelineResources && mPipelineResources->GetMaxInstancesCount() != renderData.mInstancesMap.size());
 
@@ -109,7 +109,7 @@ void RTRenderingResources::UpdateResources(RTRenderData& renderData, uint32_t im
 
 void RTRenderingResources::BuildBlas(RTRenderData& data, vk::BuildAccelerationStructureFlagsKHR flags)
 {
-	PROFILE_FUNCTION();
+	ERM_PROFILE_FUNCTION();
 
 	std::vector<RTBlas*> toBuild;
 	for (const auto& [id, instanceData] : data.mInstancesMap)
@@ -183,7 +183,7 @@ void RTRenderingResources::BuildBlas(RTRenderData& data, vk::BuildAccelerationSt
 	allocInfo.level = vk::CommandBufferLevel::ePrimary;
 	allocInfo.commandBufferCount = static_cast<uint32_t>(allCmdBufs.size());
 
-	VK_CHECK(mDevice->allocateCommandBuffers(&allocInfo, allCmdBufs.data()));
+	ERM_VK_CHECK(mDevice->allocateCommandBuffers(&allocInfo, allCmdBufs.data()));
 
 	// Building the acceleration structures
 	for (size_t i = 0; i < toBuild.size(); i++)
@@ -242,7 +242,7 @@ void RTRenderingResources::BuildBlas(RTRenderData& data, vk::BuildAccelerationSt
 	sInfo.commandBufferCount = static_cast<uint32_t>(allCmdBufs.size());
 	sInfo.pCommandBuffers = allCmdBufs.data();
 
-	VK_CHECK(mDevice.GetGraphicsQueue().submit(1, &sInfo, {}));
+	ERM_VK_CHECK(mDevice.GetGraphicsQueue().submit(1, &sInfo, {}));
 	mDevice.GetGraphicsQueue().waitIdle();
 
 	allCmdBufs.clear();
@@ -252,7 +252,7 @@ void RTRenderingResources::BuildBlas(RTRenderData& data, vk::BuildAccelerationSt
 	{
 		// Get the size result back
 		std::vector<vk::DeviceSize> compactSizes(toBuild.size());
-		VK_CHECK(mDevice->getQueryPoolResults(
+		ERM_VK_CHECK(mDevice->getQueryPoolResults(
 			queryPool.get(),
 			0,
 			static_cast<uint32_t>(compactSizes.size()),
@@ -305,7 +305,7 @@ void RTRenderingResources::BuildBlas(RTRenderData& data, vk::BuildAccelerationSt
 
 void RTRenderingResources::UpdateTopLevelAS(RTRenderData& data, vk::BuildAccelerationStructureFlagsKHR flags)
 {
-	PROFILE_FUNCTION();
+	ERM_PROFILE_FUNCTION();
 
 	const size_t targetGeometries = data.mInstancesMap.size();
 	std::vector<vk::AccelerationStructureInstanceKHR> geometryInstances;

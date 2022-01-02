@@ -31,7 +31,7 @@ struct RTRenderData : public IRenderData
 		if (this == &other)
 			return *this;
 
-		ASSERT(&mDevice == &other.mDevice);
+		ERM_ASSERT(&mDevice == &other.mDevice);
 		IRenderData::operator=(std::move(other));
 		mPipelineConfigs = std::move(other.mPipelineConfigs);
 		mInstancesMap = std::move(other.mInstancesMap);
