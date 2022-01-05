@@ -1,6 +1,6 @@
 #include "erm/ecs/systems/TransformSystem.h"
 
-#include "erm/ecs/ECS.h"
+#include "erm/ecs/ECSUtils.h"
 #include "erm/ecs/Entity.h"
 
 #include "erm/utils/Profiler.h"
@@ -15,36 +15,25 @@ TransformSystem::TransformSystem(Engine& engine)
 	: ISystem(engine)
 {}
 
-void TransformSystem::OnComponentAdded(EntityId id)
+void TransformSystem::OnPostUpdate()
 {
-	if (id != ROOT_ID && GetComponent(id) && !GetComponent(id)->mParent.IsValid())
-		AddChild(ROOT_ID, id);
+	ERM_PROFILE_FUNCTION();
+
+	UpdateDirtyRecursive(ROOT_ID);
 }
 
-void TransformSystem::OnComponentBeingRemoved(EntityId id)
+void TransformSystem::OnEntityParentChanged(EntityId entityId)
 {
-	TransformComponent* transform = GetComponent(id);
-
-	ERM_ASSERT(transform);
-
-	for (EntityId entityId : transform->mChildren)
-	{
-		TransformComponent* entityTransform = GetComponent(entityId);
-		entityTransform->mParent.Reset();
-		entityTransform->SetDirty(true);
-	}
-	transform->mChildren.clear();
-
-	RemoveFromParent(id);
+	if (TransformComponent* component = GetComponent(entityId))
+		component->SetDirty(true, UpdateDirtyMode::RECURSIVE);
 }
 
 void TransformSystem::UpdateDirtyRecursive(EntityId id)
 {
 	TransformComponent* transform = GetComponent(id);
+	Entity* entity = mECS.GetEntityById(id);
 
-	ERM_ASSERT(transform);
-
-	if (!transform)
+	if (!transform || !entity)
 		return;
 
 	if (transform->IsDirty())
@@ -52,7 +41,7 @@ void TransformSystem::UpdateDirtyRecursive(EntityId id)
 		transform->mWorldTransform = glm::identity<math::mat4>();
 		transform->mLocalTransform = glm::identity<math::mat4>();
 
-		EntityId parent = transform->mParent;
+		EntityId parent = entity->GetParent();
 
 		if (parent.IsValid())
 		{
@@ -73,52 +62,10 @@ void TransformSystem::UpdateDirtyRecursive(EntityId id)
 		transform->SetDirty(false);
 	}
 
-	for (const auto& entityId : transform->mChildren)
+	for (const auto& childId : entity->GetChildren())
 	{
-		UpdateDirtyRecursive(entityId);
+		UpdateDirtyRecursive(childId);
 	}
-}
-
-void TransformSystem::OnPostUpdate()
-{
-	ERM_PROFILE_FUNCTION();
-
-	UpdateDirtyRecursive(ROOT_ID);
-}
-
-void TransformSystem::RemoveFromParent(EntityId id)
-{
-	if (!id.IsValid())
-		return;
-
-	TransformComponent* entityTransform = GetComponent(id);
-	EntityId parentId = entityTransform->mParent;
-
-	if (!parentId.IsValid())
-		return;
-
-	std::vector<EntityId>& children = GetComponent(parentId)->mChildren;
-	children.erase(std::find(children.begin(), children.end(), id));
-
-	entityTransform->mParent.Reset();
-	entityTransform->SetDirty(true);
-}
-
-void TransformSystem::AddChild(EntityId parent, EntityId child)
-{
-	if (!parent.IsValid() || !child.IsValid() || parent == child || child() == ROOT_ID)
-		return;
-
-	TransformComponent* parentTransform = GetComponent(parent);
-	TransformComponent* childTransform = GetComponent(child);
-
-	if (childTransform->mParent == parent)
-		return;
-
-	RemoveFromParent(child);
-	parentTransform->mChildren.emplace_back(child);
-	childTransform->mParent = parent;
-	childTransform->SetDirty(true);
 }
 
 } // namespace erm::ecs

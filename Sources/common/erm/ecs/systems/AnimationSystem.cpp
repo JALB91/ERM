@@ -4,6 +4,7 @@
 #include "erm/ecs/systems/SkeletonSystem.h"
 
 #include "erm/rendering/animations/SkeletonAnimation.h"
+#include "erm/rendering/data_structs/Skin.h"
 
 #include "erm/utils/Profiler.h"
 

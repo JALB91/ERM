@@ -52,8 +52,16 @@ public:
 		return static_cast<T*>(mSystems[T::SYSTEM_ID].get());
 	}
 
+	template<typename T>
+	T* GetComponent(EntityId id)
+	{
+		auto* system = GetSystem<typename T::SYSTEM_TYPE>();
+		return system ? system->GetComponent(id) : nullptr;
+	}
+
 	void RemoveEntity(EntityId id);
 	void OnEntityBeingRemoved(EntityId id);
+	void AddChildToEntity(EntityId parentId, EntityId childId);
 
 	Entity* GetRoot();
 	Entity* GetOrCreateEntity(const char* name = "Unknown");

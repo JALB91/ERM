@@ -12,17 +12,10 @@ class TransformSystem : public ISystem
 public:
 	TransformSystem(Engine& engine);
 
-	// ISystem
-	void Init() override {}
-	void OnPostUpdate() override;
-
-	void RemoveFromParent(EntityId id);
-	void AddChild(EntityId parent, EntityId child);
-
 private:
 	// ISystem
-	void OnComponentAdded(EntityId id) override;
-	void OnComponentBeingRemoved(EntityId id) override;
+	void OnPostUpdate() override;
+	void OnEntityParentChanged(EntityId entityId) override;
 
 	void UpdateDirtyRecursive(EntityId id);
 };

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "erm/ecs/IComponent.h"
+#include "erm/ecs/Component.h"
 
 namespace erm {
 struct SkeletonAnimation;
@@ -11,24 +11,15 @@ class AnimationSystem;
 
 namespace erm::ecs {
 
-struct AnimationComponent : public IComponent
+struct AnimationComponent
 {
-public:
-	typedef AnimationSystem SYSTEM_TYPE;
-	friend class AnimationSystem;
+	ERM_COMPONENT_DECL(Animation)
 
 public:
-	AnimationComponent(SkeletonAnimation* skeletonAnimation = nullptr)
-		: mSkeletonAnimation(skeletonAnimation)
-		, mCurrentAnimationTime(0.0f)
-		, mTimeScale(1.0f)
-		, mPlaying(false)
-	{}
-
-	SkeletonAnimation* mSkeletonAnimation;
-	float mCurrentAnimationTime;
-	float mTimeScale;
-	bool mPlaying;
+	SkeletonAnimation* mSkeletonAnimation = nullptr;
+	float mCurrentAnimationTime = 0.0f;
+	float mTimeScale = 1.0f;
+	bool mPlaying = false;
 };
 
 } // namespace erm::ecs

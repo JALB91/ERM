@@ -20,7 +20,7 @@ class ECS;
 public:                                                                                               \
 	friend class ECS;                                                                                 \
                                                                                                       \
-	static const ID SYSTEM_ID;                                                                        \
+	static constexpr ID SYSTEM_ID = NAME##SystemId;                                                   \
                                                                                                       \
 public:                                                                                               \
 	void RemoveComponent(EntityId id) override;                                                       \
@@ -36,6 +36,7 @@ public:                                                                         
 			OnComponentBeingAdded(id);                                                                \
 			ISystem::AddComponent(id);                                                                \
 			mComponents[id()] = NAME##Component(std::forward<Args>(args)...);                         \
+			mComponents[id()].mId = id;                                                               \
 			OnComponentAdded(id);                                                                     \
 		}                                                                                             \
                                                                                                       \
@@ -56,7 +57,7 @@ public:                                                                         
 		{                                                                                             \
 			if (NAME##Component* c = GetComponent(i))                                                 \
 			{                                                                                         \
-				f(*c, i);                                                                             \
+				f(*c);                                                                                \
 			}                                                                                         \
 		}                                                                                             \
 	}                                                                                                 \
@@ -68,7 +69,7 @@ public:                                                                         
 		{                                                                                             \
 			if (const NAME##Component* c = GetComponent(i))                                           \
 			{                                                                                         \
-				f(*c, i);                                                                             \
+				f(*c);                                                                                \
 			}                                                                                         \
 		}                                                                                             \
 	}                                                                                                 \
@@ -77,8 +78,6 @@ private:                                                                        
 	std::array<NAME##Component, MAX_ID> mComponents = {};
 
 #define ERM_SYSTEM_IMPL(NAME)                                            \
-	const ID NAME##System::SYSTEM_ID = NAME##SystemId;                   \
-                                                                         \
 	const NAME##Component* NAME##System::GetComponent(EntityId id) const \
 	{                                                                    \
 		return (HasComponent(id) ? &mComponents[id()] : nullptr);        \
@@ -106,21 +105,15 @@ namespace erm::ecs {
 class ISystem
 {
 public:
+	friend class ECS;
+
+public:
 	ISystem(Engine& engine)
 		: mEngine(engine)
 		, mECS(mEngine.GetECS())
 		, mComponentsBitmask {false}
 	{}
 	virtual ~ISystem() = default;
-
-	virtual void Init() = 0;
-
-	virtual void OnPreUpdate() {}
-	virtual void OnUpdate(float /*dt*/) {}
-	virtual void OnPostUpdate() {}
-	virtual void OnPreRender() {}
-	virtual void OnRender() {}
-	virtual void OnPostRender() {}
 
 	inline virtual void RemoveComponent(EntityId id)
 	{
@@ -134,6 +127,15 @@ public:
 	}
 
 protected:
+	inline virtual void Init() {}
+	inline virtual void OnPreUpdate() {}
+	inline virtual void OnUpdate(float /*dt*/) {}
+	inline virtual void OnPostUpdate() {}
+	inline virtual void OnPreRender() {}
+	inline virtual void OnRender() {}
+	inline virtual void OnPostRender() {}
+	inline virtual void OnEntityParentChanged(EntityId /*entityId*/) {}
+
 	inline virtual void OnComponentBeingAdded(EntityId /*id*/) {}
 	inline virtual void OnComponentAdded(EntityId /*id*/) {}
 

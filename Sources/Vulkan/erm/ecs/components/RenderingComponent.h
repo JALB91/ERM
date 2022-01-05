@@ -1,6 +1,6 @@
 #pragma once
 
-#include "erm/ecs/IComponent.h"
+#include "erm/ecs/Component.h"
 
 #include "erm/rendering/data_structs/RenderData.h"
 
@@ -21,15 +21,13 @@ class RenderingSystem;
 
 namespace erm::ecs {
 
-struct RenderingComponent : public IComponent
+struct RenderingComponent
 {
-public:
-	typedef RenderingSystem SYSTEM_TYPE;
-	friend class RenderingSystem;
+	ERM_COMPONENT_DECL(Rendering)
 
 public:
 #ifdef ERM_RAY_TRACING_ENABLED
-	ERM_SENSIBLE_MEMBER(CustomIndex, std::optional<uint32_t>, {})
+	ERM_SENSIBLE_MEMBER(CustomIndex, std::optional<uint32_t>)
 	ERM_SENSIBLE_MEMBER(UseRayTracing, bool, true)
 #endif
 

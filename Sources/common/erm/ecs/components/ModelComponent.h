@@ -1,6 +1,6 @@
 #pragma once
 
-#include "erm/ecs/IComponent.h"
+#include "erm/ecs/Component.h"
 
 #include "erm/math/BoundingBox.h"
 
@@ -13,11 +13,9 @@ class ModelSystem;
 
 namespace erm::ecs {
 
-struct ModelComponent : public IComponent
+struct ModelComponent
 {
-public:
-	typedef ModelSystem SYSTEM_TYPE;
-	friend class ModelSystem;
+	ERM_COMPONENT_DECL(Model)
 
 public:
 	ModelComponent(Model* model = nullptr)
@@ -31,7 +29,7 @@ public:
 	inline const BoundingBox3D& GetWorldBounds() const { return mWorldBounds; }
 
 private:
-	BoundingBox3D mWorldBounds;
+	BoundingBox3D mWorldBounds = {};
 };
 
 } // namespace erm::ecs

@@ -30,7 +30,7 @@ void ModelSystem::OnPostUpdate()
 {
 	ERM_PROFILE_FUNCTION();
 
-	ForEachComponent([this](ModelComponent& component, ID id) {
+	ForEachComponent([this](ModelComponent& component) {
 		Model* model = component.mModel;
 
 		if (!component.IsDirty() && (!model || !model->IsDirty()))
@@ -38,7 +38,7 @@ void ModelSystem::OnPostUpdate()
 
 		if (model)
 		{
-			TransformComponent* transformComponent = mTransformSystem->RequireComponent(id);
+			TransformComponent* transformComponent = mTransformSystem->RequireComponent(component.GetComponentId());
 			component.mWorldBounds = model->GetLocalBounds().Expand(transformComponent->GetWorldTransform());
 			model->SetDirty(false);
 		}
@@ -47,7 +47,7 @@ void ModelSystem::OnPostUpdate()
 			component.mWorldBounds.Empty();
 		}
 
-		if (auto* comp = mRenderingSystem->GetComponent(id))
+		if (auto* comp = mRenderingSystem->GetComponent(component.GetComponentId()))
 			comp->SetDirty(true);
 
 		component.SetDirty(false);

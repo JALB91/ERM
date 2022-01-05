@@ -108,7 +108,7 @@ bool Engine::Init()
 	auto camera = mECS->GetOrCreateEntity("Camera");
 	camera->AddComponent<ecs::LightComponent>();
 	camera->RequireComponent<ecs::CameraComponent>();
-	camera->GetComponent<ecs::TransformComponent>()->SetTranslation(math::vec3(0.0f, 1.0f, 10.0f));
+	camera->RequireComponent<ecs::TransformComponent>()->SetTranslation(math::vec3(0.0f, 1.0f, 10.0f));
 
 	auto root = mECS->GetRoot();
 	root->AddChild(*camera);

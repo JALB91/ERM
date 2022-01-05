@@ -15,7 +15,6 @@ public:
 	{}
 
 	// ISystem
-	void Init() override {}
 	void OnPostUpdate() override;
 };
 

@@ -1,5 +1,7 @@
 #include "erm/ecs/systems/SkeletonSystem.h"
 
+#include "erm/rendering/data_structs/Skin.h"
+
 #include "erm/utils/Profiler.h"
 
 namespace erm::ecs {

@@ -18,8 +18,7 @@ ECS::ECS(Engine& engine)
 	: mEngine(engine)
 {}
 
-ECS::~ECS()
-{}
+ECS::~ECS() = default;
 
 void ECS::Init()
 {
@@ -37,6 +36,7 @@ void ECS::Init()
 	});
 
 	mEntities[ROOT_ID].reset(new Entity(*this, ROOT_ID, "Root"));
+	mEntities[ROOT_ID]->AddComponent<TransformComponent>();
 }
 
 void ECS::OnPreUpdate()
@@ -124,6 +124,7 @@ Entity* ECS::GetOrCreateEntity(const char* name /*= "Unknown"*/)
 		if (!mEntities[i] || !mEntities[i]->IsValid())
 		{
 			mEntities[i].reset(new Entity(*this, i, name));
+			mEntities[i]->AddComponent<TransformComponent>();
 			return mEntities[i].get();
 		}
 	}
@@ -134,6 +135,27 @@ Entity* ECS::GetOrCreateEntity(const char* name /*= "Unknown"*/)
 Entity* ECS::GetEntityById(EntityId id)
 {
 	return ((id.IsValid() && mEntities[id()]) ? mEntities[id()].get() : nullptr);
+}
+
+void ECS::AddChildToEntity(EntityId parentId, EntityId childId)
+{
+	if (!parentId.IsValid() || !childId.IsValid() || parentId == childId || childId == ROOT_ID)
+		return;
+
+	auto* child = GetEntityById(childId);
+	auto* parent = GetEntityById(parentId);
+	if (!parent || !child || child->GetParent() == parentId)
+		return;
+
+	if (auto* previousParent = GetEntityById(child->GetParent()))
+		previousParent->mChildren.erase(std::find(previousParent->mChildren.begin(), previousParent->mChildren.end(), childId));
+
+	parent->mChildren.emplace_back(childId);
+	child->mParent = parentId;
+
+	ForEachSystem([childId](auto& system) {
+		system.OnEntityParentChanged(childId);
+	});
 }
 
 template<typename T>

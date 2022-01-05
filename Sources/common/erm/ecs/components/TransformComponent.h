@@ -1,7 +1,7 @@
 #pragma once
 
+#include "erm/ecs/Component.h"
 #include "erm/ecs/EntityId.h"
-#include "erm/ecs/IComponent.h"
 
 #include "erm/math/mat.h"
 #include "erm/math/vec.h"
@@ -16,35 +16,24 @@ class TransformSystem;
 
 namespace erm::ecs {
 
-struct TransformComponent : public IComponent
+struct TransformComponent
 {
-public:
-	typedef TransformSystem SYSTEM_TYPE;
-	friend class TransformSystem;
+	ERM_COMPONENT_DECL(Transform)
 
 public:
-	TransformComponent(EntityId parent = {})
-		: mParent(parent)
-	{}
+	inline const math::mat4& GetWorldTransform() const { return mWorldTransform; };
+	inline const math::mat4& GetLocalTransform() const { return mLocalTransform; };
 
-	// IComponent
-	void SetDirty(bool isDirty) override;
-
-	inline EntityId GetParent() const { return mParent; }
-	inline const std::vector<EntityId>& GetChildren() const { return mChildren; }
-
-	ERM_SENSIBLE_MEMBER(WorldTransform, math::mat4, glm::identity<math::mat4>());
-	ERM_SENSIBLE_MEMBER(LocalTransform, math::mat4, glm::identity<math::mat4>());
-	ERM_SENSIBLE_MEMBER(Translation, math::vec3, math::vec3(0.0f));
-	ERM_SENSIBLE_MEMBER(Rotation, math::vec3, math::vec3(0.0f));
-	ERM_SENSIBLE_MEMBER(Scale, math::vec3, math::vec3(1.0f));
+	ERM_SENSIBLE_MEMBER(Translation, math::vec3, math::vec3(0.0f), UpdateDirtyMode::RECURSIVE);
+	ERM_SENSIBLE_MEMBER(Rotation, math::vec3, math::vec3(0.0f), UpdateDirtyMode::RECURSIVE);
+	ERM_SENSIBLE_MEMBER(Scale, math::vec3, math::vec3(1.0f), UpdateDirtyMode::RECURSIVE);
 
 	inline void SetTranslationX(float x)
 	{
 		if (mTranslation.x == x)
 			return;
 		mTranslation.x = x;
-		SetDirty(true);
+		SetDirty(true, UpdateDirtyMode::RECURSIVE);
 	}
 
 	inline void SetTranslationY(float y)
@@ -52,7 +41,7 @@ public:
 		if (mTranslation.y == y)
 			return;
 		mTranslation.y = y;
-		SetDirty(true);
+		SetDirty(true, UpdateDirtyMode::RECURSIVE);
 	}
 
 	inline void SetTranslationZ(float z)
@@ -60,7 +49,7 @@ public:
 		if (mTranslation.z == z)
 			return;
 		mTranslation.z = z;
-		SetDirty(true);
+		SetDirty(true, UpdateDirtyMode::RECURSIVE);
 	}
 
 	inline void SetRotationX(float x)
@@ -68,7 +57,7 @@ public:
 		if (mRotation.x == x)
 			return;
 		mRotation.x = x;
-		SetDirty(true);
+		SetDirty(true, UpdateDirtyMode::RECURSIVE);
 	}
 
 	inline void SetRotationY(float y)
@@ -76,7 +65,7 @@ public:
 		if (mRotation.y == y)
 			return;
 		mRotation.y = y;
-		SetDirty(true);
+		SetDirty(true, UpdateDirtyMode::RECURSIVE);
 	}
 
 	inline void SetRotationZ(float z)
@@ -84,7 +73,7 @@ public:
 		if (mRotation.z == z)
 			return;
 		mRotation.z = z;
-		SetDirty(true);
+		SetDirty(true, UpdateDirtyMode::RECURSIVE);
 	}
 
 	inline void SetScaleX(float x)
@@ -92,7 +81,7 @@ public:
 		if (mScale.x == x)
 			return;
 		mScale.x = x;
-		SetDirty(true);
+		SetDirty(true, UpdateDirtyMode::RECURSIVE);
 	}
 
 	inline void SetScaleY(float y)
@@ -100,7 +89,7 @@ public:
 		if (mScale.y == y)
 			return;
 		mScale.y = y;
-		SetDirty(true);
+		SetDirty(true, UpdateDirtyMode::RECURSIVE);
 	}
 
 	inline void SetScaleZ(float z)
@@ -108,12 +97,12 @@ public:
 		if (mScale.z == z)
 			return;
 		mScale.z = z;
-		SetDirty(true);
+		SetDirty(true, UpdateDirtyMode::RECURSIVE);
 	}
 
 private:
-	EntityId mParent;
-	std::vector<EntityId> mChildren;
+	math::mat4 mWorldTransform = glm::identity<math::mat4>();
+	math::mat4 mLocalTransform = glm::identity<math::mat4>();
 };
 
 } // namespace erm::ecs

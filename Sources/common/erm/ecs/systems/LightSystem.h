@@ -14,9 +14,6 @@ public:
 		: ISystem(engine)
 	{}
 	~LightSystem() = default;
-
-	// ISystem
-	void Init() override {}
 };
 
 } // namespace erm::ecs

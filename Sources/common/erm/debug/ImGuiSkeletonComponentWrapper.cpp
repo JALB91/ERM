@@ -8,6 +8,8 @@
 
 #include "erm/engine/Engine.h"
 
+#include "erm/rendering/data_structs/Skin.h"
+
 #include <imgui.h>
 
 namespace ImGui {

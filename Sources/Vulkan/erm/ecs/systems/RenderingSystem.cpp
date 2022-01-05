@@ -1,6 +1,7 @@
 #include "erm/ecs/systems/RenderingSystem.h"
 
 #include "erm/ecs/ECS.h"
+#include "erm/ecs/ECSUtils.h"
 #include "erm/ecs/Entity.h"
 #include "erm/ecs/systems/CameraSystem.h"
 #include "erm/ecs/systems/LightSystem.h"
@@ -18,6 +19,7 @@
 #include "erm/rendering/data_structs/InstanceData.h"
 #include "erm/rendering/data_structs/Mesh.h"
 #include "erm/rendering/data_structs/Model.h"
+#include "erm/rendering/data_structs/Skin.h"
 #include "erm/rendering/materials/Material.h"
 #include "erm/rendering/materials/PBMaterial.h"
 #include "erm/rendering/renderer/Renderer.h"
@@ -108,7 +110,7 @@ void RenderingSystem::OnPostUpdate()
 {
 	ERM_PROFILE_FUNCTION();
 
-	ForEachComponent([&](RenderingComponent& component, ID /*id*/) {
+	ForEachComponent([&](RenderingComponent& component) {
 		if (!component.IsDirty())
 			return;
 
@@ -151,8 +153,8 @@ void RenderingSystem::OnPreRender()
 
 	light = mLightSystem->GetComponent(mCachedLightId);
 	TransformComponent* lTransform = mTransformSystem->GetComponent(mCachedLightId);
-	if (EntityId parent = lTransform->GetParent(); parent.IsValid())
-		lightPos = mTransformSystem->GetComponent(parent)->GetWorldTransform() * math::vec4(lTransform->GetTranslation(), 1.0f);
+	if (TransformComponent* pComponent = GetParentComponent<TransformComponent>(mCachedLightId))
+		lightPos = pComponent->GetWorldTransform() * math::vec4(lTransform->GetTranslation(), 1.0f);
 	else
 		lightPos = lTransform->GetTranslation();
 
@@ -172,7 +174,7 @@ void RenderingSystem::OnPreRender()
 	auto cmd = VkUtils::BeginSingleTimeCommands(mDevice);
 #endif
 
-	mModelSystem->ForEachComponent([&](ModelComponent& component, ID id) {
+	mModelSystem->ForEachComponent([&](ModelComponent& component) {
 		if (!component.GetModel())
 			return;
 
@@ -181,11 +183,11 @@ void RenderingSystem::OnPreRender()
 		if (mResourcesManager.IsStillLoading(model))
 			return;
 
-		const TransformComponent* modelTransform = mTransformSystem->GetComponent(id);
+		const TransformComponent* modelTransform = mTransformSystem->GetComponent(component.GetComponentId());
 		const math::mat4& modelMat = modelTransform->GetWorldTransform();
 
-		RenderingComponent* renderingComponent = RequireComponent(id);
-		SkeletonComponent* skeletonComponent = mSkeletonSystem->GetComponent(id);
+		RenderingComponent* renderingComponent = RequireComponent(component.GetComponentId());
+		SkeletonComponent* skeletonComponent = mSkeletonSystem->GetComponent(component.GetComponentId());
 
 #ifdef ERM_RAY_TRACING_ENABLED
 		if (renderingComponent->GetUseRayTracing())
@@ -400,8 +402,8 @@ void RenderingSystem::UpdateUbos(
 
 	{
 		UboView ubo;
-		if (EntityId parent = cameraTransform.GetParent(); parent.IsValid())
-			ubo.mPosition = mTransformSystem->GetComponent(parent)->GetWorldTransform() * math::vec4(cameraTransform.GetTranslation(), 1.0f);
+		if (TransformComponent* pComponent = GetParentComponent<TransformComponent>(mCachedCameraId))
+			ubo.mPosition = pComponent->GetWorldTransform() * math::vec4(cameraTransform.GetTranslation(), 1.0f);
 		else
 			ubo.mPosition = cameraTransform.GetTranslation();
 

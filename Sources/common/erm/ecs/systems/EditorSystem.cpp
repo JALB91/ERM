@@ -22,6 +22,7 @@
 #include "erm/rendering/materials/PBMaterial.h"
 #endif
 // clang-format on
+#include "erm/rendering/data_structs/Skin.h"
 #include "erm/rendering/renderer/Renderer.h"
 
 #include "erm/utils/MeshUtils.h"

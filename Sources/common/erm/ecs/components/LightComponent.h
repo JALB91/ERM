@@ -1,6 +1,6 @@
 #pragma once
 
-#include "erm/ecs/IComponent.h"
+#include "erm/ecs/Component.h"
 
 #include "erm/math/vec.h"
 
@@ -10,12 +10,11 @@ class LightSystem;
 
 namespace erm::ecs {
 
-struct LightComponent : IComponent
+struct LightComponent
 {
-public:
-	typedef LightSystem SYSTEM_TYPE;
-	friend class LightSystem;
+	ERM_COMPONENT_DECL(Light)
 
+public:
 	math::vec3 mAmbient {1.0f};
 	math::vec3 mDiffuse {1.0f};
 	math::vec3 mSpecular {1.0f};

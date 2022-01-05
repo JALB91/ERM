@@ -2,8 +2,6 @@
 
 #include "erm/ecs/ECS.h"
 #include "erm/ecs/ECSConfig.h"
-#include "erm/ecs/components/TransformComponent.h"
-#include "erm/ecs/systems/TransformSystem.h"
 
 #include <string>
 #include <utility>
@@ -64,26 +62,26 @@ public:
 		return mECS.GetSystem<typename T::SYSTEM_TYPE>()->RequireComponent(mId, std::forward<Args>(args)...);
 	}
 
-	inline EntityId GetParent() const { return mTransformComponent.GetParent(); }
-	inline const std::vector<EntityId>& GetChildren() const { return mTransformComponent.GetChildren(); }
+	inline EntityId GetParent() const { return mParent; }
+	inline const std::vector<EntityId>& GetChildren() const { return mChildren; }
 
-	inline void RemoveFromParent() { mTransformSystem->RemoveFromParent(mId); }
-	inline void AddChild(Entity& child) { mTransformSystem->AddChild(mId, child.mId); }
+	inline void AddChild(EntityId childId) { mECS.AddChildToEntity(mId, childId); }
+	inline void AddChild(Entity& child) { mECS.AddChildToEntity(mId, child.GetId()); }
 
 private:
 	inline Entity(ECS& ecs, EntityId id, const std::string& name)
 		: mECS(ecs)
 		, mId(id)
 		, mName(name)
-		, mTransformSystem(mECS.GetSystem<TransformSystem>())
-		, mTransformComponent(*RequireComponent<TransformComponent>())
 	{}
+
+	void RemoveFromParentInternal();
 
 	ECS& mECS;
 	const EntityId mId;
 	std::string mName;
-	TransformSystem* mTransformSystem;
-	TransformComponent& mTransformComponent;
+	EntityId mParent;
+	std::vector<EntityId> mChildren;
 };
 
 } // namespace erm::ecs

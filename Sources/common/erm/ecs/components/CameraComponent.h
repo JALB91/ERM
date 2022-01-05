@@ -1,6 +1,6 @@
 #pragma once
 
-#include "erm/ecs/IComponent.h"
+#include "erm/ecs/Component.h"
 
 #include "erm/math/mat.h"
 
@@ -12,11 +12,9 @@ class CameraSystem;
 
 namespace erm::ecs {
 
-struct CameraComponent : public IComponent
+struct CameraComponent
 {
-public:
-	typedef CameraSystem SYSTEM_TYPE;
-	friend class CameraSystem;
+	ERM_COMPONENT_DECL(Camera)
 
 public:
 	ERM_SENSIBLE_MEMBER(MovementSpeed, float, 10.0f)

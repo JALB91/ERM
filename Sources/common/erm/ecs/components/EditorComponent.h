@@ -1,6 +1,6 @@
 #pragma once
 
-#include "erm/ecs/IComponent.h"
+#include "erm/ecs/Component.h"
 
 #include "erm/rendering/data_structs/PipelineConfigs.h"
 #include "erm/rendering/data_structs/RenderData.h"
@@ -11,11 +11,9 @@ class EditorSystem;
 
 namespace erm::ecs {
 
-struct EditorComponent : public IComponent
+struct EditorComponent
 {
-public:
-	typedef EditorSystem SYSTEM_TYPE;
-	friend class EditorSystem;
+	ERM_COMPONENT_DECL(Editor)
 
 public:
 	EditorComponent(const PipelineConfigs& bonesPipelineConfig = PipelineConfigs::DEFAULT_PIPELINE_CONFIGS)

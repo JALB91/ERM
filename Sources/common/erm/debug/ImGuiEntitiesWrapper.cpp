@@ -6,9 +6,9 @@
 
 #include "erm/rendering/window/Window.h"
 
+#include "erm/ecs/Component.h"
 #include "erm/ecs/ECSConfig.h"
 #include "erm/ecs/EntityId.h"
-#include "erm/ecs/IComponent.h"
 
 #include <imgui.h>
 

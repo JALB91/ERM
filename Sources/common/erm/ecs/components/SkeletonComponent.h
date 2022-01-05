@@ -1,26 +1,21 @@
 #pragma once
 
-#include "erm/ecs/IComponent.h"
+#include "erm/ecs/Component.h"
 
-#include "erm/rendering/data_structs/Skin.h"
-
-namespace erm::ecs {
+namespace erm {
+struct Skin;
+namespace ecs {
 class SkeletonSystem;
 }
+} // namespace erm
 
 namespace erm::ecs {
 
-struct SkeletonComponent : public IComponent
+struct SkeletonComponent
 {
-public:
-	typedef SkeletonSystem SYSTEM_TYPE;
-	friend class SkeletonSystem;
+	ERM_COMPONENT_DECL(Skeleton)
 
 public:
-	SkeletonComponent(Skin* skin = nullptr)
-		: mSkin(skin)
-	{}
-
 	ERM_SENSIBLE_MEMBER(Skin, Skin*, nullptr);
 	ERM_SENSIBLE_MEMBER(DisplayBones, bool, false);
 };
