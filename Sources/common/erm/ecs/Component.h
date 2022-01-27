@@ -5,6 +5,8 @@
 #include "erm/ecs/Entity.h"
 #include "erm/ecs/UpdateDirtyMode.h"
 
+#include "erm/utils/Macros.h"
+
 #include <type_traits>
 
 namespace erm::ecs {
@@ -76,9 +78,9 @@ public:                                                                         
 
 #define ERM_SENSIBLE_MEMBER_2(NAME, TYPE) ERM_SENSIBLE_MEMBER_3(NAME, TYPE, {})
 
-#define ERM_SENSIBLE_MEMBER_X(x, A, B, C, D, FUNC, ...) FUNC
+#define ERM_MACRO_CHOOSER(...) \
+	EXPAND(ERM_GET_FIFTH_ARG(__VA_ARGS__, ERM_SENSIBLE_MEMBER_4, ERM_SENSIBLE_MEMBER_3, ERM_SENSIBLE_MEMBER_2, ))
 
-#define ERM_SENSIBLE_MEMBER(...) \
-	ERM_SENSIBLE_MEMBER_X(, ##__VA_ARGS__, ERM_SENSIBLE_MEMBER_4(__VA_ARGS__), ERM_SENSIBLE_MEMBER_3(__VA_ARGS__), ERM_SENSIBLE_MEMBER_2(__VA_ARGS__))
+#define ERM_SENSIBLE_MEMBER(...) EXPAND(ERM_MACRO_CHOOSER(__VA_ARGS__)(__VA_ARGS__))
 
 } // namespace erm::ecs

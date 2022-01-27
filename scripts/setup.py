@@ -20,7 +20,7 @@ if __name__ == "__main__":
         architecture = ""
     elif currSys == "Windows":
         generatorName = "MSVC"
-        generator = "Visual Studio 16 2019"
+        generator = "Visual Studio 17 2022"
         architecture = "x64"
         osName = "WINDOWS"
     else:
