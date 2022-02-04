@@ -46,7 +46,7 @@ if __name__ == "__main__":
     
     buildsPath = os.path.join(rootPath, "builds")
 
-    targetBuildPath = os.path.join(buildsPath, generatorName + "_" + args.api + "_" + args.config)
+    targetBuildPath = os.path.join(buildsPath, generatorName + "_" + args.api)
 
     try:
         os.makedirs(os.path.join(targetBuildPath, args.config))
