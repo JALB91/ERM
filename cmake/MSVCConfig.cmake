@@ -3,7 +3,7 @@ function(target_setup_project TARGET)
 
 	set_target_properties(
 		"${TARGET}" PROPERTIES
-		VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/"
+		VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_INSTALL_PREFIX}"
 	)
 
 	target_compile_definitions(
