@@ -3,7 +3,7 @@
 namespace erm {
 class Engine;
 struct RenderData;
-}
+} // namespace erm
 
 namespace erm {
 

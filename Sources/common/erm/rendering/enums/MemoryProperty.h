@@ -1,7 +1,7 @@
 #pragma once
 
-#include "erm/utils/Macros.h"
 #include "erm/utils/Flags.h"
+#include "erm/utils/Macros.h"
 
 namespace erm {
 

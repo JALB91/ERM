@@ -7,4 +7,4 @@ namespace erm {
 class DeviceBuffer : public IBuffer
 {};
 
-}
+} // namespace erm

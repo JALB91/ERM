@@ -7,4 +7,4 @@ CubeMap::CubeMap(Device& device, const char* path)
 	, mDevice(device)
 {}
 
-}
+} // namespace erm
