@@ -1,4 +1,4 @@
-#include "erm/rendering/shaders/VulkanShaderProgram.h"
+#include "erm/rendering/shaders/ShaderProgram.h"
 
 #include "erm/rendering/Device.h"
 #include "erm/rendering/data_structs/VertexData.h"
@@ -7,11 +7,11 @@
 
 namespace erm {
 
-VulkanShaderProgram::VulkanShaderProgram(Device& device, const char* shaderPath)
+ShaderProgram::ShaderProgram(Device& device, const char* shaderPath)
 	: IShaderProgram(device, shaderPath)
 {}
 
-std::vector<vk::UniqueShaderModule> VulkanShaderProgram::CreateShaderModules(ShaderType shaderType) const
+std::vector<vk::UniqueShaderModule> ShaderProgram::CreateShaderModules(ShaderType shaderType) const
 {
 	const auto it = mShadersDataMap.find(shaderType);
 	if (it == mShadersDataMap.end())
@@ -33,7 +33,7 @@ std::vector<vk::UniqueShaderModule> VulkanShaderProgram::CreateShaderModules(Sha
 	return result;
 }
 
-vk::VertexInputBindingDescription VulkanShaderProgram::GetVertexBindingDescription()
+vk::VertexInputBindingDescription ShaderProgram::GetVertexBindingDescription()
 {
 	ERM_ASSERT(mShadersDataMap[ShaderType::VERTEX].size() == 1);
 
@@ -51,7 +51,7 @@ vk::VertexInputBindingDescription VulkanShaderProgram::GetVertexBindingDescripti
 	return bindingDescription;
 }
 
-std::vector<vk::VertexInputAttributeDescription> VulkanShaderProgram::GetVertexAttributeDescriptions()
+std::vector<vk::VertexInputAttributeDescription> ShaderProgram::GetVertexAttributeDescriptions()
 {
 	ERM_ASSERT(mShadersDataMap[ShaderType::VERTEX].size() == 1);
 
@@ -109,13 +109,13 @@ std::vector<vk::VertexInputAttributeDescription> VulkanShaderProgram::GetVertexA
 	return attributeDescriptions;
 }
 
-void VulkanShaderProgram::UpdateBindingData()
+void ShaderProgram::UpdateBindingData()
 {
 	mLayoutBindingsMap.clear();
 	IShaderProgram::UpdateBindingData();
 }
 
-void VulkanShaderProgram::UpdateResourceBindings(
+void ShaderProgram::UpdateResourceBindings(
 	const spirv_cross::Compiler& compiler,
 	const spirv_cross::Resource& res,
 	SetIdx targetSet,

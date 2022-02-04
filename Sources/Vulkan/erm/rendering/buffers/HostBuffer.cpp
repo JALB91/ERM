@@ -7,8 +7,8 @@ namespace erm {
 HostBuffer::HostBuffer(
 	Device& device,
 	size_t size,
-	vk::BufferUsageFlags buf)
-	: IBuffer(device, size, buf, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent)
+	BufferUsageFlags buf)
+	: IBuffer(device, size, buf, MemoryProperty::HOST_VISIBLE | MemoryProperty::HOST_COHERENT)
 {}
 
 void HostBuffer::Update(const void* data, const BufferInfo& info /*= {}*/) const

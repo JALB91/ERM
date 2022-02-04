@@ -8,7 +8,7 @@
 #include "erm/rendering/data_structs/Mesh.h"
 #include "erm/rendering/data_structs/RenderData.h"
 #include "erm/rendering/renderer/Renderer.h"
-#include "erm/rendering/shaders/VulkanShaderProgram.h"
+#include "erm/rendering/shaders/ShaderProgram.h"
 #include "erm/rendering/window/Window.h"
 
 #include "erm/utils/Utils.h"
@@ -119,7 +119,7 @@ void PipelineResources::CreatePipeline()
 	const math::vec2 normViewportSize = normViewport.GetSize();
 	const vk::Extent2D& extent = mRenderer.GetSwapChainExtent();
 
-	VulkanShaderProgram* shader = static_cast<VulkanShaderProgram*>(mPipelineConfigs.mShaderProgram);
+	ShaderProgram* shader = static_cast<ShaderProgram*>(mPipelineConfigs.mShaderProgram);
 
 	ERM_ASSERT(shader);
 

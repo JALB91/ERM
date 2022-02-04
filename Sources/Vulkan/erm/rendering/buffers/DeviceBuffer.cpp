@@ -11,8 +11,8 @@ namespace erm {
 DeviceBuffer::DeviceBuffer(
 	Device& device,
 	size_t size,
-	vk::BufferUsageFlags buf)
-	: IBuffer(device, size, buf | vk::BufferUsageFlagBits::eTransferDst, vk::MemoryPropertyFlagBits::eDeviceLocal)
+	BufferUsageFlags buf)
+	: IBuffer(device, size, buf | BufferUsage::TRANSFER_DST, MemoryProperty::DEVICE_LOCAL)
 {}
 
 DeviceBuffer::~DeviceBuffer() = default;
@@ -42,14 +42,14 @@ void DeviceBuffer::Update(const void* data, const BufferInfo& info /*= {}*/) con
 
 void DeviceBuffer::Update(vk::CommandBuffer& cmd, const void* data, const BufferInfo& info /*= {}*/) const
 {
-	const size_t targetStride = info.mStride == VK_WHOLE_SIZE ? mBufferSize : info.mStride;
+	const size_t targetStride = (info.mStride == VK_WHOLE_SIZE ? mBufferSize : info.mStride);
 
 	ERM_ASSERT(targetStride + info.mOffset <= mBufferSize);
 
 	if (targetStride >= 65536)
 	{
 		if (!mStagingBuffer || mStagingBuffer->GetBufferSize() < targetStride)
-			mStagingBuffer.reset(new HostBuffer(mDevice, targetStride, vk::BufferUsageFlagBits::eTransferSrc));
+			mStagingBuffer.reset(new HostBuffer(mDevice, targetStride, BufferUsage::TRANSFER_SRC));
 
 		mStagingBuffer->Update(data, {0, targetStride});
 

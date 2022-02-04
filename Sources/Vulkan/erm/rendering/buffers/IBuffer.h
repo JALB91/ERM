@@ -1,6 +1,8 @@
 #pragma once
 
 #include "erm/rendering/buffers/BufferLayout.h"
+#include "erm/rendering/enums/BufferUsage.h"
+#include "erm/rendering/enums/MemoryProperty.h"
 
 #include <vulkan/vulkan.hpp>
 
@@ -16,8 +18,8 @@ public:
 	IBuffer(
 		Device& device,
 		size_t size,
-		vk::BufferUsageFlags buf,
-		vk::MemoryPropertyFlags mpf);
+		BufferUsageFlags buf,
+		MemoryPropertyFlags mpf);
 	virtual ~IBuffer() = default;
 
 	IBuffer(const IBuffer&);
@@ -40,8 +42,8 @@ protected:
 	size_t mBufferSize;
 	BufferLayout mLayout;
 
-	vk::BufferUsageFlags mBuf;
-	vk::MemoryPropertyFlags mMpf;
+	BufferUsageFlags mBuf;
+	MemoryPropertyFlags mMpf;
 	vk::UniqueBuffer mBuffer;
 	vk::UniqueDeviceMemory mBufferMemory;
 };

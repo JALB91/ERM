@@ -91,7 +91,7 @@ RenderingSystem::RenderingSystem(Engine& engine)
 	, mCachedCameraId(INVALID_ID)
 	, mCachedLightId(INVALID_ID)
 #ifdef ERM_RAY_TRACING_ENABLED
-	, mRTRenderData(::GetDefaultRTRenderData(engine))
+	, mRTRenderData(::GetDefaultRTRenderData(mEngine))
 #endif
 {}
 
@@ -495,7 +495,7 @@ void RenderingSystem::ProcessForRayTracing(
 		renderingComponent.mCustomIndex = customIdx;
 		auto& instanceDataBuffer = renderingComponent.mInstanceDataBuffer;
 		if (!instanceDataBuffer)
-			instanceDataBuffer = std::make_unique<DeviceBuffer>(mDevice, sizeof(InstanceData), vk::BufferUsageFlagBits::eStorageBuffer);
+			instanceDataBuffer = std::make_unique<DeviceBuffer>(mDevice, sizeof(InstanceData), BufferUsage::STORAGE_BUFFER);
 
 		data.AddSbo(StorageBufferType::VERTICES, customIdx, model.GetVerticesBuffer());
 		data.AddSbo(StorageBufferType::INDICES, customIdx, model.GetIndicesBuffer());

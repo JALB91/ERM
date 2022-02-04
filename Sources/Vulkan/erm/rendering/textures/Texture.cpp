@@ -49,7 +49,7 @@ void Texture::CreateTextureImage()
 	vk::DeviceSize imageSize = mWidth * mHeight * 4;
 	ERM_ASSERT(mLocalBuffer);
 
-	HostBuffer stagingBuffer(mDevice, imageSize, vk::BufferUsageFlagBits::eTransferSrc);
+	HostBuffer stagingBuffer(mDevice, imageSize, BufferUsage::TRANSFER_SRC);
 	stagingBuffer.Update(mLocalBuffer);
 
 	stbi_image_free(mLocalBuffer);
@@ -72,9 +72,9 @@ void Texture::CreateTextureImage()
 		mDevice.GetVkPhysicalDevice(),
 		mDevice.GetVkDevice(),
 		imageInfo,
-		vk::MemoryPropertyFlagBits::eDeviceLocal,
 		mTextureImage,
-		mTextureImageMemory);
+		mTextureImageMemory,
+		MemoryProperty::DEVICE_LOCAL);
 
 	VkUtils::TransitionImageLayout(
 		mDevice,

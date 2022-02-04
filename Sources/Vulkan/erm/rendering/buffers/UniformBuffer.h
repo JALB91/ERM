@@ -18,9 +18,9 @@ public:
 		: BufferType(
 			  device,
 			  size,
-			  vk::BufferUsageFlagBits::eUniformBuffer
+			  BufferUsage::UNIFORM_BUFFER
 #ifdef ERM_RAY_TRACING_ENABLED
-				  | vk::BufferUsageFlagBits::eStorageBuffer
+				  | BufferUsage::STORAGE_BUFFER
 #endif
 		  )
 	{}

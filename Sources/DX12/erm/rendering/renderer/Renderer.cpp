@@ -18,4 +18,7 @@ void Renderer::OnPostRender()
 {
 }
 
+void Renderer::SubmitRenderData(RenderData& data)
+{}
+
 } // namespace erm

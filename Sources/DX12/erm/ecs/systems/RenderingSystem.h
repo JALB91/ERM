@@ -5,12 +5,12 @@
 
 namespace erm::ecs {
 
-class RenderingSystem : public ISystem<RenderingComponent>
+class RenderingSystem : public ISystem
 {
 public:
-	RenderingSystem(ECS& ecs);
+	RenderingSystem(Engine& engine);
 
-private:
+	ERM_SYSTEM_DECL(Rendering);
 };
 
 } // namespace erm::ecs

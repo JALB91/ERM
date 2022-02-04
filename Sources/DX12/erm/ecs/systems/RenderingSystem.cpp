@@ -2,8 +2,10 @@
 
 namespace erm::ecs {
 
-RenderingSystem::RenderingSystem(ECS& ecs)
-	: ISystem(ecs)
+RenderingSystem::RenderingSystem(Engine& engine)
+	: ISystem(engine)
 {}
+
+ERM_SYSTEM_IMPL(Rendering)
 
 } // namespace erm::ecs

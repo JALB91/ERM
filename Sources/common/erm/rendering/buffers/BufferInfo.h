@@ -1,6 +1,6 @@
 #pragma once
 
-#include <vulkan/vulkan.hpp>
+#include "erm/rendering/Macros.h"
 
 namespace erm {
 
@@ -8,7 +8,7 @@ struct BufferInfo
 {
 	BufferInfo(
 		size_t offset = 0,
-		size_t stride = VK_WHOLE_SIZE)
+		size_t stride = ERM_WHOLE_SIZE)
 		: mOffset(offset)
 		, mStride(stride)
 	{}

@@ -8,15 +8,16 @@ class Device;
 
 namespace erm {
 
-class Texture : public IAsset
+class CubeMap : public IAsset
 {
 public:
-	Texture(Device& device, const char* path);
+	CubeMap(Device& device, const char* path);
 
 	void Init() {};
 
 private:
 	Device& mDevice;
+
 };
 
-} // namespace erm
+}

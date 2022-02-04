@@ -2,6 +2,7 @@
 
 namespace erm {
 class Engine;
+struct RenderData;
 }
 
 namespace erm {
@@ -14,6 +15,8 @@ public:
 	void OnPreRender();
 	void OnRender();
 	void OnPostRender();
+
+	void SubmitRenderData(RenderData& data);
 
 private:
 	Engine& mEngine;

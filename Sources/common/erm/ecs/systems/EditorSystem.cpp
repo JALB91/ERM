@@ -75,7 +75,7 @@ EditorSystem::EditorSystem(Engine& engine)
 	, mResourcesManager(mEngine.GetResourcesManager())
 #ifdef ERM_RAY_TRACING_ENABLED
 	, mPlaneModel(mEngine.GetDevice(), "Plane", "Plane")
-	, mInstanceDataBuffer(mEngine.GetDevice(), sizeof(InstanceData), vk::BufferUsageFlagBits::eStorageBuffer)
+	, mInstanceDataBuffer(mEngine.GetDevice(), sizeof(InstanceData), BufferUsage::STORAGE_BUFFER)
 #endif
 	, mGridRenderData(GetGridPipelineConfigs(mEngine))
 	, mGridMesh(mEngine.GetDevice(), MeshUtils::CreateCube(10.0f, 10.0f, 2.0f))

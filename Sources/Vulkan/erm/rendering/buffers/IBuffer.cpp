@@ -10,8 +10,8 @@ namespace erm {
 IBuffer::IBuffer(
 	Device& device,
 	size_t size,
-	vk::BufferUsageFlags buf,
-	vk::MemoryPropertyFlags mpf)
+	BufferUsageFlags buf,
+	MemoryPropertyFlags mpf)
 	: mDevice(device)
 	, mBufferSize(size)
 	, mBuf(buf)
@@ -21,10 +21,10 @@ IBuffer::IBuffer(
 		device.GetVkPhysicalDevice(),
 		device.GetVkDevice(),
 		size,
-		buf,
-		mpf,
 		mBuffer,
-		mBufferMemory);
+		mBufferMemory,
+		buf,
+		mpf);
 
 	mLayout.mBuffer = mBuffer.get();
 	mLayout.mInfos.emplace_back(BufferInfo {0, mBufferSize});
@@ -40,10 +40,10 @@ IBuffer::IBuffer(const IBuffer& other)
 		mDevice.GetVkPhysicalDevice(),
 		mDevice.GetVkDevice(),
 		mBufferSize,
-		mBuf,
-		mMpf,
 		mBuffer,
-		mBufferMemory);
+		mBufferMemory,
+		mBuf,
+		mMpf);
 
 	mLayout.mBuffer = mBuffer.get();
 	mLayout.mInfos.emplace_back(BufferInfo {0, mBufferSize});

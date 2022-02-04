@@ -6,9 +6,7 @@
 #include "erm/rendering/materials/Material.h"
 #include "erm/rendering/materials/PBMaterial.h"
 #include "erm/rendering/shaders/ShaderUtils.h"
-#if defined(ERM_VULKAN)
-#	include "erm/rendering/shaders/VulkanShaderProgram.h"
-#endif
+#include "erm/rendering/shaders/ShaderProgram.h"
 #include "erm/rendering/textures/CubeMap.h"
 #include "erm/rendering/textures/Texture.h"
 
@@ -114,9 +112,7 @@ IShaderProgram* ResourcesManager::GetOrCreateShaderProgram(const char* shaderPro
 	if (!found)
 		return nullptr;
 
-#if defined(ERM_VULKAN)
-	std::unique_ptr<VulkanShaderProgram> shaderProgram = std::make_unique<VulkanShaderProgram>(mDevice, shaderProgramPath);
-#endif
+	std::unique_ptr<ShaderProgram> shaderProgram = std::make_unique<ShaderProgram>(mDevice, shaderProgramPath);
 	shaderProgram->Init();
 	return mShaderPrograms.emplace_back(std::move(shaderProgram)).get();
 }

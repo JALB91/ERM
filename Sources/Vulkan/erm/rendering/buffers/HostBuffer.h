@@ -10,7 +10,7 @@ public:
 	HostBuffer(
 		Device& device,
 		size_t size,
-		vk::BufferUsageFlags buf);
+		BufferUsageFlags buf);
 
 	void Update(const void* data, const BufferInfo& info = {}) const override;
 };

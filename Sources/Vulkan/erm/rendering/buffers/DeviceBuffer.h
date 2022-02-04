@@ -16,7 +16,7 @@ public:
 	DeviceBuffer(
 		Device& device,
 		size_t size,
-		vk::BufferUsageFlags buf);
+		BufferUsageFlags buf);
 	~DeviceBuffer();
 
 	DeviceBuffer(DeviceBuffer&& other);

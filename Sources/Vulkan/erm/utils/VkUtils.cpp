@@ -23,462 +23,6 @@
 
 namespace erm::VkUtils {
 
-QueueFamilyIndices FindQueueFamilies(vk::PhysicalDevice device, vk::SurfaceKHR surface)
-{
-	QueueFamilyIndices indices;
-
-	std::vector<vk::QueueFamilyProperties> queueFamilies = device.getQueueFamilyProperties();
-
-	for (uint32_t i = 0; i < static_cast<uint32_t>(queueFamilies.size()); ++i)
-	{
-		if (queueFamilies[i].queueFlags & vk::QueueFlagBits::eGraphics)
-		{
-			indices.mGraphicsFamily = i;
-		}
-
-		if (device.getSurfaceSupportKHR(i, surface))
-		{
-			indices.mPresentFamily = i;
-		}
-	}
-
-	return indices;
-}
-
-SwapChainSupportDetails QuerySwapChainSupport(vk::PhysicalDevice device, vk::SurfaceKHR surface)
-{
-	SwapChainSupportDetails details;
-
-	details.mCapabilities = device.getSurfaceCapabilitiesKHR(surface);
-	details.mFormats = device.getSurfaceFormatsKHR(surface);
-	details.mPresentModes = device.getSurfacePresentModesKHR(surface);
-
-	return details;
-}
-
-bool CheckDeviceExtensionSupport(vk::PhysicalDevice device, const std::vector<const char*>& deviceExtensions)
-{
-	std::vector<vk::ExtensionProperties> availableExtensions = device.enumerateDeviceExtensionProperties();
-	std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
-
-	for (const vk::ExtensionProperties& extension : availableExtensions)
-	{
-		requiredExtensions.erase(extension.extensionName);
-	}
-
-	return requiredExtensions.empty();
-}
-
-bool IsDeviceSuitable(vk::PhysicalDevice device, vk::SurfaceKHR surface, const std::vector<const char*>& deviceExtensions)
-{
-	vk::PhysicalDeviceProperties deviceProperties = device.getProperties();
-	const bool isSuitable = FindQueueFamilies(device, surface).IsComplete() && CheckDeviceExtensionSupport(device, deviceExtensions);
-
-	bool swapChainAdequate = false;
-	if (isSuitable)
-	{
-		SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(device, surface);
-		swapChainAdequate = !swapChainSupport.mFormats.empty() && !swapChainSupport.mPresentModes.empty();
-	}
-
-	std::cout << "Checking compatibility of: " << deviceProperties.deviceName << " -> " << std::boolalpha << (isSuitable && swapChainAdequate) << std::endl;
-
-	vk::PhysicalDeviceFeatures supportedFeatures = device.getFeatures();
-
-	return isSuitable && swapChainAdequate && supportedFeatures.samplerAnisotropy && supportedFeatures.fillModeNonSolid;
-}
-
-vk::SurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& availableFormats)
-{
-	for (const vk::SurfaceFormatKHR& availableFormat : availableFormats)
-	{
-#if defined(ERM_RAY_TRACING_ENABLED)
-		if (availableFormat.format == vk::Format::eR8G8B8A8Unorm)
-#else
-		if (availableFormat.format == vk::Format::eB8G8R8A8Srgb && availableFormat.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear)
-#endif
-		{
-			return availableFormat;
-		}
-	}
-	return availableFormats[0];
-}
-
-vk::PresentModeKHR ChooseSwapPresentMode(const std::vector<vk::PresentModeKHR>& availablePresentModes)
-{
-	for (const vk::PresentModeKHR& availablePresentMode : availablePresentModes)
-	{
-		if (availablePresentMode == vk::PresentModeKHR::eMailbox)
-		{
-			return availablePresentMode;
-		}
-	}
-	return vk::PresentModeKHR::eFifo;
-}
-
-vk::Format FindSupportedDepthFormat(
-	vk::PhysicalDevice physicalDevice,
-	const std::vector<vk::Format>& candidates,
-	vk::ImageTiling tiling,
-	vk::FormatFeatureFlags features)
-{
-	for (vk::Format format : candidates)
-	{
-		vk::FormatProperties props = physicalDevice.getFormatProperties(format);
-
-		if (tiling == vk::ImageTiling::eLinear && (props.linearTilingFeatures & features) == features)
-		{
-			return format;
-		}
-		else if (tiling == vk::ImageTiling::eOptimal && (props.optimalTilingFeatures & features) == features)
-		{
-			return format;
-		}
-	}
-	throw std::runtime_error("Failed to find supported format");
-}
-
-vk::Format FindDepthFormat(vk::PhysicalDevice physicalDevice)
-{
-	return FindSupportedDepthFormat(
-		physicalDevice,
-		{vk::Format::eD32Sfloat, vk::Format::eD32SfloatS8Uint, vk::Format::eD24UnormS8Uint},
-		vk::ImageTiling::eOptimal,
-		vk::FormatFeatureFlagBits::eDepthStencilAttachment);
-}
-
-vk::CommandBuffer BeginSingleTimeCommands(Device& device)
-{
-	vk::CommandBufferAllocateInfo allocInfo {};
-	allocInfo.level = vk::CommandBufferLevel::ePrimary;
-	allocInfo.commandPool = device.GetCommandPool();
-	allocInfo.commandBufferCount = 1;
-
-	vk::CommandBuffer commandBuffer;
-	ERM_VK_CHECK(device->allocateCommandBuffers(&allocInfo, &commandBuffer));
-
-	vk::CommandBufferBeginInfo beginInfo {};
-	beginInfo.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit;
-
-	commandBuffer.begin(beginInfo);
-
-	return commandBuffer;
-}
-
-void EndSingleTimeCommands(
-	Device& device,
-	vk::CommandBuffer commandBuffer)
-{
-	commandBuffer.end();
-
-	vk::SubmitInfo submitInfo {};
-	submitInfo.commandBufferCount = 1;
-	submitInfo.pCommandBuffers = &commandBuffer;
-
-	ERM_VK_CHECK(device.GetGraphicsQueue().submit(1, &submitInfo, nullptr));
-	device.GetGraphicsQueue().waitIdle();
-
-	device->freeCommandBuffers(device.GetCommandPool(), 1, &commandBuffer);
-}
-
-vk::Extent2D ChooseSwapExtent(
-	const vk::SurfaceCapabilitiesKHR& capabilities,
-	int fallbackWidth,
-	int fallbackHeight)
-{
-	if (capabilities.currentExtent.width != UINT32_MAX)
-	{
-		return capabilities.currentExtent;
-	}
-	else
-	{
-		vk::Extent2D actualExtent = {static_cast<uint32_t>(fallbackWidth), static_cast<uint32_t>(fallbackHeight)};
-
-		actualExtent.width = std::max(capabilities.minImageExtent.width, std::min(capabilities.maxImageExtent.width, actualExtent.width));
-		actualExtent.height = std::max(capabilities.minImageExtent.height, std::min(capabilities.maxImageExtent.height, actualExtent.height));
-
-		return actualExtent;
-	}
-}
-
-uint32_t FindMemoryType(
-	vk::PhysicalDevice physicalDevice,
-	uint32_t typeFilter,
-	vk::MemoryPropertyFlags properties)
-{
-	vk::PhysicalDeviceMemoryProperties memProperties;
-	physicalDevice.getMemoryProperties(&memProperties);
-
-	for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
-	{
-		if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties)
-		{
-			return i;
-		}
-	}
-
-	throw std::runtime_error("Failed to find suitable memory type");
-}
-
-void CreateBuffer(
-	vk::PhysicalDevice physicalDevice,
-	vk::Device device,
-	vk::DeviceSize size,
-	vk::BufferUsageFlags usage,
-	vk::MemoryPropertyFlags properties,
-	vk::Buffer& buffer,
-	vk::DeviceMemory& bufferMemory)
-{
-	vk::BufferCreateInfo bufferInfo = {};
-	bufferInfo.size = size;
-	bufferInfo.usage = usage;
-	bufferInfo.sharingMode = vk::SharingMode::eExclusive;
-
-	ERM_VK_CHECK(device.createBuffer(&bufferInfo, nullptr, &buffer));
-
-	vk::MemoryRequirements memRequirements;
-	device.getBufferMemoryRequirements(buffer, &memRequirements);
-
-	vk::MemoryAllocateInfo allocInfo = {};
-	allocInfo.allocationSize = memRequirements.size;
-	allocInfo.memoryTypeIndex = FindMemoryType(physicalDevice, memRequirements.memoryTypeBits, properties);
-
-	vk::MemoryAllocateFlagsInfo flagsInfo;
-	if ((usage & vk::BufferUsageFlagBits::eShaderDeviceAddress) == vk::BufferUsageFlagBits::eShaderDeviceAddress)
-		flagsInfo.flags = vk::MemoryAllocateFlagBits::eDeviceAddress;
-	allocInfo.pNext = &flagsInfo;
-
-	ERM_VK_CHECK(device.allocateMemory(&allocInfo, nullptr, &bufferMemory));
-	device.bindBufferMemory(buffer, bufferMemory, 0);
-}
-
-void CreateBufferUnique(
-	vk::PhysicalDevice physicalDevice,
-	vk::Device device,
-	vk::DeviceSize size,
-	vk::BufferUsageFlags usage,
-	vk::MemoryPropertyFlags properties,
-	vk::UniqueBuffer& buffer,
-	vk::UniqueDeviceMemory& bufferMemory)
-{
-	vk::BufferCreateInfo bufferInfo = {};
-	bufferInfo.size = size;
-	bufferInfo.usage = usage;
-	bufferInfo.sharingMode = vk::SharingMode::eExclusive;
-
-	buffer = device.createBufferUnique(bufferInfo);
-
-	vk::MemoryRequirements memRequirements;
-	device.getBufferMemoryRequirements(buffer.get(), &memRequirements);
-
-	vk::MemoryAllocateInfo allocInfo = {};
-	allocInfo.allocationSize = memRequirements.size;
-	allocInfo.memoryTypeIndex = FindMemoryType(physicalDevice, memRequirements.memoryTypeBits, properties);
-
-	vk::MemoryAllocateFlagsInfo flagsInfo;
-	if ((usage & vk::BufferUsageFlagBits::eShaderDeviceAddress) == vk::BufferUsageFlagBits::eShaderDeviceAddress)
-		flagsInfo.flags = vk::MemoryAllocateFlagBits::eDeviceAddress;
-	allocInfo.pNext = &flagsInfo;
-
-	bufferMemory = device.allocateMemoryUnique(allocInfo);
-	device.bindBufferMemory(buffer.get(), bufferMemory.get(), 0);
-}
-
-void CopyBufferToBuffer(
-	Device& device,
-	vk::Buffer& srcBuffer,
-	vk::Buffer& dstBuffer,
-	vk::DeviceSize size)
-{
-	vk::CommandBuffer commandBuffer = BeginSingleTimeCommands(device);
-
-	vk::BufferCopy copyRegion {};
-	copyRegion.size = size;
-	commandBuffer.copyBuffer(srcBuffer, dstBuffer, 1, &copyRegion);
-
-	EndSingleTimeCommands(device, commandBuffer);
-}
-
-void CreateImage(
-	vk::PhysicalDevice physicalDevice,
-	vk::Device device,
-	const vk::ImageCreateInfo& createInfo,
-	vk::MemoryPropertyFlags properties,
-	vk::Image& image,
-	vk::DeviceMemory& imageMemory)
-{
-	ERM_VK_CHECK(device.createImage(&createInfo, nullptr, &image));
-
-	vk::MemoryRequirements memRequirements;
-	device.getImageMemoryRequirements(image, &memRequirements);
-
-	vk::MemoryAllocateInfo allocInfo {};
-	allocInfo.allocationSize = memRequirements.size;
-	allocInfo.memoryTypeIndex = FindMemoryType(physicalDevice, memRequirements.memoryTypeBits, properties);
-
-	ERM_VK_CHECK(device.allocateMemory(&allocInfo, nullptr, &imageMemory));
-	device.bindImageMemory(image, imageMemory, 0);
-}
-
-void CreateImageUnique(
-	vk::PhysicalDevice physicalDevice,
-	vk::Device device,
-	const vk::ImageCreateInfo& createInfo,
-	vk::MemoryPropertyFlags properties,
-	vk::UniqueImage& image,
-	vk::UniqueDeviceMemory& imageMemory)
-{
-	image = device.createImageUnique(createInfo);
-
-	vk::MemoryRequirements memRequirements;
-	device.getImageMemoryRequirements(image.get(), &memRequirements);
-
-	vk::MemoryAllocateInfo allocInfo {};
-	allocInfo.allocationSize = memRequirements.size;
-	allocInfo.memoryTypeIndex = FindMemoryType(physicalDevice, memRequirements.memoryTypeBits, properties);
-
-	imageMemory = device.allocateMemoryUnique(allocInfo);
-	device.bindImageMemory(image.get(), imageMemory.get(), 0);
-}
-
-vk::ImageView CreateImageView(
-	vk::Device device,
-	const vk::ImageViewCreateInfo& createInfo)
-{
-	vk::ImageView imageView;
-	ERM_VK_CHECK(device.createImageView(&createInfo, nullptr, &imageView));
-
-	return imageView;
-}
-
-vk::UniqueImageView CreateImageViewUnique(
-	vk::Device device,
-	const vk::ImageViewCreateInfo& createInfo)
-{
-	return device.createImageViewUnique(createInfo);
-}
-
-void TransitionImageLayout(
-	Device& device,
-	vk::Image image,
-	vk::Format /*format*/,
-	vk::ImageLayout oldLayout,
-	vk::ImageLayout newLayout,
-	uint32_t layerCount /* = 1*/)
-{
-	vk::CommandBuffer commandBuffer = BeginSingleTimeCommands(device);
-
-	vk::ImageMemoryBarrier barrier {};
-	barrier.oldLayout = oldLayout;
-	barrier.newLayout = newLayout;
-	barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-	barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-	barrier.image = image;
-	barrier.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
-	barrier.subresourceRange.baseMipLevel = 0;
-	barrier.subresourceRange.levelCount = 1;
-	barrier.subresourceRange.baseArrayLayer = 0;
-	barrier.subresourceRange.layerCount = layerCount;
-
-	vk::PipelineStageFlags sourceStage;
-	vk::PipelineStageFlags destinationStage;
-
-	if (oldLayout == vk::ImageLayout::eUndefined && newLayout == vk::ImageLayout::eTransferDstOptimal)
-	{
-		barrier.srcAccessMask = {};
-		barrier.dstAccessMask = vk::AccessFlagBits::eTransferWrite;
-
-		sourceStage = vk::PipelineStageFlagBits::eTopOfPipe;
-		destinationStage = vk::PipelineStageFlagBits::eTransfer;
-	}
-	else if (oldLayout == vk::ImageLayout::eTransferDstOptimal && newLayout == vk::ImageLayout::eShaderReadOnlyOptimal)
-	{
-		barrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
-		barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
-
-		sourceStage = vk::PipelineStageFlagBits::eTransfer;
-		destinationStage = vk::PipelineStageFlagBits::eFragmentShader;
-	}
-	else
-	{
-		throw std::invalid_argument("Unsupported layout transition");
-	}
-
-	commandBuffer.pipelineBarrier(sourceStage, destinationStage, {}, {}, nullptr, 0, nullptr, 1, &barrier);
-
-	EndSingleTimeCommands(device, commandBuffer);
-}
-
-void CopyBufferToImage(
-	Device& device,
-	vk::Buffer buffer,
-	vk::Image image,
-	uint32_t width,
-	uint32_t height,
-	uint32_t layerCount /* = 1*/)
-{
-	vk::CommandBuffer commandBuffer = BeginSingleTimeCommands(device);
-
-	vk::BufferImageCopy region {};
-	region.bufferOffset = 0;
-	region.bufferRowLength = 0;
-	region.bufferImageHeight = 0;
-	region.imageSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
-	region.imageSubresource.mipLevel = 0;
-	region.imageSubresource.baseArrayLayer = 0;
-	region.imageSubresource.layerCount = layerCount;
-	region.imageOffset = vk::Offset3D(0, 0, 0);
-	region.imageExtent = vk::Extent3D(width, height, 1);
-
-	commandBuffer.copyBufferToImage(buffer, image, vk::ImageLayout::eTransferDstOptimal, 1, &region);
-
-	EndSingleTimeCommands(device, commandBuffer);
-}
-
-void CreateDeviceLocalBuffer(
-	Device& device,
-	vk::PhysicalDevice physicalDevice,
-	vk::BufferUsageFlags bufferUsage,
-	vk::DeviceSize bufferSize,
-	void* bufferData,
-	vk::Buffer& dstBuffer,
-	vk::DeviceMemory& dstBufferMemory)
-{
-	vk::Buffer stagingBuffer;
-	vk::DeviceMemory stagingBufferMemory;
-	CreateBuffer(
-		physicalDevice,
-		device.GetVkDevice(),
-		bufferSize,
-		vk::BufferUsageFlagBits::eTransferSrc,
-		vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
-		stagingBuffer,
-		stagingBufferMemory);
-
-	void* data = nullptr;
-	ERM_VK_CHECK(device->mapMemory(stagingBufferMemory, 0, bufferSize, {}, &data));
-	memcpy(data, bufferData, static_cast<size_t>(bufferSize));
-	device->unmapMemory(stagingBufferMemory);
-
-	CreateBuffer(
-		physicalDevice,
-		device.GetVkDevice(),
-		bufferSize,
-		vk::BufferUsageFlagBits::eTransferDst | bufferUsage,
-		vk::MemoryPropertyFlagBits::eDeviceLocal,
-		dstBuffer,
-		dstBufferMemory);
-
-	CopyBufferToBuffer(
-		device,
-		stagingBuffer,
-		dstBuffer,
-		bufferSize);
-
-	device->destroyBuffer(stagingBuffer);
-	device->freeMemory(stagingBufferMemory);
-}
-
 template<>
 vk::PrimitiveTopology ToVulkanValue(DrawMode mode)
 {
@@ -677,6 +221,546 @@ vk::DescriptorType ToVulkanValue(DescriptorType type)
 			ERM_ASSERT(false);
 			return vk::DescriptorType::eUniformBuffer;
 	}
+}
+
+template<>
+vk::BufferUsageFlagBits ToVulkanValue(BufferUsage usage)
+{
+	switch (usage)
+	{
+		case BufferUsage::TRANSFER_SRC:
+			return vk::BufferUsageFlagBits::eTransferSrc;
+		case BufferUsage::TRANSFER_DST:
+			return vk::BufferUsageFlagBits::eTransferDst;
+		case BufferUsage::UNIFORM_BUFFER:
+			return vk::BufferUsageFlagBits::eUniformBuffer;
+		case BufferUsage::STORAGE_BUFFER:
+			return vk::BufferUsageFlagBits::eStorageBuffer;
+		case BufferUsage::INDEX_BUFFER:
+			return vk::BufferUsageFlagBits::eIndexBuffer;
+		case BufferUsage::VERTEX_BUFFER:
+			return vk::BufferUsageFlagBits::eVertexBuffer;
+		case BufferUsage::SHADER_DEVICE_ADDRESS:
+			return vk::BufferUsageFlagBits::eShaderDeviceAddress;
+		case BufferUsage::ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY:
+			return vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR;
+		case BufferUsage::ACCELERATION_STRUCTURE_STORAGE:
+			return vk::BufferUsageFlagBits::eAccelerationStructureStorageKHR;
+		case BufferUsage::SHADER_BINDING_TABLE:
+			return vk::BufferUsageFlagBits::eShaderBindingTableKHR;
+		default:
+			ERM_ASSERT(false);
+			return vk::BufferUsageFlagBits::eTransferSrc;
+	}
+}
+
+template<>
+vk::MemoryPropertyFlagBits ToVulkanValue(MemoryProperty property)
+{
+	switch (property)
+	{
+		case MemoryProperty::DEVICE_LOCAL:
+			return vk::MemoryPropertyFlagBits::eDeviceLocal;
+		case MemoryProperty::HOST_VISIBLE:
+			return vk::MemoryPropertyFlagBits::eHostVisible;
+		case MemoryProperty::HOST_COHERENT:
+			return vk::MemoryPropertyFlagBits::eHostCoherent;
+		case MemoryProperty::HOST_CACHED:
+			return vk::MemoryPropertyFlagBits::eHostCached;
+		case MemoryProperty::LAZILY_ALLOCATED:
+			return vk::MemoryPropertyFlagBits::eLazilyAllocated;
+		case MemoryProperty::PROTECTED:
+			return vk::MemoryPropertyFlagBits::eProtected;
+		default:
+			ERM_ASSERT(false);
+			return vk::MemoryPropertyFlagBits::eDeviceLocal;
+	}
+}
+
+template<>
+vk::BufferUsageFlags ToVulkanValue(BufferUsageFlags flags)
+{
+	vk::BufferUsageFlags result;
+
+	for (uint32_t i = 1; i < static_cast<uint32_t>(BufferUsage::COUNT); i *= 2)
+	{
+		if ((flags & static_cast<BufferUsage>(i)) == static_cast<BufferUsage>(i))
+			result |= ToVulkanValue<vk::BufferUsageFlagBits>(static_cast<BufferUsage>(i));
+	}
+
+	return result;
+}
+
+template<>
+vk::MemoryPropertyFlags ToVulkanValue(MemoryPropertyFlags flags)
+{
+	vk::MemoryPropertyFlags result;
+
+	for (uint32_t i = 1; i < static_cast<uint32_t>(MemoryProperty::COUNT); i *= 2)
+	{
+		if ((flags & static_cast<MemoryProperty>(i)) == static_cast<MemoryProperty>(i))
+			result |= ToVulkanValue<vk::MemoryPropertyFlagBits>(static_cast<MemoryProperty>(i));
+	}
+
+	return result;
+}
+
+QueueFamilyIndices FindQueueFamilies(vk::PhysicalDevice device, vk::SurfaceKHR surface)
+{
+	QueueFamilyIndices indices;
+
+	std::vector<vk::QueueFamilyProperties> queueFamilies = device.getQueueFamilyProperties();
+
+	for (uint32_t i = 0; i < static_cast<uint32_t>(queueFamilies.size()); ++i)
+	{
+		if (queueFamilies[i].queueFlags & vk::QueueFlagBits::eGraphics)
+		{
+			indices.mGraphicsFamily = i;
+		}
+
+		if (device.getSurfaceSupportKHR(i, surface))
+		{
+			indices.mPresentFamily = i;
+		}
+	}
+
+	return indices;
+}
+
+SwapChainSupportDetails QuerySwapChainSupport(vk::PhysicalDevice device, vk::SurfaceKHR surface)
+{
+	SwapChainSupportDetails details;
+
+	details.mCapabilities = device.getSurfaceCapabilitiesKHR(surface);
+	details.mFormats = device.getSurfaceFormatsKHR(surface);
+	details.mPresentModes = device.getSurfacePresentModesKHR(surface);
+
+	return details;
+}
+
+bool CheckDeviceExtensionSupport(vk::PhysicalDevice device, const std::vector<const char*>& deviceExtensions)
+{
+	std::vector<vk::ExtensionProperties> availableExtensions = device.enumerateDeviceExtensionProperties();
+	std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
+
+	for (const vk::ExtensionProperties& extension : availableExtensions)
+	{
+		requiredExtensions.erase(extension.extensionName);
+	}
+
+	return requiredExtensions.empty();
+}
+
+bool IsDeviceSuitable(vk::PhysicalDevice device, vk::SurfaceKHR surface, const std::vector<const char*>& deviceExtensions)
+{
+	vk::PhysicalDeviceProperties deviceProperties = device.getProperties();
+	const bool isSuitable = FindQueueFamilies(device, surface).IsComplete() && CheckDeviceExtensionSupport(device, deviceExtensions);
+
+	bool swapChainAdequate = false;
+	if (isSuitable)
+	{
+		SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(device, surface);
+		swapChainAdequate = !swapChainSupport.mFormats.empty() && !swapChainSupport.mPresentModes.empty();
+	}
+
+	std::cout << "Checking compatibility of: " << deviceProperties.deviceName << " -> " << std::boolalpha << (isSuitable && swapChainAdequate) << std::endl;
+
+	vk::PhysicalDeviceFeatures supportedFeatures = device.getFeatures();
+
+	return isSuitable && swapChainAdequate && supportedFeatures.samplerAnisotropy && supportedFeatures.fillModeNonSolid;
+}
+
+vk::SurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& availableFormats)
+{
+	for (const vk::SurfaceFormatKHR& availableFormat : availableFormats)
+	{
+#if defined(ERM_RAY_TRACING_ENABLED)
+		if (availableFormat.format == vk::Format::eR8G8B8A8Unorm)
+#else
+		if (availableFormat.format == vk::Format::eB8G8R8A8Srgb && availableFormat.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear)
+#endif
+		{
+			return availableFormat;
+		}
+	}
+	return availableFormats[0];
+}
+
+vk::PresentModeKHR ChooseSwapPresentMode(const std::vector<vk::PresentModeKHR>& availablePresentModes)
+{
+	for (const vk::PresentModeKHR& availablePresentMode : availablePresentModes)
+	{
+		if (availablePresentMode == vk::PresentModeKHR::eMailbox)
+		{
+			return availablePresentMode;
+		}
+	}
+	return vk::PresentModeKHR::eFifo;
+}
+
+vk::Format FindSupportedDepthFormat(
+	vk::PhysicalDevice physicalDevice,
+	const std::vector<vk::Format>& candidates,
+	vk::ImageTiling tiling,
+	vk::FormatFeatureFlags features)
+{
+	for (vk::Format format : candidates)
+	{
+		vk::FormatProperties props = physicalDevice.getFormatProperties(format);
+
+		if (tiling == vk::ImageTiling::eLinear && (props.linearTilingFeatures & features) == features)
+		{
+			return format;
+		}
+		else if (tiling == vk::ImageTiling::eOptimal && (props.optimalTilingFeatures & features) == features)
+		{
+			return format;
+		}
+	}
+	throw std::runtime_error("Failed to find supported format");
+}
+
+vk::Format FindDepthFormat(vk::PhysicalDevice physicalDevice)
+{
+	return FindSupportedDepthFormat(
+		physicalDevice,
+		{vk::Format::eD32Sfloat, vk::Format::eD32SfloatS8Uint, vk::Format::eD24UnormS8Uint},
+		vk::ImageTiling::eOptimal,
+		vk::FormatFeatureFlagBits::eDepthStencilAttachment);
+}
+
+vk::CommandBuffer BeginSingleTimeCommands(Device& device)
+{
+	vk::CommandBufferAllocateInfo allocInfo {};
+	allocInfo.level = vk::CommandBufferLevel::ePrimary;
+	allocInfo.commandPool = device.GetCommandPool();
+	allocInfo.commandBufferCount = 1;
+
+	vk::CommandBuffer commandBuffer;
+	ERM_VK_CHECK(device->allocateCommandBuffers(&allocInfo, &commandBuffer));
+
+	vk::CommandBufferBeginInfo beginInfo {};
+	beginInfo.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit;
+
+	commandBuffer.begin(beginInfo);
+
+	return commandBuffer;
+}
+
+void EndSingleTimeCommands(
+	Device& device,
+	vk::CommandBuffer commandBuffer)
+{
+	commandBuffer.end();
+
+	vk::SubmitInfo submitInfo {};
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &commandBuffer;
+
+	ERM_VK_CHECK(device.GetGraphicsQueue().submit(1, &submitInfo, nullptr));
+	device.GetGraphicsQueue().waitIdle();
+
+	device->freeCommandBuffers(device.GetCommandPool(), 1, &commandBuffer);
+}
+
+vk::Extent2D ChooseSwapExtent(
+	const vk::SurfaceCapabilitiesKHR& capabilities,
+	int fallbackWidth,
+	int fallbackHeight)
+{
+	if (capabilities.currentExtent.width != UINT32_MAX)
+	{
+		return capabilities.currentExtent;
+	}
+	else
+	{
+		vk::Extent2D actualExtent = {static_cast<uint32_t>(fallbackWidth), static_cast<uint32_t>(fallbackHeight)};
+
+		actualExtent.width = std::max(capabilities.minImageExtent.width, std::min(capabilities.maxImageExtent.width, actualExtent.width));
+		actualExtent.height = std::max(capabilities.minImageExtent.height, std::min(capabilities.maxImageExtent.height, actualExtent.height));
+
+		return actualExtent;
+	}
+}
+
+uint32_t FindMemoryType(
+	vk::PhysicalDevice physicalDevice,
+	uint32_t typeFilter,
+	MemoryPropertyFlags properties)
+{
+	vk::PhysicalDeviceMemoryProperties memProperties;
+	physicalDevice.getMemoryProperties(&memProperties);
+
+	const auto vkProperties = ToVulkanValue<vk::MemoryPropertyFlags>(properties);
+
+	for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
+	{
+		if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & vkProperties) == vkProperties)
+		{
+			return i;
+		}
+	}
+
+	throw std::runtime_error("Failed to find suitable memory type");
+}
+
+void CreateBuffer(
+	vk::PhysicalDevice physicalDevice,
+	vk::Device device,
+	vk::DeviceSize size,
+	vk::Buffer& buffer,
+	vk::DeviceMemory& bufferMemory,
+	BufferUsageFlags usage,
+	MemoryPropertyFlags properties)
+{
+	vk::BufferCreateInfo bufferInfo = {};
+	bufferInfo.size = size;
+	bufferInfo.usage = ToVulkanValue<vk::BufferUsageFlags>(usage);
+	bufferInfo.sharingMode = vk::SharingMode::eExclusive;
+
+	ERM_VK_CHECK(device.createBuffer(&bufferInfo, nullptr, &buffer));
+
+	vk::MemoryRequirements memRequirements;
+	device.getBufferMemoryRequirements(buffer, &memRequirements);
+
+	vk::MemoryAllocateInfo allocInfo = {};
+	allocInfo.allocationSize = memRequirements.size;
+	allocInfo.memoryTypeIndex = FindMemoryType(physicalDevice, memRequirements.memoryTypeBits, properties);
+
+	vk::MemoryAllocateFlagsInfo flagsInfo;
+	if ((usage & BufferUsage::SHADER_DEVICE_ADDRESS) == BufferUsage::SHADER_DEVICE_ADDRESS)
+		flagsInfo.flags = vk::MemoryAllocateFlagBits::eDeviceAddress;
+	allocInfo.pNext = &flagsInfo;
+
+	ERM_VK_CHECK(device.allocateMemory(&allocInfo, nullptr, &bufferMemory));
+	device.bindBufferMemory(buffer, bufferMemory, 0);
+}
+
+void CreateBufferUnique(
+	vk::PhysicalDevice physicalDevice,
+	vk::Device device,
+	vk::DeviceSize size,
+	vk::UniqueBuffer& buffer,
+	vk::UniqueDeviceMemory& bufferMemory,
+	BufferUsageFlags usage,
+	MemoryPropertyFlags properties)
+{
+	vk::BufferCreateInfo bufferInfo = {};
+	bufferInfo.size = size;
+	bufferInfo.usage = ToVulkanValue<vk::BufferUsageFlags>(usage);
+	bufferInfo.sharingMode = vk::SharingMode::eExclusive;
+
+	buffer = device.createBufferUnique(bufferInfo);
+
+	vk::MemoryRequirements memRequirements;
+	device.getBufferMemoryRequirements(buffer.get(), &memRequirements);
+
+	vk::MemoryAllocateInfo allocInfo = {};
+	allocInfo.allocationSize = memRequirements.size;
+	allocInfo.memoryTypeIndex = FindMemoryType(physicalDevice, memRequirements.memoryTypeBits, properties);
+
+	vk::MemoryAllocateFlagsInfo flagsInfo;
+	if ((usage & BufferUsage::SHADER_DEVICE_ADDRESS) == BufferUsage::SHADER_DEVICE_ADDRESS)
+		flagsInfo.flags = vk::MemoryAllocateFlagBits::eDeviceAddress;
+	allocInfo.pNext = &flagsInfo;
+
+	bufferMemory = device.allocateMemoryUnique(allocInfo);
+	device.bindBufferMemory(buffer.get(), bufferMemory.get(), 0);
+}
+
+void CopyBufferToBuffer(
+	Device& device,
+	vk::Buffer& srcBuffer,
+	vk::Buffer& dstBuffer,
+	vk::DeviceSize size)
+{
+	vk::CommandBuffer commandBuffer = BeginSingleTimeCommands(device);
+
+	vk::BufferCopy copyRegion {};
+	copyRegion.size = size;
+	commandBuffer.copyBuffer(srcBuffer, dstBuffer, 1, &copyRegion);
+
+	EndSingleTimeCommands(device, commandBuffer);
+}
+
+void CreateImage(
+	vk::PhysicalDevice physicalDevice,
+	vk::Device device,
+	const vk::ImageCreateInfo& createInfo,
+	vk::Image& image,
+	vk::DeviceMemory& imageMemory,
+	MemoryPropertyFlags properties)
+{
+	ERM_VK_CHECK(device.createImage(&createInfo, nullptr, &image));
+
+	vk::MemoryRequirements memRequirements;
+	device.getImageMemoryRequirements(image, &memRequirements);
+
+	vk::MemoryAllocateInfo allocInfo {};
+	allocInfo.allocationSize = memRequirements.size;
+	allocInfo.memoryTypeIndex = FindMemoryType(physicalDevice, memRequirements.memoryTypeBits, properties);
+
+	ERM_VK_CHECK(device.allocateMemory(&allocInfo, nullptr, &imageMemory));
+	device.bindImageMemory(image, imageMemory, 0);
+}
+
+void CreateImageUnique(
+	vk::PhysicalDevice physicalDevice,
+	vk::Device device,
+	const vk::ImageCreateInfo& createInfo,
+	vk::UniqueImage& image,
+	vk::UniqueDeviceMemory& imageMemory,
+	MemoryPropertyFlags properties)
+{
+	image = device.createImageUnique(createInfo);
+
+	vk::MemoryRequirements memRequirements;
+	device.getImageMemoryRequirements(image.get(), &memRequirements);
+
+	vk::MemoryAllocateInfo allocInfo {};
+	allocInfo.allocationSize = memRequirements.size;
+	allocInfo.memoryTypeIndex = FindMemoryType(physicalDevice, memRequirements.memoryTypeBits, properties);
+
+	imageMemory = device.allocateMemoryUnique(allocInfo);
+	device.bindImageMemory(image.get(), imageMemory.get(), 0);
+}
+
+vk::ImageView CreateImageView(
+	vk::Device device,
+	const vk::ImageViewCreateInfo& createInfo)
+{
+	vk::ImageView imageView;
+	ERM_VK_CHECK(device.createImageView(&createInfo, nullptr, &imageView));
+
+	return imageView;
+}
+
+vk::UniqueImageView CreateImageViewUnique(
+	vk::Device device,
+	const vk::ImageViewCreateInfo& createInfo)
+{
+	return device.createImageViewUnique(createInfo);
+}
+
+void TransitionImageLayout(
+	Device& device,
+	vk::Image image,
+	vk::Format /*format*/,
+	vk::ImageLayout oldLayout,
+	vk::ImageLayout newLayout,
+	uint32_t layerCount /* = 1*/)
+{
+	vk::CommandBuffer commandBuffer = BeginSingleTimeCommands(device);
+
+	vk::ImageMemoryBarrier barrier {};
+	barrier.oldLayout = oldLayout;
+	barrier.newLayout = newLayout;
+	barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	barrier.image = image;
+	barrier.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
+	barrier.subresourceRange.baseMipLevel = 0;
+	barrier.subresourceRange.levelCount = 1;
+	barrier.subresourceRange.baseArrayLayer = 0;
+	barrier.subresourceRange.layerCount = layerCount;
+
+	vk::PipelineStageFlags sourceStage;
+	vk::PipelineStageFlags destinationStage;
+
+	if (oldLayout == vk::ImageLayout::eUndefined && newLayout == vk::ImageLayout::eTransferDstOptimal)
+	{
+		barrier.srcAccessMask = {};
+		barrier.dstAccessMask = vk::AccessFlagBits::eTransferWrite;
+
+		sourceStage = vk::PipelineStageFlagBits::eTopOfPipe;
+		destinationStage = vk::PipelineStageFlagBits::eTransfer;
+	}
+	else if (oldLayout == vk::ImageLayout::eTransferDstOptimal && newLayout == vk::ImageLayout::eShaderReadOnlyOptimal)
+	{
+		barrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
+		barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
+
+		sourceStage = vk::PipelineStageFlagBits::eTransfer;
+		destinationStage = vk::PipelineStageFlagBits::eFragmentShader;
+	}
+	else
+	{
+		throw std::invalid_argument("Unsupported layout transition");
+	}
+
+	commandBuffer.pipelineBarrier(sourceStage, destinationStage, {}, {}, nullptr, 0, nullptr, 1, &barrier);
+
+	EndSingleTimeCommands(device, commandBuffer);
+}
+
+void CopyBufferToImage(
+	Device& device,
+	vk::Buffer buffer,
+	vk::Image image,
+	uint32_t width,
+	uint32_t height,
+	uint32_t layerCount /* = 1*/)
+{
+	vk::CommandBuffer commandBuffer = BeginSingleTimeCommands(device);
+
+	vk::BufferImageCopy region {};
+	region.bufferOffset = 0;
+	region.bufferRowLength = 0;
+	region.bufferImageHeight = 0;
+	region.imageSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
+	region.imageSubresource.mipLevel = 0;
+	region.imageSubresource.baseArrayLayer = 0;
+	region.imageSubresource.layerCount = layerCount;
+	region.imageOffset = vk::Offset3D(0, 0, 0);
+	region.imageExtent = vk::Extent3D(width, height, 1);
+
+	commandBuffer.copyBufferToImage(buffer, image, vk::ImageLayout::eTransferDstOptimal, 1, &region);
+
+	EndSingleTimeCommands(device, commandBuffer);
+}
+
+void CreateDeviceLocalBuffer(
+	Device& device,
+	vk::PhysicalDevice physicalDevice,
+	vk::DeviceSize bufferSize,
+	void* bufferData,
+	vk::Buffer& dstBuffer,
+	vk::DeviceMemory& dstBufferMemory,
+	BufferUsageFlags bufferUsage)
+{
+	vk::Buffer stagingBuffer;
+	vk::DeviceMemory stagingBufferMemory;
+	CreateBuffer(
+		physicalDevice,
+		device.GetVkDevice(),
+		bufferSize,
+		stagingBuffer,
+		stagingBufferMemory,
+		BufferUsage::TRANSFER_SRC,
+		MemoryProperty::HOST_VISIBLE | MemoryProperty::HOST_COHERENT);
+
+	void* data = nullptr;
+	ERM_VK_CHECK(device->mapMemory(stagingBufferMemory, 0, bufferSize, {}, &data));
+	memcpy(data, bufferData, static_cast<size_t>(bufferSize));
+	device->unmapMemory(stagingBufferMemory);
+
+	CreateBuffer(
+		physicalDevice,
+		device.GetVkDevice(),
+		bufferSize,
+		dstBuffer,
+		dstBufferMemory,
+		bufferUsage | BufferUsage::TRANSFER_DST,
+		MemoryProperty::DEVICE_LOCAL);
+
+	CopyBufferToBuffer(
+		device,
+		stagingBuffer,
+		dstBuffer,
+		bufferSize);
+
+	device->destroyBuffer(stagingBuffer);
+	device->freeMemory(stagingBufferMemory);
 }
 
 } // namespace erm::VkUtils

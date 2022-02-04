@@ -140,7 +140,7 @@ void RTRenderingResources::BuildBlas(RTRenderData& data, vk::BuildAccelerationSt
 		std::unique_ptr<DeviceBuffer> buffer = std::make_unique<DeviceBuffer>(
 			mDevice,
 			sizeInfo.accelerationStructureSize,
-			vk::BufferUsageFlagBits::eShaderDeviceAddress | vk::BufferUsageFlagBits::eAccelerationStructureStorageKHR);
+			BufferUsage::SHADER_DEVICE_ADDRESS | BufferUsage::ACCELERATION_STRUCTURE_STORAGE);
 
 		// Create acceleration structure object. Not yet bound to memory.
 		vk::AccelerationStructureCreateInfoKHR createInfo;
@@ -159,7 +159,7 @@ void RTRenderingResources::BuildBlas(RTRenderData& data, vk::BuildAccelerationSt
 		maxScratch = std::max(maxScratch, sizeInfo.buildScratchSize);
 	}
 
-	DeviceBuffer scratchBuffer(mDevice, maxScratch, vk::BufferUsageFlagBits::eShaderDeviceAddress | vk::BufferUsageFlagBits::eStorageBuffer);
+	DeviceBuffer scratchBuffer(mDevice, maxScratch, BufferUsage::SHADER_DEVICE_ADDRESS | BufferUsage::STORAGE_BUFFER);
 
 	vk::BufferDeviceAddressInfo bufferInfo;
 	bufferInfo.buffer = scratchBuffer.GetBuffer();
@@ -272,7 +272,7 @@ void RTRenderingResources::BuildBlas(RTRenderData& data, vk::BuildAccelerationSt
 			std::unique_ptr<DeviceBuffer> buffer = std::make_unique<DeviceBuffer>(
 				mDevice,
 				compactSizes[i],
-				vk::BufferUsageFlagBits::eShaderDeviceAddress | vk::BufferUsageFlagBits::eAccelerationStructureStorageKHR);
+				BufferUsage::SHADER_DEVICE_ADDRESS | BufferUsage::ACCELERATION_STRUCTURE_STORAGE);
 
 			// Creating a compact version of the AS
 			vk::AccelerationStructureCreateInfoKHR asCreateInfo;
@@ -341,7 +341,7 @@ void RTRenderingResources::UpdateTopLevelAS(RTRenderData& data, vk::BuildAcceler
 	vk::DeviceSize instanceDescsSizeInBytes = targetGeometries * sizeof(vk::AccelerationStructureInstanceKHR);
 
 	// Allocate the instance buffer and copy its contents from host to device memory
-	DeviceBuffer instancesBuffer(mDevice, instanceDescsSizeInBytes, vk::BufferUsageFlagBits::eShaderDeviceAddress);
+	DeviceBuffer instancesBuffer(mDevice, instanceDescsSizeInBytes, BufferUsage::SHADER_DEVICE_ADDRESS | BufferUsage::ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY);
 
 	vk::CommandBuffer cmd = VkUtils::BeginSingleTimeCommands(mDevice);
 	instancesBuffer.Update(cmd, geometryInstances.data());
@@ -402,7 +402,7 @@ void RTRenderingResources::UpdateTopLevelAS(RTRenderData& data, vk::BuildAcceler
 		std::unique_ptr<DeviceBuffer> buffer = std::make_unique<DeviceBuffer>(
 			mDevice,
 			sizeInfo.accelerationStructureSize,
-			vk::BufferUsageFlagBits::eShaderDeviceAddress | vk::BufferUsageFlagBits::eAccelerationStructureStorageKHR);
+			BufferUsage::SHADER_DEVICE_ADDRESS | BufferUsage::ACCELERATION_STRUCTURE_STORAGE);
 
 		vk::AccelerationStructureCreateInfoKHR createInfo;
 		createInfo.type = vk::AccelerationStructureTypeKHR::eTopLevel;
@@ -414,7 +414,7 @@ void RTRenderingResources::UpdateTopLevelAS(RTRenderData& data, vk::BuildAcceler
 	}
 
 	// Allocate the scratch memory
-	DeviceBuffer scratchBuffer(mDevice, sizeInfo.buildScratchSize, vk::BufferUsageFlagBits::eAccelerationStructureStorageKHR | vk::BufferUsageFlagBits::eShaderDeviceAddress);
+	DeviceBuffer scratchBuffer(mDevice, sizeInfo.buildScratchSize, BufferUsage::STORAGE_BUFFER | BufferUsage::ACCELERATION_STRUCTURE_STORAGE | BufferUsage::SHADER_DEVICE_ADDRESS);
 
 	bufferInfo.buffer = scratchBuffer.GetBuffer();
 	vk::DeviceAddress scratchAddress = mDevice->getBufferAddress(bufferInfo);

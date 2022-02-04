@@ -9,11 +9,11 @@ namespace erm {
 
 using LayoutBindingsMap = std::unordered_map<SetIdx, std::vector<vk::DescriptorSetLayoutBinding>>;
 
-class VulkanShaderProgram : public IShaderProgram
+class ShaderProgram : public IShaderProgram
 {
 public:
-	VulkanShaderProgram(Device& device, const char* shaderPath);
-	virtual ~VulkanShaderProgram() = default;
+	ShaderProgram(Device& device, const char* shaderPath);
+	virtual ~ShaderProgram() = default;
 
 	inline const LayoutBindingsMap& GetLayoutBindingsMap() const { return mLayoutBindingsMap; }
 

@@ -204,9 +204,9 @@ void IRenderer::CreateDepthResources()
 		mDevice.GetVkPhysicalDevice(),
 		mDevice.GetVkDevice(),
 		imageInfo,
-		vk::MemoryPropertyFlagBits::eDeviceLocal,
 		depthImage,
-		depthImageMemory);
+		depthImageMemory,
+		MemoryProperty::DEVICE_LOCAL);
 
 	vk::ImageViewCreateInfo viewInfo {};
 	viewInfo.image = depthImage;

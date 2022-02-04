@@ -8,7 +8,7 @@
 #include "erm/rendering/data_structs/DeviceBindingResources.h"
 #include "erm/rendering/data_structs/HostBindingResources.h"
 #include "erm/rendering/data_structs/PipelineData.h"
-#include "erm/rendering/shaders/VulkanShaderProgram.h"
+#include "erm/rendering/shaders/ShaderProgram.h"
 
 #include "erm/utils/Profiler.h"
 #include "erm/utils/Utils.h"
@@ -78,7 +78,7 @@ void RTPipelineResources::UpdateCommandBuffer(
 
 void RTPipelineResources::CreatePipeline()
 {
-	VulkanShaderProgram* shader = static_cast<VulkanShaderProgram*>(mRenderData.mPipelineConfigs.mShaderProgram);
+	ShaderProgram* shader = static_cast<ShaderProgram*>(mRenderData.mPipelineConfigs.mShaderProgram);
 
 	ERM_ASSERT(shader);
 
@@ -263,7 +263,7 @@ void RTPipelineResources::CreateBindingTable()
 		mSBTBuffer = std::make_unique<HostBuffer>(
 			mDevice,
 			sbtSize,
-			vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eShaderDeviceAddress | vk::BufferUsageFlagBits::eShaderBindingTableKHR);
+			BufferUsage::TRANSFER_SRC | BufferUsage::SHADER_DEVICE_ADDRESS | BufferUsage::SHADER_BINDING_TABLE);
 	}
 
 	// Map the SBT buffer and write in the handles.

@@ -55,7 +55,7 @@ void CubeMap::CreateTextureImage()
 		ERM_ASSERT(mLocalBuffer);
 
 		if (!stagingBuffer)
-			stagingBuffer = std::make_unique<HostBuffer>(mDevice, imageSize * kFaces.size(), vk::BufferUsageFlagBits::eTransferSrc);
+			stagingBuffer = std::make_unique<HostBuffer>(mDevice, imageSize * kFaces.size(), BufferUsage::TRANSFER_SRC);
 		stagingBuffer->Update(mLocalBuffer, BufferInfo(i * imageSize, imageSize));
 
 		stbi_image_free(mLocalBuffer);
@@ -80,9 +80,9 @@ void CubeMap::CreateTextureImage()
 		mDevice.GetVkPhysicalDevice(),
 		mDevice.GetVkDevice(),
 		imageInfo,
-		vk::MemoryPropertyFlagBits::eDeviceLocal,
 		mTextureImage,
-		mTextureImageMemory);
+		mTextureImageMemory,
+		MemoryProperty::DEVICE_LOCAL);
 
 	VkUtils::TransitionImageLayout(
 		mDevice,

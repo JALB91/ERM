@@ -1,5 +1,8 @@
 #pragma once
 
+#include "erm/rendering/enums/BufferUsage.h"
+#include "erm/rendering/enums/MemoryProperty.h"
+
 #include <vulkan/vulkan.hpp>
 
 #include <vector>
@@ -40,7 +43,7 @@ extern vk::Extent2D ChooseSwapExtent(
 extern uint32_t FindMemoryType(
 	vk::PhysicalDevice physicalDevice,
 	uint32_t typeFilter,
-	vk::MemoryPropertyFlags properties);
+	MemoryPropertyFlags mpf);
 
 extern vk::CommandBuffer BeginSingleTimeCommands(Device& device);
 
@@ -52,19 +55,19 @@ extern void CreateBuffer(
 	vk::PhysicalDevice physicalDevice,
 	vk::Device device,
 	vk::DeviceSize size,
-	vk::BufferUsageFlags usage,
-	vk::MemoryPropertyFlags properties,
 	vk::Buffer& buffer,
-	vk::DeviceMemory& bufferMemory);
+	vk::DeviceMemory& bufferMemory,
+	BufferUsageFlags buf,
+	MemoryPropertyFlags mpf);
 
 extern void CreateBufferUnique(
 	vk::PhysicalDevice physicalDevice,
 	vk::Device device,
 	vk::DeviceSize size,
-	vk::BufferUsageFlags usage,
-	vk::MemoryPropertyFlags properties,
 	vk::UniqueBuffer& buffer,
-	vk::UniqueDeviceMemory& bufferMemory);
+	vk::UniqueDeviceMemory& bufferMemory,
+	BufferUsageFlags buf,
+	MemoryPropertyFlags mpf);
 
 extern void CopyBufferToBuffer(
 	Device& device,
@@ -76,17 +79,17 @@ extern void CreateImage(
 	vk::PhysicalDevice physicalDevice,
 	vk::Device device,
 	const vk::ImageCreateInfo& createInfo,
-	vk::MemoryPropertyFlags properties,
 	vk::Image& image,
-	vk::DeviceMemory& imageMemory);
+	vk::DeviceMemory& imageMemory,
+	MemoryPropertyFlags mpf);
 
 extern void CreateImageUnique(
 	vk::PhysicalDevice physicalDevice,
 	vk::Device device,
 	const vk::ImageCreateInfo& createInfo,
-	vk::MemoryPropertyFlags properties,
 	vk::UniqueImage& image,
-	vk::UniqueDeviceMemory& imageMemory);
+	vk::UniqueDeviceMemory& imageMemory,
+	MemoryPropertyFlags mpf);
 
 extern vk::ImageView CreateImageView(
 	vk::Device device,
@@ -117,11 +120,11 @@ extern void CreateDeviceLocalBuffer(
 	vk::CommandPool commandPool,
 	vk::PhysicalDevice physicalDevice,
 	vk::Device device,
-	vk::BufferUsageFlags bufferUsage,
 	vk::DeviceSize bufferSize,
 	void* bufferData,
 	vk::Buffer& dstBuffer,
-	vk::DeviceMemory& dstBufferMemory);
+	vk::DeviceMemory& dstBufferMemory,
+	BufferUsageFlags buf);
 
 template<typename T, typename S>
 T ToVulkanValue(S s);
