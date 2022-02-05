@@ -68,6 +68,36 @@ public:
 		return mMask != rhs.mMask;
 	}
 
+	bool operator<(uint32_t rhs) const
+	{
+		return mMask < rhs;
+	}
+
+	bool operator<=(uint32_t rhs) const
+	{
+		return mMask <= rhs;
+	}
+
+	bool operator>(uint32_t rhs) const
+	{
+		return mMask > rhs;
+	}
+
+	bool operator>=(uint32_t rhs) const
+	{
+		return mMask >= rhs;
+	}
+
+	bool operator==(uint32_t rhs) const
+	{
+		return mMask == rhs;
+	}
+
+	bool operator!=(uint32_t rhs) const
+	{
+		return mMask != rhs;
+	}
+
 	// logical operator
 	bool operator!() const
 	{

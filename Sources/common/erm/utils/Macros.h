@@ -51,35 +51,70 @@
  */
 #define ERM_MAP_LIST(f, ...) ERM_EVAL(ERM_MAP_LIST1(f, __VA_ARGS__, ()()(), ()()(), ()()(), 0))
 
-#define ERM_ENUM_WITH_FLAGS(NAME, ...)      \
-	enum class NAME : uint32_t              \
-	{                                       \
-		__VA_ARGS__,                        \
-		COUNT                               \
-	};                                      \
-                                            \
-	using NAME##Flags = Flags<NAME>;        \
-                                            \
-	inline NAME##Flags                      \
-		operator|(NAME bit0, NAME bit1)     \
-	{                                       \
-		return NAME##Flags(bit0) | bit1;    \
-	}                                       \
-                                            \
-	inline NAME##Flags                      \
-		operator&(NAME bit0, NAME bit1)     \
-	{                                       \
-		return NAME##Flags(bit0) & bit1;    \
-	}                                       \
-                                            \
-	inline NAME##Flags                      \
-		operator^(NAME bit0, NAME bit1)     \
-	{                                       \
-		return NAME##Flags(bit0) ^ bit1;    \
-	}                                       \
-                                            \
-	inline NAME##Flags operator~(NAME bits) \
-                                            \
-	{                                       \
-		return ~(NAME##Flags(bits));        \
+#define ERM_ENUM_WITH_FLAGS(NAME, ...)                            \
+	enum class NAME : uint32_t                                    \
+	{                                                             \
+		__VA_ARGS__,                                              \
+		COUNT                                                     \
+	};                                                            \
+                                                                  \
+	using NAME##Flags = Flags<NAME>;                              \
+                                                                  \
+	inline NAME##Flags                                            \
+		operator|(NAME bit0, NAME bit1)                           \
+	{                                                             \
+		return NAME##Flags(bit0) | bit1;                          \
+	}                                                             \
+                                                                  \
+	inline NAME##Flags                                            \
+		operator&(NAME bit0, NAME bit1)                           \
+	{                                                             \
+		return NAME##Flags(bit0) & bit1;                          \
+	}                                                             \
+                                                                  \
+	inline NAME##Flags                                            \
+		operator^(NAME bit0, NAME bit1)                           \
+	{                                                             \
+		return NAME##Flags(bit0) ^ bit1;                          \
+	}                                                             \
+                                                                  \
+	inline NAME##Flags operator~(NAME bits)                       \
+                                                                  \
+	{                                                             \
+		return ~(NAME##Flags(bits));                              \
+	}                                                             \
+	inline NAME##Flags operator|(NAME bit0, uint32_t bit1)        \
+	{                                                             \
+		return NAME##Flags(bit0) | static_cast<NAME>(bit1);       \
+	}                                                             \
+	inline NAME##Flags                                            \
+		operator&(NAME bit0, uint32_t bit1)                       \
+	{                                                             \
+		return NAME##Flags(bit0) & static_cast<NAME>(bit1);       \
+	}                                                             \
+                                                                  \
+	inline NAME##Flags                                            \
+		operator^(NAME bit0, uint32_t bit1)                       \
+	{                                                             \
+		return NAME##Flags(bit0) ^ static_cast<NAME>(bit1);       \
+	}                                                             \
+	inline NAME##Flags operator|(NAME##Flags bit0, uint32_t bit1) \
+	{                                                             \
+		return bit0 | static_cast<NAME>(bit1);                    \
+	}                                                             \
+	inline NAME##Flags                                            \
+		operator&(NAME##Flags bit0, uint32_t bit1)                \
+	{                                                             \
+		return bit0 & static_cast<NAME>(bit1);                    \
+	}                                                             \
+                                                                  \
+	inline NAME##Flags                                            \
+		operator^(NAME##Flags bit0, uint32_t bit1)                \
+	{                                                             \
+		return bit0 ^ static_cast<NAME>(bit1);                    \
+	}                                                             \
+	inline bool                                                   \
+		operator==(NAME bit0, uint32_t bit1)                      \
+	{                                                             \
+		return bit0 == static_cast<NAME>(bit1);                   \
 	}

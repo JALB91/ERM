@@ -242,12 +242,14 @@ vk::BufferUsageFlagBits ToVulkanValue(BufferUsage usage)
 			return vk::BufferUsageFlagBits::eVertexBuffer;
 		case BufferUsage::SHADER_DEVICE_ADDRESS:
 			return vk::BufferUsageFlagBits::eShaderDeviceAddress;
+#ifdef ERM_RAY_TRACING_ENABLED
 		case BufferUsage::ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY:
 			return vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR;
 		case BufferUsage::ACCELERATION_STRUCTURE_STORAGE:
 			return vk::BufferUsageFlagBits::eAccelerationStructureStorageKHR;
 		case BufferUsage::SHADER_BINDING_TABLE:
 			return vk::BufferUsageFlagBits::eShaderBindingTableKHR;
+#endif
 		default:
 			ERM_ASSERT(false);
 			return vk::BufferUsageFlagBits::eTransferSrc;
@@ -284,7 +286,7 @@ vk::BufferUsageFlags ToVulkanValue(BufferUsageFlags flags)
 
 	for (uint32_t i = 1; i < static_cast<uint32_t>(BufferUsage::COUNT); i *= 2)
 	{
-		if ((flags & static_cast<BufferUsage>(i)) == static_cast<BufferUsage>(i))
+		if ((flags & i) == i)
 			result |= ToVulkanValue<vk::BufferUsageFlagBits>(static_cast<BufferUsage>(i));
 	}
 
@@ -298,7 +300,7 @@ vk::MemoryPropertyFlags ToVulkanValue(MemoryPropertyFlags flags)
 
 	for (uint32_t i = 1; i < static_cast<uint32_t>(MemoryProperty::COUNT); i *= 2)
 	{
-		if ((flags & static_cast<MemoryProperty>(i)) == static_cast<MemoryProperty>(i))
+		if ((flags & i) == i)
 			result |= ToVulkanValue<vk::MemoryPropertyFlagBits>(static_cast<MemoryProperty>(i));
 	}
 
