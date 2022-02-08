@@ -24,11 +24,14 @@ void ShowShaderPathOptions(erm::Engine& engine, erm::Mesh& mesh)
 	if (ImGui::BeginCombo("Shader", currentPath.c_str()))
 	{
 		bool isSelected = currentPath == "";
+		ImGui::PushID("NO_SELECTABLE");
 		if (ImGui::Selectable("", &isSelected))
 		{
 			currentPath = "";
 			configs.mShaderProgram = nullptr;
 		}
+		ImGui::PopID();
+
 		for (unsigned int i = 0; i < all.size(); ++i)
 		{
 			isSelected = currentPath == all[i];
@@ -54,11 +57,14 @@ void ShowTexturePathOptions(erm::Engine& engine, erm::Texture** texture, const c
 	if (ImGui::BeginCombo(name, currentPath.c_str()))
 	{
 		bool isSelected = currentPath == "";
+		ImGui::PushID("NO_SELECTABLE");
 		if (ImGui::Selectable("", &isSelected))
 		{
 			currentPath = "";
 			*texture = nullptr;
 		}
+		ImGui::PopID();
+
 		for (unsigned int i = 0; i < all.size(); ++i)
 		{
 			isSelected = currentPath == all[i];

@@ -66,11 +66,13 @@ void ShowPathOptions(erm::Engine& engine, erm::ecs::AnimationComponent& animatio
 	if (ImGui::BeginCombo("Path", currentPath.c_str()))
 	{
 		bool isSelected = currentPath == "";
+		ImGui::PushID("NO_SELECTABLE");
 		if (ImGui::Selectable("", &isSelected))
 		{
 			currentPath = "";
 			animationComponent.mSkeletonAnimation = nullptr;
 		}
+		ImGui::PopID();
 
 		for (unsigned int i = 0; i < all.size(); ++i)
 		{

@@ -90,11 +90,13 @@ void ShowPathOptions(erm::Engine& engine, erm::ecs::SkeletonComponent& skeletonC
 	if (ImGui::BeginCombo("Path", currentPath.c_str()))
 	{
 		bool isSelected = currentPath == "";
+		ImGui::PushID("NO_SELECTABLE");
 		if (ImGui::Selectable("", &isSelected))
 		{
 			currentPath = "";
 			skeletonComponent.SetSkin(nullptr);
 		}
+		ImGui::PopID();
 
 		for (unsigned int i = 0; i < all.size(); ++i)
 		{

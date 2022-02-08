@@ -32,11 +32,13 @@ void ShowShadersDebug(erm::Engine& engine, bool& open)
 		if (ImGui::BeginCombo("ShaderProgram", selected ? selected->mPath.c_str() : ""))
 		{
 			bool isSelected = selected;
+			ImGui::PushID("NO_SELECTABLE");
 			if (ImGui::Selectable("", &isSelected))
 			{
 				hasChanged = selected;
 				selected = nullptr;
 			}
+			ImGui::PopID();
 
 			for (unsigned int i = 0; i < shaders.size(); ++i)
 			{
