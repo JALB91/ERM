@@ -81,13 +81,7 @@ private:
 		Model& model,
 		RenderingComponent& renderingComponent,
 		LightComponent* light,
-		CameraComponent* camera,
-		SkeletonComponent* skeletonComponent,
-		TransformComponent& cameraTransform,
-		const math::mat4& proj,
-		const math::mat4& viewInv,
-		const math::mat4& modelMat,
-		const math::vec3& lightPos);
+		SkeletonComponent* skeletonComponent);
 
 #ifdef ERM_RAY_TRACING_ENABLED
 	void ProcessForRayTracing(

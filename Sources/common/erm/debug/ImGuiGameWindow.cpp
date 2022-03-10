@@ -24,7 +24,6 @@ public:
 		: mEngine(engine)
 	{
 		mEngine.GetRenderer().AddSwapChainListener(this);
-		CreateTextures();
 	}
 
 	~SwapChainHelper()
@@ -32,13 +31,24 @@ public:
 
 	void SwapChainCleanup() override
 	{
-		mTextureIDs.clear();
 		mSwapChainUpdate = true;
 	}
 
 	void SwapChainCreated() override
+	{}
+
+	bool Update()
 	{
-		CreateTextures();
+		const bool result = mSwapChainUpdate;
+		mSwapChainUpdate = false;
+
+		if (result)
+		{
+			mTextureIDs.clear();
+			CreateTextures();
+		}
+
+		return result;
 	}
 
 	void CreateTextures()
@@ -56,7 +66,6 @@ public:
 	}
 
 	erm::Engine& mEngine;
-	bool mInitialized = false;
 	bool mSwapChainUpdate = true;
 	std::vector<VkDescriptorSet> mTextureIDs;
 };
@@ -65,9 +74,8 @@ void ShowGameWindow(erm::Engine& engine)
 {
 	static SwapChainHelper helper(engine);
 
-	if (helper.mSwapChainUpdate)
+	if (helper.Update())
 	{
-		helper.mSwapChainUpdate = false;
 		return;
 	}
 
@@ -110,4 +118,4 @@ void ShowGameWindow(erm::Engine& engine)
 	ImGui::End();
 }
 
-}
+} // namespace ImGui

@@ -205,13 +205,7 @@ void RenderingSystem::OnPreRender()
 				model,
 				*renderingComponent,
 				light,
-				camera,
-				skeletonComponent,
-				*cameraTransform,
-				proj,
-				viewInv,
-				modelMat,
-				lightPos);
+				skeletonComponent);
 
 			for (RenderData& data : renderingComponent->mRenderData)
 			{
@@ -275,13 +269,7 @@ void RenderingSystem::ProcessForRasterization(
 	Model& model,
 	RenderingComponent& renderingComponent,
 	LightComponent* light,
-	CameraComponent* camera,
-	SkeletonComponent* skeletonComponent,
-	TransformComponent& cameraTransform,
-	const math::mat4& proj,
-	const math::mat4& viewInv,
-	const math::mat4& modelMat,
-	const math::vec3& lightPos)
+	SkeletonComponent* skeletonComponent)
 {
 	ERM_PROFILE_FUNCTION();
 
@@ -297,7 +285,7 @@ void RenderingSystem::ProcessForRasterization(
 		const RenderConfigs& renderConfigs = mesh.GetRenderConfigs();
 		PipelineConfigs& pipelineConfigs = mesh.GetPipelineConfigs();
 		IShaderProgram* targetShaderProgram = mResourcesManager.GetOrCreateShaderProgram(GetShaderForConfig(pipelineConfigs, light, skeletonComponent).c_str());
-		
+
 		if (!pipelineConfigs.mShaderProgram || (pipelineConfigs.mShaderProgram != targetShaderProgram))
 		{
 			pipelineConfigs.mShaderProgram = targetShaderProgram;

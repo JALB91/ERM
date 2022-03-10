@@ -66,10 +66,10 @@ EditorSystem::EditorSystem(Engine& engine)
 void EditorSystem::OnPreRender()
 {
 	CameraComponent* camera = nullptr;
-	
+
 	for (ID i = 0; i < MAX_ID; ++i)
 	{
-		if (camera = mECS.GetComponent<CameraComponent>(i))
+		if ((camera = mECS.GetComponent<CameraComponent>(i)))
 		{
 			break;
 		}

@@ -135,7 +135,11 @@ void IRenderer::CreateSwapChain()
 	swapChainCreateInfo.imageColorSpace = surfaceFormat.colorSpace;
 	swapChainCreateInfo.imageExtent = mSwapChainExtent;
 	swapChainCreateInfo.imageArrayLayers = 1;
-	swapChainCreateInfo.imageUsage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eStorage;
+	swapChainCreateInfo.imageUsage = vk::ImageUsageFlagBits::eColorAttachment
+#ifdef ERM_RAY_TRACING_ENABLED
+		| vk::ImageUsageFlagBits::eStorage
+#endif
+		;
 
 	if (indices.mGraphicsFamily != indices.mPresentFamily)
 	{
@@ -157,7 +161,7 @@ void IRenderer::CreateSwapChain()
 	swapChainCreateInfo.presentMode = presentMode;
 	swapChainCreateInfo.clipped = VK_TRUE;
 	swapChainCreateInfo.oldSwapchain = nullptr;
-	
+
 	mSwapChain = mDevice->createSwapchainKHR(swapChainCreateInfo);
 	mSwapChainImages = mDevice->getSwapchainImagesKHR(mSwapChain);
 
