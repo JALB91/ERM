@@ -36,9 +36,8 @@ public:
 
 	void Refresh();
 
-	void UpdateResources(vk::CommandBuffer& cmd, RenderData& renderData, uint32_t imageIndex);
-	void UpdateCommandBuffer(vk::CommandBuffer& cmd, RenderData& renderData, uint32_t imageIndex);
-	void PostDraw();
+	void UpdateResources(vk::CommandBuffer& cmd, RenderData& renderData);
+	void UpdateCommandBuffer(vk::CommandBuffer& cmd, RenderData& renderData);
 
 	inline const PipelineConfigs& GetPipelineConfigs() const { return mPipelineConfigs; }
 

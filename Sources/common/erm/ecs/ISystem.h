@@ -115,6 +115,12 @@ public:
 	{}
 	virtual ~ISystem() = default;
 
+	ISystem(const ISystem&) = delete;
+	ISystem(ISystem&&) = delete;
+
+	ISystem& operator=(const ISystem&) = delete;
+	ISystem& operator=(ISystem&&) = delete;
+
 	inline virtual void RemoveComponent(EntityId id)
 	{
 		ERM_ASSERT(id.IsValid());

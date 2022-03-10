@@ -216,9 +216,6 @@ void Window::OnKey(int key, int /*scanCode*/, int action, int /*mods*/)
 {
 	ERM_PROFILE_FUNCTION();
 
-	if (ImGui::GetIO().WantCaptureKeyboard)
-		return;
-
 	if (action == GLFW_PRESS)
 	{
 		mPressedKeys.insert(key);
@@ -242,9 +239,6 @@ void Window::OnKey(int key, int /*scanCode*/, int action, int /*mods*/)
 void Window::OnMouseButton(int button, int action, int /*mods*/)
 {
 	ERM_PROFILE_FUNCTION();
-
-	if (ImGui::GetIO().WantCaptureMouse)
-		return;
 
 	if (action == GLFW_PRESS)
 	{
@@ -330,12 +324,7 @@ void Window::OnFocus()
 
 BoundingBox2D Window::GetNormalizedViewport() const
 {
-	// TODO: Find a way to handle different viewports when ray tracing is active
-#ifdef ERM_RAY_TRACING_ENABLED
 	return BoundingBox2D({0.0f, 0.0f}, {1.0f, 1.0f});
-#else
-	return BoundingBox2D({kImGuiSpaceLeft, kImGuiSpaceUp}, {1.0f - kImGuiSpaceRight, 1.0f - kImGuiSpaceDown});
-#endif
 }
 
 void Window::UpdateViewport()

@@ -2,8 +2,10 @@
 
 #include "erm/rendering/data_structs/UniformBufferObject.h"
 #include "erm/rendering/enums/StorageBufferType.h"
-#include "erm/rendering/enums/StorageImageType.h"
+#include "erm/rendering/enums/FrameBufferType.h"
 #include "erm/rendering/enums/TextureType.h"
+
+#include <variant>
 
 namespace erm {
 
@@ -21,7 +23,7 @@ struct IBindingData
 
 struct UboData : IBindingData
 {
-	UboData(UboId uboId, size_t size, uint32_t offset, uint32_t binding, uint32_t set)
+	UboData(uint32_t binding, uint32_t set, UboId uboId, size_t size, uint32_t offset)
 		: IBindingData(binding, set)
 		, mUboId(uboId)
 		, mStride(size)
@@ -35,17 +37,17 @@ struct UboData : IBindingData
 
 struct SamplerData : IBindingData
 {
-	SamplerData(uint32_t binding, uint32_t set, TextureType textureType)
+	SamplerData(uint32_t binding, uint32_t set, std::variant<FrameBufferType, TextureType> type)
 		: IBindingData(binding, set)
-		, mTextureType(textureType)
+		, mType(type)
 	{}
 
-	TextureType mTextureType;
+	std::variant<FrameBufferType, TextureType> mType;
 };
 
 struct StorageBufferData : IBindingData
 {
-	StorageBufferData(StorageBufferType type, uint32_t offset, uint32_t binding, uint32_t set)
+	StorageBufferData(uint32_t binding, uint32_t set, StorageBufferType type, uint32_t offset)
 		: IBindingData(binding, set)
 		, mType(type)
 		, mOffset(offset)
@@ -57,12 +59,12 @@ struct StorageBufferData : IBindingData
 
 struct StorageImageData : IBindingData
 {
-	StorageImageData(StorageImageType type, uint32_t binding, uint32_t set)
+	StorageImageData(uint32_t binding, uint32_t set, FrameBufferType frameBufferType)
 		: IBindingData(binding, set)
-		, mType(type)
+		, mFrameBufferType(frameBufferType)
 	{}
 
-	StorageImageType mType;
+	FrameBufferType mFrameBufferType;
 };
 
 #ifdef ERM_RAY_TRACING_ENABLED

@@ -33,16 +33,18 @@ public:
 
 private:
 	void RecreateSwapChain() override;
+	void CreateCommandBuffers();
 
-	std::vector<vk::CommandBuffer> RetrieveCommandBuffers();
+	vk::CommandBuffer& RetrieveCommandBuffer();
 
-	std::unique_ptr<RenderingResources> mRenderingResources;
-	std::vector<RenderData*> mRenderData;
+	std::map<uint32_t, std::pair<std::unique_ptr<RenderingResources>, std::vector<RenderData*>>> mRenderingMap;
 
 #ifdef ERM_RAY_TRACING_ENABLED
 	std::unique_ptr<RTRenderingResources> mRTRenderingResources;
 	RTRenderData* mRTRenderData;
 #endif
+
+	std::vector<vk::UniqueCommandBuffer> mCommandBuffers;
 };
 
 } // namespace erm

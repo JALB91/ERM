@@ -1,11 +1,9 @@
 #include "erm/ecs/systems/EditorSystem.h"
 
 #include "erm/ecs/ECS.h"
-#include "erm/ecs/components/LightComponent.h"
 #include "erm/ecs/systems/CameraSystem.h"
 #include "erm/ecs/systems/LightSystem.h"
 #include "erm/ecs/systems/ModelSystem.h"
-#include "erm/ecs/systems/RenderingSystem.h"
 #include "erm/ecs/systems/SkeletonSystem.h"
 #include "erm/ecs/systems/TransformSystem.h"
 
@@ -13,15 +11,7 @@
 
 #include "erm/managers/ResourcesManager.h"
 
-// clang-format off
-#ifdef ERM_RAY_TRACING_ENABLED
-#include "erm/ray_tracing/RTRenderData.h"
-
-#include "erm/rendering/data_structs/InstanceData.h"
-#include "erm/rendering/materials/Material.h"
-#include "erm/rendering/materials/PBMaterial.h"
-#endif
-// clang-format on
+#include "erm/rendering/data_structs/Model.h"
 #include "erm/rendering/data_structs/Skin.h"
 #include "erm/rendering/renderer/Renderer.h"
 
@@ -35,14 +25,6 @@ static PipelineConfigs GetGridPipelineConfigs(Engine& engine)
 {
 	PipelineConfigs configs = PipelineConfigs::DEFAULT_PIPELINE_CONFIGS;
 	configs.SetCullMode(CullMode::NONE);
-	configs.mShaderProgram = engine.GetResourcesManager().GetOrCreateShaderProgram("res/shaders/Vulkan/rasterization/vk_basic");
-
-	return configs;
-}
-
-static PipelineConfigs GetArrowsPipelineConfigs(Engine& engine)
-{
-	PipelineConfigs configs = PipelineConfigs::DEFAULT_PIPELINE_CONFIGS;
 	configs.mShaderProgram = engine.GetResourcesManager().GetOrCreateShaderProgram("res/shaders/Vulkan/rasterization/vk_basic");
 
 	return configs;
@@ -73,66 +55,30 @@ EditorSystem::EditorSystem(Engine& engine)
 	, mDevice(mEngine.GetDevice())
 	, mRenderer(mEngine.GetRenderer())
 	, mResourcesManager(mEngine.GetResourcesManager())
-#ifdef ERM_RAY_TRACING_ENABLED
-	, mPlaneModel(mEngine.GetDevice(), "Plane", "Plane")
-	, mInstanceDataBuffer(mEngine.GetDevice(), sizeof(InstanceData), BufferUsage::STORAGE_BUFFER)
-#endif
-	, mGridRenderData(GetGridPipelineConfigs(mEngine))
+	, mGridRenderData(RenderConfigs::DEFAULT_RENDER_CONFIGS, GetGridPipelineConfigs(mEngine))
 	, mGridMesh(mEngine.GetDevice(), MeshUtils::CreateCube(10.0f, 10.0f, 2.0f))
 	, mBBoxPipelineConfigs(GetBBoxPipelineConfigs(mEngine))
-	, mArrowsRenderData(GetArrowsPipelineConfigs(mEngine))
 	, mBonesPipelineConfigs(GetBonesPipelineConfigs(mEngine))
 {
 	mGridRenderData.mMeshes.emplace_back(&mGridMesh);
 }
 
-EditorSystem::~EditorSystem()
-{}
-
-void EditorSystem::Init()
+void EditorSystem::OnPreRender()
 {
-	mTransformSystem = mECS.GetSystem<TransformSystem>();
-	mSkeletonSystem = mECS.GetSystem<SkeletonSystem>();
-	mModelSystem = mECS.GetSystem<ModelSystem>();
-	mCameraSystem = mECS.GetSystem<CameraSystem>();
-	mLightSystem = mECS.GetSystem<LightSystem>();
-	mRenderingSystem = mECS.GetSystem<RenderingSystem>();
-
-#ifdef ERM_RAY_TRACING_ENABLED
-	mPlaneModel.AddMesh(MeshUtils::CreateSquare(1000, 1000));
-	mPlaneModel.UpdateBuffers();
-
-	math::mat4 transform = glm::identity<math::mat4>();
-	transform = glm::rotate(transform, static_cast<float>(M_PI * 0.5), math::vec3(1.0f, 0.0f, 0.0f));
-	InstanceData iData {transform, glm::inverse(glm::transpose(transform))};
-
-	mInstanceDataBuffer.Update(&iData);
-
-	RTRenderData& data = mRenderingSystem->GetDefaultRTRenderData();
-	data.AddOrUpdateInstance(&mPlaneModel.GetBlas(), transform, 0);
-	data.AddSbo(StorageBufferType::VERTICES, 0, mPlaneModel.GetVerticesBuffer());
-	data.AddSbo(StorageBufferType::INDICES, 0, mPlaneModel.GetIndicesBuffer());
-	data.AddSbo(StorageBufferType::INSTANCE_DATA, 0, mInstanceDataBuffer);
-#endif
-}
-
-void EditorSystem::OnRender()
-{
-	EntityId cameraId;
+	CameraComponent* camera = nullptr;
+	
 	for (ID i = 0; i < MAX_ID; ++i)
 	{
-		if (mCameraSystem->GetComponent(i))
+		if (camera = mECS.GetComponent<CameraComponent>(i))
 		{
-			cameraId = i;
 			break;
 		}
 	}
 
-	if (!cameraId.IsValid())
+	if (!camera)
 		return;
 
-	CameraComponent* camera = mCameraSystem->GetComponent(cameraId);
-	TransformComponent* cameraTransform = mTransformSystem->GetComponent(cameraId);
+	TransformComponent* cameraTransform = mECS.GetComponent<TransformComponent>(camera->GetComponentId());
 
 	const math::mat4& proj = camera->GetProjectionMatrix();
 	const math::mat4& view = cameraTransform->GetWorldTransform();
@@ -154,12 +100,16 @@ void EditorSystem::OnRender()
 	for (ID i = 0; i < MAX_ID; ++i)
 	{
 		EditorComponent* editorCmp = GetComponent(i);
-		ModelComponent* modelCmp = mModelSystem->GetComponent(i);
+		ModelComponent* modelCmp = mECS.GetComponent<ModelComponent>(i);
 		Model* model = modelCmp ? modelCmp->GetModel() : nullptr;
 
 		if (!editorCmp && model)
 		{
-			editorCmp = RequireComponent(i, mBonesPipelineConfigs);
+			RenderConfigs conf = RenderConfigs::DEFAULT_RENDER_CONFIGS;
+			conf.mSubpassData.mColorAttachment.mLoadOp = AttachmentLoadOp::LOAD;
+			conf.mSubpassData.mColorAttachment.mInitialLayout = ImageLayout::GENERAL;
+			conf.mSubpassData.mDepthAttachment.reset();
+			editorCmp = RequireComponent(i, conf, mBonesPipelineConfigs);
 		}
 		else if ((editorCmp && !model) || (!editorCmp && !model))
 		{
@@ -170,7 +120,7 @@ void EditorSystem::OnRender()
 		if (modelCmp->GetShouldShowBoundingBox())
 		{
 			const BoundingBox3D& objBBox = model->GetLocalBounds();
-			math::mat4 transform(mTransformSystem->GetComponent(i)->GetWorldTransform());
+			math::mat4 transform(mECS.GetComponent<TransformComponent>(i)->GetWorldTransform());
 			transform = glm::translate(transform, (objBBox.mMax + objBBox.mMin) * 0.5f);
 			transform = glm::scale(transform, objBBox.GetSize());
 
@@ -186,7 +136,7 @@ void EditorSystem::OnRender()
 			mRenderer.SubmitRenderData(data);
 		}
 
-		SkeletonComponent* skeleton = mSkeletonSystem->GetComponent(i);
+		SkeletonComponent* skeleton = mECS.GetComponent<SkeletonComponent>(i);
 
 		if (skeleton && skeleton->GetDisplayBones())
 		{
@@ -222,12 +172,12 @@ void EditorSystem::OnRender()
 					}
 
 					if (!mesh)
-						mesh = &meshes.emplace_back(mDevice, MeshUtils::CreateSpike(1.0f, 1.0f, 1.0f, index));
+						mesh = &meshes.emplace_back(mDevice, MeshUtils::CreateSpike(.5f, .5f, .5f, index));
 
 					++index;
 				});
 
-				ubo.mModel = mTransformSystem->GetComponent(i)->GetWorldTransform();
+				ubo.mModel = mECS.GetComponent<TransformComponent>(i)->GetWorldTransform();
 				ubo.mView = viewInv;
 				ubo.mProj = proj;
 
@@ -242,9 +192,6 @@ void EditorSystem::OnRender()
 		}
 	}
 }
-
-void EditorSystem::OnComponentAdded(EntityId /*id*/)
-{}
 
 void EditorSystem::OnComponentBeingRemoved(EntityId id)
 {
@@ -274,7 +221,7 @@ RenderData& EditorSystem::GetOrCreateRenderDataForBBox(EntityId id)
 		auto val = mBBoxesRenderData.emplace(
 			std::piecewise_construct,
 			std::forward_as_tuple(id),
-			std::forward_as_tuple(std::make_pair(mBBoxPipelineConfigs, StandaloneMesh(mDevice, MeshUtils::CreateCube()))));
+			std::forward_as_tuple(std::make_pair(RenderData(RenderConfigs::DEFAULT_RENDER_CONFIGS, mBBoxPipelineConfigs), StandaloneMesh(mDevice, MeshUtils::CreateCube()))));
 		data = &val.first->second;
 	}
 

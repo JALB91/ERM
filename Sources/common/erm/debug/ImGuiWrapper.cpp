@@ -1,5 +1,6 @@
 #include "erm/debug/ImGuiWrapper.h"
 #include "erm/debug/ImGuiEntitiesWrapper.h"
+#include "erm/debug/ImGuiGameWindow.h"
 #include "erm/debug/ImGuiMainMenuBarWrapper.h"
 #include "erm/debug/ImGuiRenderingWrapper.h"
 
@@ -10,6 +11,7 @@ void ShowEngineDebug(erm::Engine& engine)
 	ImGui::ShowMainMenuBar(engine);
 	ImGui::ShowEntitiesDebugWindow(engine);
 	ImGui::ShowRenderingDebugWindow(engine);
+	ImGui::ShowGameWindow(engine);
 }
 
 } // namespace ImGui

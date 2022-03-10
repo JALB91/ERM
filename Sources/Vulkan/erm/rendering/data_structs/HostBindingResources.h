@@ -22,7 +22,6 @@ public:
 	const vk::DescriptorSet GetDescriptorSet() const override;
 
 	void UpdateResources(vk::CommandBuffer& cmd, IRenderData& data) override;
-	void PostDraw() override;
 
 private:
 	using UniformBuffers = std::map<UboId, UniformBuffer<HostBuffer>>;
@@ -32,7 +31,6 @@ private:
 	void CreateUniformBuffers(const std::vector<UboData>& ubosData);
 
 	SwapChainUniformBuffers mUniformBuffers;
-	uint32_t mCurrentBufferIndex;
 };
 
 } // namespace erm

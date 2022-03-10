@@ -1,6 +1,7 @@
 #pragma once
 
 #include "erm/rendering/data_structs/PipelineResources.h"
+#include "erm/rendering/data_structs/RenderConfigs.h"
 
 #include <vulkan/vulkan.hpp>
 
@@ -21,7 +22,7 @@ namespace erm {
 class RenderingResources
 {
 public:
-	RenderingResources(Engine& engine);
+	RenderingResources(Engine& engine, const RenderConfigs& renderConfigs);
 
 	RenderingResources(RenderingResources&& other) = delete;
 	RenderingResources(const RenderingResources&) = delete;
@@ -29,9 +30,12 @@ public:
 	RenderingResources& operator=(RenderingResources&&) = delete;
 	RenderingResources& operator=(const RenderingResources&) = delete;
 
+	inline const RenderConfigs& GetRenderConfigs() const { return mRenderConfigs; }
+
 	void Refresh();
-	vk::CommandBuffer UpdateCommandBuffer(std::vector<RenderData*>& renderData, uint32_t imageIndex);
-	void PostDraw();
+	void UpdateCommandBuffer(
+		vk::CommandBuffer& cmd,
+		std::vector<RenderData*>& renderData);
 
 private:
 	vk::AttachmentDescription CreateAttachmentDescription(const erm::AttachmentData& data, vk::Format format) const;
@@ -43,16 +47,15 @@ private:
 	void CreateRenderPass();
 	void CreateFramebuffers();
 	void CreateDescriptorPool();
-	void CreateCommandBuffers();
 
 	Engine& mEngine;
 	Device& mDevice;
 	Renderer& mRenderer;
+	const RenderConfigs mRenderConfigs;
 	vk::UniqueRenderPass mRenderPass;
-	std::vector<vk::UniqueFramebuffer> mSwapChainFramebuffers;
+	std::vector<vk::UniqueFramebuffer> mFrameBuffers;
 	vk::UniqueDescriptorPool mDescriptorPool;
 	std::vector<std::unique_ptr<PipelineResources>> mPipelineResources;
-	std::vector<vk::UniqueCommandBuffer> mCommandBuffers;
 };
 
 } // namespace erm

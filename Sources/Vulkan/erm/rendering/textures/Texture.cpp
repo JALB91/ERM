@@ -10,42 +10,68 @@
 
 namespace erm {
 
-Texture::Texture(
-	Device& device,
-	const char* path,
-	vk::Image image /* = nullptr*/,
-	vk::ImageView imageView /* = nullptr*/,
-	vk::DeviceMemory imageMemory /* = nullptr*/)
-	: IAsset(path, "")
+Texture::Texture(Device& device)
+	: IAsset("", "")
 	, mDevice(device)
 	, mLocalBuffer(nullptr)
 	, mWidth(0)
 	, mHeight(0)
 	, mBPP(0)
-	, mTextureImage(image)
-	, mTextureImageView(imageView)
-	, mTextureImageMemory(imageMemory)
-	, mImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal)
+	, mImage(nullptr)
+	, mImageView(nullptr)
+	, mImageMemory(nullptr)
+	, mImageLayout(vk::ImageLayout::eGeneral)
+	, mFormat(vk::Format::eR8G8B8A8Srgb)
 {}
 
 Texture::~Texture()
 {
-	mDevice->destroyImage(mTextureImage);
-	mDevice->destroyImageView(mTextureImageView);
-	mDevice->freeMemory(mTextureImageMemory);
+	if (mImage)
+		mDevice->destroyImage(mImage);
+	if (mImageView)
+		mDevice->destroyImageView(mImageView);
+	if (mImageMemory)
+		mDevice->freeMemory(mImageMemory);
 }
 
-void Texture::Init()
+void Texture::InitFromFile(const char* path)
 {
-	ERM_ASSERT(!mTextureImage && !mTextureImageView && !mTextureImageMemory);
+	mPath = path;
+	ERM_ASSERT(!mImage && !mImageView && !mImageMemory);
 	CreateTextureImage();
 	CreateTextureImageView();
 }
 
+void Texture::InitWithData(
+	const char* name,
+	vk::Image image,
+	vk::ImageView imageView,
+	vk::DeviceMemory imageMemory,
+	vk::ImageLayout imageLayout,
+	vk::Format format,
+	uint32_t width,
+	uint32_t height)
+{
+	mName = name;
+	mImage = image;
+	mImageView = imageView;
+	mImageMemory = imageMemory;
+	mImageLayout = imageLayout;
+	mFormat = format;
+	mWidth = width;
+	mHeight = height;
+}
+
 void Texture::CreateTextureImage()
 {
+	ERM_ASSERT(!mPath.empty());
+
 	stbi_set_flip_vertically_on_load(1);
-	mLocalBuffer = stbi_load(mPath.c_str(), &mWidth, &mHeight, &mBPP, STBI_rgb_alpha);
+	int width, height, bPP;
+	mLocalBuffer = stbi_load(mPath.c_str(), &width, &height, &bPP, STBI_rgb_alpha);
+	mWidth = static_cast<uint32_t>(width);
+	mHeight = static_cast<uint32_t>(height);
+	mBPP = static_cast<uint32_t>(bPP);
 	vk::DeviceSize imageSize = mWidth * mHeight * 4;
 	ERM_ASSERT(mLocalBuffer);
 
@@ -72,13 +98,13 @@ void Texture::CreateTextureImage()
 		mDevice.GetVkPhysicalDevice(),
 		mDevice.GetVkDevice(),
 		imageInfo,
-		mTextureImage,
-		mTextureImageMemory,
+		mImage,
+		mImageMemory,
 		MemoryProperty::DEVICE_LOCAL);
 
 	VkUtils::TransitionImageLayout(
 		mDevice,
-		mTextureImage,
+		mImage,
 		vk::Format::eR8G8B8A8Srgb,
 		vk::ImageLayout::eUndefined,
 		vk::ImageLayout::eTransferDstOptimal);
@@ -86,22 +112,25 @@ void Texture::CreateTextureImage()
 	VkUtils::CopyBufferToImage(
 		mDevice,
 		stagingBuffer.GetBuffer(),
-		mTextureImage,
+		mImage,
 		static_cast<uint32_t>(mWidth),
 		static_cast<uint32_t>(mHeight));
 
 	VkUtils::TransitionImageLayout(
 		mDevice,
-		mTextureImage,
+		mImage,
 		vk::Format::eR8G8B8A8Srgb,
 		vk::ImageLayout::eTransferDstOptimal,
 		vk::ImageLayout::eShaderReadOnlyOptimal);
+
+	mImageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+	mFormat = vk::Format::eR8G8B8A8Srgb;
 }
 
 void Texture::CreateTextureImageView()
 {
 	vk::ImageViewCreateInfo viewInfo {};
-	viewInfo.image = mTextureImage;
+	viewInfo.image = mImage;
 	viewInfo.viewType = vk::ImageViewType::e2D;
 	viewInfo.format = vk::Format::eR8G8B8A8Srgb;
 	viewInfo.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
@@ -110,7 +139,7 @@ void Texture::CreateTextureImageView()
 	viewInfo.subresourceRange.baseArrayLayer = 0;
 	viewInfo.subresourceRange.layerCount = 1;
 
-	mTextureImageView = VkUtils::CreateImageView(
+	mImageView = VkUtils::CreateImageView(
 		mDevice.GetVkDevice(),
 		viewInfo);
 }

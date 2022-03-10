@@ -15,8 +15,6 @@ struct RenderConfigs
 
 	bool IsRenderPassLevelCompatible(const RenderConfigs& other) const;
 
-	bool IsSubpassCompatible(const RenderConfigs& other) const;
-
 	SubpassData mSubpassData;
 };
 

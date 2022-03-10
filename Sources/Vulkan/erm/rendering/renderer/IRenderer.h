@@ -1,10 +1,13 @@
 #pragma once
 
+#include "erm/rendering/enums/FrameBufferType.h"
 #include "erm/rendering/enums/TextureType.h"
 #include "erm/rendering/textures/Texture.h"
 
 #include <vulkan/vulkan.hpp>
 
+#include <array>
+#include <map>
 #include <set>
 #include <vector>
 
@@ -45,18 +48,16 @@ public:
 	inline const vk::Extent2D& GetSwapChainExtent() const { return mSwapChainExtent; }
 	inline vk::Sampler GetTextureSampler() const { return mTextureSampler; }
 	inline vk::Format GetSwapChainImageFormat() const { return mSwapChainImageFormat; }
-	inline const std::vector<vk::ImageView>& GetSwapChainImageViews() const { return mSwapChainImageViews; }
-	inline const vk::ImageView& GetDepthImageView() const { return mDepthTexture->GetImageView(); }
-
+	
+	const std::vector<Texture*>& GetTargetFrameBuffers(FrameBufferType frameBufferType) const;
 	Texture* GetDefaultTexture(TextureType type) const;
-	CubeMap* GetDefaultCubeMap() const;
 
 protected:
 	virtual void RecreateSwapChain();
 	void CleanupSwapChain();
 
 	void CreateSwapChain();
-	void CreateImageViews();
+	void CreateFrameResources();
 	void CreateDepthResources();
 	void CreateTextureSampler();
 	void CreateSyncObjects();
@@ -73,13 +74,13 @@ protected:
 	std::vector<vk::Image> mSwapChainImages;
 	std::vector<vk::ImageView> mSwapChainImageViews;
 
-	std::unique_ptr<Texture> mDepthTexture;
+	std::map<FrameBufferType, std::vector<Texture*>> mFrameBuffers;
 
 	vk::Sampler mTextureSampler;
 
-	std::vector<vk::Semaphore> mImageAvailableSemaphores;
-	std::vector<vk::Semaphore> mRenderFinishedSemaphores;
-	std::vector<vk::Fence> mInFlightFences;
+	std::array<vk::Semaphore, kMaxFramesInFlight> mImageAvailableSemaphores;
+	std::array<vk::Semaphore, kMaxFramesInFlight> mRenderFinishedSemaphores;
+	std::array<vk::Fence, kMaxFramesInFlight> mInFlightFences;
 	std::vector<vk::Fence> mImagesInFlight;
 
 	std::set<ISwapChainListener*> mSwapChainListeners;

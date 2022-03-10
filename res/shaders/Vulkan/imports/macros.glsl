@@ -7,12 +7,14 @@
 #define VK_USPECULAR_BINDING        2
 #define VK_UNORMAL_BINDING          3
 #define VK_UTLAS_BINDING            4
-#define VK_UIMAGE_BINDING           5
-#define VK_UDEPTH_BINDING           6
+#define VK_UPRESENT_BUFFER_BINDING  5
+#define VK_UDEPTH_BUFFER_BINDING    6
 #define VK_BVERTICES_BINDING        7
 #define VK_BINDICES_BINDING         8
 #define VK_BINSTANCES_BINDING       9
 #define VK_UDEPTH_SAMPLER_BINDING   10
+#define VK_UFRAME_BUFFER_1_BINDING  11
+#define VK_UFRAME_SAMPLER_1_BINDING 12
 
 // SET 1
 #define VK_UMVP_BINDING             0

@@ -57,7 +57,8 @@ public:
 	void AddMesh(
 		std::vector<VertexData>&& vertices,
 		std::vector<IndexData>&& indices,
-		const PipelineConfigs& configs = PipelineConfigs::DEFAULT_PIPELINE_CONFIGS,
+		const RenderConfigs& renderConfigs = RenderConfigs::DEFAULT_RENDER_CONFIGS,
+		const PipelineConfigs& pipelineConfigs = PipelineConfigs::DEFAULT_PIPELINE_CONFIGS,
 		const char* name = "");
 	void UpdateLocalBound();
 	void UpdateBuffers();

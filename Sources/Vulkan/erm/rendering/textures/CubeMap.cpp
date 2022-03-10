@@ -25,8 +25,8 @@ const std::array kFaces {
 
 namespace erm {
 
-CubeMap::CubeMap(Device& device, const char* path)
-	: Texture(device, path)
+CubeMap::CubeMap(Device& device)
+	: Texture(device)
 {}
 
 CubeMap::~CubeMap() = default;
@@ -50,7 +50,11 @@ void CubeMap::CreateTextureImage()
 
 	for (size_t i = 0; i < kFaces.size(); ++i)
 	{
-		mLocalBuffer = stbi_load((mPath + "/" + kFaces[i] + targetExt).c_str(), &mWidth, &mHeight, &mBPP, STBI_rgb_alpha);
+		int width, height, bPP;
+		mLocalBuffer = stbi_load((mPath + "/" + kFaces[i] + targetExt).c_str(), &width, &height, &bPP, STBI_rgb_alpha);
+		mWidth = static_cast<uint32_t>(width);
+		mHeight = static_cast<uint32_t>(height);
+		mBPP = static_cast<uint32_t>(bPP);
 		vk::DeviceSize imageSize = mWidth * mHeight * 4;
 		ERM_ASSERT(mLocalBuffer);
 
@@ -80,13 +84,13 @@ void CubeMap::CreateTextureImage()
 		mDevice.GetVkPhysicalDevice(),
 		mDevice.GetVkDevice(),
 		imageInfo,
-		mTextureImage,
-		mTextureImageMemory,
+		mImage,
+		mImageMemory,
 		MemoryProperty::DEVICE_LOCAL);
 
 	VkUtils::TransitionImageLayout(
 		mDevice,
-		mTextureImage,
+		mImage,
 		vk::Format::eR8G8B8A8Srgb,
 		vk::ImageLayout::eUndefined,
 		vk::ImageLayout::eTransferDstOptimal,
@@ -95,24 +99,27 @@ void CubeMap::CreateTextureImage()
 	VkUtils::CopyBufferToImage(
 		mDevice,
 		stagingBuffer->GetBuffer(),
-		mTextureImage,
+		mImage,
 		static_cast<uint32_t>(mWidth),
 		static_cast<uint32_t>(mHeight),
 		6);
 
 	VkUtils::TransitionImageLayout(
 		mDevice,
-		mTextureImage,
+		mImage,
 		vk::Format::eR8G8B8A8Srgb,
 		vk::ImageLayout::eTransferDstOptimal,
 		vk::ImageLayout::eShaderReadOnlyOptimal,
 		6);
+
+	mImageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+	mFormat = vk::Format::eR8G8B8A8Srgb;
 }
 
 void CubeMap::CreateTextureImageView()
 {
 	vk::ImageViewCreateInfo viewInfo {};
-	viewInfo.image = mTextureImage;
+	viewInfo.image = mImage;
 	viewInfo.viewType = vk::ImageViewType::eCube;
 	viewInfo.format = vk::Format::eR8G8B8A8Srgb;
 	viewInfo.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
@@ -121,7 +128,7 @@ void CubeMap::CreateTextureImageView()
 	viewInfo.subresourceRange.baseArrayLayer = 0;
 	viewInfo.subresourceRange.layerCount = 6;
 
-	mTextureImageView = VkUtils::CreateImageView(
+	mImageView = VkUtils::CreateImageView(
 		mDevice.GetVkDevice(),
 		viewInfo);
 }

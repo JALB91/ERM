@@ -7,6 +7,7 @@
 #include <vector>
 
 namespace erm {
+class Engine;
 class Device;
 class IRenderer;
 class PipelineData;
@@ -19,8 +20,7 @@ class RTPipelineResources
 {
 public:
 	RTPipelineResources(
-		Device& device,
-		IRenderer& renderer,
+		Engine& engine,
 		const RTRenderData& renderData,
 		const vk::DescriptorPool& descriptorPool,
 		const vk::AccelerationStructureKHR* topLevelAS);
@@ -28,7 +28,7 @@ public:
 
 	void Refresh();
 
-	void UpdateCommandBuffer(vk::CommandBuffer& cmd, RTRenderData& renderData, uint32_t imageIndex);
+	void UpdateCommandBuffer(vk::CommandBuffer& cmd, RTRenderData& renderData);
 
 	inline const vk::Buffer GetSBTBuffer() const { return mSBTBuffer->GetBuffer(); }
 	inline size_t GetMaxInstancesCount() const { return mMaxInstancesCount; }
@@ -38,6 +38,7 @@ private:
 	void CreateBindingTable();
 	void CreatePipelineData();
 
+	Engine& mEngine;
 	Device& mDevice;
 	IRenderer& mRenderer;
 	const RTRenderData& mRenderData;

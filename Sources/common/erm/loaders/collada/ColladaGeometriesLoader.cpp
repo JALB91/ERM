@@ -158,7 +158,7 @@ void ProcessGeometries(
 			indicesOffset += static_cast<uint32_t>(verticesData.size());
 
 			mutex.lock();
-			model.AddMesh(std::move(verticesData), std::move(indicesData), PipelineConfigs::DEFAULT_PIPELINE_CONFIGS, name);
+			model.AddMesh(std::move(verticesData), std::move(indicesData), RenderConfigs::DEFAULT_RENDER_CONFIGS, PipelineConfigs::DEFAULT_PIPELINE_CONFIGS, name);
 			mutex.unlock();
 
 			mesh = mesh->NextSiblingElement("mesh");

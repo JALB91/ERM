@@ -3,6 +3,7 @@
 #include "erm/engine/Engine.h"
 
 #include "erm/math/math.h"
+#include "erm/math/BoundingBox.h"
 
 #include "erm/ray_tracing/RTBlas.h"
 #include "erm/ray_tracing/RTPipelineResources.h"
@@ -12,6 +13,7 @@
 #include "erm/rendering/buffers/DeviceBuffer.h"
 #include "erm/rendering/renderer/Renderer.h"
 #include "erm/rendering/shaders/IShaderProgram.h"
+#include "erm/rendering/window/Window.h"
 
 #include "erm/utils/Profiler.h"
 #include "erm/utils/VkUtils.h"
@@ -21,35 +23,32 @@
 namespace erm {
 
 RTRenderingResources::RTRenderingResources(Engine& engine)
-	: mDevice(engine.GetDevice())
+	: mEngine(engine)
+	, mDevice(engine.GetDevice())
 	, mRenderer(engine.GetRenderer())
 {
 	CreateDescriptorPool();
-	CreateCommandBuffers();
 }
 
 RTRenderingResources::~RTRenderingResources() = default;
 
-vk::CommandBuffer RTRenderingResources::UpdateCommandBuffer(RTRenderData& renderData, uint32_t imageIndex)
+void RTRenderingResources::Refresh()
+{
+	if (mPipelineResources)
+		mPipelineResources->Refresh();
+}
+
+void RTRenderingResources::UpdateCommandBuffer(vk::CommandBuffer& cmd, RTRenderData& renderData)
 {
 	ERM_PROFILE_FUNCTION();
 
 	ERM_ASSERT(!renderData.mInstancesMap.empty());
 
-	UpdateResources(renderData, imageIndex);
+	UpdateResources(renderData);
 
 	const vk::Extent2D& extent = mRenderer.GetSwapChainExtent();
 
-	vk::CommandBuffer& cmd = mCommandBuffers[imageIndex].get();
-	cmd.reset({});
-
-	vk::CommandBufferBeginInfo beginInfo = {};
-	beginInfo.flags = {};
-	beginInfo.pInheritanceInfo = nullptr;
-
-	cmd.begin(beginInfo);
-
-	mPipelineResources->UpdateCommandBuffer(cmd, renderData, imageIndex);
+	mPipelineResources->UpdateCommandBuffer(cmd, renderData);
 
 	const vk::PhysicalDeviceRayTracingPipelinePropertiesKHR& rtProps = mDevice.GetRayTracingProperties();
 
@@ -79,16 +78,11 @@ vk::CommandBuffer RTRenderingResources::UpdateCommandBuffer(RTRenderData& render
 		extent.width,
 		extent.height,
 		1);
-
-	cmd.end();
-
-	return cmd;
 }
 
-void RTRenderingResources::UpdateResources(RTRenderData& renderData, uint32_t imageIndex)
+void RTRenderingResources::UpdateResources(RTRenderData& renderData)
 {
 	ERM_PROFILE_FUNCTION();
-	ERM_UNUSED(imageIndex);
 
 	const bool forceUpdate = renderData.mForceUpdate || (mPipelineResources && mPipelineResources->GetMaxInstancesCount() != renderData.mInstancesMap.size());
 
@@ -100,8 +94,7 @@ void RTRenderingResources::UpdateResources(RTRenderData& renderData, uint32_t im
 
 	if (!mPipelineResources || forceUpdate)
 		mPipelineResources = std::make_unique<RTPipelineResources>(
-			mDevice,
-			mRenderer,
+			mEngine,
 			renderData,
 			mDescriptorPool.get(),
 			&mTopLevelAS.GetAS());
@@ -434,62 +427,40 @@ void RTRenderingResources::UpdateTopLevelAS(RTRenderData& data, vk::BuildAcceler
 	VkUtils::EndSingleTimeCommands(mDevice, cmd);
 }
 
-void RTRenderingResources::Refresh()
-{
-	if (mPipelineResources)
-		mPipelineResources->Refresh();
-}
-
 void RTRenderingResources::Reload()
 {
 	Cleanup();
 	CreateDescriptorPool();
-	CreateCommandBuffers();
 }
 
 void RTRenderingResources::Cleanup()
 {
 	mPipelineResources.reset();
-	mCommandBuffers.clear();
 	mDescriptorPool.reset();
 	mTopLevelAS.Reset();
 }
 
 void RTRenderingResources::CreateDescriptorPool()
 {
-	const std::vector<vk::ImageView>& swapChainImageViews = mRenderer.GetSwapChainImageViews();
+	const std::vector<Texture*>& frameBuffers = mRenderer.GetTargetFrameBuffers(FrameBufferType::FRAME_1);
 
 	std::array<vk::DescriptorPoolSize, 4> poolSizes {};
 	poolSizes[0].type = vk::DescriptorType::eUniformBuffer;
-	poolSizes[0].descriptorCount = static_cast<uint32_t>(swapChainImageViews.size() * 1000);
+	poolSizes[0].descriptorCount = static_cast<uint32_t>(frameBuffers.size() * 1000);
 	poolSizes[1].type = vk::DescriptorType::eCombinedImageSampler;
-	poolSizes[1].descriptorCount = static_cast<uint32_t>(swapChainImageViews.size() * 100);
+	poolSizes[1].descriptorCount = static_cast<uint32_t>(frameBuffers.size() * 100);
 	poolSizes[2].type = vk::DescriptorType::eStorageImage;
-	poolSizes[2].descriptorCount = static_cast<uint32_t>(swapChainImageViews.size() * 10);
+	poolSizes[2].descriptorCount = static_cast<uint32_t>(frameBuffers.size() * 100);
 	poolSizes[3].type = vk::DescriptorType::eAccelerationStructureKHR;
-	poolSizes[3].descriptorCount = static_cast<uint32_t>(swapChainImageViews.size());
+	poolSizes[3].descriptorCount = static_cast<uint32_t>(frameBuffers.size() * 10);
 
 	vk::DescriptorPoolCreateInfo poolInfo {};
 	poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
 	poolInfo.pPoolSizes = poolSizes.data();
-	poolInfo.maxSets = static_cast<uint32_t>(swapChainImageViews.size() * 100);
+	poolInfo.maxSets = static_cast<uint32_t>(frameBuffers.size() * 100);
 	poolInfo.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
 
 	mDescriptorPool = mDevice->createDescriptorPoolUnique(poolInfo);
-}
-
-void RTRenderingResources::CreateCommandBuffers()
-{
-	const std::vector<vk::ImageView>& swapChainImageViews = mRenderer.GetSwapChainImageViews();
-
-	mCommandBuffers.resize(swapChainImageViews.size());
-
-	vk::CommandBufferAllocateInfo allocInfo = {};
-	allocInfo.commandPool = mDevice.GetCommandPool();
-	allocInfo.level = vk::CommandBufferLevel::ePrimary;
-	allocInfo.commandBufferCount = static_cast<uint32_t>(mCommandBuffers.size());
-
-	mCommandBuffers = mDevice->allocateCommandBuffersUnique(allocInfo);
 }
 
 } // namespace erm

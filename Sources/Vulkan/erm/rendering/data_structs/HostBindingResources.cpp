@@ -16,7 +16,6 @@ HostBindingResources::HostBindingResources(
 	const BindingConfigs& configs,
 	const vk::DescriptorSetLayout& descriptorSetLayout)
 	: IBindingResources(device, renderer, targetSet, descriptorPool, shaderProgram, configs)
-	, mCurrentBufferIndex(0)
 {
 	mUniformBuffers.resize(IRenderer::kMaxFramesInFlight);
 
@@ -66,21 +65,16 @@ HostBindingResources::HostBindingResources(
 
 const vk::DescriptorSet HostBindingResources::GetDescriptorSet() const
 {
-	return mDescriptorSets[mCurrentBufferIndex].get();
+	return mDescriptorSets[mRenderer.GetCurrentFrame()].get();
 }
 
 void HostBindingResources::UpdateResources(vk::CommandBuffer& /*cmd*/, IRenderData& data)
 {
-	for (auto& pair : mUniformBuffers[mCurrentBufferIndex])
+	for (auto& pair : mUniformBuffers[mRenderer.GetCurrentFrame()])
 	{
 		ERM_ASSERT(data.HasUbo(pair.first));
 		pair.second.Update(data.mUbos[pair.first].get());
 	}
-}
-
-void HostBindingResources::PostDraw()
-{
-	mCurrentBufferIndex = (mCurrentBufferIndex + 1) % IRenderer::kMaxFramesInFlight;
 }
 
 void HostBindingResources::CreateUniformBuffers(const std::vector<UboData>& ubosData)

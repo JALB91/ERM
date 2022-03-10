@@ -1,7 +1,7 @@
 #pragma once
 
 #include "erm/rendering/data_structs/IRenderData.h"
-#include "erm/rendering/data_structs/PipelineConfigs.h"
+#include "erm/rendering/data_structs/RenderConfigs.h"
 
 #include <optional>
 #include <vector>
@@ -14,23 +14,31 @@ namespace erm {
 
 struct RenderData : public IRenderData
 {
-	RenderData(const PipelineConfigs& pipelineConfigs)
-		: mPipelineConfigs(pipelineConfigs)
+	RenderData(
+		const RenderConfigs& renderConfigs = RenderConfigs::DEFAULT_RENDER_CONFIGS,
+		const PipelineConfigs& pipelineConfigs = PipelineConfigs::DEFAULT_PIPELINE_CONFIGS)
+		: IRenderData(pipelineConfigs)
+		, mRenderConfigs(renderConfigs)
 	{}
 
-	RenderData(RenderData&& other)
+	RenderData(RenderData&& other) noexcept
 		: IRenderData(std::move(other))
-		, mPipelineConfigs(other.mPipelineConfigs)
 		, mMeshes(std::move(other.mMeshes))
 		, mRenderingId(std::move(other.mRenderingId))
+		, mBindingId(std::move(other.mBindingId))
+		, mRenderConfigs(other.mRenderConfigs)
 	{}
 
-	RenderData& operator=(RenderData&& other)
+	RenderData& operator=(RenderData&& other) noexcept
 	{
-		mPipelineConfigs = other.mPipelineConfigs;
-		mUbos = std::move(other.mUbos);
+		if (this == &other)
+			return *this;
+
+		IRenderData::operator=(std::move(other));
 		mMeshes = std::move(other.mMeshes);
 		mRenderingId = std::move(other.mRenderingId);
+		mBindingId = std::move(other.mBindingId);
+		mRenderConfigs = std::move(other.mRenderConfigs);
 
 		return *this;
 	}
@@ -38,14 +46,23 @@ struct RenderData : public IRenderData
 	RenderData(const RenderData&) = delete;
 	RenderData& operator=(const RenderData&) = delete;
 
+	inline bool IsCompatible(const RenderConfigs& renderConfigs, const PipelineConfigs& pipelineConfigs) const
+	{
+		return 
+			mRenderConfigs.IsRenderPassLevelCompatible(renderConfigs) && 
+			mPipelineConfigs.IsPipelineLevelCompatible(pipelineConfigs) && 
+			mPipelineConfigs.IsBindingLevelCompatible(pipelineConfigs);
+	}
+
 	inline bool HasMesh(const Mesh* mesh) const
 	{
 		return std::find(mMeshes.cbegin(), mMeshes.cend(), mesh) != mMeshes.cend();
 	}
 
-	PipelineConfigs mPipelineConfigs;
 	std::vector<const Mesh*> mMeshes;
 	std::optional<uint32_t> mRenderingId;
+	std::optional<uint32_t> mBindingId;
+	RenderConfigs mRenderConfigs;
 };
 
 } // namespace erm

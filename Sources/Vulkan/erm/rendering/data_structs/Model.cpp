@@ -34,10 +34,11 @@ void Model::AddMesh(Mesh&& mesh)
 void Model::AddMesh(
 	std::vector<VertexData>&& vertices,
 	std::vector<IndexData>&& indices,
-	const PipelineConfigs& configs /*= PipelineConfigs::DEFAULT_PIPELINE_CONFIGS*/,
+	const RenderConfigs& renderConfigs /*= RenderConfigs::DEFAULT_RENDER_CONFIGS*/,
+	const PipelineConfigs& pipelineConfigs /*= PipelineConfigs::DEFAULT_PIPELINE_CONFIGS*/,
 	const char* name /*= ""*/)
 {
-	AddMesh({std::move(vertices), std::move(indices), configs, name});
+	AddMesh({std::move(vertices), std::move(indices), renderConfigs, pipelineConfigs, name});
 }
 
 void Model::UpdateLocalBound()

@@ -4,36 +4,35 @@
 
 #include "erm/rendering/Device.h"
 #include "erm/rendering/data_structs/IRenderData.h"
-#include "erm/rendering/data_structs/PipelineConfigs.h"
 
 #include <unordered_map>
 
 namespace erm {
 
+using InstancesMap = std::unordered_map<uint32_t, RTInstanceData>;
+
 struct RTRenderData : public IRenderData
 {
 	RTRenderData(Device& device, const PipelineConfigs& pipelineConfigs = PipelineConfigs::DEFAULT_PIPELINE_CONFIGS)
-		: mDevice(device)
-		, mPipelineConfigs(pipelineConfigs)
+		: IRenderData(pipelineConfigs)
+		, mDevice(device)
 		, mForceUpdate(true)
 	{}
 
-	RTRenderData(RTRenderData&& other)
+	RTRenderData(RTRenderData&& other) noexcept
 		: IRenderData(std::move(other))
 		, mDevice(other.mDevice)
-		, mPipelineConfigs(std::move(other.mPipelineConfigs))
 		, mInstancesMap(std::move(other.mInstancesMap))
 		, mForceUpdate(other.mForceUpdate)
 	{}
 
-	RTRenderData& operator=(RTRenderData&& other)
+	RTRenderData& operator=(RTRenderData&& other) noexcept
 	{
 		if (this == &other)
 			return *this;
 
 		ERM_ASSERT(&mDevice == &other.mDevice);
 		IRenderData::operator=(std::move(other));
-		mPipelineConfigs = std::move(other.mPipelineConfigs);
 		mInstancesMap = std::move(other.mInstancesMap);
 		mForceUpdate = other.mForceUpdate;
 
@@ -71,8 +70,7 @@ struct RTRenderData : public IRenderData
 	}
 
 	Device& mDevice;
-	PipelineConfigs mPipelineConfigs;
-	std::unordered_map<uint32_t, RTInstanceData> mInstancesMap;
+	InstancesMap mInstancesMap;
 	bool mForceUpdate;
 };
 

@@ -5,29 +5,17 @@ namespace erm {
 const RenderConfigs RenderConfigs::DEFAULT_RENDER_CONFIGS {
 	SubpassData {
 		AttachmentData(
+			FrameBufferType::FRAME_1,
 			AttachmentLoadOp::CLEAR,
 			AttachmentStoreOp::STORE,
 			ImageLayout::UNDEFINED,
-#ifdef ERM_RAY_TRACING_ENABLED
-			ImageLayout::GENERAL
-#else
-			ImageLayout::COLOR_ATTACHMENT_OPTIMAL
-#endif
-			),
+			ImageLayout::GENERAL),
 		AttachmentData(
+			FrameBufferType::DEPTH,
 			AttachmentLoadOp::CLEAR,
-#ifdef ERM_RAY_TRACING_ENABLED
 			AttachmentStoreOp::STORE,
-#else
-			AttachmentStoreOp::DONT_CARE,
-#endif
 			ImageLayout::UNDEFINED,
-#ifdef ERM_RAY_TRACING_ENABLED
-			ImageLayout::GENERAL
-#else
-			ImageLayout::DEPTH_STENCIL_ATTACHMENT_OPTIMAL
-#endif
-			)}};
+			ImageLayout::GENERAL)}};
 
 RenderConfigs::RenderConfigs(const SubpassData& subpassData)
 	: mSubpassData(subpassData)
@@ -44,11 +32,6 @@ bool RenderConfigs::operator!=(const RenderConfigs& other) const
 }
 
 bool RenderConfigs::IsRenderPassLevelCompatible(const RenderConfigs& other) const
-{
-	return IsSubpassCompatible(other);
-}
-
-bool RenderConfigs::IsSubpassCompatible(const RenderConfigs& other) const
 {
 	return mSubpassData == other.mSubpassData;
 }

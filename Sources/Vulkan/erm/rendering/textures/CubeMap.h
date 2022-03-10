@@ -11,7 +11,7 @@ namespace erm {
 class CubeMap : public Texture
 {
 public:
-	CubeMap(Device& device, const char* path);
+	CubeMap(Device& device);
 	~CubeMap();
 
 	CubeMap(CubeMap&&) = delete;

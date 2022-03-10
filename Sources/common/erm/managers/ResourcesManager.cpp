@@ -68,12 +68,7 @@ bool ResourcesManager::IsStillLoading(const Model& model) const
 
 CubeMap* ResourcesManager::GetOrCreateCubeMap(const char* path)
 {
-	auto it = std::find_if(
-		mCubeMaps.begin(),
-		mCubeMaps.end(),
-		[path](Handle<CubeMap>& cubeMap) {
-			return cubeMap->mPath == path;
-		});
+	const auto it = FindResourceByPath(mCubeMaps, path);
 
 	if (it != mCubeMaps.end())
 		return (*it).get();
@@ -81,19 +76,14 @@ CubeMap* ResourcesManager::GetOrCreateCubeMap(const char* path)
 	if (!std::filesystem::exists(path))
 		return nullptr;
 
-	Handle<CubeMap> result = std::make_unique<CubeMap>(mDevice, path);
-	result->Init();
+	Handle<CubeMap> result = std::make_unique<CubeMap>(mDevice);
+	result->InitFromFile(path);
 	return mCubeMaps.emplace_back(std::move(result)).get();
 }
 
 IShaderProgram* ResourcesManager::GetOrCreateShaderProgram(const char* shaderProgramPath)
 {
-	auto it = std::find_if(
-		mShaderPrograms.begin(),
-		mShaderPrograms.end(),
-		[shaderProgramPath](Handle<IShaderProgram>& program) {
-			return program->mPath.compare(shaderProgramPath) == 0;
-		});
+	const auto it = FindResourceByPath(mShaderPrograms, shaderProgramPath);
 
 	if (it != mShaderPrograms.end())
 		return (*it).get();
@@ -119,12 +109,7 @@ IShaderProgram* ResourcesManager::GetOrCreateShaderProgram(const char* shaderPro
 
 Material* ResourcesManager::GetOrCreateMaterial(const char* materialPath, const char* materialName)
 {
-	auto it = std::find_if(
-		mMaterials.begin(),
-		mMaterials.end(),
-		[materialPath, materialName](Handle<Material>& material) {
-			return (material->mPath.compare(materialPath) == 0 && material->mName.compare(materialName) == 0);
-		});
+	const auto it = FindResourceByNameAndPath(mMaterials, materialPath, materialName);
 
 	if (it != mMaterials.end())
 	{
@@ -136,14 +121,9 @@ Material* ResourcesManager::GetOrCreateMaterial(const char* materialPath, const 
 
 PBMaterial* ResourcesManager::GetOrCreatePBMaterial(const char* materialPath, const char* materialName)
 {
-	auto it = std::find_if(
-		mPBMaterials.begin(),
-		mPBMaterials.end(),
-		[materialPath, materialName](Handle<PBMaterial>& material) {
-			return (material->mPath.compare(materialPath) == 0 && material->mName.compare(materialName) == 0);
-		});
+	auto it = FindResourceByNameAndPath(mPBMaterials, materialPath, materialName);
 
-	if (it != mPBMaterials.end())
+	if (it != mPBMaterials.cend())
 	{
 		return (*it).get();
 	}
@@ -153,12 +133,7 @@ PBMaterial* ResourcesManager::GetOrCreatePBMaterial(const char* materialPath, co
 
 Texture* ResourcesManager::GetOrCreateTexture(const char* texturePath)
 {
-	auto it = std::find_if(
-		mTextures.begin(),
-		mTextures.end(),
-		[texturePath](Handle<Texture>& texture) {
-			return texture->mPath.compare(texturePath) == 0;
-		});
+	const auto it = FindResourceByPath(mTextures, texturePath);
 
 	if (it != mTextures.end())
 	{
@@ -168,19 +143,31 @@ Texture* ResourcesManager::GetOrCreateTexture(const char* texturePath)
 	if (!std::filesystem::exists(texturePath))
 		return nullptr;
 
-	std::unique_ptr<Texture> texture = std::make_unique<Texture>(mDevice, texturePath);
-	texture->Init();
+	std::unique_ptr<Texture> texture = std::make_unique<Texture>(mDevice);
+	texture->InitFromFile(texturePath);
 	return mTextures.emplace_back(std::move(texture)).get();
+}
+
+Texture* ResourcesManager::CreateEmptyTexture()
+{
+	return mTextures.emplace_back(std::make_unique<Texture>(mDevice)).get();
+}
+
+void ResourcesManager::ReleaseTexture(const Texture* texture) 
+{
+	const auto it = std::find_if(mTextures.begin(), mTextures.end(), [texture](const Handle<Texture>& entry) {
+		return entry.get() == texture;
+	});
+
+	if (it != mTextures.end())
+	{
+		mTextures.erase(it);
+	}
 }
 
 Model* ResourcesManager::GetOrCreateModel(const char* modelPath)
 {
-	auto it = std::find_if(
-		mModels.begin(),
-		mModels.end(),
-		[modelPath](Handle<Model>& model) {
-			return model->mPath.compare(modelPath) == 0;
-		});
+	const auto it = FindResourceByPath(mModels, modelPath);
 
 	if (it != mModels.end())
 	{
@@ -197,19 +184,13 @@ Model* ResourcesManager::GetOrCreateModel(const char* modelPath)
 
 Skin* ResourcesManager::GetSkin(const char* path)
 {
-	auto it = std::find_if(mSkins.begin(), mSkins.end(), [path](Handle<Skin>& skin) {
-		return skin->mPath == path;
-	});
-
+	const auto it = FindResourceByPath(mSkins, path);
 	return (it != mSkins.end() ? (*it).get() : nullptr);
 }
 
 SkeletonAnimation* ResourcesManager::GetAnimation(const char* name)
 {
-	auto it = std::find_if(mAnimations.begin(), mAnimations.end(), [name](Handle<SkeletonAnimation>& animation) {
-		return animation->mName == name;
-	});
-
+	const auto it = FindResourceByName(mAnimations, name);
 	return (it != mAnimations.end() ? (*it).get() : nullptr);
 }
 

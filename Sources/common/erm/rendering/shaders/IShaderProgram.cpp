@@ -43,11 +43,11 @@ erm::UboData GetUboData(const spirv_cross::Compiler& compiler, const spirv_cross
 {
 	const auto makeUboData = [&compiler, &resource](erm::UboId id, size_t size) -> erm::UboData {
 		return {
+			compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding),
+			compiler.get_decoration(resource.id, spv::Decoration::DecorationDescriptorSet),
 			id,
 			size,
-			compiler.get_decoration(resource.id, spv::Decoration::DecorationOffset),
-			compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding),
-			compiler.get_decoration(resource.id, spv::Decoration::DecorationDescriptorSet)};
+			compiler.get_decoration(resource.id, spv::Decoration::DecorationOffset)};
 	};
 
 	if (resource.name.compare("UMVPOnly") == 0)
@@ -77,12 +77,12 @@ erm::UboData GetUboData(const spirv_cross::Compiler& compiler, const spirv_cross
 
 	ERM_ASSERT(false);
 
-	return {erm::UboMVPOnly::ID, sizeof(erm::UboMVPOnly), 0, 0, 0};
+	return {0, 0, erm ::UboMVPOnly::ID, sizeof(erm::UboMVPOnly), 0};
 }
 
 erm::SamplerData GetSamplerData(const spirv_cross::Compiler& compiler, const spirv_cross::Resource& resource)
 {
-	const auto makeSamplerData = [&compiler, &resource](erm::TextureType type) -> erm::SamplerData {
+	const auto makeSamplerData = [&compiler, &resource](std::variant<erm::FrameBufferType, erm::TextureType> type) -> erm::SamplerData {
 		return {
 			compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding),
 			compiler.get_decoration(resource.id, spv::Decoration::DecorationDescriptorSet),
@@ -97,8 +97,10 @@ erm::SamplerData GetSamplerData(const spirv_cross::Compiler& compiler, const spi
 		return makeSamplerData(erm::TextureType::SPECULAR);
 	else if (resource.name.compare("cubeMapSampler") == 0)
 		return makeSamplerData(erm::TextureType::CUBE_MAP);
+	else if (resource.name.compare("frameSampler1") == 0)
+		return makeSamplerData(erm::FrameBufferType::FRAME_1);
 	else if (resource.name.compare("depthSampler") == 0)
-		return makeSamplerData(erm::TextureType::DEPTH);
+		return makeSamplerData(erm::FrameBufferType::DEPTH);
 
 	ERM_ASSERT(false);
 
@@ -107,31 +109,33 @@ erm::SamplerData GetSamplerData(const spirv_cross::Compiler& compiler, const spi
 
 erm::StorageImageData GetStorageImageData(const spirv_cross::Compiler& compiler, const spirv_cross::Resource& resource)
 {
-	const auto makeStorageImageData = [&compiler, &resource](erm::StorageImageType type) -> erm::StorageImageData {
+	const auto makeStorageImageData = [&compiler, &resource](erm::FrameBufferType type) -> erm::StorageImageData {
 		return {
-			type,
 			compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding),
-			compiler.get_decoration(resource.id, spv::Decoration::DecorationDescriptorSet)};
+			compiler.get_decoration(resource.id, spv::Decoration::DecorationDescriptorSet),
+			type};
 	};
 
-	if (resource.name.compare("image") == 0)
-		return makeStorageImageData(erm::StorageImageType::FRAME_BUFFER);
-	else if (resource.name.compare("depth") == 0)
-		return makeStorageImageData(erm::StorageImageType::DEPTH_BUFFER);
+	if (resource.name.compare("presentBuffer") == 0)
+		return makeStorageImageData(erm::FrameBufferType::PRESENT);
+	else if (resource.name.compare("frameBuffer1") == 0)
+		return makeStorageImageData(erm::FrameBufferType::FRAME_1);
+	else if (resource.name.compare("depthBuffer") == 0)
+		return makeStorageImageData(erm::FrameBufferType::DEPTH);
 
 	ERM_ASSERT(false);
 
-	return {erm::StorageImageType::FRAME_BUFFER, 0, 0};
+	return {0, 0, erm ::FrameBufferType::PRESENT};
 }
 
 erm::StorageBufferData GetStorageBufferData(const spirv_cross::Compiler& compiler, const spirv_cross::Resource& resource)
 {
 	const auto makeStorageBufferData = [&compiler, &resource](erm::StorageBufferType type) -> erm::StorageBufferData {
 		return {
-			type,
-			compiler.get_decoration(resource.id, spv::Decoration::DecorationOffset),
 			compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding),
-			compiler.get_decoration(resource.id, spv::Decoration::DecorationDescriptorSet)};
+			compiler.get_decoration(resource.id, spv::Decoration::DecorationDescriptorSet),
+			type,
+			compiler.get_decoration(resource.id, spv::Decoration::DecorationOffset)};
 	};
 
 	if (resource.name.compare("BVertices") == 0)
@@ -143,7 +147,7 @@ erm::StorageBufferData GetStorageBufferData(const spirv_cross::Compiler& compile
 
 	ERM_ASSERT(false);
 
-	return {erm::StorageBufferType::VERTICES, 0, 0, 0};
+	return {0, 0, erm ::StorageBufferType::VERTICES, 0};
 }
 
 #ifdef ERM_RAY_TRACING_ENABLED

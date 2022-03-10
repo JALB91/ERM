@@ -9,6 +9,7 @@
 #include "erm/rendering/renderer/Renderer.h"
 #include "erm/rendering/window/Window.h"
 
+#include "erm/utils/Utils.h"
 #include "erm/utils/VkUtils.h"
 
 #include <imgui.h>
@@ -17,7 +18,12 @@
 
 namespace {
 
-bool gFirst = true;
+static bool gFirst = true;
+
+void CheckVKResult(VkResult result)
+{
+	ERM_ASSERT(result == VkResult::VK_SUCCESS);
+}
 
 }
 
@@ -68,32 +74,27 @@ void ImGuiHandle::OnRender()
 void ImGuiHandle::OnPostRender()
 {}
 
-vk::CommandBuffer& ImGuiHandle::GetCommandBuffer(uint32_t imageIndex)
+void ImGuiHandle::UpdateCommandBuffer(vk::CommandBuffer& cmd)
 {
-	vk::CommandBuffer& cmd = mCommandBuffers[imageIndex];
-	cmd.reset({});
-
-	vk::CommandBufferBeginInfo beginInfo = {};
-	beginInfo.flags = {};
-	beginInfo.pInheritanceInfo = nullptr;
-
-	cmd.begin(beginInfo);
+	std::array<vk::ClearValue, 1> clearValues {};
+	clearValues[0].color.float32[0] = 0.0f;
+	clearValues[0].color.float32[1] = 0.0f;
+	clearValues[0].color.float32[2] = 0.0f;
+	clearValues[0].color.float32[3] = 0.0f;
 
 	vk::RenderPassBeginInfo info = {};
 	info.renderPass = mRenderPass;
-	info.framebuffer = mSwapChainFramebuffers[imageIndex];
+	info.framebuffer = mFrameBuffers[mRenderer.GetCurrentImageIndex()];
 	info.renderArea.extent = mRenderer.GetSwapChainExtent();
-	info.clearValueCount = 0;
-	info.pClearValues = nullptr;
+	info.renderArea.offset = vk::Offset2D {0, 0};
+	info.clearValueCount = static_cast<uint32_t>(clearValues.size());
+	info.pClearValues = clearValues.data();
 
 	cmd.beginRenderPass(info, vk::SubpassContents::eInline);
 
 	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmd);
 
 	cmd.endRenderPass();
-	cmd.end();
-
-	return cmd;
 }
 
 void ImGuiHandle::SwapChainCreated()
@@ -110,11 +111,10 @@ void ImGuiHandle::SwapChainCreated()
 	CreateRenderPass();
 	CreateFrameBuffers();
 	CreateDescriptorPool();
-	CreateCommandBuffers();
 
 	ImGui_ImplVulkan_InitInfo info;
 	info.Allocator = nullptr;
-	info.CheckVkResultFn = nullptr;
+	info.CheckVkResultFn = CheckVKResult;
 	info.Subpass = 0;
 	info.DescriptorPool = mDescriptorPool;
 	info.Device = mDevice.GetVkDevice();
@@ -139,13 +139,12 @@ void ImGuiHandle::Cleanup()
 	ImGui_ImplVulkan_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 
-	mDevice->freeCommandBuffers(mDevice.GetCommandPool(), static_cast<uint32_t>(mCommandBuffers.size()), mCommandBuffers.data());
 	mDevice->destroyDescriptorPool(mDescriptorPool);
-	for (size_t i = 0; i < mSwapChainFramebuffers.size(); ++i)
+	for (size_t i = 0; i < mFrameBuffers.size(); ++i)
 	{
-		mDevice->destroyFramebuffer(mSwapChainFramebuffers[i]);
+		mDevice->destroyFramebuffer(mFrameBuffers[i]);
 	}
-	mSwapChainFramebuffers.clear();
+	mFrameBuffers.clear();
 	mDevice->destroyRenderPass(mRenderPass);
 }
 
@@ -154,24 +153,16 @@ void ImGuiHandle::CreateRenderPass()
 	vk::AttachmentDescription attachment = {};
 	attachment.format = mRenderer.GetSwapChainImageFormat();
 	attachment.samples = vk::SampleCountFlagBits::e1;
-	attachment.loadOp = vk::AttachmentLoadOp::eLoad;
+	attachment.loadOp = vk::AttachmentLoadOp::eClear;
 	attachment.storeOp = vk::AttachmentStoreOp::eStore;
 	attachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
 	attachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
-#ifdef ERM_RAY_TRACING_ENABLED
-	attachment.initialLayout = vk::ImageLayout::eGeneral;
-#else
-	attachment.initialLayout = vk::ImageLayout::eColorAttachmentOptimal;
-#endif
+	attachment.initialLayout = vk::ImageLayout::eUndefined;
 	attachment.finalLayout = vk::ImageLayout::ePresentSrcKHR;
 
 	vk::AttachmentReference color_attachment = {};
 	color_attachment.attachment = 0;
-#ifdef ERM_RAY_TRACING_ENABLED
-	color_attachment.layout = vk::ImageLayout::eGeneral;
-#else
 	color_attachment.layout = vk::ImageLayout::eColorAttachmentOptimal;
-#endif
 
 	vk::SubpassDescription subpass = {};
 	subpass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
@@ -200,13 +191,13 @@ void ImGuiHandle::CreateRenderPass()
 
 void ImGuiHandle::CreateFrameBuffers()
 {
-	const std::vector<vk::ImageView>& swapChainImageViews = mRenderer.GetSwapChainImageViews();
+	const std::vector<Texture*>& swapChainTextures = mRenderer.GetTargetFrameBuffers(FrameBufferType::PRESENT);
 	vk::Extent2D extent = mRenderer.GetSwapChainExtent();
 
-	mSwapChainFramebuffers.resize(swapChainImageViews.size());
-	for (size_t i = 0; i < swapChainImageViews.size(); i++)
+	mFrameBuffers.resize(swapChainTextures.size());
+	for (size_t i = 0; i < swapChainTextures.size(); i++)
 	{
-		std::vector<vk::ImageView> attachments = {swapChainImageViews[i]};
+		std::vector<vk::ImageView> attachments = {swapChainTextures[i]->GetImageView()};
 
 		vk::FramebufferCreateInfo framebufferInfo = {};
 		framebufferInfo.renderPass = mRenderPass;
@@ -216,7 +207,7 @@ void ImGuiHandle::CreateFrameBuffers()
 		framebufferInfo.height = extent.height;
 		framebufferInfo.layers = 1;
 
-		mSwapChainFramebuffers[i] = mDevice->createFramebuffer(framebufferInfo);
+		mFrameBuffers[i] = mDevice->createFramebuffer(framebufferInfo);
 	}
 }
 
@@ -242,16 +233,6 @@ void ImGuiHandle::CreateDescriptorPool()
 	info.setFlags(vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet);
 
 	mDescriptorPool = mDevice->createDescriptorPool(info);
-}
-
-void ImGuiHandle::CreateCommandBuffers()
-{
-	vk::CommandBufferAllocateInfo info;
-	info.commandBufferCount = static_cast<uint32_t>(mRenderer.GetSwapChainImageViews().size());
-	info.commandPool = mDevice.GetCommandPool();
-	info.level = vk::CommandBufferLevel::ePrimary;
-
-	mCommandBuffers = mDevice->allocateCommandBuffers(info);
 }
 
 } // namespace erm

@@ -10,7 +10,6 @@
 #include "data/instance_data.glsl"
 #include "data/payload_data.glsl"
 #include "ubos/utlas.glsl"
-#include "ubos/uimage.glsl"
 #include "ubos/ulight.glsl"
 #include "ubos/udepth_sampler.glsl"
 #include "ubos/ucamera.glsl"

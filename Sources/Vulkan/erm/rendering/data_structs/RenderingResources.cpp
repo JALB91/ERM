@@ -4,9 +4,9 @@
 
 #include "erm/rendering/Device.h"
 #include "erm/rendering/data_structs/AttachmentData.h"
-#include "erm/rendering/data_structs/RenderConfigs.h"
 #include "erm/rendering/data_structs/RenderData.h"
 #include "erm/rendering/renderer/Renderer.h"
+#include "erm/rendering/textures/Texture.h"
 
 #include "erm/utils/Utils.h"
 #include "erm/utils/VkUtils.h"
@@ -15,41 +15,43 @@
 
 namespace erm {
 
-RenderingResources::RenderingResources(Engine& engine)
+RenderingResources::RenderingResources(Engine& engine, const RenderConfigs& renderConfigs)
 	: mEngine(engine)
 	, mDevice(engine.GetDevice())
 	, mRenderer(engine.GetRenderer())
+	, mRenderConfigs(renderConfigs)
 {
 	Reload();
 }
 
-vk::CommandBuffer RenderingResources::UpdateCommandBuffer(std::vector<RenderData*>& renderData, uint32_t imageIndex)
+void RenderingResources::Refresh()
 {
-	vk::CommandBuffer& cmd = mCommandBuffers[imageIndex].get();
-	cmd.reset({});
+	for (auto& resources : mPipelineResources)
+		resources->Refresh();
+}
 
-	vk::CommandBufferBeginInfo beginInfo = {};
-	beginInfo.flags = {};
-	beginInfo.pInheritanceInfo = nullptr;
-
-	cmd.begin(beginInfo);
-
-	for (size_t i = 0; i < renderData.size(); ++i)
+void RenderingResources::UpdateCommandBuffer(
+	vk::CommandBuffer& cmd,
+	std::vector<RenderData*>& renderData)
+{
+	for (RenderData* data : renderData)
 	{
-		PipelineResources& resources = GetOrCreatePipelineResources(renderData[i]->mPipelineConfigs);
-		resources.UpdateResources(cmd, *renderData[i], imageIndex);
+		PipelineResources& resources = GetOrCreatePipelineResources(data->mPipelineConfigs);
+		resources.UpdateResources(cmd, *data);
 	}
 
-	std::array<vk::ClearValue, 2> clearValues {};
+	std::vector<vk::ClearValue> clearValues {1};
 	clearValues[0].color.float32[0] = 0.0f;
 	clearValues[0].color.float32[1] = 0.0f;
 	clearValues[0].color.float32[2] = 0.0f;
 	clearValues[0].color.float32[3] = 0.0f;
-	clearValues[1].setDepthStencil({1.0f, 0});
+
+	if (mRenderConfigs.mSubpassData.mDepthAttachment.has_value())
+		clearValues.emplace_back().setDepthStencil({1.0f, 0});
 
 	vk::RenderPassBeginInfo renderPassInfo = {};
 	renderPassInfo.renderPass = mRenderPass.get();
-	renderPassInfo.framebuffer = mSwapChainFramebuffers[imageIndex].get();
+	renderPassInfo.framebuffer = mFrameBuffers[std::min(mFrameBuffers.size() - 1, static_cast<size_t>(mRenderer.GetCurrentImageIndex()))].get();
 	renderPassInfo.renderArea.offset = vk::Offset2D {0, 0};
 	renderPassInfo.renderArea.extent = mRenderer.GetSwapChainExtent();
 	renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
@@ -57,30 +59,13 @@ vk::CommandBuffer RenderingResources::UpdateCommandBuffer(std::vector<RenderData
 
 	cmd.beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
 
-	for (size_t i = 0; i < renderData.size(); ++i)
+	for (RenderData* data : renderData)
 	{
-		PipelineResources& resources = GetOrCreatePipelineResources(renderData[i]->mPipelineConfigs);
-		resources.UpdateCommandBuffer(cmd, *renderData[i], imageIndex);
+		PipelineResources& resources = GetOrCreatePipelineResources(data->mPipelineConfigs);
+		resources.UpdateCommandBuffer(cmd, *data);
 	}
 
 	cmd.endRenderPass();
-	cmd.end();
-
-	PostDraw();
-
-	return cmd;
-}
-
-void RenderingResources::PostDraw()
-{
-	for (auto& res : mPipelineResources)
-		res->PostDraw();
-}
-
-void RenderingResources::Refresh()
-{
-	for (auto& resources : mPipelineResources)
-		resources->Refresh();
 }
 
 vk::AttachmentDescription RenderingResources::CreateAttachmentDescription(const erm::AttachmentData& data, vk::Format format) const
@@ -116,13 +101,11 @@ void RenderingResources::Reload()
 	CreateRenderPass();
 	CreateFramebuffers();
 	CreateDescriptorPool();
-	CreateCommandBuffers();
 }
 
 void RenderingResources::Cleanup()
 {
-	mSwapChainFramebuffers.clear();
-	mCommandBuffers.clear();
+	mFrameBuffers.clear();
 	mPipelineResources.clear();
 	mRenderPass.reset();
 	mDescriptorPool.reset();
@@ -130,41 +113,37 @@ void RenderingResources::Cleanup()
 
 void RenderingResources::CreateRenderPass()
 {
-	const RenderConfigs& configs = RenderConfigs::DEFAULT_RENDER_CONFIGS;
-
 	std::deque<vk::AttachmentReference> attachmentRefs;
 	std::vector<vk::AttachmentDescription> attachments;
 	vk::SubpassDescription subpass;
 	vk::SubpassDependency dependency;
 
-	const SubpassData& data = configs.mSubpassData;
+	const SubpassData& data = mRenderConfigs.mSubpassData;
 
 	subpass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
 	subpass.colorAttachmentCount = 1;
 
-	attachments.emplace_back(CreateAttachmentDescription(data.mColorAttachment, mRenderer.GetSwapChainImageFormat()));
+	const std::vector<Texture*>& frameBuffers = mRenderer.GetTargetFrameBuffers(mRenderConfigs.mSubpassData.mColorAttachment.mFrameBufferType);
+	ERM_ASSERT(!frameBuffers.empty());
+
+	attachments.emplace_back(CreateAttachmentDescription(data.mColorAttachment, frameBuffers[0]->GetImageFormat()));
 
 	vk::AttachmentReference& colorAttachmentRef = attachmentRefs.emplace_back();
 	colorAttachmentRef.attachment = 0;
-#ifdef ERM_RAY_TRACING_ENABLED
-	colorAttachmentRef.layout = vk::ImageLayout::eGeneral;
-#else
-	colorAttachmentRef.layout = vk::ImageLayout::eColorAttachmentOptimal;
-#endif
+	colorAttachmentRef.layout = VkUtils::ToVulkanValue<vk::ImageLayout>(data.mColorAttachment.mFinalLayout);
 
 	subpass.pColorAttachments = &colorAttachmentRef;
 
 	if (data.mDepthAttachment.has_value())
 	{
-		attachments.emplace_back(CreateAttachmentDescription(data.mDepthAttachment.value(), VkUtils::FindDepthFormat(mDevice.GetVkPhysicalDevice())));
+		const std::vector<Texture*>& depthFrameBuffers = mRenderer.GetTargetFrameBuffers(data.mDepthAttachment.value().mFrameBufferType);
+		ERM_ASSERT(!depthFrameBuffers.empty());
+
+		attachments.emplace_back(CreateAttachmentDescription(data.mDepthAttachment.value(), depthFrameBuffers[0]->GetImageFormat()));
 
 		vk::AttachmentReference& depthAttachmentRef = attachmentRefs.emplace_back();
 		depthAttachmentRef.attachment = 1;
-#ifdef ERM_RAY_TRACING_ENABLED
-		depthAttachmentRef.layout = vk::ImageLayout::eGeneral;
-#else
-		depthAttachmentRef.layout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
-#endif
+		depthAttachmentRef.layout = VkUtils::ToVulkanValue<vk::ImageLayout>(data.mDepthAttachment.value().mFinalLayout);
 
 		subpass.pDepthStencilAttachment = &depthAttachmentRef;
 	}
@@ -172,9 +151,10 @@ void RenderingResources::CreateRenderPass()
 	dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
 	dependency.dstSubpass = 0;
 	dependency.srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
-	dependency.srcAccessMask = {};
 	dependency.dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+	dependency.srcAccessMask = {};
 	dependency.dstAccessMask = vk::AccessFlagBits::eColorAttachmentRead | vk::AccessFlagBits::eColorAttachmentWrite;
+	dependency.dependencyFlags = vk::DependencyFlagBits::eByRegion;
 
 	vk::RenderPassCreateInfo renderPassInfo = {};
 	renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
@@ -189,13 +169,18 @@ void RenderingResources::CreateRenderPass()
 
 void RenderingResources::CreateFramebuffers()
 {
-	const std::vector<vk::ImageView>& swapChainImageViews = mRenderer.GetSwapChainImageViews();
-	vk::Extent2D swapChainExtent = mRenderer.GetSwapChainExtent();
+	const std::vector<Texture*>& frameBuffers = mRenderer.GetTargetFrameBuffers(mRenderConfigs.mSubpassData.mColorAttachment.mFrameBufferType);
+	const vk::Extent2D& swapChainExtent = mRenderer.GetSwapChainExtent();
 
-	mSwapChainFramebuffers.resize(swapChainImageViews.size());
-	for (size_t i = 0; i < swapChainImageViews.size(); i++)
+	mFrameBuffers.resize(frameBuffers.size());
+	for (size_t i = 0; i < frameBuffers.size(); i++)
 	{
-		std::vector<vk::ImageView> attachments = {swapChainImageViews[i], mRenderer.GetDepthImageView()};
+		std::vector<vk::ImageView> attachments = {frameBuffers[i]->GetImageView()};
+
+		if (mRenderConfigs.mSubpassData.mDepthAttachment.has_value())
+		{
+			attachments.emplace_back(mRenderer.GetTargetFrameBuffers(mRenderConfigs.mSubpassData.mDepthAttachment.value().mFrameBufferType)[0]->GetImageView());
+		}
 
 		vk::FramebufferCreateInfo framebufferInfo = {};
 		framebufferInfo.renderPass = mRenderPass.get();
@@ -205,41 +190,27 @@ void RenderingResources::CreateFramebuffers()
 		framebufferInfo.height = static_cast<uint32_t>(swapChainExtent.height);
 		framebufferInfo.layers = 1;
 
-		mSwapChainFramebuffers[i] = mDevice->createFramebufferUnique(framebufferInfo);
+		mFrameBuffers[i] = mDevice->createFramebufferUnique(framebufferInfo);
 	}
 }
 
 void RenderingResources::CreateDescriptorPool()
 {
-	const std::vector<vk::ImageView>& swapChainImageViews = mRenderer.GetSwapChainImageViews();
+	const std::vector<Texture*>& frameBuffers = mRenderer.GetTargetFrameBuffers(mRenderConfigs.mSubpassData.mColorAttachment.mFrameBufferType);
 
 	std::array<vk::DescriptorPoolSize, 2> poolSizes {};
 	poolSizes[0].type = vk::DescriptorType::eUniformBuffer;
-	poolSizes[0].descriptorCount = static_cast<uint32_t>(swapChainImageViews.size() * 1000);
+	poolSizes[0].descriptorCount = static_cast<uint32_t>(frameBuffers.size() * 1000);
 	poolSizes[1].type = vk::DescriptorType::eCombinedImageSampler;
-	poolSizes[1].descriptorCount = static_cast<uint32_t>(swapChainImageViews.size() * 100);
+	poolSizes[1].descriptorCount = static_cast<uint32_t>(frameBuffers.size() * 100);
 
 	vk::DescriptorPoolCreateInfo poolInfo {};
 	poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
 	poolInfo.pPoolSizes = poolSizes.data();
-	poolInfo.maxSets = static_cast<uint32_t>(swapChainImageViews.size() * 100);
+	poolInfo.maxSets = static_cast<uint32_t>(frameBuffers.size() * 100);
 	poolInfo.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
 
 	mDescriptorPool = mDevice->createDescriptorPoolUnique(poolInfo);
-}
-
-void RenderingResources::CreateCommandBuffers()
-{
-	const std::vector<vk::ImageView>& swapChainImageViews = mRenderer.GetSwapChainImageViews();
-
-	mCommandBuffers.resize(swapChainImageViews.size());
-
-	vk::CommandBufferAllocateInfo allocInfo = {};
-	allocInfo.commandPool = mDevice.GetCommandPool();
-	allocInfo.level = vk::CommandBufferLevel::ePrimary;
-	allocInfo.commandBufferCount = static_cast<uint32_t>(mCommandBuffers.size());
-
-	mCommandBuffers = mDevice->allocateCommandBuffersUnique(allocInfo);
 }
 
 } // namespace erm

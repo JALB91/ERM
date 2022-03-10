@@ -22,11 +22,12 @@ namespace erm {
 
 Renderer::Renderer(Engine& engine)
 	: IRenderer(engine)
-	, mRenderingResources(nullptr)
 #ifdef ERM_RAY_TRACING_ENABLED
 	, mRTRenderData(nullptr)
 #endif
-{}
+{
+	CreateCommandBuffers();
+}
 
 Renderer::~Renderer()
 {}
@@ -35,9 +36,8 @@ void Renderer::OnPreRender()
 {
 	ERM_PROFILE_FUNCTION();
 
-	if (!mRenderingResources)
-		mRenderingResources = std::make_unique<RenderingResources>(mEngine);
-	mRenderingResources->Refresh();
+	for (auto& [key, value] : mRenderingMap)
+		value.first->Refresh();
 #ifdef ERM_RAY_TRACING_ENABLED
 	if (!mRTRenderingResources)
 		mRTRenderingResources = std::make_unique<RTRenderingResources>(mEngine);
@@ -59,12 +59,12 @@ void Renderer::OnPreRender()
 	}
 
 	// Check if a previous frame is using this image (i.e. there is its fence to wait on)
-	if (mImagesInFlight[mCurrentImageIndex])
+	if (mImagesInFlight[GetCurrentImageIndex()])
 	{
-		ERM_VK_CHECK(mDevice->waitForFences(1, &mImagesInFlight[mCurrentImageIndex], VK_TRUE, UINT64_MAX));
+		ERM_VK_CHECK(mDevice->waitForFences(1, &mImagesInFlight[GetCurrentImageIndex()], VK_TRUE, UINT64_MAX));
 	}
 	// Mark the image as now being in use by this frame
-	mImagesInFlight[mCurrentImageIndex] = mInFlightFences[mCurrentFrame];
+	mImagesInFlight[GetCurrentImageIndex()] = mInFlightFences[mCurrentFrame];
 
 	mIsImageIndexValid = true;
 }
@@ -76,15 +76,15 @@ void Renderer::OnRender()
 	if (!mIsImageIndexValid)
 		return;
 
-	std::vector<vk::CommandBuffer> commandBuffers = RetrieveCommandBuffers();
+	vk::CommandBuffer& commandBuffer = RetrieveCommandBuffer();
 
 	vk::PipelineStageFlags waitStages[] = {vk::PipelineStageFlagBits::eColorAttachmentOutput};
 	vk::SubmitInfo submitInfo = {};
 	submitInfo.waitSemaphoreCount = 1;
 	submitInfo.pWaitSemaphores = &mImageAvailableSemaphores[mCurrentFrame];
 	submitInfo.pWaitDstStageMask = waitStages;
-	submitInfo.commandBufferCount = static_cast<uint32_t>(commandBuffers.size());
-	submitInfo.pCommandBuffers = commandBuffers.data();
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &commandBuffer;
 	submitInfo.signalSemaphoreCount = 1;
 	submitInfo.pSignalSemaphores = &mRenderFinishedSemaphores[mCurrentFrame];
 
@@ -96,7 +96,9 @@ void Renderer::OnPostRender()
 {
 	ERM_PROFILE_FUNCTION();
 
-	mRenderData.clear();
+	for (auto& [key, value] : mRenderingMap)
+		value.second.clear();
+
 #ifdef ERM_RAY_TRACING_ENABLED
 	mRTRenderData = nullptr;
 #endif
@@ -134,7 +136,37 @@ void Renderer::SubmitRenderData(RenderData& data)
 {
 	ERM_ASSERT(!data.mMeshes.empty());
 
-	mRenderData.emplace_back(&data);
+	if (data.mRenderingId.has_value())
+	{
+		const auto it = mRenderingMap.find(data.mRenderingId.value());
+
+		if (it == mRenderingMap.end())
+		{
+			data.mRenderingId = static_cast<uint32_t>(mRenderingMap.size());
+			mRenderingMap[data.mRenderingId.value()] = std::make_pair<std::unique_ptr<RenderingResources>, std::vector<RenderData*>>(std::make_unique<RenderingResources>(mEngine, data.mRenderConfigs), {&data});
+		}
+		else
+		{
+			it->second.second.emplace_back(&data);
+		}
+	}
+	else
+	{
+		const auto it = std::find_if(mRenderingMap.begin(), mRenderingMap.end(), [&data](const auto& resources) {
+			return resources.second.first->GetRenderConfigs().IsRenderPassLevelCompatible(data.mRenderConfigs);
+		});
+
+		if (it == mRenderingMap.end())
+		{
+			data.mRenderingId = static_cast<uint32_t>(mRenderingMap.size());
+			mRenderingMap[data.mRenderingId.value()] = std::make_pair<std::unique_ptr<RenderingResources>, std::vector<RenderData*>>(std::make_unique<RenderingResources>(mEngine, data.mRenderConfigs), {&data});
+		}
+		else
+		{
+			data.mRenderingId = it->first;
+			it->second.second.emplace_back(&data);
+		}
+	}
 }
 
 #ifdef ERM_RAY_TRACING_ENABLED
@@ -148,39 +180,57 @@ void Renderer::RecreateSwapChain()
 {
 	IRenderer::RecreateSwapChain();
 
-	mRenderingResources.reset();
-	mRenderData.clear();
+	mRenderingMap.clear();
 
 #ifdef ERM_RAY_TRACING_ENABLED
 	mRTRenderingResources.reset();
 	mRTRenderData = nullptr;
 #endif
+
+	mCommandBuffers.clear();
+
+	CreateCommandBuffers();
 }
 
-std::vector<vk::CommandBuffer> Renderer::RetrieveCommandBuffers()
+void Renderer::CreateCommandBuffers()
+{
+	mCommandBuffers.resize(IRenderer::kMaxFramesInFlight);
+
+	vk::CommandBufferAllocateInfo allocInfo = {};
+	allocInfo.commandPool = mDevice.GetCommandPool();
+	allocInfo.level = vk::CommandBufferLevel::ePrimary;
+	allocInfo.commandBufferCount = static_cast<uint32_t>(mCommandBuffers.size());
+
+	mCommandBuffers = mDevice->allocateCommandBuffersUnique(allocInfo);
+}
+
+vk::CommandBuffer& Renderer::RetrieveCommandBuffer()
 {
 	ERM_PROFILE_FUNCTION();
 
-	std::vector<vk::CommandBuffer> commandBuffers(
-		(mRenderingResources ? 1 : 0) +
-#ifdef ERM_RAY_TRACING_ENABLED
-		((mRTRenderData && mRTRenderingResources) ? 1 : 0) +
-#endif
-		1);
+	vk::CommandBuffer& cmd = mCommandBuffers[GetCurrentFrame()].get();
+	cmd.reset({});
 
-	size_t index = 0;
+	vk::CommandBufferBeginInfo beginInfo = {};
+	beginInfo.flags = {};
+	beginInfo.pInheritanceInfo = nullptr;
 
-	if (mRenderingResources)
-		commandBuffers[index++] = mRenderingResources->UpdateCommandBuffer(mRenderData, mCurrentImageIndex);
+	cmd.begin(beginInfo);
+
+	for (auto& [key, value] : mRenderingMap)
+		if (!value.second.empty())
+			value.first->UpdateCommandBuffer(cmd, value.second);
 
 #ifdef ERM_RAY_TRACING_ENABLED
 	if (mRTRenderData && mRTRenderingResources)
-		commandBuffers[index++] = mRTRenderingResources->UpdateCommandBuffer(*mRTRenderData, mCurrentImageIndex);
+		mRTRenderingResources->UpdateCommandBuffer(cmd, *mRTRenderData);
 #endif
 
-	commandBuffers[index] = mEngine.GetImGuiHandle().GetCommandBuffer(mCurrentImageIndex);
+	mEngine.GetImGuiHandle().UpdateCommandBuffer(cmd);
 
-	return commandBuffers;
+	cmd.end();
+
+	return cmd;
 }
 
 } // namespace erm

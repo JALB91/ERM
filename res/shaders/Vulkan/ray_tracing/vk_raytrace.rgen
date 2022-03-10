@@ -4,7 +4,7 @@
 
 #include "data/payload_data.glsl"
 #include "ubos/utlas.glsl"
-#include "ubos/uimage.glsl"
+#include "ubos/uframe_buffer_1.glsl"
 #include "ubos/urtbasic.glsl"
 #include "ubos/ucamera.glsl"
 
@@ -18,7 +18,7 @@ void main()
     vec4 origin    = rtBasic.view * vec4(0, 0, 0, 1);
     vec4 target    = rtBasic.projection * vec4(d.x, d.y, 1, 1);
     vec4 direction = rtBasic.view * vec4(normalize(target.xyz), 0);
-    uint  rayFlags = gl_RayFlagsOpaqueEXT;
+    uint rayFlags  = gl_RayFlagsOpaqueEXT;
     float tMin     = camera.zNear;
     float tMax     = camera.zFar;
 
@@ -62,6 +62,6 @@ void main()
     if (!prd.mSkip)
     {
         const ivec2 p = ivec2(gl_LaunchIDEXT.x, gl_LaunchSizeEXT.y-gl_LaunchIDEXT.y);
-        imageStore(image, p, vec4(hitValue, 1.0));
+        imageStore(frameBuffer1, p, vec4(hitValue, 1.0));
     }
 }

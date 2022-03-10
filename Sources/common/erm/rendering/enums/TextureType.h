@@ -8,7 +8,6 @@ enum class TextureType
 	NORMAL,
 	SPECULAR,
 	CUBE_MAP,
-	DEPTH,
 	COUNT
 };
 

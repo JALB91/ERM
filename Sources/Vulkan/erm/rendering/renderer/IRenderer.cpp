@@ -29,7 +29,7 @@ IRenderer::IRenderer(Engine& engine)
 	, mFramebufferResized(true)
 {
 	CreateSwapChain();
-	CreateImageViews();
+	CreateFrameResources();
 	CreateDepthResources();
 	CreateTextureSampler();
 	CreateSyncObjects();
@@ -82,7 +82,7 @@ void IRenderer::RecreateSwapChain()
 	CleanupSwapChain();
 
 	CreateSwapChain();
-	CreateImageViews();
+	CreateFrameResources();
 	CreateDepthResources();
 
 	for (ISwapChainListener* listener : mSwapChainListeners)
@@ -93,12 +93,20 @@ void IRenderer::RecreateSwapChain()
 
 void IRenderer::CleanupSwapChain()
 {
-	for (size_t i = 0; i < mSwapChainImageViews.size(); ++i)
+	for (auto& [key, value] : mFrameBuffers)
 	{
-		mDevice->destroyImageView(mSwapChainImageViews[i], nullptr);
+		for (Texture* texture : value)
+		{
+			// The present buffer images gets handled internally from the block chain, no need to delete them manually
+			if (key == FrameBufferType::PRESENT)
+				texture->mImage = nullptr;
+
+			mResourcesManager.ReleaseTexture(texture);
+		}
 	}
-	mDepthTexture.reset();
-	mDevice->destroySwapchainKHR(mSwapChain, nullptr);
+
+	mFrameBuffers.clear();
+	mDevice->destroySwapchainKHR(mSwapChain);
 }
 
 void IRenderer::CreateSwapChain()
@@ -127,11 +135,7 @@ void IRenderer::CreateSwapChain()
 	swapChainCreateInfo.imageColorSpace = surfaceFormat.colorSpace;
 	swapChainCreateInfo.imageExtent = mSwapChainExtent;
 	swapChainCreateInfo.imageArrayLayers = 1;
-	swapChainCreateInfo.imageUsage = vk::ImageUsageFlagBits::eColorAttachment
-#ifdef ERM_RAY_TRACING_ENABLED
-		| vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eStorage
-#endif
-		;
+	swapChainCreateInfo.imageUsage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eStorage;
 
 	if (indices.mGraphicsFamily != indices.mPresentFamily)
 	{
@@ -153,16 +157,16 @@ void IRenderer::CreateSwapChain()
 	swapChainCreateInfo.presentMode = presentMode;
 	swapChainCreateInfo.clipped = VK_TRUE;
 	swapChainCreateInfo.oldSwapchain = nullptr;
-
+	
 	mSwapChain = mDevice->createSwapchainKHR(swapChainCreateInfo);
 	mSwapChainImages = mDevice->getSwapchainImagesKHR(mSwapChain);
-}
 
-void IRenderer::CreateImageViews()
-{
 	mSwapChainImageViews.resize(mSwapChainImages.size());
+	mFrameBuffers[FrameBufferType::PRESENT].resize(mSwapChainImages.size());
+
 	for (size_t i = 0; i < mSwapChainImages.size(); ++i)
 	{
+		// Create image view
 		vk::ImageViewCreateInfo viewInfo {};
 		viewInfo.image = mSwapChainImages[i];
 		viewInfo.viewType = vk::ImageViewType::e2D;
@@ -176,6 +180,86 @@ void IRenderer::CreateImageViews()
 		mSwapChainImageViews[i] = VkUtils::CreateImageView(
 			mDevice.GetVkDevice(),
 			viewInfo);
+
+		// Create texture associated
+		Texture* texture = mResourcesManager.CreateEmptyTexture();
+		texture->InitWithData(
+			("present_buffer_" + std::to_string(i)).c_str(),
+			mSwapChainImages[i],
+			mSwapChainImageViews[i],
+			nullptr,
+			vk::ImageLayout::ePresentSrcKHR,
+			mSwapChainImageFormat,
+			mSwapChainExtent.width,
+			mSwapChainExtent.height);
+
+		mFrameBuffers[FrameBufferType::PRESENT][i] = texture;
+	}
+}
+
+void IRenderer::CreateFrameResources()
+{
+	static const std::array sBuffersToCreate {FrameBufferType::FRAME_1};
+
+	for (size_t i = 0; i < sBuffersToCreate.size(); ++i)
+	{
+		mFrameBuffers[sBuffersToCreate[i]].resize(IRenderer::kMaxFramesInFlight);
+		for (size_t j = 0; j < IRenderer::kMaxFramesInFlight; ++j)
+		{
+			vk::Format format = vk::Format::eB8G8R8A8Unorm;
+			vk::Image image;
+			vk::ImageView imageView;
+			vk::DeviceMemory imageMemory;
+
+			vk::ImageCreateInfo imageInfo {};
+			imageInfo.imageType = vk::ImageType::e2D;
+			imageInfo.extent.width = mSwapChainExtent.width;
+			imageInfo.extent.height = mSwapChainExtent.height;
+			imageInfo.extent.depth = 1;
+			imageInfo.mipLevels = 1;
+			imageInfo.arrayLayers = 1;
+			imageInfo.format = format;
+			imageInfo.tiling = vk::ImageTiling::eOptimal;
+			imageInfo.initialLayout = vk::ImageLayout::eUndefined;
+			imageInfo.usage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eStorage;
+			imageInfo.samples = vk::SampleCountFlagBits::e1;
+			imageInfo.sharingMode = vk::SharingMode::eExclusive;
+
+			VkUtils::CreateImage(
+				mDevice.GetVkPhysicalDevice(),
+				mDevice.GetVkDevice(),
+				imageInfo,
+				image,
+				imageMemory,
+				MemoryProperty::DEVICE_LOCAL);
+
+			vk::ImageViewCreateInfo viewInfo {};
+			viewInfo.image = image;
+			viewInfo.viewType = vk::ImageViewType::e2D;
+			viewInfo.format = format;
+			viewInfo.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
+			viewInfo.subresourceRange.baseMipLevel = 0;
+			viewInfo.subresourceRange.levelCount = 1;
+			viewInfo.subresourceRange.baseArrayLayer = 0;
+			viewInfo.subresourceRange.layerCount = 1;
+
+			imageView = VkUtils::CreateImageView(
+				mDevice.GetVkDevice(),
+				viewInfo);
+
+			Texture* texture = mResourcesManager.CreateEmptyTexture();
+			texture->InitWithData(
+				("frame_buffer_1_" + std::to_string(i)).c_str(),
+				image,
+				imageView,
+				imageMemory,
+				vk::ImageLayout::eGeneral,
+				format,
+				mSwapChainExtent.width,
+				mSwapChainExtent.height);
+
+			mFrameBuffers[sBuffersToCreate[i]][j] = texture;
+		}
 	}
 }
 
@@ -222,18 +306,18 @@ void IRenderer::CreateDepthResources()
 		mDevice.GetVkDevice(),
 		viewInfo);
 
-	mDepthTexture = std::make_unique<Texture>(
-		mDevice,
-		"DepthTexture",
+	Texture* texture = mResourcesManager.CreateEmptyTexture();
+	texture->InitWithData(
+		"depth_buffer",
 		depthImage,
 		depthImageView,
-		depthImageMemory);
+		depthImageMemory,
+		vk::ImageLayout::eGeneral,
+		depthFormat,
+		mSwapChainExtent.width,
+		mSwapChainExtent.height);
 
-#ifdef ERM_RAY_TRACING_ENABLED
-	mDepthTexture->SetImageLayout(vk::ImageLayout::eGeneral);
-#else
-	mDepthTexture->SetImageLayout(vk::ImageLayout::eColorAttachmentOptimal);
-#endif
+	mFrameBuffers[FrameBufferType::DEPTH].emplace_back(texture);
 }
 
 void IRenderer::CreateTextureSampler()
@@ -260,9 +344,6 @@ void IRenderer::CreateTextureSampler()
 
 void IRenderer::CreateSyncObjects()
 {
-	mImageAvailableSemaphores.resize(kMaxFramesInFlight);
-	mRenderFinishedSemaphores.resize(kMaxFramesInFlight);
-	mInFlightFences.resize(kMaxFramesInFlight);
 	mImagesInFlight.resize(mSwapChainImages.size(), nullptr);
 
 	vk::SemaphoreCreateInfo semaphoreInfo = {};
@@ -278,30 +359,27 @@ void IRenderer::CreateSyncObjects()
 	}
 }
 
+const std::vector<Texture*>& IRenderer::GetTargetFrameBuffers(FrameBufferType frameBufferType) const
+{
+	return mFrameBuffers.at(frameBufferType);
+}
+
 Texture* IRenderer::GetDefaultTexture(TextureType type) const
 {
 	switch (type)
 	{
-		case TextureType::NORMAL:
-			return mResourcesManager.GetOrCreateTexture("res/textures/viking_room.png");
 		case TextureType::DIFFUSE:
+			return mResourcesManager.GetOrCreateTexture("res/textures/viking_room.png");
+		case TextureType::NORMAL:
 			return mResourcesManager.GetOrCreateTexture("res/textures/viking_room.png");
 		case TextureType::SPECULAR:
 			return mResourcesManager.GetOrCreateTexture("res/textures/viking_room.png");
 		case TextureType::CUBE_MAP:
-			return GetDefaultCubeMap();
-		case TextureType::DEPTH:
-			return mDepthTexture.get();
+			return mResourcesManager.GetOrCreateCubeMap("res/cube_maps/skybox");
 		default:
 			ERM_ASSERT(false);
+			return {};
 	}
-
-	return nullptr;
-}
-
-CubeMap* IRenderer::GetDefaultCubeMap() const
-{
-	return mResourcesManager.GetOrCreateCubeMap("res/cube_maps/skybox");
 }
 
 } // namespace erm

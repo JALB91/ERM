@@ -77,13 +77,23 @@ void IBindingResources::CreateSamplerDescriptorWritesAndInfos(
 	for (size_t i = 0; i < samplerData.size(); ++i)
 	{
 		const SamplerData& sData = samplerData[i];
-		Texture* texture = mConfigs.GetTexture(sData.mTextureType);
-		if (!texture)
-			texture = mRenderer.GetDefaultTexture(sData.mTextureType);
+		Texture* targetTexture = nullptr;
+
+		if (sData.mType.index() == 0)
+		{
+			const std::vector<Texture*>& frameBuffers = mRenderer.GetTargetFrameBuffers(std::get<0>(sData.mType));
+			targetTexture = frameBuffers[std::min(frameBuffers.size() - 1, (size_t)mRenderer.GetCurrentImageIndex())];
+		}
+		else
+		{
+			targetTexture = mConfigs.GetTexture(std::get<1>(sData.mType));
+			if (!targetTexture)
+				targetTexture = mRenderer.GetDefaultTexture(std::get<1>(sData.mType));
+		}
 
 		vk::DescriptorImageInfo& imageInfo = infos[i];
-		imageInfo.imageLayout = texture->GetImageLayout();
-		imageInfo.imageView = texture->GetImageView();
+		imageInfo.imageLayout = targetTexture->GetImageLayout();
+		imageInfo.imageView = targetTexture->GetImageView();
 		imageInfo.sampler = mRenderer.GetTextureSampler();
 
 		vk::WriteDescriptorSet& descriptorWrite = writes[i + writeOffset];
@@ -106,27 +116,12 @@ void IBindingResources::CreateStorageImagesDescriptorWritesAndInfos(
 	for (size_t i = 0; i < storageImageData.size(); ++i)
 	{
 		const StorageImageData& sData = storageImageData[i];
-		vk::ImageView targetImage;
-
-		switch (sData.mType)
-		{
-			case StorageImageType::FRAME_BUFFER:
-				targetImage = mRenderer.GetSwapChainImageViews()[mRenderer.GetCurrentImageIndex()];
-				break;
-			case StorageImageType::DEPTH_BUFFER:
-				targetImage = mRenderer.GetDepthImageView();
-				break;
-			default:
-				ERM_ASSERT(false);
-		}
-
+		const std::vector<Texture*> frameBuffers = mRenderer.GetTargetFrameBuffers(sData.mFrameBufferType);
+		const Texture* targetTexture = frameBuffers[std::min(frameBuffers.size() - 1, (size_t)mRenderer.GetCurrentImageIndex())];
+		
 		vk::DescriptorImageInfo& imageInfo = infos[i];
-#ifdef ERM_RAY_TRACING_ENABLED
-		imageInfo.imageLayout = vk::ImageLayout::eGeneral;
-#else
-		imageInfo.imageLayout = vk::ImageLayout::eColorAttachmentOptimal;
-#endif
-		imageInfo.imageView = targetImage;
+		imageInfo.imageLayout = targetTexture->GetImageLayout();
+		imageInfo.imageView = targetTexture->GetImageView();
 
 		vk::WriteDescriptorSet& descriptorWrite = writes[i + writeOffset];
 		descriptorWrite.dstSet = descriptorSet;

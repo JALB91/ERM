@@ -1,6 +1,7 @@
 #pragma once
 
 #include "erm/rendering/buffers/DeviceBuffer.h"
+#include "erm/rendering/data_structs/PipelineConfigs.h"
 #include "erm/rendering/data_structs/StorageBufferResources.h"
 #include "erm/rendering/data_structs/UniformBufferObject.h"
 #include "erm/rendering/enums/StorageBufferType.h"
@@ -16,20 +17,27 @@ using StorageBuffersMap = std::unordered_map<StorageBufferType, StorageBufferRes
 
 struct IRenderData
 {
-	IRenderData() = default;
+	IRenderData(const PipelineConfigs& pipelineConfigs)
+		: mPipelineConfigs(pipelineConfigs)
+	{}
 	virtual ~IRenderData() = default;
 
-	IRenderData(IRenderData&& other)
+	IRenderData(IRenderData&& other) noexcept
 		: mUbos(std::move(other.mUbos))
 		, mSbos(std::move(other.mSbos))
+		, mPipelineConfigs(std::move(other.mPipelineConfigs))
 	{}
 
-	IRenderData& operator=(IRenderData&& other)
+	IRenderData& operator=(IRenderData&& other) noexcept
 	{
 		mUbos = std::move(other.mUbos);
 		mSbos = std::move(other.mSbos);
+		mPipelineConfigs = std::move(other.mPipelineConfigs);
 		return *this;
 	}
+
+	IRenderData(const IRenderData&) = delete;
+	IRenderData& operator=(const IRenderData&) = delete;
 
 	template<typename T>
 	inline void SetUbo(T ubo)
@@ -63,6 +71,7 @@ struct IRenderData
 
 	UbosMap mUbos;
 	StorageBuffersMap mSbos;
+	PipelineConfigs mPipelineConfigs;
 };
 
 } // namespace erm

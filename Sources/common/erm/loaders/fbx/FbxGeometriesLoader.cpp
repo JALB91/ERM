@@ -209,7 +209,7 @@ void ProcessMesh(
 	indicesOffset += static_cast<uint32_t>(vData.size());
 
 	mutex.lock();
-	model.AddMesh(std::move(vData), std::move(iData), conf, pMesh->GetName());
+	model.AddMesh(std::move(vData), std::move(iData), RenderConfigs::DEFAULT_RENDER_CONFIGS, conf, pMesh->GetName());
 	mutex.unlock();
 }
 

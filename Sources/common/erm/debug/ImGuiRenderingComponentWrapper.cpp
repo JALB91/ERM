@@ -36,8 +36,8 @@ bool ShowRenderingComponentDebug(erm::ecs::RenderingComponent& renderingComponen
 
 #ifdef ERM_RAY_TRACING_ENABLED
 		bool useRayTracing = renderingComponent.GetUseRayTracing();
-		ImGui::Checkbox("Use RTX", &useRayTracing);
-		renderingComponent.SetUseRayTracing(useRayTracing);
+		if (ImGui::Checkbox("Use RTX", &useRayTracing))
+			renderingComponent.SetUseRayTracing(useRayTracing);
 #endif
 
 		ImGui::Unindent();

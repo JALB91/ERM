@@ -20,7 +20,7 @@ public:
 		, mMaxSet(0)
 	{}
 
-	PipelineData(PipelineData&& other)
+	PipelineData(PipelineData&& other) noexcept
 		: mConfigs(other.mConfigs)
 		, mBindingResources(std::move(other.mBindingResources))
 		, mMaxSet(other.mMaxSet)
@@ -35,12 +35,6 @@ public:
 	{
 		for (auto& res : mBindingResources)
 			res->UpdateResources(cmd, renderData);
-	}
-
-	void PostDraw()
-	{
-		for (auto& res : mBindingResources)
-			res->PostDraw();
 	}
 
 	std::vector<vk::DescriptorSet> GetDescriptorSets(vk::DescriptorSet& emptySet)

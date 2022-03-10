@@ -24,12 +24,11 @@ public:
 	RTRenderingResources(Engine& engine);
 	~RTRenderingResources();
 
-	vk::CommandBuffer UpdateCommandBuffer(RTRenderData& renderData, uint32_t imageIndex);
-
 	void Refresh();
+	void UpdateCommandBuffer(vk::CommandBuffer& cmd, RTRenderData& renderData);
 
 private:
-	void UpdateResources(RTRenderData& renderData, uint32_t imageIndex);
+	void UpdateResources(RTRenderData& renderData);
 	void BuildBlas(RTRenderData& data, vk::BuildAccelerationStructureFlagsKHR flags);
 	void UpdateTopLevelAS(RTRenderData& data, vk::BuildAccelerationStructureFlagsKHR flags);
 
@@ -37,13 +36,12 @@ private:
 	void Cleanup();
 
 	void CreateDescriptorPool();
-	void CreateCommandBuffers();
 
+	Engine& mEngine;
 	Device& mDevice;
 	IRenderer& mRenderer;
 
 	vk::UniqueDescriptorPool mDescriptorPool;
-	std::vector<vk::UniqueCommandBuffer> mCommandBuffers;
 
 	RTTlas mTopLevelAS;
 	std::unique_ptr<RTPipelineResources> mPipelineResources;

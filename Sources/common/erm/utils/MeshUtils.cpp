@@ -26,7 +26,7 @@ Mesh CreateTriangle(
 	indices[1] = 1;
 	indices[2] = 2;
 
-	Mesh mesh(std::move(vertices), std::move(indices), PipelineConfigs::DEFAULT_PIPELINE_CONFIGS);
+	Mesh mesh(std::move(vertices), std::move(indices), RenderConfigs::DEFAULT_RENDER_CONFIGS, PipelineConfigs::DEFAULT_PIPELINE_CONFIGS);
 	return mesh;
 }
 
@@ -58,7 +58,7 @@ Mesh CreateSquare(
 	indices[4] = 1;
 	indices[5] = 3;
 
-	Mesh mesh(std::move(vertices), std::move(indices), PipelineConfigs::DEFAULT_PIPELINE_CONFIGS);
+	Mesh mesh(std::move(vertices), std::move(indices), RenderConfigs::DEFAULT_RENDER_CONFIGS, PipelineConfigs::DEFAULT_PIPELINE_CONFIGS);
 	return mesh;
 }
 
@@ -176,7 +176,7 @@ Mesh CreateCube(
 		indices[(i * 6) + 5] = offset + 2;
 	}
 
-	Mesh mesh(std::move(vertices), std::move(indices), PipelineConfigs::DEFAULT_PIPELINE_CONFIGS);
+	Mesh mesh(std::move(vertices), std::move(indices), RenderConfigs::DEFAULT_RENDER_CONFIGS, PipelineConfigs::DEFAULT_PIPELINE_CONFIGS);
 	return mesh;
 }
 
@@ -277,7 +277,7 @@ Mesh CreateSpike(
 	indices[16] = 14;
 	indices[17] = 15;
 
-	Mesh mesh(std::move(vertices), std::move(indices), PipelineConfigs::DEFAULT_PIPELINE_CONFIGS);
+	Mesh mesh(std::move(vertices), std::move(indices), RenderConfigs::DEFAULT_RENDER_CONFIGS, PipelineConfigs::DEFAULT_PIPELINE_CONFIGS);
 	return mesh;
 }
 
@@ -343,7 +343,7 @@ Mesh CreateSphere(
 		}
 	}
 
-	Mesh mesh(std::move(vertices), std::move(indices), PipelineConfigs::DEFAULT_PIPELINE_CONFIGS);
+	Mesh mesh(std::move(vertices), std::move(indices), RenderConfigs::DEFAULT_RENDER_CONFIGS, PipelineConfigs::DEFAULT_PIPELINE_CONFIGS);
 	return mesh;
 }
 
@@ -411,7 +411,7 @@ Mesh CreateGrid(
 	configs.SetDrawMode(DrawMode::LINES);
 	configs.SetCullMode(CullMode::NONE);
 
-	Mesh mesh(std::move(vertices), std::move(indices), configs);
+	Mesh mesh(std::move(vertices), std::move(indices), RenderConfigs::DEFAULT_RENDER_CONFIGS, configs);
 	return mesh;
 }
 

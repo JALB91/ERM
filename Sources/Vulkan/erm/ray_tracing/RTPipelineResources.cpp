@@ -1,5 +1,7 @@
 #include "erm/ray_tracing/RTPipelineResources.h"
 
+#include "erm/engine/Engine.h"
+
 #include "erm/math/math.h"
 
 #include "erm/ray_tracing/RTRenderData.h"
@@ -9,6 +11,7 @@
 #include "erm/rendering/data_structs/HostBindingResources.h"
 #include "erm/rendering/data_structs/PipelineData.h"
 #include "erm/rendering/shaders/ShaderProgram.h"
+#include "erm/rendering/renderer/Renderer.h"
 
 #include "erm/utils/Profiler.h"
 #include "erm/utils/Utils.h"
@@ -17,13 +20,13 @@
 namespace erm {
 
 RTPipelineResources::RTPipelineResources(
-	Device& device,
-	IRenderer& renderer,
+	Engine& engine,
 	const RTRenderData& renderData,
 	const vk::DescriptorPool& descriptorPool,
 	const vk::AccelerationStructureKHR* topLevelAS)
-	: mDevice(device)
-	, mRenderer(renderer)
+	: mEngine(engine)
+	, mDevice(engine.GetDevice())
+	, mRenderer(engine.GetRenderer())
 	, mRenderData(renderData)
 	, mDescriptorPool(descriptorPool)
 	, mTopLevelAS(topLevelAS)
@@ -53,8 +56,7 @@ void RTPipelineResources::Refresh()
 
 void RTPipelineResources::UpdateCommandBuffer(
 	vk::CommandBuffer& cmd,
-	RTRenderData& renderData,
-	uint32_t /*imageIndex*/)
+	RTRenderData& renderData)
 {
 	ERM_PROFILE_FUNCTION();
 
@@ -72,8 +74,6 @@ void RTPipelineResources::UpdateCommandBuffer(
 		ds.data(),
 		0,
 		nullptr);
-
-	mPipelineData->PostDraw();
 }
 
 void RTPipelineResources::CreatePipeline()

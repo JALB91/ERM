@@ -46,7 +46,7 @@ void PipelineResources::Refresh()
 	}
 }
 
-void PipelineResources::UpdateResources(vk::CommandBuffer& cmd, RenderData& renderData, uint32_t /*imageIndex*/)
+void PipelineResources::UpdateResources(vk::CommandBuffer& cmd, RenderData& renderData)
 {
 	if (mDescriptorSetLayouts.empty())
 		return;
@@ -55,10 +55,8 @@ void PipelineResources::UpdateResources(vk::CommandBuffer& cmd, RenderData& rend
 	data.UpdateResources(cmd, renderData);
 }
 
-void PipelineResources::UpdateCommandBuffer(vk::CommandBuffer& cmd, RenderData& renderData, uint32_t imageIndex)
+void PipelineResources::UpdateCommandBuffer(vk::CommandBuffer& cmd, RenderData& renderData)
 {
-	ERM_UNUSED(imageIndex);
-
 	if (mDescriptorSetLayouts.empty())
 		return;
 
@@ -105,12 +103,6 @@ void PipelineResources::UpdateCommandBuffer(vk::CommandBuffer& cmd, RenderData& 
 		cmd.bindIndexBuffer(iHandle.mBuffer, iHandle.mInfo.mOffset, vk::IndexType::eUint32);
 		cmd.drawIndexed(static_cast<uint32_t>(mesh.GetIndicesData().size()), 1, 0, 0, 0);
 	}
-}
-
-void PipelineResources::PostDraw()
-{
-	for (auto& [id, data] : mData)
-		data.PostDraw();
 }
 
 void PipelineResources::CreatePipeline()
@@ -343,9 +335,9 @@ void PipelineResources::CreatePipeline()
 
 PipelineData& PipelineResources::GetOrCreatePipelineData(RenderData& renderData)
 {
-	if (renderData.mRenderingId.has_value())
+	if (renderData.mBindingId.has_value())
 	{
-		auto it = mData.find(renderData.mRenderingId.value());
+		auto it = mData.find(renderData.mBindingId.value());
 		if (it != mData.end())
 			return it->second;
 	}
@@ -355,18 +347,18 @@ PipelineData& PipelineResources::GetOrCreatePipelineData(RenderData& renderData)
 		{
 			if (mData.find(i) == mData.end())
 			{
-				renderData.mRenderingId = i;
+				renderData.mBindingId = i;
 				break;
 			}
 		}
 
-		if (!renderData.mRenderingId.has_value())
-			renderData.mRenderingId = static_cast<uint32_t>(mData.size());
+		if (!renderData.mBindingId.has_value())
+			renderData.mBindingId = static_cast<uint32_t>(mData.size());
 	}
 
 	auto result = mData.emplace(
 		std::piecewise_construct,
-		std::forward_as_tuple(renderData.mRenderingId.value()),
+		std::forward_as_tuple(renderData.mBindingId.value()),
 		std::forward_as_tuple(renderData.mPipelineConfigs));
 	auto& data = result.first->second;
 	const auto& sbm = renderData.mPipelineConfigs.mShaderProgram->GetShaderBindingsMap();

@@ -41,7 +41,6 @@ public:
 	virtual const vk::DescriptorSet GetDescriptorSet() const = 0;
 
 	virtual void UpdateResources(vk::CommandBuffer& cmd, IRenderData& data) = 0;
-	virtual void PostDraw() {};
 
 protected:
 	template<typename Buffer>

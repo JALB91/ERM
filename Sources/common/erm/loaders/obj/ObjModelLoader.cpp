@@ -344,7 +344,7 @@ void AddMesh(
 	configs.mMaterial.mData = material ? material : &Material::DEFAULT;
 
 	mutex.lock();
-	model.AddMesh(std::move(vertices), std::move(indices), configs, meshName.c_str());
+	model.AddMesh(std::move(vertices), std::move(indices), RenderConfigs::DEFAULT_RENDER_CONFIGS, configs, meshName.c_str());
 	mutex.unlock();
 }
 

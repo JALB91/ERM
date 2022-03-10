@@ -57,6 +57,20 @@ public:
 #endif
 
 private:
+	struct ComponentRenderData
+	{
+		const math::mat4& mProj;
+		const math::mat4& mView;
+		const math::mat4& mViewInv;
+		const math::mat4& mModelMat;
+		const ecs::LightComponent& mLight;
+		const ecs::CameraComponent& mCamera;
+		const math::vec3& mLightPos;
+		const ecs::SkeletonComponent* mSkeletonComponent;
+		const ecs::TransformComponent& mCameraTransform;
+	};
+
+private:
 	// ISystem
 	void OnComponentBeingRemoved(EntityId id) override;
 
@@ -75,32 +89,15 @@ private:
 		const math::mat4& modelMat,
 		const math::vec3& lightPos);
 
-	void UpdateUbos(
-		RenderData& data,
-		const math::mat4& proj,
-		const math::mat4& viewInv,
-		const math::mat4& modelMat,
-		const LightComponent& light,
-		const CameraComponent& camera,
-		const math::vec3& lightPos,
-		const SkeletonComponent* skeletonComponent,
-		const TransformComponent& cameraTransform);
-
 #ifdef ERM_RAY_TRACING_ENABLED
-	void UpdateRTData(
-		LightComponent* light,
-		CameraComponent* camera,
-		const math::mat4& proj,
-		const math::mat4& view,
-		const math::vec3& lightPos,
-		const math::vec3& cameraPos);
-
 	void ProcessForRayTracing(
 		Model& model,
 		RenderingComponent& renderingComponent,
 		const math::mat4& modelMat,
 		vk::CommandBuffer& cmd);
 #endif
+
+	void UpdateUbos(IRenderData& data, const ComponentRenderData& crd);
 
 	Device& mDevice;
 	Renderer& mRenderer;

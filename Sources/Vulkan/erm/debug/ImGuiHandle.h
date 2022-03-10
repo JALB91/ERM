@@ -27,7 +27,7 @@ public:
 	void OnRender();
 	void OnPostRender();
 
-	vk::CommandBuffer& GetCommandBuffer(uint32_t imageIndex);
+	void UpdateCommandBuffer(vk::CommandBuffer& cmd);
 
 private:
 	// ISwapChainListener
@@ -38,16 +38,14 @@ private:
 	void CreateRenderPass();
 	void CreateFrameBuffers();
 	void CreateDescriptorPool();
-	void CreateCommandBuffers();
 
 	Engine& mEngine;
 	Device& mDevice;
 	Renderer& mRenderer;
 
 	vk::RenderPass mRenderPass;
-	std::vector<vk::Framebuffer> mSwapChainFramebuffers;
+	std::vector<vk::Framebuffer> mFrameBuffers;
 	vk::DescriptorPool mDescriptorPool;
-	std::vector<vk::CommandBuffer> mCommandBuffers;
 };
 
 } // namespace erm
