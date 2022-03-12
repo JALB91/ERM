@@ -75,8 +75,6 @@ private:
 		, mName(name)
 	{}
 
-	void RemoveFromParentInternal();
-
 	ECS& mECS;
 	const EntityId mId;
 	std::string mName;

@@ -101,6 +101,12 @@ void ECS::RemoveEntity(EntityId id)
 		{
 			RemoveEntity(child);
 		}
+
+		if (Entity* parent = GetEntityById(entity->GetParent()))
+		{
+			parent->mChildren.erase(std::find(parent->mChildren.begin(), parent->mChildren.end(), id));
+		}
+
 		mEntities[id()].reset();
 	}
 }

@@ -59,7 +59,7 @@ erm::ecs::EntityId ShowEntityDebugWindow(
 
 	if (isOpen)
 	{
-		const std::vector<erm::ecs::EntityId>& children(ecs.GetEntityById(entity)->GetChildren());
+		const std::vector<erm::ecs::EntityId> children = ecs.GetEntityById(entity)->GetChildren();
 		std::for_each(children.begin(), children.end(), [&ecs, &active](erm::ecs::EntityId child) {
 			active = ImGui::ShowEntityDebugWindow(ecs, active, child);
 		});
