@@ -2,10 +2,12 @@
 
 // clang-format off
 #include "erm/loaders/fbx/FBXMaterialLoader.h"
+#include "erm/loaders/fbx/FbxUtils.h"
 
 #include "erm/managers/ResourcesManager.h"
 
 #include "erm/rendering/materials/Material.h"
+#include "erm/rendering/materials/PBMaterial.h"
 // clang-format on
 
 namespace erm {
@@ -46,6 +48,44 @@ Material* ParseFBXMaterial(
 
 		if (const char* name = GetTextureName(lMaterial->FindProperty(FbxSurfaceMaterial::sNormalMap)))
 			mat.mTexturesMaps[erm::TextureType::NORMAL] = resourcesManager.GetOrCreateTexture((std::string("res/textures/") + name).c_str());
+
+		if (lMaterial->GetClassId().Is(FbxSurfacePhong::ClassId))
+		{
+			FbxSurfacePhong* pPhong = (FbxSurfacePhong*)lMaterial;
+
+			FbxDouble3 diffuse = pPhong->Diffuse.Get();
+			FbxDouble diffuseFactor = pPhong->DiffuseFactor.Get();
+			FbxDouble3 specular = pPhong->Specular.Get();
+			FbxDouble specularFactor = pPhong->SpecularFactor.Get();
+			FbxDouble3 emissive = pPhong->Emissive.Get();
+			FbxDouble emissiveFactor = pPhong->EmissiveFactor.Get();
+			FbxDouble3 transColor = pPhong->TransparentColor.Get();
+			FbxDouble transFactor = pPhong->TransparencyFactor.Get();
+			FbxDouble shininess = pPhong->Shininess.Get();
+
+			mat.mAmbient = ToVec3(emissive);
+			mat.mDiffuse = ToVec3(diffuse);
+			mat.mSpecular = ToVec3(specular);
+			mat.mShininess = static_cast<float>(shininess);
+		}
+		else if (lMaterial->GetClassId().Is(FbxSurfaceLambert::ClassId))
+		{
+			FbxSurfaceLambert* pLam = (FbxSurfaceLambert*)lMaterial;
+
+			FbxDouble3 diffuse = pLam->Diffuse.Get();
+			FbxDouble diffuseFactor = pLam->DiffuseFactor.Get();
+			FbxDouble3 emissive = pLam->Emissive.Get();
+			FbxDouble emissiveFactor = pLam->EmissiveFactor.Get();
+			FbxDouble3 transColor = pLam->TransparentColor.Get();
+			FbxDouble transFactor = pLam->TransparencyFactor.Get();
+
+			mat.mDiffuse = ToVec3(diffuse);
+			mat.mAmbient = ToVec3(emissive);
+		}
+		else
+		{
+			return nullptr;
+		}
 
 		mutex.lock();
 		Material* ret = materials.emplace_back(std::make_unique<Material>(std::move(mat))).get();

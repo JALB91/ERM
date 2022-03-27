@@ -16,13 +16,8 @@ ERM_SYSTEM_IMPL(Animation)
 
 AnimationSystem::AnimationSystem(Engine& engine)
 	: ISystem(engine)
-	, mSkeletonSystem(nullptr)
+	, mFrameTime(0.0f)
 {}
-
-void AnimationSystem::Init()
-{
-	mSkeletonSystem = mECS.GetSystem<SkeletonSystem>();
-}
 
 void AnimationSystem::OnUpdate(float dt)
 {
@@ -36,7 +31,7 @@ void AnimationSystem::OnPostUpdate()
 	for (ID i = ROOT_ID; i < MAX_ID; ++i)
 	{
 		AnimationComponent* animationComponent = GetComponent(i);
-		SkeletonComponent* skeletonComponent = mSkeletonSystem->GetComponent(i);
+		SkeletonComponent* skeletonComponent = mECS.GetComponent<SkeletonComponent>(i);
 
 		if (!animationComponent || !animationComponent->mPlaying || !skeletonComponent)
 			continue;
@@ -44,7 +39,7 @@ void AnimationSystem::OnPostUpdate()
 		SkeletonAnimation* currentAnimation = animationComponent->mSkeletonAnimation;
 		const Skin* skin = skeletonComponent->GetSkin();
 
-		if (!currentAnimation || !skin)
+		if (!currentAnimation || !skin || currentAnimation->mTotalAnimationTime <= 0.01f || currentAnimation->mKeyFrames.empty())
 			continue;
 
 		BonesTree* rootBone = skin->mRootBone.get();
@@ -60,6 +55,7 @@ void AnimationSystem::OnPostUpdate()
 		if (currentAnimationTime > currentAnimation->mTotalAnimationTime)
 		{
 			currentAnimationTime = std::fmod(currentAnimationTime, currentAnimation->mTotalAnimationTime);
+			ERM_ASSERT(!std::isnan(currentAnimationTime));
 		}
 
 		for (unsigned int j = 1; j < static_cast<unsigned int>(keyFrames.size()); ++j)
@@ -76,7 +72,10 @@ void AnimationSystem::OnPostUpdate()
 
 		rootBone->ForEachDo(
 			[&prevKeyFrame, &nextKeyFrame, progression](BonesTree& node) {
-				Bone& currentBone = *node.GetPayload();
+				Bone& currentBone = node.GetPayload();
+
+				if (node.GetId() >= MAX_BONES)
+					return;
 
 				const Pose& prevPose = prevKeyFrame->mTransforms[node.GetId()];
 				const Pose& nextPose = nextKeyFrame->mTransforms[node.GetId()];
@@ -86,8 +85,7 @@ void AnimationSystem::OnPostUpdate()
 				currentPose.mRotation = glm::normalize(glm::slerp(prevPose.mRotation, nextPose.mRotation, progression));
 				currentPose.mScale = glm::mix(prevPose.mScale, nextPose.mScale, progression);
 
-				currentBone.mLocalTransform = glm::identity<math::mat4>();
-				currentBone.mLocalTransform = glm::translate(currentBone.mLocalTransform, currentPose.mTranslation);
+				currentBone.mLocalTransform = glm::translate(glm::identity<math::mat4>(), currentPose.mTranslation);
 				currentBone.mLocalTransform *= glm::mat4_cast(currentPose.mRotation);
 				currentBone.mLocalTransform = glm::scale(currentBone.mLocalTransform, currentPose.mScale);
 			});

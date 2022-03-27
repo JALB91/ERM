@@ -5,7 +5,6 @@
 
 namespace erm::ecs {
 class ECS;
-class SkeletonSystem;
 } // namespace erm::ecs
 
 namespace erm::ecs {
@@ -18,12 +17,10 @@ public:
 	AnimationSystem(Engine& engine);
 
 	// ISystem
-	void Init() override;
 	void OnUpdate(float dt) override;
 	void OnPostUpdate() override;
 
 private:
-	SkeletonSystem* mSkeletonSystem;
 	float mFrameTime;
 };
 

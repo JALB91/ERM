@@ -47,19 +47,29 @@ bool ShowSkeletonComponentDebugWindow(erm::Engine& engine, erm::ecs::SkeletonCom
 		if (erm::Skin* skin = skeletonComponent.GetSkin())
 		{
 			bool displayBones = skeletonComponent.GetDisplayBones();
-			ImGui::Checkbox("Display Bones: ", &displayBones);
-			skeletonComponent.SetDisplayBones(displayBones);
+			if (ImGui::Checkbox("Display Bones: ", &displayBones))
+				skeletonComponent.SetDisplayBones(displayBones);
 
 			erm::BonesTree* rootBone = skin->mRootBone.get();
+
+			if (ImGui::Button("Reset"))
+			{
+				rootBone->ForEachDo([](erm::BonesTree& node) {
+					erm::Bone& bone = node.GetPayload();
+					bone.mLocalTransform = bone.mBindTransform;
+				});
+				skeletonComponent.SetDirty(true);
+			}
+
 			bool hasChanges = false;
 			rootBone->ForEachDo(
 				[&hasChanges](erm::BonesTree& node) {
 					ImGui::PushID(static_cast<int>(node.GetId()));
 					if (node.GetParent())
 						ImGui::Indent(ImGui::GetStyle().IndentSpacing * 0.75f);
-					if (ImGui::TreeNode(node.GetPayload()->mName.c_str()))
+					if (ImGui::TreeNode(node.GetPayload().mName.c_str()))
 					{
-						hasChanges |= ImGui::ShowMatrixDebug(node.GetPayload()->mLocalTransform);
+						hasChanges |= ImGui::ShowMatrixDebug(node.GetPayload().mLocalTransform);
 						ImGui::TreePop();
 					}
 				},

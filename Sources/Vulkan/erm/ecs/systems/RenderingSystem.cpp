@@ -411,11 +411,11 @@ void RenderingSystem::UpdateUbos(IRenderData& data, const ComponentRenderData& c
 					ubo.mView = crd.mViewInv;
 					ubo.mProjection = crd.mProj;
 
-					crd.mSkeletonComponent->GetSkin()->mRootBone->ForEachDo([&ubo](BonesTree& bone) {
+					crd.mSkeletonComponent->GetSkin()->mRootBone->ForEachDo([&ubo](const BonesTree& bone) {
 						if (bone.GetId() >= MAX_BONES)
 							return;
 
-						ubo.mBonesTransforms[bone.GetId()] = bone.GetPayload()->mAnimatedTransform;
+						ubo.mBonesTransforms[bone.GetId()] = bone.GetPayload().mAnimatedTransform;
 					});
 
 					data.SetUbo(std::move(ubo));

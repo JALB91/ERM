@@ -5,9 +5,11 @@
 #include "erm/debug/ImGuiHandle.h"
 
 #include "erm/ecs/Entity.h"
+#include "erm/ecs/systems/AnimationSystem.h"
 #include "erm/ecs/systems/CameraSystem.h"
 #include "erm/ecs/systems/LightSystem.h"
 #include "erm/ecs/systems/ModelSystem.h"
+#include "erm/ecs/systems/RenderingSystem.h"
 #include "erm/ecs/systems/SkeletonSystem.h"
 #include "erm/ecs/systems/TransformSystem.h"
 
@@ -117,12 +119,15 @@ bool Engine::Init()
 		auto ent = mECS->GetOrCreateEntity();
 		root->AddChild(*ent);
 
-		auto entity = mECS->GetOrCreateEntity();
-		Model* model = mResourcesManager->GetOrCreateModel("res/models/sphere.fbx");
-		entity->RequireComponent<ecs::ModelComponent>(model);
+		auto entity = mECS->GetOrCreateEntity("NAME");
+		entity->RequireComponent<ecs::ModelComponent>()->SetShouldShowBoundingBox(true);
 		auto transform = entity->RequireComponent<ecs::TransformComponent>();
 		transform->SetTranslationY(2.5f);
-		ent->AddChild(*entity);
+		transform->SetRotationX(-static_cast<float>(M_PI * 0.5));
+		entity->RequireComponent<ecs::SkeletonComponent>();
+		entity->RequireComponent<ecs::AnimationComponent>();
+		entity->RequireComponent<ecs::RenderingComponent>()->SetUseRayTracing(false);
+		root->AddChild(*entity);
 	}
 
 	{

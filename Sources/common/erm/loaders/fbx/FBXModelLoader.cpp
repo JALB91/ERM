@@ -14,6 +14,7 @@
 
 #include "erm/math/vec.h"
 
+#include "erm/rendering/animations/SkeletonAnimation.h"
 #include "erm/rendering/data_structs/Skin.h"
 #include "erm/rendering/data_structs/IndexData.h"
 #include "erm/rendering/data_structs/VertexData.h"
@@ -69,14 +70,23 @@ void ParseFBXModel(
 	sFbxMutex.unlock();
 
 	std::unique_ptr<BonesTree> bonesTree;
+	std::vector<std::unique_ptr<SkeletonAnimation>> animations;
 
 	ProcessSkeleton(mutex, stop, bonesTree, *lScene);
-	ProcessGeometries(mutex, stop, path, model, resourcesManager, bonesTree, *lScene);
+	ProcessGeometries(mutex, stop, path, model, resourcesManager, bonesTree, *lScene, animations);
 
 	if (bonesTree)
 	{
 		mutex.lock();
 		resourcesManager.GetSkins().emplace_back(std::make_unique<Skin>(path, path, std::move(bonesTree)));
+		mutex.unlock();
+	}
+
+	if (!animations.empty())
+	{
+		mutex.lock();
+		for (std::unique_ptr<SkeletonAnimation>& animation : animations)
+			resourcesManager.GetAnimations().emplace_back(std::move(animation));
 		mutex.unlock();
 	}
 }

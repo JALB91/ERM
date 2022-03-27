@@ -84,12 +84,12 @@ void ProcessNode(
 
 					if (!root)
 					{
-						root = std::make_unique<BonesTree>(i, std::make_unique<Bone>(bindMatrix, parentInverseBind, boneName));
+						root = std::make_unique<BonesTree>(i, Bone(bindMatrix, parentInverseBind, boneName));
 						tree = root.get();
 					}
 					else
 					{
-						tree = &tree->AddChild(i, std::make_unique<Bone>(bindMatrix, parentInverseBind, boneName));
+						tree = &tree->AddChild(i, Bone(bindMatrix, parentInverseBind, boneName));
 					}
 
 					found = true;

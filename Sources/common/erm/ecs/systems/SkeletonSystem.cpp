@@ -4,6 +4,8 @@
 
 #include "erm/utils/Profiler.h"
 
+#include "erm/ecs/systems/AnimationSystem.h"
+
 namespace erm::ecs {
 
 ERM_SYSTEM_IMPL(Skeleton)
@@ -21,17 +23,20 @@ void SkeletonSystem::OnPostUpdate()
 		Skin* skin = skeletonComponent->GetSkin();
 
 		if (!skin)
+		{
+			skeletonComponent->SetDirty(false);
 			continue;
+		}
 
 		BonesTree* rootBone = skin->mRootBone.get();
 
 		rootBone->ForEachDo(
-			[](BonesTree& bone) {
-				bone.GetPayload()->mWorldTransform = bone.GetParent() ? bone.GetParent()->GetPayload()->mWorldTransform : glm::identity<math::mat4>();
-				bone.GetPayload()->mWorldTransform *= bone.GetPayload()->mLocalTransform;
-			},
-			[](BonesTree& bone) {
-				bone.GetPayload()->mAnimatedTransform = bone.GetPayload()->mWorldTransform * bone.GetPayload()->mInverseBindTransform;
+			[](BonesTree& node) {
+				BonesTree* parent = node.GetParent();
+				Bone& bone = node.GetPayload();
+				bone.mWorldTransform = parent ? parent->GetPayload().mWorldTransform : glm::identity<math::mat4>();
+				bone.mWorldTransform *= bone.mLocalTransform;
+				bone.mAnimatedTransform = bone.mWorldTransform * bone.mInverseBindTransform;
 			});
 
 		skeletonComponent->SetDirty(false);

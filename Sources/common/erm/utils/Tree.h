@@ -14,6 +14,8 @@ class Tree
 public:
 	typedef std::unique_ptr<Tree> Child;
 	typedef std::vector<Child> Children;
+	typedef S ID;
+	typedef T Payload;
 
 public:
 	Tree(S id, T payload)
@@ -106,6 +108,18 @@ public:
 		return *this;
 	}
 
+	void AddChild(Child&& node)
+	{
+#if !defined(NDEBUG)
+		const Tree& root = GetRoot();
+		node->ForEachDo([&root](const Tree& node) {
+			ERM_ASSERT(root.Find(node.GetId()) == nullptr);
+		});
+#endif
+		Child& child = mChildren.emplace_back(std::move(node));
+		child->mParent = this;
+	}
+
 	Tree& AddChild(S id, T payload)
 	{
 		if (Tree* child = GetRoot().Find(id))
@@ -158,6 +172,35 @@ public:
 		return nullptr;
 	}
 
+	inline const Tree* Find(S id) const
+	{
+		if (mId == id)
+			return this;
+
+		for (const Child& child : mChildren)
+		{
+			if (const Tree* result = child->Find(id))
+			{
+				return result;
+			}
+		}
+
+		return nullptr;
+	}
+
+	template<typename Func>
+	inline const Tree* FindByPayload(Func function) const
+	{
+		if (function(mPayload))
+			return this;
+
+		for (const Child& child : mChildren)
+			if (const Tree* result = child->FindByPayload(function))
+				return result;
+
+		return nullptr;
+	}
+
 	inline unsigned int GetSize() const
 	{
 		unsigned int size = 1;
@@ -170,6 +213,7 @@ public:
 	inline const T& GetPayload() const { return mPayload; }
 	inline T& GetPayload() { return mPayload; }
 	inline S GetId() const { return mId; }
+	inline void SetId(S id) { mId = id; }
 	inline Tree* GetParent() { return mParent; }
 	inline const Children& GetChildren() const { return mChildren; }
 

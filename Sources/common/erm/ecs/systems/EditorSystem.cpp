@@ -159,7 +159,7 @@ void EditorSystem::OnPreRender()
 					if (index >= MAX_BONES)
 						return;
 
-					ubo.mBonesModels[index] = node.GetPayload()->mWorldTransform;
+					ubo.mBonesModels[index] = node.GetPayload().mWorldTransform;
 
 					StandaloneMesh* mesh = nullptr;
 					for (StandaloneMesh& m : meshes)

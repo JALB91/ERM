@@ -24,6 +24,21 @@ math::mat4 ToMat4(const FbxAMatrix& matrix)
 	return result;
 }
 
+math::quat ToQuat(const FbxQuaternion& quat)
+{
+	math::quat result = glm::identity<math::quat>();
+	result[0] = static_cast<float>(quat[0]);
+	result[1] = static_cast<float>(quat[1]);
+	result[2] = static_cast<float>(quat[2]);
+	result[3] = static_cast<float>(quat[3]);
+	return result;
+}
+
+math::vec4 ToVec4(const FbxVector4& vec)
+{
+	return math::vec4(vec.mData[0], vec.mData[1], vec.mData[2], vec.mData[3]);
+}
+
 math::vec3 ToVec3(const FbxVector4& vec)
 {
 	return math::vec3(vec.mData[0], vec.mData[1], vec.mData[2]);
@@ -108,29 +123,27 @@ math::vec2 GetUV(FbxMesh* pMesh, int controlPointId, int polygonIndex, int posit
 }
 
 void GetBonesData(
-	const std::map<int, std::vector<FbxSkeletonData>>& skeletonData,
-	BonesTree* bonesTree,
-	VertexData& data,
+	const std::map<int, std::vector<FbxSkeletonData>>& skeletonDataMap,
+	const BonesTree& bonesTree,
+	VertexData& vertexData,
 	int controlPointIndex)
 {
-	auto it = skeletonData.find(controlPointIndex);
-	if (it == skeletonData.end())
+	auto it = skeletonDataMap.find(controlPointIndex);
+	if (it == skeletonDataMap.end())
 		return;
 
-	auto& vec = it->second;
+	auto& skeletonDataVec = it->second;
 
-	for (auto& val : vec)
+	for (auto& skeletonData : skeletonDataVec)
 	{
-		if (data.mBoneNum >= BoneIds::length())
+		if (vertexData.mBoneNum >= BoneIds::length())
 			break;
 
-		if (val.mBoneWeight <= 0.0f)
+		if (skeletonData.mBoneWeight <= 0.0f)
 			continue;
 
-		BonesTree* bone = nullptr;
-		bonesTree->ForEachDo([&bone, &val](BonesTree& node) {
-			if (!bone && val.mBoneName == node.GetPayload()->mName)
-				bone = &node;
+		const BonesTree* bone = bonesTree.FindByPayload([&skeletonData](const BonesTree::Payload& payload) {
+			return skeletonData.mBoneName == payload.mName;
 		});
 
 		if (!bone)
@@ -141,7 +154,7 @@ void GetBonesData(
 		bool skip = false;
 		for (int i = 0; i < BoneIds::length(); ++i)
 		{
-			if (data.mBoneIds[i] == static_cast<int>(id) && data.mBoneWeights[i] > 0.0f)
+			if (vertexData.mBoneIds[i] == static_cast<int>(id) && vertexData.mBoneWeights[i] > 0.0f)
 			{
 				skip = true;
 				break;
@@ -151,9 +164,9 @@ void GetBonesData(
 		if (skip)
 			continue;
 
-		data.mBoneIds[data.mBoneNum] = id;
-		data.mBoneWeights[data.mBoneNum] = val.mBoneWeight;
-		data.mBoneNum++;
+		vertexData.mBoneIds[vertexData.mBoneNum] = id;
+		vertexData.mBoneWeights[vertexData.mBoneNum] = skeletonData.mBoneWeight;
+		vertexData.mBoneNum++;
 	}
 }
 

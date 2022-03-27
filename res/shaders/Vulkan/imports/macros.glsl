@@ -29,7 +29,7 @@
 #define VK_URTBASIC_BINDING         9
 #define VK_UCAMERA_BINDING          10
 
-#define MAX_BONES                   100
+#define MAX_BONES                   256
 #define PI                          3.14159265359
 
 #endif
