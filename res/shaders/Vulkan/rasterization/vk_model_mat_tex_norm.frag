@@ -27,6 +27,6 @@ void main()
 	float spec = pow(max(dot(n, l), 0.0), material.shininess);
 	vec3 specular = light.specular * material.specular * spec;
 
-	outColor.rgb *= Ndl * light.ambient * lit(l, n, v, material.diffuse, light.diffuse);
+	outColor.rgb += Ndl * light.ambient * lit(l, n, v, material.diffuse, light.diffuse);
 	outColor.rgb += specular;
 }
