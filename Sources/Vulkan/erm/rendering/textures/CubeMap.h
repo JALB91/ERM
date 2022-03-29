@@ -22,7 +22,6 @@ public:
 
 private:
 	void CreateTextureImage() override;
-	void CreateTextureImageView() override;
 };
 
 } // namespace erm

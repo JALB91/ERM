@@ -326,6 +326,7 @@ void IRenderer::CreateDepthResources()
 
 void IRenderer::CreateTextureSampler()
 {
+	// TODO: Create different samplers for different lods?
 	vk::SamplerCreateInfo samplerInfo {};
 	samplerInfo.magFilter = vk::Filter::eLinear;
 	samplerInfo.minFilter = vk::Filter::eLinear;
@@ -341,7 +342,7 @@ void IRenderer::CreateTextureSampler()
 	samplerInfo.mipmapMode = vk::SamplerMipmapMode::eLinear;
 	samplerInfo.mipLodBias = 0.0f;
 	samplerInfo.minLod = 0.0f;
-	samplerInfo.maxLod = 0.0f;
+	samplerInfo.maxLod = 20.0f;
 
 	mTextureSampler = mDevice->createSampler(samplerInfo);
 }

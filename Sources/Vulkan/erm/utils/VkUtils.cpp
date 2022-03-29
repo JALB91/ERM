@@ -647,9 +647,9 @@ vk::UniqueImageView CreateImageViewUnique(
 void TransitionImageLayout(
 	Device& device,
 	vk::Image image,
-	vk::Format /*format*/,
 	vk::ImageLayout oldLayout,
 	vk::ImageLayout newLayout,
+	uint32_t mipLevels /* = 1 */,
 	uint32_t layerCount /* = 1*/)
 {
 	vk::CommandBuffer commandBuffer = BeginSingleTimeCommands(device);
@@ -662,7 +662,7 @@ void TransitionImageLayout(
 	barrier.image = image;
 	barrier.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
 	barrier.subresourceRange.baseMipLevel = 0;
-	barrier.subresourceRange.levelCount = 1;
+	barrier.subresourceRange.levelCount = mipLevels;
 	barrier.subresourceRange.baseArrayLayer = 0;
 	barrier.subresourceRange.layerCount = layerCount;
 
@@ -690,7 +690,7 @@ void TransitionImageLayout(
 		throw std::invalid_argument("Unsupported layout transition");
 	}
 
-	commandBuffer.pipelineBarrier(sourceStage, destinationStage, {}, {}, nullptr, 0, nullptr, 1, &barrier);
+	commandBuffer.pipelineBarrier(sourceStage, destinationStage, {}, 0, nullptr, 0, nullptr, 1, &barrier);
 
 	EndSingleTimeCommands(device, commandBuffer);
 }

@@ -126,7 +126,9 @@ bool Engine::Init()
 		transform->SetRotationX(-static_cast<float>(M_PI * 0.5));
 		entity->RequireComponent<ecs::SkeletonComponent>();
 		entity->RequireComponent<ecs::AnimationComponent>();
+#if defined(ERM_RAY_TRACING_ENABLED)
 		entity->RequireComponent<ecs::RenderingComponent>()->SetUseRayTracing(false);
+#endif
 		root->AddChild(*entity);
 	}
 

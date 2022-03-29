@@ -27,7 +27,9 @@ namespace erm {
 
 CubeMap::CubeMap(Device& device)
 	: Texture(device)
-{}
+{
+	mImageViewType = vk::ImageViewType::eCube;
+}
 
 CubeMap::~CubeMap() = default;
 
@@ -52,10 +54,12 @@ void CubeMap::CreateTextureImage()
 	{
 		int width, height, bPP;
 		mLocalBuffer = stbi_load((mPath + "/" + kFaces[i] + targetExt).c_str(), &width, &height, &bPP, STBI_rgb_alpha);
+
 		mWidth = static_cast<uint32_t>(width);
 		mHeight = static_cast<uint32_t>(height);
 		mBPP = static_cast<uint32_t>(bPP);
 		vk::DeviceSize imageSize = mWidth * mHeight * 4;
+
 		ERM_ASSERT(mLocalBuffer);
 
 		if (!stagingBuffer)
@@ -65,16 +69,20 @@ void CubeMap::CreateTextureImage()
 		stbi_image_free(mLocalBuffer);
 	}
 
+	mFormat = vk::Format::eR8G8B8A8Srgb;
+	mMipLevels = 1;
+	mArrayLayers = static_cast<uint32_t>(kFaces.size());
+
 	vk::ImageCreateInfo imageInfo {};
 	imageInfo.imageType = vk::ImageType::e2D;
-	imageInfo.extent.width = mWidth;
-	imageInfo.extent.height = mHeight;
+	imageInfo.extent.width = GetWidth();
+	imageInfo.extent.height = GetHeight();
 	imageInfo.extent.depth = 1;
-	imageInfo.mipLevels = 1;
-	imageInfo.arrayLayers = 6;
-	imageInfo.format = vk::Format::eR8G8B8A8Srgb;
+	imageInfo.mipLevels = GetMipLevels();
+	imageInfo.arrayLayers = GetArrayLayers();
+	imageInfo.format = GetImageFormat();
 	imageInfo.tiling = vk::ImageTiling::eOptimal;
-	imageInfo.initialLayout = vk::ImageLayout::eUndefined;
+	imageInfo.initialLayout = GetImageLayout();
 	imageInfo.usage = vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled;
 	imageInfo.samples = vk::SampleCountFlagBits::e1;
 	imageInfo.sharingMode = vk::SharingMode::eExclusive;
@@ -88,49 +96,15 @@ void CubeMap::CreateTextureImage()
 		mImageMemory,
 		MemoryProperty::DEVICE_LOCAL);
 
-	VkUtils::TransitionImageLayout(
-		mDevice,
-		mImage,
-		vk::Format::eR8G8B8A8Srgb,
-		vk::ImageLayout::eUndefined,
-		vk::ImageLayout::eTransferDstOptimal,
-		6);
+	TransitionImageLayout(vk::ImageLayout::eTransferDstOptimal);
 
 	VkUtils::CopyBufferToImage(
 		mDevice,
 		stagingBuffer->GetBuffer(),
-		mImage,
-		static_cast<uint32_t>(mWidth),
-		static_cast<uint32_t>(mHeight),
-		6);
-
-	VkUtils::TransitionImageLayout(
-		mDevice,
-		mImage,
-		vk::Format::eR8G8B8A8Srgb,
-		vk::ImageLayout::eTransferDstOptimal,
-		vk::ImageLayout::eShaderReadOnlyOptimal,
-		6);
-
-	mImageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
-	mFormat = vk::Format::eR8G8B8A8Srgb;
-}
-
-void CubeMap::CreateTextureImageView()
-{
-	vk::ImageViewCreateInfo viewInfo {};
-	viewInfo.image = mImage;
-	viewInfo.viewType = vk::ImageViewType::eCube;
-	viewInfo.format = vk::Format::eR8G8B8A8Srgb;
-	viewInfo.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
-	viewInfo.subresourceRange.baseMipLevel = 0;
-	viewInfo.subresourceRange.levelCount = 1;
-	viewInfo.subresourceRange.baseArrayLayer = 0;
-	viewInfo.subresourceRange.layerCount = 6;
-
-	mImageView = VkUtils::CreateImageView(
-		mDevice.GetVkDevice(),
-		viewInfo);
+		GetImage(),
+		static_cast<uint32_t>(GetWidth()),
+		static_cast<uint32_t>(GetHeight()),
+		GetArrayLayers());
 }
 
 } // namespace erm

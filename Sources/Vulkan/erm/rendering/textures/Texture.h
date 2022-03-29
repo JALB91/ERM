@@ -40,25 +40,32 @@ public:
 
 	inline int GetWidth() const { return mWidth; }
 	inline int GetHeight() const { return mHeight; }
+	inline uint32_t GetMipLevels() const { return mMipLevels; }
+	inline uint32_t GetArrayLayers() const { return mArrayLayers; }
 	inline const vk::Image& GetImage() const { return mImage; }
 	inline const vk::ImageView& GetImageView() const { return mImageView; }
 	inline const vk::DeviceMemory& GetImageMemory() const { return mImageMemory; }
 	inline vk::ImageLayout GetImageLayout() const { return mImageLayout; }
 	inline vk::Format GetImageFormat() const { return mFormat; }
+	inline vk::ImageViewType GetImageViewType() const { return mImageViewType; }
 
 protected:
+	void TransitionImageLayout(vk::ImageLayout newLayout);
 	virtual void CreateTextureImage();
+	virtual void GenerateMipmaps();
 	virtual void CreateTextureImageView();
 
 	Device& mDevice;
 	unsigned char* mLocalBuffer;
 	uint32_t mWidth, mHeight, mBPP;
+	uint32_t mMipLevels, mArrayLayers;
 
 	vk::Image mImage;
 	vk::ImageView mImageView;
 	vk::DeviceMemory mImageMemory;
 	vk::ImageLayout mImageLayout;
 	vk::Format mFormat;
+	vk::ImageViewType mImageViewType;
 };
 
 } // namespace erm

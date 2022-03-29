@@ -102,9 +102,9 @@ extern vk::UniqueImageView CreateImageViewUnique(
 extern void TransitionImageLayout(
 	Device& device,
 	vk::Image image,
-	vk::Format /*format*/,
 	vk::ImageLayout oldLayout,
 	vk::ImageLayout newLayout,
+	uint32_t mipLevels = 1,
 	uint32_t layerCount = 1);
 
 extern void CopyBufferToImage(
