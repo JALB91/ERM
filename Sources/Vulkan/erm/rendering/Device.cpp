@@ -45,8 +45,13 @@ VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(
 	void* /*pUserData*/
 )
 {
-	if (messageSeverity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT || messageSeverity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
+	if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT || messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
+	{
 		std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
+#if defined(ERM_WINDOWS) && !defined(NDEBUG)
+		__debugbreak();
+#endif
+	}
 	return VK_FALSE;
 }
 
