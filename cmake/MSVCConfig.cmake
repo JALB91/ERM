@@ -12,6 +12,7 @@ function(target_setup_project TARGET)
 			_CRT_SECURE_NO_WARNINGS
 			_USE_MATH_DEFINES
 			NOMINMAX
+			ERM_WINDOWS
 	)
 
 	target_compile_options(
