@@ -37,7 +37,9 @@ vk::PrimitiveTopology ToVulkanValue(DrawMode mode)
 		case DrawMode::TRIANGLE_STRIP:
 			return vk::PrimitiveTopology::eTriangleStrip;
 		case DrawMode::TRIANGLES:
+			return vk::PrimitiveTopology::eTriangleList;
 		default:
+			ERM_ASSERT(false);
 			return vk::PrimitiveTopology::eTriangleList;
 	}
 }
@@ -52,7 +54,9 @@ vk::PolygonMode ToVulkanValue(PolygonMode mode)
 		case PolygonMode::LINE:
 			return vk::PolygonMode::eLine;
 		case PolygonMode::FILL:
+			return vk::PolygonMode::eFill;
 		default:
+			ERM_ASSERT(false);
 			return vk::PolygonMode::eFill;
 	}
 }
@@ -76,8 +80,10 @@ vk::CompareOp ToVulkanValue(DepthFunction function)
 			return vk::CompareOp::eLessOrEqual;
 		case DepthFunction::NOT_EQUAL:
 			return vk::CompareOp::eNotEqual;
-		default:
 		case DepthFunction::LESS:
+			return vk::CompareOp::eLess;
+		default:
+			ERM_ASSERT(false);
 			return vk::CompareOp::eLess;
 	}
 }
@@ -93,8 +99,10 @@ vk::CullModeFlagBits ToVulkanValue(CullMode mode)
 			return vk::CullModeFlagBits::eFront;
 		case CullMode::FRONT_AND_BACK:
 			return vk::CullModeFlagBits::eFrontAndBack;
-		default:
 		case CullMode::NONE:
+			return vk::CullModeFlagBits::eNone;
+		default:
+			ERM_ASSERT(false);
 			return vk::CullModeFlagBits::eNone;
 	}
 }
@@ -106,8 +114,10 @@ vk::FrontFace ToVulkanValue(FrontFace frontFace)
 	{
 		case FrontFace::CCW:
 			return vk::FrontFace::eCounterClockwise;
-		default:
 		case FrontFace::CW:
+			return vk::FrontFace::eClockwise;
+		default:
+			ERM_ASSERT(false);
 			return vk::FrontFace::eClockwise;
 	}
 }
@@ -121,8 +131,10 @@ vk::AttachmentLoadOp ToVulkanValue(AttachmentLoadOp op)
 			return vk::AttachmentLoadOp::eClear;
 		case AttachmentLoadOp::LOAD:
 			return vk::AttachmentLoadOp::eLoad;
-		default:
 		case AttachmentLoadOp::DONT_CARE:
+			return vk::AttachmentLoadOp::eDontCare;
+		default:
+			ERM_ASSERT(false);
 			return vk::AttachmentLoadOp::eDontCare;
 	}
 }
@@ -134,8 +146,10 @@ vk::AttachmentStoreOp ToVulkanValue(AttachmentStoreOp op)
 	{
 		case AttachmentStoreOp::STORE:
 			return vk::AttachmentStoreOp::eStore;
-		default:
 		case AttachmentStoreOp::DONT_CARE:
+			return vk::AttachmentStoreOp::eDontCare;
+		default:
+			ERM_ASSERT(false);
 			return vk::AttachmentStoreOp::eDontCare;
 	}
 }
@@ -149,7 +163,7 @@ vk::ImageLayout ToVulkanValue(ImageLayout layout)
 			return vk::ImageLayout::eUndefined;
 		case ImageLayout::COLOR_ATTACHMENT_OPTIMAL:
 			return vk::ImageLayout::eColorAttachmentOptimal;
-		case ImageLayout::DEPTH_ATTACHMMENT_OPTIMAL:
+		case ImageLayout::DEPTH_ATTACHMENT_OPTIMAL:
 			return vk::ImageLayout::eDepthAttachmentOptimal;
 		case ImageLayout::DEPTH_READONLY_OPTIMAL:
 			return vk::ImageLayout::eDepthReadOnlyOptimal;
@@ -165,9 +179,13 @@ vk::ImageLayout ToVulkanValue(ImageLayout layout)
 			return vk::ImageLayout::eGeneral;
 		case ImageLayout::SHADER_READ_ONLY_OPTIMAL:
 			return vk::ImageLayout::eShaderReadOnlyOptimal;
-		default:
+		case ImageLayout::TRANSFER_DST_OPTIMAL:
+			return vk::ImageLayout::eTransferDstOptimal;
 		case ImageLayout::PRESENT_SRC:
 			return vk::ImageLayout::ePresentSrcKHR;
+		default:
+			ERM_ASSERT(false);
+			return vk::ImageLayout::eUndefined;
 	}
 }
 
@@ -633,7 +651,6 @@ vk::ImageView CreateImageView(
 {
 	vk::ImageView imageView;
 	ERM_VK_CHECK(device.createImageView(&createInfo, nullptr, &imageView));
-
 	return imageView;
 }
 
@@ -719,50 +736,6 @@ void CopyBufferToImage(
 	commandBuffer.copyBufferToImage(buffer, image, vk::ImageLayout::eTransferDstOptimal, 1, &region);
 
 	EndSingleTimeCommands(device, commandBuffer);
-}
-
-void CreateDeviceLocalBuffer(
-	Device& device,
-	vk::PhysicalDevice physicalDevice,
-	vk::DeviceSize bufferSize,
-	void* bufferData,
-	vk::Buffer& dstBuffer,
-	vk::DeviceMemory& dstBufferMemory,
-	BufferUsageFlags bufferUsage)
-{
-	vk::Buffer stagingBuffer;
-	vk::DeviceMemory stagingBufferMemory;
-	CreateBuffer(
-		physicalDevice,
-		device.GetVkDevice(),
-		bufferSize,
-		stagingBuffer,
-		stagingBufferMemory,
-		BufferUsage::TRANSFER_SRC,
-		MemoryProperty::HOST_VISIBLE | MemoryProperty::HOST_COHERENT);
-
-	void* data = nullptr;
-	ERM_VK_CHECK(device->mapMemory(stagingBufferMemory, 0, bufferSize, {}, &data));
-	memcpy(data, bufferData, static_cast<size_t>(bufferSize));
-	device->unmapMemory(stagingBufferMemory);
-
-	CreateBuffer(
-		physicalDevice,
-		device.GetVkDevice(),
-		bufferSize,
-		dstBuffer,
-		dstBufferMemory,
-		bufferUsage | BufferUsage::TRANSFER_DST,
-		MemoryProperty::DEVICE_LOCAL);
-
-	CopyBufferToBuffer(
-		device,
-		stagingBuffer,
-		dstBuffer,
-		bufferSize);
-
-	device->destroyBuffer(stagingBuffer);
-	device->freeMemory(stagingBufferMemory);
 }
 
 } // namespace erm::VkUtils

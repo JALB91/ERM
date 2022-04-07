@@ -115,17 +115,6 @@ extern void CopyBufferToImage(
 	uint32_t height,
 	uint32_t layerCount = 1);
 
-extern void CreateDeviceLocalBuffer(
-	vk::Queue queue,
-	vk::CommandPool commandPool,
-	vk::PhysicalDevice physicalDevice,
-	vk::Device device,
-	vk::DeviceSize bufferSize,
-	void* bufferData,
-	vk::Buffer& dstBuffer,
-	vk::DeviceMemory& dstBufferMemory,
-	BufferUsageFlags buf);
-
 template<typename T, typename S>
 T ToVulkanValue(S s);
 
