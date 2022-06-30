@@ -1,4 +1,8 @@
-import sys, argparse, shutil, os
+import argparse, shutil, os
+
+def error(descr: str):
+    print(f"=== ERROR === Resources pipeline failed: {descr}")
+    exit(1)
 
 def compile_shaders(shaders_compiler, res_folder, rtx_enabled):
     for root, subdir, files in os.walk(os.path.join(res_folder, "shaders")):
@@ -17,15 +21,20 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if not os.path.exists(args.res_src):
-        parser.print_help()
-        exit(1)
+        error(f'Could not find res folder in "{args.res_src}"')
 
     try:
         shutil.rmtree(args.res_dest)
     except:
-        print("Failed to delete the resources destination folder")
-    
-    shutil.copytree(args.res_src, args.res_dest)
+        pass
+
+    try:
+        shutil.copytree(args.res_src, args.res_dest)
+    except Exception as e:
+        error(f'Failed to copy resources.\n{e}')
 
     if (args.shaders_compiler):
-        compile_shaders(args.shaders_compiler, args.res_dest, args.rtx_enabled)
+        try:
+            compile_shaders(args.shaders_compiler, args.res_dest, args.rtx_enabled)
+        except Exception as e:
+            error(f'Shaders compilation failed.\n{e}')

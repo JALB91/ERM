@@ -60,6 +60,7 @@ if("${TARGET_API}" STREQUAL "OpenGl")
 endif("${TARGET_API}" STREQUAL "OpenGl")
 
 # INCLUDE CONFIGURATION FILES FOR DEPENDENCIES
+include(TracyConfig)
 include(GLMConfig)
 include(GLFWConfig)
 include(TinyXmlConfig)
@@ -78,6 +79,7 @@ else()
 endif(NOT ${FBX_FOUND})
 
 # ADDS COMMON EXTERNALS DEPENDENCIES
+add_subdirectory ("${CMAKE_CURRENT_SOURCE_DIR}/externals/tracy")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/glm")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/glfw")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/imgui")
@@ -193,6 +195,7 @@ target_link_libraries(
 		glm
 		imgui
 		tinyxml2
+		Tracy::TracyClient
 )
 
 # CUSTOM TARGETS

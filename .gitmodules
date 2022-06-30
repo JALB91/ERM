@@ -19,3 +19,6 @@
 [submodule "externals/assimp"]
 	path = externals/assimp
 	url = https://github.com/assimp/assimp.git
+[submodule "externals/tracy"]
+	path = externals/tracy
+	url = https://github.com/wolfpld/tracy.git
