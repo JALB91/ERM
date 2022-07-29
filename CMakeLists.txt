@@ -50,14 +50,15 @@ include(AssimpConfig)
 # SETUP TARGET API
 setup_api()
 message(STATUS "Using ${TARGET_API} APIs")
+message(STATUS "${CMAKE_BUILD_TYPE} Build")
 
 # ADD DEPENDENCIES BASED ON TARGET API
-if("${TARGET_API}" STREQUAL "OpenGl")
+if("${TARGET_API}" STREQUAL "OpenGL")
 	include(GLEWConfig)
 	add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/glew-cmake")
 	set(GLEW_LIBRARY libglew_static)
 	set(PUBLIC_DEPENDENCIES "${GLEW_LIBRARY}")
-endif("${TARGET_API}" STREQUAL "OpenGl")
+endif("${TARGET_API}" STREQUAL "OpenGL")
 
 # INCLUDE CONFIGURATION FILES FOR DEPENDENCIES
 include(TracyConfig)
@@ -158,7 +159,7 @@ target_compile_definitions(
 		$<$<BOOL:${ERM_RAY_TRACING_ENABLED}>:ERM_RAY_TRACING_ENABLED>
 		${TARGET_API_COMPILE_DEF}
 	PRIVATE
-		$<$<STREQUAL:"${TARGET_API}","OpenGl">:GLEW_STATIC>
+		$<$<STREQUAL:"${TARGET_API}","OpenGL">:GLEW_STATIC>
 		$<$<STREQUAL:"${TARGET_API}","Vulkan">:ERM_SHADER_COMPILER="${SHADERS_COMPILER}">
 )
 

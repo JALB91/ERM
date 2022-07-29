@@ -8,8 +8,6 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <vector>
-
 namespace erm::ecs {
 class TransformSystem;
 }

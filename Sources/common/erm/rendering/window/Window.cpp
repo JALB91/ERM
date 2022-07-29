@@ -45,7 +45,7 @@ void SafeForEach(const std::set<T*>& set, const std::function<void(T* ptr)>& fun
 #if defined(ERM_VULKAN)
 const char* const kTitle = "ERM Vulkan";
 #elif defined(ERM_OPENGL)
-const char* const kTitle = "ERM OpenGl";
+const char* const kTitle = "ERM OpenGL";
 #elif defined(ERM_DX12)
 const char* const kTitle = "ERM DX12";
 #endif

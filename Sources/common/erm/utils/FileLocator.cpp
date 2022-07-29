@@ -34,7 +34,7 @@ const char* const kModelsDir = "models/";
 #if defined(ERM_VULKAN)
 const char* const kShadersDir = "shaders/Vulkan/rasterization/";
 #elif defined(ERM_OPENGL)
-const char* const kShadersDir = "shaders/OpenGl/";
+const char* const kShadersDir = "shaders/OpenGL/";
 #elif defined(ERM_DX12)
 const char* const kShadersDir = "shaders/DX12/";
 #endif
@@ -76,7 +76,10 @@ std::map<std::string, std::vector<const char*>> kFilesAssociations
 		{kPngTextureExtension, {kTexturesDir}},
 		{kJpegTextureExtension, {kTexturesDir}},
 	{
-		kJpgTextureExtension, { kTexturesDir }
+		kJpgTextureExtension,
+		{
+			kTexturesDir
+		}
 	}
 };
 

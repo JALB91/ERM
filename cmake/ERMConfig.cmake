@@ -1,5 +1,5 @@
 function(setup_api)
-	if("${TARGET_API}" STREQUAL "OpenGl")
+	if("${TARGET_API}" STREQUAL "OpenGL")
 		set(TARGET_API_COMPILE_DEF "ERM_OPENGL" PARENT_SCOPE)
 		find_package(OpenGL REQUIRED)
 		set(TARGET_API_LIB "${OPENGL_gl_LIBRARY}" PARENT_SCOPE)
