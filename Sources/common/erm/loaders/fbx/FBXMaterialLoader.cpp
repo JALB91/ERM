@@ -54,13 +54,13 @@ Material* ParseFBXMaterial(
 			FbxSurfacePhong* pPhong = (FbxSurfacePhong*)lMaterial;
 
 			FbxDouble3 diffuse = pPhong->Diffuse.Get();
-			FbxDouble diffuseFactor = pPhong->DiffuseFactor.Get();
+			//			FbxDouble diffuseFactor = pPhong->DiffuseFactor.Get();
 			FbxDouble3 specular = pPhong->Specular.Get();
-			FbxDouble specularFactor = pPhong->SpecularFactor.Get();
+			//			FbxDouble specularFactor = pPhong->SpecularFactor.Get();
 			FbxDouble3 emissive = pPhong->Emissive.Get();
-			FbxDouble emissiveFactor = pPhong->EmissiveFactor.Get();
-			FbxDouble3 transColor = pPhong->TransparentColor.Get();
-			FbxDouble transFactor = pPhong->TransparencyFactor.Get();
+			//			FbxDouble emissiveFactor = pPhong->EmissiveFactor.Get();
+			//			FbxDouble3 transColor = pPhong->TransparentColor.Get();
+			//			FbxDouble transFactor = pPhong->TransparencyFactor.Get();
 			FbxDouble shininess = pPhong->Shininess.Get();
 
 			mat.mAmbient = ToVec3(emissive);
@@ -73,11 +73,11 @@ Material* ParseFBXMaterial(
 			FbxSurfaceLambert* pLam = (FbxSurfaceLambert*)lMaterial;
 
 			FbxDouble3 diffuse = pLam->Diffuse.Get();
-			FbxDouble diffuseFactor = pLam->DiffuseFactor.Get();
+			//			FbxDouble diffuseFactor = pLam->DiffuseFactor.Get();
 			FbxDouble3 emissive = pLam->Emissive.Get();
-			FbxDouble emissiveFactor = pLam->EmissiveFactor.Get();
-			FbxDouble3 transColor = pLam->TransparentColor.Get();
-			FbxDouble transFactor = pLam->TransparencyFactor.Get();
+			//			FbxDouble emissiveFactor = pLam->EmissiveFactor.Get();
+			//			FbxDouble3 transColor = pLam->TransparentColor.Get();
+			//			FbxDouble transFactor = pLam->TransparencyFactor.Get();
 
 			mat.mDiffuse = ToVec3(diffuse);
 			mat.mAmbient = ToVec3(emissive);

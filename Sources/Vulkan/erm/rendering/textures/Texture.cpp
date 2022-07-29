@@ -8,6 +8,8 @@
 
 #include <stb_image.h>
 
+#include <cmath>
+
 namespace erm {
 
 Texture::Texture(Device& device)
@@ -196,12 +198,12 @@ void Texture::GenerateMipmaps()
 		blit.dstSubresource.layerCount = 1;
 
 		commandBuffer.blitImage(
-			mImage, 
-			vk::ImageLayout::eTransferSrcOptimal, 
-			mImage, 
-			vk::ImageLayout::eTransferDstOptimal, 
-			1, 
-			&blit, 
+			mImage,
+			vk::ImageLayout::eTransferSrcOptimal,
+			mImage,
+			vk::ImageLayout::eTransferDstOptimal,
+			1,
+			&blit,
 			vk::Filter::eLinear);
 
 		barrier.oldLayout = vk::ImageLayout::eTransferSrcOptimal;
@@ -233,14 +235,14 @@ void Texture::GenerateMipmaps()
 	barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
 
 	commandBuffer.pipelineBarrier(
-		vk::PipelineStageFlagBits::eTransfer, 
-		vk::PipelineStageFlagBits::eFragmentShader, 
-		{}, 
-		0, 
-		nullptr, 
-		0, 
-		nullptr, 
-		1, 
+		vk::PipelineStageFlagBits::eTransfer,
+		vk::PipelineStageFlagBits::eFragmentShader,
+		{},
+		0,
+		nullptr,
+		0,
+		nullptr,
+		1,
 		&barrier);
 
 	VkUtils::EndSingleTimeCommands(mDevice, commandBuffer);
