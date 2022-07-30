@@ -322,9 +322,7 @@ void ProcessMesh(
 
 	for (int i = 0; i < lPolygonCount; ++i)
 	{
-		const int lPolygonSize = pMesh->GetPolygonSize(i);
-
-		ERM_ASSERT(lPolygonSize == 3);
+		ERM_ASSERT(pMesh->GetPolygonSize(i) == 3);
 
 		iData.emplace_back(static_cast<int>(indicesOffset + vData.size()));
 		iData.emplace_back(static_cast<int>(indicesOffset + vData.size() + 1));

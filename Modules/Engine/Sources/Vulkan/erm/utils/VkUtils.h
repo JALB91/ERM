@@ -13,11 +13,19 @@ struct QueueFamilyIndices;
 struct SwapChainSupportDetails;
 } // namespace erm
 
+#ifndef NDEBUG
 #define ERM_VK_CHECK(OP)                            \
 	{                                               \
 		const auto result = OP;                     \
 		ERM_ASSERT(result == vk::Result::eSuccess); \
 	}
+#else
+#define ERM_VK_CHECK(OP)        \
+	{                           \
+		const auto result = OP; \
+		ERM_UNUSED(result);     \
+	}
+#endif
 
 namespace erm::VkUtils {
 

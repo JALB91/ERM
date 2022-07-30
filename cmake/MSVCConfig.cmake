@@ -1,13 +1,13 @@
-function(target_setup_project TARGET)
-	set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT "${TARGET}")
+function(target_setup_project)
+	set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT "${PROJECT_NAME}")
 
 	set_target_properties(
-		"${TARGET}" PROPERTIES
+		"${PROJECT_NAME}" PROPERTIES
 		VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_INSTALL_PREFIX}"
 	)
 
 	target_compile_definitions(
-		"${TARGET}"
+		"${PROJECT_NAME}"
 		PRIVATE
 			_CRT_SECURE_NO_WARNINGS
 			_USE_MATH_DEFINES
@@ -16,20 +16,20 @@ function(target_setup_project TARGET)
 	)
 
 	target_compile_options(
-		"${TARGET}"
+		"${PROJECT_NAME}"
 		PRIVATE 
-			$<$<STREQUAL:"${CMAKE_BUILD_TYPE}","Debug">:/W3 /WX>
+			$<$<BOOL:${ERM_DEBUG}>:/W3 /WX>
 		PUBLIC
-			$<$<STREQUAL:"${CMAKE_BUILD_TYPE}","Release">:/ZI>
+			$<$<BOOL:${ERM_RELEASE}>:/ZI>
 	)
 
 	target_link_options(
-		"${TARGET}"
+		"${PROJECT_NAME}"
 		PUBLIC
-			$<$<STREQUAL:"${CMAKE_BUILD_TYPE}","Release">:/INCREMENTAL:NO /DEBUG /OPT:REF /OPT:ICF>
+			$<$<BOOL:${ERM_RELEASE}>:/INCREMENTAL:NO /DEBUG /OPT:REF /OPT:ICF>
 	)
 
-	if("${TARGET_API}" STREQUAL "Vulkan")
+	if(ERM_VULKAN)
 		set(SHADERS_COMPILER "$ENV{VULKAN_SDK}\\Bin\\glslc.exe")
 		string(REPLACE "\\" "/" SHADERS_COMPILER "${SHADERS_COMPILER}")
 		set(SHADERS_COMPILER "${SHADERS_COMPILER}" PARENT_SCOPE)

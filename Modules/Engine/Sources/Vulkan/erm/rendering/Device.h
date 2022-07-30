@@ -35,7 +35,6 @@ private:
 
 	GLFWwindow* mWindow;
 	vk::UniqueInstance mInstance;
-	VkDebugUtilsMessengerEXT mDebugMessenger;
 	vk::UniqueSurfaceKHR mSurface;
 	vk::PhysicalDevice mPhysicalDevice;
 	vk::UniqueDevice mDevice;
@@ -43,6 +42,9 @@ private:
 	vk::Queue mPresentQueue;
 	vk::UniquePipelineCache mPipelineCache;
 	vk::UniqueCommandPool mCommandPool;
+#ifndef NDEBUG
+	VkDebugUtilsMessengerEXT mDebugMessenger;
+#endif
 
 #ifdef ERM_RAY_TRACING_ENABLED
 public:

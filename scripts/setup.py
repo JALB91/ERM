@@ -9,16 +9,12 @@ class TargetAPI(Enum):
     def __str__(self):
         return str(self.value)
 
-class Config(Enum):
-    DEBUG   = "Debug"
-    RELEASE = "Release"
-
-    def __str__(self):
-        return str(self.value)
-
 class OS(Enum):
     WINDOWS = "Windows"
     MAC     = "MacOS"
+
+    def __str__(self):
+        return str(self.value)
 
     @staticmethod
     def current():
@@ -42,26 +38,11 @@ def main():
         help=f"Set target rendering API ({TargetAPI.VULKAN} Default)")
 
     parser.add_argument(
-        "--config",
-        default=Config.DEBUG,
-        dest="config",
-        type=Config,
-        choices=list(Config),
-        help=f"Set build configuration ({Config.DEBUG} Default)")
-
-    parser.add_argument(
         "-o", "--open",
         default=False,
         action="store_true",
         dest="open",
         help="Open the project in the IDE after generation")
-
-    parser.add_argument(
-        "-r",
-        default=False,
-        action="store_true",
-        dest="release",
-        help="Generate with release configuration")
 
     parser.add_argument(
         "--rtx",
@@ -108,8 +89,6 @@ def main():
     if args.rtx and args.target_api != TargetAPI.VULKAN:
         print(f"RayTracing not available when using {args.target_api} APIs")
         exit(1)
-
-    target_config = Config.RELEASE if args.release else args.config
     
     root_path = os.path.dirname(os.path.abspath(__file__))
     root_path = root_path[:root_path.rfind(os.path.sep)]
@@ -118,25 +97,17 @@ def main():
 
     target_build_path = os.path.join(builds_path, f"ERM_{generator_name}_{args.target_api}")
 
-    try:
-        os.makedirs(os.path.join(target_build_path, target_config))
-    except:
-        pass
-
     cmake_args = [
         "ccmake" if args.interactive else "cmake", 
-        f"-DPRINT_VARIABLES={('ON' if args.verbose else 'OFF')}",
-        f"-DCMAKE_BUILD_TYPE={target_config}",
+        f"-DERM_VERBOSE={('ON' if args.verbose else 'OFF')}",
         f"-DTARGET_API={args.target_api}",
         f"-DERM_RAY_TRACING_ENABLED={('ON' if args.rtx else 'OFF')}",
+        f"-DPLATFORM={CURRENT_SYSTEM}",
         "-G", generator
     ]
 
     if (architecture):
         cmake_args.append("-A", architecture)
-
-    if (target_config == Config.RELEASE):
-        cmake_args.append("-DNDEBUG=ON")
     
     cmake_args.append("../../")
     

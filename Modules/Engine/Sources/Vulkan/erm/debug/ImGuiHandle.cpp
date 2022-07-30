@@ -22,6 +22,7 @@ static bool gFirst = true;
 
 void CheckVKResult(VkResult result)
 {
+	ERM_UNUSED(result);
 	ERM_ASSERT(result == VkResult::VK_SUCCESS);
 }
 

@@ -1,25 +1,23 @@
-function(target_setup_project TARGET)
-	set_target_properties(${TARGET} PROPERTIES
-		XCODE_ATTRIBUTE_CONFIGURATION_BUILD_DIR "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
+function(target_setup_project)
+	set_target_properties("${PROJECT_NAME}" PROPERTIES
   		XCODE_SCHEME_WORKING_DIRECTORY "${CMAKE_INSTALL_PREFIX}"
-		XCODE_GENERATE_SCHEME TRUE
 	)
 
 	target_compile_definitions(
-		"${TARGET}"
+		"${PROJECT_NAME}"
 		PRIVATE 
 			ERM_OSX
-			$<$<STREQUAL:"${TARGET_API}","OpenGL">:GL_DO_NOT_WARN_IF_MULTI_GL_VERSION_HEADERS_INCLUDED>
-			$<$<STREQUAL:"${TARGET_API}","OpenGL">:GL_SILENCE_DEPRECATION>
+			$<$<BOOL:${ERM_OPEN_GL}>:GL_DO_NOT_WARN_IF_MULTI_GL_VERSION_HEADERS_INCLUDED>
+			$<$<BOOL:${ERM_OPEN_GL}>:GL_SILENCE_DEPRECATION>
 	)
 
 	target_compile_options(
-		"${TARGET}"
+		"${PROJECT_NAME}"
 		PRIVATE
-			$<$<STREQUAL:"${CMAKE_BUILD_TYPE}","Debug">:-Wall -Werror -Wextra -pedantic-errors -Wno-gnu>
+			$<$<BOOL:${ERM_DEBUG}>:-Wall -Werror -Wextra -pedantic-errors -Wno-gnu>
 	)
 
-	if("${TARGET_API}" STREQUAL "Vulkan")
+	if(ERM_VULKAN)
 		set(SHADERS_COMPILER "glslc" PARENT_SCOPE)
 		set(ERM_FLIP_VIEWPORT ON CACHE BOOL "" FORCE)
 		set(ERM_FLIP_PROJECTION OFF CACHE BOOL "" FORCE)
