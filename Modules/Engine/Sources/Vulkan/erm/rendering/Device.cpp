@@ -20,7 +20,7 @@ namespace {
 const std::vector<const char*> kDeviceExtensions
 {
 	VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-#if defined(ERM_OSX)
+#if defined(ERM_MAC)
 		"VK_KHR_portability_subset",
 #endif
 #if defined(ERM_FLIP_VIEWPORT) && !defined(ERM_RAY_TRACING_ENABLED)

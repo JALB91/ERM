@@ -1,4 +1,4 @@
-function(target_setup_project)
+function(erm_target_setup_project)
 	set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT "${PROJECT_NAME}")
 
 	set_target_properties(
@@ -18,25 +18,14 @@ function(target_setup_project)
 	target_compile_options(
 		"${PROJECT_NAME}"
 		PRIVATE 
-			$<$<BOOL:${ERM_DEBUG}>:/W3 /WX>
+			$<$<CONFIG:Debug>:/W3 /WX>
 		PUBLIC
-			$<$<BOOL:${ERM_RELEASE}>:/ZI>
+			$<$<CONFIG:Release>:/ZI>
 	)
 
 	target_link_options(
 		"${PROJECT_NAME}"
 		PUBLIC
-			$<$<BOOL:${ERM_RELEASE}>:/INCREMENTAL:NO /DEBUG /OPT:REF /OPT:ICF>
+			$<$<CONFIG:Debug>:/INCREMENTAL:NO /DEBUG /OPT:REF /OPT:ICF>
 	)
-
-	if(ERM_VULKAN)
-		set(SHADERS_COMPILER "$ENV{VULKAN_SDK}\\Bin\\glslc.exe")
-		string(REPLACE "\\" "/" SHADERS_COMPILER "${SHADERS_COMPILER}")
-		set(SHADERS_COMPILER "${SHADERS_COMPILER}" PARENT_SCOPE)
-		set(ERM_FLIP_VIEWPORT ON CACHE BOOL "" FORCE)
-		set(ERM_FLIP_PROJECTION OFF CACHE BOOL "" FORCE)
-	else()
-		set(ERM_FLIP_VIEWPORT OFF CACHE BOOL "" FORCE)
-		set(ERM_FLIP_PROJECTION OFF CACHE BOOL "" FORCE)
-	endif()
 endfunction()

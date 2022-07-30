@@ -1,5 +1,5 @@
 #if defined(ERM_FBX_ENABLED)
-#	if defined(ERM_OSX)
+#	if defined(ERM_MAC)
 #		pragma clang diagnostic push
 #		pragma clang diagnostic ignored "-Wall"
 #		pragma clang diagnostic ignored "-Wextra"
@@ -9,7 +9,7 @@
 #		pragma clang diagnostic ignored "-Wextra-semi"
 #		include <fbxsdk.h>
 #		pragma clang diagnostic pop
-#	elif defined(WIN32)
+#	elif defined(ERM_WINDOWS)
 #		include <fbxsdk.h>
 #	endif
 #endif

@@ -1,4 +1,4 @@
-function(create_groups SRCS)
+function(erm_create_groups SRCS)
 	foreach(FILE ${SRCS})
 		# Get the directory of the source file
 		get_filename_component(PARENT_DIR "${FILE}" DIRECTORY)
@@ -8,7 +8,7 @@ function(create_groups SRCS)
 		string(REPLACE "/include/" "" GROUP "${GROUP}")
 		string(REPLACE "/src/" "erm" GROUP "${GROUP}")
 		string(REPLACE "common" "" GROUP "${GROUP}")
-		string(REPLACE "${TARGET_API}" "" GROUP "${GROUP}")
+		string(REPLACE "${ERM_TARGET_API}" "" GROUP "${GROUP}")
 		string(REPLACE "/" "\\" GROUP "${GROUP}")
 
 		source_group("${GROUP}" FILES "${FILE}")

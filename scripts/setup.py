@@ -66,11 +66,11 @@ def main():
         help="Compile the project after generation")
 
     parser.add_argument(
-        "--verbose",
+        "--tracy",
         default=False,
         action="store_true",
-        dest="verbose",
-        help="Print CMake variables")
+        dest="tracy_enabled",
+        help="Enable tracy")
 
     args = parser.parse_args()
 
@@ -90,34 +90,45 @@ def main():
         print(f"RayTracing not available when using {args.target_api} APIs")
         exit(1)
     
-    root_path = os.path.dirname(os.path.abspath(__file__))
-    root_path = root_path[:root_path.rfind(os.path.sep)]
+    erm_root_path = os.path.dirname(os.path.abspath(__file__))
+    erm_root_path = erm_root_path[:erm_root_path.rfind(os.path.sep)]
     
-    builds_path = os.path.join(root_path, "builds")
+    builds_root_path = os.path.join(erm_root_path, "builds")
 
-    target_build_path = os.path.join(builds_path, f"ERM_{generator_name}_{args.target_api}")
+    target_build_path = os.path.join(builds_root_path, f"ERM_{generator_name}_{args.target_api}")
+
+    if (not os.path.exists(target_build_path)):
+        os.mkdir(target_build_path)
 
     cmake_args = [
         "ccmake" if args.interactive else "cmake", 
-        f"-DERM_VERBOSE={('ON' if args.verbose else 'OFF')}",
-        f"-DTARGET_API={args.target_api}",
+        f"-DERM_TARGET_API={args.target_api}",
+        f"-DERM_PLATFORM={CURRENT_SYSTEM}",
         f"-DERM_RAY_TRACING_ENABLED={('ON' if args.rtx else 'OFF')}",
-        f"-DPLATFORM={CURRENT_SYSTEM}",
-        "-G", generator
+        f"-DERM_TRACY_ENABLED={('ON' if args.tracy_enabled else 'OFF')}"
     ]
 
+    if (generator):
+        cmake_args.append("-G")
+        cmake_args.append(generator)
+
     if (architecture):
-        cmake_args.append("-A", architecture)
+        cmake_args.append("-A")
+        cmake_args.append(architecture)
     
     cmake_args.append("../../")
     
-    subprocess.run(cmake_args, cwd=target_build_path)
+    result = subprocess.run(cmake_args, cwd=target_build_path)
+    result.check_returncode()
 
     if args.compile:
-        subprocess.run(["cmake", "--build", "."], cwd=target_build_path)
+        result = subprocess.run(["cmake", "--build", "."], cwd=target_build_path)
+        result.check_returncode()
 
     if args.open:
-        subprocess.run(["cmake", "--open", "."], cwd=target_build_path)
+        result = subprocess.run(["cmake", "--open", "."], cwd=target_build_path)
+        result.check_returncode()
+
 
 if __name__ == "__main__":
     main()

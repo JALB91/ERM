@@ -241,8 +241,8 @@ void IShaderProgram::CompileShadersSources(ShaderType shaderType) const
 	{
 		const std::string shaderPath = ShaderUtils::GetShaderFilename(mPath, static_cast<uint32_t>(i), shaderType);
 		const std::string compiledShaderPath = shaderPath + ".cmp";
-#ifdef ERM_SHADER_COMPILER
-		std::string compilationCommand = ERM_SHADER_COMPILER;
+#ifdef ERM_SHADERS_COMPILER
+		std::string compilationCommand = ERM_SHADERS_COMPILER;
 		compilationCommand += " " + shaderPath + " -o " + compiledShaderPath;
 		system(compilationCommand.c_str());
 #else

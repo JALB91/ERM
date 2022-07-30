@@ -2,7 +2,12 @@
 cmake_minimum_required(VERSION 3.15...3.17)
 
 # Project declaration
-project("ERM_Main")
+project(
+	"ERM_Main"
+	VERSION 1.0.0
+	DESCRIPTION "ERM Main module"
+	LANGUAGES CXX
+)
 
 set(SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp")
 
