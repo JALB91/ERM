@@ -9,10 +9,7 @@ project(
 	LANGUAGES CXX
 )
 
-erm_gather_sources()
-erm_add_module_library()
-erm_target_setup_project()
-erm_target_setup_common_defaults()
+erm_setup_module_library()
 
 target_link_libraries(
 	"${PROJECT_NAME}"
