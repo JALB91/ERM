@@ -73,8 +73,8 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # Setup CMAKE_MODULE_PATH
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-include(macros)
 include(ERMConfig)
+include(ERMModules)
 include(AssimpConfig)
 
 # Setup ERM_TARGET_API

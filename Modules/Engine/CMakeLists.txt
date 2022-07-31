@@ -9,34 +9,13 @@ project(
 	LANGUAGES CXX
 )
 
-# Gather sources
-file(GLOB_RECURSE SOURCES 
-	"${CMAKE_CURRENT_SOURCE_DIR}/Sources/common/*.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/Sources/${ERM_TARGET_API}/*.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/Sources/common/*.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/Sources/${ERM_TARGET_API}/*.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/res/shaders/${ERM_TARGET_API}/*"
-)
-
-if(NOT ERM_RAY_TRACING_ENABLED)
-	list(FILTER SOURCES EXCLUDE REGEX ".*/ray_tracing/.*")
-endif()
-erm_create_groups("${SOURCES}")
-
-add_library("${PROJECT_NAME}" "${SOURCES}")
-
-erm_target_setup_project()
-erm_target_setup_common_defaults()
+erm_setup_module_library()
 
 target_include_directories(
 	"${PROJECT_NAME}"
 	PRIVATE
-		"${ERM_TARGET_API_INCLUDE_DIR}"
 		$<$<BOOL:${ERM_FBX_ENABLED}>:${FBX_INCLUDE_DIRS}>
 		$<$<BOOL:${ERM_ASSIMP_ENABLED}>:${ASSIMP_INCLUDE_DIR}>
-	PUBLIC
-		"${CMAKE_CURRENT_SOURCE_DIR}/Sources/common/"
-		"${CMAKE_CURRENT_SOURCE_DIR}/Sources/${ERM_TARGET_API}/"
 )
 
 target_link_libraries(

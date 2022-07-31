@@ -55,41 +55,6 @@ function(erm_setup_resources_pipeline)
 	add_dependencies(ERM_Main ERM_RESOURCES_PIPELINE)
 endfunction()
 
-function(erm_target_setup_common_defaults)
-	# Target common compile definitions
-	target_compile_definitions(
-		"${PROJECT_NAME}"
-		PRIVATE
-			$<$<BOOL:${ERM_VULKAN}>:GLM_FORCE_DEPTH_ZERO_TO_ONE>
-			$<$<BOOL:${ERM_VULKAN}>:IMGUI_DISABLE_OBSOLETE_FUNCTIONS>
-			$<$<BOOL:${ERM_FLIP_PROJECTION}>:ERM_FLIP_PROJECTION>
-			$<$<BOOL:${ERM_FLIP_VIEWPORT}>:ERM_FLIP_VIEWPORT>
-			$<$<BOOL:${ERM_FBX_ENABLED}>:ERM_FBX_ENABLED>
-			$<$<BOOL:${ERM_ASSIMP_ENABLED}>:ERM_ASSIMP_ENABLED>
-			$<$<BOOL:${ERM_RAY_TRACING_ENABLED}>:ERM_RAY_TRACING_ENABLED>
-			$<$<BOOL:${ERM_TRACY_ENABLED}>:ERM_TRACY_ENABLED>
-			${ERM_TARGET_API_COMPILE_DEF}
-			$<$<BOOL:${ERM_OPEN_GL}>:GLEW_STATIC>
-			$<$<BOOL:${ERM_VULKAN}>:ERM_SHADERS_COMPILER="${ERM_SHADERS_COMPILER}">
-	)
-
-	# Target common features
-	target_compile_features(
-		"${PROJECT_NAME}"
-		PUBLIC 
-			cxx_std_17
-	)
-
-	# Target common properties
-	set_target_properties(
-		"${PROJECT_NAME}" 
-		PROPERTIES
-			CXX_STANDARD 17
-			CXX_EXTENSIONS OFF
-	)
-endfunction()
-
-
 option(ERM_FLIP_PROJECTION "If ON the projection matrix will be flipped over the Y axis" ON)
 option(ERM_FLIP_VIEWPORT "If ON the viewport will be flipped over the Y axis" ${ERM_VULKAN})
 option(ERM_ASSIMP_ENABLED "If ON assimp library will be used to load models" OFF)

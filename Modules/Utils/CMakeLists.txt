@@ -9,20 +9,4 @@ project(
 	LANGUAGES CXX
 )
 
-# Gather sources
-file(GLOB_RECURSE SOURCES 
-	"${CMAKE_CURRENT_SOURCE_DIR}/Sources/*.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/Sources/*.cpp"
-)
-erm_create_groups("${SOURCES}")
-
-add_library("${PROJECT_NAME}" "${SOURCES}")
-
-erm_target_setup_project()
-erm_target_setup_common_defaults()
-
-target_include_directories(
-	"${PROJECT_NAME}"
-	PUBLIC
-		"${CMAKE_CURRENT_SOURCE_DIR}/Sources/"
-)
+erm_setup_module_library()
