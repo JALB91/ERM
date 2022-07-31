@@ -2,8 +2,6 @@
 
 #include "erm/audio/AudioUtils.h"
 
-#include "erm/engine/Engine.h"
-
 #include <fmod.hpp>
 
 namespace erm {

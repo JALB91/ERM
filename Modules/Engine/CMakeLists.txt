@@ -25,13 +25,8 @@ erm_create_groups("${SOURCES}")
 
 add_library("${PROJECT_NAME}" "${SOURCES}")
 
-# Setup platform specific options
-if(ERM_WINDOWS)
-	include(MSVCConfig)
-else()
-	include(OSXConfig)
-endif()
 erm_target_setup_project()
+erm_target_setup_common_defaults()
 
 target_include_directories(
 	"${PROJECT_NAME}"
@@ -44,54 +39,22 @@ target_include_directories(
 		"${CMAKE_CURRENT_SOURCE_DIR}/Sources/${ERM_TARGET_API}/"
 )
 
-target_compile_definitions(
-	"${PROJECT_NAME}"
-	PUBLIC
-		$<$<BOOL:${ERM_VULKAN}>:GLM_FORCE_DEPTH_ZERO_TO_ONE>
-		$<$<BOOL:${ERM_VULKAN}>:IMGUI_DISABLE_OBSOLETE_FUNCTIONS>
-		$<$<BOOL:${ERM_FLIP_PROJECTION}>:ERM_FLIP_PROJECTION>
-		$<$<BOOL:${ERM_FLIP_VIEWPORT}>:ERM_FLIP_VIEWPORT>
-		$<$<BOOL:${ERM_FBX_ENABLED}>:ERM_FBX_ENABLED>
-		$<$<BOOL:${ERM_ASSIMP_ENABLED}>:ERM_ASSIMP_ENABLED>
-		$<$<BOOL:${ERM_RAY_TRACING_ENABLED}>:ERM_RAY_TRACING_ENABLED>
-		$<$<BOOL:${ERM_TRACY_ENABLED}>:ERM_TRACY_ENABLED>
-		${ERM_TARGET_API_COMPILE_DEF}
-	PRIVATE
-		$<$<BOOL:${ERM_OPEN_GL}>:GLEW_STATIC>
-		$<$<BOOL:${ERM_VULKAN}>:ERM_SHADERS_COMPILER="${ERM_SHADERS_COMPILER}">
-)
-
-# Target common features
-target_compile_features(
-	"${PROJECT_NAME}"
-	PUBLIC 
-		cxx_std_17
-)
-
-# Target common properties
-set_target_properties(
-	"${PROJECT_NAME}" 
-	PROPERTIES
-		CXX_STANDARD 17
-		CXX_EXTENSIONS OFF
-)
-
 target_link_libraries(
 	"${PROJECT_NAME}"
 	PRIVATE 
 		"${ERM_TARGET_API_LIB}"
+		$<$<BOOL:${ERM_TRACY_ENABLED}>:Tracy::TracyClient>
 		$<$<BOOL:${ERM_ASSIMP_ENABLED}>:assimp>
+		$<$<BOOL:${ERM_OPEN_GL}>:libglew_static>
 		glfw
 		stb_image
 		spirv-cross-cpp
-		fmod_core
-		fmod_studio
-	PUBLIC
-		$<$<BOOL:${ERM_TRACY_ENABLED}>:Tracy::TracyClient>
-        $<$<BOOL:${ERM_OPEN_GL}>:libglew_static>
-		glm
-		imgui
 		tinyxml2
+		imgui
+		ERM_Math
+		ERM_Audio
+	PUBLIC
+		ERM_Utils
 )
 
 if(FBX_FOUND)

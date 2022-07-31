@@ -88,6 +88,13 @@ if(ERM_OPEN_GL)
 	add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/glew-cmake")
 endif()
 
+# Add dependencies based on platform
+if(ERM_WINDOWS)
+	include(MSVCConfig)
+elseif(ERM_MAC)
+	include(OSXConfig)
+endif()
+
 # Include configuration files for dependencies
 include(TracyConfig)
 include(GLMConfig)
