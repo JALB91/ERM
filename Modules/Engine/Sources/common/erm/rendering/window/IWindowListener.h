@@ -1,7 +1,7 @@
 #pragma once
 
-#include "erm/input/Keys.h"
-#include "erm/input/Mouse.h"
+#include <erm/input/Keys.h>
+#include <erm/input/Mouse.h>
 
 namespace erm {
 

@@ -54,6 +54,7 @@ target_link_libraries(
 		ERM_Math
 		ERM_Audio
 	PUBLIC
+		ERM_Input
 		ERM_Utils
 )
 
