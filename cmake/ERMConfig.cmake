@@ -49,13 +49,13 @@ function(erm_setup_resources_pipeline)
 
 	add_custom_target(
 		ERM_RESOURCES_PIPELINE
-		COMMAND ${PYTHON_EXECUTABLE} ${ERM_PIPELINE_SCRIPT} ${ERM_PIPELINE_ARGS}
+		COMMAND ${Python3_EXECUTABLE} ${ERM_PIPELINE_SCRIPT} ${ERM_PIPELINE_ARGS}
 		COMMENT "Resources Pipeline"
 	)
 	add_dependencies(ERM_Main ERM_RESOURCES_PIPELINE)
 endfunction()
 
 option(ERM_FLIP_PROJECTION "If ON the projection matrix will be flipped over the Y axis" ON)
-option(ERM_FLIP_VIEWPORT "If ON the viewport will be flipped over the Y axis" ${ERM_VULKAN})
+option(ERM_FLIP_VIEWPORT "If ON the viewport will be flipped over the Y axis" OFF)
 option(ERM_ASSIMP_ENABLED "If ON assimp library will be used to load models" OFF)
 option(ERM_RAY_TRACING_ENABLED "If ON it will try to enable ray tracing (if supported by the API" ON)

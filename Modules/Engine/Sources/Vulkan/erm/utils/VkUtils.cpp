@@ -337,8 +337,11 @@ QueueFamilyIndices FindQueueFamilies(vk::PhysicalDevice device, vk::SurfaceKHR s
 		{
 			indices.mGraphicsFamily = i;
 		}
+		
+		vk::Bool32 surfaceSupport;
+		ERM_VK_CHECK_AND_ASSIGN(surfaceSupport, device.getSurfaceSupportKHR(i, surface));
 
-		if (device.getSurfaceSupportKHR(i, surface))
+		if (surfaceSupport)
 		{
 			indices.mPresentFamily = i;
 		}
@@ -350,17 +353,16 @@ QueueFamilyIndices FindQueueFamilies(vk::PhysicalDevice device, vk::SurfaceKHR s
 SwapChainSupportDetails QuerySwapChainSupport(vk::PhysicalDevice device, vk::SurfaceKHR surface)
 {
 	SwapChainSupportDetails details;
-
-	details.mCapabilities = device.getSurfaceCapabilitiesKHR(surface);
-	details.mFormats = device.getSurfaceFormatsKHR(surface);
-	details.mPresentModes = device.getSurfacePresentModesKHR(surface);
-
+	ERM_VK_CHECK_AND_ASSIGN(details.mCapabilities, device.getSurfaceCapabilitiesKHR(surface));
+	ERM_VK_CHECK_AND_ASSIGN(details.mFormats, device.getSurfaceFormatsKHR(surface));
+	ERM_VK_CHECK_AND_ASSIGN(details.mPresentModes, device.getSurfacePresentModesKHR(surface));
 	return details;
 }
 
 bool CheckDeviceExtensionSupport(vk::PhysicalDevice device, const std::vector<const char*>& deviceExtensions)
 {
-	std::vector<vk::ExtensionProperties> availableExtensions = device.enumerateDeviceExtensionProperties();
+	std::vector<vk::ExtensionProperties> availableExtensions;
+	ERM_VK_CHECK_AND_ASSIGN(availableExtensions, device.enumerateDeviceExtensionProperties());
 	std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
 
 	for (const vk::ExtensionProperties& extension : availableExtensions)
@@ -437,7 +439,8 @@ vk::Format FindSupportedDepthFormat(
 			return format;
 		}
 	}
-	throw std::runtime_error("Failed to find supported format");
+	
+	return vk::Format::eUndefined;
 }
 
 vk::Format FindDepthFormat(vk::PhysicalDevice physicalDevice)
@@ -462,7 +465,7 @@ vk::CommandBuffer BeginSingleTimeCommands(Device& device)
 	vk::CommandBufferBeginInfo beginInfo {};
 	beginInfo.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit;
 
-	commandBuffer.begin(beginInfo);
+	ERM_VK_CHECK(commandBuffer.begin(beginInfo));
 
 	return commandBuffer;
 }
@@ -471,14 +474,14 @@ void EndSingleTimeCommands(
 	Device& device,
 	vk::CommandBuffer commandBuffer)
 {
-	commandBuffer.end();
+	ERM_VK_CHECK(commandBuffer.end());
 
 	vk::SubmitInfo submitInfo {};
 	submitInfo.commandBufferCount = 1;
 	submitInfo.pCommandBuffers = &commandBuffer;
 
 	ERM_VK_CHECK(device.GetGraphicsQueue().submit(1, &submitInfo, nullptr));
-	device.GetGraphicsQueue().waitIdle();
+	ERM_VK_CHECK(device.GetGraphicsQueue().waitIdle());
 
 	device->freeCommandBuffers(device.GetCommandPool(), 1, &commandBuffer);
 }
@@ -521,7 +524,7 @@ uint32_t FindMemoryType(
 		}
 	}
 
-	throw std::runtime_error("Failed to find suitable memory type");
+	return 0;
 }
 
 void CreateBuffer(
@@ -553,7 +556,7 @@ void CreateBuffer(
 	allocInfo.pNext = &flagsInfo;
 
 	ERM_VK_CHECK(device.allocateMemory(&allocInfo, nullptr, &bufferMemory));
-	device.bindBufferMemory(buffer, bufferMemory, 0);
+	ERM_VK_CHECK(device.bindBufferMemory(buffer, bufferMemory, 0));
 }
 
 void CreateBufferUnique(
@@ -570,7 +573,7 @@ void CreateBufferUnique(
 	bufferInfo.usage = ToVulkanValue<vk::BufferUsageFlags>(usage);
 	bufferInfo.sharingMode = vk::SharingMode::eExclusive;
 
-	buffer = device.createBufferUnique(bufferInfo);
+	ERM_VK_CHECK_AND_ASSIGN(buffer, device.createBufferUnique(bufferInfo));
 
 	vk::MemoryRequirements memRequirements;
 	device.getBufferMemoryRequirements(buffer.get(), &memRequirements);
@@ -584,8 +587,8 @@ void CreateBufferUnique(
 		flagsInfo.flags = vk::MemoryAllocateFlagBits::eDeviceAddress;
 	allocInfo.pNext = &flagsInfo;
 
-	bufferMemory = device.allocateMemoryUnique(allocInfo);
-	device.bindBufferMemory(buffer.get(), bufferMemory.get(), 0);
+	ERM_VK_CHECK_AND_ASSIGN(bufferMemory, device.allocateMemoryUnique(allocInfo));
+	ERM_VK_CHECK(device.bindBufferMemory(buffer.get(), bufferMemory.get(), 0));
 }
 
 void CopyBufferToBuffer(
@@ -621,7 +624,7 @@ void CreateImage(
 	allocInfo.memoryTypeIndex = FindMemoryType(physicalDevice, memRequirements.memoryTypeBits, properties);
 
 	ERM_VK_CHECK(device.allocateMemory(&allocInfo, nullptr, &imageMemory));
-	device.bindImageMemory(image, imageMemory, 0);
+	ERM_VK_CHECK(device.bindImageMemory(image, imageMemory, 0));
 }
 
 void CreateImageUnique(
@@ -632,7 +635,7 @@ void CreateImageUnique(
 	vk::UniqueDeviceMemory& imageMemory,
 	MemoryPropertyFlags properties)
 {
-	image = device.createImageUnique(createInfo);
+	ERM_VK_CHECK_AND_ASSIGN(image, device.createImageUnique(createInfo));
 
 	vk::MemoryRequirements memRequirements;
 	device.getImageMemoryRequirements(image.get(), &memRequirements);
@@ -641,8 +644,8 @@ void CreateImageUnique(
 	allocInfo.allocationSize = memRequirements.size;
 	allocInfo.memoryTypeIndex = FindMemoryType(physicalDevice, memRequirements.memoryTypeBits, properties);
 
-	imageMemory = device.allocateMemoryUnique(allocInfo);
-	device.bindImageMemory(image.get(), imageMemory.get(), 0);
+	ERM_VK_CHECK_AND_ASSIGN(imageMemory, device.allocateMemoryUnique(allocInfo));
+	ERM_VK_CHECK(device.bindImageMemory(image.get(), imageMemory.get(), 0));
 }
 
 vk::ImageView CreateImageView(
@@ -658,7 +661,7 @@ vk::UniqueImageView CreateImageViewUnique(
 	vk::Device device,
 	const vk::ImageViewCreateInfo& createInfo)
 {
-	return device.createImageViewUnique(createInfo);
+	ERM_VK_CHECK_AND_RETURN(device.createImageViewUnique(createInfo));
 }
 
 void TransitionImageLayout(
@@ -704,7 +707,9 @@ void TransitionImageLayout(
 	}
 	else
 	{
-		throw std::invalid_argument("Unsupported layout transition");
+		ERM_ASSERT(false);
+		EndSingleTimeCommands(device, commandBuffer);
+		return;
 	}
 
 	commandBuffer.pipelineBarrier(sourceStage, destinationStage, {}, 0, nullptr, 0, nullptr, 1, &barrier);

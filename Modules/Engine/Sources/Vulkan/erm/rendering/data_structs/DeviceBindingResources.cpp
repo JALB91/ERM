@@ -5,6 +5,8 @@
 #include "erm/rendering/shaders/IShaderProgram.h"
 #include "erm/rendering/textures/Texture.h"
 
+#include "erm/utils/VkUtils.h"
+
 namespace erm {
 
 DeviceBindingResources::DeviceBindingResources(
@@ -29,7 +31,7 @@ DeviceBindingResources::DeviceBindingResources(
 	info.setDescriptorSetCount(1);
 	info.setPSetLayouts(&descriptorSetLayout);
 
-	mDescriptorSets = mDevice->allocateDescriptorSetsUnique(info);
+	ERM_VK_CHECK_AND_ASSIGN(mDescriptorSets, mDevice->allocateDescriptorSetsUnique(info));
 
 	// GATHER SHADER DATA
 	const ShaderBindingData& shaderBindings = mShaderProgram.GetShaderBindingsData(mTargetSet);

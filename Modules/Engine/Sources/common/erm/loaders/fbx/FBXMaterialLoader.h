@@ -1,12 +1,8 @@
 #pragma once
 
-#ifdef ERM_FBX_ENABLED
-
-// clang-format off
 #include "erm/loaders/fbx/FBXInclude.h"
 
 #include <mutex>
-// clang-format on
 
 namespace erm {
 class ResourcesManager;
@@ -22,5 +18,3 @@ Material* ParseFBXMaterial(
 	ResourcesManager& resourcesManager);
 
 }
-
-#endif

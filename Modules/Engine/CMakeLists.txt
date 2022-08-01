@@ -11,13 +11,6 @@ project(
 
 erm_setup_module_library()
 
-target_include_directories(
-	"${PROJECT_NAME}"
-	PRIVATE
-		$<$<BOOL:${ERM_FBX_ENABLED}>:${FBX_INCLUDE_DIRS}>
-		$<$<BOOL:${ERM_ASSIMP_ENABLED}>:${ASSIMP_INCLUDE_DIR}>
-)
-
 target_link_libraries(
 	"${PROJECT_NAME}"
 	PRIVATE 
@@ -30,18 +23,10 @@ target_link_libraries(
 		spirv-cross-cpp
 		tinyxml2
 		imgui
+		fbx_sdk
 		ERM_Math
 		ERM_Audio
 	PUBLIC
 		ERM_Input
 		ERM_Utils
 )
-
-if(FBX_FOUND)
-	target_link_libraries(
-		${PROJECT_NAME}
-		LINK_PRIVATE
-			debug "${FBX_LIBRARIES_DEBUG}"
-			optimized "${FBX_LIBRARIES}"
-	)
-endif()

@@ -38,7 +38,6 @@ private:
 	void CreateBindingTable();
 	void CreatePipelineData();
 
-	Engine& mEngine;
 	Device& mDevice;
 	IRenderer& mRenderer;
 	const RTRenderData& mRenderData;

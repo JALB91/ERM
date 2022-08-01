@@ -5,6 +5,8 @@
 #include "erm/rendering/renderer/IRenderer.h"
 #include "erm/rendering/shaders/IShaderProgram.h"
 
+#include "erm/utils/VkUtils.h"
+
 namespace erm {
 
 HostBindingResources::HostBindingResources(
@@ -27,7 +29,7 @@ HostBindingResources::HostBindingResources(
 	info.setDescriptorSetCount(IRenderer::kMaxFramesInFlight);
 	info.setPSetLayouts(layouts.data());
 
-	mDescriptorSets = mDevice->allocateDescriptorSetsUnique(info);
+	ERM_VK_CHECK_AND_ASSIGN(mDescriptorSets, mDevice->allocateDescriptorSetsUnique(info));
 
 	// GATHER SHADER DATA
 	const ShaderBindingData& shaderBindings = mShaderProgram.GetShaderBindingsData(mTargetSet);

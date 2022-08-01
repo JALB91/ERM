@@ -164,7 +164,7 @@ void RenderingResources::CreateRenderPass()
 	renderPassInfo.dependencyCount = 1;
 	renderPassInfo.pDependencies = &dependency;
 
-	mRenderPass = mDevice->createRenderPassUnique(renderPassInfo);
+	ERM_VK_CHECK_AND_ASSIGN(mRenderPass, mDevice->createRenderPassUnique(renderPassInfo));
 }
 
 void RenderingResources::CreateFramebuffers()
@@ -190,7 +190,7 @@ void RenderingResources::CreateFramebuffers()
 		framebufferInfo.height = static_cast<uint32_t>(swapChainExtent.height);
 		framebufferInfo.layers = 1;
 
-		mFrameBuffers[i] = mDevice->createFramebufferUnique(framebufferInfo);
+		ERM_VK_CHECK_AND_ASSIGN(mFrameBuffers[i], mDevice->createFramebufferUnique(framebufferInfo));
 	}
 }
 
@@ -210,7 +210,7 @@ void RenderingResources::CreateDescriptorPool()
 	poolInfo.maxSets = static_cast<uint32_t>(frameBuffers.size() * 100);
 	poolInfo.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
 
-	mDescriptorPool = mDevice->createDescriptorPoolUnique(poolInfo);
+	ERM_VK_CHECK_AND_ASSIGN(mDescriptorPool, mDevice->createDescriptorPoolUnique(poolInfo));
 }
 
 } // namespace erm

@@ -6,6 +6,7 @@
 #include "erm/rendering/data_structs/VertexData.h"
 
 #include "erm/utils/Utils.h"
+#include "erm/utils/VkUtils.h"
 
 #include <iostream>
 
@@ -22,7 +23,7 @@ Model::Model(Device& device, const char* path, const char* name)
 
 Model::~Model()
 {
-	mDevice->waitIdle();
+	ERM_VK_CHECK(mDevice->waitIdle());
 }
 
 void Model::AddMesh(Mesh&& mesh)

@@ -16,9 +16,7 @@ const char* const kWavSoundExtension = ".wav";
 const char* const kMp3SoundExtension = ".mp3";
 const char* const kObjModelExtension = ".obj";
 const char* const kColladaModelExtension = ".dae";
-#if defined(ERM_FBX_ENABLED) || defined(ERM_ASSIMP_ENABLED)
 const char* const kFbxModelExtension = ".fbx";
-#endif
 const char* const kObjMaterialExtension = ".mtl";
 const char* const kVertexShaderExtension = ".vert";
 #ifdef ERM_RAY_TRACING_ENABLED
@@ -44,14 +42,7 @@ const char* const kRTShadersDir = "shaders/Vulkan/ray_tracing/";
 const char* const kTexturesDir = "textures/";
 
 std::array kSupportedAudioExtensions {kWavSoundExtension, kMp3SoundExtension};
-std::array kSupportedModelsExtensions
-{
-	kObjModelExtension,
-		kColladaModelExtension,
-#if defined(ERM_FBX_ENABLED) || defined(ERM_ASSIMP_ENABLED)
-		kFbxModelExtension
-#endif
-};
+std::array kSupportedModelsExtensions {kObjModelExtension, kColladaModelExtension, kFbxModelExtension};
 std::array kSupportedMaterialsExtensions {kObjMaterialExtension};
 std::array kSupportedShadersExtensions {kVertexShaderExtension};
 #ifdef ERM_RAY_TRACING_ENABLED
@@ -65,9 +56,7 @@ std::map<std::string, std::vector<const char*>> kFilesAssociations
 		{kMp3SoundExtension, {kMusicsDir, kEffectsDir}},
 		{kObjModelExtension, {kModelsDir}},
 		{kColladaModelExtension, {kModelsDir}},
-#if defined(ERM_FBX_ENABLED) || defined(ERM_ASSIMP_ENABLED)
 		{kFbxModelExtension, {kModelsDir}},
-#endif
 		{kObjMaterialExtension, {kModelsDir}},
 		{kVertexShaderExtension, {kShadersDir}},
 #ifdef ERM_RAY_TRACING_ENABLED

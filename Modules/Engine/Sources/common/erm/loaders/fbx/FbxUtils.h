@@ -1,8 +1,5 @@
 #pragma once
 
-#ifdef ERM_FBX_ENABLED
-
-// clang-format off
 #include "erm/loaders/fbx/FBXInclude.h"
 #include "erm/loaders/fbx/FBXSkeletonData.h"
 
@@ -15,7 +12,6 @@
 
 #include <map>
 #include <vector>
-// clang-format on
 
 namespace erm {
 
@@ -34,5 +30,3 @@ extern void GetBonesData(
 	int controlPointIndex);
 
 } // namespace erm
-
-#endif

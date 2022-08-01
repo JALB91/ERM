@@ -187,7 +187,7 @@ void ImGuiHandle::CreateRenderPass()
 	info.dependencyCount = 1;
 	info.pDependencies = &dependency;
 
-	mRenderPass = mDevice->createRenderPass(info);
+	ERM_VK_CHECK_AND_ASSIGN(mRenderPass, mDevice->createRenderPass(info));
 }
 
 void ImGuiHandle::CreateFrameBuffers()
@@ -208,7 +208,7 @@ void ImGuiHandle::CreateFrameBuffers()
 		framebufferInfo.height = extent.height;
 		framebufferInfo.layers = 1;
 
-		mFrameBuffers[i] = mDevice->createFramebuffer(framebufferInfo);
+		ERM_VK_CHECK_AND_ASSIGN(mFrameBuffers[i], mDevice->createFramebuffer(framebufferInfo));
 	}
 }
 
@@ -233,7 +233,7 @@ void ImGuiHandle::CreateDescriptorPool()
 	info.setMaxSets(1000 * static_cast<uint32_t>(pool_sizes.size()));
 	info.setFlags(vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet);
 
-	mDescriptorPool = mDevice->createDescriptorPool(info);
+	ERM_VK_CHECK_AND_ASSIGN(mDescriptorPool, mDevice->createDescriptorPool(info));
 }
 
 } // namespace erm

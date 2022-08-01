@@ -15,6 +15,7 @@ function(erm_target_setup_project)
 		"${PROJECT_NAME}"
 		PRIVATE
 			$<$<CONFIG:Debug>:-Wall -Werror -Wextra -pedantic-errors -Wno-gnu>
+			-fno-exceptions -fno-rtti
 	)
 endfunction()
 

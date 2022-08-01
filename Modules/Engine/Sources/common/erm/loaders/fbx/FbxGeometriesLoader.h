@@ -1,7 +1,5 @@
 #pragma once
 
-#ifdef ERM_FBX_ENABLED
-
 // clang-format off
 #include "erm/loaders/fbx/FBXInclude.h"
 
@@ -32,5 +30,3 @@ extern void ProcessGeometries(
 	std::vector<std::unique_ptr<SkeletonAnimation>>& animations);
 
 }
-
-#endif

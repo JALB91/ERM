@@ -6,11 +6,7 @@
 
 #include "erm/loaders/assimp/AssimpModelLoader.h"
 #include "erm/loaders/collada/ColladaModelLoader.h"
-// clang-format off
-#ifdef ERM_FBX_ENABLED
 #include "erm/loaders/fbx/FBXModelLoader.h"
-#endif
-// clang-format on
 #include "erm/loaders/obj/ObjModelLoader.h"
 
 #include <algorithm>
@@ -159,7 +155,6 @@ bool ResourcesLoader::ParseModel(
 
 		return true;
 	}
-#	ifdef ERM_FBX_ENABLED
 	else if (Utils::CompareNoCaseSensitive(extension, ".fbx"))
 	{
 		if (async)
@@ -179,11 +174,8 @@ bool ResourcesLoader::ParseModel(
 			ParseFBXModel(mMutex, mStop, path, model, resourcesManager);
 			model.UpdateBuffers();
 		}
-
 		return true;
 	}
-#	endif
-
 	return false;
 #endif
 }

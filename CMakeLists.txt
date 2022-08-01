@@ -25,23 +25,13 @@ else()
 	message(FATAL_ERROR "Invalid platform: ${ERM_PLATFORM}")
 endif()
 
-# PROJECT DECLARATION
+# Project declaration
 project(
 	"ERM_${ERM_PLATFORM}_${ERM_TARGET_API}"
 	VERSION 0.0.1
 	DESCRIPTION "C++ Game Engine"
 	LANGUAGES CXX
 )
-
-# Setup RTX
-if(NOT DEFINED ERM_RAY_TRACING_ENABLED)
-	set(ERM_RAY_TRACING_ENABLED OFF)
-endif()
-
-# Setup verbosity
-if(NOT DEFINED ERM_VERBOSE)
-	set(ERM_VERBOSE OFF)
-endif()
 
 # Setup modules path
 set(ERM_MODULES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Modules/")
@@ -71,10 +61,17 @@ set(ERM_RES_DEST "${CMAKE_INSTALL_PREFIX}/res")
 # IDEs friendly
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+# Setup Python
+find_package(Python3)
+if(NOT DEFINED Python3_FOUND OR NOT ${Python3_FOUND})
+	message(FATAL_ERROR "Python3 not found")
+endif()
+
 # Setup CMAKE_MODULE_PATH
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(ERMConfig)
 include(ERMModules)
+include(SPIRVConfig)
 include(AssimpConfig)
 
 # Setup ERM_TARGET_API
@@ -100,17 +97,6 @@ include(TracyConfig)
 include(GLMConfig)
 include(GLFWConfig)
 include(TinyXmlConfig)
-include(FindFbx)
-
-if(NOT ERM_ASSIMP_ENABLED)
-	find_package(Fbx)
-endif()
-
-if(NOT FBX_FOUND AND NOT ERM_ASSIMP_ENABLED)
-	message(WARNING "Cannot find FBX libraries")
-elseif(FBX_FOUND)
-	set(ERM_FBX_ENABLED ON)
-endif()
 
 # Adds common externals dependencies
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/tracy")
@@ -121,6 +107,7 @@ add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/tinyxml")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/stb_image")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/SPIRV-Cross")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/fmod")
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/fbx")
 
 if(ERM_ASSIMP_ENABLED)
 	add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/assimp")

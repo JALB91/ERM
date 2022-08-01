@@ -25,10 +25,10 @@ public:
 	inline vk::CommandPool GetCommandPool() const { return mCommandPool.get(); }
 
 private:
-	void CreateInstance();
+	bool CreateInstance();
 	void SetupDebugMessenger();
-	void CreateSurface();
-	void PickPhysicalDevice();
+	bool CreateSurface();
+	bool PickPhysicalDevice();
 	void CreateLogicalDevice();
 	void CreatePipelineCache();
 	void CreateCommandPool();
@@ -52,7 +52,7 @@ public:
 		GetRayTracingProperties() const { return mRtProperties; }
 
 private:
-	void InitRayTracing();
+	bool InitRayTracing();
 	vk::PhysicalDeviceRayTracingPipelinePropertiesKHR mRtProperties;
 #endif
 };

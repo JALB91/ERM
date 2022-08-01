@@ -131,7 +131,7 @@ bool Window::Init()
 {
 	if (!glfwInit())
 	{
-		throw std::runtime_error("GLFW initialization failed!");
+		return false;
 	}
 
 	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
@@ -156,7 +156,7 @@ bool Window::Init()
 
 	if (!mWindow)
 	{
-		throw std::runtime_error("GLFW Window creation failed!");
+		return false;
 	}
 
 	glfwMakeContextCurrent(mWindow);

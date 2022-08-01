@@ -27,7 +27,7 @@ std::vector<vk::UniqueShaderModule> ShaderProgram::CreateShaderModules(ShaderTyp
 		createInfo.codeSize = data[i].mShaderByteCode.size();
 		createInfo.pCode = reinterpret_cast<const uint32_t*>(data[i].mShaderByteCode.data());
 
-		result[i] = mDevice->createShaderModuleUnique(createInfo);
+		ERM_VK_CHECK_AND_ASSIGN(result[i], mDevice->createShaderModuleUnique(createInfo));
 	}
 
 	return result;

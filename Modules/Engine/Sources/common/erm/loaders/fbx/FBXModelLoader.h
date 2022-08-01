@@ -1,11 +1,7 @@
 #pragma once
 
-#ifdef ERM_FBX_ENABLED
-
-// clang-format off
 #include <atomic>
 #include <mutex>
-// clang-format on
 
 namespace erm {
 class Model;
@@ -22,5 +18,3 @@ extern void ParseFBXModel(
 	ResourcesManager& resourcesManager);
 
 }
-
-#endif

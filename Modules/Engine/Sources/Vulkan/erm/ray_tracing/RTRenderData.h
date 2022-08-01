@@ -5,6 +5,8 @@
 #include "erm/rendering/Device.h"
 #include "erm/rendering/data_structs/IRenderData.h"
 
+#include "erm/utils/VkUtils.h"
+
 #include <unordered_map>
 
 namespace erm {
@@ -56,7 +58,7 @@ struct RTRenderData : public IRenderData
 
 	inline void ClearDataForIndex(uint32_t id)
 	{
-		mDevice.GetGraphicsQueue().waitIdle();
+		ERM_VK_CHECK(mDevice.GetGraphicsQueue().waitIdle());
 
 		if (const auto it = mInstancesMap.find(id); it != mInstancesMap.cend())
 			mInstancesMap.erase(it);

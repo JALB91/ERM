@@ -99,14 +99,14 @@ namespace erm {
 Device::Device(GLFWwindow* window)
 	: mWindow(window)
 {
-	CreateInstance();
+	ERM_EXPECT(CreateInstance(), "Failed to create Vulkan instance");
 	SetupDebugMessenger();
-	CreateSurface();
-	PickPhysicalDevice();
+	ERM_EXPECT(CreateSurface(), "Failed to create Vulkan surface");
+	ERM_EXPECT(PickPhysicalDevice(), "Failed to find a suitable physical device");
 	CreateLogicalDevice();
 	CreateCommandPool();
 #ifdef ERM_RAY_TRACING_ENABLED
-	InitRayTracing();
+	ERM_EXPECT(InitRayTracing(), "Ray tracing not supported");
 #endif
 	load_VK_EXTENSION_SUBSET(
 		mInstance.get(),
@@ -117,7 +117,7 @@ Device::Device(GLFWwindow* window)
 
 Device::~Device()
 {
-	mDevice->waitIdle();
+	ERM_VK_CHECK(mDevice->waitIdle());
 #ifndef NDEBUG
 	DestroyDebugUtilsMessengerEXT(VkInstance(mInstance.get()), mDebugMessenger, nullptr);
 #endif
@@ -128,7 +128,7 @@ vk::Device* Device::operator->()
 	return &mDevice.get();
 }
 
-void Device::CreateInstance()
+bool Device::CreateInstance()
 {
 	uint32_t glfwExtensionCount = 0;
 	const char** glfwExtensions;
@@ -140,7 +140,8 @@ void Device::CreateInstance()
 	requiredExtensions.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 #endif
 
-	std::vector<vk::ExtensionProperties> extensions = vk::enumerateInstanceExtensionProperties();
+	std::vector<vk::ExtensionProperties> extensions;
+	ERM_VK_CHECK_AND_ASSIGN(extensions, vk::enumerateInstanceExtensionProperties());
 
 	std::cout << extensions.size() << " Instance extensions supported" << std::endl;
 
@@ -163,7 +164,7 @@ void Device::CreateInstance()
 
 		if (!found)
 		{
-			throw std::runtime_error((std::string("Unsupported required GLFW extension: ") + glfwExtensions[i]).c_str());
+			return false;
 		}
 	}
 
@@ -185,7 +186,8 @@ void Device::CreateInstance()
 #ifdef NDEBUG
 	createInfo.enabledLayerCount = 0;
 #else
-	std::vector<vk::LayerProperties> availableLayers = vk::enumerateInstanceLayerProperties();
+	std::vector<vk::LayerProperties> availableLayers;
+	ERM_VK_CHECK_AND_ASSIGN(availableLayers, vk::enumerateInstanceLayerProperties());
 
 	std::cout << availableLayers.size() << " Layers supported" << std::endl;
 
@@ -208,7 +210,7 @@ void Device::CreateInstance()
 
 		if (!layerFound)
 		{
-			throw std::runtime_error((std::string(layerName) + " validation layer requested, but not available").c_str());
+			return false;
 		}
 	}
 
@@ -220,7 +222,9 @@ void Device::CreateInstance()
 	createInfo.pNext = (vk::DebugUtilsMessengerCreateInfoEXT*)&debugCreateInfo;
 #endif // !NDEBUG
 
-	mInstance = vk::createInstanceUnique(createInfo);
+	ERM_VK_CHECK_AND_ASSIGN(mInstance, vk::createInstanceUnique(createInfo));
+	
+	return true;
 }
 
 void Device::SetupDebugMessenger()
@@ -233,20 +237,23 @@ void Device::SetupDebugMessenger()
 #endif
 }
 
-void Device::CreateSurface()
+bool Device::CreateSurface()
 {
 	VkSurfaceKHR _surface;
 	if (glfwCreateWindowSurface(VkInstance(mInstance.get()), mWindow, nullptr, &_surface) != VK_SUCCESS)
 	{
-		throw std::runtime_error("Failed to create window surface");
+		return false;
 	}
 	vk::ObjectDestroy<vk::Instance, VULKAN_HPP_DEFAULT_DISPATCHER_TYPE> _deleter(mInstance.get());
 	mSurface = vk::UniqueSurfaceKHR(vk::SurfaceKHR(_surface), _deleter);
+	
+	return true;
 }
 
-void Device::PickPhysicalDevice()
+bool Device::PickPhysicalDevice()
 {
-	std::vector<vk::PhysicalDevice> devices = mInstance->enumeratePhysicalDevices();
+	std::vector<vk::PhysicalDevice> devices;
+	ERM_VK_CHECK_AND_ASSIGN(devices, mInstance->enumeratePhysicalDevices());
 
 	for (const vk::PhysicalDevice& device : devices)
 	{
@@ -259,8 +266,10 @@ void Device::PickPhysicalDevice()
 
 	if (!mPhysicalDevice)
 	{
-		throw std::runtime_error("Failed to find a suitable GPU");
+		return false;
 	}
+	
+	return true;
 }
 
 void Device::CreateLogicalDevice()
@@ -330,7 +339,7 @@ void Device::CreateLogicalDevice()
 #endif
 	deviceCreateInfo.pNext = &features2;
 
-	mDevice = mPhysicalDevice.createDeviceUnique(deviceCreateInfo);
+	ERM_VK_CHECK_AND_ASSIGN(mDevice, mPhysicalDevice.createDeviceUnique(deviceCreateInfo));
 
 	mDevice->getQueue(indices.mGraphicsFamily.value(), 0, &mGraphicsQueue);
 	mDevice->getQueue(indices.mPresentFamily.value(), 0, &mPresentQueue);
@@ -338,7 +347,7 @@ void Device::CreateLogicalDevice()
 
 void Device::CreatePipelineCache()
 {
-	mPipelineCache = mDevice->createPipelineCacheUnique({});
+	ERM_VK_CHECK_AND_ASSIGN(mPipelineCache, mDevice->createPipelineCacheUnique({}));
 }
 
 void Device::CreateCommandPool()
@@ -349,17 +358,16 @@ void Device::CreateCommandPool()
 	poolInfo.queueFamilyIndex = queueFamilyIndices.mGraphicsFamily.value();
 	poolInfo.flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
 
-	mCommandPool = mDevice->createCommandPoolUnique(poolInfo);
+	ERM_VK_CHECK_AND_ASSIGN(mCommandPool, mDevice->createCommandPoolUnique(poolInfo));
 }
 
 #ifdef ERM_RAY_TRACING_ENABLED
-void Device::InitRayTracing()
+bool Device::InitRayTracing()
 {
 	auto properties = mPhysicalDevice.getProperties2<vk::PhysicalDeviceProperties2, vk::PhysicalDeviceRayTracingPipelinePropertiesKHR>();
 	mRtProperties = properties.get<vk::PhysicalDeviceRayTracingPipelinePropertiesKHR>();
 
-	if (mRtProperties.maxRayRecursionDepth <= 1)
-		throw std::runtime_error("Device fails to support ray recursion (m_rtProperties.maxRayRecursionDepth <= 1)");
+	return mRtProperties.maxRayRecursionDepth <= 1;
 }
 #endif
 

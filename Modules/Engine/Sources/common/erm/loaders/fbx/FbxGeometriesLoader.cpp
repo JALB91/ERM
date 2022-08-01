@@ -1,5 +1,3 @@
-#ifdef ERM_FBX_ENABLED
-
 // clang-format off
 #include "erm/loaders/fbx/FbxGeometriesLoader.h"
 
@@ -375,5 +373,3 @@ void ProcessMesh(
 }
 
 } // namespace erm
-
-#endif

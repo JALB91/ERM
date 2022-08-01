@@ -55,7 +55,7 @@ void Renderer::OnPreRender()
 	}
 	else if (result != vk::Result::eSuccess && result != vk::Result::eSuboptimalKHR)
 	{
-		throw std::runtime_error("Failed to acquire swap chain image");
+		ERM_ASSERT_HARD(false);
 	}
 
 	// Check if a previous frame is using this image (i.e. there is its fence to wait on)
@@ -124,7 +124,7 @@ void Renderer::OnPostRender()
 	}
 	else if (result != vk::Result::eSuccess)
 	{
-		throw std::runtime_error("failed to present swap chain image");
+		ERM_ASSERT_HARD(false);
 	}
 
 	mCurrentFrame = (mCurrentFrame + 1) % kMaxFramesInFlight;
@@ -201,7 +201,7 @@ void Renderer::CreateCommandBuffers()
 	allocInfo.level = vk::CommandBufferLevel::ePrimary;
 	allocInfo.commandBufferCount = static_cast<uint32_t>(mCommandBuffers.size());
 
-	mCommandBuffers = mDevice->allocateCommandBuffersUnique(allocInfo);
+	ERM_VK_CHECK_AND_ASSIGN(mCommandBuffers, mDevice->allocateCommandBuffersUnique(allocInfo));
 }
 
 vk::CommandBuffer& Renderer::RetrieveCommandBuffer()
@@ -215,7 +215,7 @@ vk::CommandBuffer& Renderer::RetrieveCommandBuffer()
 	beginInfo.flags = {};
 	beginInfo.pInheritanceInfo = nullptr;
 
-	cmd.begin(beginInfo);
+	ERM_VK_CHECK(cmd.begin(beginInfo));
 
 	for (auto& [key, value] : mRenderingMap)
 		if (!value.second.empty())
@@ -228,7 +228,7 @@ vk::CommandBuffer& Renderer::RetrieveCommandBuffer()
 
 	mEngine.GetImGuiHandle().UpdateCommandBuffer(cmd);
 
-	cmd.end();
+	ERM_VK_CHECK(cmd.end());
 
 	return cmd;
 }

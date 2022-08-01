@@ -2,6 +2,8 @@
 
 #include "erm/rendering/Device.h"
 
+#include "erm/utils/VkUtils.h"
+
 namespace erm {
 
 StandaloneMesh::StandaloneMesh(Device& device, Mesh&& mesh)
@@ -31,7 +33,7 @@ StandaloneMesh::StandaloneMesh(
 
 StandaloneMesh::~StandaloneMesh()
 {
-	mDevice->waitIdle();
+	ERM_VK_CHECK(mDevice->waitIdle());
 }
 
 StandaloneMesh::StandaloneMesh(StandaloneMesh&& other)

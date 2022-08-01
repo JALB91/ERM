@@ -144,7 +144,9 @@ void RTRenderingResources::BuildBlas(RTRenderData& data, vk::BuildAccelerationSt
 		// Actual allocation of buffer and acceleration structure. Note: This relies on createInfo.offset == 0
 		// and fills in createInfo.buffer with the buffer allocated to store the BLAS. The underlying
 		// vkCreateAccelerationStructureKHR call then consumes the buffer value
-		blas.SetAS(mDevice->createAccelerationStructureKHRUnique(createInfo));
+		vk::UniqueAccelerationStructureKHR as;
+		ERM_VK_CHECK_AND_ASSIGN(as, mDevice->createAccelerationStructureKHRUnique(createInfo));
+		blas.SetAS(std::move(as));
 		blas.SetBuffer(std::move(buffer));
 		buildInfos[i].dstAccelerationStructure = blas.GetAS(); // Setting the where the build lands
 
@@ -165,7 +167,8 @@ void RTRenderingResources::BuildBlas(RTRenderData& data, vk::BuildAccelerationSt
 	vk::QueryPoolCreateInfo qpci;
 	qpci.queryCount = static_cast<uint32_t>(toBuild.size());
 	qpci.queryType = vk::QueryType::eAccelerationStructureCompactedSizeKHR;
-	vk::UniqueQueryPool queryPool = mDevice->createQueryPoolUnique(qpci);
+	vk::UniqueQueryPool queryPool;
+	ERM_VK_CHECK_AND_ASSIGN(queryPool, mDevice->createQueryPoolUnique(qpci));
 
 	// Allocate a command pool for queue of given queue index.
 	// To avoid timeout, record and submit one command buffer per AS build.
@@ -189,7 +192,7 @@ void RTRenderingResources::BuildBlas(RTRenderData& data, vk::BuildAccelerationSt
 		beginInfo.flags = {};
 		beginInfo.pInheritanceInfo = nullptr;
 
-		cmdBuf.begin(beginInfo);
+		ERM_VK_CHECK(cmdBuf.begin(beginInfo));
 
 		// All build are using the same scratch buffer
 		buildInfos[i].scratchData.deviceAddress = scratchAddress;
@@ -229,14 +232,14 @@ void RTRenderingResources::BuildBlas(RTRenderData& data, vk::BuildAccelerationSt
 				static_cast<uint32_t>(i));
 		}
 
-		cmdBuf.end();
+		ERM_VK_CHECK(cmdBuf.end());
 	}
 	vk::SubmitInfo sInfo;
 	sInfo.commandBufferCount = static_cast<uint32_t>(allCmdBufs.size());
 	sInfo.pCommandBuffers = allCmdBufs.data();
 
 	ERM_VK_CHECK(mDevice.GetGraphicsQueue().submit(1, &sInfo, {}));
-	mDevice.GetGraphicsQueue().waitIdle();
+	ERM_VK_CHECK(mDevice.GetGraphicsQueue().waitIdle());
 
 	allCmdBufs.clear();
 
@@ -272,7 +275,9 @@ void RTRenderingResources::BuildBlas(RTRenderData& data, vk::BuildAccelerationSt
 			asCreateInfo.size = compactSizes[i];
 			asCreateInfo.type = vk::AccelerationStructureTypeKHR::eBottomLevel;
 			asCreateInfo.buffer = buffer->GetBuffer();
-			auto as = mDevice->createAccelerationStructureKHRUnique(asCreateInfo);
+			
+			vk::UniqueAccelerationStructureKHR as;
+			ERM_VK_CHECK_AND_ASSIGN(as, mDevice->createAccelerationStructureKHRUnique(asCreateInfo));
 
 			// Copy the original BLAS to a compact version
 			vk::CopyAccelerationStructureInfoKHR copyInfo;
@@ -401,8 +406,11 @@ void RTRenderingResources::UpdateTopLevelAS(RTRenderData& data, vk::BuildAcceler
 		createInfo.type = vk::AccelerationStructureTypeKHR::eTopLevel;
 		createInfo.size = sizeInfo.accelerationStructureSize;
 		createInfo.buffer = buffer->GetBuffer();
+		
+		vk::UniqueAccelerationStructureKHR as;
+		ERM_VK_CHECK_AND_ASSIGN(as, mDevice->createAccelerationStructureKHRUnique(createInfo));
 
-		mTopLevelAS.SetAS(mDevice->createAccelerationStructureKHRUnique(createInfo));
+		mTopLevelAS.SetAS(std::move(as));
 		mTopLevelAS.SetBuffer(std::move(buffer));
 	}
 
@@ -459,8 +467,8 @@ void RTRenderingResources::CreateDescriptorPool()
 	poolInfo.pPoolSizes = poolSizes.data();
 	poolInfo.maxSets = static_cast<uint32_t>(frameBuffers.size() * 100);
 	poolInfo.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
-
-	mDescriptorPool = mDevice->createDescriptorPoolUnique(poolInfo);
+	
+	ERM_VK_CHECK_AND_ASSIGN(mDescriptorPool, mDevice->createDescriptorPoolUnique(poolInfo));
 }
 
 } // namespace erm

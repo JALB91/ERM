@@ -17,9 +17,9 @@ std::vector<char> ReadShaderCompiled(const char* path)
 {
 	std::ifstream stream(path, std::ios::ate | std::ios::binary);
 
-	if (!stream.is_open())
+	if (!ERM_EXPECT(stream.is_open(), "Could not open shader file"))
 	{
-		throw std::runtime_error("Failed to open shader file");
+		return {};
 	}
 
 	size_t fileSize = static_cast<size_t>(stream.tellg());

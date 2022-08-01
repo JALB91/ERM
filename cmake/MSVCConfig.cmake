@@ -21,6 +21,7 @@ function(erm_target_setup_project)
 			$<$<CONFIG:Debug>:/W3 /WX>
 		PUBLIC
 			$<$<CONFIG:Release>:/ZI>
+			/GR-
 	)
 
 	target_link_options(

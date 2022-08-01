@@ -37,7 +37,7 @@ IRenderer::IRenderer(Engine& engine)
 
 IRenderer::~IRenderer()
 {
-	mDevice->waitIdle();
+	ERM_VK_CHECK(mDevice->waitIdle());
 
 	for (ISwapChainListener* listener : mSwapChainListeners)
 	{
@@ -72,7 +72,7 @@ void IRenderer::RemoveSwapChainListener(ISwapChainListener* listener)
 
 void IRenderer::RecreateSwapChain()
 {
-	mDevice->waitIdle();
+	ERM_VK_CHECK(mDevice->waitIdle());
 
 	for (ISwapChainListener* listener : mSwapChainListeners)
 	{
@@ -162,8 +162,8 @@ void IRenderer::CreateSwapChain()
 	swapChainCreateInfo.clipped = VK_TRUE;
 	swapChainCreateInfo.oldSwapchain = nullptr;
 
-	mSwapChain = mDevice->createSwapchainKHR(swapChainCreateInfo);
-	mSwapChainImages = mDevice->getSwapchainImagesKHR(mSwapChain);
+	ERM_VK_CHECK_AND_ASSIGN(mSwapChain, mDevice->createSwapchainKHR(swapChainCreateInfo));
+	ERM_VK_CHECK_AND_ASSIGN(mSwapChainImages, mDevice->getSwapchainImagesKHR(mSwapChain));
 
 	mSwapChainImageViews.resize(mSwapChainImages.size());
 	mFrameBuffers[FrameBufferType::PRESENT].resize(mSwapChainImages.size());
@@ -344,7 +344,7 @@ void IRenderer::CreateTextureSampler()
 	samplerInfo.minLod = 0.0f;
 	samplerInfo.maxLod = 20.0f;
 
-	mTextureSampler = mDevice->createSampler(samplerInfo);
+	ERM_VK_CHECK_AND_ASSIGN(mTextureSampler, mDevice->createSampler(samplerInfo));
 }
 
 void IRenderer::CreateSyncObjects()
@@ -358,9 +358,9 @@ void IRenderer::CreateSyncObjects()
 
 	for (uint32_t i = 0; i < kMaxFramesInFlight; ++i)
 	{
-		mImageAvailableSemaphores[i] = mDevice->createSemaphore(semaphoreInfo);
-		mRenderFinishedSemaphores[i] = mDevice->createSemaphore(semaphoreInfo);
-		mInFlightFences[i] = mDevice->createFence(fenceInfo);
+		ERM_VK_CHECK_AND_ASSIGN(mImageAvailableSemaphores[i], mDevice->createSemaphore(semaphoreInfo));
+		ERM_VK_CHECK_AND_ASSIGN(mRenderFinishedSemaphores[i], mDevice->createSemaphore(semaphoreInfo));
+		ERM_VK_CHECK_AND_ASSIGN(mInFlightFences[i], mDevice->createFence(fenceInfo));
 	}
 }
 

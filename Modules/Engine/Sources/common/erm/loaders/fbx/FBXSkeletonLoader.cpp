@@ -1,9 +1,5 @@
-#ifdef ERM_FBX_ENABLED
-
-// clang-format off
 #include "erm/loaders/fbx/FBXSkeletonLoader.h"
 #include "erm/loaders/fbx/FbxUtils.h"
-// clang-format on
 
 namespace erm {
 
@@ -79,5 +75,3 @@ void ProcessNode(
 }
 
 } // namespace erm
-
-#endif

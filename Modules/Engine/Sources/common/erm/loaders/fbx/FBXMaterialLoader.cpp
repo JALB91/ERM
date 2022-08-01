@@ -1,6 +1,3 @@
-#ifdef ERM_FBX_ENABLED
-
-// clang-format off
 #include "erm/loaders/fbx/FBXMaterialLoader.h"
 #include "erm/loaders/fbx/FbxUtils.h"
 
@@ -8,7 +5,6 @@
 
 #include "erm/rendering/materials/Material.h"
 #include "erm/rendering/materials/PBMaterial.h"
-// clang-format on
 
 namespace erm {
 
@@ -129,5 +125,3 @@ const char* GetTextureName(FbxProperty pProperty)
 }
 
 } // namespace erm
-
-#endif

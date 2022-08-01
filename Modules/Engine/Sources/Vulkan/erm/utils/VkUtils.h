@@ -3,6 +3,8 @@
 #include "erm/rendering/enums/BufferUsage.h"
 #include "erm/rendering/enums/MemoryProperty.h"
 
+#include <erm/utils/Utils.h>
+
 #include <vulkan/vulkan.hpp>
 
 #include <vector>
@@ -16,15 +18,33 @@ struct SwapChainSupportDetails;
 #ifndef NDEBUG
 #define ERM_VK_CHECK(OP)                            \
 	{                                               \
-		const auto result = OP;                     \
-		ERM_ASSERT(result == vk::Result::eSuccess); \
+		const auto _result = OP;                     \
+		ERM_ASSERT(_result == vk::Result::eSuccess); \
+	}
+
+#define ERM_VK_CHECK_AND_RETURN(OP)                        \
+	{                                                      \
+		auto _result = OP;                            \
+		ERM_ASSERT(_result.result == vk::Result::eSuccess); \
+		return std::forward<decltype(_result.value)>(_result.value); \
+	}
+
+#define ERM_VK_CHECK_AND_ASSIGN(DEST, OP)                  \
+	{                                                      \
+		auto _result = OP;                            \
+		ERM_ASSERT(_result.result == vk::Result::eSuccess); \
+		DEST = std::forward<decltype(_result.value)>(_result.value);                               \
 	}
 #else
 #define ERM_VK_CHECK(OP)        \
 	{                           \
-		const auto result = OP; \
-		ERM_UNUSED(result);     \
+		const auto _result = OP; \
+		ERM_UNUSED(_result);     \
 	}
+
+#define ERM_VK_CHECK_AND_RETURN(OP) return OP.value;
+
+#define ERM_VK_CHECK_AND_ASSIGN(DEST, OP) DEST = OP.value;
 #endif
 
 namespace erm::VkUtils {

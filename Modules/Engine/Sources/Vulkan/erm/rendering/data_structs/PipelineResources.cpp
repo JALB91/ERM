@@ -259,14 +259,18 @@ void PipelineResources::CreatePipeline()
 	emptyLayoutInfo.bindingCount = 0;
 	emptyLayoutInfo.pBindings = nullptr;
 
-	mEmptySetLayout = mDevice->createDescriptorSetLayoutUnique(emptyLayoutInfo);
+	ERM_VK_CHECK_AND_ASSIGN(mEmptySetLayout, mDevice->createDescriptorSetLayoutUnique(emptyLayoutInfo));
 
 	vk::DescriptorSetAllocateInfo info {};
 	info.setDescriptorPool(*mDescriptorPool);
 	info.setDescriptorSetCount(1);
 	info.setPSetLayouts(&mEmptySetLayout.get());
 
-	mEmptySet = std::move(mDevice->allocateDescriptorSetsUnique(info)[0]);
+	{
+		auto result = mDevice->allocateDescriptorSetsUnique(info);
+		ERM_ASSERT(result.result == vk::Result::eSuccess);
+		mEmptySet = std::move(result.value[0]);
+	}
 
 	/*
 		SETUP PIPELINE LAYOUT
@@ -281,7 +285,7 @@ void PipelineResources::CreatePipeline()
 	pipelineLayoutInfo.pushConstantRangeCount = 0;
 	pipelineLayoutInfo.pPushConstantRanges = nullptr;
 
-	mPipelineLayout = mDevice->createPipelineLayoutUnique(pipelineLayoutInfo);
+	ERM_VK_CHECK_AND_ASSIGN(mPipelineLayout, mDevice->createPipelineLayoutUnique(pipelineLayoutInfo));
 
 	/*
 		SETUP STENCIL AND DEPTH TESTS

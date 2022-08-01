@@ -8,6 +8,7 @@
 
 #define ERM_UNUSED(x)	   (void)x;
 #define ERM_ASSERT(x)	   assert(x)
+#define ERM_ASSERT_HARD(x) assert(x); abort();
 #define ERM_EXPECT(x, msg) erm::Utils::LogCall((x), msg, #x, __FILE__, __LINE__)
 
 #define ERM_DECL_SET_GET_OPT_WITH_DEFAULT(NAME, TYPE, DEFAULT)          \

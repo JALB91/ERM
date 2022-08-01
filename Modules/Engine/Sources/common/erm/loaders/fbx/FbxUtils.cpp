@@ -1,8 +1,4 @@
-#ifdef ERM_FBX_ENABLED
-
-// clang-format off
 #include "erm/loaders/fbx/FbxUtils.h"
-// clang-format on
 
 namespace erm {
 
@@ -171,5 +167,3 @@ void GetBonesData(
 }
 
 } // namespace erm
-
-#endif

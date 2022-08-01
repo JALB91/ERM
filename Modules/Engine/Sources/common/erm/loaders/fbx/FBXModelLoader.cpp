@@ -1,6 +1,3 @@
-#ifdef ERM_FBX_ENABLED
-
-// clang-format off
 #include "erm/loaders/fbx/FBXModelLoader.h"
 
 #include "erm/loaders/fbx/FBXInclude.h"
@@ -23,7 +20,6 @@
 
 #include <map>
 #include <vector>
-// clang-format on
 
 namespace {
 
@@ -92,5 +88,3 @@ void ParseFBXModel(
 }
 
 } // namespace erm
-
-#endif
