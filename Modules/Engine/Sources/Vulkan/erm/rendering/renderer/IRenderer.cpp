@@ -107,17 +107,11 @@ void IRenderer::RecreateSwapChain()
 
 void IRenderer::CleanupSwapChain()
 {
-	for (auto& [key, value] : mFrameBuffers)
-	{
-		for (Texture* texture : value)
-		{
-			// The present buffer images gets handled internally from the block chain, no need to delete them manually
-			if (key == FrameBufferType::PRESENT)
-				texture->mImage = nullptr;
-
+	std::for_each(mFrameBuffers.begin(), mFrameBuffers.end(), [this](auto& pair) {
+		std::for_each(pair.second.begin(), pair.second.end(), [this](Texture* texture) {
 			mResourcesManager.ReleaseTexture(texture);
-		}
-	}
+		});
+	});
 
 	mFrameBuffers.clear();
 	mDevice->destroySwapchainKHR(mSwapChain);
@@ -210,6 +204,9 @@ void IRenderer::CreateSwapChain()
 			mSwapChainImageFormat,
 			mSwapChainExtent.width,
 			mSwapChainExtent.height);
+		
+		// The present buffer images gets handled internally from the block chain, no need to delete them manually
+		texture->SetOwnsImage(false);
 
 		mFrameBuffers[FrameBufferType::PRESENT][i] = texture;
 	}

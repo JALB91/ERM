@@ -14,9 +14,6 @@ namespace erm {
 class Texture : public IAsset
 {
 public:
-	friend class IRenderer;
-
-public:
 	Texture(Device& device);
 	virtual ~Texture();
 
@@ -48,6 +45,8 @@ public:
 	inline vk::ImageLayout GetImageLayout() const { return mImageLayout; }
 	inline vk::Format GetImageFormat() const { return mFormat; }
 	inline vk::ImageViewType GetImageViewType() const { return mImageViewType; }
+	
+	inline void SetOwnsImage(bool ownsImage) { mOwnsImage = ownsImage; }
 
 protected:
 	void TransitionImageLayout(vk::ImageLayout newLayout);
@@ -66,6 +65,7 @@ protected:
 	vk::ImageLayout mImageLayout;
 	vk::Format mFormat;
 	vk::ImageViewType mImageViewType;
+	bool mOwnsImage;
 };
 
 } // namespace erm

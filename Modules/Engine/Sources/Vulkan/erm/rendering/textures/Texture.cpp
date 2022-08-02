@@ -27,11 +27,12 @@ Texture::Texture(Device& device)
 	, mImageLayout(vk::ImageLayout::eUndefined)
 	, mFormat(vk::Format::eR8G8B8A8Srgb)
 	, mImageViewType(vk::ImageViewType::e2D)
+	, mOwnsImage(true)
 {}
 
 Texture::~Texture()
 {
-	if (mImage)
+	if (mOwnsImage && mImage)
 		mDevice->destroyImage(mImage);
 	if (mImageView)
 		mDevice->destroyImageView(mImageView);
