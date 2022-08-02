@@ -1,7 +1,5 @@
 #include "erm/rendering/data_structs/RenderingResources.h"
 
-#include "erm/engine/Engine.h"
-
 #include "erm/rendering/Device.h"
 #include "erm/rendering/data_structs/AttachmentData.h"
 #include "erm/rendering/data_structs/RenderData.h"
@@ -15,10 +13,15 @@
 
 namespace erm {
 
-RenderingResources::RenderingResources(Engine& engine, const RenderConfigs& renderConfigs)
-	: mEngine(engine)
-	, mDevice(engine.GetDevice())
-	, mRenderer(engine.GetRenderer())
+RenderingResources::RenderingResources(
+	Device& device,
+	IWindow& window,
+	Renderer& renderer,
+	const RenderConfigs& renderConfigs
+)
+	: mDevice(device)
+	, mWindow(window)
+	, mRenderer(renderer)
 	, mRenderConfigs(renderConfigs)
 {
 	Reload();
@@ -92,7 +95,7 @@ PipelineResources& RenderingResources::GetOrCreatePipelineResources(const Pipeli
 		}
 	}
 
-	return *mPipelineResources.emplace_back(std::make_unique<PipelineResources>(mEngine, &mRenderPass.get(), &mDescriptorPool.get(), pipelineConfigs));
+	return *mPipelineResources.emplace_back(std::make_unique<PipelineResources>(mDevice, mWindow, mRenderer, &mRenderPass.get(), &mDescriptorPool.get(), pipelineConfigs));
 }
 
 void RenderingResources::Reload()

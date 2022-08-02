@@ -19,7 +19,11 @@ namespace erm {
 class Renderer : public IRenderer
 {
 public:
-	Renderer(Engine& engine);
+	Renderer(
+		Window& window,
+		Device& device,
+		ResourcesManager& resourcesManager
+	);
 	~Renderer();
 
 	void OnPreRender() override;

@@ -13,7 +13,7 @@
 
 namespace erm {
 class Device;
-class Engine;
+class IExtCommandBufferUpdater;
 class ISwapChainListener;
 class ResourcesManager;
 class Texture;
@@ -30,7 +30,11 @@ public:
 	static constexpr uint32_t kMaxFramesInFlight = 3;
 
 public:
-	IRenderer(Engine& engine);
+	IRenderer(
+		Window& window,
+		Device& device,
+		ResourcesManager& resourcesManager
+	);
 	virtual ~IRenderer();
 
 	virtual void OnPreRender() = 0;
@@ -39,6 +43,9 @@ public:
 
 	void AddSwapChainListener(ISwapChainListener* listener);
 	void RemoveSwapChainListener(ISwapChainListener* listener);
+	
+	void AddExtCommandBufferUpdater(IExtCommandBufferUpdater* commandBufferUpdater);
+	void RemoveExtCommandBufferUpdater(IExtCommandBufferUpdater* commandBufferUpdater);
 
 	inline bool IsImageIndexValid() const { return mIsImageIndexValid; }
 	inline size_t GetCurrentFrame() const { return mCurrentFrame; }
@@ -62,7 +69,6 @@ protected:
 	void CreateTextureSampler();
 	void CreateSyncObjects();
 
-	Engine& mEngine;
 	Window& mWindow;
 	Device& mDevice;
 	ResourcesManager& mResourcesManager;
@@ -84,6 +90,7 @@ protected:
 	std::vector<vk::Fence> mImagesInFlight;
 
 	std::set<ISwapChainListener*> mSwapChainListeners;
+	std::set<IExtCommandBufferUpdater*> mCommandBufferUpdaters;
 	uint32_t mCurrentFrame;
 	uint32_t mCurrentImageIndex;
 	uint32_t mMinImageCount;

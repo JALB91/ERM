@@ -25,8 +25,6 @@ public:
 	ECS(Engine& engine);
 	~ECS();
 
-	void Init();
-
 	void OnPreUpdate();
 	void OnUpdate(float dt);
 	void OnPostUpdate();

@@ -8,7 +8,6 @@
 #include <vector>
 
 namespace erm {
-class Engine;
 class Device;
 class IRenderer;
 class RTBlas;
@@ -21,7 +20,7 @@ namespace erm {
 class RTRenderingResources
 {
 public:
-	RTRenderingResources(Engine& engine);
+	RTRenderingResources(Device& device, IRenderer& renderer);
 	~RTRenderingResources();
 
 	void Refresh();
@@ -37,7 +36,6 @@ private:
 
 	void CreateDescriptorPool();
 
-	Engine& mEngine;
 	Device& mDevice;
 	IRenderer& mRenderer;
 

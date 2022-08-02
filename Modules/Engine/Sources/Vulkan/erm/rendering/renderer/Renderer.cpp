@@ -1,9 +1,5 @@
 #include "erm/rendering/renderer/Renderer.h"
 
-#include "erm/debug/ImGuiHandle.h"
-
-#include "erm/engine/Engine.h"
-
 // clang-format off
 #ifdef ERM_RAY_TRACING_ENABLED
 #include "erm/ray_tracing/RTRenderingResources.h"
@@ -13,6 +9,8 @@
 #include "erm/rendering/Device.h"
 #include "erm/rendering/data_structs/RenderData.h"
 #include "erm/rendering/data_structs/RenderingResources.h"
+#include "erm/rendering/renderer/IExtCommandBufferUpdater.h"
+#include "erm/rendering/window/Window.h"
 
 #include "erm/utils/Profiler.h"
 #include "erm/utils/Utils.h"
@@ -20,8 +18,12 @@
 
 namespace erm {
 
-Renderer::Renderer(Engine& engine)
-	: IRenderer(engine)
+Renderer::Renderer(
+	Window& window,
+	Device& device,
+	ResourcesManager& resourcesManager
+)
+	: IRenderer(window, device, resourcesManager)
 #ifdef ERM_RAY_TRACING_ENABLED
 	, mRTRenderData(nullptr)
 #endif
@@ -40,7 +42,7 @@ void Renderer::OnPreRender()
 		value.first->Refresh();
 #ifdef ERM_RAY_TRACING_ENABLED
 	if (!mRTRenderingResources)
-		mRTRenderingResources = std::make_unique<RTRenderingResources>(mEngine);
+		mRTRenderingResources = std::make_unique<RTRenderingResources>(mDevice, *this);
 	mRTRenderingResources->Refresh();
 #endif
 
@@ -143,7 +145,7 @@ void Renderer::SubmitRenderData(RenderData& data)
 		if (it == mRenderingMap.end())
 		{
 			data.mRenderingId = static_cast<uint32_t>(mRenderingMap.size());
-			mRenderingMap[data.mRenderingId.value()] = std::make_pair<std::unique_ptr<RenderingResources>, std::vector<RenderData*>>(std::make_unique<RenderingResources>(mEngine, data.mRenderConfigs), {&data});
+			mRenderingMap[data.mRenderingId.value()] = std::make_pair<std::unique_ptr<RenderingResources>, std::vector<RenderData*>>(std::make_unique<RenderingResources>(mDevice, mWindow, *this, data.mRenderConfigs), {&data});
 		}
 		else
 		{
@@ -159,7 +161,7 @@ void Renderer::SubmitRenderData(RenderData& data)
 		if (it == mRenderingMap.end())
 		{
 			data.mRenderingId = static_cast<uint32_t>(mRenderingMap.size());
-			mRenderingMap[data.mRenderingId.value()] = std::make_pair<std::unique_ptr<RenderingResources>, std::vector<RenderData*>>(std::make_unique<RenderingResources>(mEngine, data.mRenderConfigs), {&data});
+			mRenderingMap[data.mRenderingId.value()] = std::make_pair<std::unique_ptr<RenderingResources>, std::vector<RenderData*>>(std::make_unique<RenderingResources>(mDevice, mWindow, *this, data.mRenderConfigs), {&data});
 		}
 		else
 		{
@@ -226,7 +228,8 @@ vk::CommandBuffer& Renderer::RetrieveCommandBuffer()
 		mRTRenderingResources->UpdateCommandBuffer(cmd, *mRTRenderData);
 #endif
 
-	mEngine.GetImGuiHandle().UpdateCommandBuffer(cmd);
+	for (IExtCommandBufferUpdater* updater : mCommandBufferUpdaters)
+		updater->UpdateCommandBuffer(cmd);
 
 	ERM_VK_CHECK(cmd.end());
 

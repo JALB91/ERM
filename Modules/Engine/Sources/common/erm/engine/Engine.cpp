@@ -100,10 +100,9 @@ bool Engine::Init()
 	mAudioManager = std::make_unique<AudioManager>();
 	mDevice = std::make_unique<Device>(mWindow->GetWindow());
 	mResourcesManager = std::make_unique<ResourcesManager>(*mDevice);
-	mRenderer = std::make_unique<Renderer>(*this);
+	mRenderer = std::make_unique<Renderer>(*mWindow, *mDevice, *mResourcesManager);
 	mImGuiHandle = std::make_unique<ImGuiHandle>(*this);
 	mECS = std::make_unique<ecs::ECS>(*this);
-	mECS->Init();
 
 	mResourcesManager->LoadDefaultResources();
 

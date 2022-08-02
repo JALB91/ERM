@@ -1,11 +1,9 @@
 #include "erm/rendering/renderer/IRenderer.h"
 
-#include "erm/engine/Engine.h"
-
 #include "erm/managers/ResourcesManager.h"
 
 #include "erm/rendering/Device.h"
-#include "erm/rendering/ISwapChainListener.h"
+#include "erm/rendering/renderer/ISwapChainListener.h"
 #include "erm/rendering/data_structs/QueueFamilyIndices.h"
 #include "erm/rendering/data_structs/SwapChainSupportDetails.h"
 #include "erm/rendering/textures/CubeMap.h"
@@ -16,11 +14,13 @@
 
 namespace erm {
 
-IRenderer::IRenderer(Engine& engine)
-	: mEngine(engine)
-	, mWindow(engine.GetWindow())
-	, mDevice(engine.GetDevice())
-	, mResourcesManager(engine.GetResourcesManager())
+IRenderer::IRenderer(
+	Window& window,
+	Device& device,
+	ResourcesManager& resourcesManager)
+	: mWindow(window)
+	, mDevice(device)
+	, mResourcesManager(resourcesManager)
 	, mCurrentFrame(0)
 	, mCurrentImageIndex(0)
 	, mMinImageCount(0)
@@ -67,6 +67,20 @@ void IRenderer::RemoveSwapChainListener(ISwapChainListener* listener)
 	if (it != mSwapChainListeners.end())
 	{
 		mSwapChainListeners.erase(it);
+	}
+}
+
+void IRenderer::AddExtCommandBufferUpdater(IExtCommandBufferUpdater* commandBufferUpdater)
+{
+	mCommandBufferUpdaters.insert(commandBufferUpdater);
+}
+
+void IRenderer::RemoveExtCommandBufferUpdater(IExtCommandBufferUpdater* commandBufferUpdater)
+{
+	auto it = mCommandBufferUpdaters.find(commandBufferUpdater);
+	if (it != mCommandBufferUpdaters.end())
+	{
+		mCommandBufferUpdaters.erase(it);
 	}
 }
 

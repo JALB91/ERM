@@ -10,7 +10,6 @@
 
 namespace erm {
 class Device;
-class Engine;
 class IWindow;
 class Renderer;
 struct RenderData;
@@ -22,7 +21,9 @@ class PipelineResources
 {
 public:
 	PipelineResources(
-		Engine& engine,
+		Device& device,
+		IWindow& window,
+		Renderer& renderer,
 		const vk::RenderPass* renderPass,
 		const vk::DescriptorPool* descriptorPool,
 		const PipelineConfigs& pipelineConfigs);

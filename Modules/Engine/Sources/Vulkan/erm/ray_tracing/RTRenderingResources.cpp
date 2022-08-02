@@ -1,7 +1,5 @@
 #include "erm/ray_tracing/RTRenderingResources.h"
 
-#include "erm/engine/Engine.h"
-
 #include "erm/math/math.h"
 #include "erm/math/BoundingBox.h"
 
@@ -22,10 +20,9 @@
 
 namespace erm {
 
-RTRenderingResources::RTRenderingResources(Engine& engine)
-	: mEngine(engine)
-	, mDevice(engine.GetDevice())
-	, mRenderer(engine.GetRenderer())
+RTRenderingResources::RTRenderingResources(Device& device, IRenderer& renderer)
+	: mDevice(device)
+	, mRenderer(renderer)
 {
 	CreateDescriptorPool();
 }
@@ -94,7 +91,8 @@ void RTRenderingResources::UpdateResources(RTRenderData& renderData)
 
 	if (!mPipelineResources || forceUpdate)
 		mPipelineResources = std::make_unique<RTPipelineResources>(
-			mEngine,
+			mDevice,
+			mRenderer,
 			renderData,
 			mDescriptorPool.get(),
 			&mTopLevelAS.GetAS());

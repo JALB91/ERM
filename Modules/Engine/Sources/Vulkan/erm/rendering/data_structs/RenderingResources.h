@@ -10,7 +10,7 @@
 
 namespace erm {
 class Device;
-class Engine;
+class IWindow;
 class Renderer;
 struct AttachmentData;
 struct PipelineConfigs;
@@ -22,7 +22,12 @@ namespace erm {
 class RenderingResources
 {
 public:
-	RenderingResources(Engine& engine, const RenderConfigs& renderConfigs);
+	RenderingResources(
+		Device& device,
+		IWindow& window,
+		Renderer& renderer,
+		const RenderConfigs& renderConfigs
+	);
 
 	RenderingResources(RenderingResources&& other) = delete;
 	RenderingResources(const RenderingResources&) = delete;
@@ -48,8 +53,8 @@ private:
 	void CreateFramebuffers();
 	void CreateDescriptorPool();
 
-	Engine& mEngine;
 	Device& mDevice;
+	IWindow& mWindow;
 	Renderer& mRenderer;
 	const RenderConfigs mRenderConfigs;
 	vk::UniqueRenderPass mRenderPass;

@@ -1,7 +1,5 @@
 #include "erm/ray_tracing/RTPipelineResources.h"
 
-#include "erm/engine/Engine.h"
-
 #include "erm/math/math.h"
 
 #include "erm/ray_tracing/RTRenderData.h"
@@ -20,12 +18,13 @@
 namespace erm {
 
 RTPipelineResources::RTPipelineResources(
-	Engine& engine,
+	Device& device,
+	IRenderer& renderer,
 	const RTRenderData& renderData,
 	const vk::DescriptorPool& descriptorPool,
 	const vk::AccelerationStructureKHR* topLevelAS)
-	: mDevice(engine.GetDevice())
-	, mRenderer(engine.GetRenderer())
+	: mDevice(device)
+	, mRenderer(renderer)
 	, mRenderData(renderData)
 	, mDescriptorPool(descriptorPool)
 	, mTopLevelAS(topLevelAS)

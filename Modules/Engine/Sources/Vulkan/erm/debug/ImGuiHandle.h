@@ -1,6 +1,7 @@
 #pragma once
 
-#include "erm/rendering/ISwapChainListener.h"
+#include "erm/rendering/renderer/IExtCommandBufferUpdater.h"
+#include "erm/rendering/renderer/ISwapChainListener.h"
 
 #include <vulkan/vulkan.hpp>
 
@@ -16,7 +17,7 @@ class RenderingResources;
 
 namespace erm {
 
-class ImGuiHandle : private ISwapChainListener
+class ImGuiHandle : private ISwapChainListener, private IExtCommandBufferUpdater
 {
 public:
 	ImGuiHandle(Engine& engine);
@@ -27,12 +28,13 @@ public:
 	void OnRender();
 	void OnPostRender();
 
-	void UpdateCommandBuffer(vk::CommandBuffer& cmd);
-
 private:
 	// ISwapChainListener
 	void SwapChainCleanup() override {}
 	void SwapChainCreated() override;
+	
+	// IExtCommandBufferUpdater
+	void UpdateCommandBuffer(vk::CommandBuffer& cmd) override;
 
 	void Cleanup();
 	void CreateRenderPass();

@@ -1,7 +1,5 @@
 #include "erm/rendering/data_structs/PipelineResources.h"
 
-#include "erm/engine/Engine.h"
-
 #include "erm/rendering/Device.h"
 #include "erm/rendering/data_structs/DeviceBindingResources.h"
 #include "erm/rendering/data_structs/HostBindingResources.h"
@@ -17,13 +15,15 @@
 namespace erm {
 
 PipelineResources::PipelineResources(
-	Engine& engine,
+	Device& device,
+	IWindow& window,
+	Renderer& renderer,
 	const vk::RenderPass* renderPass,
 	const vk::DescriptorPool* descriptorPool,
 	const PipelineConfigs& pipelineConfigs)
-	: mDevice(engine.GetDevice())
-	, mWindow(engine.GetWindow())
-	, mRenderer(engine.GetRenderer())
+	: mDevice(device)
+	, mWindow(window)
+	, mRenderer(renderer)
 	, mRenderPass(renderPass)
 	, mDescriptorPool(descriptorPool)
 	, mPipelineConfigs(pipelineConfigs)

@@ -5,7 +5,7 @@
 
 #include "erm/engine/Engine.h"
 
-#include "erm/rendering/ISwapChainListener.h"
+#include "erm/rendering/renderer/ISwapChainListener.h"
 #include "erm/rendering/renderer/Renderer.h"
 #include "erm/rendering/window/Window.h"
 

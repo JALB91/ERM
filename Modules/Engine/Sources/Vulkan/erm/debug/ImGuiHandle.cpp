@@ -44,10 +44,12 @@ ImGuiHandle::ImGuiHandle(Engine& engine)
 	SwapChainCreated();
 
 	mRenderer.AddSwapChainListener(this);
+	mRenderer.AddExtCommandBufferUpdater(this);
 }
 
 ImGuiHandle::~ImGuiHandle()
 {
+	mRenderer.RemoveExtCommandBufferUpdater(this);
 	mRenderer.RemoveSwapChainListener(this);
 
 	Cleanup();
@@ -74,29 +76,6 @@ void ImGuiHandle::OnRender()
 
 void ImGuiHandle::OnPostRender()
 {}
-
-void ImGuiHandle::UpdateCommandBuffer(vk::CommandBuffer& cmd)
-{
-	std::array<vk::ClearValue, 1> clearValues {};
-	clearValues[0].color.float32[0] = 0.0f;
-	clearValues[0].color.float32[1] = 0.0f;
-	clearValues[0].color.float32[2] = 0.0f;
-	clearValues[0].color.float32[3] = 0.0f;
-
-	vk::RenderPassBeginInfo info = {};
-	info.renderPass = mRenderPass;
-	info.framebuffer = mFrameBuffers[mRenderer.GetCurrentImageIndex()];
-	info.renderArea.extent = mRenderer.GetSwapChainExtent();
-	info.renderArea.offset = vk::Offset2D {0, 0};
-	info.clearValueCount = static_cast<uint32_t>(clearValues.size());
-	info.pClearValues = clearValues.data();
-
-	cmd.beginRenderPass(info, vk::SubpassContents::eInline);
-
-	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmd);
-
-	cmd.endRenderPass();
-}
 
 void ImGuiHandle::SwapChainCreated()
 {
@@ -133,6 +112,29 @@ void ImGuiHandle::SwapChainCreated()
 	vk::CommandBuffer command_buffer = VkUtils::BeginSingleTimeCommands(mDevice);
 	ImGui_ImplVulkan_CreateFontsTexture(command_buffer);
 	VkUtils::EndSingleTimeCommands(mDevice, command_buffer);
+}
+
+void ImGuiHandle::UpdateCommandBuffer(vk::CommandBuffer& cmd)
+{
+	std::array<vk::ClearValue, 1> clearValues {};
+	clearValues[0].color.float32[0] = 0.0f;
+	clearValues[0].color.float32[1] = 0.0f;
+	clearValues[0].color.float32[2] = 0.0f;
+	clearValues[0].color.float32[3] = 0.0f;
+
+	vk::RenderPassBeginInfo info = {};
+	info.renderPass = mRenderPass;
+	info.framebuffer = mFrameBuffers[mRenderer.GetCurrentImageIndex()];
+	info.renderArea.extent = mRenderer.GetSwapChainExtent();
+	info.renderArea.offset = vk::Offset2D {0, 0};
+	info.clearValueCount = static_cast<uint32_t>(clearValues.size());
+	info.pClearValues = clearValues.data();
+
+	cmd.beginRenderPass(info, vk::SubpassContents::eInline);
+
+	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmd);
+
+	cmd.endRenderPass();
 }
 
 void ImGuiHandle::Cleanup()

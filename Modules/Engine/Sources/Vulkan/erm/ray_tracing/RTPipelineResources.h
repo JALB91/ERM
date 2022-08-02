@@ -7,7 +7,6 @@
 #include <vector>
 
 namespace erm {
-class Engine;
 class Device;
 class IRenderer;
 class PipelineData;
@@ -20,7 +19,8 @@ class RTPipelineResources
 {
 public:
 	RTPipelineResources(
-		Engine& engine,
+		Device& device,
+		IRenderer& renderer,
 		const RTRenderData& renderData,
 		const vk::DescriptorPool& descriptorPool,
 		const vk::AccelerationStructureKHR* topLevelAS);
