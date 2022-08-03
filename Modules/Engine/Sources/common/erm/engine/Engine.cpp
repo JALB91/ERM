@@ -13,8 +13,6 @@
 #include "erm/ecs/systems/SkeletonSystem.h"
 #include "erm/ecs/systems/TransformSystem.h"
 
-#include "erm/loaders/fbx/FBXModelLoader.h"
-
 #include "erm/managers/ResourcesManager.h"
 
 #include "erm/math/vec.h"
@@ -60,7 +58,11 @@ namespace erm {
 Engine* gEngine = nullptr;
 
 Engine::Engine()
+#if defined(ERM_WINDOWS)
 	: mMaxFPS(144)
+#elif defined(ERM_MAC)
+	: mMaxFPS(60)
+#endif
 	, mWindow(std::make_unique<Window>())
 {
 	ERM_UNUSED(kRoyalGuardPath);
@@ -103,6 +105,7 @@ bool Engine::Init()
 	mRenderer = std::make_unique<Renderer>(*mWindow, *mDevice, *mResourcesManager);
 	mImGuiHandle = std::make_unique<ImGuiHandle>(*this);
 	mECS = std::make_unique<ecs::ECS>(*this);
+	mECS->Init();
 
 	mResourcesManager->LoadDefaultResources();
 
@@ -257,6 +260,8 @@ void Engine::Run()
 		OnPostRender();
 
 		frameElapsedTime = 0.0;
+		
+		ERM_FRAME_MARK()
 	}
 }
 

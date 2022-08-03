@@ -16,6 +16,11 @@ namespace erm::ecs {
 
 ECS::ECS(Engine& engine)
 	: mEngine(engine)
+{}
+
+ECS::~ECS() = default;
+
+void ECS::Init()
 {
 	AddSystem<TransformSystem>();
 	AddSystem<CameraSystem>();
@@ -33,8 +38,6 @@ ECS::ECS(Engine& engine)
 	mEntities[ROOT_ID].reset(new Entity(*this, ROOT_ID, "Root"));
 	mEntities[ROOT_ID]->AddComponent<TransformComponent>();
 }
-
-ECS::~ECS() = default;
 
 void ECS::OnPreUpdate()
 {

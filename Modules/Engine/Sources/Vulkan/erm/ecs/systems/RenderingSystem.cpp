@@ -343,6 +343,8 @@ void RenderingSystem::ProcessForRayTracing(
 
 void RenderingSystem::UpdateUbos(IRenderData& data, const ComponentRenderData& crd)
 {
+	ERM_PROFILE_FUNCTION();
+	
 	const PipelineConfigs& configs = data.mPipelineConfigs;
 	const IShaderProgram* shaderProgram = configs.mShaderProgram;
 	const ShaderBindingsMap& bindingsMap = shaderProgram->GetShaderBindingsMap();

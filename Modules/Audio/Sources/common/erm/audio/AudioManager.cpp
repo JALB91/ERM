@@ -94,6 +94,8 @@ void AudioManager::Resume()
 
 void AudioManager::OnUpdate(float /*dt*/)
 {
+	ERM_PROFILE_FUNCTION();
+	
 	ERM_CHECK_FMOD_RESULT(mStudioSystem->update());
 
 	for (auto it = mReproductions.begin(); it != mReproductions.end();)

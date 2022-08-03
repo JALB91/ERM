@@ -9,6 +9,7 @@
 #include "erm/rendering/renderer/Renderer.h"
 #include "erm/rendering/window/Window.h"
 
+#include "erm/utils/Profiler.h"
 #include "erm/utils/Utils.h"
 #include "erm/utils/VkUtils.h"
 
@@ -59,6 +60,8 @@ ImGuiHandle::~ImGuiHandle()
 
 void ImGuiHandle::OnUpdate()
 {
+	ERM_PROFILE_FUNCTION();
+	
 	ImGui_ImplVulkan_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();

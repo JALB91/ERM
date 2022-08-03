@@ -15,7 +15,6 @@ target_link_libraries(
 	"${PROJECT_NAME}"
 	PRIVATE 
 		"${ERM_TARGET_API_LIB}"
-		$<$<BOOL:${ERM_TRACY_ENABLED}>:Tracy::TracyClient>
 		$<$<BOOL:${ERM_ASSIMP_ENABLED}>:assimp>
 		$<$<BOOL:${ERM_OPEN_GL}>:libglew_static>
 		glfw
