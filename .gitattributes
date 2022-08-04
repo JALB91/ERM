@@ -1,2 +1,6 @@
 externals/fbx/lib/clang/debug/libfbxsdk.a filter=lfs diff=lfs merge=lfs -text
 externals/fbx/lib/clang/release/libfbxsdk.a filter=lfs diff=lfs merge=lfs -text
+externals/fbx/lib/win64/debug/libfbxsdk-mt.lib filter=lfs diff=lfs merge=lfs -text
+externals/fbx/lib/win64/debug/libfbxsdk-md.lib filter=lfs diff=lfs merge=lfs -text
+externals/fbx/lib/win64/release/libfbxsdk-md.lib filter=lfs diff=lfs merge=lfs -text
+externals/fbx/lib/win64/release/libfbxsdk-mt.lib filter=lfs diff=lfs merge=lfs -text

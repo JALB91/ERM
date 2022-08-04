@@ -52,13 +52,13 @@ void ShowShadersDebug(erm::Engine& engine, bool& open)
 			ImGui::EndCombo();
 		}
 
-		static std::unordered_map<erm::ShaderType, std::vector<std::string>> shaderSources;
+		static erm::ShaderSources shaderSources;
 		static char current[1024 * 16] = "";
 
 		if (selected && hasChanged)
 		{
 			shaderSources.clear();
-			const std::unordered_map<erm::ShaderType, std::vector<erm::ShaderData>>& dataMap = selected->GetShadersDataMap();
+			const erm::ShadersDataMap& dataMap = selected->GetShadersDataMap();
 
 			for (const auto& [type, data] : dataMap)
 			{

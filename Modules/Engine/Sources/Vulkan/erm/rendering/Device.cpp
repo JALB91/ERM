@@ -367,7 +367,7 @@ bool Device::InitRayTracing()
 	auto properties = mPhysicalDevice.getProperties2<vk::PhysicalDeviceProperties2, vk::PhysicalDeviceRayTracingPipelinePropertiesKHR>();
 	mRtProperties = properties.get<vk::PhysicalDeviceRayTracingPipelinePropertiesKHR>();
 
-	return mRtProperties.maxRayRecursionDepth <= 1;
+	return mRtProperties.maxRayRecursionDepth > 1;
 }
 #endif
 

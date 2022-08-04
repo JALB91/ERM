@@ -189,7 +189,7 @@ void IShaderProgram::Init()
 	UpdateBindingData();
 }
 
-void IShaderProgram::SetShadersSources(const std::unordered_map<ShaderType, std::vector<std::string>>& shadersSources)
+void IShaderProgram::SetShadersSources(const ShaderSources& shadersSources)
 {
 	for (const auto& [type, sources] : shadersSources)
 	{
@@ -325,7 +325,7 @@ void IShaderProgram::UpdateResourceBindings(
 void IShaderProgram::ValidateShaders() const
 {
 #if !defined(NDEBUG)
-	static const std::array<ShaderType, 2> sRequiredShaderTypes {ShaderType::VERTEX, ShaderType::FRAGMENT};
+	static constexpr std::array sRequiredShaderTypes {ShaderType::VERTEX, ShaderType::FRAGMENT};
 
 	bool hasRequiredShaders = true;
 
@@ -333,7 +333,7 @@ void IShaderProgram::ValidateShaders() const
 		hasRequiredShaders &= mShadersDataMap.find(type) != mShadersDataMap.cend();
 
 #	if defined(ERM_RAY_TRACING_ENABLED)
-	static const std::array<ShaderType, 3> sRequiredRTShaderTypes {ShaderType::RT_RAY_GEN, ShaderType::RT_MISS, ShaderType::RT_CLOSEST_HIT};
+	static constexpr std::array sRequiredRTShaderTypes {ShaderType::RT_RAY_GEN, ShaderType::RT_MISS, ShaderType::RT_CLOSEST_HIT};
 
 	bool hasRequiredRTShaders = true;
 

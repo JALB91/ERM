@@ -187,7 +187,8 @@ void RTPipelineResources::CreatePipeline()
 			layoutInfo.pBindings = layoutBindings[i].data();
 		}
 
-		mDescriptorSetLayouts.emplace_back(mDevice->createDescriptorSetLayoutUnique(layoutInfo));
+		auto& descriptorSetLayout = mDescriptorSetLayouts.emplace_back();
+		ERM_VK_CHECK_AND_ASSIGN(descriptorSetLayout, mDevice->createDescriptorSetLayoutUnique(layoutInfo));
 	}
 
 	vk::DescriptorSetLayoutCreateInfo emptyLayoutInfo;

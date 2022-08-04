@@ -19,6 +19,7 @@ namespace erm {
 using SetIdx = uint32_t;
 using ShaderBindingsMap = std::unordered_map<SetIdx, ShaderBindingData>;
 using ShadersDataMap = std::unordered_map<ShaderType, std::vector<ShaderData>>;
+using ShaderSources = std::unordered_map<ShaderType, std::vector<std::string>>;
 
 class IShaderProgram : public IAsset
 {
@@ -37,7 +38,7 @@ public:
 
 	void Init();
 
-	void SetShadersSources(const std::unordered_map<ShaderType, std::vector<std::string>>& shadersSources);
+	void SetShadersSources(const ShaderSources& shadersSources);
 
 	inline const ShadersDataMap& GetShadersDataMap() const { return mShadersDataMap; }
 	inline const ShaderBindingsMap& GetShaderBindingsMap() const { return mShaderBindingsMap; }
