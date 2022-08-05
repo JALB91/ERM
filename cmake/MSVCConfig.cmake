@@ -1,6 +1,4 @@
 function(erm_target_setup_project)
-	set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT "${PROJECT_NAME}")
-
 	set_target_properties(
 		"${PROJECT_NAME}" PROPERTIES
 		VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_INSTALL_PREFIX}"
@@ -20,7 +18,7 @@ function(erm_target_setup_project)
 		PRIVATE 
 			$<$<CONFIG:Debug>:/W3 /WX>
 		PUBLIC
-			$<$<CONFIG:Release>:/ZI>
+			$<$<CONFIG:Release>:/Zi>
 			/GR-
 	)
 

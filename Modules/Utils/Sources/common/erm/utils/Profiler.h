@@ -15,7 +15,7 @@
 
 #	define ERM_FRAME_MARK() FrameMark
 #	define ERM_PROFILE(NAME) ZoneScoped
-#	define ERM_PROFILE_FUNCTION() ERM_PROFILE("")
+#	define ERM_PROFILE_FUNCTION() ZoneScoped
 #elif !defined(NDEBUG)
 #	define ERM_FRAME_MARK()
 #	define ERM_PROFILE(NAME) erm::Profiler p(NAME)

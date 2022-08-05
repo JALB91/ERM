@@ -1,5 +1,4 @@
-# Cmake version
-cmake_minimum_required(VERSION 3.15...3.17)
+cmake_minimum_required(VERSION 3.21)
 
 # Verify ERM_TARGET_API
 if(NOT DEFINED ERM_TARGET_API)

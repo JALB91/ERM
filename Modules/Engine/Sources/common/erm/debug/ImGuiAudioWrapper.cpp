@@ -183,8 +183,10 @@ void ShowAudioDebugWindow(erm::Engine& engine, bool& open)
 
 				ImGui::BeginChild("ChildR", ImVec2(100, 150), true);
 				float volume = repro.GetVolume();
+				ImGui::PushID("NO_SELECTABLE");
 				if (ImGui::VSliderFloat("", ImVec2(20, 125), &volume, -10.0f, 10.0f))
 					repro.SetVolume(volume);
+				ImGui::PopID();
 				ImGui::EndChild();
 
 				ImGui::Separator();

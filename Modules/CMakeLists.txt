@@ -1,5 +1,8 @@
-# Cmake version
-cmake_minimum_required(VERSION 3.15...3.17)
+project(
+	"ERM_Modules"
+	VERSION 1.0.0
+	DESCRIPTION "ERM Modules"
+)
 
 file(GLOB MODULES LIST_DIRECTORIES true *)
 
