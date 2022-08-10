@@ -261,7 +261,7 @@ void Engine::Run()
 
 		frameElapsedTime = 0.0;
 		
-		ERM_FRAME_MARK()
+		ERM_FRAME_MARK();
 	}
 }
 

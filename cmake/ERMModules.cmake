@@ -92,8 +92,10 @@ function(erm_setup_module_executable)
     erm_target_setup_project()
     erm_target_setup_common_defaults()
 
-	add_custom_command(TARGET "${PROJECT_NAME}" POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}> $<TARGET_FILE_DIR:${PROJECT_NAME}>
-		COMMAND_EXPAND_LISTS
-	)
+	if(ERM_WINDOWS)
+		add_custom_command(TARGET "${PROJECT_NAME}" POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}> $<TARGET_FILE_DIR:${PROJECT_NAME}>
+			COMMAND_EXPAND_LISTS
+		)
+	endif()
 endfunction()
