@@ -81,7 +81,7 @@ include(AssimpConfig)
 
 # Setup ERM_TARGET_API
 erm_setup_api()
-erm_setup_shaders_compiler()
+erm_setup_pipeline_script()
 message(STATUS "Using ${ERM_TARGET_API} APIs")
 
 # Add dependencies based on ERM_TARGET_API
@@ -120,6 +120,3 @@ endif()
 
 # Add modules
 add_subdirectory("${ERM_MODULES_DIR}")
-
-# Setup resources pipelien
-erm_setup_resources_pipeline()

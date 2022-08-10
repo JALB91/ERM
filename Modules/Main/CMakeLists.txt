@@ -6,6 +6,7 @@ project(
 )
 
 erm_setup_module_executable()
+erm_setup_resources_pipeline()
 
 target_link_libraries(
 	"${PROJECT_NAME}"

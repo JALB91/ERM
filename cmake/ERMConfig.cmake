@@ -15,7 +15,7 @@ function(erm_setup_api)
 	endif()
 endfunction()
 
-function(erm_setup_shaders_compiler)
+function(erm_setup_pipeline_script)
 	if(ERM_VULKAN)
 		if(ERM_WINDOWS)
 			set(ERM_SHADERS_COMPILER "$ENV{VULKAN_SDK}\\Bin\\glslc.exe")
@@ -29,15 +29,11 @@ function(erm_setup_shaders_compiler)
 		else()
 			set(ERM_SHADERS_COMPILER "${ERM_SHADERS_COMPILER} --target-spv=spv1.3 -I ${ERM_RES_DEST}/shaders/Vulkan/imports/")
 		endif()
-
-		set(ERM_SHADERS_COMPILER "${ERM_SHADERS_COMPILER}" PARENT_SCOPE)
 	endif()
-endfunction()
 
-function(erm_setup_resources_pipeline)
 	set(ERM_PIPELINE_ARGS --res-dest ${ERM_RES_DEST} --res-src ${ERM_RES_SOURCE})
 
-	if(ERM_VULKAN)
+	if(ERM_SHADERS_COMPILER)
 		list(APPEND ERM_PIPELINE_ARGS --shaders-compiler ${ERM_SHADERS_COMPILER})
 	endif()
 
@@ -45,14 +41,17 @@ function(erm_setup_resources_pipeline)
 		list(APPEND ERM_PIPELINE_ARGS --rtx-enabled True)
 	endif()
 
-	set(ERM_PIPELINE_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/scripts/resources_pipeline.py")
+	set(ERM_PIPELINE_ARGS "${ERM_PIPELINE_ARGS}" PARENT_SCOPE)
+	set(ERM_PIPELINE_SCRIPT "${CMAKE_SOURCE_DIR}/scripts/resources_pipeline.py" PARENT_SCOPE)
+endfunction()
 
-	add_custom_target(
-		ERM_RESOURCES_PIPELINE
+function(erm_setup_resources_pipeline)
+	add_custom_command(
+		TARGET "${PROJECT_NAME}"
+		POST_BUILD
 		COMMAND ${Python3_EXECUTABLE} ${ERM_PIPELINE_SCRIPT} ${ERM_PIPELINE_ARGS}
 		COMMENT "Resources Pipeline"
 	)
-	add_dependencies(ERM_Main ERM_RESOURCES_PIPELINE)
 endfunction()
 
 option(ERM_FLIP_PROJECTION "If ON the projection matrix will be flipped over the Y axis" OFF)
