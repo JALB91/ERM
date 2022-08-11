@@ -72,10 +72,12 @@ public:
 
 void ShowGameWindow(erm::Engine& engine)
 {
-	static SwapChainHelper helper(engine);
+	static SwapChainHelper sHelper(engine);
+	static bool sFirst = true;
 
-	if (helper.Update())
+	if (sHelper.Update())
 	{
+		sFirst = true;
 		return;
 	}
 
@@ -93,21 +95,34 @@ void ShowGameWindow(erm::Engine& engine)
 		ImGuiWindowFlags_NoNavInputs |
 		ImGuiWindowFlags_NoScrollbar |
 		ImGuiWindowFlags_NoScrollWithMouse;
-
-	if (ImGui::Begin("Game", nullptr, flags))
+	
+	const size_t index = engine.GetRenderer().GetCurrentFrame();
+	
+	/*
+		Wait for the first frame to be renderer otherwise
+		we will end up rendering a frame with an UNDEFINED layout
+	 */
+	const bool shouldSkip = index == 0 && sFirst;
+	
+	if (index != 0 && sFirst)
 	{
-		size_t index = engine.GetRenderer().GetCurrentFrame();
+		sFirst = false;
+	}
 
-		if (index == 0)
+	if (ImGui::Begin("Game", nullptr, flags) && !shouldSkip)
+	{
+		size_t targetIndex = index;
+		
+		if (targetIndex == 0)
 		{
-			index = erm::IRenderer::kMaxFramesInFlight - 1;
+			targetIndex = erm::IRenderer::kMaxFramesInFlight - 1;
 		}
 		else
 		{
-			index -= 1;
+			targetIndex -= 1;
 		}
 
-		ImGui::Image(helper.mTextureIDs[index], ImGui::GetWindowSize());
+		ImGui::Image(sHelper.mTextureIDs[targetIndex], ImGui::GetWindowSize());
 	}
 
 	const erm::math::vec2 winSize(window.GetWindowWidth(), window.GetWindowHeight());
