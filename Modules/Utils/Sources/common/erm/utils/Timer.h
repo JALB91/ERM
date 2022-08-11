@@ -5,10 +5,12 @@
 
 namespace erm {
 
+using FrameID = short;
+
 class Timer
 {
 public:
-	static short sFrameId;
+	static FrameID sFrameId;
 
 public:
 	Timer();

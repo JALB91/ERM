@@ -25,12 +25,21 @@ namespace erm::Utils {
 
 extern bool LogCall(bool cond, const char* msg, const char* function, const char* file, int line);
 extern std::vector<std::string> SplitString(const std::string& str, char ch);
-extern constexpr std::string_view StripFunctionName(std::string_view fn);
 extern std::string ReadFromFile(const char* path);
 extern void WriteToFile(const char* path, const std::string& data);
 extern bool CompareNoCaseSensitive(const std::string& a, const std::string& b);
 extern bool EndsWith(const std::string& s, const std::string& c);
 extern std::string FormatTime(unsigned int seconds);
+
+constexpr std::string_view StripFunctionName(std::string_view fn)
+{
+	std::string_view result = fn;
+
+	result = result.substr(result.find("erm::") + 5);
+	result = result.substr(0, result.find("("));
+
+	return result;
+}
 
 template<
 	typename T,

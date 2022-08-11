@@ -35,7 +35,10 @@
 
 namespace {
 
-std::string GetShaderForConfig(const erm::BindingConfigs& config, const erm::ecs::LightComponent* light, const erm::ecs::SkeletonComponent* skeleton)
+std::string GetShaderForConfig(
+	const erm::BindingConfigs& config,
+	const erm::ecs::LightComponent* light,
+	const erm::ecs::SkeletonComponent* skeleton)
 {
 	if (!light)
 		return "res/shaders/Vulkan/rasterization/vk_basic";

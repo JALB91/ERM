@@ -145,7 +145,7 @@ void GetBonesData(
 		if (!bone)
 			continue;
 
-		const auto id = bone->GetId();
+		const BoneId id = bone->GetId();
 
 		bool skip = false;
 		for (int i = 0; i < BoneIds::length(); ++i)

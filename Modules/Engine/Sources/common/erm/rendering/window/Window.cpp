@@ -62,7 +62,7 @@ bool firstRefresh = true;
 /*
 	WINDOW CALLBACKS
 */
-namespace internal {
+namespace erm::internal {
 
 void FocusCallback(GLFWwindow* window, int focused)
 {

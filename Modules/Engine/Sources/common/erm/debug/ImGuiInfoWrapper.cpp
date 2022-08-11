@@ -6,6 +6,7 @@
 #include "erm/rendering/window/Window.h"
 
 #include "erm/utils/Profiler.h"
+#include "erm/utils/Sampler.h"
 #include "erm/utils/Timer.h"
 
 #include <imgui.h>
@@ -55,8 +56,20 @@ void ShowInfoWindow(erm::Engine& engine, bool& open)
 			engine.SetMaxFPS(maxFPS);
 
 		ImGui::Separator();
+		
+		ImGui::Text("Avg Sim time:");
+		ImGui::SameLine(ImGui::GetWindowSize().x - 50.0f);
+		ImGui::Text("%.4f", erm::gSimSampler.GetAverage());
+		
+		ImGui::Separator();
+		
+		ImGui::Text("Avg Render time:");
+		ImGui::SameLine(ImGui::GetWindowSize().x - 50.0f);
+		ImGui::Text("%.4f", erm::gRenderSampler.GetAverage());
+		
+		ImGui::Separator();
 
-		if (const erm::Profiler::ProfilingTree* root = erm::Profiler::GetRoot())
+		if (const auto* profilingTreeRoot = erm::Profiler::GetProfilingTreeRoot())
 		{
 			TREE_OP operation = TREE_OP::NONE;
 
@@ -66,7 +79,7 @@ void ShowInfoWindow(erm::Engine& engine, bool& open)
 			if (ImGui::Button("Collapse All"))
 				operation = TREE_OP::COLLAPSE;
 			
-			ShowProfilingTree(*root, operation);
+			ShowProfilingTree(*profilingTreeRoot, operation);
 		}
 
 		ImGui::Separator();
@@ -77,6 +90,15 @@ void ShowInfoWindow(erm::Engine& engine, bool& open)
 
 void ShowProfilingTree(const erm::Profiler::ProfilingTree& node, TREE_OP operation)
 {
+	ImGui::Separator();
+
+	const auto& children = node.GetChildren();
+	ImGuiTreeNodeFlags flags = 0;
+	if (children.empty())
+	{
+		flags |= ImGuiTreeNodeFlags_Leaf;
+	}
+	
 	switch (operation)
 	{
 		case TREE_OP::EXPAND:
@@ -89,23 +111,18 @@ void ShowProfilingTree(const erm::Profiler::ProfilingTree& node, TREE_OP operati
 			break;
 	}
 
-	ImGui::Separator();
-
-	const auto& children = node.GetChildren();
-	int flags = 0;
-	if (children.empty())
-	{
-		flags |= ImGuiTreeNodeFlags_Leaf;
-	}
-
-	const bool nodeOpen = ImGui::TreeNodeEx(node.GetId().c_str(), flags);
+	const bool nodeOpen = ImGui::TreeNodeEx(node.GetId().data(), flags);
 	ImGui::SameLine(ImGui::GetWindowSize().x - 50.0f);
-	ImGui::Text("%.4f", node.GetPayload().mTime);
-	if (nodeOpen)
+	ImGui::Text("%.4f", node.GetPayload().mSampler.GetAverage());
+	if (nodeOpen || operation == TREE_OP::COLLAPSE)
 	{
+		if (operation == TREE_OP::COLLAPSE && !children.empty())
+			TreePush(node.GetId().data());
+		
 		std::for_each(children.cbegin(), children.cend(), [operation](auto& child) {
 			ShowProfilingTree(*child, operation);
 		});
+		
 		ImGui::TreePop();
 	}
 }

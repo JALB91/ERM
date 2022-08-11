@@ -6,7 +6,7 @@ namespace erm {
 static std::unique_ptr<Profiler::ProfilingTree> sTree = nullptr;
 static Profiler::ProfilingTree* sCurrentNode = nullptr;
 
-Profiler::Profiler(const std::string& id)
+Profiler::Profiler(std::string_view id)
 {
 	if (!sTree)
 	{
@@ -28,20 +28,22 @@ Profiler::~Profiler()
 	ERM_ASSERT(sCurrentNode != nullptr);
 	
 	mTimer.Update();
+	
+	Profile& profile = sCurrentNode->GetPayload();
 	const double time = mTimer.GetElapsedTime();
 	
-	if (Timer::sFrameId != sCurrentNode->GetPayload().mFrameId)
-		sCurrentNode->GetPayload().mTime = time;
+	if (profile.mFrameId != Timer::sFrameId)
+		profile.mSampler.AddSample(time);
 	else
-		sCurrentNode->GetPayload().mTime += time;
+		profile.mSampler.AddToCurrentSample(time);
 	
-	sCurrentNode->GetPayload().mFrameId = Timer::sFrameId;
+	profile.mFrameId = Timer::sFrameId;
 	
 	if (ProfilingTree* parent = sCurrentNode->GetParent())
 		sCurrentNode = parent;
 }
 
-const Profiler::ProfilingTree* Profiler::GetRoot()
+const Profiler::ProfilingTree* Profiler::GetProfilingTreeRoot()
 {
 	return sTree.get();
 }

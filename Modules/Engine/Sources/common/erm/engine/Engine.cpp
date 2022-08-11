@@ -227,6 +227,10 @@ void Engine::Run()
 {
 	while (mWindow && !mWindow->ShouldClose())
 	{
+		Timer::sFrameId = (Timer::sFrameId + 1) % 2;
+		
+		ERM_PROFILE_FUNCTION();
+		
 		static double frameElapsedTime = 0.0;
 		static double simulationElapsedTime = 0.0;
 
@@ -236,12 +240,9 @@ void Engine::Run()
 		frameElapsedTime += updateElapsedTime;
 		simulationElapsedTime += updateElapsedTime;
 		
-		Timer::sFrameId = (Timer::sFrameId + 1) % 2;
-		
 		while (simulationElapsedTime >= ERM_TARGET_SIMULATION_TIME)
 		{
-			static constexpr auto kSimulationFrameName = "Sim";
-			ERM_FRAME_BEGIN(kSimulationFrameName);
+			ERM_SIM_FRAME_BEGIN();
 			
 			OnPreUpdate();
 			OnUpdate(ERM_TARGET_SIMULATION_TIME);
@@ -249,13 +250,12 @@ void Engine::Run()
 			
 			simulationElapsedTime -= ERM_TARGET_SIMULATION_TIME;
 			
-			ERM_FRAME_END(kSimulationFrameName);
+			ERM_SIM_FRAME_END();
 		}
 		
 		if (frameElapsedTime >= mTargetFrameTime)
 		{
-			static constexpr auto kRenderFrameName = "Render";
-			ERM_FRAME_BEGIN(kRenderFrameName);
+			ERM_RENDER_FRAME_BEGIN();
 			
 			static double elapsedTime = 0.0;
 			static unsigned int framesInSecond = 0;
@@ -277,7 +277,7 @@ void Engine::Run()
 			
 			frameElapsedTime = 0.0;
 			
-			ERM_FRAME_END(kRenderFrameName);
+			ERM_RENDER_FRAME_END();
 		}
 	}
 }

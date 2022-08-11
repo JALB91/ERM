@@ -33,16 +33,6 @@ std::vector<std::string> SplitString(const std::string& str, char ch)
 	return res;
 }
 
-constexpr std::string_view StripFunctionName(const char* fn)
-{
-	std::string_view result = fn;
-
-	result = result.substr(result.find("erm::") + 5);
-	result = result.substr(0, result.find("("));
-
-	return result;
-}
-
 std::string ReadFromFile(const char* path)
 {
 	std::ifstream stream(path);
