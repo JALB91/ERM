@@ -11,40 +11,26 @@ Timer::Timer()
 	, mStartingTime(GetCurrentTime())
 	, mCurrentUpdateTime(mStartingTime)
 	, mPreviousUpdateTime(mStartingTime)
-	, mSystemClock(clock())
-	, mAppClock(0)
+	, mUpdateElapsedTime(0.0)
 {}
 
-void Timer::Update()
-{
-	mPreviousUpdateTime = mCurrentUpdateTime;
-	mCurrentUpdateTime = GetCurrentTime();
-
-	mElapsedTime += GetUpdateElapsedTime();
-
-	mSystemClock = clock();
-	++mAppClock;
-}
-
-void Timer::Update(float dt)
+void Timer::Update(double dt /*= GetCurrentTime()*/)
 {
 	mPreviousUpdateTime = mCurrentUpdateTime;
 	mCurrentUpdateTime = dt;
+	
+	mUpdateElapsedTime = mCurrentUpdateTime - mPreviousUpdateTime;
 
-	mElapsedTime += dt;
-
-	mSystemClock = clock();
-	++mAppClock;
+	mElapsedTime += mUpdateElapsedTime;
 }
 
 void Timer::Restart()
 {
-	mElapsedTime = 0.0f;
+	mElapsedTime = 0.0;
 	mStartingTime = GetCurrentTime();
 	mCurrentUpdateTime = mStartingTime;
 	mPreviousUpdateTime = mStartingTime;
-	mSystemClock = clock();
-	mAppClock = 0;
+	mUpdateElapsedTime = 0.0;
 }
 
 } // namespace erm
