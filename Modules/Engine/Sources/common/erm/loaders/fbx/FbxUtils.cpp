@@ -138,14 +138,14 @@ void GetBonesData(
 		if (skeletonData.mBoneWeight <= 0.0f)
 			continue;
 
-		const BonesTree* bone = bonesTree.FindByPayload([&skeletonData](const BonesTree::Payload& payload) {
-			return skeletonData.mBoneName == payload.mName;
+		const BonesTree* node = bonesTree.FindByPayload([&skeletonData](const Bone& bone) {
+			return skeletonData.mBoneName == bone.mName;
 		});
 
-		if (!bone)
+		if (!node)
 			continue;
 
-		const BoneId id = bone->GetId();
+		const BoneId id = node->GetId();
 
 		bool skip = false;
 		for (int i = 0; i < BoneIds::length(); ++i)

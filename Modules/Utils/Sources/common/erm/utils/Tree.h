@@ -8,31 +8,29 @@
 
 namespace erm {
 
-template<typename S, typename T>
+template<typename ID, typename Payload>
 class Tree
 {
 public:
-	typedef std::unique_ptr<Tree> Child;
-	typedef std::vector<Child> Children;
-	typedef S ID;
-	typedef T Payload;
+	using Child = std::unique_ptr<Tree>;
+	using Children = std::vector<Child>;
 
 public:
-	Tree(S id, T payload)
-		: mParent(nullptr)
-		, mId(std::forward<S>(id))
-		, mPayload(std::forward<T>(payload))
+	Tree(ID id, Payload payload)
+		: mId(std::forward<ID>(id))
+		, mPayload(std::forward<Payload>(payload))
+		, mParent(nullptr)
 	{}
 	~Tree() = default;
 
 	Tree(const Tree&) = delete;
 	Tree& operator=(const Tree&) = delete;
 
-	Tree(Tree&& other)
-		: mParent(std::move(other.mParent))
-		, mChildren(std::move(other.mChildren))
-		, mId(std::move(other.mId))
+	Tree(Tree&& other) noexcept
+		: mId(std::move(other.mId))
 		, mPayload(std::move(other.mPayload))
+		, mParent(std::move(other.mParent))
+		, mChildren(std::move(other.mChildren))
 	{
 		for (Child& child : mChildren)
 		{
@@ -40,21 +38,13 @@ public:
 		}
 	}
 
-	Tree& operator=(Tree&& other)
+	Tree& operator=(Tree&& other) noexcept
 	{
 		if (&other == this)
 			return *this;
-
-		mParent = std::move(other.mParent);
-		mChildren = std::move(other.mChildren);
-		mId = std::move(other.mId);
-		mPayload = std::move(other.mPayload);
-
-		for (Child& child : mChildren)
-		{
-			child->mParent = this;
-		}
-
+		
+		*this = std::move(other);
+		
 		return *this;
 	}
 
@@ -64,12 +54,13 @@ public:
 
 		Tree* currentNode = &tree;
 
-		ForEachChildDo([&currentNode](const Tree& node) mutable {
-			currentNode = &(currentNode->AddChild(Utils::Clone(node.GetId()), Utils::Clone(node.GetPayload())));
-		},
-					   [&currentNode](const Tree& /*node*/) mutable {
-						   currentNode = currentNode->GetParent();
-					   });
+		ForEachChildDo(
+			[&currentNode](const Tree& node) mutable {
+				currentNode = &(currentNode->AddChild(Utils::Clone(node.GetId()), Utils::Clone(node.GetPayload())));
+			},
+			[&currentNode](const Tree& /*node*/) mutable {
+				currentNode = currentNode->GetParent();
+			});
 
 		return tree;
 	}
@@ -120,19 +111,21 @@ public:
 		child->mParent = this;
 	}
 
-	Tree& AddChild(S id, T payload)
+	Tree& AddChild(ID id, Payload payload)
 	{
 		if (Tree* child = GetRoot().Find(id))
 		{
-			child->SetPayload(std::forward<T>(payload));
+			child->SetPayload(std::forward<Payload>(payload));
 			return *child;
 		}
-		Child& child = mChildren.emplace_back(std::make_unique<Tree>(std::forward<S>(id), std::forward<T>(payload)));
+		Child& child = mChildren.emplace_back(std::make_unique<Tree>(std::forward<ID>(id), std::forward<Payload>(payload)));
 		child->mParent = this;
 		return *child;
 	}
 
-	inline void ForEachDo(const std::function<void(Tree&)>& before, const std::function<void(Tree&)>& after = nullptr)
+	inline void ForEachDo(
+		const std::function<void(Tree&)>& before,
+		const std::function<void(Tree&)>& after = nullptr)
 	{
 		if (before)
 			before(*this);
@@ -144,7 +137,9 @@ public:
 			after(*this);
 	}
 
-	inline void ForEachChildDo(const std::function<void(Tree&)>& before, const std::function<void(Tree&)>& after = nullptr)
+	inline void ForEachChildDo(
+		const std::function<void(Tree&)>& before,
+		const std::function<void(Tree&)>& after = nullptr)
 	{
 		for (Child& child : mChildren)
 		{
@@ -156,7 +151,7 @@ public:
 		}
 	}
 
-	inline Tree* Find(S id)
+	inline Tree* Find(const ID& id)
 	{
 		if (mId == id)
 			return this;
@@ -172,7 +167,7 @@ public:
 		return nullptr;
 	}
 
-	inline const Tree* Find(S id) const
+	inline const Tree* Find(const ID& id) const
 	{
 		if (mId == id)
 			return this;
@@ -209,37 +204,22 @@ public:
 		return size;
 	}
 
-	inline void SetPayload(T payload) { mPayload = std::forward<T>(payload); }
-	inline const T& GetPayload() const { return mPayload; }
-	inline T& GetPayload() { return mPayload; }
-	inline S GetId() const { return mId; }
-	inline void SetId(S id) { mId = id; }
+	inline void SetPayload(Payload payload) { mPayload = std::forward<Payload>(payload); }
+	inline const Payload& GetPayload() const { return mPayload; }
+	inline Payload& GetPayload() { return mPayload; }
+	
+	inline void SetId(ID id) { mId = std::forward<ID>(id); }
+	inline const ID& GetId() const { return mId; }
+	inline ID& GetId() { return mId; }
+	
 	inline Tree* GetParent() { return mParent; }
 	inline const Children& GetChildren() const { return mChildren; }
 
-	inline bool Equal(Tree& other) const
-	{
-		if (GetId() != other.GetId() || GetPayload() != other.GetPayload())
-			return false;
-		if (mChildren.size() != other.mChildren.size() || GetSize() != other.GetSize())
-			return false;
-
-		bool equals = true;
-		for (size_t i = 0; i < mChildren.size(); ++i)
-		{
-			equals &= mChildren[i]->Equal(*other.mChildren[i]);
-			if (!equals)
-				break;
-		}
-
-		return equals;
-	}
-
 private:
+	ID mId;
+	Payload mPayload;
 	Tree* mParent;
 	Children mChildren;
-	S mId;
-	T mPayload;
 };
 
 } // namespace erm
