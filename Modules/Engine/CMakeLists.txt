@@ -7,6 +7,12 @@ project(
 
 erm_setup_module_library()
 
+target_compile_definitions(
+	"${PROJECT_NAME}"
+	PRIVATE
+		ERM_ZONE_COLOR=0x000000
+)
+
 target_link_libraries(
 	"${PROJECT_NAME}"
 	PRIVATE 

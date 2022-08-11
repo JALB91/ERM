@@ -1,6 +1,12 @@
 #pragma once
 
-#define EXPAND(x) x
+#define ERM_EXPAND(x) x
+
+#if defined(ERM_WINDOWS)
+#	define ERM_FUNC_SIG __FUNCSIG__
+#elif defined(ERM_MAC)
+#	define ERM_FUNC_SIG __PRETTY_FUNCTION__
+#endif
 
 #define ERM_GET_FIRST_ARG(arg1, ...)														arg1
 #define ERM_GET_SECOND_ARG(arg1, arg2, ...)													arg2

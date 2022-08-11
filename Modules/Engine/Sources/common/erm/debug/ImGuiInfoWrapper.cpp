@@ -1,4 +1,5 @@
 #include "erm/debug/ImGuiInfoWrapper.h"
+#include "erm/debug/ImGuiUtils.h"
 
 #include "erm/engine/Engine.h"
 
@@ -18,6 +19,13 @@ enum class TREE_OP
 	NONE,
 	EXPAND,
 	COLLAPSE
+};
+
+static const std::vector<std::pair<const char*, unsigned int>> kFPSOptions {
+	{"30", 30},
+	{"60", 60},
+	{"120", 120},
+	{"144", 144}
 };
 
 void ShowProfilingTree(const erm::Profiler::ProfilingTree& node, TREE_OP operation);
@@ -42,21 +50,24 @@ void ShowInfoWindow(erm::Engine& engine, bool& open)
 
 		ImGui::SameLine();
 
-		int maxFPS = engine.GetMaxFPS();
-		ImGui::SliderInt("Max FPS", &maxFPS, 30, 144);
-		engine.SetMaxFPS(maxFPS);
+		unsigned int maxFPS = engine.GetMaxFPS();
+		if (ImGui::ShowComboOf(kFPSOptions, "Max FPS", maxFPS))
+			engine.SetMaxFPS(maxFPS);
 
 		ImGui::Separator();
 
-		TREE_OP operation = TREE_OP::NONE;
+		if (const erm::Profiler::ProfilingTree* root = erm::Profiler::GetRoot())
+		{
+			TREE_OP operation = TREE_OP::NONE;
 
-		if (ImGui::Button("Expand All"))
-			operation = TREE_OP::EXPAND;
-		ImGui::SameLine();
-		if (ImGui::Button("Collapse All"))
-			operation = TREE_OP::COLLAPSE;
-
-		ShowProfilingTree(erm::Profiler::GetRoot(), operation);
+			if (ImGui::Button("Expand All"))
+				operation = TREE_OP::EXPAND;
+			ImGui::SameLine();
+			if (ImGui::Button("Collapse All"))
+				operation = TREE_OP::COLLAPSE;
+			
+			ShowProfilingTree(*root, operation);
+		}
 
 		ImGui::Separator();
 	}

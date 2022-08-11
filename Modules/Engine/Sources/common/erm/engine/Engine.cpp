@@ -55,15 +55,12 @@ const int kEntities = 1;
 
 namespace erm {
 
+#define ERM_TARGET_SIMULATION_TIME 1.0f/60.0f
+
 Engine* gEngine = nullptr;
 
 Engine::Engine()
-#if defined(ERM_WINDOWS)
-	: mMaxFPS(144)
-#elif defined(ERM_MAC)
-	: mMaxFPS(60)
-#endif
-	, mWindow(std::make_unique<Window>())
+	: mWindow(std::make_unique<Window>())
 {
 	ERM_UNUSED(kRoyalGuardPath);
 	ERM_UNUSED(kTreeModelPath);
@@ -83,6 +80,13 @@ Engine::Engine()
 	ERM_UNUSED(kVikingRoomModelPath);
 	ERM_UNUSED(kDefaultScale);
 	std::srand(static_cast<unsigned int>(time(NULL)));
+	
+#if defined(ERM_WINDOWS)
+	SetMaxFPS(144);
+#elif defined(ERM_MAC)
+	SetMaxFPS(60);
+#endif
+	
 	mWindow->AddListener(*this);
 }
 
@@ -223,45 +227,58 @@ void Engine::Run()
 {
 	while (mWindow && !mWindow->ShouldClose())
 	{
-		ERM_PROFILE_FUNCTION();
-
 		static double frameElapsedTime = 0.0;
-		static double elapsedTime = 0.0;
-		static unsigned int framesInSecond = 0;
+		static double simulationElapsedTime = 0.0;
 
 		mTimer.Update();
 
-		const double targetFrameSeconds = 1.0 / static_cast<double>(mMaxFPS);
 		const double updateElapsedTime = mTimer.GetUpdateElapsedTime();
 		frameElapsedTime += updateElapsedTime;
-
-		if (frameElapsedTime < targetFrameSeconds)
-			continue;
-
-		Timer::sFrameId = (Timer::sFrameId + 1) % 2;
-
-		elapsedTime += frameElapsedTime;
-		++framesInSecond;
-
-		if (elapsedTime >= 1.0)
-		{
-			mFPS = framesInSecond;
-
-			elapsedTime = 0.0;
-			framesInSecond = 0;
-		}
-
-		OnPreUpdate();
-		OnUpdate(static_cast<float>(frameElapsedTime));
-		OnPostUpdate();
-
-		OnPreRender();
-		OnRender();
-		OnPostRender();
-
-		frameElapsedTime = 0.0;
+		simulationElapsedTime += updateElapsedTime;
 		
-		ERM_FRAME_MARK();
+		Timer::sFrameId = (Timer::sFrameId + 1) % 2;
+		
+		while (simulationElapsedTime >= ERM_TARGET_SIMULATION_TIME)
+		{
+			static constexpr auto kSimulationFrameName = "Sim";
+			ERM_FRAME_BEGIN(kSimulationFrameName);
+			
+			OnPreUpdate();
+			OnUpdate(ERM_TARGET_SIMULATION_TIME);
+			OnPostUpdate();
+			
+			simulationElapsedTime -= ERM_TARGET_SIMULATION_TIME;
+			
+			ERM_FRAME_END(kSimulationFrameName);
+		}
+		
+		if (frameElapsedTime >= mTargetFrameTime)
+		{
+			static constexpr auto kRenderFrameName = "Render";
+			ERM_FRAME_BEGIN(kRenderFrameName);
+			
+			static double elapsedTime = 0.0;
+			static unsigned int framesInSecond = 0;
+			
+			elapsedTime += frameElapsedTime;
+			++framesInSecond;
+
+			if (elapsedTime >= 1.0)
+			{
+				mFPS = framesInSecond;
+
+				elapsedTime = 0.0;
+				framesInSecond = 0;
+			}
+			
+			OnPreRender();
+			OnRender();
+			OnPostRender();
+			
+			frameElapsedTime = 0.0;
+			
+			ERM_FRAME_END(kRenderFrameName);
+		}
 	}
 }
 
@@ -322,6 +339,12 @@ void Engine::OnPostRender()
 	mImGuiHandle->OnPostRender();
 	mWindow->OnPostRender();
 	mResourcesManager->OnPostRender();
+}
+
+void Engine::SetMaxFPS(unsigned int maxFPS)
+{
+	mMaxFPS = maxFPS;
+	mTargetFrameTime = 1.0 / static_cast<double>(mMaxFPS);
 }
 
 void Engine::OnFocusChanged()

@@ -10,7 +10,7 @@
 namespace ImGui {
 
 template<typename T>
-static void ShowComboOf(
+static bool ShowComboOf(
 	const std::vector<std::pair<const char*, T>>& values,
 	const char* displayName,
 	T& selectedValue)
@@ -24,10 +24,14 @@ static void ShowComboOf(
 		if (values[i].second == selectedValue)
 			selectedIndex = i;
 	}
-	ImGui::Combo(displayName, &selectedIndex, names, static_cast<int>(count));
-	selectedValue = values[selectedIndex].second;
+	bool result = ImGui::Combo(displayName, &selectedIndex, names, static_cast<int>(count));
+	
+	if (result)
+		selectedValue = values[selectedIndex].second;
 
 	delete[] names;
+	
+	return result;
 }
 
 extern bool ShowMatrixDebug(erm::math::mat4& matrix);

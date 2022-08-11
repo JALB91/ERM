@@ -148,12 +148,11 @@ void DeviceBindingResources::UpdateResources(vk::CommandBuffer& cmd, IRenderData
 	{
 		std::vector<vk::DescriptorImageInfo> samplerInfos(samplersData.size());
 		std::vector<vk::WriteDescriptorSet> writes(samplersData.size());
-		const std::vector<SamplerData>& samplerData = shaderBindingData.mSamplersData;
 
 		CreateSamplerDescriptorWritesAndInfos(
 			samplerInfos,
 			writes,
-			samplerData,
+			samplersData,
 			mDescriptorSets[0].get(),
 			0);
 

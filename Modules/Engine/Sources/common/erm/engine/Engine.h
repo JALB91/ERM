@@ -51,7 +51,7 @@ public:
 	inline unsigned int GetFPS() const { return mFPS; }
 	inline unsigned int GetMaxFPS() const { return mMaxFPS; }
 
-	inline void SetMaxFPS(unsigned int maxFPS) { mMaxFPS = maxFPS; }
+	void SetMaxFPS(unsigned int maxFPS);
 
 	inline const Timer& GetTimer() const { return mTimer; }
 	inline const FileLocator& GetFileLocator() const { return mFileLocator; }
@@ -77,6 +77,7 @@ private:
 	Timer mTimer;
 	unsigned int mFPS;
 	unsigned int mMaxFPS;
+	double mTargetFrameTime;
 
 	FileLocator mFileLocator;
 

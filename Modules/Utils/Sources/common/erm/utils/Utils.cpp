@@ -33,9 +33,9 @@ std::vector<std::string> SplitString(const std::string& str, char ch)
 	return res;
 }
 
-std::string StripFunctionName(const char* fn)
+constexpr std::string_view StripFunctionName(const char* fn)
 {
-	std::string result = fn;
+	std::string_view result = fn;
 
 	result = result.substr(result.find("erm::") + 5);
 	result = result.substr(0, result.find("("));

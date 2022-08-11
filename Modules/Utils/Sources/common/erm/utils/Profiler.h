@@ -1,29 +1,26 @@
 #pragma once
 
+#include "erm/utils/Macros.h"
 #include "erm/utils/Timer.h"
 #include "erm/utils/Tree.h"
 #include "erm/utils/Utils.h"
 
-#if defined(ERM_WINDOWS)
-#	define ERM_FUNC_SIG __FUNCSIG__
-#elif defined(ERM_MAC)
-#	define ERM_FUNC_SIG __PRETTY_FUNCTION__
-#endif
-
 #if defined(TRACY_ENABLE)
+#	ifndef ERM_ZONE_COLOR
+#	error ERM_ZONE_COLOR not defined
+#	endif
+
 #	include <Tracy.hpp>
 
-#	define ERM_FRAME_MARK() FrameMark
-#	define ERM_PROFILE(NAME) ZoneScoped
-#	define ERM_PROFILE_FUNCTION() ZoneScoped
-#elif !defined(NDEBUG)
-#	define ERM_FRAME_MARK()
+#	define ERM_FRAME_BEGIN(NAME) FrameMarkStart(NAME)
+#	define ERM_FRAME_END(NAME) FrameMarkEnd(NAME)
+#	define ERM_PROFILE(NAME) ZoneScopedNC(NAME, ERM_ZONE_COLOR)
+#	define ERM_PROFILE_FUNCTION() ERM_PROFILE(ERM_FUNC_SIG)
+#else
+#	define ERM_FRAME_BEGIN(NAME) ERM_UNUSED(NAME)
+#	define ERM_FRAME_END(NAME) ERM_UNUSED(NAME)
 #	define ERM_PROFILE(NAME) erm::Profiler p(NAME)
 #	define ERM_PROFILE_FUNCTION() ERM_PROFILE(Utils::StripFunctionName(ERM_FUNC_SIG))
-#else
-#	define ERM_FRAME_MARK()
-#	define ERM_PROFILE(NAME)
-#	define ERM_PROFILE_FUNCTION()
 #endif
 
 namespace erm {
@@ -48,13 +45,11 @@ public:
 	Profiler(const std::string& id);
 	~Profiler();
 
-	static const ProfilingTree& GetRoot();
+	static const ProfilingTree* GetRoot();
 
 private:
-	static std::unique_ptr<ProfilingTree> sTree;
-	static ProfilingTree* sCurrentNode;
-
-	const Timer mTimer;
+	Timer mTimer;
+	
 };
 
 } // namespace erm

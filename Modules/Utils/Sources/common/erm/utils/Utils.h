@@ -4,6 +4,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <vector>
 
 #define ERM_UNUSED(x)	   (void)x;
@@ -24,7 +25,7 @@ namespace erm::Utils {
 
 extern bool LogCall(bool cond, const char* msg, const char* function, const char* file, int line);
 extern std::vector<std::string> SplitString(const std::string& str, char ch);
-extern std::string StripFunctionName(const char* fn);
+extern constexpr std::string_view StripFunctionName(std::string_view fn);
 extern std::string ReadFromFile(const char* path);
 extern void WriteToFile(const char* path, const std::string& data);
 extern bool CompareNoCaseSensitive(const std::string& a, const std::string& b);

@@ -3,8 +3,8 @@
 
 namespace erm {
 
-std::unique_ptr<Profiler::ProfilingTree> Profiler::sTree = nullptr;
-Profiler::ProfilingTree* Profiler::sCurrentNode = nullptr;
+static std::unique_ptr<Profiler::ProfilingTree> sTree = nullptr;
+static Profiler::ProfilingTree* sCurrentNode = nullptr;
 
 Profiler::Profiler(const std::string& id)
 {
@@ -25,22 +25,25 @@ Profiler::Profiler(const std::string& id)
 
 Profiler::~Profiler()
 {
-	const double prevTime = sCurrentNode->GetPayload().mTime;
+	ERM_ASSERT(sCurrentNode != nullptr);
+	
+	mTimer.Update();
 	const double time = mTimer.GetElapsedTime();
+	
 	if (Timer::sFrameId != sCurrentNode->GetPayload().mFrameId)
 		sCurrentNode->GetPayload().mTime = time;
 	else
-		sCurrentNode->GetPayload().mTime = prevTime + time;
+		sCurrentNode->GetPayload().mTime += time;
+	
 	sCurrentNode->GetPayload().mFrameId = Timer::sFrameId;
+	
 	if (ProfilingTree* parent = sCurrentNode->GetParent())
-	{
 		sCurrentNode = parent;
-	}
 }
 
-const Profiler::ProfilingTree& Profiler::GetRoot()
+const Profiler::ProfilingTree* Profiler::GetRoot()
 {
-	return *sTree;
+	return sTree.get();
 }
 
 } // namespace erm
