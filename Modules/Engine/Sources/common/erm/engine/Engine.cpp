@@ -149,58 +149,18 @@ bool Engine::Init()
 
 	{
 		auto entity = mECS->GetOrCreateEntity();
-		Model* model = mResourcesManager->GetOrCreateModel("res/models/untitled.dae");
+		Model* model = mResourcesManager->GetOrCreateModel("res/models/untitled.fbx");
 		entity->RequireComponent<ecs::ModelComponent>(model);
 		auto transform = entity->RequireComponent<ecs::TransformComponent>();
 		transform->SetTranslationX(2.5f);
 		root->AddChild(*entity);
 	}
 
+	for (int i = 0; i < 10; ++i)
 	{
 		auto entity = mECS->GetOrCreateEntity();
-		Model* model = mResourcesManager->GetOrCreateModel(kModelModelPath);
-		entity->RequireComponent<ecs::ModelComponent>(model);
-		auto transform = entity->RequireComponent<ecs::TransformComponent>();
-		transform->SetScale(math::vec3(0.01f));
-		transform->SetTranslationX(2.5f);
-		root->AddChild(*entity);
-	}
-
-	for (int i = 0; i < 0; ++i)
-	{
-		auto entity = mECS->GetOrCreateEntity();
-		Model* model = nullptr;
-		auto rnd = rand() % 8;
-		switch (rnd)
-		{
-			case 0:
-				model = mResourcesManager->GetOrCreateModel("res/models/sphere.fbx");
-				break;
-			case 1:
-				model = mResourcesManager->GetOrCreateModel(kIronManModelPath);
-				break;
-			case 2:
-				model = mResourcesManager->GetOrCreateModel(kCrateModelPath);
-				break;
-			case 3:
-				model = mResourcesManager->GetOrCreateModel(kModelModelPath);
-				break;
-			case 4:
-				//model = mResourcesManager->GetOrCreateModel(kAventModelPath);
-				break;
-			case 5:
-				//				model = mResourcesManager->GetOrCreateModel(kLamborghiniModelPath);
-				break;
-			case 6:
-				model = mResourcesManager->GetOrCreateModel("res/models/Orc_lowpoly.obj");
-				break;
-			case 7:
-				model = mResourcesManager->GetOrCreateModel("res/models/Orc_Posed_lowpoly.obj");
-				break;
-			default:
-				model = mResourcesManager->GetOrCreateModel(kChairModelPath);
-				break;
-		}
+		const auto rnd = rand() % mFileLocator.GetModels().size();
+		Model* model = mResourcesManager->GetOrCreateModel(mFileLocator.GetModels()[rnd].c_str());
 
 		entity->RequireComponent<ecs::ModelComponent>(model);
 		auto tComp = entity->RequireComponent<ecs::TransformComponent>();
@@ -210,12 +170,6 @@ bool Engine::Init()
 		float y = static_cast<float>(std::rand() % 100);
 		float z = static_cast<float>((std::rand() % dist) - dist / 2);
 		tComp->SetTranslation(math::vec3(x, y, z));
-		if (rnd == 1 || rnd == 5)
-			tComp->SetScale(math::vec3(0.1f, 0.1f, 0.1f));
-		else if (rnd == 4)
-			tComp->SetScale(math::vec3(15.0f, 15.0f, 15.0f));
-		else if (rnd == 3)
-			tComp->SetRotation(math::vec3(-static_cast<float>(M_PI) * 0.5f, 0.0f, 0.0f));
 		tComp->SetRotationY(static_cast<float>(M_PI) * (static_cast<float>((rand() % 100)) / 100.0f));
 		root->AddChild(*entity);
 	}
