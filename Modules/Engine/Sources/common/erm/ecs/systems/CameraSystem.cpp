@@ -103,30 +103,36 @@ void CameraSystem::UpdateCameraComponent(CameraComponent& camera, TransformCompo
 	else if (mWindow.IsMouseButtonDown(MOUSE_BUTTON_3))
 	{
 	}
-
+	
+	float movementSpeed = camera.mMovementSpeed;
+	
+	if (mWindow.IsKeyDown(KEY_LEFT_SHIFT))
+	{
+		movementSpeed *= 2.0f;
+	}
 	if (mWindow.IsKeyDown(KEY_W))
 	{
-		translation.z -= camera.mMovementSpeed * dt;
+		translation.z -= movementSpeed * dt;
 	}
 	if (mWindow.IsKeyDown(KEY_D))
 	{
-		translation.x += camera.mMovementSpeed * dt;
+		translation.x += movementSpeed * dt;
 	}
 	if (mWindow.IsKeyDown(KEY_S))
 	{
-		translation.z += camera.mMovementSpeed * dt;
+		translation.z += movementSpeed * dt;
 	}
 	if (mWindow.IsKeyDown(KEY_A))
 	{
-		translation.x -= camera.mMovementSpeed * dt;
+		translation.x -= movementSpeed * dt;
 	}
 	if (mWindow.IsKeyDown(KEY_SPACE))
 	{
-		translation.y += camera.mMovementSpeed * dt;
+		translation.y += movementSpeed * dt;
 	}
-	if (mWindow.IsKeyDown(KEY_LEFT_SHIFT))
+	if (mWindow.IsKeyDown(KEY_C))
 	{
-		translation.y -= camera.mMovementSpeed * dt;
+		translation.y -= movementSpeed * dt;
 	}
 
 	if (translation.x != 0.0f || translation.z != 0.0f || translation.y != 0.0f)
