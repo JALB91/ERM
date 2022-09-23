@@ -63,7 +63,6 @@ void ParseFBXModel(
 
 	FbxScene* lScene = FbxScene::Create(sManager, "myScene");
 	sImporter->Import(lScene);
-	sFbxMutex.unlock();
 
 	std::unique_ptr<BonesTree> bonesTree;
 	std::vector<std::unique_ptr<SkeletonAnimation>> animations;
@@ -85,6 +84,8 @@ void ParseFBXModel(
 			resourcesManager.GetAnimations().emplace_back(std::move(animation));
 		mutex.unlock();
 	}
+	
+	sFbxMutex.unlock();
 }
 
 } // namespace erm
