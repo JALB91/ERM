@@ -19,10 +19,10 @@ public:
 		BufferUsageFlags buf);
 	~DeviceBuffer();
 
-	DeviceBuffer(DeviceBuffer&& other);
+	DeviceBuffer(DeviceBuffer&& other) noexcept;
 	DeviceBuffer(const DeviceBuffer&) = delete;
 
-	DeviceBuffer& operator=(DeviceBuffer&& other);
+	DeviceBuffer& operator=(DeviceBuffer&& other) noexcept;
 	DeviceBuffer& operator=(const DeviceBuffer&) = delete;
 
 	void Update(const void* data, const BufferInfo& info = {}) const override;

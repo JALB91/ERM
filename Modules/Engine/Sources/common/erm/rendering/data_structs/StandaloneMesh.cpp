@@ -36,7 +36,7 @@ StandaloneMesh::~StandaloneMesh()
 	ERM_VK_CHECK(mDevice->waitIdle());
 }
 
-StandaloneMesh::StandaloneMesh(StandaloneMesh&& other)
+StandaloneMesh::StandaloneMesh(StandaloneMesh&& other) noexcept
 	: Mesh(std::move(other))
 	, mDevice(other.mDevice)
 	, mIndexBuffer(std::move(other.mIndexBuffer))

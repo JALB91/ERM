@@ -30,7 +30,7 @@ IBuffer::IBuffer(
 	mLayout.mInfos.emplace_back(BufferInfo {0, mBufferSize});
 }
 
-IBuffer::IBuffer(const IBuffer& other)
+IBuffer::IBuffer(const IBuffer& other) noexcept
 	: mDevice(other.mDevice)
 	, mBufferSize(other.mBufferSize)
 	, mBuf(other.mBuf)
@@ -49,7 +49,7 @@ IBuffer::IBuffer(const IBuffer& other)
 	mLayout.mInfos.emplace_back(BufferInfo {0, mBufferSize});
 }
 
-IBuffer::IBuffer(IBuffer&& other)
+IBuffer::IBuffer(IBuffer&& other) noexcept
 	: mDevice(other.mDevice)
 	, mBufferSize(other.mBufferSize)
 	, mLayout(std::move(other.mLayout))
@@ -59,7 +59,7 @@ IBuffer::IBuffer(IBuffer&& other)
 	, mBufferMemory(std::move(other.mBufferMemory))
 {}
 
-IBuffer& IBuffer::operator=(IBuffer&& other)
+IBuffer& IBuffer::operator=(IBuffer&& other) noexcept
 {
 	if (this == &other)
 		return *this;

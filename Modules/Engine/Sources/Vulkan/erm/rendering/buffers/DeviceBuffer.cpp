@@ -17,12 +17,12 @@ DeviceBuffer::DeviceBuffer(
 
 DeviceBuffer::~DeviceBuffer() = default;
 
-DeviceBuffer::DeviceBuffer(DeviceBuffer&& other)
+DeviceBuffer::DeviceBuffer(DeviceBuffer&& other) noexcept
 	: IBuffer(std::move(other))
 	, mStagingBuffer(std::move(other.mStagingBuffer))
 {}
 
-DeviceBuffer& DeviceBuffer::operator=(DeviceBuffer&& other)
+DeviceBuffer& DeviceBuffer::operator=(DeviceBuffer&& other) noexcept
 {
 	if (this == &other)
 		return *this;

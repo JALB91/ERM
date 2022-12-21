@@ -23,7 +23,7 @@ public:
 		const char* name = "");
 	~StandaloneMesh();
 
-	StandaloneMesh(StandaloneMesh&& other);
+	StandaloneMesh(StandaloneMesh&& other) noexcept;
 	StandaloneMesh(const StandaloneMesh&) = delete;
 
 	StandaloneMesh& operator=(StandaloneMesh&&) = delete;

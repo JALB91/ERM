@@ -22,11 +22,11 @@ public:
 		MemoryPropertyFlags mpf);
 	virtual ~IBuffer() = default;
 
-	IBuffer(const IBuffer&);
-	IBuffer(IBuffer&& other);
+	IBuffer(const IBuffer&) noexcept;
+	IBuffer(IBuffer&& other) noexcept;
 
 	IBuffer& operator=(const IBuffer&) = delete;
-	IBuffer& operator=(IBuffer&&);
+	IBuffer& operator=(IBuffer&&) noexcept;
 
 	virtual void Update(const void* data, const BufferInfo& info) const = 0;
 

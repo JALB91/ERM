@@ -23,11 +23,11 @@ public:
 		Empty();
 	}
 
-	BoundingBox(BoundingBox&&) = default;
-	BoundingBox(const BoundingBox&) = default;
+	BoundingBox(BoundingBox&&) noexcept = default;
+	BoundingBox(const BoundingBox&) noexcept = default;
 
-	BoundingBox& operator=(BoundingBox&&) = default;
-	BoundingBox& operator=(const BoundingBox&) = default;
+	BoundingBox& operator=(BoundingBox&&) noexcept = default;
+	BoundingBox& operator=(const BoundingBox&) noexcept = default;
 
 	T GetSize() const
 	{
