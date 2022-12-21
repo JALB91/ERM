@@ -27,7 +27,7 @@ void ShowMainMenuBar(erm::Engine& engine)
 	}
 
 	if (!showInfos)
-		showInfos = ImGui::IsKeyPressed(erm::KEY_I);
+		showInfos = ImGui::IsKeyPressed(ImGuiKey_I);
 
 	if (showDemo)
 		ImGui::ShowDemoWindow(&showDemo);

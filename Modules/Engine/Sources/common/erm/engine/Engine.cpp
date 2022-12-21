@@ -156,7 +156,7 @@ bool Engine::Init()
 		root->AddChild(*entity);
 	}
 
-	for (int i = 0; i < 10; ++i)
+	for (int i = 0; i < 0; ++i)
 	{
 		auto entity = mECS->GetOrCreateEntity();
 		const auto rnd = rand() % mFileLocator.GetModels().size();
