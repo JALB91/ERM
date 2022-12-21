@@ -106,7 +106,6 @@ private:
 	}
 	
 	Device& mDevice;
-	ResourcesLoader mResourcesLoader;
 
 	CubeMaps mCubeMaps;
 	Shaders mShaderPrograms;
@@ -116,6 +115,8 @@ private:
 	Models mModels;
 	Skins mSkins;
 	Animations mAnimations;
+	
+	ResourcesLoader mResourcesLoader;
 };
 
 } // namespace erm
