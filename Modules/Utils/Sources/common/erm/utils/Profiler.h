@@ -11,7 +11,7 @@
 #	error ERM_ZONE_COLOR not defined
 #	endif
 
-#	include <Tracy.hpp>
+#	include <tracy/Tracy.hpp>
 
 namespace erm::internal {
 constexpr const char* const kSimulationFrameName = "Sim";
