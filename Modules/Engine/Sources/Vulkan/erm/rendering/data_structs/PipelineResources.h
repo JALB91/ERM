@@ -5,7 +5,7 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include <map>
+#include <unordered_map>
 #include <vector>
 
 namespace erm {
@@ -29,11 +29,13 @@ public:
 		const PipelineConfigs& pipelineConfigs);
 	~PipelineResources();
 
-	PipelineResources(PipelineResources&&) = delete;
-	PipelineResources& operator=(PipelineResources&&) = delete;
+	PipelineResources(PipelineResources&&) noexcept = default;
+	PipelineResources& operator=(PipelineResources&&) noexcept;
 
 	PipelineResources(const PipelineResources&) = delete;
 	PipelineResources& operator=(const PipelineResources&) = delete;
+	
+	inline uint32_t GetUntouchedFrames() const { return mUntouchedFrames; }
 
 	void Refresh();
 
@@ -52,14 +54,15 @@ private:
 	const vk::RenderPass* mRenderPass;
 	const vk::DescriptorPool* mDescriptorPool;
 
-	const PipelineConfigs mPipelineConfigs;
+	PipelineConfigs mPipelineConfigs;
 	vk::UniquePipelineLayout mPipelineLayout;
 	vk::UniquePipeline mPipeline;
 
 	vk::UniqueDescriptorSetLayout mEmptySetLayout;
 	vk::UniqueDescriptorSet mEmptySet;
 	std::vector<vk::UniqueDescriptorSetLayout> mDescriptorSetLayouts;
-	std::map<uint32_t, PipelineData> mData;
+	std::unordered_map<uint32_t, PipelineData> mPipelineData;
+	uint32_t mUntouchedFrames;
 };
 
 } // namespace erm

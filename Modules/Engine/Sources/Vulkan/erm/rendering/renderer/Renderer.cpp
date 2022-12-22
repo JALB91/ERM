@@ -38,17 +38,14 @@ void Renderer::OnPreRender()
 {
 	ERM_PROFILE_FUNCTION();
 
-	for (auto& [key, value] : mRenderingMap)
-		value.first->Refresh();
-#ifdef ERM_RAY_TRACING_ENABLED
-	if (!mRTRenderingResources)
-		mRTRenderingResources = std::make_unique<RTRenderingResources>(mDevice, *this);
-	mRTRenderingResources->Refresh();
-#endif
-
 	ERM_VK_CHECK(mDevice->waitForFences(1, &mInFlightFences[mCurrentFrame], VK_TRUE, UINT64_MAX));
 
-	const vk::Result result = mDevice->acquireNextImageKHR(mSwapChain, UINT64_MAX, mImageAvailableSemaphores[mCurrentFrame], {}, &mCurrentImageIndex);
+	const vk::Result result = mDevice->acquireNextImageKHR(
+		mSwapChain,
+		UINT64_MAX,
+		mImageAvailableSemaphores[mCurrentFrame],
+		{},
+		&mCurrentImageIndex);
 
 	if (result == vk::Result::eErrorOutOfDateKHR)
 	{
@@ -67,6 +64,26 @@ void Renderer::OnPreRender()
 	}
 	// Mark the image as now being in use by this frame
 	mImagesInFlight[GetCurrentImageIndex()] = mInFlightFences[mCurrentFrame];
+	
+	for (auto it = mRenderingMap.begin(); it != mRenderingMap.end();)
+	{
+		auto& [resources, data] = *it;
+		
+		if (resources->GetUntouchedFrames() > kMaxFramesInFlight)
+		{
+			it = mRenderingMap.erase(it);
+		}
+		else
+		{
+			resources->Refresh();
+			++it;
+		}
+	}
+#ifdef ERM_RAY_TRACING_ENABLED
+	if (!mRTRenderingResources)
+		mRTRenderingResources = std::make_unique<RTRenderingResources>(mDevice, *this);
+	mRTRenderingResources->Refresh();
+#endif
 
 	mIsImageIndexValid = true;
 }
@@ -98,8 +115,8 @@ void Renderer::OnPostRender()
 {
 	ERM_PROFILE_FUNCTION();
 
-	for (auto& [key, value] : mRenderingMap)
-		value.second.clear();
+	for (auto& [resources, data] : mRenderingMap)
+		data.clear();
 
 #ifdef ERM_RAY_TRACING_ENABLED
 	mRTRenderData = nullptr;
@@ -138,36 +155,17 @@ void Renderer::SubmitRenderData(RenderData& data)
 {
 	ERM_ASSERT(!data.mMeshes.empty());
 
-	if (data.mRenderingId.has_value())
-	{
-		const auto it = mRenderingMap.find(data.mRenderingId.value());
+	const auto it = std::find_if(mRenderingMap.begin(), mRenderingMap.end(), [&data](const auto& resources) {
+		return resources.first->GetRenderConfigs().IsRenderPassLevelCompatible(data.mRenderConfigs);
+	});
 
-		if (it == mRenderingMap.end())
-		{
-			data.mRenderingId = static_cast<uint32_t>(mRenderingMap.size());
-			mRenderingMap[data.mRenderingId.value()] = std::make_pair<std::unique_ptr<RenderingResources>, std::vector<RenderData*>>(std::make_unique<RenderingResources>(mDevice, mWindow, *this, data.mRenderConfigs), {&data});
-		}
-		else
-		{
-			it->second.second.emplace_back(&data);
-		}
+	if (it == mRenderingMap.end())
+	{
+		mRenderingMap[std::make_unique<RenderingResources>(mDevice, mWindow, *this, data.mRenderConfigs)] = {&data};
 	}
 	else
 	{
-		const auto it = std::find_if(mRenderingMap.begin(), mRenderingMap.end(), [&data](const auto& resources) {
-			return resources.second.first->GetRenderConfigs().IsRenderPassLevelCompatible(data.mRenderConfigs);
-		});
-
-		if (it == mRenderingMap.end())
-		{
-			data.mRenderingId = static_cast<uint32_t>(mRenderingMap.size());
-			mRenderingMap[data.mRenderingId.value()] = std::make_pair<std::unique_ptr<RenderingResources>, std::vector<RenderData*>>(std::make_unique<RenderingResources>(mDevice, mWindow, *this, data.mRenderConfigs), {&data});
-		}
-		else
-		{
-			data.mRenderingId = it->first;
-			it->second.second.emplace_back(&data);
-		}
+		it->second.emplace_back(&data);
 	}
 }
 
@@ -219,9 +217,11 @@ vk::CommandBuffer& Renderer::RetrieveCommandBuffer()
 
 	ERM_VK_CHECK(cmd.begin(beginInfo));
 
-	for (auto& [key, value] : mRenderingMap)
-		if (!value.second.empty())
-			value.first->UpdateCommandBuffer(cmd, value.second);
+	for (auto& [resources, data] : mRenderingMap)
+	{
+		if (!data.empty())
+			resources->UpdateCommandBuffer(cmd, data);
+	}
 
 #ifdef ERM_RAY_TRACING_ENABLED
 	if (mRTRenderData && mRTRenderingResources)

@@ -2,7 +2,7 @@
 
 namespace erm {
 
-const RenderConfigs RenderConfigs::DEFAULT_RENDER_CONFIGS {
+const RenderConfigs RenderConfigs::DEFAULT_RENDER_CONFIGS (
 	SubpassData {
 		AttachmentData(
 			FrameBufferType::FRAME_1,
@@ -15,21 +15,15 @@ const RenderConfigs RenderConfigs::DEFAULT_RENDER_CONFIGS {
 			AttachmentLoadOp::CLEAR,
 			AttachmentStoreOp::STORE,
 			ImageLayout::UNDEFINED,
-			ImageLayout::GENERAL)}};
+			ImageLayout::GENERAL)
+	},
+	math::vec4(0.0f, 0.0f, 0.0f, 1.0f)
+);
 
-RenderConfigs::RenderConfigs(const SubpassData& subpassData)
-	: mSubpassData(subpassData)
+RenderConfigs::RenderConfigs(SubpassData&& subpassData, math::vec4&& clearColor)
+	: mSubpassData(std::move(subpassData))
+	, mClearColor(std::move(clearColor))
 {}
-
-bool RenderConfigs::operator==(const RenderConfigs& other) const
-{
-	return IsRenderPassLevelCompatible(other);
-}
-
-bool RenderConfigs::operator!=(const RenderConfigs& other) const
-{
-	return !(*this == other);
-}
 
 bool RenderConfigs::IsRenderPassLevelCompatible(const RenderConfigs& other) const
 {

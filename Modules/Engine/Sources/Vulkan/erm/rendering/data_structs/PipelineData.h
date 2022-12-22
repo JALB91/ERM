@@ -2,6 +2,7 @@
 
 #include "erm/rendering/data_structs/BindingConfigs.h"
 #include "erm/rendering/data_structs/IBindingResources.h"
+#include "erm/rendering/renderer/IRenderer.h"
 
 #include <vulkan/vulkan.hpp>
 
@@ -18,23 +19,37 @@ public:
 	PipelineData(const BindingConfigs& configs)
 		: mConfigs(configs)
 		, mMaxSet(0)
+		, mUntouchedFrames(0)
 	{}
 
 	PipelineData(PipelineData&& other) noexcept
 		: mConfigs(other.mConfigs)
 		, mBindingResources(std::move(other.mBindingResources))
 		, mMaxSet(other.mMaxSet)
+		, mUntouchedFrames(other.mUntouchedFrames)
 	{}
+	
+	uint32_t GetUntouchedFrames() const
+	{
+		return mUntouchedFrames;
+	}
 
 	bool IsCompatible(const BindingConfigs& other) const
 	{
 		return mConfigs.IsBindingLevelCompatible(other);
+	}
+	
+	void Refresh()
+	{
+		++mUntouchedFrames;
 	}
 
 	void UpdateResources(vk::CommandBuffer& cmd, IRenderData& renderData)
 	{
 		for (auto& res : mBindingResources)
 			res->UpdateResources(cmd, renderData);
+		
+		mUntouchedFrames = 0;
 	}
 
 	std::vector<vk::DescriptorSet> GetDescriptorSets(vk::DescriptorSet& emptySet)
@@ -42,8 +57,11 @@ public:
 		std::vector<vk::DescriptorSet> result(mMaxSet + 1);
 		for (uint32_t i = 0; i < mMaxSet + 1; ++i)
 		{
-			auto it = std::find_if(mBindingResources.begin(), mBindingResources.end(), [i](const BindingResources& res) {
-				return res->GetTargetSet() == i;
+			auto it = std::find_if(
+				mBindingResources.begin(),
+				mBindingResources.end(),
+				[i](const BindingResources& res) {
+					return res->GetTargetSet() == i;
 			});
 
 			if (it != mBindingResources.cend())
@@ -56,7 +74,7 @@ public:
 
 	void AddResources(uint32_t set, BindingResources&& resources)
 	{
-		ERM_ASSERT(resources->GetBindingConfigs().IsBindingLevelCompatible(mConfigs));
+		ERM_ASSERT(IsCompatible(resources->GetBindingConfigs()));
 		mMaxSet = std::max(mMaxSet, set);
 		mBindingResources.emplace_back(std::move(resources));
 	}
@@ -65,6 +83,7 @@ private:
 	const BindingConfigs mConfigs;
 	std::vector<BindingResources> mBindingResources;
 	uint32_t mMaxSet;
+	uint32_t mUntouchedFrames;
 };
 
 } // namespace erm

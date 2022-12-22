@@ -40,12 +40,12 @@ struct IRenderData
 	IRenderData& operator=(const IRenderData&) = delete;
 
 	template<typename T>
-	inline void SetUbo(T ubo)
+	inline T& GetUbo()
 	{
 		if (mUbos.find(T::ID) == mUbos.end())
 			mUbos[T::ID] = std::make_unique<T>();
 
-		*static_cast<T*>(mUbos[T::ID].get()) = ubo;
+		return *static_cast<T*>(mUbos[T::ID].get());
 	}
 
 	inline bool HasUbo(UboId id) const

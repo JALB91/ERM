@@ -29,12 +29,9 @@ public:
 	void UpdateResources(vk::CommandBuffer& cmd, IRenderData& data) override;
 
 private:
-	using UniformBuffers = std::map<UboId, UniformBuffer<DeviceBuffer>>;
-
-private:
 	void CreateUniformBuffers(const std::vector<UboData>& ubosData);
 
-	UniformBuffers mUniformBuffers;
+	UniformBuffersMap<DeviceBuffer> mUniformBuffersMap;
 };
 
 } // namespace erm

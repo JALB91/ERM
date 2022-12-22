@@ -1,5 +1,7 @@
 #pragma once
 
+#include "erm/math/vec.h"
+
 #include "erm/rendering/data_structs/SubpassData.h"
 
 namespace erm {
@@ -8,14 +10,12 @@ struct RenderConfigs
 {
 	static const RenderConfigs DEFAULT_RENDER_CONFIGS;
 
-	RenderConfigs(const SubpassData& subpassData);
-
-	bool operator==(const RenderConfigs& other) const;
-	bool operator!=(const RenderConfigs& other) const;
+	RenderConfigs(SubpassData&& subpassData, math::vec4&& clearColor);
 
 	bool IsRenderPassLevelCompatible(const RenderConfigs& other) const;
 
 	SubpassData mSubpassData;
+	math::vec4 mClearColor;
 };
 
 } // namespace erm

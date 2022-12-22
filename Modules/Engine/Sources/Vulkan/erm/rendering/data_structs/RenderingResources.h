@@ -36,6 +36,7 @@ public:
 	RenderingResources& operator=(const RenderingResources&) = delete;
 
 	inline const RenderConfigs& GetRenderConfigs() const { return mRenderConfigs; }
+	inline uint32_t GetUntouchedFrames() const { return mUntouchedFrames; }
 
 	void Refresh();
 	void UpdateCommandBuffer(
@@ -44,7 +45,8 @@ public:
 
 private:
 	vk::AttachmentDescription CreateAttachmentDescription(const erm::AttachmentData& data, vk::Format format) const;
-	PipelineResources& GetOrCreatePipelineResources(const PipelineConfigs& pipelineConfigs);
+	PipelineResources& GetOrCreatePipelineResources(RenderData& renderData);
+	PipelineResources* FindPipelineResources(RenderData& renderData);
 
 	void Reload();
 	void Cleanup();
@@ -60,7 +62,8 @@ private:
 	vk::UniqueRenderPass mRenderPass;
 	std::vector<vk::UniqueFramebuffer> mFrameBuffers;
 	vk::UniqueDescriptorPool mDescriptorPool;
-	std::vector<std::unique_ptr<PipelineResources>> mPipelineResources;
+	std::vector<PipelineResources> mPipelineResources;
+	uint32_t mUntouchedFrames;
 };
 
 } // namespace erm

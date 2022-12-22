@@ -44,12 +44,13 @@ std::string GetShaderForConfig(
 		return "res/shaders/Vulkan/rasterization/vk_basic";
 
 	const erm::MaterialHandle& material = config.mMaterial;
-	const erm::Texture* diffuseMap = config.GetTexture(erm::TextureType::DIFFUSE);
-	const erm::Texture* normalMap = config.GetTexture(erm::TextureType::NORMAL);
-	const erm::Texture* specularMap = config.GetTexture(erm::TextureType::SPECULAR);
+	const bool hasDiffuseMap = config.GetTexture(erm::TextureType::DIFFUSE) != nullptr;
+	const bool hasNormalMap = config.GetTexture(erm::TextureType::NORMAL) != nullptr;
+	const bool hasSpecularMap = config.GetTexture(erm::TextureType::SPECULAR) != nullptr;
+	const bool hasSkeleton = skeleton != nullptr && skeleton->GetSkin() != nullptr;
 
 	std::string result = "res/shaders/Vulkan/rasterization/";
-	result += skeleton && skeleton->GetSkin() ? "vk_skeleton" : "vk_model";
+	result += hasSkeleton ? "vk_skeleton" : "vk_model";
 
 	switch (material.mType)
 	{
@@ -63,13 +64,17 @@ std::string GetShaderForConfig(
 			result += "_pb";
 			break;
 	}
-
-	if (diffuseMap)
+	
+	if (hasDiffuseMap)
 		result += "_tex";
-	if (normalMap)
-		result += "_norm";
-	if (specularMap)
-		result += "_spec";
+
+	if (!hasSkeleton)
+	{
+		if (hasNormalMap)
+			result += "_norm";
+		if (hasSpecularMap)
+			result += "_spec";
+	}
 
 	return result;
 }
@@ -174,21 +179,30 @@ void RenderingSystem::OnPreRender()
 #endif
 
 	mModelSystem->ForEachComponent([&](ModelComponent& component) {
-		if (!component.GetModel())
+		if (component.GetModel() == nullptr)
 			return;
 
 		Model& model = *component.GetModel();
 
 		if (mResourcesManager.IsStillLoading(model))
 			return;
+		
+		RenderingComponent* renderingComponent = RequireComponent(component.GetComponentId());
+		SkeletonComponent* skeletonComponent = mSkeletonSystem->GetComponent(component.GetComponentId());
 
 		const TransformComponent* modelTransform = mTransformSystem->GetComponent(component.GetComponentId());
 		const math::mat4& modelMat = modelTransform->GetWorldTransform();
 
-		RenderingComponent* renderingComponent = RequireComponent(component.GetComponentId());
-		SkeletonComponent* skeletonComponent = mSkeletonSystem->GetComponent(component.GetComponentId());
-
-		ComponentRenderData componentRenderData = {proj, view, viewInv, modelMat, *light, *camera, lightPos, skeletonComponent, *cameraTransform};
+		const ComponentRenderData componentRenderData = {
+			proj,
+			view,
+			viewInv,
+			modelMat,
+			*light,
+			*camera,
+			lightPos,
+			skeletonComponent,
+			*cameraTransform};
 
 #ifdef ERM_RAY_TRACING_ENABLED
 		if (renderingComponent->GetUseRayTracing())
@@ -288,6 +302,8 @@ void RenderingSystem::ProcessForRasterization(
 		const RenderConfigs& renderConfigs = mesh.GetRenderConfigs();
 		PipelineConfigs& pipelineConfigs = mesh.GetPipelineConfigs();
 		IShaderProgram* targetShaderProgram = mResourcesManager.GetOrCreateShaderProgram(GetShaderForConfig(pipelineConfigs, light, skeletonComponent).c_str());
+		
+		ERM_ASSERT(targetShaderProgram != nullptr);
 
 		if (!pipelineConfigs.mShaderProgram || (pipelineConfigs.mShaderProgram != targetShaderProgram))
 		{
@@ -296,8 +312,11 @@ void RenderingSystem::ProcessForRasterization(
 
 		RenderData* data = nullptr;
 
-		auto it = std::find_if(renderingComponent.mRenderData.begin(), renderingComponent.mRenderData.end(), [&renderConfigs, &pipelineConfigs](const RenderData& data) {
-			return data.IsCompatible(renderConfigs, pipelineConfigs);
+		auto it = std::find_if(
+			renderingComponent.mRenderData.begin(),
+			renderingComponent.mRenderData.end(),
+			[&renderConfigs, &pipelineConfigs](const RenderData& data) {
+				return data.IsCompatible(renderConfigs, pipelineConfigs);
 		});
 
 		if (it == renderingComponent.mRenderData.end())
@@ -360,58 +379,51 @@ void RenderingSystem::UpdateUbos(IRenderData& data, const ComponentRenderData& c
 			{
 				case UboMVPOnly::ID:
 				{
-					UboMVPOnly ubo;
+					auto& ubo = data.GetUbo<UboMVPOnly>();
 					ubo.mMVP = crd.mProj * crd.mViewInv * crd.mModelMat;
-					data.SetUbo(std::move(ubo));
 					break;
 				}
 				case UboPBMaterial::ID:
 				{
 					PBMaterial* pbMaterial = static_cast<PBMaterial*>(data.mPipelineConfigs.mMaterial.mData);
 
-					UboPBMaterial ubo;
+					auto& ubo = data.GetUbo<UboPBMaterial>();
 					ubo.mAlbedo = pbMaterial->mAlbedo;
 					ubo.mMetallic = pbMaterial->mMetallic;
 					ubo.mRoughness = pbMaterial->mRoughness;
 					ubo.mAO = pbMaterial->mAO;
-
-					data.SetUbo(std::move(ubo));
 					break;
 				}
 				case UboPBLight::ID:
 				{
-					UboPBLight ubo;
+					auto& ubo = data.GetUbo<UboPBLight>();
 					ubo.mPosition = crd.mLightPos;
 					ubo.mColor = crd.mLight.mAmbient;
-					data.SetUbo(std::move(ubo));
 					break;
 				}
 				case UboMaterial::ID:
 				{
 					Material* material = static_cast<Material*>(data.mPipelineConfigs.mMaterial.mData);
 
-					UboMaterial ubo;
+					auto& ubo = data.GetUbo<UboMaterial>();
 					ubo.mShininess = material->mShininess;
 					ubo.mSpecular = material->mSpecular;
 					ubo.mDiffuse = material->mDiffuse;
 					ubo.mAmbient = material->mAmbient;
-
-					data.SetUbo(std::move(ubo));
 					break;
 				}
 				case UboLight::ID:
 				{
-					UboLight ubo;
+					auto& ubo = data.GetUbo<UboLight>();
 					ubo.mAmbient = crd.mLight.mAmbient;
 					ubo.mDiffuse = crd.mLight.mDiffuse;
 					ubo.mSpecular = crd.mLight.mSpecular;
 					ubo.mPosition = crd.mLightPos;
-					data.SetUbo(std::move(ubo));
 					break;
 				}
 				case UboSkeleton::ID:
 				{
-					UboSkeleton ubo;
+					auto& ubo = data.GetUbo<UboSkeleton>();
 					ubo.mModel = crd.mModelMat;
 					ubo.mView = crd.mViewInv;
 					ubo.mProjection = crd.mProj;
@@ -422,46 +434,40 @@ void RenderingSystem::UpdateUbos(IRenderData& data, const ComponentRenderData& c
 
 						ubo.mBonesTransforms[bone.GetId()] = bone.GetPayload().mAnimatedTransform;
 					});
-
-					data.SetUbo(std::move(ubo));
 					break;
 				}
 				case UboModelViewProj::ID:
 				{
-					UboModelViewProj ubo;
+					auto& ubo = data.GetUbo<UboModelViewProj>();
 					ubo.mModel = crd.mModelMat;
 					ubo.mView = crd.mViewInv;
 					ubo.mProjection = crd.mProj;
-					data.SetUbo(std::move(ubo));
 					break;
 				}
 				case UboView::ID:
 				{
-					UboView ubo;
+					auto& ubo = data.GetUbo<UboView>();
 					if (TransformComponent* pComponent = GetParentComponent<TransformComponent>(mCachedCameraId))
 						ubo.mPosition = pComponent->GetWorldTransform() * math::vec4(crd.mCameraTransform.GetTranslation(), 1.0f);
 					else
 						ubo.mPosition = crd.mCameraTransform.GetTranslation();
-					data.SetUbo(std::move(ubo));
 					break;
 				}
 				case UboCamera::ID:
 				{
-					UboCamera ubo;
+					auto& ubo = data.GetUbo<UboCamera>();
 					ubo.mPosition = crd.mCameraTransform.GetTranslation();
 					ubo.mZNear = crd.mCamera.GetZNear();
 					ubo.mZFar = crd.mCamera.GetZFar();
 					ubo.mFov = crd.mCamera.GetZFar();
-					data.SetUbo(std::move(ubo));
 					break;
 				}
 #ifdef ERM_RAY_TRACING_ENABLED
 				case UboRTBasic::ID:
 				{
-					UboRTBasic ubo;
+					auto& ubo = data.GetUbo<UboRTBasic>();
 					ubo.mProjInv = glm::inverse(crd.mProj);
 					ubo.mViewInv = crd.mView;
-					data.SetUbo(std::move(ubo));
 					break;
 				}
 #endif

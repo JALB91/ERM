@@ -123,7 +123,7 @@ void ImGuiHandle::UpdateCommandBuffer(vk::CommandBuffer& cmd)
 	clearValues[0].color.float32[0] = 0.0f;
 	clearValues[0].color.float32[1] = 0.0f;
 	clearValues[0].color.float32[2] = 0.0f;
-	clearValues[0].color.float32[3] = 0.0f;
+	clearValues[0].color.float32[3] = 1.0f;
 
 	vk::RenderPassBeginInfo info = {};
 	info.renderPass = mRenderPass;

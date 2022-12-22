@@ -2,6 +2,7 @@
 
 #include "erm/rendering/buffers/UniformBuffer.h"
 #include "erm/rendering/data_structs/IBindingResources.h"
+#include "erm/rendering/renderer/IRenderer.h"
 
 #include <vector>
 
@@ -24,8 +25,7 @@ public:
 	void UpdateResources(vk::CommandBuffer& cmd, IRenderData& data) override;
 
 private:
-	using UniformBuffers = std::map<UboId, UniformBuffer<HostBuffer>>;
-	using SwapChainUniformBuffers = std::vector<UniformBuffers>;
+	using SwapChainUniformBuffers = std::array<UniformBuffersMap<HostBuffer>, IRenderer::kMaxFramesInFlight>;
 
 private:
 	void CreateUniformBuffers(const std::vector<UboData>& ubosData);

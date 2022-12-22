@@ -1,5 +1,6 @@
 #pragma once
 
+#include "erm/rendering/buffers/UniformBuffer.h"
 #include "erm/rendering/data_structs/BindingConfigs.h"
 #include "erm/rendering/data_structs/IRenderData.h"
 #include "erm/rendering/data_structs/UniformBufferData.h"
@@ -44,25 +45,28 @@ public:
 
 protected:
 	template<typename Buffer>
+	using UniformBuffersMap = std::map<UboId, UniformBuffer<Buffer>>;
+	
+protected:
+	template<typename Buffer>
 	void CreateUniformBuffersDescriptorWritesAndInfos(
 		std::vector<vk::DescriptorBufferInfo>& infos,
 		std::vector<vk::WriteDescriptorSet>& writes,
 		const std::vector<UboData>& ubosData,
-		const std::map<UboId, Buffer>& buffers,
-		vk::DescriptorSet& descriptorSet,
-		uint32_t writesOffset = 0)
+		const UniformBuffersMap<Buffer>& buffers,
+		vk::DescriptorSet& descriptorSet)
 	{
 		for (size_t i = 0; i < ubosData.size(); ++i)
 		{
 			const UboData& data = ubosData[i];
 			const IBuffer& buffer = buffers.at(data.mUboId);
 
-			vk::DescriptorBufferInfo& bufferInfo = infos[i];
+			vk::DescriptorBufferInfo& bufferInfo = infos.emplace_back();
 			bufferInfo.buffer = buffer.GetBuffer();
 			bufferInfo.offset = data.mOffset;
 			bufferInfo.range = buffer.GetBufferSize();
 
-			vk::WriteDescriptorSet& descriptorWrite = writes[i + writesOffset];
+			vk::WriteDescriptorSet& descriptorWrite = writes.emplace_back();
 			descriptorWrite.dstSet = descriptorSet;
 			descriptorWrite.dstBinding = data.mBinding;
 			descriptorWrite.dstArrayElement = 0;
@@ -77,22 +81,19 @@ protected:
 		std::vector<vk::WriteDescriptorSet>& writes,
 		const std::vector<StorageBufferData>& storageBuffersData,
 		const StorageBuffersMap& buffersMap,
-		vk::DescriptorSet& descriptorSet,
-		uint32_t writesOffset = 0);
+		vk::DescriptorSet& descriptorSet);
 
 	void CreateSamplerDescriptorWritesAndInfos(
 		std::vector<vk::DescriptorImageInfo>& infos,
 		std::vector<vk::WriteDescriptorSet>& writes,
 		const std::vector<SamplerData>& samplerData,
-		vk::DescriptorSet& descriptorSet,
-		uint32_t writeOffset = 0);
+		vk::DescriptorSet& descriptorSet);
 
 	void CreateStorageImagesDescriptorWritesAndInfos(
 		std::vector<vk::DescriptorImageInfo>& infos,
 		std::vector<vk::WriteDescriptorSet>& writes,
 		const std::vector<StorageImageData>& storageImageData,
-		vk::DescriptorSet& descriptorSet,
-		uint32_t writeOffset = 0);
+		vk::DescriptorSet& descriptorSet);
 
 #ifdef ERM_RAY_TRACING_ENABLED
 	void CreateASDescriptorWritesAndInfos(
@@ -100,8 +101,7 @@ protected:
 		std::vector<vk::WriteDescriptorSet>& writes,
 		const std::vector<AccelerationStructureData>& asData,
 		const vk::AccelerationStructureKHR* as,
-		vk::DescriptorSet& descriptorSet,
-		uint32_t writeOffset = 0);
+		vk::DescriptorSet& descriptorSet);
 #endif
 
 	Device& mDevice;

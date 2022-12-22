@@ -2,6 +2,7 @@
 
 #include "erm/rendering/renderer/IRenderer.h"
 
+#include <map>
 #include <memory>
 #include <vector>
 
@@ -41,7 +42,7 @@ private:
 
 	vk::CommandBuffer& RetrieveCommandBuffer();
 
-	std::map<uint32_t, std::pair<std::unique_ptr<RenderingResources>, std::vector<RenderData*>>> mRenderingMap;
+	std::map<std::unique_ptr<RenderingResources>, std::vector<RenderData*>> mRenderingMap;
 
 #ifdef ERM_RAY_TRACING_ENABLED
 	std::unique_ptr<RTRenderingResources> mRTRenderingResources;

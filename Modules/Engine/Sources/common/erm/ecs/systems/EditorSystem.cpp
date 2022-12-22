@@ -86,12 +86,10 @@ void EditorSystem::OnPreRender()
 
 	// GRID RENDERING
 	{
-		UboMVPOnly ubo;
+		auto& ubo = mGridRenderData.GetUbo<UboMVPOnly>();
 		math::mat4 transform = glm::identity<math::mat4>();
 		transform = glm::rotate(transform, static_cast<float>(M_PI * 0.5), math::vec3(1.0f, 0.0f, 0.0f));
 		ubo.mMVP = proj * viewInv * transform;
-
-		mGridRenderData.SetUbo(std::move(ubo));
 	}
 
 	mRenderer.SubmitRenderData(mGridRenderData);
@@ -127,10 +125,8 @@ void EditorSystem::OnPreRender()
 			RenderData& data = GetOrCreateRenderDataForBBox(i);
 
 			{
-				UboMVPOnly ubo;
+				auto& ubo = data.GetUbo<UboMVPOnly>();
 				ubo.mMVP = proj * viewInv * transform;
-
-				data.SetUbo(std::move(ubo));
 			}
 
 			mRenderer.SubmitRenderData(data);
@@ -145,7 +141,7 @@ void EditorSystem::OnPreRender()
 
 			const std::unique_ptr<BonesTree>& root = skeleton->GetSkin()->mRootBone;
 
-			UboBonesDebug ubo;
+			auto& ubo = data.GetUbo<UboBonesDebug>();
 			unsigned int index = 0;
 
 			std::vector<StandaloneMesh>& meshes = mBonesMeshes[i];
@@ -178,8 +174,6 @@ void EditorSystem::OnPreRender()
 			ubo.mModel = mECS.GetComponent<TransformComponent>(i)->GetWorldTransform();
 			ubo.mView = viewInv;
 			ubo.mProj = proj;
-
-			data.SetUbo(std::move(ubo));
 
 			for (StandaloneMesh& mesh : meshes)
 				data.mMeshes.emplace_back(&mesh);

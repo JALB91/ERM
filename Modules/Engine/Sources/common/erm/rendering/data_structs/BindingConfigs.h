@@ -16,12 +16,12 @@ struct BindingConfigs
 	BindingConfigs();
 	virtual ~BindingConfigs() = default;
 
-	Texture* GetTexture(TextureType type) const;
-
 	bool IsBindingLevelCompatible(const BindingConfigs& other) const;
 
 	bool IsMaterialCompatible(const BindingConfigs& other) const;
 	bool AreTexturesCompatible(const BindingConfigs& other) const;
+	
+	Texture* GetTexture(TextureType type) const;
 
 	MaterialHandle mMaterial;
 	std::map<TextureType, Texture*> mTexturesMaps;

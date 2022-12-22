@@ -2,7 +2,6 @@
 
 #include "erm/rendering/Device.h"
 #include "erm/rendering/data_structs/IRenderData.h"
-#include "erm/rendering/renderer/IRenderer.h"
 #include "erm/rendering/shaders/IShaderProgram.h"
 
 #include "erm/utils/VkUtils.h"
@@ -19,8 +18,6 @@ HostBindingResources::HostBindingResources(
 	const vk::DescriptorSetLayout& descriptorSetLayout)
 	: IBindingResources(device, renderer, targetSet, descriptorPool, shaderProgram, configs)
 {
-	mUniformBuffers.resize(IRenderer::kMaxFramesInFlight);
-
 	// CREATE DESCRIPTOR SETS
 	const std::vector<vk::DescriptorSetLayout> layouts(IRenderer::kMaxFramesInFlight, descriptorSetLayout);
 
@@ -46,20 +43,23 @@ HostBindingResources::HostBindingResources(
 	CreateUniformBuffers(ubosData);
 
 	// UPDATE DESCRIPTOR SETS
-	std::vector<std::vector<vk::DescriptorBufferInfo>> descriptorBuffers(IRenderer::kMaxFramesInFlight);
-	std::vector<vk::WriteDescriptorSet> descriptorWrites(ubosData.size() * IRenderer::kMaxFramesInFlight);
+	std::vector<std::vector<vk::DescriptorBufferInfo>> descriptorBuffers;
+	descriptorBuffers.reserve(IRenderer::kMaxFramesInFlight);
+	
+	std::vector<vk::WriteDescriptorSet> descriptorWrites;
+	descriptorWrites.reserve(ubosData.size() * IRenderer::kMaxFramesInFlight);
 
 	for (uint32_t i = 0; i < IRenderer::kMaxFramesInFlight; ++i)
 	{
-		descriptorBuffers[i].resize(ubosData.size());
+		auto& descriptorBuffer = descriptorBuffers.emplace_back();
+		descriptorBuffer.reserve(ubosData.size());
 
 		CreateUniformBuffersDescriptorWritesAndInfos(
 			descriptorBuffers[i],
 			descriptorWrites,
 			ubosData,
 			mUniformBuffers[i],
-			mDescriptorSets[i].get(),
-			static_cast<uint32_t>(ubosData.size()) * i);
+			mDescriptorSets[i].get());
 	}
 
 	mDevice->updateDescriptorSets(static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
@@ -83,9 +83,9 @@ void HostBindingResources::CreateUniformBuffers(const std::vector<UboData>& ubos
 {
 	for (const UboData& data : ubosData)
 	{
-		for (UniformBuffers& buffs : mUniformBuffers)
+		for (auto& buffersMap : mUniformBuffers)
 		{
-			buffs.emplace(
+			buffersMap.emplace(
 				std::piecewise_construct,
 				std::forward_as_tuple(data.mUboId),
 				std::forward_as_tuple(mDevice, data.mStride));

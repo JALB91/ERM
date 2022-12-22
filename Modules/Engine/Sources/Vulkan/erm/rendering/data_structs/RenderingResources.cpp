@@ -23,31 +23,48 @@ RenderingResources::RenderingResources(
 	, mWindow(window)
 	, mRenderer(renderer)
 	, mRenderConfigs(renderConfigs)
+	, mUntouchedFrames(0)
 {
 	Reload();
 }
 
 void RenderingResources::Refresh()
 {
-	for (auto& resources : mPipelineResources)
-		resources->Refresh();
+	for (auto it = mPipelineResources.begin(); it != mPipelineResources.end();)
+	{
+		auto& resources = *it;
+		
+		if (resources.GetUntouchedFrames() > IRenderer::kMaxFramesInFlight)
+		{
+			it = mPipelineResources.erase(it);
+		}
+		else
+		{
+			resources.Refresh();
+			++it;
+		}
+	}
+	
+	++mUntouchedFrames;
 }
 
 void RenderingResources::UpdateCommandBuffer(
 	vk::CommandBuffer& cmd,
 	std::vector<RenderData*>& renderData)
 {
+	mUntouchedFrames = 0;
+	
 	for (RenderData* data : renderData)
 	{
-		PipelineResources& resources = GetOrCreatePipelineResources(data->mPipelineConfigs);
+		PipelineResources& resources = GetOrCreatePipelineResources(*data);
 		resources.UpdateResources(cmd, *data);
 	}
 
 	std::vector<vk::ClearValue> clearValues {1};
-	clearValues[0].color.float32[0] = 0.0f;
-	clearValues[0].color.float32[1] = 0.0f;
-	clearValues[0].color.float32[2] = 0.0f;
-	clearValues[0].color.float32[3] = 0.0f;
+	clearValues[0].color.float32[0] = mRenderConfigs.mClearColor.r;
+	clearValues[0].color.float32[1] = mRenderConfigs.mClearColor.g;
+	clearValues[0].color.float32[2] = mRenderConfigs.mClearColor.b;
+	clearValues[0].color.float32[3] = mRenderConfigs.mClearColor.a;
 
 	if (mRenderConfigs.mSubpassData.mDepthAttachment.has_value())
 		clearValues.emplace_back().setDepthStencil({1.0f, 0});
@@ -64,8 +81,9 @@ void RenderingResources::UpdateCommandBuffer(
 
 	for (RenderData* data : renderData)
 	{
-		PipelineResources& resources = GetOrCreatePipelineResources(data->mPipelineConfigs);
-		resources.UpdateCommandBuffer(cmd, *data);
+		PipelineResources* resources = FindPipelineResources(*data);
+		ERM_ASSERT(resources != nullptr);
+		resources->UpdateCommandBuffer(cmd, *data);
 	}
 
 	cmd.endRenderPass();
@@ -85,17 +103,33 @@ vk::AttachmentDescription RenderingResources::CreateAttachmentDescription(const 
 	return attachment;
 }
 
-PipelineResources& RenderingResources::GetOrCreatePipelineResources(const PipelineConfigs& pipelineConfigs)
+PipelineResources& RenderingResources::GetOrCreatePipelineResources(RenderData& renderData)
 {
-	for (const std::unique_ptr<PipelineResources>& resources : mPipelineResources)
+	if (PipelineResources* resources = FindPipelineResources(renderData))
 	{
-		if (pipelineConfigs.IsPipelineLevelCompatible(resources->GetPipelineConfigs()))
-		{
-			return *resources;
-		}
+		return *resources;
 	}
 
-	return *mPipelineResources.emplace_back(std::make_unique<PipelineResources>(mDevice, mWindow, mRenderer, &mRenderPass.get(), &mDescriptorPool.get(), pipelineConfigs));
+	return mPipelineResources.emplace_back(
+		mDevice,
+		mWindow,
+		mRenderer,
+		&mRenderPass.get(),
+		&mDescriptorPool.get(),
+		renderData.mPipelineConfigs);
+}
+
+PipelineResources* RenderingResources::FindPipelineResources(RenderData& renderData)
+{
+	for (auto& resources : mPipelineResources)
+	{
+		if (renderData.mPipelineConfigs.IsPipelineLevelCompatible(resources.GetPipelineConfigs()))
+		{
+			return &resources;
+		}
+	}
+	
+	return nullptr;
 }
 
 void RenderingResources::Reload()
@@ -201,16 +235,18 @@ void RenderingResources::CreateDescriptorPool()
 {
 	const std::vector<Texture*>& frameBuffers = mRenderer.GetTargetFrameBuffers(mRenderConfigs.mSubpassData.mColorAttachment.mFrameBufferType);
 
-	std::array<vk::DescriptorPoolSize, 2> poolSizes {};
+	std::array<vk::DescriptorPoolSize, 3> poolSizes {};
 	poolSizes[0].type = vk::DescriptorType::eUniformBuffer;
 	poolSizes[0].descriptorCount = static_cast<uint32_t>(frameBuffers.size() * 1000);
 	poolSizes[1].type = vk::DescriptorType::eCombinedImageSampler;
 	poolSizes[1].descriptorCount = static_cast<uint32_t>(frameBuffers.size() * 100);
+	poolSizes[2].type = vk::DescriptorType::eStorageImage;
+	poolSizes[2].descriptorCount = static_cast<uint32_t>(frameBuffers.size() * 100);
 
 	vk::DescriptorPoolCreateInfo poolInfo {};
 	poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
 	poolInfo.pPoolSizes = poolSizes.data();
-	poolInfo.maxSets = static_cast<uint32_t>(frameBuffers.size() * 100);
+	poolInfo.maxSets = static_cast<uint32_t>(frameBuffers.size() * 10000);
 	poolInfo.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
 
 	ERM_VK_CHECK_AND_ASSIGN(mDescriptorPool, mDevice->createDescriptorPoolUnique(poolInfo));

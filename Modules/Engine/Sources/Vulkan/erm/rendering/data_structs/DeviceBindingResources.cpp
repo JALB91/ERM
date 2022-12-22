@@ -47,15 +47,25 @@ DeviceBindingResources::DeviceBindingResources(
 	CreateUniformBuffers(ubosData);
 
 	// PREPARE RESOURCES
-	std::vector<vk::DescriptorBufferInfo> uboBuffersInfos(ubosData.size());
-	std::vector<vk::DescriptorImageInfo> imagesInfo(samplerData.size());
-	std::vector<vk::DescriptorImageInfo> storageImagesInfo(storageImageData.size());
-	std::vector<std::vector<vk::DescriptorBufferInfo>> storageBuffersInfos(storageBuffersData.size());
+	std::vector<vk::DescriptorBufferInfo> uboBuffersInfos;
+	uboBuffersInfos.reserve(ubosData.size());
+	
+	std::vector<vk::DescriptorImageInfo> imagesInfo;
+	imagesInfo.reserve(samplerData.size());
+	
+	std::vector<vk::DescriptorImageInfo> storageImagesInfo;
+	storageImagesInfo.reserve(storageImageData.size());
+	
+	std::vector<std::vector<vk::DescriptorBufferInfo>> storageBuffersInfos;
+	storageBuffersInfos.reserve(storageBuffersData.size());
+	
 #ifdef ERM_RAY_TRACING_ENABLED
-	std::vector<vk::WriteDescriptorSetAccelerationStructureKHR> asInfo(asData.size());
+	std::vector<vk::WriteDescriptorSetAccelerationStructureKHR> asInfo;
+	asInfo.reserve(asData.size());
 #endif
 
-	std::vector<vk::WriteDescriptorSet> descriptorWrites(
+	std::vector<vk::WriteDescriptorSet> descriptorWrites;
+	descriptorWrites.reserve(
 		ubosData.size() +
 		samplerData.size() +
 		storageImageData.size() +
@@ -70,7 +80,7 @@ DeviceBindingResources::DeviceBindingResources(
 		uboBuffersInfos,
 		descriptorWrites,
 		ubosData,
-		mUniformBuffers,
+		mUniformBuffersMap,
 		mDescriptorSets[0].get());
 
 	// SAMPLERS
@@ -78,16 +88,14 @@ DeviceBindingResources::DeviceBindingResources(
 		imagesInfo,
 		descriptorWrites,
 		samplerData,
-		mDescriptorSets[0].get(),
-		static_cast<uint32_t>(ubosData.size()));
+		mDescriptorSets[0].get());
 
 	// STORAGE IMAGES
 	CreateStorageImagesDescriptorWritesAndInfos(
 		storageImagesInfo,
 		descriptorWrites,
 		storageImageData,
-		mDescriptorSets[0].get(),
-		static_cast<uint32_t>(ubosData.size() + samplerData.size()));
+		mDescriptorSets[0].get());
 
 	// STORAGE BUFFERS
 	CreateStorageBuffersDescriptorWritesAndInfos(
@@ -95,8 +103,7 @@ DeviceBindingResources::DeviceBindingResources(
 		descriptorWrites,
 		storageBuffersData,
 		renderData.mSbos,
-		mDescriptorSets[0].get(),
-		static_cast<uint32_t>(ubosData.size() + samplerData.size() + storageImageData.size()));
+		mDescriptorSets[0].get());
 
 	// ACCELERATION STRUCTURES
 #ifdef ERM_RAY_TRACING_ENABLED
@@ -105,8 +112,7 @@ DeviceBindingResources::DeviceBindingResources(
 		descriptorWrites,
 		asData,
 		as,
-		mDescriptorSets[0].get(),
-		static_cast<uint32_t>(ubosData.size() + samplerData.size() + storageImageData.size() + storageBuffersData.size()));
+		mDescriptorSets[0].get());
 #endif
 
 	// UPDATE DS
@@ -121,42 +127,10 @@ const vk::DescriptorSet DeviceBindingResources::GetDescriptorSet() const
 
 void DeviceBindingResources::UpdateResources(vk::CommandBuffer& cmd, IRenderData& data)
 {
-	for (const auto& [id, buffer] : mUniformBuffers)
+	for (const auto& [id, buffer] : mUniformBuffersMap)
 	{
 		ERM_ASSERT(data.HasUbo(id));
 		buffer.Update(cmd, data.mUbos[id].get());
-	}
-
-	const auto& shaderBindingData = mShaderProgram.GetShaderBindingsData(mTargetSet);
-	const auto& storageImageData = shaderBindingData.mStorageImagesData;
-	if (!storageImageData.empty())
-	{
-		std::vector<vk::DescriptorImageInfo> storageImagesInfos(storageImageData.size());
-		std::vector<vk::WriteDescriptorSet> writes(storageImageData.size());
-
-		CreateStorageImagesDescriptorWritesAndInfos(
-			storageImagesInfos,
-			writes,
-			storageImageData,
-			mDescriptorSets[0].get());
-
-		mDevice->updateDescriptorSets(static_cast<uint32_t>(writes.size()), writes.data(), 0, nullptr);
-	}
-
-	const auto& samplersData = shaderBindingData.mSamplersData;
-	if (!samplersData.empty())
-	{
-		std::vector<vk::DescriptorImageInfo> samplerInfos(samplersData.size());
-		std::vector<vk::WriteDescriptorSet> writes(samplersData.size());
-
-		CreateSamplerDescriptorWritesAndInfos(
-			samplerInfos,
-			writes,
-			samplersData,
-			mDescriptorSets[0].get(),
-			0);
-
-		mDevice->updateDescriptorSets(static_cast<uint32_t>(writes.size()), writes.data(), 0, nullptr);
 	}
 }
 
@@ -164,7 +138,7 @@ void DeviceBindingResources::CreateUniformBuffers(const std::vector<UboData>& ub
 {
 	for (const UboData& data : ubosData)
 	{
-		mUniformBuffers.emplace(
+		mUniformBuffersMap.emplace(
 			std::piecewise_construct,
 			std::forward_as_tuple(data.mUboId),
 			std::forward_as_tuple(mDevice, data.mStride));

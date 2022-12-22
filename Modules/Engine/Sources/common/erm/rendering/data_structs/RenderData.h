@@ -24,7 +24,6 @@ struct RenderData : public IRenderData
 	RenderData(RenderData&& other) noexcept
 		: IRenderData(std::move(other))
 		, mMeshes(std::move(other.mMeshes))
-		, mRenderingId(std::move(other.mRenderingId))
 		, mBindingId(std::move(other.mBindingId))
 		, mRenderConfigs(other.mRenderConfigs)
 	{}
@@ -36,7 +35,6 @@ struct RenderData : public IRenderData
 
 		IRenderData::operator=(std::move(other));
 		mMeshes = std::move(other.mMeshes);
-		mRenderingId = std::move(other.mRenderingId);
 		mBindingId = std::move(other.mBindingId);
 		mRenderConfigs = std::move(other.mRenderConfigs);
 
@@ -60,7 +58,6 @@ struct RenderData : public IRenderData
 	}
 
 	std::vector<const Mesh*> mMeshes;
-	std::optional<uint32_t> mRenderingId;
 	std::optional<uint32_t> mBindingId;
 	RenderConfigs mRenderConfigs;
 };

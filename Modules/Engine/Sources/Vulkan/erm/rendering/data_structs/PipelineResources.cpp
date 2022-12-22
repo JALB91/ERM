@@ -27,29 +27,66 @@ PipelineResources::PipelineResources(
 	, mRenderPass(renderPass)
 	, mDescriptorPool(descriptorPool)
 	, mPipelineConfigs(pipelineConfigs)
+	, mUntouchedFrames(0)
 {
 	CreatePipeline();
 }
 
 PipelineResources::~PipelineResources() = default;
 
+PipelineResources& PipelineResources::operator=(PipelineResources&& other) noexcept
+{
+	ERM_ASSERT(mRenderPass == other.mRenderPass);
+	ERM_ASSERT(mDescriptorPool == other.mDescriptorPool);
+	
+	mPipelineConfigs = std::move(other.mPipelineConfigs);
+	mPipelineLayout = std::move(other.mPipelineLayout);
+	mPipeline = std::move(other.mPipeline);
+	mEmptySetLayout = std::move(other.mEmptySetLayout);
+	mEmptySet = std::move(other.mEmptySet);
+	mDescriptorSetLayouts = std::move(other.mDescriptorSetLayouts);
+	mPipelineData = std::move(other.mPipelineData);
+	mUntouchedFrames = std::move(other.mUntouchedFrames);
+	
+	return *this;
+}
+
 void PipelineResources::Refresh()
 {
 	if (mPipelineConfigs.mShaderProgram->NeedsReload())
 	{
-		mData.clear();
+		mPipelineData.clear();
 		mDescriptorSetLayouts.clear();
 
 		CreatePipeline();
 
 		mPipelineConfigs.mShaderProgram->OnReloaded();
 	}
+	
+	for (auto it = mPipelineData.begin(); it != mPipelineData.end();)
+	{
+		auto& [id, data] = *it;
+		
+		if (data.GetUntouchedFrames() > IRenderer::kMaxFramesInFlight)
+		{
+			it = mPipelineData.erase(it);
+		}
+		else
+		{
+			data.Refresh();
+			++it;
+		}
+	}
+	
+	++mUntouchedFrames;
 }
 
 void PipelineResources::UpdateResources(vk::CommandBuffer& cmd, RenderData& renderData)
 {
 	if (mDescriptorSetLayouts.empty())
 		return;
+	
+	mUntouchedFrames = 0;
 
 	auto& data = GetOrCreatePipelineData(renderData);
 	data.UpdateResources(cmd, renderData);
@@ -78,7 +115,8 @@ void PipelineResources::UpdateCommandBuffer(vk::CommandBuffer& cmd, RenderData& 
 	cmd.setViewport(0, 1, &viewport);
 #endif
 
-	auto& data = GetOrCreatePipelineData(renderData);
+	ERM_ASSERT(renderData.mBindingId.has_value() && mPipelineData.find(renderData.mBindingId.value()) != mPipelineData.end());
+	auto& data = mPipelineData.at(renderData.mBindingId.value());
 	auto ds = data.GetDescriptorSets(mEmptySet.get());
 
 	cmd.bindDescriptorSets(
@@ -342,26 +380,26 @@ PipelineData& PipelineResources::GetOrCreatePipelineData(RenderData& renderData)
 {
 	if (renderData.mBindingId.has_value())
 	{
-		auto it = mData.find(renderData.mBindingId.value());
-		if (it != mData.end())
+		const auto it = mPipelineData.find(renderData.mBindingId.value());
+		if (it != mPipelineData.end())
 			return it->second;
+		else
+			renderData.mBindingId.reset();
 	}
-	else
+	
+	for (uint32_t i = 0; i < static_cast<uint32_t>(mPipelineData.size()); ++i)
 	{
-		for (uint32_t i = 0; i < static_cast<uint32_t>(mData.size()); ++i)
+		if (mPipelineData.find(i) == mPipelineData.end())
 		{
-			if (mData.find(i) == mData.end())
-			{
-				renderData.mBindingId = i;
-				break;
-			}
+			renderData.mBindingId = i;
+			break;
 		}
-
-		if (!renderData.mBindingId.has_value())
-			renderData.mBindingId = static_cast<uint32_t>(mData.size());
 	}
 
-	auto result = mData.emplace(
+	if (!renderData.mBindingId.has_value())
+		renderData.mBindingId = static_cast<uint32_t>(mPipelineData.size());
+
+	auto result = mPipelineData.emplace(
 		std::piecewise_construct,
 		std::forward_as_tuple(renderData.mBindingId.value()),
 		std::forward_as_tuple(renderData.mPipelineConfigs));
