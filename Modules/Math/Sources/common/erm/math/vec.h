@@ -7,8 +7,11 @@ namespace erm::math {
 template<int T, typename S>
 using vec = glm::vec<T, S>;
 
-typedef vec<2, float> vec2;
-typedef vec<3, float> vec3;
-typedef vec<4, float> vec4;
+using vec2 = vec<2, float>;
+using vec3 = vec<3, float>;
+using vec4 = vec<4, float>;
+using ivec2 = vec<2, int>;
+using ivec3 = vec<3, int>;
+using ivec4 = vec<4, int>;
 
 } // namespace erm::math

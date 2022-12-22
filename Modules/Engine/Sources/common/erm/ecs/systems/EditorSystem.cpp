@@ -138,57 +138,54 @@ void EditorSystem::OnPreRender()
 
 		SkeletonComponent* skeleton = mECS.GetComponent<SkeletonComponent>(i);
 
-		if (skeleton && skeleton->GetDisplayBones())
+		if (skeleton && skeleton->GetSkin() && skeleton->GetDisplayBones())
 		{
-			if (skeleton && skeleton->GetSkin())
-			{
-				RenderData& data = editorCmp->mBonesRenderData;
-				data.mMeshes.clear();
+			RenderData& data = editorCmp->mBonesRenderData;
+			data.mMeshes.clear();
 
-				const std::unique_ptr<BonesTree>& root = skeleton->GetSkin()->mRootBone;
+			const std::unique_ptr<BonesTree>& root = skeleton->GetSkin()->mRootBone;
 
-				UboBonesDebug ubo;
-				unsigned int index = 0;
+			UboBonesDebug ubo;
+			unsigned int index = 0;
 
-				std::vector<StandaloneMesh>& meshes = mBonesMeshes[i];
+			std::vector<StandaloneMesh>& meshes = mBonesMeshes[i];
 
-				while (root->GetSize() < meshes.size())
-					meshes.pop_back();
+			while (root->GetSize() < meshes.size())
+				meshes.pop_back();
 
-				root->ForEachDo([&ubo, &index, &meshes, this](const BonesTree& node) {
-					if (index >= MAX_BONES)
-						return;
+			root->ForEachDo([&ubo, &index, &meshes, this](const BonesTree& node) {
+				if (index >= MAX_BONES)
+					return;
 
-					ubo.mBonesModels[index] = node.GetPayload().mWorldTransform;
+				ubo.mBonesModels[index] = node.GetPayload().mWorldTransform;
 
-					StandaloneMesh* mesh = nullptr;
-					for (StandaloneMesh& m : meshes)
+				StandaloneMesh* mesh = nullptr;
+				for (StandaloneMesh& m : meshes)
+				{
+					if (m.GetVerticesData()[0].mDebugBoneId == static_cast<int>(index))
 					{
-						if (m.GetVerticesData()[0].mDebugBoneId == static_cast<int>(index))
-						{
-							mesh = &m;
-							break;
-						}
+						mesh = &m;
+						break;
 					}
+				}
 
-					if (!mesh)
-						mesh = &meshes.emplace_back(mDevice, MeshUtils::CreateSpike(.5f, .5f, .5f, index));
+				if (!mesh)
+					mesh = &meshes.emplace_back(mDevice, MeshUtils::CreateSpike(.5f, .5f, .5f, index));
 
-					++index;
-				});
+				++index;
+			});
 
-				ubo.mModel = mECS.GetComponent<TransformComponent>(i)->GetWorldTransform();
-				ubo.mView = viewInv;
-				ubo.mProj = proj;
+			ubo.mModel = mECS.GetComponent<TransformComponent>(i)->GetWorldTransform();
+			ubo.mView = viewInv;
+			ubo.mProj = proj;
 
-				data.SetUbo(std::move(ubo));
+			data.SetUbo(std::move(ubo));
 
-				for (StandaloneMesh& mesh : meshes)
-					data.mMeshes.emplace_back(&mesh);
+			for (StandaloneMesh& mesh : meshes)
+				data.mMeshes.emplace_back(&mesh);
 
-				if (!data.mMeshes.empty())
-					mRenderer.SubmitRenderData(data);
-			}
+			if (!data.mMeshes.empty())
+				mRenderer.SubmitRenderData(data);
 		}
 	}
 }

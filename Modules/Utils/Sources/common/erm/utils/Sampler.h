@@ -39,7 +39,7 @@ public:
 	}
 
 private:
-	std::array<double, 10> mSamples;
+	std::array<double, 20> mSamples;
 	short mSampleIndex;
 	
 };

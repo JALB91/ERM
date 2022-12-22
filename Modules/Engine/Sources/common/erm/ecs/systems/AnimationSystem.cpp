@@ -67,6 +67,8 @@ void AnimationSystem::OnPostUpdate()
 			}
 			prevKeyFrame = &keyFrames[j];
 		}
+		
+		ERM_ASSERT(nextKeyFrame->mTimestamp > prevKeyFrame->mTimestamp);
 
 		const float progression = (currentAnimationTime - prevKeyFrame->mTimestamp) / (nextKeyFrame->mTimestamp - prevKeyFrame->mTimestamp);
 

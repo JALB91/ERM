@@ -55,7 +55,7 @@ const int kEntities = 1;
 
 namespace erm {
 
-#define ERM_TARGET_SIMULATION_TIME 1.0f/60.0f
+#define ERM_TARGET_SIMULATION_TIME 1.0/60.0
 
 Engine* gEngine = nullptr;
 

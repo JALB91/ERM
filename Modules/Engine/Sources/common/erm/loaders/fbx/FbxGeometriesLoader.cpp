@@ -331,21 +331,25 @@ void ProcessMesh(
 		data0.mPositionVertex = ToVec3(lControlPoints[lControlPointIndex0]);
 		data0.mNormalVertex = GetNormal(pMesh, static_cast<int>(vData.size()));
 		data0.mUVVertex = GetUV(pMesh, lControlPointIndex0, i, 0);
-		GetBonesData(skeletonDataMap, *bonesTree, data0, lControlPointIndex0);
-
+		
 		int lControlPointIndex1 = pMesh->GetPolygonVertex(i, 1);
 		VertexData data1;
 		data1.mPositionVertex = ToVec3(lControlPoints[lControlPointIndex1]);
 		data1.mNormalVertex = GetNormal(pMesh, static_cast<int>(vData.size() + 1));
 		data1.mUVVertex = GetUV(pMesh, lControlPointIndex1, i, 1);
-		GetBonesData(skeletonDataMap, *bonesTree, data1, lControlPointIndex1);
-
+		
 		int lControlPointIndex2 = pMesh->GetPolygonVertex(i, 2);
 		VertexData data2;
 		data2.mPositionVertex = ToVec3(lControlPoints[lControlPointIndex2]);
 		data2.mNormalVertex = GetNormal(pMesh, static_cast<int>(vData.size() + 2));
 		data2.mUVVertex = GetUV(pMesh, lControlPointIndex2, i, 2);
-		GetBonesData(skeletonDataMap, *bonesTree, data2, lControlPointIndex2);
+		
+		if (bonesTree)
+		{
+			GetBonesData(skeletonDataMap, *bonesTree, data0, lControlPointIndex0);
+			GetBonesData(skeletonDataMap, *bonesTree, data1, lControlPointIndex1);
+			GetBonesData(skeletonDataMap, *bonesTree, data2, lControlPointIndex2);
+		}
 
 		vData.emplace_back(data0);
 		vData.emplace_back(data1);

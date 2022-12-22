@@ -2,7 +2,7 @@
 
 #include "erm/rendering/data_structs/AttachmentData.h"
 
-#include <vector>
+#include <optional>
 
 namespace erm {
 
