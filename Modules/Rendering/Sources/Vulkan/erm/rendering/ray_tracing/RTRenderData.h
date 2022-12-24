@@ -1,11 +1,9 @@
 #pragma once
 
-#include "erm/ray_tracing/RTInstanceData.h"
-
+#include "erm/rendering/ray_tracing/RTInstanceData.h"
 #include "erm/rendering/Device.h"
 #include "erm/rendering/data_structs/IRenderData.h"
-
-#include "erm/utils/VkUtils.h"
+#include "erm/rendering/utils/VkUtils.h"
 
 #include <unordered_map>
 
@@ -15,7 +13,7 @@ using InstancesMap = std::unordered_map<uint32_t, RTInstanceData>;
 
 struct RTRenderData : public IRenderData
 {
-	RTRenderData(Device& device, const PipelineConfigs& pipelineConfigs = PipelineConfigs::DEFAULT_PIPELINE_CONFIGS)
+	RTRenderData(Device& device, const PipelineConfigs& pipelineConfigs = PipelineConfigs::DEFAULT)
 		: IRenderData(pipelineConfigs)
 		, mDevice(device)
 		, mForceUpdate(true)

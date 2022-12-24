@@ -1,6 +1,6 @@
 #pragma once
 
-#include "erm/ray_tracing/RTAccelerationStructure.h"
+#include "erm/rendering/ray_tracing/RTAccelerationStructure.h"
 
 namespace erm {
 

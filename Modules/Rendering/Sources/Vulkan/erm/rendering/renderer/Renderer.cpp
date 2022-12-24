@@ -2,7 +2,7 @@
 
 // clang-format off
 #ifdef ERM_RAY_TRACING_ENABLED
-#include "erm/ray_tracing/RTRenderingResources.h"
+#include "erm/rendering/ray_tracing/RTRenderingResources.h"
 #endif
 // clang-format on
 

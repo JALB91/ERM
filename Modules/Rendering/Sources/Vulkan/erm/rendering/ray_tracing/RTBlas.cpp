@@ -1,15 +1,18 @@
-#include "erm/ray_tracing/RTBlas.h"
+#include "erm/rendering/ray_tracing/RTBlas.h"
 
 #include "erm/rendering/Device.h"
 #include "erm/rendering/buffers/IndexBuffer.h"
 #include "erm/rendering/buffers/VertexBuffer.h"
-#include "erm/rendering/data_structs/Model.h"
+#include "erm/rendering/models/GPUModel.h"
+#include "erm/rendering/models/GPUMesh.h"
+
+#include <erm/resources/models/Mesh.h>
 
 namespace erm {
 
 RTBlas::RTBlas(
 	Device& device,
-	const Model& model)
+	const GPUModel& model)
 	: mDevice(device)
 	, mModel(model)
 	, mNeedsBuild(false)
@@ -19,7 +22,7 @@ RTBlas::~RTBlas() = default;
 
 void RTBlas::UpdateBlasData()
 {
-	const std::vector<Mesh>& meshes = mModel.GetMeshes();
+	const std::vector<GPUMesh>& meshes = mModel.GetGPUMeshes();
 	const BufferLayout& vLayout = mModel.GetVerticesBuffer().GetLayout();
 	const BufferLayout& iLayout = mModel.GetIndicesBuffer().GetLayout();
 
@@ -31,7 +34,8 @@ void RTBlas::UpdateBlasData()
 
 	for (size_t i = 0; i < meshes.size(); ++i)
 	{
-		const Mesh& mesh = meshes[i];
+		const GPUMesh& gpuMesh = meshes[i];
+		const Mesh& mesh = gpuMesh.GetMesh();
 
 		maxVertex += static_cast<uint32_t>(mesh.GetVerticesData().size());
 		maxPrimCount += static_cast<uint32_t>(mesh.GetIndicesData().size() / 3);

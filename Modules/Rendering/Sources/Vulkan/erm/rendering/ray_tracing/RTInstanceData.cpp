@@ -1,4 +1,4 @@
-#include "erm/ray_tracing/RTInstanceData.h"
+#include "erm/rendering/ray_tracing/RTInstanceData.h"
 
 namespace erm {
 

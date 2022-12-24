@@ -4,7 +4,7 @@
 
 // clang-format off
 #ifdef ERM_RAY_TRACING_ENABLED
-#include "erm/ray_tracing/RTBlas.h"
+#include "erm/rendering/ray_tracing/RTBlas.h"
 #endif
 // clang-format on
 

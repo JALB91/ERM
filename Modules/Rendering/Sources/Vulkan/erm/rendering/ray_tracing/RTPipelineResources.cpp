@@ -1,19 +1,18 @@
-#include "erm/ray_tracing/RTPipelineResources.h"
+#include "erm/rendering/ray_tracing/RTPipelineResources.h"
 
-#include "erm/math/math.h"
-
-#include "erm/ray_tracing/RTRenderData.h"
-
+#include "erm/rendering/ray_tracing/RTRenderData.h"
 #include "erm/rendering/Device.h"
 #include "erm/rendering/data_structs/DeviceBindingResources.h"
 #include "erm/rendering/data_structs/HostBindingResources.h"
 #include "erm/rendering/data_structs/PipelineData.h"
-#include "erm/rendering/shaders/ShaderProgram.h"
+#include "erm/rendering/shaders/GPUShaderProgram.h"
 #include "erm/rendering/renderer/Renderer.h"
+#include "erm/rendering/utils/VkUtils.h"
 
-#include "erm/utils/Profiler.h"
-#include "erm/utils/Utils.h"
-#include "erm/utils/VkUtils.h"
+#include <erm/math/math.h>
+
+#include <erm/utils/Profiler.h>
+#include <erm/utils/Utils.h>
 
 namespace erm {
 
@@ -76,7 +75,7 @@ void RTPipelineResources::UpdateCommandBuffer(
 
 void RTPipelineResources::CreatePipeline()
 {
-	ShaderProgram* shader = static_cast<ShaderProgram*>(mRenderData.mPipelineConfigs.mShaderProgram);
+	GPUShaderProgram* shader = static_cast<GPUShaderProgram*>(mRenderData.mPipelineConfigs.mShaderProgram);
 
 	ERM_ASSERT(shader);
 

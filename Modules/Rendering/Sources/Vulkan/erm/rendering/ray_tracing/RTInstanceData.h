@@ -1,6 +1,6 @@
 #pragma once
 
-#include "erm/math/math.h"
+#include <erm/math/math.h>
 
 namespace erm {
 class RTBlas;

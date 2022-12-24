@@ -1,12 +1,12 @@
 #pragma once
 
-#include "erm/ray_tracing/RTAccelerationStructure.h"
+#include "erm/rendering/ray_tracing/RTAccelerationStructure.h"
 
 #include <vulkan/vulkan.hpp>
 
 namespace erm {
 class Device;
-class Model;
+class GPUModel;
 } // namespace erm
 
 namespace erm {
@@ -22,7 +22,7 @@ class RTBlas : public RTAccelerationStructure
 public:
 	RTBlas(
 		Device& device,
-		const Model& model);
+		const GPUModel& model);
 	~RTBlas();
 
 	inline const RTBlasData& GetBlasData() const { return mBlasData; }
@@ -32,7 +32,7 @@ public:
 
 private:
 	Device& mDevice;
-	const Model& mModel;
+	const GPUModel& mModel;
 	RTBlasData mBlasData;
 	bool mNeedsBuild;
 };

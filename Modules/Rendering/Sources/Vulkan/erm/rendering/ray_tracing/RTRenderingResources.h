@@ -1,6 +1,6 @@
 #pragma once
 
-#include "erm/ray_tracing/RTTlas.h"
+#include "erm/rendering/ray_tracing/RTTlas.h"
 
 #include <vulkan/vulkan.hpp>
 
