@@ -1,31 +1,32 @@
 #include "erm/engine/Engine.h"
 
-#include "erm/audio/AudioManager.h"
+//#include <erm/editor/ImGuiHandle.h>
 
-#include "erm/debug/ImGuiHandle.h"
+#include <erm/ecs/Entity.h>
+#include <erm/ecs/systems/AnimationSystem.h>
+#include <erm/ecs/systems/CameraSystem.h>
+#include <erm/ecs/systems/LightSystem.h>
+#include <erm/ecs/systems/ModelSystem.h>
+#include <erm/ecs/systems/RenderingSystem.h>
+#include <erm/ecs/systems/SkeletonSystem.h>
+#include <erm/ecs/systems/TransformSystem.h>
 
-#include "erm/ecs/Entity.h"
-#include "erm/ecs/systems/AnimationSystem.h"
-#include "erm/ecs/systems/CameraSystem.h"
-#include "erm/ecs/systems/LightSystem.h"
-#include "erm/ecs/systems/ModelSystem.h"
-#include "erm/ecs/systems/RenderingSystem.h"
-#include "erm/ecs/systems/SkeletonSystem.h"
-#include "erm/ecs/systems/TransformSystem.h"
+#include <erm/audio/AudioManager.h>
 
-#include "erm/managers/ResourcesManager.h"
+#include <erm/math/vec.h>
 
-#include "erm/math/vec.h"
+#include <erm/rendering/Device.h>
+#include <erm/rendering/renderer/Renderer.h>
 
-#include "erm/rendering/Device.h"
-#include "erm/rendering/data_structs/Bone.h"
-#include "erm/rendering/data_structs/Model.h"
-#include "erm/rendering/renderer/Renderer.h"
-#include "erm/rendering/window/Window.h"
+#include <erm/resources/models/Model.h>
+#include <erm/resources/data_structs/Bone.h>
+#include <erm/resources/ResourcesManager.h>
 
-#include "erm/utils/Profiler.h"
-#include "erm/utils/UpdateManager.h"
-#include "erm/utils/Utils.h"
+#include <erm/utils/Profiler.h>
+#include <erm/utils/UpdateManager.h>
+#include <erm/utils/Utils.h>
+
+#include <erm/window/Window.h>
 
 #include <random>
 
@@ -105,10 +106,10 @@ bool Engine::Init()
 	mUpdateManager = std::make_unique<UpdateManager>();
 	mAudioManager = std::make_unique<AudioManager>();
 	mDevice = std::make_unique<Device>(mWindow->GetWindow());
-	mResourcesManager = std::make_unique<ResourcesManager>(*mDevice);
-	mRenderer = std::make_unique<Renderer>(*mWindow, *mDevice, *mResourcesManager);
-	mImGuiHandle = std::make_unique<ImGuiHandle>(*this);
-	mECS = std::make_unique<ecs::ECS>(*this);
+	mResourcesManager = std::make_unique<ResourcesManager>();
+	mRenderer = std::make_unique<Renderer>(*mWindow, *mDevice);
+//	mImGuiHandle = std::make_unique<ImGuiHandle>(*this);
+	mECS = std::make_unique<ecs::ECS>();
 	mECS->Init();
 
 	mResourcesManager->LoadDefaultResources();
@@ -248,7 +249,7 @@ void Engine::OnUpdate(float dt)
 {
 	ERM_PROFILE_FUNCTION();
 
-	mImGuiHandle->OnUpdate();
+//	mImGuiHandle->OnUpdate();
 	mECS->OnUpdate(dt);
 	mWindow->OnUpdate();
 	mResourcesManager->OnUpdate();
@@ -271,7 +272,7 @@ void Engine::OnPreRender()
 	mResourcesManager->OnPreRender();
 	mECS->OnPreRender();
 	mRenderer->OnPreRender();
-	mImGuiHandle->OnPreRender();
+//	mImGuiHandle->OnPreRender();
 }
 
 void Engine::OnRender()
@@ -280,7 +281,7 @@ void Engine::OnRender()
 
 	mECS->OnRender();
 	mRenderer->OnRender();
-	mImGuiHandle->OnRender();
+//	mImGuiHandle->OnRender();
 	mWindow->OnRender();
 }
 
@@ -290,7 +291,7 @@ void Engine::OnPostRender()
 
 	mECS->OnPostRender();
 	mRenderer->OnPostRender();
-	mImGuiHandle->OnPostRender();
+//	mImGuiHandle->OnPostRender();
 	mWindow->OnPostRender();
 	mResourcesManager->OnPostRender();
 }

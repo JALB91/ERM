@@ -17,17 +17,15 @@ target_link_libraries(
 	"${PROJECT_NAME}"
 	PRIVATE 
 		"${ERM_TARGET_API_LIB}"
-		$<$<BOOL:${ERM_ASSIMP_ENABLED}>:assimp>
-		$<$<BOOL:${ERM_OPEN_GL}>:libglew_static>
 		glfw
-		stb_image
-		spirv-cross-cpp
-		tinyxml2
-		imgui
-		fbx_sdk
 		ERM_Math
 		ERM_Audio
+		ERM_Resources
+		ERM_ECS
+		# ERM_Editor
 	PUBLIC
 		ERM_Input
 		ERM_Utils
+		ERM_Rendering
+		ERM_Window
 )

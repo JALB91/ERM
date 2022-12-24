@@ -9,7 +9,7 @@
 
 namespace erm::Utils {
 
-bool LogCall(bool cond, const char* msg, const char* function, const char* file, int line)
+bool LogCall(bool cond, std::string_view msg, std::string_view function, std::string_view file, int line)
 {
 	if (!cond)
 	{
@@ -19,21 +19,27 @@ bool LogCall(bool cond, const char* msg, const char* function, const char* file,
 	return cond;
 }
 
-std::vector<std::string> SplitString(const std::string& str, char ch)
+std::vector<std::string> SplitString(std::string_view str, char ch)
 {
 	std::vector<std::string> res;
-	std::stringstream ss(str);
-	std::string segment;
+	std::string* curr = str.empty() ? nullptr : &res.emplace_back();
 
-	while (std::getline(ss, segment, ch))
+	for (char c : str)
 	{
-		res.emplace_back(segment);
+		if (c == ch)
+		{
+			curr = &res.emplace_back();
+		}
+		else
+		{
+			*curr += c;
+		}
 	}
 
 	return res;
 }
 
-std::string ReadFromFile(const char* path)
+std::string ReadFromFile(std::string_view path)
 {
 	std::ifstream stream(path);
 
@@ -51,33 +57,31 @@ std::string ReadFromFile(const char* path)
 	return result;
 }
 
-void WriteToFile(const char* path, const std::string& data)
+void WriteToFile(std::string_view path, std::string_view data)
 {
 	std::ofstream stream(path);
 
 	if (ERM_EXPECT(stream.is_open(), "Failed to open file"))
-		stream.write(data.c_str(), data.size());
+		stream.write(data.data(), data.size());
 }
 
-bool CompareNoCaseSensitive(const std::string& a, const std::string& b)
+bool CompareNoCaseSensitive(std::string_view a, std::string_view b)
 {
-	if (a == b)
-		return true;
-
-	std::string buffA = a;
-	std::transform(a.begin(), a.end(), buffA.begin(), [](unsigned char c) {
-		return std::tolower(c);
-	});
-
-	std::string buffB = b;
-	std::transform(b.begin(), b.end(), buffB.begin(), [](unsigned char c) {
-		return std::tolower(c);
-	});
-
-	return buffA == buffB;
+	if (a.size() != b.size())
+		return false;
+	
+	for (size_t i = 0; i < a.size(); ++i)
+	{
+		if (std::tolower(a[i]) != std::tolower(b[i]))
+		{
+			return false;
+		}
+	}
+	
+	return true;
 }
 
-bool EndsWith(const std::string& s, const std::string& c)
+bool EndsWith(std::string_view s, std::string_view c)
 {
 	if (c.size() > s.size())
 		return false;

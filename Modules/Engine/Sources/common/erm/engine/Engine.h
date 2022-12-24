@@ -1,6 +1,6 @@
 #pragma once
 
-#include "erm/rendering/window/IWindowListener.h"
+#include <erm/window/IWindowListener.h>
 
 #include <erm/utils/FileLocator.h>
 #include <erm/utils/Timer.h>
@@ -11,7 +11,7 @@
 namespace erm {
 class AudioManager;
 class Device;
-class ImGuiHandle;
+//class ImGuiHandle;
 class Renderer;
 class ResourcesManager;
 class UpdateManager;
@@ -60,7 +60,7 @@ public:
 	inline Window& GetWindow() const { return *mWindow; }
 	inline Device& GetDevice() const { return *mDevice; }
 	inline Renderer& GetRenderer() const { return *mRenderer; }
-	inline ImGuiHandle& GetImGuiHandle() const { return *mImGuiHandle; }
+//	inline ImGuiHandle& GetImGuiHandle() const { return *mImGuiHandle; }
 	inline ecs::ECS& GetECS() const { return *mECS; }
 	inline UpdateManager& GetUpdateManager() const { return *mUpdateManager; }
 
@@ -87,7 +87,7 @@ private:
 	std::unique_ptr<Device> mDevice;
 	std::unique_ptr<ResourcesManager> mResourcesManager;
 	std::unique_ptr<Renderer> mRenderer;
-	std::unique_ptr<ImGuiHandle> mImGuiHandle;
+//	std::unique_ptr<ImGuiHandle> mImGuiHandle;
 	std::unique_ptr<ecs::ECS> mECS;
 };
 

@@ -23,12 +23,12 @@ public:                                                                 \
 
 namespace erm::Utils {
 
-extern bool LogCall(bool cond, const char* msg, const char* function, const char* file, int line);
-extern std::vector<std::string> SplitString(const std::string& str, char ch);
-extern std::string ReadFromFile(const char* path);
-extern void WriteToFile(const char* path, const std::string& data);
-extern bool CompareNoCaseSensitive(const std::string& a, const std::string& b);
-extern bool EndsWith(const std::string& s, const std::string& c);
+extern bool LogCall(bool cond, std::string_view msg, std::string_view function, std::string_view file, int line);
+extern std::vector<std::string> SplitString(std::string_view str, char ch);
+extern std::string ReadFromFile(std::string_view path);
+extern void WriteToFile(std::string_view path, std::string_view data);
+extern bool CompareNoCaseSensitive(std::string_view a, std::string_view b);
+extern bool EndsWith(std::string_view s, std::string_view c);
 extern std::string FormatTime(unsigned int seconds);
 
 constexpr std::string_view StripFunctionName(std::string_view fn)
