@@ -1,7 +1,9 @@
 #include "erm/ecs/systems/SkeletonSystem.h"
 #include "erm/ecs/systems/AnimationSystem.h"
 
-#include <erm/resources/data_structs/Skin.h>
+#include <erm/assets/data_structs/Skeleton.h>
+#include <erm/assets/Assets_Module.h>
+#include <erm/assets/AssetsRepo.h>
 
 #include <erm/utils/Profiler.h>
 
@@ -19,17 +21,17 @@ void SkeletonSystem::OnPostUpdate()
 		if (!skeletonComponent || !skeletonComponent->IsDirty())
 			continue;
 
-		Skin* skin = skeletonComponent->GetSkin();
+		StringID skeletonID = skeletonComponent->GetSkeletonID();
+		auto* skeleton = gAssetsModule.GetAssetsRepo().GetAsset<Skeleton>(skeletonID);
 
-		if (!skin)
+		if (skeleton == nullptr)
 		{
 			skeletonComponent->SetDirty(false);
 			continue;
 		}
 
-		BonesTree* rootBone = skin->mRootBone.get();
-
-		rootBone->ForEachDo(
+		BonesTree& rootBone = skeleton->mRootBone;
+		rootBone.ForEachDo(
 			[](BonesTree& node) {
 				BonesTree* parent = node.GetParent();
 				Bone& bone = node.GetPayload();

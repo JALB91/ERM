@@ -12,17 +12,17 @@ DeviceBindingResources::DeviceBindingResources(
 	Device& device,
 	IRenderer& renderer,
 	uint32_t targetSet,
-	const vk::DescriptorPool& descriptorPool,
 	const IShaderProgram& shaderProgram,
 	const BindingConfigs& configs,
 	const IRenderData& renderData,
-	const vk::DescriptorSetLayout& descriptorSetLayout
+	vk::DescriptorPool descriptorPool,
+	vk::DescriptorSetLayout descriptorSetLayout
 #ifdef ERM_RAY_TRACING_ENABLED
 	,
 	const vk::AccelerationStructureKHR* as /* = nullptr*/
 #endif
 	)
-	: IBindingResources(device, renderer, targetSet, descriptorPool, shaderProgram, configs)
+	: IBindingResources(device, renderer, targetSet, shaderProgram, configs, descriptorPool)
 {
 	// CREATE DESCRIPTOR SETS
 	vk::DescriptorSetAllocateInfo info {};
@@ -33,7 +33,9 @@ DeviceBindingResources::DeviceBindingResources(
 	ERM_VK_CHECK_AND_ASSIGN(mDescriptorSets, mDevice->allocateDescriptorSetsUnique(info));
 
 	// GATHER SHADER DATA
-	const ShaderBindingData& shaderBindings = mShaderProgram.GetShaderBindingsData(mTargetSet);
+//	TODO: Damiano
+//	const ShaderBindingData& shaderBindings = mShaderProgram.GetShaderBindingsData(mTargetSet);
+	ShaderBindingData shaderBindings;
 	const std::vector<UboData>& ubosData = shaderBindings.mUbosData;
 	const std::vector<StorageBufferData>& storageBuffersData = shaderBindings.mStorageBuffersData;
 	const std::vector<SamplerData>& samplerData = shaderBindings.mSamplersData;
@@ -118,13 +120,13 @@ DeviceBindingResources::DeviceBindingResources(
 	mDevice->updateDescriptorSets(static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 }
 
-const vk::DescriptorSet DeviceBindingResources::GetDescriptorSet() const
+vk::DescriptorSet DeviceBindingResources::GetDescriptorSet() const
 {
 	ERM_ASSERT(!mDescriptorSets.empty());
 	return mDescriptorSets[0].get();
 }
 
-void DeviceBindingResources::UpdateResources(vk::CommandBuffer& cmd, IRenderData& data)
+void DeviceBindingResources::UpdateResources(vk::CommandBuffer cmd, IRenderData& data)
 {
 	for (const auto& [id, buffer] : mUniformBuffersMap)
 	{

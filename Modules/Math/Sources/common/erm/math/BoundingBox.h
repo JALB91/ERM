@@ -56,7 +56,7 @@ public:
 	BoundingBox Expand(const BoundingBox<S>& other) const;
 
 	template<typename S>
-	BoundingBox Intersect(const BoundingBox<S>& other) const;
+	BoundingBox Intersection(const BoundingBox<S>& other) const;
 
 	BoundingBox Expand(const math::mat4& mat) const;
 	BoundingBox Expand(const math::vec3& vec) const;

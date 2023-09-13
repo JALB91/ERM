@@ -4,12 +4,11 @@
 
 #include <erm/math/BoundingBox.h>
 
-namespace erm {
-class Model;
-namespace ecs {
+#include <erm/utils/StringID.h>
+
+namespace erm::ecs {
 class ModelSystem;
-}
-} // namespace erm
+} // namespace erm::ecs
 
 namespace erm::ecs {
 
@@ -18,11 +17,11 @@ struct ModelComponent
 	ERM_COMPONENT_DECL(Model)
 
 public:
-	ModelComponent(Model* model = nullptr)
-		: mModel(model)
+	ModelComponent(StringID modelID = {})
+		: mModelID(modelID)
 	{}
 
-	ERM_SENSIBLE_MEMBER(Model, Model*, nullptr)
+	ERM_SENSIBLE_MEMBER(ModelID, StringID)
 	ERM_SENSIBLE_MEMBER(ShouldShowBoundingBox, bool, false)
 
 	inline BoundingBox3D GetWorldBounds() { return mWorldBounds; }

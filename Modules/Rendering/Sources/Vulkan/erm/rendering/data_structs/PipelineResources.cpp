@@ -9,6 +9,9 @@
 #include "erm/rendering/shaders/GPUShaderProgram.h"
 #include "erm/rendering/utils/VkUtils.h"
 
+#include <erm/assets/AssetsRepo.h>
+#include <erm/assets/Assets_Module.h>
+
 #include <erm/window/Window.h>
 
 #include <erm/utils/Utils.h>
@@ -54,15 +57,16 @@ PipelineResources& PipelineResources::operator=(PipelineResources&& other) noexc
 
 void PipelineResources::Refresh()
 {
-	if (mPipelineConfigs.mShaderProgram->NeedsReload())
-	{
-		mPipelineData.clear();
-		mDescriptorSetLayouts.clear();
-
-		CreatePipeline();
-
-		mPipelineConfigs.mShaderProgram->OnReloaded();
-	}
+//	TODO: Damiano
+//	if (mPipelineConfigs.mShaderProgram->NeedsReload())
+//	{
+//		mPipelineData.clear();
+//		mDescriptorSetLayouts.clear();
+//
+//		CreatePipeline();
+//
+//		mPipelineConfigs.mShaderProgram->OnReloaded();
+//	}
 	
 	for (auto it = mPipelineData.begin(); it != mPipelineData.end();)
 	{
@@ -130,15 +134,20 @@ void PipelineResources::UpdateCommandBuffer(vk::CommandBuffer& cmd, RenderData& 
 		nullptr);
 
 //	TODO: Damiano
+//	auto assetsRepo = gServiceLocator.Get<AssetsRepo>();
 //	for (size_t i = 0; i < renderData.mMeshes.size(); ++i)
 //	{
-//		const Mesh& mesh = *renderData.mMeshes[i];
-//		const BufferHandle& vHandle = mesh.GetVertBufferHandle();
-//		const BufferHandle& iHandle = mesh.GetIndBufferHandle();
-
+//		Mesh* mesh = assetsRepo->Get<Mesh>(renderData.mMeshes[i]);
+//		
+//		if (mesh == nullptr)
+//			continue;
+//		
+//		const BufferHandle& vHandle = mesh->GetVertBufferHandle();
+//		const BufferHandle& iHandle = mesh->GetIndBufferHandle();
+//
 //		vk::Buffer vBuffers[] = {vHandle.mBuffer};
 //		vk::DeviceSize offsets[] = {0};
-
+//
 //		cmd.bindVertexBuffers(0, 1, vBuffers, offsets);
 //		cmd.bindIndexBuffer(iHandle.mBuffer, iHandle.mInfo.mOffset, vk::IndexType::eUint32);
 //		cmd.drawIndexed(static_cast<uint32_t>(mesh.GetIndicesData().size()), 1, 0, 0, 0);
@@ -151,8 +160,8 @@ void PipelineResources::CreatePipeline()
 	const math::vec2 normViewportSize = normViewport.GetSize();
 	const vk::Extent2D& extent = mRenderer.GetSwapChainExtent();
 
-//	TODO: Damiano
-	GPUShaderProgram* shader = nullptr;// = static_cast<GPUShaderProgram*>(mPipelineConfigs.mShaderProgram);
+//	auto* shaderProgram = gAssetsModule.GetAssetsRepo().GetAsset<IShaderProgram>(mPipelineConfigs.mShaderProgram);
+	auto* shader = static_cast<GPUShaderProgram*>(nullptr);
 
 	ERM_ASSERT(shader);
 
@@ -407,7 +416,10 @@ PipelineData& PipelineResources::GetOrCreatePipelineData(RenderData& renderData)
 		std::forward_as_tuple(renderData.mBindingId.value()),
 		std::forward_as_tuple(renderData.mPipelineConfigs));
 	auto& data = result.first->second;
-	const auto& sbm = renderData.mPipelineConfigs.mShaderProgram->GetShaderBindingsMap();
+//	TODO: Damiano
+//	const auto& sbm = renderData.mPipelineConfigs.mShaderProgram->GetShaderBindingsMap();
+	ShaderBindingsMap sbm;
+	IShaderProgram* sp = nullptr;
 
 	for (const auto& [set, bindings] : sbm)
 	{
@@ -417,19 +429,21 @@ PipelineData& PipelineResources::GetOrCreatePipelineData(RenderData& renderData)
 				mDevice,
 				mRenderer,
 				set,
-				*mDescriptorPool,
-				*renderData.mPipelineConfigs.mShaderProgram,
+//				*renderData.mPipelineConfigs.mShaderProgram,
+																 *sp,
 				renderData.mPipelineConfigs,
 				renderData,
+				*mDescriptorPool,
 				mDescriptorSetLayouts[set].get());
 		else
 			resources = std::make_unique<HostBindingResources>(
 				mDevice,
 				mRenderer,
 				set,
-				*mDescriptorPool,
-				*renderData.mPipelineConfigs.mShaderProgram,
+//				*renderData.mPipelineConfigs.mShaderProgram,
+															   *sp,
 				renderData.mPipelineConfigs,
+				*mDescriptorPool,
 				mDescriptorSetLayouts[set].get());
 
 		data.AddResources(set, std::move(resources));

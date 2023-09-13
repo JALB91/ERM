@@ -20,7 +20,7 @@ target_link_libraries(
 		glfw
 		ERM_Math
 		ERM_Audio
-		ERM_Resources
+		ERM_Assets
 		ERM_ECS
 		# ERM_Editor
 	PUBLIC

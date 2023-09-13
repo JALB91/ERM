@@ -262,8 +262,8 @@ void Window::OnMouseButton(int button, int action, int /*mods*/)
 
 void Window::OnMousePos(double xPos, double yPos)
 {
-	if (ImGui::GetIO().WantCaptureMouse)
-		return;
+//	if (ImGui::GetIO().WantCaptureMouse)
+//		return;
 
 	SafeForEach<IWindowListener>(mWindowListeners, [xPos, yPos](IWindowListener* listener) {
 		listener->OnMouseMoved(xPos, yPos);

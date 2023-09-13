@@ -1,5 +1,7 @@
 #pragma once
 
+#include <erm/assets/Assets_Module.h>
+
 #include <erm/window/IWindowListener.h>
 
 #include <erm/utils/FileLocator.h>
@@ -13,7 +15,6 @@ class AudioManager;
 class Device;
 //class ImGuiHandle;
 class Renderer;
-class ResourcesManager;
 class UpdateManager;
 class Window;
 namespace ecs {
@@ -55,7 +56,6 @@ public:
 
 	inline const Timer& GetTimer() const { return mTimer; }
 	inline const FileLocator& GetFileLocator() const { return mFileLocator; }
-	inline ResourcesManager& GetResourcesManager() const { return *mResourcesManager; }
 	inline AudioManager& GetAudioManager() const { return *mAudioManager; }
 	inline Window& GetWindow() const { return *mWindow; }
 	inline Device& GetDevice() const { return *mDevice; }
@@ -85,7 +85,6 @@ private:
 	std::unique_ptr<UpdateManager> mUpdateManager;
 	std::unique_ptr<AudioManager> mAudioManager;
 	std::unique_ptr<Device> mDevice;
-	std::unique_ptr<ResourcesManager> mResourcesManager;
 	std::unique_ptr<Renderer> mRenderer;
 //	std::unique_ptr<ImGuiHandle> mImGuiHandle;
 	std::unique_ptr<ecs::ECS> mECS;

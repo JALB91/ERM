@@ -1,23 +1,23 @@
 #pragma once
 
 #include "erm/rendering/enums/FrameBufferType.h"
+#include "erm/rendering/textures/GPUTexture.h"
+#include "erm/rendering/textures/GPUCubeMap.h"
 
-#include <erm/resources/textures/TextureType.h>
-#include <erm/resources/textures/Texture.h>
+#include <erm/assets/enums/TextureType.h>
+#include <erm/assets/textures/Texture.h>
 
 #include <vulkan/vulkan.hpp>
 
 #include <array>
-#include <map>
 #include <set>
+#include <unordered_map>
 #include <vector>
 
 namespace erm {
 class Device;
 class IExtCommandBufferUpdater;
 class ISwapChainListener;
-template<typename T>
-class GPUImage;
 class GPUMesh;
 class GPUModel;
 class Window;
@@ -54,8 +54,8 @@ public:
 	inline vk::Sampler GetTextureSampler() const { return mTextureSampler; }
 	inline vk::Format GetSwapChainImageFormat() const { return mSwapChainImageFormat; }
 	
-	const std::vector<Texture*>& GetTargetFrameBuffers(FrameBufferType frameBufferType) const;
-	Texture* GetDefaultTexture(TextureType type) const;
+	const std::vector<GPUTexture*>& GetTargetFrameBuffers(FrameBufferType frameBufferType) const;
+	GPUTexture* GetDefaultTexture(TextureType type) const;
 
 protected:
 	virtual void RecreateSwapChain();
@@ -77,7 +77,7 @@ protected:
 	std::vector<vk::Image> mSwapChainImages;
 	std::vector<vk::ImageView> mSwapChainImageViews;
 
-	std::map<FrameBufferType, std::vector<Texture*>> mFrameBuffers;
+	std::unordered_map<FrameBufferType, std::vector<GPUTexture*>> mFrameBuffers;
 
 	vk::Sampler mTextureSampler;
 

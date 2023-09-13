@@ -1,13 +1,9 @@
 #include "erm/rendering/data_structs/BindingConfigs.h"
 
-#include "erm/resources/materials/Material.h"
-#include "erm/resources/materials/PBMaterial.h"
+#include "erm/assets/materials/Material.h"
+#include "erm/assets/materials/PBMaterial.h"
 
 namespace erm {
-
-BindingConfigs::BindingConfigs()
-	: mMaterial(MaterialType::PBR, &PBMaterial::DEFAULT)
-{}
 
 bool BindingConfigs::IsBindingLevelCompatible(const BindingConfigs& other) const
 {
@@ -16,7 +12,7 @@ bool BindingConfigs::IsBindingLevelCompatible(const BindingConfigs& other) const
 
 bool BindingConfigs::IsMaterialCompatible(const BindingConfigs& other) const
 {
-	return mMaterial.mData == other.mMaterial.mData;
+	return mMaterial == other.mMaterial;
 }
 
 bool BindingConfigs::AreTexturesCompatible(const BindingConfigs& other) const
@@ -30,23 +26,13 @@ bool BindingConfigs::AreTexturesCompatible(const BindingConfigs& other) const
 	return true;
 }
 
-Texture* BindingConfigs::GetTexture(TextureType type) const
+StringID BindingConfigs::GetTexture(TextureType type) const
 {
-	if (mMaterial.mType == MaterialType::LEGACY)
-	{
-		Material* material = static_cast<Material*>(mMaterial.mData);
-		auto it = material->mTexturesMaps.find(type);
-		if (it != material->mTexturesMaps.end() && it->second)
-			return it->second;
-	}
-	
-	{
-		auto it = mTexturesMaps.find(type);
-		if (it != mTexturesMaps.end() && it->second)
-			return it->second;
-	}
+	auto it = mTexturesMaps.find(type);
+	if (it != mTexturesMaps.end())
+		return it->second;
 
-	return nullptr;
+	return StringID::INVALID;
 }
 
 } // namespace erm

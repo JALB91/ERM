@@ -3,7 +3,7 @@
 #include <erm/math/mat.h>
 #include <erm/math/vec.h>
 
-#include <erm/resources/data_structs/Bone.h>
+#include <erm/assets/data_structs/Bone.h>
 
 namespace erm {
 

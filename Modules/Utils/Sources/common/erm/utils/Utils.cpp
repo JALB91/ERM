@@ -7,7 +7,7 @@
 #include <math.h>
 #include <sstream>
 
-namespace erm::Utils {
+namespace erm::utils {
 
 bool LogCall(bool cond, std::string_view msg, std::string_view function, std::string_view file, int line)
 {
@@ -113,4 +113,4 @@ std::string FormatTime(unsigned int seconds)
 	return result;
 }
 
-} // namespace erm::Utils
+} // namespace erm::utils

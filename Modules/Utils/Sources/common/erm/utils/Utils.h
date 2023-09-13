@@ -10,7 +10,7 @@
 #define ERM_UNUSED(x)	   (void)x;
 #define ERM_ASSERT(x)	   assert(x)
 #define ERM_ASSERT_HARD(x) assert(x); abort();
-#define ERM_EXPECT(x, msg) erm::Utils::LogCall((x), msg, #x, __FILE__, __LINE__)
+#define ERM_EXPECT(x, msg) erm::utils::LogCall((x), msg, #x, __FILE__, __LINE__)
 
 #define ERM_DECL_SET_GET_OPT_WITH_DEFAULT(NAME, TYPE, DEFAULT)          \
 private:                                                                \
@@ -21,7 +21,7 @@ public:                                                                 \
 	inline void Set##NAME(const TYPE& v) { m##NAME = v; }               \
 	inline bool Has##NAME##Value() const { return m##NAME.has_value(); }
 
-namespace erm::Utils {
+namespace erm::utils {
 
 extern bool LogCall(bool cond, std::string_view msg, std::string_view function, std::string_view file, int line);
 extern std::vector<std::string> SplitString(std::string_view str, char ch);
@@ -57,5 +57,14 @@ std::unique_ptr<T> Clone(const std::unique_ptr<T>& value)
 	ERM_ASSERT(value);
 	return std::make_unique<T>(*value.get());
 }
+
+template<typename T>
+struct RemoveAll
+{
+	using type = std::remove_pointer<std::remove_reference_t<std::remove_cv_t<T>>>;
+};
+
+template<typename T>
+using RemoveAll_t = typename RemoveAll<T>::type;
 
 } // namespace erm::Utils

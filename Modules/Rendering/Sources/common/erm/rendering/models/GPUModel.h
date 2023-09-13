@@ -35,13 +35,9 @@ public:
 	inline const Model& GetModel() const { return mModel; }
 
 	inline const std::vector<GPUMesh>& GetGPUMeshes() const { return mGPUMeshes; }
-	inline std::vector<GPUMesh>& GetGPUMeshes() { return mGPUMeshes; }
 
 	inline const VertexBuffer& GetVerticesBuffer() const { return *mVerticesBuffer; }
 	inline const IndexBuffer& GetIndicesBuffer() const { return *mIndicesBuffer; }
-
-	inline bool IsDirty() const { return mIsDirty; }
-	inline void SetDirty(bool isDirty) { mIsDirty = isDirty; }
 
 #ifdef ERM_RAY_TRACING_ENABLED
 	inline RTBlas& GetBlas()
@@ -61,7 +57,7 @@ private:
 #endif
 	std::unique_ptr<VertexBuffer> mVerticesBuffer;
 	std::unique_ptr<IndexBuffer> mIndicesBuffer;
-	bool mIsDirty;
+	
 };
 
 } // namespace erm

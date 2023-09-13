@@ -8,7 +8,8 @@
 #include "erm/rendering/enums/FrontFace.h"
 #include "erm/rendering/enums/PolygonMode.h"
 
-#include "erm/utils/Utils.h"
+#include <erm/utils/Utils.h>
+#include <erm/utils/StringID.h>
 
 namespace erm {
 class IShaderProgram;
@@ -20,7 +21,6 @@ struct PipelineConfigs : public BindingConfigs
 {
 	static const PipelineConfigs DEFAULT;
 
-	PipelineConfigs();
 	virtual ~PipelineConfigs() = default;
 
 	bool IsPipelineLevelCompatible(const PipelineConfigs& other) const;
@@ -41,7 +41,7 @@ struct PipelineConfigs : public BindingConfigs
 	ERM_DECL_SET_GET_OPT_WITH_DEFAULT(DepthFunction, DepthFunction, DepthFunction::LESS);
 	ERM_DECL_SET_GET_OPT_WITH_DEFAULT(DrawMode, DrawMode, DrawMode::TRIANGLES);
 	ERM_DECL_SET_GET_OPT_WITH_DEFAULT(PolygonMode, PolygonMode, PolygonMode::FILL);
-	IShaderProgram* mShaderProgram;
+	StringID mShaderProgram = StringID::INVALID;
 };
 
 } // namespace erm

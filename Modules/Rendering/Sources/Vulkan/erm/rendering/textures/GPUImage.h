@@ -4,6 +4,8 @@
 
 namespace erm {
 class Device;
+struct CubeMap;
+struct Texture;
 }
 
 namespace erm {
@@ -12,10 +14,12 @@ template<typename T>
 class GPUImage
 {
 public:
-	GPUImage(Device& device, const T& texture);
+	GPUImage(Device& device, T& texture);
 	GPUImage(
 		Device& device,
-		const T& texture,
+		T& texture,
+		uint32_t mipLevels,
+		uint32_t arrayLayers,
 		vk::Image image,
 		vk::ImageView imageView,
 		vk::DeviceMemory imageMemory,
@@ -29,7 +33,6 @@ public:
 	GPUImage& operator=(GPUImage&&) = delete;
 	GPUImage& operator=(const GPUImage&) = delete;
 	
-	inline const T& GetTexture() const { return mTexture; }
 	inline vk::Image GetImage() const { return mImage; }
 	inline vk::DeviceMemory GetImageMemory() const { return mImageMemory; }
 	inline vk::Format GetImageFormat() const { return mFormat; }
@@ -47,6 +50,8 @@ private:
 
 	Device& mDevice;
 	const T& mTexture;
+	
+	uint32_t mMipLevels, mArrayLayers;
 	
 	vk::Image mImage;
 	vk::ImageView mImageView;

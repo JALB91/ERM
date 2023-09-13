@@ -18,9 +18,10 @@
 #include <erm/rendering/Device.h>
 #include <erm/rendering/renderer/Renderer.h>
 
-#include <erm/resources/models/Model.h>
-#include <erm/resources/data_structs/Bone.h>
-#include <erm/resources/ResourcesManager.h>
+#include <erm/assets/models/Model.h>
+#include <erm/assets/data_structs/Bone.h>
+#include <erm/assets/Assets_Module.h>
+#include <erm/assets/AssetsRepo.h>
 
 #include <erm/utils/Profiler.h>
 #include <erm/utils/UpdateManager.h>
@@ -93,6 +94,7 @@ Engine::Engine()
 
 Engine::~Engine()
 {
+	gAssetsModule.Deinit();
 	mWindow->RemoveListener(*this);
 }
 
@@ -106,13 +108,13 @@ bool Engine::Init()
 	mUpdateManager = std::make_unique<UpdateManager>();
 	mAudioManager = std::make_unique<AudioManager>();
 	mDevice = std::make_unique<Device>(mWindow->GetWindow());
-	mResourcesManager = std::make_unique<ResourcesManager>();
+	gAssetsModule.Init();
 	mRenderer = std::make_unique<Renderer>(*mWindow, *mDevice);
 //	mImGuiHandle = std::make_unique<ImGuiHandle>(*this);
 	mECS = std::make_unique<ecs::ECS>();
 	mECS->Init();
 
-	mResourcesManager->LoadDefaultResources();
+	gAssetsModule.GetAssetsRepo().LoadDefaultResources();
 
 	auto camera = mECS->GetOrCreateEntity("Camera");
 	camera->AddComponent<ecs::LightComponent>();
@@ -141,8 +143,8 @@ bool Engine::Init()
 
 	{
 		auto entity = mECS->GetOrCreateEntity();
-		Model* model = mResourcesManager->GetOrCreateModel("res/models/untitled.dae");
-		entity->RequireComponent<ecs::ModelComponent>(model);
+//		TODO: Damiano
+		entity->RequireComponent<ecs::ModelComponent>(StringID("Defaults/Triangle"));
 		auto transform = entity->RequireComponent<ecs::TransformComponent>();
 		transform->SetTranslationX(-2.5f);
 		root->AddChild(*entity);
@@ -150,8 +152,8 @@ bool Engine::Init()
 
 	{
 		auto entity = mECS->GetOrCreateEntity();
-		Model* model = mResourcesManager->GetOrCreateModel("res/models/untitled.fbx");
-		entity->RequireComponent<ecs::ModelComponent>(model);
+//		Model* model = mResourcesManager->GetOrCreateModel("res/models/untitled.fbx");
+		entity->RequireComponent<ecs::ModelComponent>(StringID::INVALID);
 		auto transform = entity->RequireComponent<ecs::TransformComponent>();
 		transform->SetTranslationX(2.5f);
 		root->AddChild(*entity);
@@ -160,10 +162,10 @@ bool Engine::Init()
 	for (int i = 0; i < 0; ++i)
 	{
 		auto entity = mECS->GetOrCreateEntity();
-		const auto rnd = rand() % mFileLocator.GetModels().size();
-		Model* model = mResourcesManager->GetOrCreateModel(mFileLocator.GetModels()[rnd].c_str());
+//		const auto rnd = rand() % mFileLocator.GetModels().size();
+//		Model* model = mResourcesManager->GetOrCreateModel(mFileLocator.GetModels()[rnd].c_str());
 
-		entity->RequireComponent<ecs::ModelComponent>(model);
+		entity->RequireComponent<ecs::ModelComponent>(StringID::INVALID);
 		auto tComp = entity->RequireComponent<ecs::TransformComponent>();
 
 		static const int dist = 400;
@@ -252,7 +254,7 @@ void Engine::OnUpdate(float dt)
 //	mImGuiHandle->OnUpdate();
 	mECS->OnUpdate(dt);
 	mWindow->OnUpdate();
-	mResourcesManager->OnUpdate();
+	gAssetsModule.OnUpdate(dt);
 	mAudioManager->OnUpdate(dt);
 	mUpdateManager->Update(dt);
 }
@@ -269,7 +271,7 @@ void Engine::OnPreRender()
 {
 	ERM_PROFILE_FUNCTION();
 
-	mResourcesManager->OnPreRender();
+	gAssetsModule.OnPreRender();
 	mECS->OnPreRender();
 	mRenderer->OnPreRender();
 //	mImGuiHandle->OnPreRender();
@@ -293,7 +295,7 @@ void Engine::OnPostRender()
 	mRenderer->OnPostRender();
 //	mImGuiHandle->OnPostRender();
 	mWindow->OnPostRender();
-	mResourcesManager->OnPostRender();
+	gAssetsModule.OnPostRender();
 }
 
 void Engine::SetMaxFPS(unsigned int maxFPS)

@@ -11,11 +11,11 @@ HostBindingResources::HostBindingResources(
 	Device& device,
 	IRenderer& renderer,
 	uint32_t targetSet,
-	const vk::DescriptorPool& descriptorPool,
 	const IShaderProgram& shaderProgram,
 	const BindingConfigs& configs,
-	const vk::DescriptorSetLayout& descriptorSetLayout)
-	: IBindingResources(device, renderer, targetSet, descriptorPool, shaderProgram, configs)
+	vk::DescriptorPool descriptorPool,
+	vk::DescriptorSetLayout descriptorSetLayout)
+	: IBindingResources(device, renderer, targetSet, shaderProgram, configs, descriptorPool)
 {
 	// CREATE DESCRIPTOR SETS
 	const std::vector<vk::DescriptorSetLayout> layouts(IRenderer::kMaxFramesInFlight, descriptorSetLayout);
@@ -28,7 +28,9 @@ HostBindingResources::HostBindingResources(
 	ERM_VK_CHECK_AND_ASSIGN(mDescriptorSets, mDevice->allocateDescriptorSetsUnique(info));
 
 	// GATHER SHADER DATA
-	const ShaderBindingData& shaderBindings = mShaderProgram.GetShaderBindingsData(mTargetSet);
+//	TODO: Damiano
+//	const ShaderBindingData& shaderBindings = mShaderProgram.GetShaderBindingsData(mTargetSet);
+	ShaderBindingData shaderBindings;
 	const std::vector<UboData>& ubosData = shaderBindings.mUbosData;
 
 	ERM_ASSERT(shaderBindings.mSamplersData.empty());
@@ -64,12 +66,12 @@ HostBindingResources::HostBindingResources(
 	mDevice->updateDescriptorSets(static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 }
 
-const vk::DescriptorSet HostBindingResources::GetDescriptorSet() const
+vk::DescriptorSet HostBindingResources::GetDescriptorSet() const
 {
 	return mDescriptorSets[mRenderer.GetCurrentFrame()].get();
 }
 
-void HostBindingResources::UpdateResources(vk::CommandBuffer& /*cmd*/, IRenderData& data)
+void HostBindingResources::UpdateResources(vk::CommandBuffer /*cmd*/, IRenderData& data)
 {
 	for (auto& pair : mUniformBuffers[mRenderer.GetCurrentFrame()])
 	{

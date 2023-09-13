@@ -85,7 +85,7 @@ BoundingBox2D BoundingBox2D::Expand(const BoundingBox<S>& other) const
 
 template<>
 template<>
-BoundingBox3D BoundingBox3D::Intersect(const BoundingBox3D& other) const
+BoundingBox3D BoundingBox3D::Intersection(const BoundingBox3D& other) const
 {
 	if (!IsIntersecting(other))
 		return BoundingBox3D();
@@ -105,7 +105,7 @@ BoundingBox3D BoundingBox3D::Intersect(const BoundingBox3D& other) const
 
 template<>
 template<>
-BoundingBox3D BoundingBox3D::Intersect(const BoundingBox2D& other) const
+BoundingBox3D BoundingBox3D::Intersection(const BoundingBox2D& other) const
 {
 	if (!IsIntersecting(other))
 		return BoundingBox3D();
@@ -125,7 +125,7 @@ BoundingBox3D BoundingBox3D::Intersect(const BoundingBox2D& other) const
 
 template<>
 template<typename S>
-BoundingBox2D BoundingBox2D::Intersect(const BoundingBox<S>& other) const
+BoundingBox2D BoundingBox2D::Intersection(const BoundingBox<S>& other) const
 {
 	if (!IsIntersecting(other))
 		return BoundingBox2D();

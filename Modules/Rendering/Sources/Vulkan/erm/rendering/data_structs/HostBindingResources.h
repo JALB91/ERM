@@ -15,14 +15,14 @@ public:
 		Device& device,
 		IRenderer& renderer,
 		uint32_t targetSet,
-		const vk::DescriptorPool& descriptorPool,
 		const IShaderProgram& shaderProgram,
 		const BindingConfigs& configs,
-		const vk::DescriptorSetLayout& descriptorSetLayout);
+		vk::DescriptorPool descriptorPool,
+		vk::DescriptorSetLayout descriptorSetLayout);
 
-	const vk::DescriptorSet GetDescriptorSet() const override;
+	vk::DescriptorSet GetDescriptorSet() const override;
 
-	void UpdateResources(vk::CommandBuffer& cmd, IRenderData& data) override;
+	void UpdateResources(vk::CommandBuffer cmd, IRenderData& data) override;
 
 private:
 	using SwapChainUniformBuffers = std::array<UniformBuffersMap<HostBuffer>, IRenderer::kMaxFramesInFlight>;

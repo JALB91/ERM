@@ -4,10 +4,6 @@ namespace erm {
 
 const PipelineConfigs PipelineConfigs::DEFAULT = {};
 
-PipelineConfigs::PipelineConfigs()
-	: mShaderProgram(nullptr)
-{}
-
 bool PipelineConfigs::IsPipelineLevelCompatible(const PipelineConfigs& other) const
 {
 	return IsShaderCompatible(other) &&

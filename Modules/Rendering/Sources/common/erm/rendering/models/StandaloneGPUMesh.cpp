@@ -3,26 +3,24 @@
 #include "erm/rendering/Device.h"
 #include "erm/rendering/utils/VkUtils.h"
 
-#include <erm/resources/models/Mesh.h>
+#include <erm/assets/models/Mesh.h>
 
 namespace erm {
 
 StandaloneGPUMesh::StandaloneGPUMesh(
 	Device& device,
-	const Mesh& mesh,
-	const RenderConfigs& renderConfigs /* = RenderConfigs::DEFAULT*/,
-	const PipelineConfigs& pipelineConfigs /* = PipelineConfigs::DEFAULT*/
+	const Mesh& mesh
 	)
-	: GPUMesh(mesh, renderConfigs, pipelineConfigs)
+	: GPUMesh(mesh)
 	, mDevice(device)
 	, mIndexBuffer(
 		  mDevice,
-		  mesh.GetIndicesData().size() * sizeof(IndexData),
-		  static_cast<uint32_t>(mesh.GetIndicesData().size()))
-	, mVertexBuffer(mDevice, mesh.GetVerticesData().size() * sizeof(VertexData))
+		  mesh.mIndicesData.size() * sizeof(IndexData),
+		  static_cast<uint32_t>(mesh.mIndicesData.size()))
+	, mVertexBuffer(mDevice, mesh.mVerticesData.size() * sizeof(VertexData))
 {
-	mIndexBuffer.Update(mesh.GetIndicesData().data());
-	mVertexBuffer.Update(mesh.GetVerticesData().data());
+	mIndexBuffer.Update(mesh.mIndicesData.data());
+	mVertexBuffer.Update(mesh.mVerticesData.data());
 }
 
 StandaloneGPUMesh::~StandaloneGPUMesh()

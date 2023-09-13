@@ -17,20 +17,21 @@ public:
 
 	inline const LayoutBindingsMap& GetLayoutBindingsMap() const { return mLayoutBindingsMap; }
 
-	std::vector<vk::UniqueShaderModule> CreateShaderModules(ShaderType shaderType) const;
+//	TODO:Damiano
+	std::vector<vk::UniqueShaderModule> CreateShaderModules(ShaderType /*shaderType*/) const { return {}; }
 
-	vk::VertexInputBindingDescription GetVertexBindingDescription();
-	std::vector<vk::VertexInputAttributeDescription> GetVertexAttributeDescriptions();
+	vk::VertexInputBindingDescription GetVertexBindingDescription() { return {}; }
+	std::vector<vk::VertexInputAttributeDescription> GetVertexAttributeDescriptions() { return {}; }
 
 protected:
 	// IShaderProgram
-	void UpdateBindingData() override;
-	void UpdateResourceBindings(
-		const spirv_cross::Compiler& compiler,
-		const spirv_cross::Resource& res,
-		SetIdx targetSet,
-		ShaderType shaderType,
-		DescriptorType descriptorType) override;
+//	void UpdateBindingData() override;
+//	void UpdateResourceBindings(
+//		const spirv_cross::Compiler& compiler,
+//		const spirv_cross::Resource& res,
+//		SetIdx targetSet,
+//		ShaderType shaderType,
+//		DescriptorType descriptorType) override;
 
 	LayoutBindingsMap mLayoutBindingsMap;
 };

@@ -13,11 +13,7 @@ namespace erm {
 class StandaloneGPUMesh : public GPUMesh
 {
 public:
-	StandaloneGPUMesh(
-		Device& device,
-		const Mesh& mesh,
-		const RenderConfigs& renderConfigs = RenderConfigs::DEFAULT,
-		const PipelineConfigs& pipelineConfigs = PipelineConfigs::DEFAULT);
+	StandaloneGPUMesh(Device& device, const Mesh& mesh);
 	~StandaloneGPUMesh();
 
 	StandaloneGPUMesh(StandaloneGPUMesh&& other) noexcept;

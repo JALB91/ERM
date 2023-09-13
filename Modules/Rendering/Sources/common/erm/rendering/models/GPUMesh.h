@@ -1,11 +1,9 @@
 #pragma once
 
 #include "erm/rendering/buffers/BufferHandle.h"
-#include "erm/rendering/data_structs/PipelineConfigs.h"
-#include "erm/rendering/data_structs/RenderConfigs.h"
 
 namespace erm {
-class Mesh;
+struct Mesh;
 }
 
 namespace erm {
@@ -13,25 +11,25 @@ namespace erm {
 class GPUMesh
 {
 public:
-	GPUMesh(
-		const Mesh& mesh,
-		const RenderConfigs& renderConfigs = RenderConfigs::DEFAULT,
-		const PipelineConfigs& pipelineConfigs = PipelineConfigs::DEFAULT);
+	GPUMesh(const Mesh& mesh)
+		: mMesh(mesh)
+		, mVertBufferHandle(nullptr, {})
+		, mIndBufferHandle(nullptr, {})
+	{}
+
 	virtual ~GPUMesh() = default;
 
-	GPUMesh(GPUMesh&& other) noexcept;
+	GPUMesh(GPUMesh&& other) noexcept
+		: mMesh(other.mMesh)
+		, mVertBufferHandle(std::move(other.mVertBufferHandle))
+		, mIndBufferHandle(std::move(other.mIndBufferHandle))
+	{}
 	GPUMesh(const GPUMesh&) = delete;
 
 	GPUMesh& operator=(GPUMesh&& other) = delete;
 	GPUMesh& operator=(const GPUMesh&) = delete;
 	
 	inline const Mesh& GetMesh() const { return mMesh; }
-	
-	inline const RenderConfigs& GetRenderConfigs() const { return mRenderConfigs; }
-	inline RenderConfigs& GetRenderConfigs() { return mRenderConfigs; }
-
-	inline const PipelineConfigs& GetPipelineConfigs() const { return mPipelineConfigs; }
-	inline PipelineConfigs& GetPipelineConfigs() { return mPipelineConfigs; }
 
 	inline const BufferHandle& GetVertBufferHandle() const { return mVertBufferHandle; }
 	inline void SetVertBufferHandle(BufferHandle&& handle) { mVertBufferHandle = std::move(handle); }
@@ -41,8 +39,6 @@ public:
 
 protected:
 	const Mesh& mMesh;
-	RenderConfigs mRenderConfigs;
-	PipelineConfigs mPipelineConfigs;
 	BufferHandle mVertBufferHandle;
 	BufferHandle mIndBufferHandle;
 	

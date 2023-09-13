@@ -7,8 +7,7 @@
 #include <erm/math/vec.h>
 
 namespace erm {
-class Model;
-//class ResourcesManager;
+struct Model;
 namespace ecs {
 class TransformSystem;
 class SkeletonSystem;
@@ -59,8 +58,6 @@ private:
 
 	template<typename T>
 	void UpdateComponentID(ID& componentId, typename T::SYSTEM_TYPE& system);
-	
-//	ResourcesManager& mResourcesManager;
 
 	TransformSystem* mTransformSystem;
 	SkeletonSystem* mSkeletonSystem;

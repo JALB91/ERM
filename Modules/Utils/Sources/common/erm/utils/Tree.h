@@ -5,6 +5,7 @@
 #include <functional>
 #include <memory>
 #include <vector>
+#include <type_traits>
 
 namespace erm {
 
@@ -12,7 +13,7 @@ template<typename ID, typename Payload>
 class Tree
 {
 public:
-	using Child = std::unique_ptr<Tree>;
+	using Child = Tree;
 	using Children = std::vector<Child>;
 
 public:
@@ -34,7 +35,7 @@ public:
 	{
 		for (Child& child : mChildren)
 		{
-			child->mParent = this;
+			child.mParent = this;
 		}
 	}
 
@@ -43,20 +44,28 @@ public:
 		if (&other == this)
 			return *this;
 		
-		*this = std::move(other);
+		mId = std::move(other.mId);
+		mPayload = std::move(other.mPayload);
+		mParent = std::move(other.mParent);
+		mChildren = std::move(other.mChildren);
+		
+		for (auto& child : mChildren)
+		{
+			child.mParent = this;
+		}
 		
 		return *this;
 	}
 
 	Tree Clone() const
 	{
-		Tree tree(Utils::Clone(mId), Utils::Clone(mPayload));
+		Tree tree(utils::Clone(mId), utils::Clone(mPayload));
 
 		Tree* currentNode = &tree;
 
 		ForEachChildDo(
 			[&currentNode](const Tree& node) mutable {
-				currentNode = &(currentNode->AddChild(Utils::Clone(node.GetId()), Utils::Clone(node.GetPayload())));
+				currentNode = &(currentNode->AddChild(utils::Clone(node.GetId()), utils::Clone(node.GetPayload())));
 			},
 			[&currentNode](const Tree& /*node*/) mutable {
 				currentNode = currentNode->GetParent();
@@ -103,12 +112,12 @@ public:
 	{
 #if !defined(NDEBUG)
 		const Tree& root = GetRoot();
-		node->ForEachDo([&root](const Tree& node) {
+		node.ForEachDo([&root](const Tree& node) {
 			ERM_ASSERT(root.Find(node.GetId()) == nullptr);
 		});
 #endif
 		Child& child = mChildren.emplace_back(std::move(node));
-		child->mParent = this;
+		child.mParent = this;
 	}
 
 	Tree& AddChild(ID id, Payload payload)
@@ -118,9 +127,9 @@ public:
 			child->SetPayload(std::forward<Payload>(payload));
 			return *child;
 		}
-		Child& child = mChildren.emplace_back(std::make_unique<Tree>(std::forward<ID>(id), std::forward<Payload>(payload)));
-		child->mParent = this;
-		return *child;
+		Child& child = mChildren.emplace_back(std::forward<ID>(id), std::forward<Payload>(payload));
+		child.mParent = this;
+		return child;
 	}
 
 	inline void ForEachDo(
@@ -131,7 +140,7 @@ public:
 			before(*this);
 		for (Child& child : mChildren)
 		{
-			child->ForEachDo(before, after);
+			child.ForEachDo(before, after);
 		}
 		if (after)
 			after(*this);
@@ -145,7 +154,7 @@ public:
 		{
 			if (before)
 				before(*child);
-			child->ForEachChildDo(before, after);
+			child.ForEachChildDo(before, after);
 			if (after)
 				after(*child);
 		}
@@ -158,7 +167,7 @@ public:
 
 		for (Child& child : mChildren)
 		{
-			if (Tree* result = child->Find(id))
+			if (Tree* result = child.Find(id))
 			{
 				return result;
 			}
@@ -174,7 +183,7 @@ public:
 
 		for (const Child& child : mChildren)
 		{
-			if (const Tree* result = child->Find(id))
+			if (const Tree* result = child.Find(id))
 			{
 				return result;
 			}
@@ -190,7 +199,7 @@ public:
 			return this;
 
 		for (const Child& child : mChildren)
-			if (const Tree* result = child->FindByPayload(function))
+			if (const Tree* result = child.FindByPayload(function))
 				return result;
 
 		return nullptr;
@@ -200,7 +209,7 @@ public:
 	{
 		unsigned int size = 1;
 		for (const Child& child : mChildren)
-			size += child->GetSize();
+			size += child.GetSize();
 		return size;
 	}
 

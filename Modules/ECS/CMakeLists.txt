@@ -18,7 +18,8 @@ target_link_libraries(
 	PRIVATE
 		ERM_Input
 		ERM_Utils
-		ERM_Resources
+		ERM_Assets
+		ERM_Rendering
 	PUBLIC
 		ERM_Math
 )

@@ -160,11 +160,10 @@ void RenderingResources::CreateRenderPass()
 	subpass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
 	subpass.colorAttachmentCount = 1;
 
-	const std::vector<Texture*>& frameBuffers = mRenderer.GetTargetFrameBuffers(mRenderConfigs.mSubpassData.mColorAttachment.mFrameBufferType);
+	const std::vector<GPUTexture*>& frameBuffers = mRenderer.GetTargetFrameBuffers(mRenderConfigs.mSubpassData.mColorAttachment.mFrameBufferType);
 	ERM_ASSERT(!frameBuffers.empty());
 
-//	TODO: Damiano
-//	attachments.emplace_back(CreateAttachmentDescription(data.mColorAttachment, frameBuffers[0]->GetImageFormat()));
+	attachments.emplace_back(CreateAttachmentDescription(data.mColorAttachment, frameBuffers[0]->GetImageFormat()));
 
 	vk::AttachmentReference& colorAttachmentRef = attachmentRefs.emplace_back();
 	colorAttachmentRef.attachment = 0;
@@ -174,11 +173,10 @@ void RenderingResources::CreateRenderPass()
 
 	if (data.mDepthAttachment.has_value())
 	{
-		const std::vector<Texture*>& depthFrameBuffers = mRenderer.GetTargetFrameBuffers(data.mDepthAttachment.value().mFrameBufferType);
+		const std::vector<GPUTexture*>& depthFrameBuffers = mRenderer.GetTargetFrameBuffers(data.mDepthAttachment.value().mFrameBufferType);
 		ERM_ASSERT(!depthFrameBuffers.empty());
 
-//		TODO: Damiano
-//		attachments.emplace_back(CreateAttachmentDescription(data.mDepthAttachment.value(), depthFrameBuffers[0]->GetImageFormat()));
+		attachments.emplace_back(CreateAttachmentDescription(data.mDepthAttachment.value(), depthFrameBuffers[0]->GetImageFormat()));
 
 		vk::AttachmentReference& depthAttachmentRef = attachmentRefs.emplace_back();
 		depthAttachmentRef.attachment = 1;
@@ -208,35 +206,35 @@ void RenderingResources::CreateRenderPass()
 
 void RenderingResources::CreateFramebuffers()
 {
-//	const std::vector<Texture*>& frameBuffers = mRenderer.GetTargetFrameBuffers(mRenderConfigs.mSubpassData.mColorAttachment.mFrameBufferType);
-//	const vk::Extent2D& swapChainExtent = mRenderer.GetSwapChainExtent();
+	const std::vector<GPUTexture*>& frameBuffers = mRenderer.GetTargetFrameBuffers(mRenderConfigs.mSubpassData.mColorAttachment.mFrameBufferType);
+	const vk::Extent2D& swapChainExtent = mRenderer.GetSwapChainExtent();
 
-//	mFrameBuffers.resize(frameBuffers.size());
-//	TODO: Damiano
-//	for (size_t i = 0; i < frameBuffers.size(); i++)
-//	{
-//		std::vector<vk::ImageView> attachments = {frameBuffers[i]->GetImageView()};
-//
-//		if (mRenderConfigs.mSubpassData.mDepthAttachment.has_value())
-//		{
-//			attachments.emplace_back(mRenderer.GetTargetFrameBuffers(mRenderConfigs.mSubpassData.mDepthAttachment.value().mFrameBufferType)[0]->GetImageView());
-//		}
-//
-//		vk::FramebufferCreateInfo framebufferInfo = {};
-//		framebufferInfo.renderPass = mRenderPass.get();
-//		framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-//		framebufferInfo.pAttachments = attachments.data();
-//		framebufferInfo.width = static_cast<uint32_t>(swapChainExtent.width);
-//		framebufferInfo.height = static_cast<uint32_t>(swapChainExtent.height);
-//		framebufferInfo.layers = 1;
-//
-//		ERM_VK_CHECK_AND_ASSIGN(mFrameBuffers[i], mDevice->createFramebufferUnique(framebufferInfo));
-//	}
+	mFrameBuffers.resize(frameBuffers.size());
+	
+	for (size_t i = 0; i < frameBuffers.size(); i++)
+	{
+		std::vector<vk::ImageView> attachments = {frameBuffers[i]->GetImageView()};
+
+		if (mRenderConfigs.mSubpassData.mDepthAttachment.has_value())
+		{
+			attachments.emplace_back(mRenderer.GetTargetFrameBuffers(mRenderConfigs.mSubpassData.mDepthAttachment.value().mFrameBufferType)[0]->GetImageView());
+		}
+
+		vk::FramebufferCreateInfo framebufferInfo = {};
+		framebufferInfo.renderPass = mRenderPass.get();
+		framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+		framebufferInfo.pAttachments = attachments.data();
+		framebufferInfo.width = static_cast<uint32_t>(swapChainExtent.width);
+		framebufferInfo.height = static_cast<uint32_t>(swapChainExtent.height);
+		framebufferInfo.layers = 1;
+
+		ERM_VK_CHECK_AND_ASSIGN(mFrameBuffers[i], mDevice->createFramebufferUnique(framebufferInfo));
+	}
 }
 
 void RenderingResources::CreateDescriptorPool()
 {
-	const std::vector<Texture*>& frameBuffers = mRenderer.GetTargetFrameBuffers(mRenderConfigs.mSubpassData.mColorAttachment.mFrameBufferType);
+	const std::vector<GPUTexture*>& frameBuffers = mRenderer.GetTargetFrameBuffers(mRenderConfigs.mSubpassData.mColorAttachment.mFrameBufferType);
 
 	std::array<vk::DescriptorPoolSize, 3> poolSizes {};
 	poolSizes[0].type = vk::DescriptorType::eUniformBuffer;

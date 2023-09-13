@@ -30,7 +30,7 @@ constexpr const char* const kRenderFrameName = "Render";
 #	define ERM_RENDER_FRAME_BEGIN() gRenderTimer.Restart()
 #	define ERM_RENDER_FRAME_END() gRenderTimer.Update(); gRenderSampler.AddSample(gRenderTimer.GetElapsedTime())
 #	define ERM_PROFILE(NAME) erm::Profiler p(NAME)
-#	define ERM_PROFILE_FUNCTION() ERM_PROFILE(Utils::StripFunctionName(ERM_FUNC_SIG))
+#	define ERM_PROFILE_FUNCTION() ERM_PROFILE(utils::StripFunctionName(ERM_FUNC_SIG))
 #endif
 
 namespace erm {

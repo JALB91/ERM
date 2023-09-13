@@ -40,8 +40,8 @@ public:
 	inline double GetPreviousMousePosY() const { return mPrevMousePosY; }
 	inline bool IsMouseButtonDown(MouseButton mouseButton) const { return mPressedButtons.find(mouseButton) != mPressedButtons.end(); }
 
-	inline const math::vec<2, int>& GetFrameBufferSize() const { return mFrameBufferSize; }
-	inline const math::vec<2, int>& GetWindowSize() const { return mWindowSize; }
+	inline const math::ivec2& GetFrameBufferSize() const { return mFrameBufferSize; }
+	inline const math::ivec2& GetWindowSize() const { return mWindowSize; }
 	inline int GetWindowWidth() const { return mWindowSize.x; }
 	inline int GetWindowHeight() const { return mWindowSize.y; }
 	inline float GetAspectRatio() const { return mAspectRatio; }

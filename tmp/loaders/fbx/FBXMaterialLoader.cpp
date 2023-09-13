@@ -1,0 +1,129 @@
+#include "erm/resources/loaders/fbx/FBXMaterialLoader.h"
+#include "erm/resources/loaders/fbx/FbxUtils.h"
+
+#include "erm/resources/ResourcesManager.h"
+
+#include "erm/resources/materials/Material.h"
+#include "erm/resources/materials/PBMaterial.h"
+
+namespace erm {
+
+const char* GetTextureName(FbxProperty pProperty);
+
+Material* ParseFBXMaterial(
+	std::mutex& mutex,
+	std::string_view path,
+	FbxMesh* pMesh,
+	ResourcesManager& resourcesManager)
+{
+	FbxGeometryElementMaterial* lMaterialElement = pMesh->GetElementMaterial(0);
+	FbxSurfaceMaterial* lMaterial = pMesh->GetNode()->GetMaterial(lMaterialElement->GetIndexArray().GetAt(0));
+	int lMatId = lMaterialElement->GetIndexArray().GetAt(0);
+
+	if (lMatId >= 0 && lMaterial)
+	{
+		mutex.lock();
+		auto& materials = resourcesManager.GetResources<Material>();
+		auto it = std::find_if(materials.begin(), materials.end(), [name = lMaterial->GetName()](const Material& material) {
+			return material.mResourceID == StringID(name);
+		});
+		if (it != materials.end())
+		{
+			Material* mat = &(*it);
+			mutex.unlock();
+			return mat;
+		}
+		mutex.unlock();
+
+		Material mat = Material::DEFAULT;
+		{
+			std::string sPath (path);
+			mat.mResourceID = sPath + lMaterial->GetName();
+		}
+
+		if (const char* name = GetTextureName(lMaterial->FindProperty(FbxSurfaceMaterial::sDiffuse)))
+			mat.mTexturesMaps[erm::TextureType::DIFFUSE] = name;
+
+		if (const char* name = GetTextureName(lMaterial->FindProperty(FbxSurfaceMaterial::sNormalMap)))
+			mat.mTexturesMaps[erm::TextureType::NORMAL] = name;
+
+		if (lMaterial->GetClassId().Is(FbxSurfacePhong::ClassId))
+		{
+			FbxSurfacePhong* pPhong = (FbxSurfacePhong*)lMaterial;
+
+			FbxDouble3 diffuse = pPhong->Diffuse.Get();
+			//			FbxDouble diffuseFactor = pPhong->DiffuseFactor.Get();
+			FbxDouble3 specular = pPhong->Specular.Get();
+			//			FbxDouble specularFactor = pPhong->SpecularFactor.Get();
+			FbxDouble3 emissive = pPhong->Emissive.Get();
+			//			FbxDouble emissiveFactor = pPhong->EmissiveFactor.Get();
+			//			FbxDouble3 transColor = pPhong->TransparentColor.Get();
+			//			FbxDouble transFactor = pPhong->TransparencyFactor.Get();
+			FbxDouble shininess = pPhong->Shininess.Get();
+
+			mat.mAmbient = ToVec3(emissive);
+			mat.mDiffuse = ToVec3(diffuse);
+			mat.mSpecular = ToVec3(specular);
+			mat.mShininess = static_cast<float>(shininess);
+		}
+		else if (lMaterial->GetClassId().Is(FbxSurfaceLambert::ClassId))
+		{
+			FbxSurfaceLambert* pLam = (FbxSurfaceLambert*)lMaterial;
+
+			FbxDouble3 diffuse = pLam->Diffuse.Get();
+			//			FbxDouble diffuseFactor = pLam->DiffuseFactor.Get();
+			FbxDouble3 emissive = pLam->Emissive.Get();
+			//			FbxDouble emissiveFactor = pLam->EmissiveFactor.Get();
+			//			FbxDouble3 transColor = pLam->TransparentColor.Get();
+			//			FbxDouble transFactor = pLam->TransparencyFactor.Get();
+
+			mat.mDiffuse = ToVec3(diffuse);
+			mat.mAmbient = ToVec3(emissive);
+		}
+		else
+		{
+			return nullptr;
+		}
+
+		mutex.lock();
+		Material* ret = &materials.emplace_back(std::move(mat));
+		mutex.unlock();
+		return ret;
+	}
+
+	return nullptr;
+}
+
+const char* GetTextureName(FbxProperty pProperty)
+{
+	int lLayeredTextureCount = pProperty.GetSrcObjectCount<FbxLayeredTexture>();
+	if (lLayeredTextureCount > 0)
+	{
+		for (int j = 0; j < lLayeredTextureCount; ++j)
+		{
+			FbxLayeredTexture* lLayeredTexture = pProperty.GetSrcObject<FbxLayeredTexture>(j);
+			int lNbTextures = lLayeredTexture->GetSrcObjectCount<FbxTexture>();
+
+			for (int k = 0; k < lNbTextures; ++k)
+			{
+				return lLayeredTexture->GetName();
+			}
+		}
+	}
+	else
+	{
+		const int texturesCount = pProperty.GetSrcObjectCount<FbxTexture>();
+		for (int j = 0; j < texturesCount; ++j)
+			if (FbxTexture* lTexture = pProperty.GetSrcObject<FbxTexture>(j))
+				return lTexture->GetName();
+
+		const int fileTexturesCount = pProperty.GetSrcObjectCount<FbxFileTexture>();
+		for (int j = 0; j < fileTexturesCount; ++j)
+			if (FbxFileTexture* lTex = pProperty.GetSrcObject<FbxFileTexture>(j))
+				return lTex->GetFileName();
+	}
+
+	return nullptr;
+}
+
+} // namespace erm

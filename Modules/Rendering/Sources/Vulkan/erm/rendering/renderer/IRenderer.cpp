@@ -104,7 +104,7 @@ void IRenderer::RecreateSwapChain()
 void IRenderer::CleanupSwapChain()
 {
 	std::for_each(mFrameBuffers.begin(), mFrameBuffers.end(), [this](auto& pair) {
-		std::for_each(pair.second.begin(), pair.second.end(), [this](Texture* texture) {
+		std::for_each(pair.second.begin(), pair.second.end(), [this](GPUTexture* texture) {
 			(void)texture;
 			(void)*this;
 //			TODO: Damiano
@@ -118,7 +118,7 @@ void IRenderer::CleanupSwapChain()
 
 void IRenderer::CreateSwapChain()
 {
-	const math::vec<2, int>& frameBufferSize = mWindow.GetFrameBufferSize();
+	const math::ivec2& frameBufferSize = mWindow.GetFrameBufferSize();
 
 	SwapChainSupportDetails swapChainSupport = VkUtils::QuerySwapChainSupport(mDevice.GetVkPhysicalDevice(), mDevice.GetVkSurface());
 	QueueFamilyIndices indices = VkUtils::FindQueueFamilies(mDevice.GetVkPhysicalDevice(), mDevice.GetVkSurface());
@@ -377,12 +377,12 @@ void IRenderer::CreateSyncObjects()
 	}
 }
 
-const std::vector<Texture*>& IRenderer::GetTargetFrameBuffers(FrameBufferType frameBufferType) const
+const std::vector<GPUTexture*>& IRenderer::GetTargetFrameBuffers(FrameBufferType frameBufferType) const
 {
 	return mFrameBuffers.at(frameBufferType);
 }
 
-Texture* IRenderer::GetDefaultTexture(TextureType type) const
+GPUTexture* IRenderer::GetDefaultTexture(TextureType type) const
 {
 	(void)type;
 //	TODO: Damiano

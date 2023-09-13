@@ -26,9 +26,9 @@ public:
 		Device& device,
 		IRenderer& renderer,
 		uint32_t targetSet,
-		const vk::DescriptorPool& descriptorPool,
 		const IShaderProgram& shaderProgram,
-		const BindingConfigs& configs);
+		const BindingConfigs& configs,
+		vk::DescriptorPool descriptorPool);
 	virtual ~IBindingResources() = default;
 
 	IBindingResources(const IBindingResources&) = delete;
@@ -39,9 +39,9 @@ public:
 
 	inline uint32_t GetTargetSet() const { return mTargetSet; }
 	inline const BindingConfigs& GetBindingConfigs() const { return mConfigs; }
-	virtual const vk::DescriptorSet GetDescriptorSet() const = 0;
+	virtual vk::DescriptorSet GetDescriptorSet() const = 0;
 
-	virtual void UpdateResources(vk::CommandBuffer& cmd, IRenderData& data) = 0;
+	virtual void UpdateResources(vk::CommandBuffer cmd, IRenderData& data) = 0;
 
 protected:
 	template<typename Buffer>
@@ -54,19 +54,19 @@ protected:
 		std::vector<vk::WriteDescriptorSet>& writes,
 		const std::vector<UboData>& ubosData,
 		const UniformBuffersMap<Buffer>& buffers,
-		vk::DescriptorSet& descriptorSet)
+		vk::DescriptorSet descriptorSet)
 	{
 		for (size_t i = 0; i < ubosData.size(); ++i)
 		{
 			const UboData& data = ubosData[i];
 			const IBuffer& buffer = buffers.at(data.mUboId);
 
-			vk::DescriptorBufferInfo& bufferInfo = infos.emplace_back();
+			vk::DescriptorBufferInfo bufferInfo = infos.emplace_back();
 			bufferInfo.buffer = buffer.GetBuffer();
 			bufferInfo.offset = data.mOffset;
 			bufferInfo.range = buffer.GetBufferSize();
 
-			vk::WriteDescriptorSet& descriptorWrite = writes.emplace_back();
+			vk::WriteDescriptorSet descriptorWrite = writes.emplace_back();
 			descriptorWrite.dstSet = descriptorSet;
 			descriptorWrite.dstBinding = data.mBinding;
 			descriptorWrite.dstArrayElement = 0;
@@ -81,19 +81,19 @@ protected:
 		std::vector<vk::WriteDescriptorSet>& writes,
 		const std::vector<StorageBufferData>& storageBuffersData,
 		const StorageBuffersMap& buffersMap,
-		vk::DescriptorSet& descriptorSet);
+		vk::DescriptorSet descriptorSet);
 
 	void CreateSamplerDescriptorWritesAndInfos(
 		std::vector<vk::DescriptorImageInfo>& infos,
 		std::vector<vk::WriteDescriptorSet>& writes,
 		const std::vector<SamplerData>& samplerData,
-		vk::DescriptorSet& descriptorSet);
+		vk::DescriptorSet descriptorSet);
 
 	void CreateStorageImagesDescriptorWritesAndInfos(
 		std::vector<vk::DescriptorImageInfo>& infos,
 		std::vector<vk::WriteDescriptorSet>& writes,
 		const std::vector<StorageImageData>& storageImageData,
-		vk::DescriptorSet& descriptorSet);
+		vk::DescriptorSet descriptorSet);
 
 #ifdef ERM_RAY_TRACING_ENABLED
 	void CreateASDescriptorWritesAndInfos(
@@ -101,15 +101,15 @@ protected:
 		std::vector<vk::WriteDescriptorSet>& writes,
 		const std::vector<AccelerationStructureData>& asData,
 		const vk::AccelerationStructureKHR* as,
-		vk::DescriptorSet& descriptorSet);
+		vk::DescriptorSet descriptorSet);
 #endif
 
 	Device& mDevice;
 	IRenderer& mRenderer;
 	const uint32_t mTargetSet;
-	const vk::DescriptorPool& mDescriptorPool;
 	const IShaderProgram& mShaderProgram;
 	const BindingConfigs mConfigs;
+	vk::DescriptorPool mDescriptorPool;
 	std::vector<vk::UniqueDescriptorSet> mDescriptorSets;
 };
 

@@ -3,12 +3,10 @@
 #include "erm/rendering/data_structs/IRenderData.h"
 #include "erm/rendering/data_structs/RenderConfigs.h"
 
+#include <erm/utils/StringID.h>
+
 #include <optional>
 #include <vector>
-
-namespace erm {
-class Mesh;
-}
 
 namespace erm {
 
@@ -52,12 +50,12 @@ struct RenderData : public IRenderData
 			mPipelineConfigs.IsBindingLevelCompatible(pipelineConfigs);
 	}
 
-	inline bool HasMesh(const Mesh* mesh) const
+	inline bool HasMesh(StringID mesh) const
 	{
 		return std::find(mMeshes.cbegin(), mMeshes.cend(), mesh) != mMeshes.cend();
 	}
 
-	std::vector<const Mesh*> mMeshes;
+	std::vector<StringID> mMeshes;
 	std::optional<uint32_t> mBindingId;
 	RenderConfigs mRenderConfigs;
 };

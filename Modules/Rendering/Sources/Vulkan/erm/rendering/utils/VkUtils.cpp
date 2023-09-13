@@ -13,7 +13,7 @@
 #include "erm/rendering/enums/ImageLayout.h"
 #include "erm/rendering/enums/PolygonMode.h"
 
-#include <erm/resources/shaders/ShaderType.h>
+#include <erm/assets/enums/ShaderType.h>
 
 #include <erm/utils/Utils.h>
 

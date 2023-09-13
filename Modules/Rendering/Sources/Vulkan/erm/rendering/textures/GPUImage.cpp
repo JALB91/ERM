@@ -4,8 +4,8 @@
 #include "erm/rendering/buffers/HostBuffer.h"
 #include "erm/rendering/utils/VkUtils.h"
 
-#include <erm/resources/textures/CubeMap.h>
-#include <erm/resources/textures/Texture.h>
+#include <erm/assets/textures/CubeMap.h>
+#include <erm/assets/textures/Texture.h>
 
 #include <erm/utils/Utils.h>
 
@@ -27,9 +27,11 @@ constexpr vk::ImageViewType ToImageViewType()
 }
 
 template<typename T>
-GPUImage<T>::GPUImage(Device& device, const T& texture)
+GPUImage<T>::GPUImage(Device& device, T& texture)
 	: mDevice(device)
 	, mTexture(texture)
+	, mMipLevels(0)
+	, mArrayLayers(0)
 	, mImage(nullptr)
 	, mImageView(nullptr)
 	, mImageMemory(nullptr)
@@ -46,7 +48,9 @@ GPUImage<T>::GPUImage(Device& device, const T& texture)
 template<typename T>
 GPUImage<T>::GPUImage(
 	Device& device,
-	const T& texture,
+	T& texture,
+	uint32_t mipLevels,
+	uint32_t arrayLayers,
 	vk::Image image,
 	vk::ImageView imageView,
 	vk::DeviceMemory imageMemory,
@@ -54,6 +58,8 @@ GPUImage<T>::GPUImage(
 	vk::Format format)
 	: mDevice(device)
 	, mTexture(texture)
+	, mMipLevels(mipLevels)
+	, mArrayLayers(arrayLayers)
 	, mImage(image)
 	, mImageView(imageView)
 	, mImageMemory(imageMemory)
@@ -77,18 +83,18 @@ GPUImage<T>::~GPUImage()
 template<>
 void GPUImage<Texture>::CreateTextureImage()
 {
-	const vk::DeviceSize imageSize = mTexture.GetWidth() * mTexture.GetHeight() * 4;
+	const vk::DeviceSize imageSize = mTexture.mWidth * mTexture.mHeight * 4;
 
 	HostBuffer stagingBuffer(mDevice, imageSize, BufferUsage::TRANSFER_SRC);
-	stagingBuffer.Update(mTexture.GetBuffer());
+	stagingBuffer.Update(mTexture.mBuffer);
 
 	vk::ImageCreateInfo imageInfo {};
 	imageInfo.imageType = vk::ImageType::e2D;
-	imageInfo.extent.width = mTexture.GetWidth();
-	imageInfo.extent.height = mTexture.GetHeight();
+	imageInfo.extent.width = mTexture.mWidth;
+	imageInfo.extent.height = mTexture.mHeight;
 	imageInfo.extent.depth = 1;
-	imageInfo.mipLevels = mTexture.GetMipLevels();
-	imageInfo.arrayLayers = mTexture.GetArrayLayers();
+	imageInfo.mipLevels = mMipLevels;
+	imageInfo.arrayLayers = mArrayLayers;
 	imageInfo.format = GetImageFormat();
 	imageInfo.tiling = vk::ImageTiling::eOptimal;
 	imageInfo.initialLayout = GetImageLayout();
@@ -110,28 +116,28 @@ void GPUImage<Texture>::CreateTextureImage()
 		mDevice,
 		stagingBuffer.GetBuffer(),
 		GetImage(),
-		static_cast<uint32_t>(mTexture.GetWidth()),
-		static_cast<uint32_t>(mTexture.GetHeight()));
+		static_cast<uint32_t>(mTexture.mWidth),
+		static_cast<uint32_t>(mTexture.mHeight));
 }
 
 template<>
 void GPUImage<CubeMap>::CreateTextureImage()
 {
-	const vk::DeviceSize imageSize = mTexture.GetWidth() * mTexture.GetHeight() * 4;
+	const vk::DeviceSize imageSize = mTexture.mWidth * mTexture.mHeight * mTexture.mBPP;
 	HostBuffer stagingBuffer (mDevice, imageSize * CubeMap::kFaces.size(), BufferUsage::TRANSFER_SRC);
 
 	for (size_t i = 0; i < CubeMap::kFaces.size(); ++i)
 	{
-		stagingBuffer.Update(mTexture.GetBuffers()[i], BufferInfo(i * imageSize, imageSize));
+		stagingBuffer.Update(mTexture.mBuffers[i], BufferInfo(i * imageSize, imageSize));
 	}
 	
 	vk::ImageCreateInfo imageInfo {};
 	imageInfo.imageType = vk::ImageType::e2D;
-	imageInfo.extent.width = mTexture.GetWidth();
-	imageInfo.extent.height = mTexture.GetHeight();
+	imageInfo.extent.width = mTexture.mWidth;
+	imageInfo.extent.height = mTexture.mHeight;
 	imageInfo.extent.depth = 1;
-	imageInfo.mipLevels = mTexture.GetMipLevels();
-	imageInfo.arrayLayers = mTexture.GetArrayLayers();
+	imageInfo.mipLevels = mMipLevels;
+	imageInfo.arrayLayers = mArrayLayers;
 	imageInfo.format = GetImageFormat();
 	imageInfo.tiling = vk::ImageTiling::eOptimal;
 	imageInfo.initialLayout = GetImageLayout();
@@ -154,9 +160,9 @@ void GPUImage<CubeMap>::CreateTextureImage()
 		mDevice,
 		stagingBuffer.GetBuffer(),
 		GetImage(),
-		static_cast<uint32_t>(mTexture.GetWidth()),
-		static_cast<uint32_t>(mTexture.GetHeight()),
-		mTexture.GetArrayLayers());
+		static_cast<uint32_t>(mTexture.mWidth),
+		static_cast<uint32_t>(mTexture.mHeight),
+		mArrayLayers);
 }
 
 template<typename T>
@@ -167,8 +173,8 @@ void GPUImage<T>::TransitionImageLayout(vk::ImageLayout newLayout)
 		GetImage(),
 		GetImageLayout(),
 		newLayout,
-		mTexture.GetMipLevels(),
-		mTexture.GetArrayLayers());
+		mMipLevels,
+		mArrayLayers);
 
 	mImageLayout = newLayout;
 }
@@ -180,9 +186,7 @@ void GPUImage<T>::GenerateMipmaps()
 
 	if (!(properties.optimalTilingFeatures & vk::FormatFeatureFlagBits::eSampledImageFilterLinear) || mTexture.GetMipLevels() <= 1)
 	{
-//		TODO: Damiano
-//		image.SetMipLevels(1);
-		ERM_ASSERT(mTexture.GetMipLevels() == 1);
+		mTexture.SetMipLevels(1);
 		TransitionImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal);
 		return;
 	}
@@ -201,7 +205,7 @@ void GPUImage<T>::GenerateMipmaps()
 	uint32_t mipWidth = mTexture.GetWidth();
 	uint32_t mipHeight = mTexture.GetHeight();
 
-	for (uint32_t i = 1; i < mTexture.GetMipLevels(); ++i)
+	for (uint32_t i = 1; i < mMipLevels; ++i)
 	{
 		barrier.subresourceRange.baseMipLevel = i - 1;
 		barrier.oldLayout = vk::ImageLayout::eTransferDstOptimal;
@@ -265,7 +269,7 @@ void GPUImage<T>::GenerateMipmaps()
 			mipHeight /= 2;
 	}
 
-	barrier.subresourceRange.baseMipLevel = mTexture.GetMipLevels() - 1;
+	barrier.subresourceRange.baseMipLevel = mMipLevels - 1;
 	barrier.oldLayout = vk::ImageLayout::eTransferDstOptimal;
 	barrier.newLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
 	barrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
@@ -296,9 +300,9 @@ void GPUImage<T>::CreateTextureImageView()
 	viewInfo.format = GetImageFormat();
 	viewInfo.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
 	viewInfo.subresourceRange.baseMipLevel = 0;
-	viewInfo.subresourceRange.levelCount = mTexture.GetMipLevels();
+	viewInfo.subresourceRange.levelCount = mMipLevels;
 	viewInfo.subresourceRange.baseArrayLayer = 0;
-	viewInfo.subresourceRange.layerCount = mTexture.GetArrayLayers();
+	viewInfo.subresourceRange.layerCount = mArrayLayers;
 
 	mImageView = VkUtils::CreateImageView(mDevice.GetVkDevice(), viewInfo);
 }

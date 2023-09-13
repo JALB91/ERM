@@ -2,12 +2,11 @@
 
 #include "erm/ecs/Component.h"
 
-namespace erm {
-struct Skin;
-namespace ecs {
+#include <erm/utils/StringID.h>
+
+namespace erm::ecs {
 class SkeletonSystem;
-}
-} // namespace erm
+} // namespace erm::ecs
 
 namespace erm::ecs {
 
@@ -16,7 +15,7 @@ struct SkeletonComponent
 	ERM_COMPONENT_DECL(Skeleton)
 
 public:
-	ERM_SENSIBLE_MEMBER(Skin, Skin*, nullptr);
+	ERM_SENSIBLE_MEMBER(SkeletonID, StringID);
 	ERM_SENSIBLE_MEMBER(DisplayBones, bool, false);
 };
 

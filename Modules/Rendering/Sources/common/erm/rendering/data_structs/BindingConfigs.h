@@ -1,19 +1,15 @@
 #pragma once
 
-#include <erm/resources/textures/TextureType.h>
-#include <erm/resources/materials/MaterialHandle.h>
+#include <erm/assets/enums/TextureType.h>
+
+#include <erm/utils/StringID.h>
 
 #include <map>
-
-namespace erm {
-class Texture;
-} // namespace erm
 
 namespace erm {
 
 struct BindingConfigs
 {
-	BindingConfigs();
 	virtual ~BindingConfigs() = default;
 
 	bool IsBindingLevelCompatible(const BindingConfigs& other) const;
@@ -21,10 +17,10 @@ struct BindingConfigs
 	bool IsMaterialCompatible(const BindingConfigs& other) const;
 	bool AreTexturesCompatible(const BindingConfigs& other) const;
 	
-	Texture* GetTexture(TextureType type) const;
+	StringID GetTexture(TextureType type) const;
 
-	MaterialHandle mMaterial;
-	std::map<TextureType, Texture*> mTexturesMaps;
+	StringID mMaterial = StringID::INVALID;
+	std::map<TextureType, StringID> mTexturesMaps;
 };
 
 } // namespace erm

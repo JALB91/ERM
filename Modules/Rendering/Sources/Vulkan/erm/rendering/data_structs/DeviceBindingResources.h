@@ -13,20 +13,20 @@ public:
 		Device& device,
 		IRenderer& renderer,
 		uint32_t targetSet,
-		const vk::DescriptorPool& descriptorPool,
 		const IShaderProgram& shaderProgram,
 		const BindingConfigs& configs,
 		const IRenderData& renderData,
-		const vk::DescriptorSetLayout& descriptorSetLayout
+		vk::DescriptorPool descriptorPool,
+		vk::DescriptorSetLayout descriptorSetLayout
 #ifdef ERM_RAY_TRACING_ENABLED
 		,
 		const vk::AccelerationStructureKHR* as = nullptr
 #endif
 	);
 
-	const vk::DescriptorSet GetDescriptorSet() const override;
+	vk::DescriptorSet GetDescriptorSet() const override;
 
-	void UpdateResources(vk::CommandBuffer& cmd, IRenderData& data) override;
+	void UpdateResources(vk::CommandBuffer cmd, IRenderData& data) override;
 
 private:
 	void CreateUniformBuffers(const std::vector<UboData>& ubosData);

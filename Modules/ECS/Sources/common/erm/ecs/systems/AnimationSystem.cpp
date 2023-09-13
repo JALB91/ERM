@@ -3,8 +3,10 @@
 #include "erm/ecs/ECS.h"
 #include "erm/ecs/systems/SkeletonSystem.h"
 
-#include <erm/resources/animations/SkeletonAnimation.h>
-#include <erm/resources/data_structs/Skin.h>
+#include <erm/assets/Assets_Module.h>
+#include <erm/assets/AssetsRepo.h>
+#include <erm/assets/animations/SkeletonAnimation.h>
+#include <erm/assets/data_structs/Skeleton.h>
 
 #include <erm/utils/Profiler.h>
 
@@ -37,12 +39,17 @@ void AnimationSystem::OnPostUpdate()
 			continue;
 
 		SkeletonAnimation* currentAnimation = animationComponent->mSkeletonAnimation;
-		const Skin* skin = skeletonComponent->GetSkin();
+		const auto skeletonID = skeletonComponent->GetSkeletonID();
 
-		if (!currentAnimation || !skin || currentAnimation->mTotalAnimationTime <= 0.01f || currentAnimation->mKeyFrames.empty())
+		if (!currentAnimation || !skeletonID.IsValid() || currentAnimation->mTotalAnimationTime <= 0.01f || currentAnimation->mKeyFrames.empty())
 			continue;
 
-		BonesTree* rootBone = skin->mRootBone.get();
+		auto* skeleton = gAssetsModule.GetAssetsRepo().GetAsset<Skeleton>(skeletonID);
+		
+		if (skeleton == nullptr)
+			return;
+		
+		BonesTree& rootBone = skeleton->mRootBone;
 
 		float& currentAnimationTime = animationComponent->mCurrentAnimationTime;
 		const std::vector<KeyFrame>& keyFrames = currentAnimation->mKeyFrames;
@@ -72,7 +79,7 @@ void AnimationSystem::OnPostUpdate()
 
 		const float progression = (currentAnimationTime - prevKeyFrame->mTimestamp) / (nextKeyFrame->mTimestamp - prevKeyFrame->mTimestamp);
 
-		rootBone->ForEachDo(
+		rootBone.ForEachDo(
 			[&prevKeyFrame, &nextKeyFrame, progression](BonesTree& node) {
 				Bone& currentBone = node.GetPayload();
 

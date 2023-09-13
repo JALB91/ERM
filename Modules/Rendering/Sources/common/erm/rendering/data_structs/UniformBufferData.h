@@ -4,7 +4,7 @@
 #include "erm/rendering/enums/StorageBufferType.h"
 #include "erm/rendering/enums/FrameBufferType.h"
 
-#include <erm/resources/textures/TextureType.h>
+#include <erm/assets/enums/TextureType.h>
 
 #include <variant>
 

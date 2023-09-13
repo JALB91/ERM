@@ -4,7 +4,9 @@
 #include "erm/ecs/systems/RenderingSystem.h"
 #include "erm/ecs/systems/TransformSystem.h"
 
-#include <erm/resources/models/Model.h>
+#include <erm/assets/models/Model.h>
+#include <erm/assets/Assets_Module.h>
+#include <erm/assets/AssetsRepo.h>
 
 #include <erm/utils/Profiler.h>
 
@@ -29,15 +31,16 @@ void ModelSystem::OnPostUpdate()
 	ERM_PROFILE_FUNCTION();
 
 	ForEachComponent([this](ModelComponent& component) {
-		Model* model = component.mModel;
+//		TODO: Damiano
+		Model* model = gAssetsModule.GetAssetsRepo().GetAsset<Model>(component.GetModelID());
 
 		if (!component.IsDirty() && model == nullptr)
 			return;
 
 		if (model)
 		{
-			TransformComponent* transformComponent = mTransformSystem->RequireComponent(component.GetComponentId());
-			component.mWorldBounds = model->GetLocalBounds().Expand(transformComponent->GetWorldTransform());
+//			TransformComponent* transformComponent = mTransformSystem->RequireComponent(component.GetComponentId());
+//			component.mWorldBounds = model->GetLocalBounds().Expand(transformComponent->GetWorldTransform());
 		}
 		else
 		{

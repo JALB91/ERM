@@ -5,7 +5,7 @@
 #include "erm/rendering/buffers/VertexBuffer.h"
 #include "erm/rendering/utils/VkUtils.h"
 
-#include <erm/resources/models/Mesh.h>
+#include <erm/assets/models/Mesh.h>
 
 #include <erm/utils/Utils.h>
 
@@ -19,7 +19,6 @@ GPUModel::GPUModel(Device& device, const Model& model)
 #ifdef ERM_RAY_TRACING_ENABLED
 	, mBlas(device, *this)
 #endif
-	, mIsDirty(false)
 {}
 
 GPUModel::~GPUModel()
@@ -43,12 +42,12 @@ void GPUModel::UpdateBuffers()
 	for (const GPUMesh& gpuMesh : mGPUMeshes)
 	{
 		const Mesh& mesh = gpuMesh.GetMesh();
-		const BufferInfo& vInfo = vLayout.mInfos.emplace_back(vTargetOffset, mesh.GetVerticesData().size() * sizeof(VertexData));
-		const BufferInfo& iInfo = iLayout.mInfos.emplace_back(iTargetOffset, mesh.GetIndicesData().size() * sizeof(IndexData));
+		const BufferInfo& vInfo = vLayout.mInfos.emplace_back(vTargetOffset, mesh.mVerticesData.size() * sizeof(VertexData));
+		const BufferInfo& iInfo = iLayout.mInfos.emplace_back(iTargetOffset, mesh.mIndicesData.size() * sizeof(IndexData));
 
 		vTargetOffset += vInfo.mStride;
 		iTargetOffset += iInfo.mStride;
-		totalIndices += static_cast<uint32_t>(mesh.GetIndicesData().size());
+		totalIndices += static_cast<uint32_t>(mesh.mIndicesData.size());
 	}
 
 	if (!mVerticesBuffer || mVerticesBuffer->GetBufferSize() < vTargetOffset)
@@ -72,8 +71,8 @@ void GPUModel::UpdateBuffers()
 		gpuMesh.SetVertBufferHandle(BufferHandle(mVerticesBuffer->GetBuffer(), vInfo));
 		gpuMesh.SetIndBufferHandle(BufferHandle(mIndicesBuffer->GetBuffer(), iInfo));
 
-		mVerticesBuffer->Update(mesh.GetVerticesData().data(), vInfo);
-		mIndicesBuffer->Update(mesh.GetIndicesData().data(), iInfo);
+		mVerticesBuffer->Update(mesh.mVerticesData.data(), vInfo);
+		mIndicesBuffer->Update(mesh.mIndicesData.data(), iInfo);
 	}
 
 	mVerticesBuffer->SetLayout(std::move(vLayout));

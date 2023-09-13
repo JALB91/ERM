@@ -21,6 +21,6 @@ target_link_libraries(
 	PUBLIC
 		spirv-cross-cpp
 		ERM_Input
-		ERM_Resources
+		ERM_Assets
 		ERM_Utils
 )

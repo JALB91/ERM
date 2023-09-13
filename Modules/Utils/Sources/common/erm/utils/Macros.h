@@ -124,3 +124,54 @@
 	{                                                             \
 		return bit0 == static_cast<NAME>(bit1);                   \
 	}
+
+#define ERM_SENSIBLE_MEMBER_3(NAME, TYPE, DEFAULT) ERM_SENSIBLE_MEMBER_4(NAME, TYPE, DEFAULT, UpdateDirtyMode::NORMAL)
+
+#define ERM_SENSIBLE_MEMBER_2(NAME, TYPE) ERM_SENSIBLE_MEMBER_3(NAME, TYPE, {})
+
+#define ERM_SENSIBLE_MEMBER_MACRO_CHOOSER(...) \
+	ERM_EXPAND(ERM_GET_FIFTH_ARG(__VA_ARGS__, ERM_SENSIBLE_MEMBER_4, ERM_SENSIBLE_MEMBER_3, ERM_SENSIBLE_MEMBER_2, ))
+
+#define ERM_SENSIBLE_MEMBER(...) ERM_EXPAND(ERM_SENSIBLE_MEMBER_MACRO_CHOOSER(__VA_ARGS__)(__VA_ARGS__))
+
+#define ERM_DECLARE_MODULE_BEGIN(NAME) \
+class NAME##Module final               \
+{                                      \
+public:                                \
+	void Init();                       \
+	void Deinit();                     \
+							           \
+	void OnPreUpdate();                \
+	void OnUpdate(float dt);           \
+	void OnPostUpdate();               \
+								       \
+	void OnPreRender();                \
+	void OnRender();                   \
+	void OnPostRender();
+
+#define ERM_STACK_MODULE_OBJECT(NAME)                  \
+public:                                                \
+	NAME m##NAME;                                      \
+													   \
+	NAME& Get##NAME() { return m##NAME; }              \
+	const NAME& Get##NAME() const { return m##NAME; }
+
+#define ERM_UNIQUE_MODULE_OBJECT(NAME)                   \
+public:                                                  \
+	std::unique_ptr<NAME> m##NAME;                       \
+														 \
+	NAME& Get##NAME() { return *m##NAME; }               \
+	const NAME& Get##NAME() const { return *m##NAME; }
+
+#define ERM_SHARED_MODULE_OBJECT(NAME)                   \
+public:                                                  \
+	std::shared_ptr<NAME> m##NAME;                       \
+                                                         \
+	NAME& Get##NAME() { return *m##NAME; }               \
+	const NAME& Get##NAME() const { return *m##NAME; }
+
+#define ERM_DECLARE_MODULE_END(NAME) \
+};                                   \
+                                     \
+extern NAME##Module g##NAME##Module;
+
