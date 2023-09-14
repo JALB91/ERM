@@ -41,7 +41,7 @@ std::vector<std::string> SplitString(std::string_view str, char ch)
 
 std::string ReadFromFile(std::string_view path)
 {
-	std::ifstream stream(path);
+	std::ifstream stream(path.data());
 
 	if (!ERM_EXPECT(stream.is_open(), "Failed to open file"))
 		return "";
@@ -59,7 +59,7 @@ std::string ReadFromFile(std::string_view path)
 
 void WriteToFile(std::string_view path, std::string_view data)
 {
-	std::ofstream stream(path);
+	std::ofstream stream(path.data());
 
 	if (ERM_EXPECT(stream.is_open(), "Failed to open file"))
 		stream.write(data.data(), data.size());

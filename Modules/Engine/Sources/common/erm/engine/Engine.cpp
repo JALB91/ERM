@@ -202,7 +202,7 @@ void Engine::Run()
 			ERM_SIM_FRAME_BEGIN();
 			
 			OnPreUpdate();
-			OnUpdate(ERM_TARGET_SIMULATION_TIME);
+			OnUpdate(static_cast<float>(ERM_TARGET_SIMULATION_TIME));
 			OnPostUpdate();
 			
 			simulationElapsedTime -= ERM_TARGET_SIMULATION_TIME;
