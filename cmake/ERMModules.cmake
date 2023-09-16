@@ -64,19 +64,6 @@ function(erm_target_setup_common_defaults)
 			SPIRV_CROSS_EXCEPTIONS_TO_ASSERTIONS
 			${ERM_TARGET_API_COMPILE_DEF}
 	)
-
-	target_compile_features(
-		"${PROJECT_NAME}"
-		PUBLIC 
-			cxx_std_17
-	)
-
-	set_target_properties(
-		"${PROJECT_NAME}" 
-		PROPERTIES
-			CXX_STANDARD 17
-			CXX_EXTENSIONS OFF
-	)
 endfunction()
 
 function(erm_setup_module_library)
