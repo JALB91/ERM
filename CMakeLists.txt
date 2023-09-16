@@ -32,8 +32,8 @@ project(
 	LANGUAGES CXX
 )
 
-# Setup modules path
-set(ERM_MODULES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Modules/")
+# Setup libs path
+set(ERM_LIBS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/")
 
 # Setup configuration types
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE)
@@ -76,7 +76,7 @@ endif()
 # Setup CMAKE_MODULE_PATH
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(ERMConfig)
-include(ERMModules)
+include(ERMLibs)
 include(SPIRVConfig)
 include(AssimpConfig)
 
@@ -119,5 +119,5 @@ if(ERM_ASSIMP_ENABLED)
 	add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/assimp")
 endif()
 
-# Add modules
-add_subdirectory("${ERM_MODULES_DIR}")
+# Add libs
+add_subdirectory("${ERM_LIBS_DIR}")
