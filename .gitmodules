@@ -22,3 +22,9 @@
 [submodule "externals/tracy"]
 	path = externals/tracy
 	url = https://github.com/wolfpld/tracy.git
+[submodule "externals/json"]
+	path = externals/json
+	url = https://github.com/nlohmann/json.git
+[submodule "externals/magic_enum"]
+	path = externals/magic_enum
+	url = https://github.com/Neargye/magic_enum.git
