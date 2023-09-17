@@ -71,6 +71,20 @@ def main():
         action="store_true",
         dest="tracy_enabled",
         help="Enable tracy")
+    
+    parser.add_argument(
+        "--verbose",
+        default=False,
+        action="store_true",
+        dest="verbose",
+        help="Debug cmake output")
+    
+    parser.add_argument(
+        "--trace",
+        default=False,
+        action="store_true",
+        dest="trace",
+        help="Trace cmake output")
 
     args = parser.parse_args()
 
@@ -108,6 +122,13 @@ def main():
         f"-DERM_TRACY_ENABLED={('ON' if args.tracy_enabled else 'OFF')}"
     ]
 
+    if args.verbose:
+        cmake_args.append("--debug-output")
+    
+    if args.trace:
+        cmake_args.append("--trace")
+    
+
     if (generator):
         cmake_args.append("-G")
         cmake_args.append(generator)
@@ -122,13 +143,26 @@ def main():
     result.check_returncode()
 
     if args.compile:
-        result = subprocess.run(["cmake", "--build", "."], cwd=target_build_path)
+        cmake_args = ["cmake", "--build", "."]
+        if args.verbose:
+            cmake_args.append("--debug-output")
+        
+        if args.trace:
+            cmake_args.append("--trace")
+        
+        result = subprocess.run(cmake_args, cwd=target_build_path)
         result.check_returncode()
 
     if args.open:
-        result = subprocess.run(["cmake", "--open", "."], cwd=target_build_path)
+        cmake_args = ["cmake", "--open", "."]
+        if args.verbose:
+            cmake_args.append("--debug-output")
+        
+        if args.trace:
+            cmake_args.append("--trace")
+        
+        result = subprocess.run(cmake_args, cwd=target_build_path)
         result.check_returncode()
-
 
 if __name__ == "__main__":
     main()

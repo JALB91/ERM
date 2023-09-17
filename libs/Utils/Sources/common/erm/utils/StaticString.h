@@ -28,7 +28,6 @@ public:
 		va_list args;
 		va_start(args, fmt);
 		vsnprintf(mStr, SIZE, fmt.data(), args);
-		perror(mStr);
 		va_end(args);
 	}
 	
@@ -36,6 +35,33 @@ public:
 	{
 		strncpy(mStr, str.data(), std::max(static_cast<u64>(SIZE - 1), str.size()));
 		mStr[std::min(static_cast<u64>(SIZE - 1), str.size())] = '\0';
+		return *this;
+	}
+
+	StaticString& operator=(char c)
+	{
+		static_assert(SIZE > 1);
+		mStr[0] = c;
+		mStr[1] = '\0';
+		return *this;
+	}
+
+	StaticString& operator+=(std::string_view str)
+	{
+		append(str);
+		return *this;
+	}
+
+	StaticString& operator+=(char c)
+	{
+		const u16 currSize = size();
+		if (currSize < SIZE - 1)
+		{
+			mStr[currSize] = c;
+			mStr[currSize + 1] = '\0';
+		}
+
+		return *this;
 	}
 
     operator std::string_view() const
@@ -68,8 +94,12 @@ public:
 		va_list args;
 		va_start(args, fmt);
 		vsnprintf(mStr[size()], SIZE - size(), fmt.data(), args);
-		perror(mStr);
 		va_end(args);
+	}
+
+	void clear()
+	{
+		mStr[0] = '\0';
 	}
 
 	std::string_view substr(u16 from, u16 count) const
