@@ -1,15 +1,16 @@
 #pragma once
 
-#include <cstdint>
+#include <erm/math/Types.h>
+
 #include <type_traits>
 
 namespace erm {
 
 template<typename T>
-constexpr uint32_t AllFlags()
+constexpr u32 AllFlags()
 {
-	uint32_t result = 0;
-	for (uint32_t i = 1; i < static_cast<uint32_t>(T::COUNT); i *= 2)
+	u32 result = 0;
+	for (u32 i = 1; i < static_cast<u32>(T::COUNT); i *= 2)
 	{
 		result |= i;
 	}
@@ -68,32 +69,32 @@ public:
 		return mMask != rhs.mMask;
 	}
 
-	bool operator<(uint32_t rhs) const
+	bool operator<(u32 rhs) const
 	{
 		return mMask < rhs;
 	}
 
-	bool operator<=(uint32_t rhs) const
+	bool operator<=(u32 rhs) const
 	{
 		return mMask <= rhs;
 	}
 
-	bool operator>(uint32_t rhs) const
+	bool operator>(u32 rhs) const
 	{
 		return mMask > rhs;
 	}
 
-	bool operator>=(uint32_t rhs) const
+	bool operator>=(u32 rhs) const
 	{
 		return mMask >= rhs;
 	}
 
-	bool operator==(uint32_t rhs) const
+	bool operator==(u32 rhs) const
 	{
 		return mMask == rhs;
 	}
 
-	bool operator!=(uint32_t rhs) const
+	bool operator!=(u32 rhs) const
 	{
 		return mMask != rhs;
 	}
