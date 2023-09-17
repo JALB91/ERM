@@ -106,7 +106,7 @@ void PipelineResources::UpdateCommandBuffer(vk::CommandBuffer& cmd, RenderData& 
 
 #ifdef ERM_FLIP_VIEWPORT
 	const BoundingBox2D normViewport = mWindow.GetNormalizedViewport();
-	const math::vec2 normViewportSize = normViewport.GetSize();
+	const vec2 normViewportSize = normViewport.GetSize();
 	const vk::Extent2D& extent = mRenderer.GetSwapChainExtent();
 
 	vk::Viewport viewport = {};
@@ -157,7 +157,7 @@ void PipelineResources::UpdateCommandBuffer(vk::CommandBuffer& cmd, RenderData& 
 void PipelineResources::CreatePipeline()
 {
 	const BoundingBox2D normViewport = mWindow.GetNormalizedViewport();
-	const math::vec2 normViewportSize = normViewport.GetSize();
+	const vec2 normViewportSize = normViewport.GetSize();
 	const vk::Extent2D& extent = mRenderer.GetSwapChainExtent();
 
 //	auto* shaderProgram = gAssetsLib.GetAssetsRepo().GetAsset<IShaderProgram>(mPipelineConfigs.mShaderProgram);

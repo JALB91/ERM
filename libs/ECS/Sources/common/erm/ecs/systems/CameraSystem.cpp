@@ -8,8 +8,7 @@
 #include <erm/input/Keys.h>
 #include <erm/input/Mouse.h>
 
-#include <erm/math/quat.h>
-#include <erm/math/vec.h>
+#include <erm/math/Types.h>
 
 #include <erm/utils/Profiler.h>
 
@@ -77,11 +76,11 @@ void CameraSystem::UpdateCameraComponent(CameraComponent& camera, TransformCompo
 	(void)camera;
 	(void)transform;
 	(void)dt;
-//	math::vec3 translation(0.0f);
+//	vec3 translation(0.0f);
 //
 //	if (mWindow.IsMouseButtonDown(MOUSE_BUTTON_1))
 //	{
-//		math::vec3 rotation(
+//		vec3 rotation(
 //			(mWindow.GetPreviousMousePosY() - mWindow.GetMousePosY()),
 //			(mWindow.GetPreviousMousePosX() - mWindow.GetMousePosX()),
 //			0.0f);
@@ -138,13 +137,13 @@ void CameraSystem::UpdateCameraComponent(CameraComponent& camera, TransformCompo
 //
 //	if (translation.x != 0.0f || translation.z != 0.0f || translation.y != 0.0f)
 //	{
-//		const math::vec3& rotation = transform.GetRotation();
-//		math::mat4 rotationMatrix(glm::identity<math::mat4>());
-//		rotationMatrix = glm::rotate(rotationMatrix, rotation.z, math::vec3(0.0f, 0.0f, 1.0f));
-//		rotationMatrix = glm::rotate(rotationMatrix, rotation.y, math::vec3(0.0f, 1.0f, 0.0f));
-//		rotationMatrix = glm::rotate(rotationMatrix, rotation.x, math::vec3(1.0f, 0.0f, 0.0f));
+//		const vec3& rotation = transform.GetRotation();
+//		mat4 rotationMatrix(glm::identity<mat4>());
+//		rotationMatrix = glm::rotate(rotationMatrix, rotation.z, vec3(0.0f, 0.0f, 1.0f));
+//		rotationMatrix = glm::rotate(rotationMatrix, rotation.y, vec3(0.0f, 1.0f, 0.0f));
+//		rotationMatrix = glm::rotate(rotationMatrix, rotation.x, vec3(1.0f, 0.0f, 0.0f));
 //
-//		translation = rotationMatrix * math::vec4(translation, 1.0f);
+//		translation = rotationMatrix * vec4(translation, 1.0f);
 //
 //		transform.SetTranslation(transform.GetTranslation() + translation);
 //	}

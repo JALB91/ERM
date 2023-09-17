@@ -1,6 +1,6 @@
 #pragma once
 
-#include <erm/math/vec.h>
+#include <erm/math/Types.h>
 
 #include <erm/assets/models/VertexTypes.h>
 

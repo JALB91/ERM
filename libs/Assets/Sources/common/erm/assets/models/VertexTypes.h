@@ -1,20 +1,20 @@
 #pragma once
 
-#include "erm/math/vec.h"
+#include "erm/math/Types.h"
 
 #include <glm/glm.hpp>
 
 namespace erm {
 
-typedef float VertexType;
-typedef int IdType;
+using VertexType = float;
+using IdType = u8;
 
-typedef math::vec<3, VertexType> PositionVertex;
-typedef math::vec<3, VertexType> NormalVertex;
-typedef math::vec<2, VertexType> UVVertex;
-typedef math::vec<4, VertexType> BoneWeights;
-typedef math::vec<4, IdType> BoneIds;
-typedef int BoneNum;
-typedef int DebugBoneId;
+using PositionVertex = vec<3, VertexType>;
+using NormalVertex = vec<3, VertexType>;
+using UVVertex = vec<2, VertexType>;
+using BoneWeights = vec<4, VertexType>;
+using BoneIds = vec<4, IdType>;
+using BoneNum = u8;
+using DebugBoneId = u8;
 
 } // namespace erm

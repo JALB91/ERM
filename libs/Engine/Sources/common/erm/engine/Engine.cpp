@@ -13,7 +13,7 @@
 
 #include <erm/audio/AudioManager.h>
 
-#include <erm/math/vec.h>
+#include <erm/math/Types.h>
 
 #include <erm/rendering/Device.h>
 #include <erm/rendering/renderer/Renderer.h>
@@ -119,7 +119,7 @@ bool Engine::Init()
 	auto camera = mECS->GetOrCreateEntity("Camera");
 	camera->AddComponent<ecs::LightComponent>();
 	camera->RequireComponent<ecs::CameraComponent>();
-	camera->RequireComponent<ecs::TransformComponent>()->SetTranslation(math::vec3(0.0f, 1.0f, 10.0f));
+	camera->RequireComponent<ecs::TransformComponent>()->SetTranslation(vec3(0.0f, 1.0f, 10.0f));
 
 	auto root = mECS->GetRoot();
 	root->AddChild(*camera);
@@ -172,7 +172,7 @@ bool Engine::Init()
 		float x = static_cast<float>((std::rand() % dist) - dist / 2);
 		float y = static_cast<float>(std::rand() % 100);
 		float z = static_cast<float>((std::rand() % dist) - dist / 2);
-		tComp->SetTranslation(math::vec3(x, y, z));
+		tComp->SetTranslation(vec3(x, y, z));
 		tComp->SetRotationY(static_cast<float>(M_PI) * (static_cast<float>((rand() % 100)) / 100.0f));
 		root->AddChild(*entity);
 	}

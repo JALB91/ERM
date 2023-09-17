@@ -1,10 +1,10 @@
 #pragma once
 
-#include <cstdint>
+#include <erm/math/Types.h>
 
 namespace erm::ecs {
 
-using ID = uint32_t;
+using ID = u32;
 
 static constexpr ID ROOT_ID = 0;
 static constexpr ID MAX_ID = 1000;

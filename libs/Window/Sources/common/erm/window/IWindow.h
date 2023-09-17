@@ -3,8 +3,8 @@
 #include <erm/input/Keys.h>
 #include <erm/input/Mouse.h>
 
-#include <erm/math/vec.h>
 #include <erm/math/BoundingBox.h>
+#include <erm/math/Types.h>
 
 #include <set>
 
@@ -40,8 +40,8 @@ public:
 	inline double GetPreviousMousePosY() const { return mPrevMousePosY; }
 	inline bool IsMouseButtonDown(MouseButton mouseButton) const { return mPressedButtons.find(mouseButton) != mPressedButtons.end(); }
 
-	inline const math::ivec2& GetFrameBufferSize() const { return mFrameBufferSize; }
-	inline const math::ivec2& GetWindowSize() const { return mWindowSize; }
+	inline const ivec2& GetFrameBufferSize() const { return mFrameBufferSize; }
+	inline const ivec2& GetWindowSize() const { return mWindowSize; }
 	inline int GetWindowWidth() const { return mWindowSize.x; }
 	inline int GetWindowHeight() const { return mWindowSize.y; }
 	inline float GetAspectRatio() const { return mAspectRatio; }
@@ -56,8 +56,8 @@ protected:
 	double mMousePosX, mPrevMousePosX;
 	double mMousePosY, mPrevMousePosY;
 	std::set<MouseButton> mPressedButtons;
-	math::ivec2 mFrameBufferSize;
-	math::ivec2 mWindowSize;
+	ivec2 mFrameBufferSize;
+	ivec2 mWindowSize;
 	BoundingBox2D mViewport;
 	float mAspectRatio;
 	bool mHasFocus;

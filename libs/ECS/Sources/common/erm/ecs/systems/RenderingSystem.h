@@ -3,8 +3,7 @@
 #include "erm/ecs/ISystem.h"
 #include "erm/ecs/components/RenderingComponent.h"
 
-#include <erm/math/mat.h>
-#include <erm/math/vec.h>
+#include <erm/math/Types.h>
 
 namespace erm {
 struct Model;
@@ -41,13 +40,13 @@ public:
 private:
 	struct ComponentRenderData
 	{
-		const math::mat4& mProj;
-		const math::mat4& mView;
-		const math::mat4& mViewInv;
-		const math::mat4& mModelMat;
+		const mat4& mProj;
+		const mat4& mView;
+		const mat4& mViewInv;
+		const mat4& mModelMat;
 		const ecs::LightComponent& mLight;
 		const ecs::CameraComponent& mCamera;
-		const math::vec3& mLightPos;
+		const vec3& mLightPos;
 		const ecs::SkeletonComponent* mSkeletonComponent;
 		const ecs::TransformComponent& mCameraTransform;
 	};

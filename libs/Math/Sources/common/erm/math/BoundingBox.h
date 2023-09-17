@@ -1,7 +1,6 @@
 #pragma once
 
-#include "erm/math/mat.h"
-#include "erm/math/vec.h"
+#include "erm/math/Types.h"
 
 namespace erm {
 
@@ -58,15 +57,15 @@ public:
 	template<typename S>
 	BoundingBox Intersection(const BoundingBox<S>& other) const;
 
-	BoundingBox Expand(const math::mat4& mat) const;
-	BoundingBox Expand(const math::vec3& vec) const;
+	BoundingBox Expand(const mat4& mat) const;
+	BoundingBox Expand(const vec3& vec) const;
 
 public:
 	T mMin;
 	T mMax;
 };
 
-typedef BoundingBox<math::vec3> BoundingBox3D;
-typedef BoundingBox<math::vec2> BoundingBox2D;
+typedef BoundingBox<vec3> BoundingBox3D;
+typedef BoundingBox<vec2> BoundingBox2D;
 
 } // namespace erm

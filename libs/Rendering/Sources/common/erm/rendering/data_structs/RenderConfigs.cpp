@@ -17,10 +17,10 @@ const RenderConfigs RenderConfigs::DEFAULT (
 			ImageLayout::UNDEFINED,
 			ImageLayout::GENERAL)
 	},
-	math::vec4(0.0f, 0.0f, 0.0f, 1.0f)
+	vec4(0.0f, 0.0f, 0.0f, 1.0f)
 );
 
-RenderConfigs::RenderConfigs(SubpassData&& subpassData, math::vec4&& clearColor)
+RenderConfigs::RenderConfigs(SubpassData&& subpassData, vec4&& clearColor)
 	: mSubpassData(std::move(subpassData))
 	, mClearColor(std::move(clearColor))
 {}

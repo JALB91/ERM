@@ -160,6 +160,34 @@ public:
 		}
 	}
 
+	inline void ForEachDo(
+		const std::function<void(const Tree&)>& before,
+		const std::function<void(const Tree&)>& after = nullptr) const
+	{
+		if (before)
+			before(*this);
+		for (const auto& child : mChildren)
+		{
+			child.ForEachDo(before, after);
+		}
+		if (after)
+			after(*this);
+	}
+
+	inline void ForEachChildDo(
+		const std::function<void(const Tree&)>& before,
+		const std::function<void(const Tree&)>& after = nullptr) const
+	{
+		for (const auto& child : mChildren)
+		{
+			if (before)
+				before(*child);
+			child.ForEachChildDo(before, after);
+			if (after)
+				after(*child);
+		}
+	}
+
 	inline Tree* Find(const ID& id)
 	{
 		if (mId == id)

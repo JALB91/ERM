@@ -1,40 +1,38 @@
 #pragma once
 
-#include "erm/math/mat.h"
-#include "erm/math/quat.h"
-#include "erm/math/vec.h"
+#include "erm/math/Types.h"
 
 namespace erm::math {
 
 void DecomposeMatrix(
-	const math::mat4& matrix,
-	math::vec3& translation,
-	math::quat& rotation,
-	math::vec3& scale);
+	const mat4& matrix,
+	vec3& translation,
+	quat& rotation,
+	vec3& scale);
 
 bool VerticesIntersection(
-	const math::vec3& a,
-	const math::vec3& b,
-	const math::vec3& d1,
-	const math::vec3& d2,
-	math::vec3& intersection);
+	const vec3& a,
+	const vec3& b,
+	const vec3& d1,
+	const vec3& d2,
+	vec3& intersection);
 
-template<class integral>
-constexpr bool is_aligned(integral x, size_t a) noexcept
+template<typename Integral>
+constexpr bool IsAligned(Integral x, u64 a) noexcept
 {
-	return (x & (integral(a) - 1)) == 0;
+	return (x & (Integral(a) - 1)) == 0;
 }
 
-template<class integral>
-constexpr integral align_up(integral x, size_t a) noexcept
+template<typename Integral>
+constexpr Integral AlignUp(Integral x, u64 a) noexcept
 {
-	return integral((x + (integral(a) - 1)) & ~integral(a - 1));
+	return Integral((x + (Integral(a) - 1)) & ~Integral(a - 1));
 }
 
-template<class integral>
-constexpr integral align_down(integral x, size_t a) noexcept
+template<typename Integral>
+constexpr Integral AlignDown(Integral x, u64 a) noexcept
 {
-	return integral(x & ~integral(a - 1));
+	return Integral(x & ~Integral(a - 1));
 }
 
 } // namespace erm::math

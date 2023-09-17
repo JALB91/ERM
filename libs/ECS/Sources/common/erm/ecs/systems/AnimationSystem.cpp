@@ -94,7 +94,7 @@ void AnimationSystem::OnPostUpdate()
 				currentPose.mRotation = glm::normalize(glm::slerp(prevPose.mRotation, nextPose.mRotation, progression));
 				currentPose.mScale = glm::mix(prevPose.mScale, nextPose.mScale, progression);
 
-				currentBone.mLocalTransform = glm::translate(glm::identity<math::mat4>(), currentPose.mTranslation);
+				currentBone.mLocalTransform = glm::translate(glm::identity<mat4>(), currentPose.mTranslation);
 				currentBone.mLocalTransform *= glm::mat4_cast(currentPose.mRotation);
 				currentBone.mLocalTransform = glm::scale(currentBone.mLocalTransform, currentPose.mScale);
 			});

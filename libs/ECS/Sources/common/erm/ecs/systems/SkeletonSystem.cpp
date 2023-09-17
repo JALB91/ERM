@@ -35,7 +35,7 @@ void SkeletonSystem::OnPostUpdate()
 			[](BonesTree& node) {
 				BonesTree* parent = node.GetParent();
 				Bone& bone = node.GetPayload();
-				bone.mWorldTransform = parent ? parent->GetPayload().mWorldTransform : glm::identity<math::mat4>();
+				bone.mWorldTransform = parent ? parent->GetPayload().mWorldTransform : glm::identity<mat4>();
 				bone.mWorldTransform *= bone.mLocalTransform;
 				bone.mAnimatedTransform = bone.mWorldTransform * bone.mInverseBindTransform;
 			});

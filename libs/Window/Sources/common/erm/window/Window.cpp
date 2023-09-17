@@ -339,7 +339,7 @@ void Window::UpdateViewport()
 	frameBufferBounds.mMin.y = mFrameBufferSize.y * kImGuiSpaceDown;
 	frameBufferBounds.mMax.x = mFrameBufferSize.x - (mFrameBufferSize.x * kImGuiSpaceRight);
 	frameBufferBounds.mMax.y = mFrameBufferSize.y - (mFrameBufferSize.y * kImGuiSpaceUp);
-	const math::vec2 size = frameBufferBounds.GetSize();
+	const vec2 size = frameBufferBounds.GetSize();
 
 	GL_CALL(glViewport(
 		static_cast<int>(frameBufferBounds.mMin.x),
@@ -351,7 +351,7 @@ void Window::UpdateViewport()
 
 void Window::UpdateAspectRatio()
 {
-	const math::vec2 size = mViewport.GetSize();
+	const vec2 size = mViewport.GetSize();
 	if (size.y > 0.0f)
 	{
 		mAspectRatio = size.x / size.y;

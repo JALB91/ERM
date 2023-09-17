@@ -136,7 +136,7 @@ namespace erm::ecs {
 //static void ProcessForRayTracing(
 //	Model& model,
 //	RenderingComponent& renderingComponent,
-//	const math::mat4& modelMat,
+//	const mat4& modelMat,
 //	vk::CommandBuffer& cmd)
 //{
 //	ERM_PROFILE_FUNCTION();
@@ -252,7 +252,7 @@ namespace erm::ecs {
 //				{
 //					auto& ubo = data.GetUbo<UboView>();
 //					if (TransformComponent* pComponent = GetParentComponent<TransformComponent>(mCachedCameraId))
-//						ubo.mPosition = pComponent->GetWorldTransform() * math::vec4(crd.mCameraTransform.GetTranslation(), 1.0f);
+//						ubo.mPosition = pComponent->GetWorldTransform() * vec4(crd.mCameraTransform.GetTranslation(), 1.0f);
 //					else
 //						ubo.mPosition = crd.mCameraTransform.GetTranslation();
 //					break;
@@ -323,7 +323,7 @@ void RenderingSystem::OnPreRender()
 //	TransformComponent* cameraTransform = nullptr;
 //	CameraComponent* camera = nullptr;
 //	LightComponent* light = nullptr;
-	math::vec3 lightPos = math::vec3(0.0f);
+	vec3 lightPos = vec3(0.0f);
 
 	UpdateComponentID<CameraComponent>(mCachedCameraId, *mCameraSystem);
 	UpdateComponentID<LightComponent>(mCachedLightId, *mLightSystem);
@@ -337,13 +337,13 @@ void RenderingSystem::OnPreRender()
 //	light = mLightSystem->GetComponent(mCachedLightId);
 	TransformComponent* lTransform = mTransformSystem->GetComponent(mCachedLightId);
 	if (TransformComponent* pComponent = GetParentComponent<TransformComponent>(mECS, mCachedLightId))
-		lightPos = pComponent->GetWorldTransform() * math::vec4(lTransform->GetTranslation(), 1.0f);
+		lightPos = pComponent->GetWorldTransform() * vec4(lTransform->GetTranslation(), 1.0f);
 	else
 		lightPos = lTransform->GetTranslation();
 
-//	const math::mat4& proj = camera->GetProjectionMatrix();
-//	const math::mat4& view = cameraTransform->GetWorldTransform();
-//	const math::mat4 viewInv = glm::inverse(view);
+//	const mat4& proj = camera->GetProjectionMatrix();
+//	const mat4& view = cameraTransform->GetWorldTransform();
+//	const mat4 viewInv = glm::inverse(view);
 
 #ifdef ERM_RAY_TRACING_ENABLED
 	auto cmd = VkUtils::BeginSingleTimeCommands(mDevice);
@@ -363,7 +363,7 @@ void RenderingSystem::OnPreRender()
 //		SkeletonComponent* skeletonComponent = mSkeletonSystem->GetComponent(component.GetComponentId());
 
 //		const TransformComponent* modelTransform = mTransformSystem->GetComponent(component.GetComponentId());
-//		const math::mat4& modelMat = modelTransform->GetWorldTransform();
+//		const mat4& modelMat = modelTransform->GetWorldTransform();
 
 //		const ComponentRenderData componentRenderData = {
 //			proj,

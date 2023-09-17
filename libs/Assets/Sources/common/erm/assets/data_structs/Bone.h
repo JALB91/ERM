@@ -1,6 +1,6 @@
 #pragma once
 
-#include <erm/math/mat.h>
+#include <erm/math/Types.h>
 
 #include <erm/utils/StringID.h>
 #include <erm/utils/Tree.h>
@@ -11,29 +11,29 @@
 
 namespace erm {
 
-using BoneID = unsigned int;
+using BoneID = u16;
 
 static constexpr BoneID MAX_BONES = 256;
 
 struct Bone
 {
 	Bone(
-		const math::mat4& bindTransform,
-		const math::mat4& inverseBindTransform,
+		const mat4& bindTransform,
+		const mat4& inverseBindTransform,
 		std::string_view name)
 		: mBindTransform(bindTransform)
 		, mInverseBindTransform(inverseBindTransform)
-		, mAnimatedTransform(glm::identity<math::mat4>())
+		, mAnimatedTransform(glm::identity<mat4>())
 		, mLocalTransform(bindTransform)
-		, mWorldTransform(glm::identity<math::mat4>())
+		, mWorldTransform(glm::identity<mat4>())
 		, mName(name)
 	{}
 
-	math::mat4 mBindTransform;
-	math::mat4 mInverseBindTransform;
-	math::mat4 mAnimatedTransform;
-	math::mat4 mLocalTransform;
-	math::mat4 mWorldTransform;
+	mat4 mBindTransform;
+	mat4 mInverseBindTransform;
+	mat4 mAnimatedTransform;
+	mat4 mLocalTransform;
+	mat4 mWorldTransform;
 	StringID mName;
 };
 

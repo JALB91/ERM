@@ -38,8 +38,8 @@ void TransformSystem::UpdateDirtyRecursive(EntityId id)
 
 	if (transform->IsDirty())
 	{
-		transform->mWorldTransform = glm::identity<math::mat4>();
-		transform->mLocalTransform = glm::identity<math::mat4>();
+		transform->mWorldTransform = glm::identity<mat4>();
+		transform->mLocalTransform = glm::identity<mat4>();
 
 		EntityId parent = entity->GetParent();
 
@@ -52,9 +52,9 @@ void TransformSystem::UpdateDirtyRecursive(EntityId id)
 		}
 
 		transform->mLocalTransform = glm::translate(transform->mLocalTransform, transform->mTranslation);
-		transform->mLocalTransform = glm::rotate(transform->mLocalTransform, transform->mRotation.z, math::vec3(0.0f, 0.0f, 1.0f));
-		transform->mLocalTransform = glm::rotate(transform->mLocalTransform, transform->mRotation.y, math::vec3(0.0f, 1.0f, 0.0f));
-		transform->mLocalTransform = glm::rotate(transform->mLocalTransform, transform->mRotation.x, math::vec3(1.0f, 0.0f, 0.0f));
+		transform->mLocalTransform = glm::rotate(transform->mLocalTransform, transform->mRotation.z, vec3(0.0f, 0.0f, 1.0f));
+		transform->mLocalTransform = glm::rotate(transform->mLocalTransform, transform->mRotation.y, vec3(0.0f, 1.0f, 0.0f));
+		transform->mLocalTransform = glm::rotate(transform->mLocalTransform, transform->mRotation.x, vec3(1.0f, 0.0f, 0.0f));
 		transform->mLocalTransform = glm::scale(transform->mLocalTransform, transform->mScale);
 
 		transform->mWorldTransform *= transform->mLocalTransform;

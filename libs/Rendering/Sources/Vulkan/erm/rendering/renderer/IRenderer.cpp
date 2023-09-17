@@ -118,7 +118,7 @@ void IRenderer::CleanupSwapChain()
 
 void IRenderer::CreateSwapChain()
 {
-	const math::ivec2& frameBufferSize = mWindow.GetFrameBufferSize();
+	const ivec2& frameBufferSize = mWindow.GetFrameBufferSize();
 
 	SwapChainSupportDetails swapChainSupport = VkUtils::QuerySwapChainSupport(mDevice.GetVkPhysicalDevice(), mDevice.GetVkSurface());
 	QueueFamilyIndices indices = VkUtils::FindQueueFamilies(mDevice.GetVkPhysicalDevice(), mDevice.GetVkSurface());

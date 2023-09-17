@@ -250,7 +250,7 @@ void RTPipelineResources::CreateBindingTable()
 
 	uint32_t groupHandleSize = rtProps.shaderGroupHandleSize; // Size of a program identifier
 	// Compute the actual size needed per SBT entry (round-up to alignment needed).
-	uint32_t groupSizeAligned = math::align_up(groupHandleSize, rtProps.shaderGroupBaseAlignment);
+	uint32_t groupSizeAligned = math::AlignUp(groupHandleSize, rtProps.shaderGroupBaseAlignment);
 	// Bytes needed for the SBT.
 	uint32_t sbtSize = groupCount * groupSizeAligned;
 

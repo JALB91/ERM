@@ -3,8 +3,7 @@
 #include "erm/ecs/Component.h"
 #include "erm/ecs/EntityId.h"
 
-#include "erm/math/mat.h"
-#include "erm/math/vec.h"
+#include <erm/math/Types.h>
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -19,12 +18,12 @@ struct TransformComponent
 	ERM_COMPONENT_DECL(Transform)
 
 public:
-	inline const math::mat4& GetWorldTransform() const { return mWorldTransform; };
-	inline const math::mat4& GetLocalTransform() const { return mLocalTransform; };
+	inline const mat4& GetWorldTransform() const { return mWorldTransform; };
+	inline const mat4& GetLocalTransform() const { return mLocalTransform; };
 
-	ERM_SENSIBLE_MEMBER(Translation, math::vec3, math::vec3(0.0f), UpdateDirtyMode::RECURSIVE);
-	ERM_SENSIBLE_MEMBER(Rotation, math::vec3, math::vec3(0.0f), UpdateDirtyMode::RECURSIVE);
-	ERM_SENSIBLE_MEMBER(Scale, math::vec3, math::vec3(1.0f), UpdateDirtyMode::RECURSIVE);
+	ERM_SENSIBLE_MEMBER(Translation, vec3, vec3(0.0f), UpdateDirtyMode::RECURSIVE);
+	ERM_SENSIBLE_MEMBER(Rotation, vec3, vec3(0.0f), UpdateDirtyMode::RECURSIVE);
+	ERM_SENSIBLE_MEMBER(Scale, vec3, vec3(1.0f), UpdateDirtyMode::RECURSIVE);
 
 	inline void SetTranslationX(float x)
 	{
@@ -99,8 +98,8 @@ public:
 	}
 
 private:
-	math::mat4 mWorldTransform = glm::identity<math::mat4>();
-	math::mat4 mLocalTransform = glm::identity<math::mat4>();
+	mat4 mWorldTransform = glm::identity<mat4>();
+	mat4 mLocalTransform = glm::identity<mat4>();
 };
 
 } // namespace erm::ecs

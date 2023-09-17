@@ -1,14 +1,12 @@
-#include "erm/math/math.h"
-
-#include "erm/math/mat.h"
+#include "erm/math/Math.h"
 
 namespace erm::math {
 
 void DecomposeMatrix(
-	const math::mat4& matrix,
-	math::vec3& translation,
-	math::quat& rotation,
-	math::vec3& scale)
+	const mat4& matrix,
+	vec3& translation,
+	quat& rotation,
+	vec3& scale)
 {
 	translation.x = matrix[3][0];
 	translation.y = matrix[3][1];
@@ -22,11 +20,11 @@ void DecomposeMatrix(
 }
 
 bool VerticesIntersection(
-	const math::vec3& a,
-	const math::vec3& b,
-	const math::vec3& d1,
-	const math::vec3& d2,
-	math::vec3& intersection)
+	const vec3& a,
+	const vec3& b,
+	const vec3& d1,
+	const vec3& d2,
+	vec3& intersection)
 {
 	mat2 m1;
 	m1[0][0] = a.x - b.x;

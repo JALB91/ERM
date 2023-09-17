@@ -4,7 +4,7 @@
 
 #include <erm/utils/StringID.h>
 
-#include <erm/math/vec.h>
+#include <erm/math/Types.h>
 
 #include <unordered_map>
 
@@ -19,7 +19,7 @@ struct PBMaterial
 	{}
 
 	std::unordered_map<TextureType, StringID> mTexturesMap;
-	math::vec3 mAlbedo;
+	vec3 mAlbedo;
 	float mMetallic;
 	float mRoughness;
 	float mAO;

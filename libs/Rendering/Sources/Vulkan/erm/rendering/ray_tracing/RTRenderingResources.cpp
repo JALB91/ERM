@@ -50,7 +50,7 @@ void RTRenderingResources::UpdateCommandBuffer(vk::CommandBuffer& cmd, RTRenderD
 	const vk::PhysicalDeviceRayTracingPipelinePropertiesKHR& rtProps = mDevice.GetRayTracingProperties();
 
 	// Size of a program identifier
-	uint32_t groupSize = math::align_up(rtProps.shaderGroupHandleSize, rtProps.shaderGroupBaseAlignment);
+	uint32_t groupSize = math::AlignUp(rtProps.shaderGroupHandleSize, rtProps.shaderGroupBaseAlignment);
 	uint32_t groupStride = groupSize;
 	vk::DeviceAddress sbtAddress = mDevice->getBufferAddress({mPipelineResources->GetSBTBuffer()});
 

@@ -2,7 +2,7 @@
 
 #include "erm/assets/enums/TextureType.h"
 
-#include <erm/math/vec.h>
+#include <erm/math/Types.h>
 
 #include <erm/utils/StringID.h>
 
@@ -17,9 +17,9 @@ struct Material
 	{}
 	
 	std::unordered_map<TextureType, StringID> mTexturesMaps;
-	math::vec3 mAmbient;
-	math::vec3 mDiffuse;
-	math::vec3 mSpecular;
+	vec3 mAmbient;
+	vec3 mDiffuse;
+	vec3 mSpecular;
 	float mShininess;
 };
 
