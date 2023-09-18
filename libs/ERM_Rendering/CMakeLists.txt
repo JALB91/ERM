@@ -1,11 +1,4 @@
-project(
-	"ERM_Rendering"
-	VERSION 0.0.1
-	DESCRIPTION "ERM Rendering lib"
-	LANGUAGES CXX
-)
-
-erm_setup_library()
+erm_library_project(0.0.1 "ERM Rendering lib")
 
 target_compile_definitions(
 	"${PROJECT_NAME}"

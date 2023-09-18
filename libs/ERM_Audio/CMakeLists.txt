@@ -1,11 +1,4 @@
-project(
-	"ERM_Audio"
-	VERSION 0.0.1
-	DESCRIPTION "ERM Audio lib"
-	LANGUAGES CXX
-)
-
-erm_setup_library()
+erm_library_project(0.0.1 "ERM Audio lib")
 
 target_compile_definitions(
 	"${PROJECT_NAME}"

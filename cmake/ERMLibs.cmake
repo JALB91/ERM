@@ -1,51 +1,128 @@
-function(erm_create_groups SRCS)
-	foreach(FILE ${SRCS})
-		# Get the directory of the source file
-		get_filename_component(PARENT_DIR "${FILE}" DIRECTORY)
+function(erm_get_group_for_file FILE)
+	get_filename_component(PARENT_DIR "${FILE}" DIRECTORY)
+	get_filename_component(EXTENSION "${FILE}" LAST_EXT)
 
-		# Remove common directory prefix to make the group
-		string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}" "" GROUP "${PARENT_DIR}")
-		string(REPLACE "/include/" "" GROUP "${GROUP}")
-		string(REPLACE "/src/" "erm" GROUP "${GROUP}")
-		string(REPLACE "common" "" GROUP "${GROUP}")
-		string(REPLACE "${ERM_TARGET_API}" "" GROUP "${GROUP}")
-		string(REPLACE "/" "\\" GROUP "${GROUP}")
+	string(REGEX REPLACE ".*/common/" "" GROUP "${PARENT_DIR}")
+	string(REGEX REPLACE ".*/${ERM_TARGET_API}/" "" GROUP "${GROUP}")
 
+	string(FIND ${FILE} "generated" IS_GENERATED)
+
+	if(IS_GENERATED GREATER_EQUAL 0)
+		set(GROUP "Generated/${GROUP}")
+	elseif(EXTENSION STREQUAL ".h" OR EXTENSION STREQUAL ".cpp" OR EXTENSION STREQUAL ".hpp")
+		set(GROUP "Sources/${GROUP}")
+	else()
+		set(GROUP "Data/${GROUP}")
+	endif()
+
+	set(GROUP "${GROUP}" PARENT_SCOPE)
+endfunction()
+
+function(erm_create_groups SOURCES)
+	foreach(FILE ${SOURCES})
+		erm_get_group_for_file("${FILE}")
 		source_group("${GROUP}" FILES "${FILE}")
 	endforeach()
 endfunction()
 
-function(erm_gather_sources)
-	file(GLOB_RECURSE SOURCES
-		"${CMAKE_CURRENT_SOURCE_DIR}/Sources/common/*.h"
-		"${CMAKE_CURRENT_SOURCE_DIR}/Sources/${ERM_TARGET_API}/*.h"
-		"${CMAKE_CURRENT_SOURCE_DIR}/Sources/common/*.cpp"
-		"${CMAKE_CURRENT_SOURCE_DIR}/Sources/${ERM_TARGET_API}/*.cpp"
+function(erm_gather_sources DIR)
+	# Clear eventual cached data
+	set(NN_STATEMENTS "")
+	set(CPP_SOURCES "")
+	set(NN_GEN_FILES "")
+	set(NN_DATA "")
+	set(ALL_SOURCES "")
+
+	# Gather header and source files
+	file(GLOB_RECURSE CPP_SOURCES
+		"${DIR}/Sources/common/*.h"
+		"${DIR}/Sources/${ERM_TARGET_API}/*.h"
+		"${DIR}/Sources/common/*.cpp"
+		"${DIR}/Sources/${ERM_TARGET_API}/*.cpp"
 	)
 
+	# Gather nn data files
+	file(GLOB_RECURSE NN_DATA
+		"${DIR}/NN_Data/common/*.nn"
+		"${DIR}/NN_Data/${ERM_TARGET_API}/*.nn"
+	)
+
+	# Gather nn statement files
+	file(GLOB_RECURSE NN_STATEMENTS
+		"${DIR}/NN_Data/common/*.nns"
+		"${DIR}/NN_Data/${ERM_TARGET_API}/*.nns"
+	)
+
+	# Remove raytracing files if not enabled
 	if(NOT ERM_RAY_TRACING_ENABLED)
-		list(FILTER SOURCES EXCLUDE REGEX ".*/ray_tracing/.*")
+		list(FILTER CPP_SOURCES EXCLUDE REGEX ".*/ray_tracing/.*")
+		list(FILTER NN_DATA EXCLUDE REGEX ".*/ray_tracing/.*")
+		list(FILTER NN_STATEMENTS EXCLUDE REGEX ".*/ray_tracing/.*")
 	endif()
-	erm_create_groups("${SOURCES}")
-	set(SOURCES "${SOURCES}" PARENT_SCOPE)
+
+	# Gather generated files
+	foreach(FILE ${NN_DATA})
+		string(REGEX REPLACE ".*/${PROJECT_NAME}/" "${ERM_GENERATED_DIR}/${PROJECT_NAME}/" FILE "${FILE}")
+		string(REPLACE "/NN_Data" "" FILE "${FILE}")
+		string(REPLACE ".nn" ".h" NN_GEN_HEADER "${FILE}")
+		string(REPLACE ".nn" ".cpp" NN_GEN_SOURCE "${FILE}")
+
+		list(APPEND NN_GEN_FILES ${NN_GEN_HEADER} ${NN_GEN_SOURCE})
+	endforeach()
+
+	list(APPEND ALL_SOURCES ${CPP_SOURCES} ${NN_DATA} ${NN_STATEMENTS} ${NN_GEN_FILES})
+	
+	set(CPP_SOURCES ${CPP_SOURCES} PARENT_SCOPE)
+	set(NN_DATA ${NN_DATA} PARENT_SCOPE)
+	set(NN_GEN_FILES ${NN_GEN_FILES} PARENT_SCOPE)
+	set(NN_STATEMENTS ${NN_STATEMENTS} PARENT_SCOPE)
+	set(ALL_SOURCES ${ALL_SOURCES} PARENT_SCOPE)
+endfunction()
+
+function(erm_setup_custom_commands)
+	if(NN_DATA)
+		foreach(FILE ${NN_DATA})
+			string(REGEX REPLACE ".*/NN_Data/" "${ERM_GENERATED_DIR}/${PROJECT_NAME}/" NN_OUTPUT_DIR "${FILE}")
+			get_filename_component(NN_OUTPUT_DIR "${NN_OUTPUT_DIR}" DIRECTORY)
+			get_filename_component(NN_OUTPUT_FILE_NAME "${FILE}" NAME_WE)
+			
+			set(NN_OUTPUT_HEADER "${NN_OUTPUT_DIR}/${NN_OUTPUT_FILE_NAME}.h")
+			set(NN_OUTPUT_SOURCE "${NN_OUTPUT_DIR}/${NN_OUTPUT_FILE_NAME}.cpp")
+
+			set(NN_GENERATE_COMMAND "${CMAKE_INSTALL_PREFIX}/bin/$<CONFIG>/$<TARGET_FILE_NAME:ERM_NN>")
+
+			if(NN_ALL_STATEMENTS)
+				list(APPEND NN_GENERATE_ARGS --statements ${NN_ALL_STATEMENTS})
+			endif()
+			
+			list(APPEND NN_GENERATE_ARGS --data ${FILE} --output ${NN_OUTPUT_DIR})
+
+			add_custom_command(
+				OUTPUT ${NN_OUTPUT_HEADER} ${NN_OUTPUT_SOURCE}
+				COMMAND ${NN_GENERATE_COMMAND} ${NN_GENERATE_ARGS}
+				DEPENDS ${FILE}
+			)
+		endforeach()
+	endif()
 endfunction()
 
 function(erm_add_library)
-	add_library("${PROJECT_NAME}" "${SOURCES}")
+	add_library("${PROJECT_NAME}" ${ALL_SOURCES})
 endfunction()
 
 function(erm_add_executable)
-	add_executable("${PROJECT_NAME}" "${SOURCES}")
+	add_executable("${PROJECT_NAME}" ${ALL_SOURCES})
 endfunction()
 
 function(erm_target_setup_common_defaults)
 	target_include_directories(
 		"${PROJECT_NAME}"
 		PRIVATE
-			"${ERM_TARGET_API_INCLUDE_DIR}"
+			${ERM_TARGET_API_INCLUDE_DIR}
 		PUBLIC
-			"${CMAKE_CURRENT_SOURCE_DIR}/Sources/common/"
-			"${CMAKE_CURRENT_SOURCE_DIR}/Sources/${ERM_TARGET_API}/"
+			"${ERM_GENERATED_DIR}/${PROJECT_NAME}"
+			"${CMAKE_CURRENT_SOURCE_DIR}/Sources/common"
+			"${CMAKE_CURRENT_SOURCE_DIR}/Sources/${ERM_TARGET_API}"
 	)
 
 	target_compile_definitions(
@@ -64,26 +141,55 @@ function(erm_target_setup_common_defaults)
 			SPIRV_CROSS_EXCEPTIONS_TO_ASSERTIONS
 			${ERM_TARGET_API_COMPILE_DEF}
 	)
+
+	set_target_properties(
+		"${PROJECT_NAME}"
+		PROPERTIES 
+			NN_DATA "${NN_DATA}"
+			NN_GEN_FILES "${NN_GEN_FILES}"
+	)
+
+	if(NN_DATA)
+		add_dependencies("${PROJECT_NAME}" ERM_NN)
+	endif()
 endfunction()
 
 function(erm_setup_library)
-    erm_gather_sources()
-    erm_add_library()
-    erm_target_setup_project()
-    erm_target_setup_common_defaults()
+	erm_gather_sources("${CMAKE_CURRENT_SOURCE_DIR}")
+	erm_create_groups("${ALL_SOURCES}")
+	erm_setup_custom_commands()
+	erm_add_library()
+	erm_target_setup_project()
+	erm_target_setup_common_defaults()
 endfunction()
 
 function(erm_setup_executable)
-    erm_gather_sources()
-    erm_add_executable()
-    erm_target_setup_project()
-    erm_target_setup_common_defaults()
-
-	if(ERM_WINDOWS)
-		# Copy DLLs
-		add_custom_command(TARGET "${PROJECT_NAME}" POST_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}> $<TARGET_FILE_DIR:${PROJECT_NAME}>
-			COMMAND_EXPAND_LISTS
-		)
-	endif()
+	erm_gather_sources("${CMAKE_CURRENT_SOURCE_DIR}")
+	erm_create_groups("${ALL_SOURCES}")
+	erm_setup_custom_commands()
+	erm_add_executable()
+	erm_target_setup_project()
+	erm_target_setup_common_defaults()
 endfunction()
+
+macro(erm_library_project VERSION DESCRIPTION)
+	get_filename_component(DIR_NAME "${CMAKE_CURRENT_SOURCE_DIR}" NAME)
+	project(
+		"${DIR_NAME}"
+		VERSION ${VERSION}
+		DESCRIPTION "${DESCRIPTION}"
+		LANGUAGES CXX
+	)
+	erm_setup_library()
+endmacro()
+
+macro(erm_executable_project VERSION DESCRIPTION)
+	get_filename_component(DIR_NAME "${CMAKE_CURRENT_SOURCE_DIR}" NAME)
+	project(
+		"${DIR_NAME}"
+		VERSION ${VERSION}
+		DESCRIPTION "${DESCRIPTION}"
+		LANGUAGES CXX
+	)
+	erm_setup_executable()
+endmacro()

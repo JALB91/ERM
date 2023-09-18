@@ -1,4 +1,4 @@
-erm_library_project(0.0.1 "ERM Math lib")
+erm_executable_project(0.0.1 "ERM NN lib")
 
 target_compile_definitions(
 	"${PROJECT_NAME}"
@@ -10,4 +10,8 @@ target_link_libraries(
 	"${PROJECT_NAME}"
 	PUBLIC 
         glm
+		nlohmann_json
+		magic_enum
+		ERM_Utils
+		ERM_Math
 )

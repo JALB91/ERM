@@ -1,11 +1,4 @@
-project(
-	"ERM_Input"
-	VERSION 0.0.1
-	DESCRIPTION "ERM Input lib"
-	LANGUAGES CXX
-)
-
-erm_setup_library()
+erm_library_project(0.0.1 "ERM Input lib")
 
 target_compile_definitions(
 	"${PROJECT_NAME}"

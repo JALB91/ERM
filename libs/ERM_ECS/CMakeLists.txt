@@ -1,11 +1,4 @@
-project(
-	"ERM_ECS"
-	VERSION 0.0.1
-	DESCRIPTION "ERM Entity Component System"
-	LANGUAGES CXX
-)
-
-erm_setup_library()
+erm_library_project(0.0.1 "ERM Entity Component System")
 
 target_compile_definitions(
 	"${PROJECT_NAME}"

@@ -30,6 +30,13 @@ public:
 		vsnprintf(mStr, SIZE, fmt.data(), args);
 		va_end(args);
 	}
+
+	StaticString& operator=(const char* str)
+	{
+		strncpy(mStr, str, std::max(static_cast<u64>(SIZE - 1), strlen(str)));
+		mStr[std::min(static_cast<u64>(SIZE - 1), strlen(str))] = '\0';
+		return *this;
+	}
 	
     StaticString& operator=(std::string_view str)
 	{
