@@ -172,6 +172,8 @@ function(erm_setup_executable)
 	erm_target_setup_common_defaults()
 endfunction()
 
+# Using a macro in order to inherit the PROJECT_NAME variable
+# from the calling site
 macro(erm_library_project VERSION DESCRIPTION)
 	get_filename_component(DIR_NAME "${CMAKE_CURRENT_SOURCE_DIR}" NAME)
 	project(
@@ -183,6 +185,8 @@ macro(erm_library_project VERSION DESCRIPTION)
 	erm_setup_library()
 endmacro()
 
+# Using a macro in order to inherit the PROJECT_NAME variable
+# from the calling site
 macro(erm_executable_project VERSION DESCRIPTION)
 	get_filename_component(DIR_NAME "${CMAKE_CURRENT_SOURCE_DIR}" NAME)
 	project(

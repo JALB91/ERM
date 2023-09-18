@@ -4,28 +4,49 @@
 
 ---
 
-The common structure of an *ERM Lib* is as follow:
+## Project structure
+
+The common structure of an *ERM Lib* is as follow (**!!! NAMING IS IMPORTANT !!!**):
 
 ```
 <NAME>
-│   CMakeLists.txt 
+│    CMakeLists.txt 
+│    ...
 │
-└───Sources
-    │
-    └───<TARGET_API>
-    │   │
-    │   │   ...
-    │
-    └───common
-        │
-        │   ...
+└─── Sources
+│   │
+│   └─── <TARGET_API>
+│   │   │    <file>.h/.cpp
+│   │   │    ...
+│   │
+│   └─── common
+│       │    <file>.h/.cpp
+│       │    ...
+│
+└─── NN_Data
+│   │
+│   └─── <TARGET_API>
+│   │   │    <file>.nn/.nns
+│   │   │    ...
+│   │
+│   └─── common
+│       │    <file>.nn/.nns
+│       │    ...
 ```
 
 ## CMakeLists.txt
 
-There are two `cmake` helper functions to setup your project, they both will gather the sources based on the `TARGET_API` (see the available options in https://github.com/JALB91/ERM/blob/master/README.md), create a library/executable (based on which method you will call), set common C++ options and compile definitions, they are called:
+There are two cmake helper macros available to setup your project, they will will gather sources based on the `ERM_TARGET_API` (see the available options [here](https://github.com/JALB91/ERM/blob/master/README.md)), create a library/executable (based on which method you call), set common C++ options, properties and definitions, they are called respectively:
 
-- `erm_setup_library()`
-- `erm_setup_executable()`
+- `erm_library_project(VERSION DESCRIPTION)`
+- `erm_executable_project(VERSION DESCRIPTION)`
+
+They will internally call the cmake command `project` so from there you will be able to access the `PROJECT_NAME` variable as usual.
 
 After that you can finish to manually setup your project (i.e. linking with other libraries).
+
+## Sources
+
+Simply contains your source files (.h/.cpp).
+
+## NN_Data (WIP)
