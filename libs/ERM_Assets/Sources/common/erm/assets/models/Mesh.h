@@ -17,15 +17,15 @@ struct Mesh
 		: mVerticesData(std::move(verticesData))
 		, mIndicesData(std::move(indicesData))
 	{
-		UpdateLocalBounds();
+		updateLocalBounds();
 	}
 	
-	void UpdateLocalBounds()
+	void updateLocalBounds()
 	{
-		for (const VertexData& data : mVerticesData)
+		for (const auto& data : mVerticesData)
 		{
-			const PositionVertex& vertex = data.mPositionVertex;
-			mLocalBounds = mLocalBounds.Expand(vertex);
+			const auto& vertex = data.mPositionVertex;
+			mLocalBounds = mLocalBounds.expand(vertex);
 		}
 	}
 	

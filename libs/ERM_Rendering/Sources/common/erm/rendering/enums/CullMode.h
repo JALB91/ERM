@@ -1,8 +1,10 @@
 #pragma once
 
+#include <erm/math/Types.h>
+
 namespace erm {
 
-enum class CullMode : short
+enum class CullMode : u8
 {
 	NONE,
 	FRONT,

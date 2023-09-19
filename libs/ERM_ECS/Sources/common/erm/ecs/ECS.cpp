@@ -16,88 +16,90 @@ namespace erm::ecs {
 ECS::ECS() = default;
 ECS::~ECS() = default;
 
-void ECS::Init()
+void ECS::init()
 {
-	AddSystem<TransformSystem>();
-	AddSystem<CameraSystem>();
-	AddSystem<RenderingSystem>();
-	AddSystem<SkeletonSystem>();
-	AddSystem<AnimationSystem>();
-	AddSystem<LightSystem>();
-	AddSystem<ModelSystem>();
+	addSystem<TransformSystem>();
+	addSystem<CameraSystem>();
+	addSystem<RenderingSystem>();
+	addSystem<SkeletonSystem>();
+	addSystem<AnimationSystem>();
+	addSystem<LightSystem>();
+	addSystem<ModelSystem>();
 
-	ForEachSystem([](auto& system) {
-		system.Init();
+	forEachSystem([](auto& system) {
+		system.init();
 	});
 
 	mEntities[ROOT_ID].reset(new Entity(*this, ROOT_ID, "Root"));
-	mEntities[ROOT_ID]->AddComponent<TransformComponent>();
+	mEntities[ROOT_ID]->addComponent<TransformComponent>();
 }
 
-void ECS::OnPreUpdate()
+void ECS::preUpdate()
 {
 	ERM_PROFILE_FUNCTION();
 
-	ForEachSystem([](auto& system) {
-		system.OnPreUpdate();
+	forEachSystem([](auto& system) {
+		system.preUpdate();
 	});
 }
 
-void ECS::OnUpdate(float dt)
+void ECS::update(float dt)
 {
 	ERM_PROFILE_FUNCTION();
 
-	ForEachSystem([dt](auto& system) {
-		system.OnUpdate(dt);
+	forEachSystem([dt](auto& system) {
+		system.update(dt);
 	});
 }
 
-void ECS::OnPostUpdate()
+void ECS::postUpdate()
 {
 	ERM_PROFILE_FUNCTION();
 
-	ForEachSystem([](auto& system) {
-		system.OnPostUpdate();
+	forEachSystem([](auto& system) {
+		system.postUpdate();
 	});
 }
 
-void ECS::OnPreRender()
+void ECS::preRender()
 {
 	ERM_PROFILE_FUNCTION();
 
-	ForEachSystem([](auto& system) {
-		system.OnPreRender();
+	forEachSystem([](auto& system) {
+		system.preRender();
 	});
 }
 
-void ECS::OnRender()
+void ECS::render()
 {
 	ERM_PROFILE_FUNCTION();
 
-	ForEachSystem([](auto& system) {
-		system.OnRender();
+	forEachSystem([](auto& system) {
+		system.render();
 	});
 }
 
-void ECS::OnPostRender()
+void ECS::postRender()
 {
 	ERM_PROFILE_FUNCTION();
 
-	ForEachSystem([](auto& system) {
-		system.OnPostRender();
+	forEachSystem([](auto& system) {
+		system.postRender();
 	});
 }
 
-void ECS::RemoveEntity(EntityId id)
+void ECS::removeEntity(EntityId id)
 {
-	if (Entity* entity = GetEntityById(id))
+	auto* entity = getEntityById(id);
+	if (entity != nullptr)
 	{
-		for (EntityId child : entity->GetChildren())
+		for (EntityId child : entity->getChildren())
 		{
-			RemoveEntity(child);
+			removeEntity(child);
 		}
 
-		if (Entity* parent = GetEntityById(entity->GetParent()))
+		auto* parent = getEntityById(entity->getParent());
+		if (parent != nullptr)
 		{
 			parent->mChildren.erase(std::find(parent->mChildren.begin(), parent->mChildren.end(), id));
 		}
@@ -106,26 +108,26 @@ void ECS::RemoveEntity(EntityId id)
 	}
 }
 
-void ECS::OnEntityBeingRemoved(EntityId id)
+void ECS::onEntityBeingRemoved(EntityId id)
 {
-	ForEachSystem([id](auto& system) {
-		system.RemoveComponent(id);
+	forEachSystem([id](auto& system) {
+		system.removeComponent(id);
 	});
 }
 
-Entity* ECS::GetRoot()
+Entity* ECS::getRoot()
 {
-	return GetEntityById(ROOT_ID);
+	return getEntityById(ROOT_ID);
 }
 
-Entity* ECS::GetOrCreateEntity(const char* name /*= "Unknown"*/)
+Entity* ECS::getOrCreateEntity(std::string_view name /*= "Unknown"*/)
 {
 	for (ID i = ROOT_ID; i < MAX_ID; ++i)
 	{
-		if (!mEntities[i] || !mEntities[i]->IsValid())
+		if (!mEntities[i] || !mEntities[i]->isValid())
 		{
 			mEntities[i].reset(new Entity(*this, i, name));
-			mEntities[i]->AddComponent<TransformComponent>();
+			mEntities[i]->addComponent<TransformComponent>();
 			return mEntities[i].get();
 		}
 	}
@@ -133,38 +135,48 @@ Entity* ECS::GetOrCreateEntity(const char* name /*= "Unknown"*/)
 	return nullptr;
 }
 
-Entity* ECS::GetEntityById(EntityId id)
+Entity* ECS::getEntityById(EntityId id)
 {
-	return ((id.IsValid() && mEntities[id()]) ? mEntities[id()].get() : nullptr);
+	return ((id.isValid() && mEntities[id()]) ? mEntities[id()].get() : nullptr);
 }
 
-void ECS::AddChildToEntity(EntityId parentId, EntityId childId)
+void ECS::addChildToEntity(EntityId parentId, EntityId childId)
 {
-	if (!parentId.IsValid() || !childId.IsValid() || parentId == childId || childId == ROOT_ID)
+	if (!parentId.isValid() || !childId.isValid() || parentId == childId || childId == ROOT_ID)
+	{
 		return;
+	}
 
-	auto* child = GetEntityById(childId);
-	auto* parent = GetEntityById(parentId);
-	if (!parent || !child || child->GetParent() == parentId)
+	auto* child = getEntityById(childId);
+	auto* parent = getEntityById(parentId);
+	if (!parent || !child || child->getParent() == parentId)
+	{
 		return;
+	}
 
-	if (auto* previousParent = GetEntityById(child->GetParent()))
+	if (auto* previousParent = getEntityById(child->getParent()))
+	{
 		previousParent->mChildren.erase(std::find(previousParent->mChildren.begin(), previousParent->mChildren.end(), childId));
+	}
 
 	parent->mChildren.emplace_back(childId);
 	child->mParent = parentId;
 
-	ForEachSystem([childId](auto& system) {
-		system.OnEntityParentChanged(childId);
+	forEachSystem([childId](auto& system) {
+		system.onEntityParentChanged(childId);
 	});
 }
 
 template<typename T>
-void ECS::ForEachSystem(const T& function)
+void ECS::forEachSystem(const T& function)
 {
 	for (auto& system : mSystems)
+	{
 		if (system)
+		{
 			function(*system);
+		}
+	}
 }
 
 } // namespace erm::ecs

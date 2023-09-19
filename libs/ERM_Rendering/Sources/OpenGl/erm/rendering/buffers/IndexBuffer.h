@@ -8,7 +8,7 @@ namespace erm {
 class IndexBuffer
 {
 public:
-	IndexBuffer(void* data, size_t size, uint64_t count);
+	IndexBuffer(void* data, u64 size, uint64_t count);
 	~IndexBuffer();
 
 	IndexBuffer(IndexBuffer&&) = delete;

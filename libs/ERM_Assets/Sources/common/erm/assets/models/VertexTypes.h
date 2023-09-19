@@ -2,8 +2,6 @@
 
 #include "erm/math/Types.h"
 
-#include <glm/glm.hpp>
-
 namespace erm {
 
 using VertexType = float;

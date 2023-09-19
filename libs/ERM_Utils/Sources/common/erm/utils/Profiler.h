@@ -25,12 +25,12 @@ constexpr const char* const kRenderFrameName = "Render";
 #	define ERM_PROFILE(NAME) ZoneScopedNC(NAME, ERM_ZONE_COLOR)
 #	define ERM_PROFILE_FUNCTION() ERM_PROFILE(ERM_FUNC_SIG)
 #else
-#	define ERM_SIM_FRAME_BEGIN() gSimTimer.Restart()
-#	define ERM_SIM_FRAME_END() gSimTimer.Update(); gSimSampler.AddSample(gSimTimer.GetElapsedTime())
-#	define ERM_RENDER_FRAME_BEGIN() gRenderTimer.Restart()
-#	define ERM_RENDER_FRAME_END() gRenderTimer.Update(); gRenderSampler.AddSample(gRenderTimer.GetElapsedTime())
+#	define ERM_SIM_FRAME_BEGIN() gSimTimer.restart()
+#	define ERM_SIM_FRAME_END() gSimTimer.update(); gSimSampler.addSample(gSimTimer.getElapsedTime())
+#	define ERM_RENDER_FRAME_BEGIN() gRenderTimer.restart()
+#	define ERM_RENDER_FRAME_END() gRenderTimer.update(); gRenderSampler.addSample(gRenderTimer.getElapsedTime())
 #	define ERM_PROFILE(NAME) erm::Profiler p(NAME)
-#	define ERM_PROFILE_FUNCTION() ERM_PROFILE(utils::StripFunctionName(ERM_FUNC_SIG))
+#	define ERM_PROFILE_FUNCTION() ERM_PROFILE(utils::stripFunctionName(ERM_FUNC_SIG))
 #endif
 
 namespace erm {
@@ -55,7 +55,7 @@ public:
 	Profiler(std::string_view id);
 	~Profiler();
 
-	static const ProfilingTree* GetProfilingTreeRoot();
+	static const ProfilingTree* getProfilingTreeRoot();
 
 private:
 	Timer mTimer;

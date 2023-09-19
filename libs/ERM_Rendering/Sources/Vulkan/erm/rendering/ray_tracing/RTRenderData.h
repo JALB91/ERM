@@ -5,11 +5,13 @@
 #include "erm/rendering/data_structs/IRenderData.h"
 #include "erm/rendering/utils/VkUtils.h"
 
+#include <erm/math/Types.h>
+
 #include <unordered_map>
 
 namespace erm {
 
-using InstancesMap = std::unordered_map<uint32_t, RTInstanceData>;
+using InstancesMap = std::unordered_map<u32, RTInstanceData>;
 
 struct RTRenderData : public IRenderData
 {
@@ -29,7 +31,9 @@ struct RTRenderData : public IRenderData
 	RTRenderData& operator=(RTRenderData&& other) noexcept
 	{
 		if (this == &other)
+		{
 			return *this;
+		}
 
 		ERM_ASSERT(&mDevice == &other.mDevice);
 		IRenderData::operator=(std::move(other));
@@ -39,11 +43,11 @@ struct RTRenderData : public IRenderData
 		return *this;
 	}
 
-	inline void AddOrUpdateInstance(RTBlas* blas, const math::mat4& transform, uint32_t index)
+	inline void addOrUpdateInstance(RTBlas* blas, const mat4& transform, u32 index)
 	{
 		if (auto it = mInstancesMap.find(index); it != mInstancesMap.cend())
 		{
-			it->second.Update(blas, transform);
+			it->second.update(blas, transform);
 		}
 		else
 		{
@@ -54,17 +58,19 @@ struct RTRenderData : public IRenderData
 		}
 	}
 
-	inline void ClearDataForIndex(uint32_t id)
+	inline void clearDataForIndex(u32 id)
 	{
-		ERM_VK_CHECK(mDevice.GetGraphicsQueue().waitIdle());
+		ERM_VK_CHECK(mDevice.getGraphicsQueue().waitIdle());
 
 		if (const auto it = mInstancesMap.find(id); it != mInstancesMap.cend())
+		{
 			mInstancesMap.erase(it);
+		}
 
-		RemoveSbos(id);
+		removeSbos(id);
 	}
 
-	inline bool HasInstanceWithId(uint32_t id) const
+	inline bool hasInstanceWithId(u32 id) const
 	{
 		return mInstancesMap.find(id) != mInstancesMap.cend();
 	}

@@ -2,8 +2,9 @@
 
 #include "erm/assets/enums/TextureType.h"
 
+#include <erm/math/Types.h>
+
 #include <array>
-#include <cstdint>
 
 namespace erm {
 
@@ -27,7 +28,7 @@ struct CubeMap
 	
 	TextureType mTextureType;
 	std::array<unsigned char*, kFaces.size()> mBuffers;
-	uint32_t mWidth, mHeight, mBPP;
+	u32 mWidth, mHeight, mBPP;
 
 };
 

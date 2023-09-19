@@ -33,7 +33,7 @@ PipelineResources::PipelineResources(
 	, mPipelineConfigs(pipelineConfigs)
 	, mUntouchedFrames(0)
 {
-	CreatePipeline();
+	createPipeline();
 }
 
 PipelineResources::~PipelineResources() = default;
@@ -55,30 +55,30 @@ PipelineResources& PipelineResources::operator=(PipelineResources&& other) noexc
 	return *this;
 }
 
-void PipelineResources::Refresh()
+void PipelineResources::refresh()
 {
 //	TODO: Damiano
-//	if (mPipelineConfigs.mShaderProgram->NeedsReload())
+//	if (mPipelineConfigs.mShaderProgram->needsReload())
 //	{
 //		mPipelineData.clear();
 //		mDescriptorSetLayouts.clear();
 //
-//		CreatePipeline();
+//		createPipeline();
 //
-//		mPipelineConfigs.mShaderProgram->OnReloaded();
+//		mPipelineConfigs.mShaderProgram->onReloaded();
 //	}
 	
 	for (auto it = mPipelineData.begin(); it != mPipelineData.end();)
 	{
 		auto& [id, data] = *it;
 		
-		if (data.GetUntouchedFrames() > IRenderer::kMaxFramesInFlight)
+		if (data.getUntouchedFrames() > IRenderer::kMaxFramesInFlight)
 		{
 			it = mPipelineData.erase(it);
 		}
 		else
 		{
-			data.Refresh();
+			data.refresh();
 			++it;
 		}
 	}
@@ -86,28 +86,30 @@ void PipelineResources::Refresh()
 	++mUntouchedFrames;
 }
 
-void PipelineResources::UpdateResources(vk::CommandBuffer& cmd, RenderData& renderData)
+void PipelineResources::updateResources(vk::CommandBuffer& cmd, RenderData& renderData)
 {
 	if (mDescriptorSetLayouts.empty())
 		return;
 	
 	mUntouchedFrames = 0;
 
-	auto& data = GetOrCreatePipelineData(renderData);
-	data.UpdateResources(cmd, renderData);
+	auto& data = getOrCreatePipelineData(renderData);
+	data.updateResources(cmd, renderData);
 }
 
-void PipelineResources::UpdateCommandBuffer(vk::CommandBuffer& cmd, RenderData& renderData)
+void PipelineResources::updateCommandBuffer(vk::CommandBuffer& cmd, RenderData& renderData)
 {
 	if (mDescriptorSetLayouts.empty())
+	{
 		return;
+	}	
 
 	cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, mPipeline.get());
 
 #ifdef ERM_FLIP_VIEWPORT
-	const BoundingBox2D normViewport = mWindow.GetNormalizedViewport();
-	const vec2 normViewportSize = normViewport.GetSize();
-	const vk::Extent2D& extent = mRenderer.GetSwapChainExtent();
+	const auto& normViewport = mWindow.getNormalizedViewport();
+	const auto& normViewportSize = normViewport.getSize();
+	const auto& extent = mRenderer.getSwapChainExtent();
 
 	vk::Viewport viewport = {};
 	viewport.x = static_cast<float>(extent.width) * normViewport.mMin.x;
@@ -122,54 +124,54 @@ void PipelineResources::UpdateCommandBuffer(vk::CommandBuffer& cmd, RenderData& 
 
 	ERM_ASSERT(renderData.mBindingId.has_value() && mPipelineData.find(renderData.mBindingId.value()) != mPipelineData.end());
 	auto& data = mPipelineData.at(renderData.mBindingId.value());
-	auto ds = data.GetDescriptorSets(mEmptySet.get());
+	auto ds = data.getDescriptorSets(mEmptySet.get());
 
 	cmd.bindDescriptorSets(
 		vk::PipelineBindPoint::eGraphics,
 		mPipelineLayout.get(),
 		0,
-		static_cast<uint32_t>(ds.size()),
+		static_cast<u32>(ds.size()),
 		ds.data(),
 		0,
 		nullptr);
 
 //	TODO: Damiano
-//	auto assetsRepo = gServiceLocator.Get<AssetsRepo>();
-//	for (size_t i = 0; i < renderData.mMeshes.size(); ++i)
+//	auto assetsRepo = gServiceLocator.get<AssetsRepo>();
+//	for (u64 i = 0; i < renderData.mMeshes.size(); ++i)
 //	{
-//		Mesh* mesh = assetsRepo->Get<Mesh>(renderData.mMeshes[i]);
+//		Mesh* mesh = assetsRepo->get<Mesh>(renderData.mMeshes[i]);
 //		
 //		if (mesh == nullptr)
 //			continue;
 //		
-//		const BufferHandle& vHandle = mesh->GetVertBufferHandle();
-//		const BufferHandle& iHandle = mesh->GetIndBufferHandle();
+//		const BufferHandle& vHandle = mesh->getVertBufferHandle();
+//		const BufferHandle& iHandle = mesh->getIndBufferHandle();
 //
 //		vk::Buffer vBuffers[] = {vHandle.mBuffer};
 //		vk::DeviceSize offsets[] = {0};
 //
 //		cmd.bindVertexBuffers(0, 1, vBuffers, offsets);
 //		cmd.bindIndexBuffer(iHandle.mBuffer, iHandle.mInfo.mOffset, vk::IndexType::eUint32);
-//		cmd.drawIndexed(static_cast<uint32_t>(mesh.GetIndicesData().size()), 1, 0, 0, 0);
+//		cmd.drawIndexed(static_cast<u32>(mesh.getIndicesData().size()), 1, 0, 0, 0);
 //	}
 }
 
-void PipelineResources::CreatePipeline()
+void PipelineResources::createPipeline()
 {
-	const BoundingBox2D normViewport = mWindow.GetNormalizedViewport();
-	const vec2 normViewportSize = normViewport.GetSize();
-	const vk::Extent2D& extent = mRenderer.GetSwapChainExtent();
+	const auto& normViewport = mWindow.getNormalizedViewport();
+	const auto& normViewportSize = normViewport.getSize();
+	const auto& extent = mRenderer.getSwapChainExtent();
 
-//	auto* shaderProgram = gAssetsLib.GetAssetsRepo().GetAsset<IShaderProgram>(mPipelineConfigs.mShaderProgram);
+//	auto* shaderProgram = gAssetsLib.getAssetsRepo().getAsset<IShaderProgram>(mPipelineConfigs.mShaderProgram);
 	auto* shader = static_cast<GPUShaderProgram*>(nullptr);
 
-	ERM_ASSERT(shader);
+	ERM_ASSERT(shader != nullptr);
 
 	/*
 		LOAD SHADERS
 	*/
-	std::vector<vk::UniqueShaderModule> vertShaderModules = shader->CreateShaderModules(ShaderType::VERTEX);
-	std::vector<vk::UniqueShaderModule> fragShaderModules = shader->CreateShaderModules(ShaderType::FRAGMENT);
+	auto vertShaderModules = shader->createShaderModules(ShaderType::VERTEX);
+	auto fragShaderModules = shader->createShaderModules(ShaderType::FRAGMENT);
 
 	ERM_ASSERT(vertShaderModules.size() == 1);
 	ERM_ASSERT(fragShaderModules.size() == 1);
@@ -189,20 +191,20 @@ void PipelineResources::CreatePipeline()
 	/*
 		SETUP VERTEX INPUT
 	*/
-	vk::VertexInputBindingDescription bindingDescription = shader->GetVertexBindingDescription();
-	std::vector<vk::VertexInputAttributeDescription> attributeDescriptions = shader->GetVertexAttributeDescriptions();
+	auto bindingDescription = shader->getVertexBindingDescription();
+	auto attributeDescriptions = shader->getVertexAttributeDescriptions();
 
 	vk::PipelineVertexInputStateCreateInfo vertexInputInfo = {};
 	vertexInputInfo.vertexBindingDescriptionCount = 1;
 	vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
-	vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
+	vertexInputInfo.vertexAttributeDescriptionCount = static_cast<u32>(attributeDescriptions.size());
 	vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
 	/*
 		SETUP INPUT ASSEMBLY
 	*/
 	vk::PipelineInputAssemblyStateCreateInfo inputAssembly = {};
-	inputAssembly.topology = VkUtils::ToVulkanValue<vk::PrimitiveTopology>(mPipelineConfigs.GetDrawMode());
+	inputAssembly.topology = VkUtils::toVulkanValue<vk::PrimitiveTopology>(mPipelineConfigs.getDrawMode());
 	inputAssembly.primitiveRestartEnable = VK_FALSE;
 
 	/*
@@ -217,8 +219,8 @@ void PipelineResources::CreatePipeline()
 	viewport.maxDepth = 1.0f;
 
 	vk::Rect2D scissor = {};
-	scissor.offset = vk::Offset2D(static_cast<uint32_t>(viewport.x), static_cast<uint32_t>(viewport.y));
-	scissor.extent = vk::Extent2D(static_cast<uint32_t>(viewport.width), static_cast<uint32_t>(viewport.height));
+	scissor.offset = vk::Offset2D(static_cast<u32>(viewport.x), static_cast<u32>(viewport.y));
+	scissor.extent = vk::Extent2D(static_cast<u32>(viewport.width), static_cast<u32>(viewport.height));
 
 	vk::PipelineViewportStateCreateInfo viewportState = {};
 	viewportState.viewportCount = 1;
@@ -232,10 +234,10 @@ void PipelineResources::CreatePipeline()
 	vk::PipelineRasterizationStateCreateInfo rasterizer = {};
 	rasterizer.depthClampEnable = VK_FALSE;
 	rasterizer.rasterizerDiscardEnable = VK_FALSE;
-	rasterizer.polygonMode = VkUtils::ToVulkanValue<vk::PolygonMode>(mPipelineConfigs.GetPolygonMode());
+	rasterizer.polygonMode = VkUtils::toVulkanValue<vk::PolygonMode>(mPipelineConfigs.getPolygonMode());
 	rasterizer.lineWidth = 1.0f;
-	rasterizer.cullMode = VkUtils::ToVulkanValue<vk::CullModeFlagBits>(mPipelineConfigs.GetCullMode());
-	rasterizer.frontFace = VkUtils::ToVulkanValue<vk::FrontFace>(mPipelineConfigs.GetFrontFace());
+	rasterizer.cullMode = VkUtils::toVulkanValue<vk::CullModeFlagBits>(mPipelineConfigs.getCullMode());
+	rasterizer.frontFace = VkUtils::toVulkanValue<vk::FrontFace>(mPipelineConfigs.getFrontFace());
 	rasterizer.depthBiasEnable = VK_FALSE;
 	rasterizer.depthBiasConstantFactor = 0.0f;
 	rasterizer.depthBiasClamp = 0.0f;
@@ -257,7 +259,7 @@ void PipelineResources::CreatePipeline()
 	*/
 	vk::PipelineColorBlendAttachmentState colorBlendAttachment = {};
 	colorBlendAttachment.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
-	colorBlendAttachment.blendEnable = mPipelineConfigs.GetBlendEnabled() ? VK_TRUE : VK_FALSE;
+	colorBlendAttachment.blendEnable = mPipelineConfigs.getBlendEnabled() ? VK_TRUE : VK_FALSE;
 	colorBlendAttachment.srcColorBlendFactor = vk::BlendFactor::eSrcAlpha;
 	colorBlendAttachment.dstColorBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha;
 	colorBlendAttachment.colorBlendOp = vk::BlendOp::eAdd;
@@ -278,14 +280,14 @@ void PipelineResources::CreatePipeline()
 	/*
 		SETUP DESCRIPTOR SET LAYOUT
 	*/
-	const LayoutBindingsMap& bindings = shader->GetLayoutBindingsMap();
-	uint32_t maxSet = 0;
+	const auto& bindings = shader->getLayoutBindingsMap();
+	u32 maxSet = 0;
 	std::for_each(bindings.begin(), bindings.end(), [&maxSet](const auto& pair) {
 		maxSet = std::max(maxSet, pair.first);
 	});
 	mDescriptorSetLayouts.reserve(maxSet + 1);
 
-	for (uint32_t i = 0; i <= maxSet; ++i)
+	for (u32 i = 0; i <= maxSet; ++i)
 	{
 		vk::DescriptorSetLayoutCreateInfo layoutInfo {};
 
@@ -298,7 +300,7 @@ void PipelineResources::CreatePipeline()
 		{
 			auto& data = bindings.at(i);
 
-			layoutInfo.bindingCount = static_cast<uint32_t>(data.size());
+			layoutInfo.bindingCount = static_cast<u32>(data.size());
 			layoutInfo.pBindings = data.data();
 		}
 
@@ -327,11 +329,13 @@ void PipelineResources::CreatePipeline()
 		SETUP PIPELINE LAYOUT
 	*/
 	std::vector<vk::DescriptorSetLayout> layouts(mDescriptorSetLayouts.size());
-	for (size_t i = 0; i < mDescriptorSetLayouts.size(); ++i)
+	for (u64 i = 0; i < mDescriptorSetLayouts.size(); ++i)
+	{
 		layouts[i] = mDescriptorSetLayouts[i].get();
+	}
 
 	vk::PipelineLayoutCreateInfo pipelineLayoutInfo = {};
-	pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(layouts.size());
+	pipelineLayoutInfo.setLayoutCount = static_cast<u32>(layouts.size());
 	pipelineLayoutInfo.pSetLayouts = layouts.data();
 	pipelineLayoutInfo.pushConstantRangeCount = 0;
 	pipelineLayoutInfo.pPushConstantRanges = nullptr;
@@ -342,9 +346,9 @@ void PipelineResources::CreatePipeline()
 		SETUP STENCIL AND DEPTH TESTS
 	*/
 	vk::PipelineDepthStencilStateCreateInfo depthStencil {};
-	depthStencil.depthTestEnable = mPipelineConfigs.GetDepthTestEnabled() ? VK_TRUE : VK_FALSE;
-	depthStencil.depthWriteEnable = mPipelineConfigs.GetDepthWriteEnabled() ? VK_TRUE : VK_FALSE;
-	depthStencil.depthCompareOp = VkUtils::ToVulkanValue<vk::CompareOp>(mPipelineConfigs.GetDepthFunction());
+	depthStencil.depthTestEnable = mPipelineConfigs.getDepthTestEnabled() ? VK_TRUE : VK_FALSE;
+	depthStencil.depthWriteEnable = mPipelineConfigs.getDepthWriteEnabled() ? VK_TRUE : VK_FALSE;
+	depthStencil.depthCompareOp = VkUtils::toVulkanValue<vk::CompareOp>(mPipelineConfigs.getDepthFunction());
 	depthStencil.depthBoundsTestEnable = VK_FALSE;
 	depthStencil.minDepthBounds = 0.0f;
 	depthStencil.maxDepthBounds = 1.0f;
@@ -360,7 +364,7 @@ void PipelineResources::CreatePipeline()
 	};
 
 	vk::PipelineDynamicStateCreateInfo dynamicInfo;
-	dynamicInfo.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
+	dynamicInfo.dynamicStateCount = static_cast<u32>(dynamicStates.size());
 	dynamicInfo.pDynamicStates = dynamicStates.data();
 
 	/*
@@ -383,23 +387,27 @@ void PipelineResources::CreatePipeline()
 	pipelineInfo.basePipelineHandle = mPipeline.get();
 	pipelineInfo.basePipelineIndex = -1;
 
-	auto result = mDevice->createGraphicsPipelineUnique(mDevice.GetPipelineCache(), pipelineInfo);
+	auto result = mDevice->createGraphicsPipelineUnique(mDevice.getPipelineCache(), pipelineInfo);
 	ERM_ASSERT(result.result == vk::Result::eSuccess);
 	mPipeline = std::move(result.value);
 }
 
-PipelineData& PipelineResources::GetOrCreatePipelineData(RenderData& renderData)
+PipelineData& PipelineResources::getOrCreatePipelineData(RenderData& renderData)
 {
 	if (renderData.mBindingId.has_value())
 	{
 		const auto it = mPipelineData.find(renderData.mBindingId.value());
 		if (it != mPipelineData.end())
+		{
 			return it->second;
+		}
 		else
+		{
 			renderData.mBindingId.reset();
+		}
 	}
 	
-	for (uint32_t i = 0; i < static_cast<uint32_t>(mPipelineData.size()); ++i)
+	for (u32 i = 0; i < static_cast<u32>(mPipelineData.size()); ++i)
 	{
 		if (mPipelineData.find(i) == mPipelineData.end())
 		{
@@ -409,7 +417,9 @@ PipelineData& PipelineResources::GetOrCreatePipelineData(RenderData& renderData)
 	}
 
 	if (!renderData.mBindingId.has_value())
-		renderData.mBindingId = static_cast<uint32_t>(mPipelineData.size());
+	{
+		renderData.mBindingId = static_cast<u32>(mPipelineData.size());
+	}
 
 	auto result = mPipelineData.emplace(
 		std::piecewise_construct,
@@ -417,7 +427,7 @@ PipelineData& PipelineResources::GetOrCreatePipelineData(RenderData& renderData)
 		std::forward_as_tuple(renderData.mPipelineConfigs));
 	auto& data = result.first->second;
 //	TODO: Damiano
-//	const auto& sbm = renderData.mPipelineConfigs.mShaderProgram->GetShaderBindingsMap();
+//	const auto& sbm = renderData.mPipelineConfigs.mShaderProgram->getShaderBindingsMap();
 	ShaderBindingsMap sbm;
 	IShaderProgram* sp = nullptr;
 
@@ -446,7 +456,7 @@ PipelineData& PipelineResources::GetOrCreatePipelineData(RenderData& renderData)
 				*mDescriptorPool,
 				mDescriptorSetLayouts[set].get());
 
-		data.AddResources(set, std::move(resources));
+		data.addResources(set, std::move(resources));
 	}
 
 	return data;

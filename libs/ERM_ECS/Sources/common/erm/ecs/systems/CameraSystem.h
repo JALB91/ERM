@@ -21,12 +21,12 @@ public:
 	CameraSystem(ECS& ecs);
 
 	// ISystem
-	void Init() override;
-	void OnUpdate(float dt) override;
-	void OnPostUpdate() override;
+	void init() override;
+	void update(float dt) override;
+	void postUpdate() override;
 
 private:
-	void UpdateCameraComponent(CameraComponent& camera, TransformComponent& transform, float dt);
+	void updateCameraComponent(CameraComponent& camera, TransformComponent& transform, float dt);
 
 	TransformSystem* mTransformSystem;
 //	const IWindow& mWindow;

@@ -12,7 +12,7 @@ struct RenderConfigs
 
 	RenderConfigs(SubpassData&& subpassData, vec4&& clearColor);
 
-	bool IsRenderPassLevelCompatible(const RenderConfigs& other) const;
+	bool isRenderPassLevelCompatible(const RenderConfigs& other) const;
 
 	SubpassData mSubpassData;
 	vec4 mClearColor;

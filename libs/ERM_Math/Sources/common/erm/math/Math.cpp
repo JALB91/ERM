@@ -2,7 +2,7 @@
 
 namespace erm::math {
 
-void DecomposeMatrix(
+void decomposeMatrix(
 	const mat4& matrix,
 	vec3& translation,
 	quat& rotation,
@@ -19,7 +19,7 @@ void DecomposeMatrix(
 	scale.z = glm::length(matrix[2]);
 }
 
-bool VerticesIntersection(
+bool verticesIntersection(
 	const vec3& a,
 	const vec3& b,
 	const vec3& d1,

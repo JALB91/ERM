@@ -13,6 +13,8 @@
 #include "erm/rendering/textures/GPUImage.h"
 #include "erm/rendering/utils/VkUtils.h"
 
+#include <erm/math/Types.h>
+
 #include <erm/window/Window.h>
 
 #include <erm/utils/Profiler.h>
@@ -26,13 +28,13 @@ Renderer::Renderer(Window& window, Device& device)
 	, mRTRenderData(nullptr)
 #endif
 {
-	CreateCommandBuffers();
+	createCommandBuffers();
 }
 
 Renderer::~Renderer()
 {}
 
-void Renderer::OnPreRender()
+void Renderer::preRender()
 {
 	ERM_PROFILE_FUNCTION();
 
@@ -47,7 +49,7 @@ void Renderer::OnPreRender()
 
 	if (result == vk::Result::eErrorOutOfDateKHR)
 	{
-		RecreateSwapChain();
+		recreateSwapChain();
 		return;
 	}
 	else if (result != vk::Result::eSuccess && result != vk::Result::eSuboptimalKHR)
@@ -56,44 +58,48 @@ void Renderer::OnPreRender()
 	}
 
 	// Check if a previous frame is using this image (i.e. there is its fence to wait on)
-	if (mImagesInFlight[GetCurrentImageIndex()])
+	if (mImagesInFlight[getCurrentImageIndex()])
 	{
-		ERM_VK_CHECK(mDevice->waitForFences(1, &mImagesInFlight[GetCurrentImageIndex()], VK_TRUE, UINT64_MAX));
+		ERM_VK_CHECK(mDevice->waitForFences(1, &mImagesInFlight[getCurrentImageIndex()], VK_TRUE, UINT64_MAX));
 	}
 	// Mark the image as now being in use by this frame
-	mImagesInFlight[GetCurrentImageIndex()] = mInFlightFences[mCurrentFrame];
+	mImagesInFlight[getCurrentImageIndex()] = mInFlightFences[mCurrentFrame];
 	
 	for (auto it = mRenderingMap.begin(); it != mRenderingMap.end();)
 	{
 		auto& [resources, data] = *it;
 		
-		if (resources->GetUntouchedFrames() > kMaxFramesInFlight)
+		if (resources->getUntouchedFrames() > kMaxFramesInFlight)
 		{
 			it = mRenderingMap.erase(it);
 		}
 		else
 		{
-			resources->Refresh();
+			resources->refresh();
 			++it;
 		}
 	}
 #ifdef ERM_RAY_TRACING_ENABLED
 	if (!mRTRenderingResources)
+	{
 		mRTRenderingResources = std::make_unique<RTRenderingResources>(mDevice, *this);
-	mRTRenderingResources->Refresh();
+	}
+	mRTRenderingResources->refresh();
 #endif
 
 	mIsImageIndexValid = true;
 }
 
-void Renderer::OnRender()
+void Renderer::render()
 {
 	ERM_PROFILE_FUNCTION();
 
 	if (!mIsImageIndexValid)
+	{
 		return;
+	}
 
-	vk::CommandBuffer& commandBuffer = RetrieveCommandBuffer();
+	vk::CommandBuffer& commandBuffer = retrieveCommandBuffer();
 
 	vk::PipelineStageFlags waitStages[] = {vk::PipelineStageFlagBits::eColorAttachmentOutput};
 	vk::SubmitInfo submitInfo = {};
@@ -106,22 +112,26 @@ void Renderer::OnRender()
 	submitInfo.pSignalSemaphores = &mRenderFinishedSemaphores[mCurrentFrame];
 
 	ERM_VK_CHECK(mDevice->resetFences(1, &mInFlightFences[mCurrentFrame]));
-	ERM_VK_CHECK(mDevice.GetGraphicsQueue().submit(1, &submitInfo, mInFlightFences[mCurrentFrame]));
+	ERM_VK_CHECK(mDevice.getGraphicsQueue().submit(1, &submitInfo, mInFlightFences[mCurrentFrame]));
 }
 
-void Renderer::OnPostRender()
+void Renderer::postRender()
 {
 	ERM_PROFILE_FUNCTION();
 
 	for (auto& [resources, data] : mRenderingMap)
+	{
 		data.clear();
+	}
 
 #ifdef ERM_RAY_TRACING_ENABLED
 	mRTRenderData = nullptr;
 #endif
 
 	if (!mIsImageIndexValid)
+	{
 		return;
+	}
 
 	vk::PresentInfoKHR presentInfo = {};
 	presentInfo.waitSemaphoreCount = 1;
@@ -132,12 +142,12 @@ void Renderer::OnPostRender()
 	presentInfo.pSwapchains = swapChains;
 	presentInfo.pImageIndices = &mCurrentImageIndex;
 
-	const vk::Result result = mDevice.GetPresentQueue().presentKHR(&presentInfo);
+	const vk::Result result = mDevice.getPresentQueue().presentKHR(&presentInfo);
 
 	if (result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR || mFramebufferResized)
 	{
 		mFramebufferResized = false;
-		RecreateSwapChain();
+		recreateSwapChain();
 	}
 	else if (result != vk::Result::eSuccess)
 	{
@@ -149,12 +159,12 @@ void Renderer::OnPostRender()
 	mIsImageIndexValid = false;
 }
 
-void Renderer::SubmitRenderData(RenderData& data)
+void Renderer::submitRenderData(RenderData& data)
 {
 	ERM_ASSERT(!data.mMeshes.empty());
 
 	const auto it = std::find_if(mRenderingMap.begin(), mRenderingMap.end(), [&data](const auto& resources) {
-		return resources.first->GetRenderConfigs().IsRenderPassLevelCompatible(data.mRenderConfigs);
+		return resources.first->getRenderConfigs().isRenderPassLevelCompatible(data.mRenderConfigs);
 	});
 
 	if (it == mRenderingMap.end())
@@ -168,15 +178,15 @@ void Renderer::SubmitRenderData(RenderData& data)
 }
 
 #ifdef ERM_RAY_TRACING_ENABLED
-void Renderer::SubmitRTRenderData(RTRenderData& data)
+void Renderer::submitRTRenderData(RTRenderData& data)
 {
 	mRTRenderData = &data;
 }
 #endif
 
-void Renderer::RecreateSwapChain()
+void Renderer::recreateSwapChain()
 {
-	IRenderer::RecreateSwapChain();
+	IRenderer::recreateSwapChain();
 
 	mRenderingMap.clear();
 
@@ -187,26 +197,26 @@ void Renderer::RecreateSwapChain()
 
 	mCommandBuffers.clear();
 
-	CreateCommandBuffers();
+	createCommandBuffers();
 }
 
-void Renderer::CreateCommandBuffers()
+void Renderer::createCommandBuffers()
 {
 	mCommandBuffers.resize(IRenderer::kMaxFramesInFlight);
 
 	vk::CommandBufferAllocateInfo allocInfo = {};
-	allocInfo.commandPool = mDevice.GetCommandPool();
+	allocInfo.commandPool = mDevice.getCommandPool();
 	allocInfo.level = vk::CommandBufferLevel::ePrimary;
-	allocInfo.commandBufferCount = static_cast<uint32_t>(mCommandBuffers.size());
+	allocInfo.commandBufferCount = static_cast<u32>(mCommandBuffers.size());
 
 	ERM_VK_CHECK_AND_ASSIGN(mCommandBuffers, mDevice->allocateCommandBuffersUnique(allocInfo));
 }
 
-vk::CommandBuffer& Renderer::RetrieveCommandBuffer()
+vk::CommandBuffer& Renderer::retrieveCommandBuffer()
 {
 	ERM_PROFILE_FUNCTION();
 
-	vk::CommandBuffer& cmd = mCommandBuffers[GetCurrentFrame()].get();
+	vk::CommandBuffer& cmd = mCommandBuffers[getCurrentFrame()].get();
 	cmd.reset({});
 
 	vk::CommandBufferBeginInfo beginInfo = {};
@@ -218,16 +228,22 @@ vk::CommandBuffer& Renderer::RetrieveCommandBuffer()
 	for (auto& [resources, data] : mRenderingMap)
 	{
 		if (!data.empty())
-			resources->UpdateCommandBuffer(cmd, data);
+		{
+			resources->updateCommandBuffer(cmd, data);
+		}
 	}
 
 #ifdef ERM_RAY_TRACING_ENABLED
 	if (mRTRenderData && mRTRenderingResources)
-		mRTRenderingResources->UpdateCommandBuffer(cmd, *mRTRenderData);
+	{
+		mRTRenderingResources->updateCommandBuffer(cmd, *mRTRenderData);
+	}
 #endif
 
-	for (IExtCommandBufferUpdater* updater : mCommandBufferUpdaters)
-		updater->UpdateCommandBuffer(cmd);
+	for (auto* updater : mCommandBufferUpdaters)
+	{
+		updater->updateCommandBuffer(cmd);
+	}
 
 	ERM_VK_CHECK(cmd.end());
 

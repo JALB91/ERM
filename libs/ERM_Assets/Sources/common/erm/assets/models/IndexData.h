@@ -1,9 +1,9 @@
 #pragma once
 
-#include <cstdint>
+#include <erm/math/Types.h>
 
 namespace erm {
 
-using IndexData = uint32_t;
+using IndexData = u32;
 
 }

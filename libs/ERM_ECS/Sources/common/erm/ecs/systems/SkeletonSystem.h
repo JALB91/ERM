@@ -15,7 +15,7 @@ public:
 	{}
 
 	// ISystem
-	void OnPostUpdate() override;
+	void postUpdate() override;
 };
 
 } // namespace erm::ecs

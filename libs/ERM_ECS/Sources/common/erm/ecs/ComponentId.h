@@ -4,6 +4,6 @@
 
 namespace erm::ecs {
 
-typedef EntityId ComponentId;
+using ComponentId = EntityId;
 
 }

@@ -16,14 +16,14 @@ public:
 	inline bool operator!=(EntityId other) const { return mId != other.mId; }
 	inline bool operator<(EntityId other) const { return mId < other.mId; }
 
-	inline bool IsValid() const
+	inline bool isValid() const
 	{
 		return mId >= ROOT_ID && mId < MAX_ID;
 	}
 
-	inline ID Get() const { return mId; }
-	inline void Set(ID id) { mId = id; }
-	inline void Reset() { mId = INVALID_ID; }
+	inline ID get() const { return mId; }
+	inline void set(ID id) { mId = id; }
+	inline void reset() { mId = INVALID_ID; }
 
 private:
 	ID mId;

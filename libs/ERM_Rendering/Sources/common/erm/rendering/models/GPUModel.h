@@ -32,21 +32,21 @@ public:
 	GPUModel& operator=(GPUModel&&) = delete;
 	GPUModel& operator=(const GPUModel&) = delete;
 	
-	inline const Model& GetModel() const { return mModel; }
+	inline const Model& getModel() const { return mModel; }
 
-	inline const std::vector<GPUMesh>& GetGPUMeshes() const { return mGPUMeshes; }
+	inline const std::vector<GPUMesh>& getGPUMeshes() const { return mGPUMeshes; }
 
-	inline const VertexBuffer& GetVerticesBuffer() const { return *mVerticesBuffer; }
-	inline const IndexBuffer& GetIndicesBuffer() const { return *mIndicesBuffer; }
+	inline const VertexBuffer& getVerticesBuffer() const { return *mVerticesBuffer; }
+	inline const IndexBuffer& getIndicesBuffer() const { return *mIndicesBuffer; }
 
 #ifdef ERM_RAY_TRACING_ENABLED
-	inline RTBlas& GetBlas()
+	inline RTBlas& getBlas()
 	{
 		return mBlas;
 	}
 #endif
 
-	void UpdateBuffers();
+	void updateBuffers();
 
 private:
 	Device& mDevice;

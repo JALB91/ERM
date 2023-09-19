@@ -2,6 +2,8 @@
 
 #include "erm/rendering/buffers/BufferInfo.h"
 
+#include <erm/math/Types.h>
+
 #include <vulkan/vulkan.hpp>
 
 #include <unordered_map>
@@ -15,15 +17,15 @@ public:
 		: mMaxId(0)
 	{}
 
-	inline uint32_t GetMaxBufferId() const { return mMaxId; }
+	inline u32 getMaxBufferId() const { return mMaxId; }
 
-	inline void AddBuffer(uint32_t id, const IBuffer& buffer)
+	inline void addBuffer(u32 id, const IBuffer& buffer)
 	{
 		mMaxId = std::max(mMaxId, id);
-		mStorageBuffers[id] = buffer.GetBuffer();
+		mStorageBuffers[id] = buffer.getBuffer();
 	}
 
-	inline void ClearBuffer(uint32_t id)
+	inline void clearBuffer(u32 id)
 	{
 		if (const auto it = mStorageBuffers.find(id); it != mStorageBuffers.end())
 		{
@@ -39,16 +41,18 @@ public:
 		}
 	}
 
-	inline vk::Buffer GetBuffer(uint32_t id) const
+	inline vk::Buffer getBuffer(u32 id) const
 	{
 		if (const auto& it = mStorageBuffers.find(id); it != mStorageBuffers.cend())
+		{
 			return it->second;
+		}
 		return nullptr;
 	}
 
 private:
-	std::unordered_map<uint32_t, vk::Buffer> mStorageBuffers;
-	uint32_t mMaxId;
+	std::unordered_map<u32, vk::Buffer> mStorageBuffers;
+	u32 mMaxId;
 };
 
 } // namespace erm

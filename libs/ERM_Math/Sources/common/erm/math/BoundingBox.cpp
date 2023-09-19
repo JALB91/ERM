@@ -4,7 +4,7 @@ namespace erm {
 
 template<>
 template<>
-bool BoundingBox3D::IsInside(const vec3& point) const
+bool BoundingBox3D::isInside(const vec3& point) const
 {
 	return mMin.x <= point.x &&
 		mMin.y <= point.y &&
@@ -16,7 +16,7 @@ bool BoundingBox3D::IsInside(const vec3& point) const
 
 template<>
 template<>
-bool BoundingBox3D::IsInside(const vec2& point) const
+bool BoundingBox3D::isInside(const vec2& point) const
 {
 	return mMin.x <= point.x &&
 		mMin.y <= point.y &&
@@ -26,7 +26,7 @@ bool BoundingBox3D::IsInside(const vec2& point) const
 
 template<>
 template<typename S>
-bool BoundingBox2D::IsInside(const S& point) const
+bool BoundingBox2D::isInside(const S& point) const
 {
 	return mMin.x <= point.x &&
 		mMin.y <= point.y &&
@@ -36,7 +36,7 @@ bool BoundingBox2D::IsInside(const S& point) const
 
 template<>
 template<>
-BoundingBox3D BoundingBox3D::Expand(const BoundingBox3D& other) const
+BoundingBox3D BoundingBox3D::expand(const BoundingBox3D& other) const
 {
 	BoundingBox3D result;
 
@@ -53,7 +53,7 @@ BoundingBox3D BoundingBox3D::Expand(const BoundingBox3D& other) const
 
 template<>
 template<>
-BoundingBox3D BoundingBox3D::Expand(const BoundingBox2D& other) const
+BoundingBox3D BoundingBox3D::expand(const BoundingBox2D& other) const
 {
 	BoundingBox3D result;
 
@@ -70,7 +70,7 @@ BoundingBox3D BoundingBox3D::Expand(const BoundingBox2D& other) const
 
 template<>
 template<typename S>
-BoundingBox2D BoundingBox2D::Expand(const BoundingBox<S>& other) const
+BoundingBox2D BoundingBox2D::expand(const BoundingBox<S>& other) const
 {
 	BoundingBox2D result;
 
@@ -85,10 +85,12 @@ BoundingBox2D BoundingBox2D::Expand(const BoundingBox<S>& other) const
 
 template<>
 template<>
-BoundingBox3D BoundingBox3D::Intersection(const BoundingBox3D& other) const
+BoundingBox3D BoundingBox3D::intersection(const BoundingBox3D& other) const
 {
-	if (!IsIntersecting(other))
+	if (!isIntersecting(other))
+	{
 		return BoundingBox3D();
+	}
 
 	BoundingBox3D result;
 
@@ -105,10 +107,12 @@ BoundingBox3D BoundingBox3D::Intersection(const BoundingBox3D& other) const
 
 template<>
 template<>
-BoundingBox3D BoundingBox3D::Intersection(const BoundingBox2D& other) const
+BoundingBox3D BoundingBox3D::intersection(const BoundingBox2D& other) const
 {
-	if (!IsIntersecting(other))
+	if (!isIntersecting(other))
+	{
 		return BoundingBox3D();
+	}
 
 	BoundingBox3D result;
 
@@ -125,10 +129,12 @@ BoundingBox3D BoundingBox3D::Intersection(const BoundingBox2D& other) const
 
 template<>
 template<typename S>
-BoundingBox2D BoundingBox2D::Intersection(const BoundingBox<S>& other) const
+BoundingBox2D BoundingBox2D::intersection(const BoundingBox<S>& other) const
 {
-	if (!IsIntersecting(other))
+	if (!isIntersecting(other))
+	{
 		return BoundingBox2D();
+	}
 
 	BoundingBox2D result;
 
@@ -142,7 +148,7 @@ BoundingBox2D BoundingBox2D::Intersection(const BoundingBox<S>& other) const
 }
 
 template<>
-BoundingBox2D BoundingBox2D::Expand(const mat4& mat) const
+BoundingBox2D BoundingBox2D::expand(const mat4& mat) const
 {
 	BoundingBox2D result;
 
@@ -219,7 +225,7 @@ BoundingBox2D BoundingBox2D::Expand(const mat4& mat) const
 }
 
 template<>
-BoundingBox3D BoundingBox3D::Expand(const mat4& mat) const
+BoundingBox3D BoundingBox3D::expand(const mat4& mat) const
 {
 	BoundingBox3D result;
 
@@ -330,7 +336,7 @@ BoundingBox3D BoundingBox3D::Expand(const mat4& mat) const
 }
 
 template<>
-BoundingBox2D BoundingBox2D::Expand(const vec3& vec) const
+BoundingBox2D BoundingBox2D::expand(const vec3& vec) const
 {
 	BoundingBox2D result;
 
@@ -344,7 +350,7 @@ BoundingBox2D BoundingBox2D::Expand(const vec3& vec) const
 }
 
 template<>
-BoundingBox3D BoundingBox3D::Expand(const vec3& vec) const
+BoundingBox3D BoundingBox3D::expand(const vec3& vec) const
 {
 	BoundingBox3D result;
 

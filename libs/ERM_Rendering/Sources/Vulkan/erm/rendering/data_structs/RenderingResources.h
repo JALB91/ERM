@@ -3,6 +3,8 @@
 #include "erm/rendering/data_structs/PipelineResources.h"
 #include "erm/rendering/data_structs/RenderConfigs.h"
 
+#include <erm/math/Types.h>
+
 #include <vulkan/vulkan.hpp>
 
 #include <memory>
@@ -35,25 +37,25 @@ public:
 	RenderingResources& operator=(RenderingResources&&) = delete;
 	RenderingResources& operator=(const RenderingResources&) = delete;
 
-	inline const RenderConfigs& GetRenderConfigs() const { return mRenderConfigs; }
-	inline uint32_t GetUntouchedFrames() const { return mUntouchedFrames; }
+	inline const RenderConfigs& getRenderConfigs() const { return mRenderConfigs; }
+	inline u32 getUntouchedFrames() const { return mUntouchedFrames; }
 
-	void Refresh();
-	void UpdateCommandBuffer(
+	void refresh();
+	void updateCommandBuffer(
 		vk::CommandBuffer& cmd,
 		std::vector<RenderData*>& renderData);
 
 private:
-	vk::AttachmentDescription CreateAttachmentDescription(const erm::AttachmentData& data, vk::Format format) const;
-	PipelineResources& GetOrCreatePipelineResources(RenderData& renderData);
-	PipelineResources* FindPipelineResources(RenderData& renderData);
+	vk::AttachmentDescription createAttachmentDescription(const erm::AttachmentData& data, vk::Format format) const;
+	PipelineResources& getOrcreatePipelineResources(RenderData& renderData);
+	PipelineResources* findPipelineResources(RenderData& renderData);
 
-	void Reload();
-	void Cleanup();
+	void reload();
+	void cleanup();
 
-	void CreateRenderPass();
-	void CreateFramebuffers();
-	void CreateDescriptorPool();
+	void createRenderPass();
+	void createFramebuffers();
+	void createDescriptorPool();
 
 	Device& mDevice;
 	IWindow& mWindow;
@@ -63,7 +65,7 @@ private:
 	std::vector<vk::UniqueFramebuffer> mFrameBuffers;
 	vk::UniqueDescriptorPool mDescriptorPool;
 	std::vector<PipelineResources> mPipelineResources;
-	uint32_t mUntouchedFrames;
+	u32 mUntouchedFrames;
 };
 
 } // namespace erm

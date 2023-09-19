@@ -16,11 +16,11 @@ StandaloneGPUMesh::StandaloneGPUMesh(
 	, mIndexBuffer(
 		  mDevice,
 		  mesh.mIndicesData.size() * sizeof(IndexData),
-		  static_cast<uint32_t>(mesh.mIndicesData.size()))
+		  static_cast<u32>(mesh.mIndicesData.size()))
 	, mVertexBuffer(mDevice, mesh.mVerticesData.size() * sizeof(VertexData))
 {
-	mIndexBuffer.Update(mesh.mIndicesData.data());
-	mVertexBuffer.Update(mesh.mVerticesData.data());
+	mIndexBuffer.update(mesh.mIndicesData.data());
+	mVertexBuffer.update(mesh.mVerticesData.data());
 }
 
 StandaloneGPUMesh::~StandaloneGPUMesh()

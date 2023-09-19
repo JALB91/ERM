@@ -22,8 +22,8 @@ public:
 	StandaloneGPUMesh& operator=(StandaloneGPUMesh&&) = delete;
 	StandaloneGPUMesh& operator=(const StandaloneGPUMesh&) = delete;
 	
-	inline const IndexBuffer& GetIndexBuffer() const { return mIndexBuffer; }
-	inline const VertexBuffer& GetVertexBuffer() const { return mVertexBuffer; }
+	inline const IndexBuffer& getIndexBuffer() const { return mIndexBuffer; }
+	inline const VertexBuffer& getVertexBuffer() const { return mVertexBuffer; }
 
 private:
 	Device& mDevice;

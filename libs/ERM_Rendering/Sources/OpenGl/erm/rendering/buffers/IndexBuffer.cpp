@@ -6,7 +6,7 @@
 
 namespace erm {
 
-IndexBuffer::IndexBuffer(void* data, size_t size, uint64_t count)
+IndexBuffer::IndexBuffer(void* data, u64 size, uint64_t count)
 	: mCount(count)
 {
 	ASSERT((size / count) == sizeof(GLuint));

@@ -8,9 +8,9 @@ public:
 	IUpdatable();
 	virtual ~IUpdatable();
 
-	virtual void OnPreUpdate() {}
-	virtual void OnUpdate(float /*dt*/) {}
-	virtual void OnPostUpdate() {}
+	virtual void preUpdate() {}
+	virtual void update(float /*dt*/) {}
+	virtual void postUpdate() {}
 };
 
 } // namespace erm

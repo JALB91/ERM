@@ -11,7 +11,7 @@ namespace erm {
 DeviceBindingResources::DeviceBindingResources(
 	Device& device,
 	IRenderer& renderer,
-	uint32_t targetSet,
+	u32 targetSet,
 	const IShaderProgram& shaderProgram,
 	const BindingConfigs& configs,
 	const IRenderData& renderData,
@@ -45,7 +45,7 @@ DeviceBindingResources::DeviceBindingResources(
 #endif
 
 	// CREATE UNIFORM BUFFERS
-	CreateUniformBuffers(ubosData);
+	createUniformBuffers(ubosData);
 
 	// PREPARE RESOURCES
 	std::vector<vk::DescriptorBufferInfo> uboBuffersInfos;
@@ -77,7 +77,7 @@ DeviceBindingResources::DeviceBindingResources(
 	);
 
 	// UNIFORM BUFFERS
-	CreateUniformBuffersDescriptorWritesAndInfos(
+	createUniformBuffersDescriptorWritesAndInfos(
 		uboBuffersInfos,
 		descriptorWrites,
 		ubosData,
@@ -85,21 +85,21 @@ DeviceBindingResources::DeviceBindingResources(
 		mDescriptorSets[0].get());
 
 	// SAMPLERS
-	CreateSamplerDescriptorWritesAndInfos(
+	createSamplerDescriptorWritesAndInfos(
 		imagesInfo,
 		descriptorWrites,
 		samplerData,
 		mDescriptorSets[0].get());
 
 	// STORAGE IMAGES
-	CreateStorageImagesDescriptorWritesAndInfos(
+	createStorageImagesDescriptorWritesAndInfos(
 		storageImagesInfo,
 		descriptorWrites,
 		storageImageData,
 		mDescriptorSets[0].get());
 
 	// STORAGE BUFFERS
-	CreateStorageBuffersDescriptorWritesAndInfos(
+	createStorageBuffersDescriptorWritesAndInfos(
 		storageBuffersInfos,
 		descriptorWrites,
 		storageBuffersData,
@@ -108,7 +108,7 @@ DeviceBindingResources::DeviceBindingResources(
 
 	// ACCELERATION STRUCTURES
 #ifdef ERM_RAY_TRACING_ENABLED
-	CreateASDescriptorWritesAndInfos(
+	createASDescriptorWritesAndInfos(
 		asInfo,
 		descriptorWrites,
 		asData,
@@ -117,25 +117,25 @@ DeviceBindingResources::DeviceBindingResources(
 #endif
 
 	// UPDATE DS
-	mDevice->updateDescriptorSets(static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+	mDevice->updateDescriptorSets(static_cast<u32>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 }
 
-vk::DescriptorSet DeviceBindingResources::GetDescriptorSet() const
+vk::DescriptorSet DeviceBindingResources::getDescriptorSet() const
 {
 	ERM_ASSERT(!mDescriptorSets.empty());
 	return mDescriptorSets[0].get();
 }
 
-void DeviceBindingResources::UpdateResources(vk::CommandBuffer cmd, IRenderData& data)
+void DeviceBindingResources::updateResources(vk::CommandBuffer cmd, IRenderData& data)
 {
 	for (const auto& [id, buffer] : mUniformBuffersMap)
 	{
-		ERM_ASSERT(data.HasUbo(id));
-		buffer.Update(cmd, data.mUbos[id].get());
+		ERM_ASSERT(data.hasUbo(id));
+		buffer.update(cmd, data.mUbos[id].get());
 	}
 }
 
-void DeviceBindingResources::CreateUniformBuffers(const std::vector<UboData>& ubosData)
+void DeviceBindingResources::createUniformBuffers(const std::vector<UboData>& ubosData)
 {
 	for (const UboData& data : ubosData)
 	{

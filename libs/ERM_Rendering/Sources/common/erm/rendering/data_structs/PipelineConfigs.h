@@ -23,14 +23,14 @@ struct PipelineConfigs : public BindingConfigs
 
 	virtual ~PipelineConfigs() = default;
 
-	bool IsPipelineLevelCompatible(const PipelineConfigs& other) const;
+	bool isPipelineLevelCompatible(const PipelineConfigs& other) const;
 
-	bool IsShaderCompatible(const PipelineConfigs& other) const;
-	bool IsBlendCompatible(const PipelineConfigs& other) const;
-	bool IsCullCompatible(const PipelineConfigs& other) const;
-	bool IsDepthCompatible(const PipelineConfigs& other) const;
-	bool IsDrawModeCompatible(const PipelineConfigs& other) const;
-	bool IsPolyModeCompatible(const PipelineConfigs& other) const;
+	bool isShaderCompatible(const PipelineConfigs& other) const;
+	bool isBlendCompatible(const PipelineConfigs& other) const;
+	bool isCullCompatible(const PipelineConfigs& other) const;
+	bool isDepthCompatible(const PipelineConfigs& other) const;
+	bool isDrawModeCompatible(const PipelineConfigs& other) const;
+	bool isPolyModeCompatible(const PipelineConfigs& other) const;
 
 	ERM_DECL_SET_GET_OPT_WITH_DEFAULT(CullMode, CullMode, CullMode::BACK);
 	ERM_DECL_SET_GET_OPT_WITH_DEFAULT(FrontFace, FrontFace, FrontFace::CCW);

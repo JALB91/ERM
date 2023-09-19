@@ -15,18 +15,17 @@ public:
 	GPUShaderProgram(Device& device, const char* shaderPath);
 	virtual ~GPUShaderProgram() = default;
 
-	inline const LayoutBindingsMap& GetLayoutBindingsMap() const { return mLayoutBindingsMap; }
+	inline const LayoutBindingsMap& getLayoutBindingsMap() const { return mLayoutBindingsMap; }
 
 //	TODO:Damiano
-	std::vector<vk::UniqueShaderModule> CreateShaderModules(ShaderType /*shaderType*/) const { return {}; }
+	std::vector<vk::UniqueShaderModule> createShaderModules(ShaderType /*shaderType*/) const { return {}; }
 
-	vk::VertexInputBindingDescription GetVertexBindingDescription() { return {}; }
-	std::vector<vk::VertexInputAttributeDescription> GetVertexAttributeDescriptions() { return {}; }
+	vk::VertexInputBindingDescription getVertexBindingDescription() { return {}; }
+	std::vector<vk::VertexInputAttributeDescription> getVertexAttributeDescriptions() { return {}; }
 
 protected:
 	// IShaderProgram
-//	void UpdateBindingData() override;
-//	void UpdateResourceBindings(
+//	void updateBindingData() override;
 //		const spirv_cross::Compiler& compiler,
 //		const spirv_cross::Resource& res,
 //		SetIdx targetSet,

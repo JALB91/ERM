@@ -3,6 +3,8 @@
 #include "erm/rendering/data_structs/IRenderData.h"
 #include "erm/rendering/data_structs/RenderConfigs.h"
 
+#include <erm/math/Types.h>
+
 #include <erm/utils/StringID.h>
 
 #include <optional>
@@ -29,7 +31,9 @@ struct RenderData : public IRenderData
 	RenderData& operator=(RenderData&& other) noexcept
 	{
 		if (this == &other)
+		{
 			return *this;
+		}
 
 		IRenderData::operator=(std::move(other));
 		mMeshes = std::move(other.mMeshes);
@@ -42,21 +46,21 @@ struct RenderData : public IRenderData
 	RenderData(const RenderData&) = delete;
 	RenderData& operator=(const RenderData&) = delete;
 
-	inline bool IsCompatible(const RenderConfigs& renderConfigs, const PipelineConfigs& pipelineConfigs) const
+	inline bool isCompatible(const RenderConfigs& renderConfigs, const PipelineConfigs& pipelineConfigs) const
 	{
 		return 
-			mRenderConfigs.IsRenderPassLevelCompatible(renderConfigs) && 
-			mPipelineConfigs.IsPipelineLevelCompatible(pipelineConfigs) && 
-			mPipelineConfigs.IsBindingLevelCompatible(pipelineConfigs);
+			mRenderConfigs.isRenderPassLevelCompatible(renderConfigs) && 
+			mPipelineConfigs.isPipelineLevelCompatible(pipelineConfigs) && 
+			mPipelineConfigs.isBindingLevelCompatible(pipelineConfigs);
 	}
 
-	inline bool HasMesh(StringID mesh) const
+	inline bool hasMesh(StringID mesh) const
 	{
 		return std::find(mMeshes.cbegin(), mMeshes.cend(), mesh) != mMeshes.cend();
 	}
 
 	std::vector<StringID> mMeshes;
-	std::optional<uint32_t> mBindingId;
+	std::optional<u32> mBindingId;
 	RenderConfigs mRenderConfigs;
 };
 

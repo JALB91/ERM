@@ -32,10 +32,10 @@ public:
 	~RenderingSystem();
 
 	// ISystem
-	void Init() override;
-	void OnPostUpdate() override;
-	void OnPreRender() override;
-	void OnPostRender() override;
+	void init() override;
+	void postUpdate() override;
+	void preRender() override;
+	void postRender() override;
 
 private:
 	struct ComponentRenderData
@@ -53,10 +53,10 @@ private:
 
 private:
 	// ISystem
-	void OnComponentBeingRemoved(EntityId id) override;
+	void onComponentBeingRemoved(EntityId id) override;
 
 	template<typename T>
-	void UpdateComponentID(ID& componentId, typename T::SYSTEM_TYPE& system);
+	void updateComponentID(ID& componentId, typename T::SYSTEM_TYPE& system);
 
 	TransformSystem* mTransformSystem;
 	SkeletonSystem* mSkeletonSystem;

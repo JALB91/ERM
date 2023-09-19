@@ -15,24 +15,28 @@ public:
 		, mSampleIndex(0)
 	{}
 	
-	inline void AddToCurrentSample(double time)
+	inline void addToCurrentSample(double time)
 	{
 		if (time <= std::numeric_limits<double>::epsilon())
+		{
 			return;
+		}
 		
 		mSamples[mSampleIndex] += time;
 	}
 	
-	inline void AddSample(double time)
+	inline void addSample(double time)
 	{
 		if (time <= std::numeric_limits<double>::epsilon())
+		{
 			return;
+		}
 		
 		mSampleIndex = (mSampleIndex + 1) % static_cast<short>(mSamples.size());
 		mSamples[mSampleIndex] = time;
 	}
 	
-	inline double GetAverage() const
+	inline double getAverage() const
 	{
 		const double total = std::accumulate(mSamples.cbegin(), mSamples.cend(), 0.0);
 		return total / static_cast<double>(mSamples.size());

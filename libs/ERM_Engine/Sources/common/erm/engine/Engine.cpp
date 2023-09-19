@@ -84,105 +84,105 @@ Engine::Engine()
 	std::srand(static_cast<unsigned int>(time(NULL)));
 	
 #if defined(ERM_WINDOWS)
-	SetMaxFPS(144);
+	setMaxFPS(144);
 #elif defined(ERM_MAC)
-	SetMaxFPS(60);
+	setMaxFPS(60);
 #endif
 	
-	mWindow->AddListener(*this);
+	mWindow->addListener(*this);
 }
 
 Engine::~Engine()
 {
-	gAssetsLib.Deinit();
-	mWindow->RemoveListener(*this);
+	gAssetsLib.deinit();
+	mWindow->removeListener(*this);
 }
 
-bool Engine::Init()
+bool Engine::init()
 {
-	if (!mWindow || !mWindow->Init())
+	if (!mWindow || !mWindow->init())
 	{
 		return false;
 	}
 
 	mUpdateManager = std::make_unique<UpdateManager>();
 	mAudioManager = std::make_unique<AudioManager>();
-	mDevice = std::make_unique<Device>(mWindow->GetWindow());
-	gAssetsLib.Init();
+	mDevice = std::make_unique<Device>(mWindow->getWindow());
+	gAssetsLib.init();
 	mRenderer = std::make_unique<Renderer>(*mWindow, *mDevice);
 //	mImGuiHandle = std::make_unique<ImGuiHandle>(*this);
 	mECS = std::make_unique<ecs::ECS>();
-	mECS->Init();
+	mECS->init();
 
-	gAssetsLib.GetAssetsRepo().LoadDefaultResources();
+	gAssetsLib.getAssetsRepo().loadDefaultResources();
 
-	auto camera = mECS->GetOrCreateEntity("Camera");
-	camera->AddComponent<ecs::LightComponent>();
-	camera->RequireComponent<ecs::CameraComponent>();
-	camera->RequireComponent<ecs::TransformComponent>()->SetTranslation(vec3(0.0f, 1.0f, 10.0f));
+	auto camera = mECS->getOrCreateEntity("Camera");
+	camera->addComponent<ecs::LightComponent>();
+	camera->requireComponent<ecs::CameraComponent>();
+	camera->requireComponent<ecs::TransformComponent>()->setTranslation(vec3(0.0f, 1.0f, 10.0f));
 
-	auto root = mECS->GetRoot();
-	root->AddChild(*camera);
+	auto root = mECS->getRoot();
+	root->addChild(*camera);
 
 	{
-		auto ent = mECS->GetOrCreateEntity();
-		root->AddChild(*ent);
+		auto ent = mECS->getOrCreateEntity();
+		root->addChild(*ent);
 
-		auto entity = mECS->GetOrCreateEntity("NAME");
-		entity->RequireComponent<ecs::ModelComponent>()->SetShouldShowBoundingBox(true);
-		auto transform = entity->RequireComponent<ecs::TransformComponent>();
-		transform->SetTranslationY(2.5f);
-		transform->SetRotationX(-static_cast<float>(M_PI * 0.5));
-		entity->RequireComponent<ecs::SkeletonComponent>();
-		entity->RequireComponent<ecs::AnimationComponent>();
+		auto entity = mECS->getOrCreateEntity("NAME");
+		entity->requireComponent<ecs::ModelComponent>()->setShouldShowBoundingBox(true);
+		auto transform = entity->requireComponent<ecs::TransformComponent>();
+		transform->setTranslationY(2.5f);
+		transform->setRotationX(-static_cast<float>(M_PI * 0.5));
+		entity->requireComponent<ecs::SkeletonComponent>();
+		entity->requireComponent<ecs::AnimationComponent>();
 #if defined(ERM_RAY_TRACING_ENABLED)
-		entity->RequireComponent<ecs::RenderingComponent>()->SetUseRayTracing(false);
+		entity->requireComponent<ecs::RenderingComponent>()->setUseRayTracing(false);
 #endif
-		root->AddChild(*entity);
+		root->addChild(*entity);
 	}
 
 	{
-		auto entity = mECS->GetOrCreateEntity();
+		auto entity = mECS->getOrCreateEntity();
 //		TODO: Damiano
-		entity->RequireComponent<ecs::ModelComponent>(StringID("Defaults/Triangle"));
-		auto transform = entity->RequireComponent<ecs::TransformComponent>();
-		transform->SetTranslationX(-2.5f);
-		root->AddChild(*entity);
+		entity->requireComponent<ecs::ModelComponent>(StringID("Defaults/Triangle"));
+		auto transform = entity->requireComponent<ecs::TransformComponent>();
+		transform->setTranslationX(-2.5f);
+		root->addChild(*entity);
 	}
 
 	{
-		auto entity = mECS->GetOrCreateEntity();
-//		Model* model = mResourcesManager->GetOrCreateModel("res/models/untitled.fbx");
-		entity->RequireComponent<ecs::ModelComponent>(StringID::INVALID);
-		auto transform = entity->RequireComponent<ecs::TransformComponent>();
-		transform->SetTranslationX(2.5f);
-		root->AddChild(*entity);
+		auto entity = mECS->getOrCreateEntity();
+//		Model* model = mResourcesManager->getOrCreateModel("res/models/untitled.fbx");
+		entity->requireComponent<ecs::ModelComponent>(StringID::INVALID);
+		auto transform = entity->requireComponent<ecs::TransformComponent>();
+		transform->setTranslationX(2.5f);
+		root->addChild(*entity);
 	}
 
 	for (int i = 0; i < 0; ++i)
 	{
-		auto entity = mECS->GetOrCreateEntity();
-//		const auto rnd = rand() % mFileLocator.GetModels().size();
-//		Model* model = mResourcesManager->GetOrCreateModel(mFileLocator.GetModels()[rnd].c_str());
+		auto entity = mECS->getOrCreateEntity();
+//		const auto rnd = rand() % mFileLocator.getModels().size();
+//		Model* model = mResourcesManager->getOrCreateModel(mFileLocator.getModels()[rnd].c_str());
 
-		entity->RequireComponent<ecs::ModelComponent>(StringID::INVALID);
-		auto tComp = entity->RequireComponent<ecs::TransformComponent>();
+		entity->requireComponent<ecs::ModelComponent>(StringID::INVALID);
+		auto tComp = entity->requireComponent<ecs::TransformComponent>();
 
 		static const int dist = 400;
 		float x = static_cast<float>((std::rand() % dist) - dist / 2);
 		float y = static_cast<float>(std::rand() % 100);
 		float z = static_cast<float>((std::rand() % dist) - dist / 2);
-		tComp->SetTranslation(vec3(x, y, z));
-		tComp->SetRotationY(static_cast<float>(M_PI) * (static_cast<float>((rand() % 100)) / 100.0f));
-		root->AddChild(*entity);
+		tComp->setTranslation(vec3(x, y, z));
+		tComp->setRotationY(static_cast<float>(M_PI) * (static_cast<float>((rand() % 100)) / 100.0f));
+		root->addChild(*entity);
 	}
 
 	return true;
 }
 
-void Engine::Run()
+void Engine::run()
 {
-	while (mWindow && !mWindow->ShouldClose())
+	while (mWindow && !mWindow->shouldClose())
 	{
 		Timer::sFrameId = (Timer::sFrameId + 1) % 2;
 		
@@ -191,9 +191,9 @@ void Engine::Run()
 		static double frameElapsedTime = 0.0;
 		static double simulationElapsedTime = 0.0;
 
-		mTimer.Update();
+		mTimer.update();
 
-		const double updateElapsedTime = mTimer.GetUpdateElapsedTime();
+		const double updateElapsedTime = mTimer.getUpdateElapsedTime();
 		frameElapsedTime += updateElapsedTime;
 		simulationElapsedTime += updateElapsedTime;
 		
@@ -201,9 +201,9 @@ void Engine::Run()
 		{
 			ERM_SIM_FRAME_BEGIN();
 			
-			OnPreUpdate();
-			OnUpdate(static_cast<float>(ERM_TARGET_SIMULATION_TIME));
-			OnPostUpdate();
+			preUpdate();
+			update(static_cast<float>(ERM_TARGET_SIMULATION_TIME));
+			postUpdate();
 			
 			simulationElapsedTime -= ERM_TARGET_SIMULATION_TIME;
 			
@@ -228,9 +228,9 @@ void Engine::Run()
 				framesInSecond = 0;
 			}
 			
-			OnPreRender();
-			OnRender();
-			OnPostRender();
+			preRender();
+			render();
+			postRender();
 			
 			frameElapsedTime = 0.0;
 			
@@ -239,99 +239,99 @@ void Engine::Run()
 	}
 }
 
-void Engine::OnPreUpdate()
+void Engine::preUpdate()
 {
 	ERM_PROFILE_FUNCTION();
 
-	mUpdateManager->OnPreUpdate();
-	mECS->OnPreUpdate();
+	mUpdateManager->preUpdate();
+	mECS->preUpdate();
 }
 
-void Engine::OnUpdate(float dt)
+void Engine::update(float dt)
 {
 	ERM_PROFILE_FUNCTION();
 
-//	mImGuiHandle->OnUpdate();
-	mECS->OnUpdate(dt);
-	mWindow->OnUpdate();
-	gAssetsLib.OnUpdate(dt);
-	mAudioManager->OnUpdate(dt);
-	mUpdateManager->Update(dt);
+//	mImGuiHandle->update();
+	mECS->update(dt);
+	mWindow->update();
+	gAssetsLib.update(dt);
+	mAudioManager->update(dt);
+	mUpdateManager->update(dt);
 }
 
-void Engine::OnPostUpdate()
+void Engine::postUpdate()
 {
 	ERM_PROFILE_FUNCTION();
 
-	mECS->OnPostUpdate();
-	mUpdateManager->OnPostUpdate();
+	mECS->postUpdate();
+	mUpdateManager->postUpdate();
 }
 
-void Engine::OnPreRender()
+void Engine::preRender()
 {
 	ERM_PROFILE_FUNCTION();
 
-	gAssetsLib.OnPreRender();
-	mECS->OnPreRender();
-	mRenderer->OnPreRender();
-//	mImGuiHandle->OnPreRender();
+	gAssetsLib.preRender();
+	mECS->preRender();
+	mRenderer->preRender();
+//	mImGuiHandle->preRender();
 }
 
-void Engine::OnRender()
+void Engine::render()
 {
 	ERM_PROFILE_FUNCTION();
 
-	mECS->OnRender();
-	mRenderer->OnRender();
-//	mImGuiHandle->OnRender();
-	mWindow->OnRender();
+	mECS->render();
+	mRenderer->render();
+//	mImGuiHandle->render();
+	mWindow->render();
 }
 
-void Engine::OnPostRender()
+void Engine::postRender()
 {
 	ERM_PROFILE_FUNCTION();
 
-	mECS->OnPostRender();
-	mRenderer->OnPostRender();
-//	mImGuiHandle->OnPostRender();
-	mWindow->OnPostRender();
-	gAssetsLib.OnPostRender();
+	mECS->postRender();
+	mRenderer->postRender();
+//	mImGuiHandle->postRender();
+	mWindow->postRender();
+	gAssetsLib.postRender();
 }
 
-void Engine::SetMaxFPS(unsigned int maxFPS)
+void Engine::setMaxFPS(unsigned int maxFPS)
 {
 	mMaxFPS = maxFPS;
 	mTargetFrameTime = 1.0 / static_cast<double>(mMaxFPS);
 }
 
-void Engine::OnFocusChanged()
+void Engine::onFocusChanged()
 {
-	if (mWindow->HasFocus())
+	if (mWindow->hasFocus())
 	{
-		mAudioManager->Resume();
+		mAudioManager->resume();
 	}
-	else if (!mAudioManager->ShouldPlayInBackground())
+	else if (!mAudioManager->shouldPlayInBackground())
 	{
-		mAudioManager->Suspend();
+		mAudioManager->suspend();
 	}
 }
 
-void Engine::OnKeyPressed(Key /*keyCode*/)
+void Engine::onKeyPressed(Key /*keyCode*/)
 {}
 
-void Engine::OnKeyReleased(Key /*keyCode*/)
+void Engine::onKeyReleased(Key /*keyCode*/)
 {}
 
-void Engine::OnMouseButtonPressed(MouseButton /*mouseButton*/)
+void Engine::onMouseButtonPressed(MouseButton /*mouseButton*/)
 {}
 
-void Engine::OnMouseButtonReleased(MouseButton /*mouseButton*/)
+void Engine::onMouseButtonReleased(MouseButton /*mouseButton*/)
 {}
 
-void Engine::OnMouseMoved(double /*xPos*/, double /*yPos*/)
+void Engine::onMouseMoved(double /*xPos*/, double /*yPos*/)
 {}
 
-void Engine::OnSizeChanged(int /*width*/, int /*height*/)
+void Engine::onSizeChanged(u32 /*width*/, u32 /*height*/)
 {}
 
 } // namespace erm

@@ -13,8 +13,8 @@ public:
 	AnimationSystem(ECS& ecs);
 
 	// ISystem
-	void OnUpdate(float dt) override;
-	void OnPostUpdate() override;
+	void update(float dt) override;
+	void postUpdate() override;
 
 private:
 	float mFrameTime;

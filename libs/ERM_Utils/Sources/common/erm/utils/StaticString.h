@@ -118,6 +118,7 @@ public:
 	u16 capacity() const { return SIZE; }
 	u16 size() const { return static_cast<u16>(strlen(data())); }
     const char* data() const { return mStr; }
+	char* data() { return mStr; }
 
 	Iterator<char> begin() const { return Iterator(&mStr[0]); }
 	Iterator<char> end() const { return Iterator(&mStr[SIZE]); }

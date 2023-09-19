@@ -13,28 +13,36 @@ Channel::Channel(FMOD::Channel* channel /* = nullptr*/)
 Channel::~Channel()
 {}
 
-bool Channel::IsPlaying() const
+bool Channel::isPlaying() const
 {
 	if (!mChannel)
+	{
 		return false;
+	}
 
 	bool isPlaying = false;
 	ERM_CHECK_FMOD_RESULT(mChannel->isPlaying(&isPlaying));
 	return isPlaying;
 }
 
-const char* Channel::GetCurrentSoundName() const
+str128 Channel::getCurrentSoundName() const
 {
 	if (!mChannel)
+	{
 		return nullptr;
+	}
 
 	FMOD::Sound* sound;
 	if (mChannel->getCurrentSound(&sound) != FMOD_OK)
+	{
 		return nullptr;
+	}
 
-	static char name[128];
-	if (sound->getName(name, 128) != FMOD_OK)
+	str128 name;
+	if (sound->getName(name.data(), name.capacity()) != FMOD_OK)
+	{
 		return nullptr;
+	}
 
 	return name;
 }

@@ -4,13 +4,13 @@
 
 namespace erm::math {
 
-void DecomposeMatrix(
+extern void decomposeMatrix(
 	const mat4& matrix,
 	vec3& translation,
 	quat& rotation,
 	vec3& scale);
 
-bool VerticesIntersection(
+extern bool verticesIntersection(
 	const vec3& a,
 	const vec3& b,
 	const vec3& d1,
@@ -18,19 +18,19 @@ bool VerticesIntersection(
 	vec3& intersection);
 
 template<typename Integral>
-constexpr bool IsAligned(Integral x, u64 a) noexcept
+constexpr bool isAligned(Integral x, u64 a) noexcept
 {
 	return (x & (Integral(a) - 1)) == 0;
 }
 
 template<typename Integral>
-constexpr Integral AlignUp(Integral x, u64 a) noexcept
+constexpr Integral alignUp(Integral x, u64 a) noexcept
 {
 	return Integral((x + (Integral(a) - 1)) & ~Integral(a - 1));
 }
 
 template<typename Integral>
-constexpr Integral AlignDown(Integral x, u64 a) noexcept
+constexpr Integral alignDown(Integral x, u64 a) noexcept
 {
 	return Integral(x & ~Integral(a - 1));
 }

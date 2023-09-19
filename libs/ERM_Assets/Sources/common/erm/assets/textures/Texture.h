@@ -2,7 +2,7 @@
 
 #include "erm/assets/enums/TextureType.h"
 
-#include <cstdint>
+#include <erm/math/Types.h>
 
 namespace erm {
 
@@ -18,7 +18,7 @@ struct Texture
 	
 	TextureType mTextureType;
 	unsigned char* mBuffer;
-	uint32_t mWidth, mHeight, mBPP;
+	u32 mWidth, mHeight, mBPP;
 
 };
 

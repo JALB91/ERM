@@ -9,7 +9,7 @@ namespace erm {
 IBindingResources::IBindingResources(
 	Device& device,
 	IRenderer& renderer,
-	uint32_t targetSet,
+	u32 targetSet,
 	const IShaderProgram& shaderProgram,
 	const BindingConfigs& configs,
 	vk::DescriptorPool descriptorPool)
@@ -21,27 +21,27 @@ IBindingResources::IBindingResources(
 	, mDescriptorPool(descriptorPool)
 {}
 
-void IBindingResources::CreateStorageBuffersDescriptorWritesAndInfos(
+void IBindingResources::createStorageBuffersDescriptorWritesAndInfos(
 	std::vector<std::vector<vk::DescriptorBufferInfo>>& infos,
 	std::vector<vk::WriteDescriptorSet>& writes,
 	const std::vector<StorageBufferData>& storageBuffersData,
 	const StorageBuffersMap& buffersMap,
 	vk::DescriptorSet descriptorSet)
 {
-	for (const StorageBufferData& data : storageBuffersData)
+	for (const auto& data : storageBuffersData)
 	{
-		const StorageBufferResources& bufferResources = buffersMap.at(data.mType);
-		std::vector<vk::DescriptorBufferInfo>& dbInfos = infos.emplace_back();
+		const auto& bufferResources = buffersMap.at(data.mType);
+		auto& dbInfos = infos.emplace_back();
 
-		const uint32_t maxId = bufferResources.GetMaxBufferId();
+		const u32 maxId = bufferResources.getMaxBufferId();
 
 		dbInfos.resize(maxId + 1);
 
-		for (uint32_t j = 0; j < maxId + 1; ++j)
+		for (u32 j = 0; j < maxId + 1; ++j)
 		{
-			vk::DescriptorBufferInfo bufferInfo = dbInfos[j];
+			auto& bufferInfo = dbInfos[j];
 
-			if (vk::Buffer buffer = bufferResources.GetBuffer(j))
+			if (vk::Buffer buffer = bufferResources.getBuffer(j))
 			{
 				bufferInfo.buffer = buffer;
 				bufferInfo.offset = data.mOffset;
@@ -55,17 +55,17 @@ void IBindingResources::CreateStorageBuffersDescriptorWritesAndInfos(
 			}
 		}
 
-		vk::WriteDescriptorSet descriptorWrite = writes.emplace_back();
+		auto& descriptorWrite = writes.emplace_back();
 		descriptorWrite.dstSet = descriptorSet;
 		descriptorWrite.dstBinding = data.mBinding;
 		descriptorWrite.dstArrayElement = 0;
 		descriptorWrite.descriptorType = vk::DescriptorType::eStorageBuffer;
-		descriptorWrite.descriptorCount = static_cast<uint32_t>(dbInfos.size());
+		descriptorWrite.descriptorCount = static_cast<u32>(dbInfos.size());
 		descriptorWrite.pBufferInfo = dbInfos.data();
 	}
 }
 
-void IBindingResources::CreateSamplerDescriptorWritesAndInfos(
+void IBindingResources::createSamplerDescriptorWritesAndInfos(
 	std::vector<vk::DescriptorImageInfo>& infos,
 	std::vector<vk::WriteDescriptorSet>& writes,
 	const std::vector<SamplerData>& samplerData,
@@ -77,17 +77,17 @@ void IBindingResources::CreateSamplerDescriptorWritesAndInfos(
 
 		if (std::holds_alternative<FrameBufferType>(sData.mType))
 		{
-			const FrameBufferType type = std::get<FrameBufferType>(sData.mType);
-			const std::vector<GPUTexture*>& frameBuffers = mRenderer.GetTargetFrameBuffers(type);
-			targetTexture = frameBuffers[std::min(frameBuffers.size() - 1, (size_t)mRenderer.GetCurrentImageIndex())];
+			const auto type = std::get<FrameBufferType>(sData.mType);
+			const auto& frameBuffers = mRenderer.getTargetFrameBuffers(type);
+			targetTexture = frameBuffers[std::min(frameBuffers.size() - 1, static_cast<u64>(mRenderer.getCurrentImageIndex()))];
 		}
 		else if (std::holds_alternative<TextureType>(sData.mType))
 		{
-			const TextureType type = std::get<TextureType>(sData.mType);
+			const auto type = std::get<TextureType>(sData.mType);
 //			TODO: Damiano
-//			targetTexture = mConfigs.GetTexture(type);
+//			targetTexture = mConfigs.getTexture(type);
 			if (targetTexture == nullptr)
-				targetTexture = mRenderer.GetDefaultTexture(type);
+				targetTexture = mRenderer.getDefaultTexture(type);
 		}
 		else
 		{
@@ -95,12 +95,12 @@ void IBindingResources::CreateSamplerDescriptorWritesAndInfos(
 			return;
 		}
 
-		vk::DescriptorImageInfo imageInfo = infos.emplace_back();
-		imageInfo.imageLayout = targetTexture->GetImageLayout();
-		imageInfo.imageView = targetTexture->GetImageView();
-		imageInfo.sampler = mRenderer.GetTextureSampler();
+		auto& imageInfo = infos.emplace_back();
+		imageInfo.imageLayout = targetTexture->getImageLayout();
+		imageInfo.imageView = targetTexture->getImageView();
+		imageInfo.sampler = mRenderer.getTextureSampler();
 
-		vk::WriteDescriptorSet descriptorWrite = writes.emplace_back();
+		auto& descriptorWrite = writes.emplace_back();
 		descriptorWrite.dstSet = descriptorSet;
 		descriptorWrite.dstBinding = sData.mBinding;
 		descriptorWrite.dstArrayElement = 0;
@@ -110,22 +110,22 @@ void IBindingResources::CreateSamplerDescriptorWritesAndInfos(
 	}
 }
 
-void IBindingResources::CreateStorageImagesDescriptorWritesAndInfos(
+void IBindingResources::createStorageImagesDescriptorWritesAndInfos(
 	std::vector<vk::DescriptorImageInfo>& infos,
 	std::vector<vk::WriteDescriptorSet>& writes,
 	const std::vector<StorageImageData>& storageImageData,
 	vk::DescriptorSet descriptorSet)
 {
-	for (const StorageImageData& sData : storageImageData)
+	for (const auto& sData : storageImageData)
 	{
-		const std::vector<GPUTexture*>& frameBuffers = mRenderer.GetTargetFrameBuffers(sData.mFrameBufferType);
-		const GPUTexture* targetTexture = frameBuffers[std::min(frameBuffers.size() - 1, (size_t)mRenderer.GetCurrentImageIndex())];
+		const auto& frameBuffers = mRenderer.getTargetFrameBuffers(sData.mFrameBufferType);
+		const auto* targetTexture = frameBuffers[std::min(frameBuffers.size() - 1, static_cast<u64>(mRenderer.getCurrentImageIndex()))];
 		
-		vk::DescriptorImageInfo imageInfo = infos.emplace_back();
-		imageInfo.imageLayout = targetTexture->GetImageLayout();
-		imageInfo.imageView = targetTexture->GetImageView();
+		auto& imageInfo = infos.emplace_back();
+		imageInfo.imageLayout = targetTexture->getImageLayout();
+		imageInfo.imageView = targetTexture->getImageView();
 
-		vk::WriteDescriptorSet descriptorWrite = writes.emplace_back();
+		auto& descriptorWrite = writes.emplace_back();
 		descriptorWrite.dstSet = descriptorSet;
 		descriptorWrite.dstBinding = sData.mBinding;
 		descriptorWrite.dstArrayElement = 0;
@@ -136,7 +136,7 @@ void IBindingResources::CreateStorageImagesDescriptorWritesAndInfos(
 }
 
 #ifdef ERM_RAY_TRACING_ENABLED
-void IBindingResources::CreateASDescriptorWritesAndInfos(
+void IBindingResources::createASDescriptorWritesAndInfos(
 	std::vector<vk::WriteDescriptorSetAccelerationStructureKHR>& infos,
 	std::vector<vk::WriteDescriptorSet>& writes,
 	const std::vector<AccelerationStructureData>& asData,
@@ -146,11 +146,11 @@ void IBindingResources::CreateASDescriptorWritesAndInfos(
 	if (!asData.empty())
 	{
 		ERM_ASSERT(asData.size() == 1);
-		vk::WriteDescriptorSetAccelerationStructureKHR info = infos.emplace_back();
+		auto& info = infos.emplace_back();
 		info.accelerationStructureCount = 1;
 		info.pAccelerationStructures = as;
 
-		vk::WriteDescriptorSet write = writes.emplace_back();
+		auto& write = writes.emplace_back();
 		write.dstSet = descriptorSet;
 		write.dstBinding = asData[0].mBinding;
 		write.dstArrayElement = 0;

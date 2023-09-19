@@ -10,7 +10,7 @@ namespace erm {
 
 DeviceBuffer::DeviceBuffer(
 	Device& device,
-	size_t size,
+	u64 size,
 	BufferUsageFlags buf)
 	: IBuffer(device, size, buf | BufferUsage::TRANSFER_DST, MemoryProperty::DEVICE_LOCAL)
 {}
@@ -33,31 +33,33 @@ DeviceBuffer& DeviceBuffer::operator=(DeviceBuffer&& other) noexcept
 	return *this;
 }
 
-void DeviceBuffer::Update(const void* data, const BufferInfo& info /*= {}*/) const
+void DeviceBuffer::update(const void* data, const BufferInfo& info /*= {}*/) const
 {
-	vk::CommandBuffer cmd = VkUtils::BeginSingleTimeCommands(mDevice);
-	Update(cmd, data, info);
-	VkUtils::EndSingleTimeCommands(mDevice, cmd);
+	vk::CommandBuffer cmd = VkUtils::beginSingleTimeCommands(mDevice);
+	update(cmd, data, info);
+	VkUtils::endSingleTimeCommands(mDevice, cmd);
 }
 
-void DeviceBuffer::Update(vk::CommandBuffer& cmd, const void* data, const BufferInfo& info /*= {}*/) const
+void DeviceBuffer::update(vk::CommandBuffer& cmd, const void* data, const BufferInfo& info /*= {}*/) const
 {
-	const size_t targetStride = (info.mStride == VK_WHOLE_SIZE ? mBufferSize : info.mStride);
+	const u64 targetStride = (info.mStride == VK_WHOLE_SIZE ? mBufferSize : info.mStride);
 
 	ERM_ASSERT(targetStride + info.mOffset <= mBufferSize);
 
 	if (targetStride >= 65536)
 	{
-		if (!mStagingBuffer || mStagingBuffer->GetBufferSize() < targetStride)
+		if (!mStagingBuffer || mStagingBuffer->getBufferSize() < targetStride)
+		{
 			mStagingBuffer.reset(new HostBuffer(mDevice, targetStride, BufferUsage::TRANSFER_SRC));
+		}
 
-		mStagingBuffer->Update(data, {0, targetStride});
+		mStagingBuffer->update(data, {0, targetStride});
 
 		vk::BufferCopy copyRegion {};
 		copyRegion.size = targetStride;
 		copyRegion.srcOffset = 0;
 		copyRegion.dstOffset = info.mOffset;
-		cmd.copyBuffer(mStagingBuffer->GetBuffer(), mBuffer.get(), 1, &copyRegion);
+		cmd.copyBuffer(mStagingBuffer->getBuffer(), mBuffer.get(), 1, &copyRegion);
 	}
 	else
 	{

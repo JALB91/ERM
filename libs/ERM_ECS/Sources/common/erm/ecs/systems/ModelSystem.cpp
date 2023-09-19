@@ -20,44 +20,50 @@ ModelSystem::ModelSystem(ECS& ecs)
 	, mRenderingSystem(nullptr)
 {}
 
-void ModelSystem::Init()
+void ModelSystem::init()
 {
-	mTransformSystem = mECS.GetSystem<TransformSystem>();
-	mRenderingSystem = mECS.GetSystem<RenderingSystem>();
+	mTransformSystem = mECS.getSystem<TransformSystem>();
+	mRenderingSystem = mECS.getSystem<RenderingSystem>();
 }
 
-void ModelSystem::OnPostUpdate()
+void ModelSystem::postUpdate()
 {
 	ERM_PROFILE_FUNCTION();
 
-	ForEachComponent([this](ModelComponent& component) {
+	forEachComponent([this](ModelComponent& component) {
 //		TODO: Damiano
-		Model* model = gAssetsLib.GetAssetsRepo().GetAsset<Model>(component.GetModelID());
+		auto* model = gAssetsLib.getAssetsRepo().getAsset<Model>(component.getModelID());
 
-		if (!component.IsDirty() && model == nullptr)
+		if (!component.isDirty() && model == nullptr)
+		{
 			return;
+		}
 
 		if (model)
 		{
-//			TransformComponent* transformComponent = mTransformSystem->RequireComponent(component.GetComponentId());
-//			component.mWorldBounds = model->GetLocalBounds().Expand(transformComponent->GetWorldTransform());
+//			auto* transformComponent = mTransformSystem->requireComponent(component.getComponentId());
+//			component.mWorldBounds = model->getLocalBounds().expand(transformComponent->getWorldTransform());
 		}
 		else
 		{
-			component.mWorldBounds.Empty();
+			component.mWorldBounds.empty();
 		}
 
-		if (auto* comp = mRenderingSystem->GetComponent(component.GetComponentId()))
-			comp->SetDirty(true);
+		if (auto* comp = mRenderingSystem->getComponent(component.getComponentId()))
+		{
+			comp->setDirty(true);
+		}
 
-		component.SetDirty(false);
+		component.setDirty(false);
 	});
 }
 
-void ModelSystem::OnComponentBeingRemoved(EntityId id)
+void ModelSystem::onComponentBeingRemoved(EntityId id)
 {
-	if (auto* comp = mRenderingSystem->GetComponent(id))
-		comp->SetDirty(true);
+	if (auto* comp = mRenderingSystem->getComponent(id))
+	{
+		comp->setDirty(true);
+	}
 }
 
 } // namespace erm::ecs

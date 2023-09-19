@@ -3,7 +3,9 @@
 #include "erm/ecs/ECS.h"
 #include "erm/ecs/ECSConfig.h"
 
-#include <string>
+#include <erm/utils/StaticString.h>
+
+#include <string_view>
 #include <utility>
 
 namespace erm::ecs {
@@ -16,7 +18,7 @@ public:
 public:
 	~Entity()
 	{
-		mECS.OnEntityBeingRemoved(mId);
+		mECS.onEntityBeingRemoved(mId);
 	}
 
 	Entity(Entity&&) = delete;
@@ -30,46 +32,46 @@ public:
 		return other.mId == mId;
 	}
 
-	inline EntityId GetId() const { return mId; }
-	inline bool IsValid() const { return mId.IsValid(); }
+	inline EntityId getId() const { return mId; }
+	inline bool isValid() const { return mId.isValid(); }
 
-	inline ECS& GetECS() const { return mECS; }
+	inline ECS& getECS() const { return mECS; }
 
-	inline const std::string& GetName() const { return mName; }
-	inline void SetName(const std::string& name) { mName = name; }
+	inline const str128& getName() const { return mName; }
+	inline void setName(std::string_view name) { mName = name; }
 
 	template<typename T>
-	inline bool HasComponent() const
+	inline bool hasComponent() const
 	{
-		return mECS.GetSystem<typename T::SYSTEM_TYPE>()->HasComponent(mId);
+		return mECS.getSystem<typename T::SYSTEM_TYPE>()->hasComponent(mId);
 	}
 
 	template<typename T>
-	inline T* GetComponent() const
+	inline T* getComponent() const
 	{
-		return mECS.GetSystem<typename T::SYSTEM_TYPE>()->GetComponent(mId);
+		return mECS.getSystem<typename T::SYSTEM_TYPE>()->getComponent(mId);
 	}
 
 	template<typename T, typename... Args>
-	inline T* AddComponent(Args&&... args) const
+	inline T* addComponent(Args&&... args) const
 	{
-		return mECS.GetSystem<typename T::SYSTEM_TYPE>()->AddComponent(mId, std::forward<Args>(args)...);
+		return mECS.getSystem<typename T::SYSTEM_TYPE>()->addComponent(mId, std::forward<Args>(args)...);
 	}
 
 	template<typename T, typename... Args>
-	inline T* RequireComponent(Args&&... args) const
+	inline T* requireComponent(Args&&... args) const
 	{
-		return mECS.GetSystem<typename T::SYSTEM_TYPE>()->RequireComponent(mId, std::forward<Args>(args)...);
+		return mECS.getSystem<typename T::SYSTEM_TYPE>()->requireComponent(mId, std::forward<Args>(args)...);
 	}
 
-	inline EntityId GetParent() const { return mParent; }
-	inline const std::vector<EntityId>& GetChildren() const { return mChildren; }
+	inline EntityId getParent() const { return mParent; }
+	inline const std::vector<EntityId>& getChildren() const { return mChildren; }
 
-	inline void AddChild(EntityId childId) { mECS.AddChildToEntity(mId, childId); }
-	inline void AddChild(Entity& child) { mECS.AddChildToEntity(mId, child.GetId()); }
+	inline void addChild(EntityId childId) { mECS.addChildToEntity(mId, childId); }
+	inline void addChild(Entity& child) { mECS.addChildToEntity(mId, child.getId()); }
 
 private:
-	inline Entity(ECS& ecs, EntityId id, const std::string& name)
+	inline Entity(ECS& ecs, EntityId id, std::string_view name)
 		: mECS(ecs)
 		, mId(id)
 		, mName(name)
@@ -77,7 +79,7 @@ private:
 
 	ECS& mECS;
 	const EntityId mId;
-	std::string mName;
+	str128 mName;
 	EntityId mParent;
 	std::vector<EntityId> mChildren;
 };

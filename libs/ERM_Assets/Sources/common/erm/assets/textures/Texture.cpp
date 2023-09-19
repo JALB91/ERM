@@ -26,17 +26,17 @@ namespace erm {
 ////
 ////	ERM_ASSERT(mBuffer);
 ////
-////	mWidth = static_cast<uint32_t>(width);
-////	mHeight = static_cast<uint32_t>(height);
-////	mBPP = static_cast<uint32_t>(bPP);
+////	mWidth = static_cast<u32>(width);
+////	mHeight = static_cast<u32>(height);
+////	mBPP = static_cast<u32>(bPP);
 ////
-////	mMipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(mWidth, mHeight)))) + 1;
+////	mMipLevels = static_cast<u32>(std::floor(std::log2(std::max(mWidth, mHeight)))) + 1;
 //}
 //
 //Texture::Texture(
 //	std::string_view name,
-//	uint32_t width,
-//	uint32_t height)
+//	u32 width,
+//	u32 height)
 //	: IResource(name, TYPE)
 //	, mBuffer(nullptr)
 //	, mWidth(width)

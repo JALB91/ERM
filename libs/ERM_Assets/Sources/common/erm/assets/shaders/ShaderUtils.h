@@ -2,16 +2,18 @@
 
 #include "erm/assets/enums/ShaderType.h"
 
+#include <erm/math/Types.h>
+
 #include <string>
 #include <string_view>
 
 namespace erm::ShaderUtils {
 
-extern std::string GetShaderFilename(
+extern std::string getShaderFilename(
 	std::string_view shader,
-	uint32_t index,
+	u32 index,
 	ShaderType type);
-extern std::string GetSuffixForShaderIndex(uint32_t index);
-extern std::string_view GetExtensionForShaderType(ShaderType shaderType);
+extern std::string getSuffixForShaderIndex(u32 index);
+extern std::string_view getExtensionForShaderType(ShaderType shaderType);
 
 } // namespace erm::ShaderUtils

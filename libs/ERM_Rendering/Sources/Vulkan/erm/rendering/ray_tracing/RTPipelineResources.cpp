@@ -29,62 +29,65 @@ RTPipelineResources::RTPipelineResources(
 	, mTopLevelAS(topLevelAS)
 	, mMaxInstancesCount(renderData.mInstancesMap.size())
 {
-	CreatePipeline();
-	CreateBindingTable();
-	CreatePipelineData();
+	createPipeline();
+	createBindingTable();
+	createPipelineData();
 }
 
 RTPipelineResources::~RTPipelineResources() = default;
 
-void RTPipelineResources::Refresh()
+void RTPipelineResources::refresh()
 {
-	if (mRenderData.mPipelineConfigs.mShaderProgram->NeedsReload())
+	// TODO: DAMIO
+	//if (mRenderData.mPipelineConfigs.mShaderProgram->needsReload())
 	{
 		mPipelineData.reset();
 		mDescriptorSetLayouts.clear();
 
-		CreatePipeline();
-		CreateBindingTable();
-		CreatePipelineData();
+		createPipeline();
+		createBindingTable();
+		createPipelineData();
 
-		mRenderData.mPipelineConfigs.mShaderProgram->OnReloaded();
+		//mRenderData.mPipelineConfigs.mShaderProgram->onReloaded();
 	}
 }
 
-void RTPipelineResources::UpdateCommandBuffer(
+void RTPipelineResources::updateCommandBuffer(
 	vk::CommandBuffer& cmd,
 	RTRenderData& renderData)
 {
 	ERM_PROFILE_FUNCTION();
 
-	mPipelineData->UpdateResources(cmd, renderData);
+	mPipelineData->updateResources(cmd, renderData);
 
 	cmd.bindPipeline(vk::PipelineBindPoint::eRayTracingKHR, mPipeline.get());
 
-	auto ds = mPipelineData->GetDescriptorSets(mEmptySet.get());
+	auto ds = mPipelineData->getDescriptorSets(mEmptySet.get());
 
 	cmd.bindDescriptorSets(
 		vk::PipelineBindPoint::eRayTracingKHR,
 		mPipelineLayout.get(),
 		0,
-		static_cast<uint32_t>(ds.size()),
+		static_cast<u32>(ds.size()),
 		ds.data(),
 		0,
 		nullptr);
 }
 
-void RTPipelineResources::CreatePipeline()
+void RTPipelineResources::createPipeline()
 {
-	GPUShaderProgram* shader = static_cast<GPUShaderProgram*>(mRenderData.mPipelineConfigs.mShaderProgram);
+	// TODO: DAMIO
+	//auto* shader = static_cast<GPUShaderProgram*>(mRenderData.mPipelineConfigs.mShaderProgram);
+	GPUShaderProgram* shader = nullptr;
 
 	ERM_ASSERT(shader);
 
 	/*
 		LOAD SHADERS
 	*/
-	std::vector<vk::UniqueShaderModule> rayGenShaderModules = shader->CreateShaderModules(ShaderType::RT_RAY_GEN);
-	std::vector<vk::UniqueShaderModule> missShaderModules = shader->CreateShaderModules(ShaderType::RT_MISS);
-	std::vector<vk::UniqueShaderModule> closestHitShaderModules = shader->CreateShaderModules(ShaderType::RT_CLOSEST_HIT);
+	auto rayGenShaderModules = shader->createShaderModules(ShaderType::RT_RAY_GEN);
+	auto missShaderModules = shader->createShaderModules(ShaderType::RT_MISS);
+	auto closestHitShaderModules = shader->createShaderModules(ShaderType::RT_CLOSEST_HIT);
 
 	ERM_ASSERT(rayGenShaderModules.size() == 1);
 	ERM_ASSERT(!missShaderModules.empty());
@@ -92,22 +95,22 @@ void RTPipelineResources::CreatePipeline()
 
 	std::vector<vk::PipelineShaderStageCreateInfo> shaderStages(1 + missShaderModules.size() + closestHitShaderModules.size());
 
-	vk::PipelineShaderStageCreateInfo& rayGenShaderStageInfo = shaderStages[0];
+	auto& rayGenShaderStageInfo = shaderStages[0];
 	rayGenShaderStageInfo.stage = vk::ShaderStageFlagBits::eRaygenKHR;
 	rayGenShaderStageInfo.module = rayGenShaderModules[0].get();
 	rayGenShaderStageInfo.pName = "main";
 
-	for (size_t i = 0; i < missShaderModules.size(); ++i)
+	for (u64 i = 0; i < missShaderModules.size(); ++i)
 	{
-		vk::PipelineShaderStageCreateInfo& missShaderStageInfo = shaderStages[i + 1];
+		auto& missShaderStageInfo = shaderStages[i + 1];
 		missShaderStageInfo.stage = vk::ShaderStageFlagBits::eMissKHR;
 		missShaderStageInfo.module = missShaderModules[i].get();
 		missShaderStageInfo.pName = "main";
 	}
 
-	for (size_t i = 0; i < closestHitShaderModules.size(); ++i)
+	for (u64 i = 0; i < closestHitShaderModules.size(); ++i)
 	{
-		vk::PipelineShaderStageCreateInfo& closestHitShaderStageInfo = shaderStages[i + 1 + missShaderModules.size()];
+		auto& closestHitShaderStageInfo = shaderStages[i + 1 + missShaderModules.size()];
 		closestHitShaderStageInfo.stage = vk::ShaderStageFlagBits::eClosestHitKHR;
 		closestHitShaderStageInfo.module = closestHitShaderModules[i].get();
 		closestHitShaderStageInfo.pName = "main";
@@ -115,18 +118,18 @@ void RTPipelineResources::CreatePipeline()
 
 	std::vector<vk::RayTracingShaderGroupCreateInfoKHR> shaderGroups(shaderStages.size());
 
-	vk::RayTracingShaderGroupCreateInfoKHR& rayGenGroup = shaderGroups[0];
+	auto& rayGenGroup = shaderGroups[0];
 	rayGenGroup.type = vk::RayTracingShaderGroupTypeKHR::eGeneral;
 	rayGenGroup.generalShader = 0;
 	rayGenGroup.anyHitShader = VK_SHADER_UNUSED_KHR;
 	rayGenGroup.closestHitShader = VK_SHADER_UNUSED_KHR;
 	rayGenGroup.intersectionShader = VK_SHADER_UNUSED_KHR;
 
-	for (size_t i = 0; i < missShaderModules.size(); ++i)
+	for (u64 i = 0; i < missShaderModules.size(); ++i)
 	{
-		const uint32_t targetIndex = static_cast<uint32_t>(i) + 1;
+		const u32 targetIndex = static_cast<u32>(i) + 1;
 
-		vk::RayTracingShaderGroupCreateInfoKHR& missGroup = shaderGroups[targetIndex];
+		auto& missGroup = shaderGroups[targetIndex];
 		missGroup.type = vk::RayTracingShaderGroupTypeKHR::eGeneral;
 		missGroup.generalShader = targetIndex;
 		missGroup.anyHitShader = VK_SHADER_UNUSED_KHR;
@@ -134,11 +137,11 @@ void RTPipelineResources::CreatePipeline()
 		missGroup.intersectionShader = VK_SHADER_UNUSED_KHR;
 	}
 
-	for (size_t i = 0; i < closestHitShaderModules.size(); ++i)
+	for (u64 i = 0; i < closestHitShaderModules.size(); ++i)
 	{
-		const uint32_t targetIndex = static_cast<uint32_t>(i) + 1 + static_cast<uint32_t>(missShaderModules.size());
+		const u32 targetIndex = static_cast<u32>(i) + 1 + static_cast<u32>(missShaderModules.size());
 
-		vk::RayTracingShaderGroupCreateInfoKHR& closestHitGroup = shaderGroups[targetIndex];
+		auto& closestHitGroup = shaderGroups[targetIndex];
 		closestHitGroup.type = vk::RayTracingShaderGroupTypeKHR::eTrianglesHitGroup;
 		closestHitGroup.generalShader = VK_SHADER_UNUSED_KHR;
 		closestHitGroup.closestHitShader = targetIndex;
@@ -149,20 +152,22 @@ void RTPipelineResources::CreatePipeline()
 	/*
 		SETUP DESCRIPTOR SET LAYOUT
 	*/
-	const LayoutBindingsMap& bindings = shader->GetLayoutBindingsMap();
-	uint32_t maxSet = 0;
+	const auto& bindings = shader->getLayoutBindingsMap();
+	u32 maxSet = 0;
 	std::for_each(bindings.begin(), bindings.end(), [&maxSet](const auto& pair) {
 		maxSet = std::max(maxSet, pair.first);
 	});
 	mDescriptorSetLayouts.reserve(maxSet + 1);
 
-	uint32_t maxInstanceId = 0;
+	u32 maxInstanceId = 0;
 	for (const auto& [id, inst] : mRenderData.mInstancesMap)
+	{
 		maxInstanceId = std::max(maxInstanceId, id);
+	}
 
 	std::map<SetIdx, std::vector<vk::DescriptorSetLayoutBinding>> layoutBindings;
 
-	for (uint32_t i = 0; i <= maxSet; ++i)
+	for (u32 i = 0; i <= maxSet; ++i)
 	{
 		vk::DescriptorSetLayoutCreateInfo layoutInfo {};
 
@@ -179,10 +184,12 @@ void RTPipelineResources::CreatePipeline()
 			{
 				auto& binding = layoutBindings[i].emplace_back(layoutBinding);
 				if (binding.descriptorType == vk::DescriptorType::eStorageBuffer)
+				{
 					binding.descriptorCount = maxInstanceId + 1;
+				}
 			}
 
-			layoutInfo.bindingCount = static_cast<uint32_t>(layoutBindings[i].size());
+			layoutInfo.bindingCount = static_cast<u32>(layoutBindings[i].size());
 			layoutInfo.pBindings = layoutBindings[i].data();
 		}
 
@@ -211,11 +218,13 @@ void RTPipelineResources::CreatePipeline()
 		SETUP PIPELINE LAYOUT
 	*/
 	std::vector<vk::DescriptorSetLayout> layouts(mDescriptorSetLayouts.size());
-	for (size_t i = 0; i < mDescriptorSetLayouts.size(); ++i)
+	for (u64 i = 0; i < mDescriptorSetLayouts.size(); ++i)
+	{
 		layouts[i] = mDescriptorSetLayouts[i].get();
+	}
 
 	vk::PipelineLayoutCreateInfo pipelineLayoutInfo = {};
-	pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(layouts.size());
+	pipelineLayoutInfo.setLayoutCount = static_cast<u32>(layouts.size());
 	pipelineLayoutInfo.pSetLayouts = layouts.data();
 	pipelineLayoutInfo.pushConstantRangeCount = 0;
 	pipelineLayoutInfo.pPushConstantRanges = nullptr;
@@ -227,69 +236,73 @@ void RTPipelineResources::CreatePipeline()
 	*/
 	vk::RayTracingPipelineCreateInfoKHR pipelineInfo = {};
 	pipelineInfo.setPGroups(shaderGroups.data());
-	pipelineInfo.setGroupCount(static_cast<uint32_t>(shaderGroups.size()));
+	pipelineInfo.setGroupCount(static_cast<u32>(shaderGroups.size()));
 	pipelineInfo.setPStages(shaderStages.data());
-	pipelineInfo.setStageCount(static_cast<uint32_t>(shaderStages.size()));
+	pipelineInfo.setStageCount(static_cast<u32>(shaderStages.size()));
 	pipelineInfo.setLayout(mPipelineLayout.get());
 	pipelineInfo.setBasePipelineHandle(mPipeline.get());
 
-	auto result = mDevice->createRayTracingPipelineKHRUnique(nullptr, mDevice.GetPipelineCache(), pipelineInfo);
+	auto result = mDevice->createRayTracingPipelineKHRUnique(nullptr, mDevice.getPipelineCache(), pipelineInfo);
 	ERM_ASSERT(result.result == vk::Result::eSuccess);
 	mPipeline = std::move(result.value);
 }
 
-void RTPipelineResources::CreateBindingTable()
+void RTPipelineResources::createBindingTable()
 {
-	const vk::PhysicalDeviceRayTracingPipelinePropertiesKHR& rtProps = mDevice.GetRayTracingProperties();
-	IShaderProgram& shader = *mRenderData.mPipelineConfigs.mShaderProgram;
+	// TODO: DAMIO
+	//const auto& rtProps = mDevice.getRayTracingProperties();
+	//auto shader = mRenderData.mPipelineConfigs.mShaderProgram;
 
-	uint32_t groupCount = 0;
+	//u32 groupCount = 0;
 
-	for (const auto& [type, data] : shader.GetShadersDataMap())
-		groupCount += static_cast<uint32_t>(data.size());
+	//for (const auto& [type, data] : shader.getShadersDataMap())
+	//{
+	//	groupCount += static_cast<u32>(data.size());
+	//}
 
-	uint32_t groupHandleSize = rtProps.shaderGroupHandleSize; // Size of a program identifier
-	// Compute the actual size needed per SBT entry (round-up to alignment needed).
-	uint32_t groupSizeAligned = math::AlignUp(groupHandleSize, rtProps.shaderGroupBaseAlignment);
-	// Bytes needed for the SBT.
-	uint32_t sbtSize = groupCount * groupSizeAligned;
+	//u32 groupHandleSize = rtProps.shaderGroupHandleSize; // Size of a program identifier
+	//// Compute the actual size needed per SBT entry (round-up to alignment needed).
+	//u32 groupSizeAligned = math::alignUp(groupHandleSize, rtProps.shaderGroupBaseAlignment);
+	//// Bytes needed for the SBT.
+	//u32 sbtSize = groupCount * groupSizeAligned;
 
-	// Fetch all the shader handles used in the pipeline. This is opaque data,
-	// so we store it in a vector of bytes.
-	std::vector<uint8_t> shaderHandleStorage(sbtSize);
-	ERM_VK_CHECK(mDevice->getRayTracingShaderGroupHandlesKHR(mPipeline.get(), 0, groupCount, sbtSize, shaderHandleStorage.data()));
+	//// Fetch all the shader handles used in the pipeline. This is opaque data,
+	//// so we store it in a vector of bytes.
+	//std::vector<u8> shaderHandleStorage(sbtSize);
+	//ERM_VK_CHECK(mDevice->getRayTracingShaderGroupHandlesKHR(mPipeline.get(), 0, groupCount, sbtSize, shaderHandleStorage.data()));
 
-	if (!mSBTBuffer || mSBTBuffer->GetBufferSize() != sbtSize)
-	{
-		// Allocate a buffer for storing the SBT.
-		mSBTBuffer = std::make_unique<HostBuffer>(
-			mDevice,
-			sbtSize,
-			BufferUsage::TRANSFER_SRC | BufferUsage::SHADER_DEVICE_ADDRESS | BufferUsage::SHADER_BINDING_TABLE);
-	}
+	//if (!mSBTBuffer || mSBTBuffer->getBufferSize() != sbtSize)
+	//{
+	//	// Allocate a buffer for storing the SBT.
+	//	mSBTBuffer = std::make_unique<HostBuffer>(
+	//		mDevice,
+	//		sbtSize,
+	//		BufferUsage::TRANSFER_SRC | BufferUsage::SHADER_DEVICE_ADDRESS | BufferUsage::SHADER_BINDING_TABLE);
+	//}
 
-	// Map the SBT buffer and write in the handles.
-	void* mapped = nullptr;
-	ERM_VK_CHECK(mDevice->mapMemory(mSBTBuffer->GetBufferMemory(), 0, mSBTBuffer->GetBufferSize(), {}, &mapped));
-	uint8_t* pData = reinterpret_cast<uint8_t*>(mapped);
-	for (uint32_t g = 0; g < groupCount; ++g)
-	{
-		memcpy(pData, shaderHandleStorage.data() + g * groupHandleSize, groupHandleSize);
-		pData += groupSizeAligned;
-	}
-	mDevice->unmapMemory(mSBTBuffer->GetBufferMemory());
+	//// Map the SBT buffer and write in the handles.
+	//void* mapped = nullptr;
+	//ERM_VK_CHECK(mDevice->mapMemory(mSBTBuffer->getBufferMemory(), 0, mSBTBuffer->getBufferSize(), {}, &mapped));
+	//u8* pData = reinterpret_cast<u8*>(mapped);
+	//for (u32 g = 0; g < groupCount; ++g)
+	//{
+	//	memcpy(pData, shaderHandleStorage.data() + g * groupHandleSize, groupHandleSize);
+	//	pData += groupSizeAligned;
+	//}
+	//mDevice->unmapMemory(mSBTBuffer->getBufferMemory());
 }
 
-void RTPipelineResources::CreatePipelineData()
+void RTPipelineResources::createPipelineData()
 {
-	const PipelineConfigs& configs = mRenderData.mPipelineConfigs;
+	/*const auto& configs = mRenderData.mPipelineConfigs;
 	mPipelineData = std::make_unique<PipelineData>(configs);
-	const auto& sbm = configs.mShaderProgram->GetShaderBindingsMap();
+	const auto& sbm = configs.mShaderProgram->getShaderBindingsMap();
 
 	for (const auto& [set, bindings] : sbm)
 	{
 		BindingResources resources;
 		if (set % 2 == 0)
+		{
 			resources = std::make_unique<DeviceBindingResources>(
 				mDevice,
 				mRenderer,
@@ -300,7 +313,9 @@ void RTPipelineResources::CreatePipelineData()
 				mRenderData,
 				mDescriptorSetLayouts[set].get(),
 				mTopLevelAS);
+		}
 		else
+		{
 			resources = std::make_unique<HostBindingResources>(
 				mDevice,
 				mRenderer,
@@ -309,9 +324,10 @@ void RTPipelineResources::CreatePipelineData()
 				*configs.mShaderProgram,
 				configs,
 				mDescriptorSetLayouts[set].get());
+		}
 
-		mPipelineData->AddResources(set, std::move(resources));
-	}
+		mPipelineData->addResources(set, std::move(resources));
+	}*/
 }
 
 } // namespace erm

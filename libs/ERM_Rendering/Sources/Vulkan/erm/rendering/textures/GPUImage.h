@@ -1,5 +1,7 @@
 #pragma once
 
+#include <erm/math/Types.h>
+
 #include <vulkan/vulkan.hpp>
 
 namespace erm {
@@ -18,8 +20,8 @@ public:
 	GPUImage(
 		Device& device,
 		T& texture,
-		uint32_t mipLevels,
-		uint32_t arrayLayers,
+		u32 mipLevels,
+		u32 arrayLayers,
 		vk::Image image,
 		vk::ImageView imageView,
 		vk::DeviceMemory imageMemory,
@@ -33,25 +35,25 @@ public:
 	GPUImage& operator=(GPUImage&&) = delete;
 	GPUImage& operator=(const GPUImage&) = delete;
 	
-	inline vk::Image GetImage() const { return mImage; }
-	inline vk::DeviceMemory GetImageMemory() const { return mImageMemory; }
-	inline vk::Format GetImageFormat() const { return mFormat; }
-	inline vk::ImageViewType GetImageViewType() const { return mImageViewType; }
-	inline vk::ImageView GetImageView() const { return mImageView; }
-	inline vk::ImageLayout GetImageLayout() const { return mImageLayout; }
+	inline vk::Image getImage() const { return mImage; }
+	inline vk::DeviceMemory getImageMemory() const { return mImageMemory; }
+	inline vk::Format getImageFormat() const { return mFormat; }
+	inline vk::ImageViewType getImageViewType() const { return mImageViewType; }
+	inline vk::ImageView getImageView() const { return mImageView; }
+	inline vk::ImageLayout getImageLayout() const { return mImageLayout; }
 	
-	inline void SetOwnsImage(bool ownsImage) { mOwnsImage = ownsImage; }
+	inline void setOwnsImage(bool ownsImage) { mOwnsImage = ownsImage; }
 
 private:
-	void CreateTextureImage();
-	void TransitionImageLayout(vk::ImageLayout newLayout);
-	void GenerateMipmaps();
-	void CreateTextureImageView();
+	void createTextureImage();
+	void transitionImageLayout(vk::ImageLayout newLayout);
+	void generateMipmaps();
+	void createTextureImageView();
 
 	Device& mDevice;
 	const T& mTexture;
 	
-	uint32_t mMipLevels, mArrayLayers;
+	u32 mMipLevels, mArrayLayers;
 	
 	vk::Image mImage;
 	vk::ImageView mImageView;

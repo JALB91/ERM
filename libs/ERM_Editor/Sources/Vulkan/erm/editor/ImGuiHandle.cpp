@@ -130,7 +130,7 @@ void ImGuiHandle::UpdateCommandBuffer(vk::CommandBuffer& cmd)
 	info.framebuffer = mFrameBuffers[mRenderer.GetCurrentImageIndex()];
 	info.renderArea.extent = mRenderer.GetSwapChainExtent();
 	info.renderArea.offset = vk::Offset2D {0, 0};
-	info.clearValueCount = static_cast<uint32_t>(clearValues.size());
+	info.clearValueCount = static_cast<u32>(clearValues.size());
 	info.pClearValues = clearValues.data();
 
 	cmd.beginRenderPass(info, vk::SubpassContents::eInline);
@@ -146,7 +146,7 @@ void ImGuiHandle::Cleanup()
 	ImGui_ImplGlfw_Shutdown();
 
 	mDevice->destroyDescriptorPool(mDescriptorPool);
-	for (size_t i = 0; i < mFrameBuffers.size(); ++i)
+	for (u64 i = 0; i < mFrameBuffers.size(); ++i)
 	{
 		mDevice->destroyFramebuffer(mFrameBuffers[i]);
 	}
@@ -201,14 +201,14 @@ void ImGuiHandle::CreateFrameBuffers()
 	vk::Extent2D extent = mRenderer.GetSwapChainExtent();
 
 	mFrameBuffers.resize(swapChainTextures.size());
-	for (size_t i = 0; i < swapChainTextures.size(); i++)
+	for (u64 i = 0; i < swapChainTextures.size(); i++)
 	{
 //		TODO: Damiano
 		std::vector<vk::ImageView> attachments;// = {swapChainTextures[i]->GetImageView()};
 
 		vk::FramebufferCreateInfo framebufferInfo = {};
 		framebufferInfo.renderPass = mRenderPass;
-		framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+		framebufferInfo.attachmentCount = static_cast<u32>(attachments.size());
 		framebufferInfo.pAttachments = attachments.data();
 		framebufferInfo.width = extent.width;
 		framebufferInfo.height = extent.height;
@@ -234,9 +234,9 @@ void ImGuiHandle::CreateDescriptorPool()
 		{vk::DescriptorType::eInputAttachment, 1000}};
 
 	vk::DescriptorPoolCreateInfo info;
-	info.setPoolSizeCount(static_cast<uint32_t>(pool_sizes.size()));
+	info.setPoolSizeCount(static_cast<u32>(pool_sizes.size()));
 	info.setPPoolSizes(pool_sizes.data());
-	info.setMaxSets(1000 * static_cast<uint32_t>(pool_sizes.size()));
+	info.setMaxSets(1000 * static_cast<u32>(pool_sizes.size()));
 	info.setFlags(vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet);
 
 	ERM_VK_CHECK_AND_ASSIGN(mDescriptorPool, mDevice->createDescriptorPool(info));

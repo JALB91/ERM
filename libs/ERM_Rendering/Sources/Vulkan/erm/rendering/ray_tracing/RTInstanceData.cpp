@@ -4,9 +4,9 @@ namespace erm {
 
 RTInstanceData::RTInstanceData(
 	RTBlas* blas,
-	const math::mat4& transform)
+	const mat4& transform)
 {
-	Update(blas, transform);
+	update(blas, transform);
 }
 
 RTInstanceData::~RTInstanceData() = default;
@@ -19,7 +19,9 @@ RTInstanceData::RTInstanceData(RTInstanceData&& other)
 RTInstanceData& RTInstanceData::operator=(RTInstanceData&& other)
 {
 	if (this == &other)
+	{
 		return *this;
+	}
 
 	mBlas = other.mBlas;
 	mTransform = std::move(other.mTransform);
@@ -27,9 +29,9 @@ RTInstanceData& RTInstanceData::operator=(RTInstanceData&& other)
 	return *this;
 }
 
-void RTInstanceData::Update(
+void RTInstanceData::update(
 	RTBlas* blas,
-	const math::mat4& transform)
+	const mat4& transform)
 {
 	mBlas = blas;
 	mTransform = transform;

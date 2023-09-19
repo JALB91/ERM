@@ -7,44 +7,44 @@ namespace erm {
 
 AssetsLib gAssetsLib;
 
-void AssetsLib::Init()
+void AssetsLib::init()
 {
 	mAssetsRepo = std::make_shared<AssetsRepo>();
 	mAssetsManager = std::make_shared<AssetsManager>();
 }
 
-void AssetsLib::Deinit()
+void AssetsLib::deinit()
 {
 	mAssetsRepo.reset();
 	mAssetsManager.reset();
 }
 
-void AssetsLib::OnPreUpdate()
+void AssetsLib::preUpdate()
 {
     
 }
 
-void AssetsLib::OnUpdate(float /*dt*/)
+void AssetsLib::update(float /*dt*/)
 {
     
 }
 
-void AssetsLib::OnPostUpdate()
+void AssetsLib::postUpdate()
 {
     
 }
 
-void AssetsLib::OnPreRender()
+void AssetsLib::preRender()
 {
     
 }
 
-void AssetsLib::OnRender()
+void AssetsLib::render()
 {
     
 }
 
-void AssetsLib::OnPostRender()
+void AssetsLib::postRender()
 {
     
 }

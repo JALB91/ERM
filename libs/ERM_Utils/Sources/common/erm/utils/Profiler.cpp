@@ -15,10 +15,10 @@ Profiler::Profiler(std::string_view id)
 		return;
 	}
 
-	ProfilingTree* node = sCurrentNode->Find(id);
+	auto* node = sCurrentNode->find(id);
 	if (!node)
 	{
-		node = &(sCurrentNode->AddChild(id, Profile(Timer::sFrameId)));
+		node = &(sCurrentNode->addChild(id, Profile(Timer::sFrameId)));
 	}
 	sCurrentNode = node;
 }
@@ -27,23 +27,30 @@ Profiler::~Profiler()
 {
 	ERM_ASSERT(sCurrentNode != nullptr);
 	
-	mTimer.Update();
+	mTimer.update();
 	
-	Profile& profile = sCurrentNode->GetPayload();
-	const double time = mTimer.GetElapsedTime();
+	Profile& profile = sCurrentNode->getPayload();
+	const double time = mTimer.getElapsedTime();
 	
 	if (profile.mFrameId != Timer::sFrameId)
-		profile.mSampler.AddSample(time);
+	{
+		profile.mSampler.addSample(time);
+	}
 	else
-		profile.mSampler.AddToCurrentSample(time);
+	{
+		profile.mSampler.addToCurrentSample(time);
+	}
 	
 	profile.mFrameId = Timer::sFrameId;
 	
-	if (ProfilingTree* parent = sCurrentNode->GetParent())
+	auto* parent = sCurrentNode->getParent();
+	if (parent != nullptr)
+	{
 		sCurrentNode = parent;
+	}
 }
 
-const Profiler::ProfilingTree* Profiler::GetProfilingTreeRoot()
+const Profiler::ProfilingTree* Profiler::getProfilingTreeRoot()
 {
 	return sTree.get();
 }

@@ -25,22 +25,22 @@ RenderingResources::RenderingResources(
 	, mRenderConfigs(renderConfigs)
 	, mUntouchedFrames(0)
 {
-	Reload();
+	reload();
 }
 
-void RenderingResources::Refresh()
+void RenderingResources::refresh()
 {
 	for (auto it = mPipelineResources.begin(); it != mPipelineResources.end();)
 	{
 		auto& resources = *it;
 		
-		if (resources.GetUntouchedFrames() > IRenderer::kMaxFramesInFlight)
+		if (resources.getUntouchedFrames() > IRenderer::kMaxFramesInFlight)
 		{
 			it = mPipelineResources.erase(it);
 		}
 		else
 		{
-			resources.Refresh();
+			resources.refresh();
 			++it;
 		}
 	}
@@ -48,16 +48,16 @@ void RenderingResources::Refresh()
 	++mUntouchedFrames;
 }
 
-void RenderingResources::UpdateCommandBuffer(
+void RenderingResources::updateCommandBuffer(
 	vk::CommandBuffer& cmd,
 	std::vector<RenderData*>& renderData)
 {
 	mUntouchedFrames = 0;
 	
-	for (RenderData* data : renderData)
+	for (auto* data : renderData)
 	{
-		PipelineResources& resources = GetOrCreatePipelineResources(*data);
-		resources.UpdateResources(cmd, *data);
+		auto& resources = getOrcreatePipelineResources(*data);
+		resources.updateResources(cmd, *data);
 	}
 
 	std::vector<vk::ClearValue> clearValues {1};
@@ -67,45 +67,47 @@ void RenderingResources::UpdateCommandBuffer(
 	clearValues[0].color.float32[3] = mRenderConfigs.mClearColor.a;
 
 	if (mRenderConfigs.mSubpassData.mDepthAttachment.has_value())
+	{
 		clearValues.emplace_back().setDepthStencil({1.0f, 0});
+	}
 
 	vk::RenderPassBeginInfo renderPassInfo = {};
 	renderPassInfo.renderPass = mRenderPass.get();
-	renderPassInfo.framebuffer = mFrameBuffers[std::min(mFrameBuffers.size() - 1, static_cast<size_t>(mRenderer.GetCurrentImageIndex()))].get();
+	renderPassInfo.framebuffer = mFrameBuffers[std::min(mFrameBuffers.size() - 1, static_cast<u64>(mRenderer.getCurrentImageIndex()))].get();
 	renderPassInfo.renderArea.offset = vk::Offset2D {0, 0};
-	renderPassInfo.renderArea.extent = mRenderer.GetSwapChainExtent();
-	renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+	renderPassInfo.renderArea.extent = mRenderer.getSwapChainExtent();
+	renderPassInfo.clearValueCount = static_cast<u32>(clearValues.size());
 	renderPassInfo.pClearValues = clearValues.data();
 
 	cmd.beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
 
-	for (RenderData* data : renderData)
+	for (auto* data : renderData)
 	{
-		PipelineResources* resources = FindPipelineResources(*data);
+		auto* resources = findPipelineResources(*data);
 		ERM_ASSERT(resources != nullptr);
-		resources->UpdateCommandBuffer(cmd, *data);
+		resources->updateCommandBuffer(cmd, *data);
 	}
 
 	cmd.endRenderPass();
 }
 
-vk::AttachmentDescription RenderingResources::CreateAttachmentDescription(const erm::AttachmentData& data, vk::Format format) const
+vk::AttachmentDescription RenderingResources::createAttachmentDescription(const erm::AttachmentData& data, vk::Format format) const
 {
 	vk::AttachmentDescription attachment = {};
 	attachment.format = format;
 	attachment.samples = vk::SampleCountFlagBits::e1;
-	attachment.loadOp = VkUtils::ToVulkanValue<vk::AttachmentLoadOp>(data.mLoadOp);
-	attachment.storeOp = VkUtils::ToVulkanValue<vk::AttachmentStoreOp>(data.mStoreOp);
-	attachment.stencilLoadOp = VkUtils::ToVulkanValue<vk::AttachmentLoadOp>(data.GetStencilLoadOp());
-	attachment.stencilStoreOp = VkUtils::ToVulkanValue<vk::AttachmentStoreOp>(data.GetStencilStoreOp());
-	attachment.initialLayout = VkUtils::ToVulkanValue<vk::ImageLayout>(data.mInitialLayout);
-	attachment.finalLayout = VkUtils::ToVulkanValue<vk::ImageLayout>(data.mFinalLayout);
+	attachment.loadOp = VkUtils::toVulkanValue<vk::AttachmentLoadOp>(data.mLoadOp);
+	attachment.storeOp = VkUtils::toVulkanValue<vk::AttachmentStoreOp>(data.mStoreOp);
+	attachment.stencilLoadOp = VkUtils::toVulkanValue<vk::AttachmentLoadOp>(data.getStencilLoadOp());
+	attachment.stencilStoreOp = VkUtils::toVulkanValue<vk::AttachmentStoreOp>(data.getStencilStoreOp());
+	attachment.initialLayout = VkUtils::toVulkanValue<vk::ImageLayout>(data.mInitialLayout);
+	attachment.finalLayout = VkUtils::toVulkanValue<vk::ImageLayout>(data.mFinalLayout);
 	return attachment;
 }
 
-PipelineResources& RenderingResources::GetOrCreatePipelineResources(RenderData& renderData)
+PipelineResources& RenderingResources::getOrcreatePipelineResources(RenderData& renderData)
 {
-	if (PipelineResources* resources = FindPipelineResources(renderData))
+	if (auto* resources = findPipelineResources(renderData))
 	{
 		return *resources;
 	}
@@ -119,11 +121,11 @@ PipelineResources& RenderingResources::GetOrCreatePipelineResources(RenderData& 
 		renderData.mPipelineConfigs);
 }
 
-PipelineResources* RenderingResources::FindPipelineResources(RenderData& renderData)
+PipelineResources* RenderingResources::findPipelineResources(RenderData& renderData)
 {
 	for (auto& resources : mPipelineResources)
 	{
-		if (renderData.mPipelineConfigs.IsPipelineLevelCompatible(resources.GetPipelineConfigs()))
+		if (renderData.mPipelineConfigs.isPipelineLevelCompatible(resources.getPipelineConfigs()))
 		{
 			return &resources;
 		}
@@ -132,15 +134,15 @@ PipelineResources* RenderingResources::FindPipelineResources(RenderData& renderD
 	return nullptr;
 }
 
-void RenderingResources::Reload()
+void RenderingResources::reload()
 {
-	Cleanup();
-	CreateRenderPass();
-	CreateFramebuffers();
-	CreateDescriptorPool();
+	cleanup();
+	createRenderPass();
+	createFramebuffers();
+	createDescriptorPool();
 }
 
-void RenderingResources::Cleanup()
+void RenderingResources::cleanup()
 {
 	mFrameBuffers.clear();
 	mPipelineResources.clear();
@@ -148,39 +150,39 @@ void RenderingResources::Cleanup()
 	mDescriptorPool.reset();
 }
 
-void RenderingResources::CreateRenderPass()
+void RenderingResources::createRenderPass()
 {
 	std::deque<vk::AttachmentReference> attachmentRefs;
 	std::vector<vk::AttachmentDescription> attachments;
 	vk::SubpassDescription subpass;
 	vk::SubpassDependency dependency;
 
-	const SubpassData& data = mRenderConfigs.mSubpassData;
+	const auto& data = mRenderConfigs.mSubpassData;
 
 	subpass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
 	subpass.colorAttachmentCount = 1;
 
-	const std::vector<GPUTexture*>& frameBuffers = mRenderer.GetTargetFrameBuffers(mRenderConfigs.mSubpassData.mColorAttachment.mFrameBufferType);
+	const auto& frameBuffers = mRenderer.getTargetFrameBuffers(mRenderConfigs.mSubpassData.mColorAttachment.mFrameBufferType);
 	ERM_ASSERT(!frameBuffers.empty());
 
-	attachments.emplace_back(CreateAttachmentDescription(data.mColorAttachment, frameBuffers[0]->GetImageFormat()));
+	attachments.emplace_back(createAttachmentDescription(data.mColorAttachment, frameBuffers[0]->getImageFormat()));
 
-	vk::AttachmentReference& colorAttachmentRef = attachmentRefs.emplace_back();
+	auto& colorAttachmentRef = attachmentRefs.emplace_back();
 	colorAttachmentRef.attachment = 0;
-	colorAttachmentRef.layout = VkUtils::ToVulkanValue<vk::ImageLayout>(data.mColorAttachment.mFinalLayout);
+	colorAttachmentRef.layout = VkUtils::toVulkanValue<vk::ImageLayout>(data.mColorAttachment.mFinalLayout);
 
 	subpass.pColorAttachments = &colorAttachmentRef;
 
 	if (data.mDepthAttachment.has_value())
 	{
-		const std::vector<GPUTexture*>& depthFrameBuffers = mRenderer.GetTargetFrameBuffers(data.mDepthAttachment.value().mFrameBufferType);
+		const std::vector<GPUTexture*>& depthFrameBuffers = mRenderer.getTargetFrameBuffers(data.mDepthAttachment.value().mFrameBufferType);
 		ERM_ASSERT(!depthFrameBuffers.empty());
 
-		attachments.emplace_back(CreateAttachmentDescription(data.mDepthAttachment.value(), depthFrameBuffers[0]->GetImageFormat()));
+		attachments.emplace_back(createAttachmentDescription(data.mDepthAttachment.value(), depthFrameBuffers[0]->getImageFormat()));
 
 		vk::AttachmentReference& depthAttachmentRef = attachmentRefs.emplace_back();
 		depthAttachmentRef.attachment = 1;
-		depthAttachmentRef.layout = VkUtils::ToVulkanValue<vk::ImageLayout>(data.mDepthAttachment.value().mFinalLayout);
+		depthAttachmentRef.layout = VkUtils::toVulkanValue<vk::ImageLayout>(data.mDepthAttachment.value().mFinalLayout);
 
 		subpass.pDepthStencilAttachment = &depthAttachmentRef;
 	}
@@ -194,7 +196,7 @@ void RenderingResources::CreateRenderPass()
 	dependency.dependencyFlags = vk::DependencyFlagBits::eByRegion;
 
 	vk::RenderPassCreateInfo renderPassInfo = {};
-	renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+	renderPassInfo.attachmentCount = static_cast<u32>(attachments.size());
 	renderPassInfo.pAttachments = attachments.data();
 	renderPassInfo.subpassCount = 1;
 	renderPassInfo.pSubpasses = &subpass;
@@ -204,50 +206,50 @@ void RenderingResources::CreateRenderPass()
 	ERM_VK_CHECK_AND_ASSIGN(mRenderPass, mDevice->createRenderPassUnique(renderPassInfo));
 }
 
-void RenderingResources::CreateFramebuffers()
+void RenderingResources::createFramebuffers()
 {
-	const std::vector<GPUTexture*>& frameBuffers = mRenderer.GetTargetFrameBuffers(mRenderConfigs.mSubpassData.mColorAttachment.mFrameBufferType);
-	const vk::Extent2D& swapChainExtent = mRenderer.GetSwapChainExtent();
+	const auto& frameBuffers = mRenderer.getTargetFrameBuffers(mRenderConfigs.mSubpassData.mColorAttachment.mFrameBufferType);
+	const auto& swapChainExtent = mRenderer.getSwapChainExtent();
 
 	mFrameBuffers.resize(frameBuffers.size());
 	
-	for (size_t i = 0; i < frameBuffers.size(); i++)
+	for (u64 i = 0; i < frameBuffers.size(); i++)
 	{
-		std::vector<vk::ImageView> attachments = {frameBuffers[i]->GetImageView()};
+		std::vector<vk::ImageView> attachments = {frameBuffers[i]->getImageView()};
 
 		if (mRenderConfigs.mSubpassData.mDepthAttachment.has_value())
 		{
-			attachments.emplace_back(mRenderer.GetTargetFrameBuffers(mRenderConfigs.mSubpassData.mDepthAttachment.value().mFrameBufferType)[0]->GetImageView());
+			attachments.emplace_back(mRenderer.getTargetFrameBuffers(mRenderConfigs.mSubpassData.mDepthAttachment.value().mFrameBufferType)[0]->getImageView());
 		}
 
 		vk::FramebufferCreateInfo framebufferInfo = {};
 		framebufferInfo.renderPass = mRenderPass.get();
-		framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+		framebufferInfo.attachmentCount = static_cast<u32>(attachments.size());
 		framebufferInfo.pAttachments = attachments.data();
-		framebufferInfo.width = static_cast<uint32_t>(swapChainExtent.width);
-		framebufferInfo.height = static_cast<uint32_t>(swapChainExtent.height);
+		framebufferInfo.width = static_cast<u32>(swapChainExtent.width);
+		framebufferInfo.height = static_cast<u32>(swapChainExtent.height);
 		framebufferInfo.layers = 1;
 
 		ERM_VK_CHECK_AND_ASSIGN(mFrameBuffers[i], mDevice->createFramebufferUnique(framebufferInfo));
 	}
 }
 
-void RenderingResources::CreateDescriptorPool()
+void RenderingResources::createDescriptorPool()
 {
-	const std::vector<GPUTexture*>& frameBuffers = mRenderer.GetTargetFrameBuffers(mRenderConfigs.mSubpassData.mColorAttachment.mFrameBufferType);
+	const auto& frameBuffers = mRenderer.getTargetFrameBuffers(mRenderConfigs.mSubpassData.mColorAttachment.mFrameBufferType);
 
 	std::array<vk::DescriptorPoolSize, 3> poolSizes {};
 	poolSizes[0].type = vk::DescriptorType::eUniformBuffer;
-	poolSizes[0].descriptorCount = static_cast<uint32_t>(frameBuffers.size() * 1000);
+	poolSizes[0].descriptorCount = static_cast<u32>(frameBuffers.size() * 1000);
 	poolSizes[1].type = vk::DescriptorType::eCombinedImageSampler;
-	poolSizes[1].descriptorCount = static_cast<uint32_t>(frameBuffers.size() * 100);
+	poolSizes[1].descriptorCount = static_cast<u32>(frameBuffers.size() * 100);
 	poolSizes[2].type = vk::DescriptorType::eStorageImage;
-	poolSizes[2].descriptorCount = static_cast<uint32_t>(frameBuffers.size() * 100);
+	poolSizes[2].descriptorCount = static_cast<u32>(frameBuffers.size() * 100);
 
 	vk::DescriptorPoolCreateInfo poolInfo {};
-	poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
+	poolInfo.poolSizeCount = static_cast<u32>(poolSizes.size());
 	poolInfo.pPoolSizes = poolSizes.data();
-	poolInfo.maxSets = static_cast<uint32_t>(frameBuffers.size() * 10000);
+	poolInfo.maxSets = static_cast<u32>(frameBuffers.size() * 10000);
 	poolInfo.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
 
 	ERM_VK_CHECK_AND_ASSIGN(mDescriptorPool, mDevice->createDescriptorPoolUnique(poolInfo));

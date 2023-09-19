@@ -14,24 +14,24 @@ public:
 
 	vk::Device* operator->();
 
-	inline vk::Instance GetVkInstance() const { return mInstance.get(); }
-	inline vk::SurfaceKHR GetVkSurface() const { return mSurface.get(); }
-	inline vk::PhysicalDevice GetVkPhysicalDevice() const { return mPhysicalDevice; }
-	inline vk::Device GetVkDevice() const { return mDevice.get(); }
-	inline vk::Queue GetTransferQueue() const { return mGraphicsQueue; }
-	inline vk::Queue GetGraphicsQueue() const { return mGraphicsQueue; }
-	inline vk::Queue GetPresentQueue() const { return mPresentQueue; }
-	inline vk::PipelineCache GetPipelineCache() const { return mPipelineCache.get(); }
-	inline vk::CommandPool GetCommandPool() const { return mCommandPool.get(); }
+	inline vk::Instance getVkInstance() const { return mInstance.get(); }
+	inline vk::SurfaceKHR getVkSurface() const { return mSurface.get(); }
+	inline vk::PhysicalDevice getVkPhysicalDevice() const { return mPhysicalDevice; }
+	inline vk::Device getVkDevice() const { return mDevice.get(); }
+	inline vk::Queue getTransferQueue() const { return mGraphicsQueue; }
+	inline vk::Queue getGraphicsQueue() const { return mGraphicsQueue; }
+	inline vk::Queue getPresentQueue() const { return mPresentQueue; }
+	inline vk::PipelineCache getPipelineCache() const { return mPipelineCache.get(); }
+	inline vk::CommandPool getCommandPool() const { return mCommandPool.get(); }
 
 private:
-	bool CreateInstance();
-	void SetupDebugMessenger();
-	bool CreateSurface();
-	bool PickPhysicalDevice();
-	void CreateLogicalDevice();
-	void CreatePipelineCache();
-	void CreateCommandPool();
+	bool createInstance();
+	void setupDebugMessenger();
+	bool createSurface();
+	bool pickPhysicalDevice();
+	void createLogicalDevice();
+	void createPipelineCache();
+	void createCommandPool();
 
 	GLFWwindow* mWindow;
 	vk::UniqueInstance mInstance;
@@ -49,10 +49,10 @@ private:
 #ifdef ERM_RAY_TRACING_ENABLED
 public:
 	inline const vk::PhysicalDeviceRayTracingPipelinePropertiesKHR&
-		GetRayTracingProperties() const { return mRtProperties; }
+		getRayTracingProperties() const { return mRtProperties; }
 
 private:
-	bool InitRayTracing();
+	bool initRayTracing();
 	vk::PhysicalDeviceRayTracingPipelinePropertiesKHR mRtProperties;
 #endif
 };

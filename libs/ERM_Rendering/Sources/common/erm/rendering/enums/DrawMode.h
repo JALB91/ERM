@@ -1,6 +1,10 @@
 #pragma once
 
-enum class DrawMode : short
+#include <erm/math/Types.h>
+
+namespace erm {
+
+enum class DrawMode : u8
 {
 	LINES,
 	LINE_STRIP,
@@ -8,3 +12,5 @@ enum class DrawMode : short
 	TRIANGLE_FAN,
 	TRIANGLE_STRIP
 };
+
+}

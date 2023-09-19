@@ -25,10 +25,10 @@ public:
 		const GPUModel& model);
 	~RTBlas();
 
-	inline const RTBlasData& GetBlasData() const { return mBlasData; }
+	inline const RTBlasData& getBlasData() const { return mBlasData; }
 
-	void UpdateBlasData();
-	void GetBuildInfo(vk::AccelerationStructureBuildGeometryInfoKHR& buildInfo) const;
+	void updateBlasData();
+	void getBuildInfo(vk::AccelerationStructureBuildGeometryInfoKHR& buildInfo) const;
 
 private:
 	Device& mDevice;

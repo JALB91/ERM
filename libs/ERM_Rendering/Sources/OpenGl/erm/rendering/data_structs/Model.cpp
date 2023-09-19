@@ -10,9 +10,9 @@ namespace erm {
 Mesh::Mesh(
 	Device& device,
 	VertexData* vertices,
-	uint32_t verticesCount,
+	u32 verticesCount,
 	IndexData* indices,
-	uint32_t indicesCount,
+	u32 indicesCount,
 	const RenderConfigs& configs /*= {}*/,
 	const char* name /*= ""*/
 	)

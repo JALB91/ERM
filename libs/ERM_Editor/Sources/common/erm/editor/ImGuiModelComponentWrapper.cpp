@@ -76,8 +76,8 @@ bool ShowModelComponentDebugWindow(erm::Engine& engine, erm::ecs::ModelComponent
 
 		if (erm::Model* model = modelComponent.GetModel())
 		{
-			size_t vertices = 0;
-			size_t indices = 0;
+			u64 vertices = 0;
+			u64 indices = 0;
 			const std::vector<const erm::Mesh*>& meshes = model->GetMeshes();
 
 			bool showMeshes = ImGui::CollapsingHeader("Meshes");

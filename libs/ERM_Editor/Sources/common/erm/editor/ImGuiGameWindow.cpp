@@ -57,7 +57,7 @@ public:
 //		erm::Renderer& renderer = mEngine.GetRenderer();
 //		const std::vector<erm::Texture*>& frameBuffers = renderer.GetTargetFrameBuffers(erm::FrameBufferType::FRAME_1);
 //
-//		for (size_t i = 0; i < frameBuffers.size(); ++i)
+//		for (u64 i = 0; i < frameBuffers.size(); ++i)
 //		{
 //			mTextureIDs.emplace_back(ImGui_ImplVulkan_AddTexture(
 //				renderer.GetTextureSampler(),
@@ -97,7 +97,7 @@ void ShowGameWindow(erm::Engine& engine)
 		ImGuiWindowFlags_NoScrollbar |
 		ImGuiWindowFlags_NoScrollWithMouse;
 	
-	const size_t index = engine.GetRenderer().GetCurrentFrame();
+	const u64 index = engine.GetRenderer().GetCurrentFrame();
 	
 	/*
 		Wait for the first frame to be renderer otherwise
@@ -112,7 +112,7 @@ void ShowGameWindow(erm::Engine& engine)
 
 	if (ImGui::Begin("Game", nullptr, flags) && !shouldSkip)
 	{
-		size_t targetIndex = index;
+		u64 targetIndex = index;
 		
 		if (targetIndex == 0)
 		{

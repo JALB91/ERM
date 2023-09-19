@@ -23,20 +23,20 @@ public:
 	Renderer(Window& window, Device& device);
 	~Renderer();
 
-	void OnPreRender() override;
-	void OnRender() override;
-	void OnPostRender() override;
+	void preRender() override;
+	void render() override;
+	void postRender() override;
 
-	void SubmitRenderData(RenderData& data);
+	void submitRenderData(RenderData& data);
 #ifdef ERM_RAY_TRACING_ENABLED
-	void SubmitRTRenderData(RTRenderData& data);
+	void submitRTRenderData(RTRenderData& data);
 #endif
 
 private:
-	void RecreateSwapChain() override;
-	void CreateCommandBuffers();
+	void recreateSwapChain() override;
+	void createCommandBuffers();
 
-	vk::CommandBuffer& RetrieveCommandBuffer();
+	vk::CommandBuffer& retrieveCommandBuffer();
 
 	std::map<std::unique_ptr<RenderingResources>, std::vector<RenderData*>> mRenderingMap;
 

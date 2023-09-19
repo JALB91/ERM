@@ -9,7 +9,7 @@ class IExtCommandBufferUpdater
 public:
 	virtual ~IExtCommandBufferUpdater() = default;
 	
-	virtual void UpdateCommandBuffer(vk::CommandBuffer& cmd) = 0;
+	virtual void updateCommandBuffer(vk::CommandBuffer& cmd) = 0;
 };
 
 }

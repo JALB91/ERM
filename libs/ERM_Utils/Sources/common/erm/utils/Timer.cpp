@@ -8,13 +8,13 @@ short Timer::sFrameId = 0;
 
 Timer::Timer()
 	: mElapsedTime(0.0)
-	, mStartingTime(GetCurrentTime())
+	, mStartingTime(getCurrentTime())
 	, mCurrentUpdateTime(mStartingTime)
 	, mPreviousUpdateTime(mStartingTime)
 	, mUpdateElapsedTime(0.0)
 {}
 
-void Timer::Update(double dt /*= GetCurrentTime()*/)
+void Timer::update(double dt /*= getCurrentTime()*/)
 {
 	mPreviousUpdateTime = mCurrentUpdateTime;
 	mCurrentUpdateTime = dt;
@@ -24,10 +24,10 @@ void Timer::Update(double dt /*= GetCurrentTime()*/)
 	mElapsedTime += mUpdateElapsedTime;
 }
 
-void Timer::Restart()
+void Timer::restart()
 {
 	mElapsedTime = 0.0;
-	mStartingTime = GetCurrentTime();
+	mStartingTime = getCurrentTime();
 	mCurrentUpdateTime = mStartingTime;
 	mPreviousUpdateTime = mStartingTime;
 	mUpdateElapsedTime = 0.0;

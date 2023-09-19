@@ -6,7 +6,8 @@
 #include "erm/audio/Sound.h"
 
 #include <array>
-#include <map>
+#include <string_view>
+#include <unordered_map>
 #include <vector>
 
 namespace FMOD {
@@ -27,35 +28,35 @@ public:
 	AudioManager();
 	~AudioManager();
 
-	void Suspend();
-	void Resume();
+	void suspend();
+	void resume();
 
-	void OnUpdate(float dt);
-	void UpdateDrivers();
+	void update(float dt);
+	void updateDrivers();
 
-	int GetNumDrivers() const;
+	int getNumDrivers() const;
 
-	void SetDriver(int driver) const;
-	int GetDriver() const;
+	void setDriver(int driver) const;
+	int getDriver() const;
 
-	void SetPlayInBackground(bool playInBackground);
-	bool ShouldPlayInBackground() const;
+	void setPlayInBackground(bool playInBackground);
+	bool shouldPlayInBackground() const;
 
-	Sound* GetSound(const char* path, bool create = false);
-	Reproduction* PlaySound(const char* path);
-	Reproduction* PlaySound(Sound& sound);
+	Sound* getSound(std::string_view path, bool create = false);
+	Reproduction* playSound(std::string_view path);
+	Reproduction* playSound(Sound& sound);
 
-	inline const auto& GetDrivers() const { return mDrivers; }
-	inline const auto& GetSounds() const { return mSounds; }
-	inline const auto& GetChannels() const { return mChannels; }
-	inline const auto& GetReproductions() const { return mReproductions; }
+	inline const auto& getDrivers() const { return mDrivers; }
+	inline const auto& getSounds() const { return mSounds; }
+	inline const auto& getChannels() const { return mChannels; }
+	inline const auto& getReproductions() const { return mReproductions; }
 
 private:
-	Channel* GetFreeChannel();
+	Channel* getFreeChannel();
 
 	FMOD::Studio::System* mStudioSystem;
 	FMOD::System* mCoreSystem;
-	std::map<int, AudioDriver> mDrivers;
+	std::unordered_map<int, AudioDriver> mDrivers;
 	std::vector<Sound> mSounds;
 	std::array<Channel, MAX_CHANNELS> mChannels;
 	std::vector<Reproduction> mReproductions;

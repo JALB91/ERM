@@ -19,7 +19,7 @@ public:
 
 	BoundingBox()
 	{
-		Empty();
+		empty();
 	}
 
 	BoundingBox(BoundingBox&&) noexcept = default;
@@ -28,37 +28,37 @@ public:
 	BoundingBox& operator=(BoundingBox&&) noexcept = default;
 	BoundingBox& operator=(const BoundingBox&) noexcept = default;
 
-	T GetSize() const
+	T getSize() const
 	{
 		return mMax - mMin;
 	}
 
-	void Empty()
+	void empty()
 	{
 		mMin = T(INFINITY);
 		mMax = T(-INFINITY);
 	}
 
 	template<typename S>
-	inline bool IsIntersecting(const BoundingBox<S>& other) const
+	inline bool isIntersecting(const BoundingBox<S>& other) const
 	{
-		return IsInside(other.mMin) ||
-			IsInside(other.mMax) ||
-			other.IsInside(mMin) ||
-			other.IsInside(mMax);
+		return isInside(other.mMin) ||
+			isInside(other.mMax) ||
+			other.isInside(mMin) ||
+			other.isInside(mMax);
 	}
 
 	template<typename S>
-	bool IsInside(const S& point) const;
+	bool isInside(const S& point) const;
 
 	template<typename S>
-	BoundingBox Expand(const BoundingBox<S>& other) const;
+	BoundingBox expand(const BoundingBox<S>& other) const;
 
 	template<typename S>
-	BoundingBox Intersection(const BoundingBox<S>& other) const;
+	BoundingBox intersection(const BoundingBox<S>& other) const;
 
-	BoundingBox Expand(const mat4& mat) const;
-	BoundingBox Expand(const vec3& vec) const;
+	BoundingBox expand(const mat4& mat) const;
+	BoundingBox expand(const vec3& vec) const;
 
 public:
 	T mMin;

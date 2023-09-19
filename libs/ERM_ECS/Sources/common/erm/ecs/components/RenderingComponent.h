@@ -2,6 +2,8 @@
 
 #include "erm/ecs/Component.h"
 
+#include <erm/math/Types.h>
+
 #include <vector>
 // clang-format off
 #ifdef ERM_RAY_TRACING_ENABLED
@@ -25,7 +27,7 @@ struct RenderingComponent
 
 public:
 #ifdef ERM_RAY_TRACING_ENABLED
-	ERM_SENSIBLE_MEMBER(CustomIndex, std::optional<uint32_t>)
+	ERM_SENSIBLE_MEMBER(CustomIndex, std::optional<u32>)
 	ERM_SENSIBLE_MEMBER(UseRayTracing, bool, true)
 #endif
 

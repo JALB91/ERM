@@ -18,83 +18,101 @@ struct TransformComponent
 	ERM_COMPONENT_DECL(Transform)
 
 public:
-	inline const mat4& GetWorldTransform() const { return mWorldTransform; };
-	inline const mat4& GetLocalTransform() const { return mLocalTransform; };
+	inline const mat4& getWorldTransform() const { return mWorldTransform; };
+	inline const mat4& getLocalTransform() const { return mLocalTransform; };
 
 	ERM_SENSIBLE_MEMBER(Translation, vec3, vec3(0.0f), UpdateDirtyMode::RECURSIVE);
 	ERM_SENSIBLE_MEMBER(Rotation, vec3, vec3(0.0f), UpdateDirtyMode::RECURSIVE);
 	ERM_SENSIBLE_MEMBER(Scale, vec3, vec3(1.0f), UpdateDirtyMode::RECURSIVE);
 
-	inline void SetTranslationX(float x)
+	inline void setTranslationX(float x)
 	{
 		if (mTranslation.x == x)
+		{
 			return;
+		}
 		mTranslation.x = x;
-		SetDirty(true, UpdateDirtyMode::RECURSIVE);
+		setDirty(true, UpdateDirtyMode::RECURSIVE);
 	}
 
-	inline void SetTranslationY(float y)
+	inline void setTranslationY(float y)
 	{
 		if (mTranslation.y == y)
+		{
 			return;
+		}
 		mTranslation.y = y;
-		SetDirty(true, UpdateDirtyMode::RECURSIVE);
+		setDirty(true, UpdateDirtyMode::RECURSIVE);
 	}
 
-	inline void SetTranslationZ(float z)
+	inline void setTranslationZ(float z)
 	{
 		if (mTranslation.z == z)
+		{
 			return;
+		}
 		mTranslation.z = z;
-		SetDirty(true, UpdateDirtyMode::RECURSIVE);
+		setDirty(true, UpdateDirtyMode::RECURSIVE);
 	}
 
-	inline void SetRotationX(float x)
+	inline void setRotationX(float x)
 	{
 		if (mRotation.x == x)
+		{
 			return;
+		}
 		mRotation.x = x;
-		SetDirty(true, UpdateDirtyMode::RECURSIVE);
+		setDirty(true, UpdateDirtyMode::RECURSIVE);
 	}
 
-	inline void SetRotationY(float y)
+	inline void setRotationY(float y)
 	{
 		if (mRotation.y == y)
+		{
 			return;
+		}
 		mRotation.y = y;
-		SetDirty(true, UpdateDirtyMode::RECURSIVE);
+		setDirty(true, UpdateDirtyMode::RECURSIVE);
 	}
 
-	inline void SetRotationZ(float z)
+	inline void setRotationZ(float z)
 	{
 		if (mRotation.z == z)
+		{
 			return;
+		}
 		mRotation.z = z;
-		SetDirty(true, UpdateDirtyMode::RECURSIVE);
+		setDirty(true, UpdateDirtyMode::RECURSIVE);
 	}
 
-	inline void SetScaleX(float x)
+	inline void setScaleX(float x)
 	{
 		if (mScale.x == x)
+		{
 			return;
+		}
 		mScale.x = x;
-		SetDirty(true, UpdateDirtyMode::RECURSIVE);
+		setDirty(true, UpdateDirtyMode::RECURSIVE);
 	}
 
-	inline void SetScaleY(float y)
+	inline void setScaleY(float y)
 	{
 		if (mScale.y == y)
+		{
 			return;
+		}
 		mScale.y = y;
-		SetDirty(true, UpdateDirtyMode::RECURSIVE);
+		setDirty(true, UpdateDirtyMode::RECURSIVE);
 	}
 
-	inline void SetScaleZ(float z)
+	inline void setScaleZ(float z)
 	{
 		if (mScale.z == z)
+		{
 			return;
+		}
 		mScale.z = z;
-		SetDirty(true, UpdateDirtyMode::RECURSIVE);
+		setDirty(true, UpdateDirtyMode::RECURSIVE);
 	}
 
 private:

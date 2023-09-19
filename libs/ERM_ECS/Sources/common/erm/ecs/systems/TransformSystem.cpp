@@ -15,37 +15,43 @@ TransformSystem::TransformSystem(ECS& ecs)
 	: ISystem(ecs)
 {}
 
-void TransformSystem::OnPostUpdate()
+void TransformSystem::postUpdate()
 {
 	ERM_PROFILE_FUNCTION();
 
-	UpdateDirtyRecursive(ROOT_ID);
+	updateDirtyRecursive(ROOT_ID);
 }
 
-void TransformSystem::OnEntityParentChanged(EntityId entityId)
+void TransformSystem::onEntityParentChanged(EntityId entityId)
 {
-	if (TransformComponent* component = GetComponent(entityId))
-		component->SetDirty(true, UpdateDirtyMode::RECURSIVE);
+	auto* component = getComponent(entityId);
+	if (component != nullptr)
+	{
+		component->setDirty(true, UpdateDirtyMode::RECURSIVE);
+	}
 }
 
-void TransformSystem::UpdateDirtyRecursive(EntityId id)
+void TransformSystem::updateDirtyRecursive(EntityId id)
 {
-	TransformComponent* transform = GetComponent(id);
-	Entity* entity = mECS.GetEntityById(id);
+	auto* transform = getComponent(id);
+	auto* entity = mECS.getEntityById(id);
 
-	if (!transform || !entity)
+	if (transform == nullptr || entity == nullptr)
+	{
 		return;
+	}
 
-	if (transform->IsDirty())
+	if (transform->isDirty())
 	{
 		transform->mWorldTransform = glm::identity<mat4>();
 		transform->mLocalTransform = glm::identity<mat4>();
 
-		EntityId parent = entity->GetParent();
+		EntityId parent = entity->getParent();
 
-		if (parent.IsValid())
+		if (parent.isValid())
 		{
-			if (TransformComponent* parentTransform = GetComponent(parent))
+			auto* parentTransform = getComponent(parent);
+			if (parentTransform != nullptr)
 			{
 				transform->mWorldTransform = parentTransform->mWorldTransform;
 			}
@@ -59,12 +65,12 @@ void TransformSystem::UpdateDirtyRecursive(EntityId id)
 
 		transform->mWorldTransform *= transform->mLocalTransform;
 
-		transform->SetDirty(false);
+		transform->setDirty(false);
 	}
 
-	for (const auto& childId : entity->GetChildren())
+	for (const auto& childId : entity->getChildren())
 	{
-		UpdateDirtyRecursive(childId);
+		updateDirtyRecursive(childId);
 	}
 }
 

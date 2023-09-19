@@ -58,7 +58,7 @@
 #define ERM_MAP_LIST(f, ...) ERM_EVAL(ERM_MAP_LIST1(f, __VA_ARGS__, ()()(), ()()(), ()()(), 0))
 
 #define ERM_ENUM_WITH_FLAGS(NAME, ...)                            \
-	enum class NAME : uint32_t                                    \
+	enum class NAME : u32                                    \
 	{                                                             \
 		__VA_ARGS__,                                              \
 		COUNT                                                     \
@@ -89,38 +89,38 @@
 	{                                                             \
 		return ~(NAME##Flags(bits));                              \
 	}                                                             \
-	inline NAME##Flags operator|(NAME bit0, uint32_t bit1)        \
+	inline NAME##Flags operator|(NAME bit0, u32 bit1)        \
 	{                                                             \
 		return NAME##Flags(bit0) | static_cast<NAME>(bit1);       \
 	}                                                             \
 	inline NAME##Flags                                            \
-		operator&(NAME bit0, uint32_t bit1)                       \
+		operator&(NAME bit0, u32 bit1)                       \
 	{                                                             \
 		return NAME##Flags(bit0) & static_cast<NAME>(bit1);       \
 	}                                                             \
                                                                   \
 	inline NAME##Flags                                            \
-		operator^(NAME bit0, uint32_t bit1)                       \
+		operator^(NAME bit0, u32 bit1)                       \
 	{                                                             \
 		return NAME##Flags(bit0) ^ static_cast<NAME>(bit1);       \
 	}                                                             \
-	inline NAME##Flags operator|(NAME##Flags bit0, uint32_t bit1) \
+	inline NAME##Flags operator|(NAME##Flags bit0, u32 bit1) \
 	{                                                             \
 		return bit0 | static_cast<NAME>(bit1);                    \
 	}                                                             \
 	inline NAME##Flags                                            \
-		operator&(NAME##Flags bit0, uint32_t bit1)                \
+		operator&(NAME##Flags bit0, u32 bit1)                \
 	{                                                             \
 		return bit0 & static_cast<NAME>(bit1);                    \
 	}                                                             \
                                                                   \
 	inline NAME##Flags                                            \
-		operator^(NAME##Flags bit0, uint32_t bit1)                \
+		operator^(NAME##Flags bit0, u32 bit1)                \
 	{                                                             \
 		return bit0 ^ static_cast<NAME>(bit1);                    \
 	}                                                             \
 	inline bool                                                   \
-		operator==(NAME bit0, uint32_t bit1)                      \
+		operator==(NAME bit0, u32 bit1)                      \
 	{                                                             \
 		return bit0 == static_cast<NAME>(bit1);                   \
 	}
@@ -138,37 +138,37 @@
 class NAME##Lib final               \
 {                                      \
 public:                                \
-	void Init();                       \
-	void Deinit();                     \
+	void init();                       \
+	void deinit();                     \
 							           \
-	void OnPreUpdate();                \
-	void OnUpdate(float dt);           \
-	void OnPostUpdate();               \
+	void preUpdate();                \
+	void update(float dt);           \
+	void postUpdate();               \
 								       \
-	void OnPreRender();                \
-	void OnRender();                   \
-	void OnPostRender();
+	void preRender();                \
+	void render();                   \
+	void postRender();
 
 #define ERM_STACK_LIB_OBJECT(NAME)                  \
 public:                                                \
 	NAME m##NAME;                                      \
 													   \
-	NAME& Get##NAME() { return m##NAME; }              \
-	const NAME& Get##NAME() const { return m##NAME; }
+	NAME& get##NAME() { return m##NAME; }              \
+	const NAME& get##NAME() const { return m##NAME; }
 
 #define ERM_UNIQUE_LIB_OBJECT(NAME)                   \
 public:                                                  \
 	std::unique_ptr<NAME> m##NAME;                       \
 														 \
-	NAME& Get##NAME() { return *m##NAME; }               \
-	const NAME& Get##NAME() const { return *m##NAME; }
+	NAME& get##NAME() { return *m##NAME; }               \
+	const NAME& get##NAME() const { return *m##NAME; }
 
 #define ERM_SHARED_LIB_OBJECT(NAME)                   \
 public:                                                  \
 	std::shared_ptr<NAME> m##NAME;                       \
                                                          \
-	NAME& Get##NAME() { return *m##NAME; }               \
-	const NAME& Get##NAME() const { return *m##NAME; }
+	NAME& get##NAME() { return *m##NAME; }               \
+	const NAME& get##NAME() const { return *m##NAME; }
 
 #define ERM_DECLARE_LIB_END(NAME) \
 };                                   \

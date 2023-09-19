@@ -1,8 +1,10 @@
 #pragma once
 
+#include <erm/math/Types.h>
+
 namespace erm {
 
-enum class BlendFunction : short
+enum class BlendFunction : u8
 {
 	ZERO,
 	ONE,

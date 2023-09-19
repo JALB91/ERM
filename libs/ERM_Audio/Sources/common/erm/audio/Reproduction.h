@@ -26,44 +26,45 @@ public:
 		Channel&& channel);
 	~Reproduction();
 
-	float GetDuration() const;
-	float GetTimeLeft() const;
-	float GetElapsedTime() const;
+	float getDuration() const;
+	float getTimeLeft() const;
+	float getElapsedTime() const;
 
-	void SetMode(FMOD_MODE mode) const;
-	FMOD_MODE GetMode() const;
+	void setMode(FMOD_MODE mode) const;
+	FMOD_MODE getMode() const;
 
-	void SetLoopCount(LoopCount count) const;
-	LoopCount GetLoopCount() const;
+	void setLoopCount(LoopCount count) const;
+	LoopCount getLoopCount() const;
 
-	void SetMuted(bool muted) const;
-	bool IsMuted() const;
+	void setMuted(bool muted) const;
+	bool isMuted() const;
 
-	void SetPosition(float position) const;
-	float GetPosition() const;
+	void setPosition(float position) const;
+	float getPosition() const;
 
-	void SetVolume(float volume) const;
-	float GetVolume() const;
+	void setVolume(float volume) const;
+	float getVolume() const;
 
-	void SetFrequency(float frequency) const;
-	float GetFrequency() const;
+	void setFrequency(float frequency) const;
+	float getFrequency() const;
 
-	void SetPitch(float pitch) const;
-	float GetPitch() const;
+	void setPitch(float pitch) const;
+	float getPitch() const;
 
-	bool IsPaused() const;
-	bool IsEnded() const;
-	bool IsLooping() const;
-	bool IsStopped() const;
+	bool isPaused() const;
+	bool isEnded() const;
+	bool isLooping() const;
+	bool isStopped() const;
 
-	void Resume() const;
-	void Pause() const;
-	void Stop() const;
+	void resume() const;
+	void pause() const;
+	void stop() const;
 
 private:
 	float mDuration;
 	unsigned int mLoops;
 	mutable bool mStopped;
+
 };
 
 } // namespace erm

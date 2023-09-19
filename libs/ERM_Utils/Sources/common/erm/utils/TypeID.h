@@ -9,21 +9,21 @@ namespace erm::utils {
 
 namespace internal {
 
-size_t GetNextID();
+u64 getNextID();
 
 template<typename T>
-size_t GetIDImpl()
+u64 getIDImpl()
 {
-	static const size_t sID = GetNextID();
+	static const u64 sID = getNextID();
 	return sID;
 }
 
 }
 
 template<typename T>
-size_t GetID()
+u64 getID()
 {
-	return internal::GetIDImpl<utils::RemoveAll_t<T>>();
+	return internal::getIDImpl<utils::remove_all_t<T>>();
 }
 
 }

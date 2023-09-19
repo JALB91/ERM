@@ -13,16 +13,16 @@ public:
 	UpdateManager();
 	~UpdateManager();
 
-	void AddUpdatable(IUpdatable* updatable);
-	void RemoveUpdatable(IUpdatable* updatable);
+	void addUpdatable(IUpdatable* updatable);
+	void removeUpdatable(IUpdatable* updatable);
 
-	void OnPreUpdate();
-	void Update(float dt);
-	void OnPostUpdate();
+	void preUpdate();
+	void update(float dt);
+	void postUpdate();
 
 private:
-	void Refresh();
-	void ForEach(const std::function<void(IUpdatable*)>& func);
+	void refresh();
+	void forEach(const std::function<void(IUpdatable*)>& func);
 
 	std::vector<IUpdatable*> mUpdatables;
 	std::vector<IUpdatable*> mToAdd;

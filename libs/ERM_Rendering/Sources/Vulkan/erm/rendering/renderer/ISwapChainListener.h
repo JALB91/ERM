@@ -7,8 +7,8 @@ class ISwapChainListener
 public:
 	virtual ~ISwapChainListener() = default;
 
-	virtual void SwapChainCleanup() = 0;
-	virtual void SwapChainCreated() = 0;
+	virtual void swapChainCleanup() = 0;
+	virtual void swapChainCreated() = 0;
 };
 
 } // namespace erm

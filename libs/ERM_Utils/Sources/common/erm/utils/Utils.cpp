@@ -9,7 +9,7 @@
 
 namespace erm::utils {
 
-bool LogCall(bool cond, std::string_view msg, std::string_view function, std::string_view file, int line)
+bool logCall(bool cond, std::string_view msg, std::string_view function, std::string_view file, int line)
 {
 	if (!cond)
 	{
@@ -19,7 +19,7 @@ bool LogCall(bool cond, std::string_view msg, std::string_view function, std::st
 	return cond;
 }
 
-std::vector<std::string> SplitString(std::string_view str, char ch)
+std::vector<std::string> splitString(std::string_view str, char ch)
 {
 	std::vector<std::string> res;
 	std::string* curr = str.empty() ? nullptr : &res.emplace_back();
@@ -39,7 +39,7 @@ std::vector<std::string> SplitString(std::string_view str, char ch)
 	return res;
 }
 
-std::string ReadFromFile(std::string_view path)
+std::string readFromFile(std::string_view path)
 {
 	std::ifstream stream(path.data());
 
@@ -57,20 +57,22 @@ std::string ReadFromFile(std::string_view path)
 	return result;
 }
 
-void WriteToFile(std::string_view path, std::string_view data)
+void writeToFile(std::string_view path, std::string_view data)
 {
 	std::ofstream stream(path.data());
 
 	if (ERM_EXPECT(stream.is_open(), "Failed to open file"))
+	{
 		stream.write(data.data(), data.size());
+	}
 }
 
-bool CompareNoCaseSensitive(std::string_view a, std::string_view b)
+bool compareNoCaseSensitive(std::string_view a, std::string_view b)
 {
 	if (a.size() != b.size())
 		return false;
 	
-	for (size_t i = 0; i < a.size(); ++i)
+	for (u64 i = 0; i < a.size(); ++i)
 	{
 		if (std::tolower(a[i]) != std::tolower(b[i]))
 		{
@@ -81,32 +83,42 @@ bool CompareNoCaseSensitive(std::string_view a, std::string_view b)
 	return true;
 }
 
-bool EndsWith(std::string_view s, std::string_view c)
+bool endsWith(std::string_view s, std::string_view c)
 {
 	if (c.size() > s.size())
+	{
 		return false;
+	}
 
 	for (int i = static_cast<int>(c.size()); i > 0; --i)
+	{
 		if (s[s.size() - i] != c[c.size() - i])
+		{
 			return false;
+		}
+	}
 
 	return true;
 }
 
-std::string FormatTime(unsigned int seconds)
+std::string formatTime(u64 seconds)
 {
-	unsigned int minutes = seconds / 60;
-	unsigned int hours = minutes / 60;
+	u64 minutes = seconds / 60;
+	u64 hours = minutes / 60;
 	minutes %= 60;
 	seconds %= 60;
 
 	std::string result;
 
 	if (hours > 0)
+	{
 		result += std::to_string(hours) + "h:";
+	}
 
 	if (minutes > 0)
+	{
 		result += std::to_string(minutes) + "m:";
+	}
 
 	result += std::to_string(seconds) + "s";
 

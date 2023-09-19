@@ -11,36 +11,38 @@ namespace erm::ecs {
 
 ERM_SYSTEM_IMPL(Skeleton)
 
-void SkeletonSystem::OnPostUpdate()
+void SkeletonSystem::postUpdate()
 {
 	ERM_PROFILE_FUNCTION();
 
 	for (ID i = ROOT_ID; i < MAX_ID; ++i)
 	{
-		SkeletonComponent* skeletonComponent = GetComponent(i);
-		if (!skeletonComponent || !skeletonComponent->IsDirty())
-			continue;
-
-		StringID skeletonID = skeletonComponent->GetSkeletonID();
-		auto* skeleton = gAssetsLib.GetAssetsRepo().GetAsset<Skeleton>(skeletonID);
-
-		if (skeleton == nullptr)
+		auto* skeletonComponent = getComponent(i);
+		if (!skeletonComponent || !skeletonComponent->isDirty())
 		{
-			skeletonComponent->SetDirty(false);
 			continue;
 		}
 
-		BonesTree& rootBone = skeleton->mRootBone;
-		rootBone.ForEachDo(
+		auto skeletonID = skeletonComponent->getSkeletonID();
+		auto* skeleton = gAssetsLib.getAssetsRepo().getAsset<Skeleton>(skeletonID);
+
+		if (skeleton == nullptr)
+		{
+			skeletonComponent->setDirty(false);
+			continue;
+		}
+
+		auto& rootBone = skeleton->mRootBone;
+		rootBone.forEachDo(
 			[](BonesTree& node) {
-				BonesTree* parent = node.GetParent();
-				Bone& bone = node.GetPayload();
-				bone.mWorldTransform = parent ? parent->GetPayload().mWorldTransform : glm::identity<mat4>();
+				auto* parent = node.getParent();
+				auto& bone = node.getPayload();
+				bone.mWorldTransform = parent ? parent->getPayload().mWorldTransform : glm::identity<mat4>();
 				bone.mWorldTransform *= bone.mLocalTransform;
 				bone.mAnimatedTransform = bone.mWorldTransform * bone.mInverseBindTransform;
 			});
 
-		skeletonComponent->SetDirty(false);
+		skeletonComponent->setDirty(false);
 	}
 }
 

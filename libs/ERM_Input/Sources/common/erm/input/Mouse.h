@@ -1,8 +1,10 @@
 #pragma once
 
+#include <erm/math/Types.h>
+
 namespace erm {
 
-typedef int MouseButton;
+using MouseButton = u32;
 extern const MouseButton MOUSE_BUTTON_1;
 extern const MouseButton MOUSE_BUTTON_2;
 extern const MouseButton MOUSE_BUTTON_3;

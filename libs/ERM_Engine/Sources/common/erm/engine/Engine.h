@@ -39,44 +39,44 @@ public:
 	Engine(const Engine&) = delete;
 	Engine(Engine&&) = delete;
 
-	bool Init();
-	void Run();
+	bool init();
+	void run();
 
-	void OnPreUpdate();
-	void OnUpdate(float dt);
-	void OnPostUpdate();
-	void OnPreRender();
-	void OnRender();
-	void OnPostRender();
+	void preUpdate();
+	void update(float dt);
+	void postUpdate();
+	void preRender();
+	void render();
+	void postRender();
 
-	inline unsigned int GetFPS() const { return mFPS; }
-	inline unsigned int GetMaxFPS() const { return mMaxFPS; }
+	inline unsigned int getFPS() const { return mFPS; }
+	inline unsigned int getMaxFPS() const { return mMaxFPS; }
 
-	void SetMaxFPS(unsigned int maxFPS);
+	void setMaxFPS(unsigned int maxFPS);
 
-	inline const Timer& GetTimer() const { return mTimer; }
-	inline const FileLocator& GetFileLocator() const { return mFileLocator; }
-	inline AudioManager& GetAudioManager() const { return *mAudioManager; }
-	inline Window& GetWindow() const { return *mWindow; }
-	inline Device& GetDevice() const { return *mDevice; }
-	inline Renderer& GetRenderer() const { return *mRenderer; }
-//	inline ImGuiHandle& GetImGuiHandle() const { return *mImGuiHandle; }
-	inline ecs::ECS& GetECS() const { return *mECS; }
-	inline UpdateManager& GetUpdateManager() const { return *mUpdateManager; }
+	inline const Timer& getTimer() const { return mTimer; }
+	inline const FileLocator& getFileLocator() const { return mFileLocator; }
+	inline AudioManager& getAudioManager() const { return *mAudioManager; }
+	inline Window& getWindow() const { return *mWindow; }
+	inline Device& getDevice() const { return *mDevice; }
+	inline Renderer& getRenderer() const { return *mRenderer; }
+//	inline ImGuiHandle& getImGuiHandle() const { return *mImGuiHandle; }
+	inline ecs::ECS& getECS() const { return *mECS; }
+	inline UpdateManager& getUpdateManager() const { return *mUpdateManager; }
 
 private:
 	// IWindowListener
-	void OnKeyPressed(Key keyCode) override;
-	void OnKeyReleased(Key keyCode) override;
-	void OnMouseButtonPressed(MouseButton mouseButton) override;
-	void OnMouseButtonReleased(MouseButton mouseButton) override;
-	void OnMouseMoved(double xPos, double yPos) override;
-	void OnSizeChanged(int width, int height) override;
-	void OnFocusChanged() override;
+	void onKeyPressed(Key keyCode) override;
+	void onKeyReleased(Key keyCode) override;
+	void onMouseButtonPressed(MouseButton mouseButton) override;
+	void onMouseButtonReleased(MouseButton mouseButton) override;
+	void onMouseMoved(double xPos, double yPos) override;
+	void onSizeChanged(u32 width, u32 height) override;
+	void onFocusChanged() override;
 
 	Timer mTimer;
-	unsigned int mFPS;
-	unsigned int mMaxFPS;
+	u16 mFPS;
+	u16 mMaxFPS;
 	double mTargetFrameTime;
 
 	FileLocator mFileLocator;

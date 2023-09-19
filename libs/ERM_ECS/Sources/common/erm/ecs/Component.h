@@ -21,33 +21,33 @@ public:                                                                         
 	friend class NAME##System;                                                              \
                                                                                             \
 public:                                                                                     \
-	inline const ComponentId& GetComponentId() const { return mId; }                        \
-	inline bool IsDirty() const { return mIsDirty; }                                        \
-	void SetDirty(bool isDirty, UpdateDirtyMode updateDirtyMode = UpdateDirtyMode::NORMAL); \
+	inline const ComponentId& getComponentId() const { return mId; }                        \
+	inline bool isDirty() const { return mIsDirty; }                                        \
+	void setDirty(bool isDirty, UpdateDirtyMode updateDirtyMode = UpdateDirtyMode::NORMAL); \
                                                                                             \
 private:                                                                                    \
 	ComponentId mId = {};                                                                   \
 	bool mIsDirty = true;
 
 #define ERM_COMPONENT_IMPL(NAME)                                                                                \
-	void NAME##Component::SetDirty(bool isDirty, UpdateDirtyMode updateDirtyMode /*= UpdateDirtyMode::NORMAL*/) \
+	void NAME##Component::setDirty(bool isDirty, UpdateDirtyMode updateDirtyMode /*= UpdateDirtyMode::NORMAL*/) \
 	{ \
 mIsDirty = isDirty; (void)updateDirtyMode;\
 } \
-//	void NAME##Component::SetDirty(bool isDirty, UpdateDirtyMode updateDirtyMode /*= UpdateDirtyMode::NORMAL*/) \
+//	void NAME##Component::setDirty(bool isDirty, UpdateDirtyMode updateDirtyMode /*= UpdateDirtyMode::NORMAL*/) \
 //	{                                                                                                           \
 //		mIsDirty = isDirty;                                                                                     \
 //                                                                                                                \
 //		if (updateDirtyMode == UpdateDirtyMode::RECURSIVE)                                                      \
 //		{                                                                                                       \
-//			auto& ecs = gEngine->GetECS();                                                                      \
-//			auto* entity = ecs.GetEntityById(GetComponentId());                                                 \
+//			auto& ecs = gEngine->getECS();                                                                      \
+//			auto* entity = ecs.getEntityById(getComponentId());                                                 \
 //                                                                                                                \
-//			for (auto& child : entity->GetChildren())                                                           \
+//			for (auto& child : entity->getChildren())                                                           \
 //			{                                                                                                   \
-//				auto component = ecs.GetSystem<NAME##System>()->GetComponent(child);                            \
+//				auto component = ecs.getSystem<NAME##System>()->getComponent(child);                            \
 //				if (component)                                                                                  \
-//					component->SetDirty(isDirty, updateDirtyMode);                                              \
+//					component->setDirty(isDirty, updateDirtyMode);                                              \
 //			}                                                                                                   \
 //		}                                                                                                       \
 //	}
@@ -58,22 +58,22 @@ private:                                                                        
                                                                                       \
 public:                                                                               \
 	template<typename T = TYPE, typename E = std::enable_if_t<!std::is_const_v<T>>>   \
-	inline void Set##NAME(T value)                                                    \
+	inline void set##NAME(T value)                                                    \
 	{                                                                                 \
 		if (value == m##NAME)                                                         \
 			return;                                                                   \
 		m##NAME = std::forward<T>(value);                                             \
-		SetDirty(true, UPDATE_DIRTY_MODE);                                            \
+		setDirty(true, UPDATE_DIRTY_MODE);                                            \
 	}                                                                                 \
                                                                                       \
 	template<typename T = TYPE, typename E = std::enable_if_t<std::is_pointer_v<T>>>  \
-	inline const T Get##NAME() const                                                  \
+	inline const T get##NAME() const                                                  \
 	{                                                                                 \
 		return m##NAME;                                                               \
 	}                                                                                 \
                                                                                       \
 	template<typename T = TYPE, typename E = std::enable_if_t<!std::is_pointer_v<T>>> \
-	inline const T& Get##NAME() const                                                 \
+	inline const T& get##NAME() const                                                 \
 	{                                                                                 \
 		return m##NAME;                                                               \
 	}

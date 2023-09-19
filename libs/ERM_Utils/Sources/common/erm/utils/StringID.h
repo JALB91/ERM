@@ -1,5 +1,7 @@
 #pragma once
 
+#include <erm/math/Types.h>
+
 #ifndef NDEBUG
 #include <string>
 #endif
@@ -27,25 +29,25 @@ public:
 		return mHash != other.mHash;
 	}
 	
-	inline size_t GetHash() const
+	inline u64 getHash() const
 	{
 		return mHash;
 	}
 	
-	inline bool IsValid() const
+	inline bool isValid() const
 	{
 		return mHash != INVALID.mHash;
 	}
 	
 #ifndef NDEBUG
-	inline const std::string& GetDebugString() const
+	inline const std::string& getDebugString() const
 	{
 		return mDebugString;
 	}
 #endif
 	
 private:
-	size_t mHash;
+	u64 mHash;
 #ifndef NDEBUG
 	std::string mDebugString;
 #endif
@@ -59,9 +61,9 @@ namespace std {
 template <>
 struct hash<erm::StringID>
 {
-	size_t operator()(const erm::StringID& k) const
+	erm::u64 operator()(const erm::StringID& k) const
 	{
-		return k.GetHash();
+		return k.getHash();
 	}
 };
 

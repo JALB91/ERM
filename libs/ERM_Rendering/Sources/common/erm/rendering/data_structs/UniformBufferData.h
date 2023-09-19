@@ -6,25 +6,27 @@
 
 #include <erm/assets/enums/TextureType.h>
 
+#include <erm/math/Types.h>
+
 #include <variant>
 
 namespace erm {
 
 struct IBindingData
 {
-	IBindingData(uint32_t binding, uint32_t set)
+	IBindingData(u32 binding, u32 set)
 		: mBinding(binding)
 		, mSet(set)
 	{}
 	virtual ~IBindingData() = default;
 
-	uint32_t mBinding;
-	uint32_t mSet;
+	u32 mBinding;
+	u32 mSet;
 };
 
 struct UboData : IBindingData
 {
-	UboData(uint32_t binding, uint32_t set, UboId uboId, size_t size, uint32_t offset)
+	UboData(u32 binding, u32 set, UboId uboId, u64 size, u32 offset)
 		: IBindingData(binding, set)
 		, mUboId(uboId)
 		, mStride(size)
@@ -32,13 +34,13 @@ struct UboData : IBindingData
 	{}
 
 	UboId mUboId;
-	size_t mStride;
-	uint32_t mOffset;
+	u64 mStride;
+	u32 mOffset;
 };
 
 struct SamplerData : IBindingData
 {
-	SamplerData(uint32_t binding, uint32_t set, std::variant<FrameBufferType, TextureType> type)
+	SamplerData(u32 binding, u32 set, std::variant<FrameBufferType, TextureType> type)
 		: IBindingData(binding, set)
 		, mType(type)
 	{}
@@ -48,19 +50,19 @@ struct SamplerData : IBindingData
 
 struct StorageBufferData : IBindingData
 {
-	StorageBufferData(uint32_t binding, uint32_t set, StorageBufferType type, uint32_t offset)
+	StorageBufferData(u32 binding, u32 set, StorageBufferType type, u32 offset)
 		: IBindingData(binding, set)
 		, mType(type)
 		, mOffset(offset)
 	{}
 
 	StorageBufferType mType;
-	uint32_t mOffset;
+	u32 mOffset;
 };
 
 struct StorageImageData : IBindingData
 {
-	StorageImageData(uint32_t binding, uint32_t set, FrameBufferType frameBufferType)
+	StorageImageData(u32 binding, u32 set, FrameBufferType frameBufferType)
 		: IBindingData(binding, set)
 		, mFrameBufferType(frameBufferType)
 	{}

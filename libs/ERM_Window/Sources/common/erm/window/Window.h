@@ -18,27 +18,27 @@ public:
 	Window& operator=(const Window&) = delete;
 	Window& operator=(Window&&) = delete;
 
-	inline GLFWwindow* GetWindow() const { return mWindow; }
+	inline GLFWwindow* getWindow() const { return mWindow; }
 
-	bool Init();
-	bool ShouldClose();
-	void OnUpdate();
-	void OnRender();
-	void OnPostRender();
+	bool init();
+	bool shouldClose();
+	void update();
+	void render();
+	void postRender();
 
 	// IWindow
-	void OnKey(int key, int scanCode, int action, int mods) override;
-	void OnMouseButton(int button, int action, int mods) override;
-	void OnMousePos(double xPos, double yPos) override;
-	void OnSizeChanged() override;
-	void OnMaximised(bool wasMaximised) override;
-	void OnFocusLost() override;
-	void OnFocus() override;
-	BoundingBox2D GetNormalizedViewport() const override;
+	void onKey(int key, int scanCode, int action, int mods) override;
+	void onMouseButton(int button, int action, int mods) override;
+	void onMousePos(double xPos, double yPos) override;
+	void onSizeChanged() override;
+	void onMaximised(bool wasMaximised) override;
+	void onFocusLost() override;
+	void onFocus() override;
+	BoundingBox2D getNormalizedViewport() const override;
 
 private:
-	void UpdateViewport();
-	void UpdateAspectRatio();
+	void updateViewport();
+	void updateAspectRatio();
 
 	GLFWwindow* mWindow;
 };

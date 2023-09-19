@@ -21,41 +21,47 @@ AnimationSystem::AnimationSystem(ECS& ecs)
 	, mFrameTime(0.0f)
 {}
 
-void AnimationSystem::OnUpdate(float dt)
+void AnimationSystem::update(float dt)
 {
 	mFrameTime = dt;
 }
 
-void AnimationSystem::OnPostUpdate()
+void AnimationSystem::postUpdate()
 {
 	ERM_PROFILE_FUNCTION();
 
 	for (ID i = ROOT_ID; i < MAX_ID; ++i)
 	{
-		AnimationComponent* animationComponent = GetComponent(i);
-		SkeletonComponent* skeletonComponent = mECS.GetComponent<SkeletonComponent>(i);
+		auto* animationComponent = getComponent(i);
+		auto* skeletonComponent = mECS.getComponent<SkeletonComponent>(i);
 
 		if (!animationComponent || !animationComponent->mPlaying || !skeletonComponent)
+		{
 			continue;
+		}
 
-		SkeletonAnimation* currentAnimation = animationComponent->mSkeletonAnimation;
-		const auto skeletonID = skeletonComponent->GetSkeletonID();
+		auto* currentAnimation = animationComponent->mSkeletonAnimation;
+		const auto skeletonID = skeletonComponent->getSkeletonID();
 
-		if (!currentAnimation || !skeletonID.IsValid() || currentAnimation->mTotalAnimationTime <= 0.01f || currentAnimation->mKeyFrames.empty())
+		if (!currentAnimation || !skeletonID.isValid() || currentAnimation->mTotalAnimationTime <= 0.01f || currentAnimation->mKeyFrames.empty())
+		{
 			continue;
+		}
 
-		auto* skeleton = gAssetsLib.GetAssetsRepo().GetAsset<Skeleton>(skeletonID);
+		auto* skeleton = gAssetsLib.getAssetsRepo().getAsset<Skeleton>(skeletonID);
 		
 		if (skeleton == nullptr)
+		{
 			return;
+		}
 		
-		BonesTree& rootBone = skeleton->mRootBone;
+		auto& rootBone = skeleton->mRootBone;
 
 		float& currentAnimationTime = animationComponent->mCurrentAnimationTime;
-		const std::vector<KeyFrame>& keyFrames = currentAnimation->mKeyFrames;
+		const auto& keyFrames = currentAnimation->mKeyFrames;
 
-		const KeyFrame* prevKeyFrame = &keyFrames[0];
-		const KeyFrame* nextKeyFrame = &keyFrames[0];
+		const auto* prevKeyFrame = &keyFrames[0];
+		const auto* nextKeyFrame = &keyFrames[0];
 
 		currentAnimationTime += mFrameTime * animationComponent->mTimeScale;
 
@@ -79,15 +85,15 @@ void AnimationSystem::OnPostUpdate()
 
 		const float progression = (currentAnimationTime - prevKeyFrame->mTimestamp) / (nextKeyFrame->mTimestamp - prevKeyFrame->mTimestamp);
 
-		rootBone.ForEachDo(
+		rootBone.forEachDo(
 			[&prevKeyFrame, &nextKeyFrame, progression](BonesTree& node) {
-				Bone& currentBone = node.GetPayload();
+				auto& currentBone = node.getPayload();
 
-				if (node.GetId() >= MAX_BONES)
+				if (node.getId() >= MAX_BONES)
 					return;
 
-				const Pose& prevPose = prevKeyFrame->mTransforms[node.GetId()];
-				const Pose& nextPose = nextKeyFrame->mTransforms[node.GetId()];
+				const auto& prevPose = prevKeyFrame->mTransforms[node.getId()];
+				const auto& nextPose = nextKeyFrame->mTransforms[node.getId()];
 
 				Pose currentPose;
 				currentPose.mTranslation = glm::mix(prevPose.mTranslation, nextPose.mTranslation, progression);
@@ -99,7 +105,7 @@ void AnimationSystem::OnPostUpdate()
 				currentBone.mLocalTransform = glm::scale(currentBone.mLocalTransform, currentPose.mScale);
 			});
 
-		skeletonComponent->SetDirty(true);
+		skeletonComponent->setDirty(true);
 	}
 }
 

@@ -4,6 +4,8 @@
 #include "erm/rendering/buffers/UniformBuffer.h"
 #include "erm/rendering/data_structs/IBindingResources.h"
 
+#include <erm/math/Types.h>
+
 namespace erm {
 
 class DeviceBindingResources : public IBindingResources
@@ -12,7 +14,7 @@ public:
 	DeviceBindingResources(
 		Device& device,
 		IRenderer& renderer,
-		uint32_t targetSet,
+		u32 targetSet,
 		const IShaderProgram& shaderProgram,
 		const BindingConfigs& configs,
 		const IRenderData& renderData,
@@ -24,12 +26,12 @@ public:
 #endif
 	);
 
-	vk::DescriptorSet GetDescriptorSet() const override;
+	vk::DescriptorSet getDescriptorSet() const override;
 
-	void UpdateResources(vk::CommandBuffer cmd, IRenderData& data) override;
+	void updateResources(vk::CommandBuffer cmd, IRenderData& data) override;
 
 private:
-	void CreateUniformBuffers(const std::vector<UboData>& ubosData);
+	void createUniformBuffers(const std::vector<UboData>& ubosData);
 
 	UniformBuffersMap<DeviceBuffer> mUniformBuffersMap;
 };

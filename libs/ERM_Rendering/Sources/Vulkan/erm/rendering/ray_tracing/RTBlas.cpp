@@ -6,7 +6,9 @@
 #include "erm/rendering/models/GPUModel.h"
 #include "erm/rendering/models/GPUMesh.h"
 
-#include <erm/resources/models/Mesh.h>
+#include <erm/math/Types.h>
+
+#include <erm/assets/models/Mesh.h>
 
 namespace erm {
 
@@ -20,25 +22,25 @@ RTBlas::RTBlas(
 
 RTBlas::~RTBlas() = default;
 
-void RTBlas::UpdateBlasData()
+void RTBlas::updateBlasData()
 {
-	const std::vector<GPUMesh>& meshes = mModel.GetGPUMeshes();
-	const BufferLayout& vLayout = mModel.GetVerticesBuffer().GetLayout();
-	const BufferLayout& iLayout = mModel.GetIndicesBuffer().GetLayout();
+	const auto& meshes = mModel.getGPUMeshes();
+	const auto& vLayout = mModel.getVerticesBuffer().getLayout();
+	const auto& iLayout = mModel.getIndicesBuffer().getLayout();
 
 	vk::DeviceAddress vertexAddress = mDevice->getBufferAddress({vLayout.mBuffer});
 	vk::DeviceAddress indexAddress = mDevice->getBufferAddress({iLayout.mBuffer});
 
-	uint32_t maxVertex = 0;
-	uint32_t maxPrimCount = 0;
+	u32 maxVertex = 0;
+	u32 maxPrimCount = 0;
 
-	for (size_t i = 0; i < meshes.size(); ++i)
+	for (u64 i = 0; i < meshes.size(); ++i)
 	{
-		const GPUMesh& gpuMesh = meshes[i];
-		const Mesh& mesh = gpuMesh.GetMesh();
+		const auto& gpuMesh = meshes[i];
+		const auto& mesh = gpuMesh.getMesh();
 
-		maxVertex += static_cast<uint32_t>(mesh.GetVerticesData().size());
-		maxPrimCount += static_cast<uint32_t>(mesh.GetIndicesData().size() / 3);
+		maxVertex += static_cast<u32>(mesh.mVerticesData.size());
+		maxPrimCount += static_cast<u32>(mesh.mIndicesData.size() / 3);
 	}
 
 	mNeedsBuild = true;
@@ -67,7 +69,7 @@ void RTBlas::UpdateBlasData()
 	mBlasData.mInfos.setPrimitiveCount(maxPrimCount);
 }
 
-void RTBlas::GetBuildInfo(vk::AccelerationStructureBuildGeometryInfoKHR& buildInfo) const
+void RTBlas::getBuildInfo(vk::AccelerationStructureBuildGeometryInfoKHR& buildInfo) const
 {
 	buildInfo.setGeometryCount(1);
 	buildInfo.setPGeometries(&mBlasData.mGeometries);

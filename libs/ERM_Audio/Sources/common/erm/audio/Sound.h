@@ -1,6 +1,8 @@
 #pragma once
 
-#include <string>
+#include <erm/utils/StaticString.h>
+
+#include <string_view>
 
 namespace FMOD {
 class Sound;
@@ -15,19 +17,19 @@ public:
 
 public:
 	Sound(
-		const char* path,
+		std::string_view path,
 		FMOD::Sound* sound,
 		bool isStream);
 	virtual ~Sound();
 
-	inline const std::string& GetPath() const { return mPath; }
-	inline bool IsStream() const { return mIsStream; }
+	inline const str256& getPath() const { return mPath; }
+	inline bool isStream() const { return mIsStream; }
 
-	const char* GetName() const;
-	unsigned int GetLenght() const;
+	str256 getName() const;
+	unsigned int getLenght() const;
 
 protected:
-	std::string mPath;
+	str256 mPath;
 	FMOD::Sound* mSound;
 	bool mIsStream;
 };

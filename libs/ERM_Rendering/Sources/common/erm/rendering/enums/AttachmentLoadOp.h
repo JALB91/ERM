@@ -1,8 +1,10 @@
 #pragma once
 
+#include <erm/math/Types.h>
+
 namespace erm {
 
-enum class AttachmentLoadOp : char
+enum class AttachmentLoadOp : u8
 {
 	CLEAR,
 	LOAD,

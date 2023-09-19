@@ -4,6 +4,8 @@
 #include "erm/rendering/buffers/HostBuffer.h"
 #include "erm/rendering/buffers/IBuffer.h"
 
+#include <erm/math/Types.h>
+
 #include <type_traits>
 
 namespace erm {
@@ -14,7 +16,7 @@ template<
 class UniformBuffer : public BufferType
 {
 public:
-	UniformBuffer(Device& device, size_t size)
+	UniformBuffer(Device& device, u64 size)
 		: BufferType(
 			  device,
 			  size,

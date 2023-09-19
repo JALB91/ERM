@@ -21,39 +21,39 @@ public:                                                                         
 	static constexpr ID SYSTEM_ID = NAME##SystemId;                                                   \
                                                                                                       \
 public:                                                                                               \
-	void RemoveComponent(EntityId id) override;                                                       \
-	const NAME##Component* GetComponent(EntityId id) const;                                           \
-	NAME##Component* GetComponent(EntityId id);                                                       \
+	void removeComponent(EntityId id) override;                                                       \
+	const NAME##Component* getComponent(EntityId id) const;                                           \
+	NAME##Component* getComponent(EntityId id);                                                       \
                                                                                                       \
 	template<typename... Args>                                                                        \
-	inline NAME##Component* AddComponent(EntityId id, Args&&... args)                                 \
+	inline NAME##Component* addComponent(EntityId id, Args&&... args)                                 \
 	{                                                                                                 \
-		ERM_ASSERT(id.IsValid());                                                                     \
-		if (!HasComponent(id))                                                                        \
+		ERM_ASSERT(id.isValid());                                                                     \
+		if (!hasComponent(id))                                                                        \
 		{                                                                                             \
-			OnComponentBeingAdded(id);                                                                \
-			ISystem::AddComponent(id);                                                                \
+			onComponentBeingAdded(id);                                                                \
+			ISystem::addComponent(id);                                                                \
 			mComponents[id()] = NAME##Component(std::forward<Args>(args)...);                         \
 			mComponents[id()].mId = id;                                                               \
-			OnComponentAdded(id);                                                                     \
+			onComponentAdded(id);                                                                     \
 		}                                                                                             \
                                                                                                       \
-		return GetComponent(id);                                                                      \
+		return getComponent(id);                                                                      \
 	}                                                                                                 \
                                                                                                       \
 	template<typename... Args>                                                                        \
-	inline NAME##Component* RequireComponent(EntityId id, Args&&... args)                             \
+	inline NAME##Component* requireComponent(EntityId id, Args&&... args)                             \
 	{                                                                                                 \
-		ERM_ASSERT(id.IsValid());                                                                     \
-		return (HasComponent(id) ? GetComponent(id) : AddComponent(id, std::forward<Args>(args)...)); \
+		ERM_ASSERT(id.isValid());                                                                     \
+		return (hasComponent(id) ? getComponent(id) : addComponent(id, std::forward<Args>(args)...)); \
 	}                                                                                                 \
                                                                                                       \
 	template<typename F>                                                                              \
-	inline void ForEachComponent(F f)                                                                 \
+	inline void forEachComponent(F f)                                                                 \
 	{                                                                                                 \
 		for (ID i = 0; i < MAX_ID; ++i)                                                               \
 		{                                                                                             \
-			if (NAME##Component* c = GetComponent(i))                                                 \
+			if (NAME##Component* c = getComponent(i))                                                 \
 			{                                                                                         \
 				f(*c);                                                                                \
 			}                                                                                         \
@@ -61,11 +61,11 @@ public:                                                                         
 	}                                                                                                 \
                                                                                                       \
 	template<typename F>                                                                              \
-	inline void ForEachComponent(F f) const                                                           \
+	inline void forEachComponent(F f) const                                                           \
 	{                                                                                                 \
 		for (ID i = 0; i < MAX_ID; ++i)                                                               \
 		{                                                                                             \
-			if (const NAME##Component* c = GetComponent(i))                                           \
+			if (const NAME##Component* c = getComponent(i))                                           \
 			{                                                                                         \
 				f(*c);                                                                                \
 			}                                                                                         \
@@ -76,26 +76,26 @@ private:                                                                        
 	std::array<NAME##Component, MAX_ID> mComponents = {};
 
 #define ERM_SYSTEM_IMPL(NAME)                                            \
-	const NAME##Component* NAME##System::GetComponent(EntityId id) const \
+	const NAME##Component* NAME##System::getComponent(EntityId id) const \
 	{                                                                    \
-		return (HasComponent(id) ? &mComponents[id()] : nullptr);        \
+		return (hasComponent(id) ? &mComponents[id()] : nullptr);        \
 	}                                                                    \
                                                                          \
-	NAME##Component* NAME##System::GetComponent(EntityId id)             \
+	NAME##Component* NAME##System::getComponent(EntityId id)             \
 	{                                                                    \
-		return (HasComponent(id) ? &mComponents[id()] : nullptr);        \
+		return (hasComponent(id) ? &mComponents[id()] : nullptr);        \
 	}                                                                    \
                                                                          \
-	void NAME##System::RemoveComponent(EntityId id)                      \
+	void NAME##System::removeComponent(EntityId id)                      \
 	{                                                                    \
-		if (!HasComponent(id))                                           \
+		if (!hasComponent(id))                                           \
 		{                                                                \
 			return;                                                      \
 		}                                                                \
-		OnComponentBeingRemoved(id);                                     \
-		ISystem::RemoveComponent(id);                                    \
+		onComponentBeingRemoved(id);                                     \
+		ISystem::removeComponent(id);                                    \
 		mComponents[id()] = {};                                          \
-		OnComponentRemoved(id);                                          \
+		onComponentRemoved(id);                                          \
 	}
 
 namespace erm::ecs {
@@ -118,34 +118,34 @@ public:
 	ISystem& operator=(const ISystem&) = delete;
 	ISystem& operator=(ISystem&&) = delete;
 
-	inline virtual void RemoveComponent(EntityId id)
+	inline virtual void removeComponent(EntityId id)
 	{
-		ERM_ASSERT(id.IsValid());
+		ERM_ASSERT(id.isValid());
 		mComponentsBitmask[id()] = false;
 	}
 
-	inline virtual bool HasComponent(EntityId id) const final
+	inline virtual bool hasComponent(EntityId id) const final
 	{
-		return (id.IsValid() && mComponentsBitmask[id()]);
+		return (id.isValid() && mComponentsBitmask[id()]);
 	}
 
 protected:
-	inline virtual void Init() {}
-	inline virtual void OnPreUpdate() {}
-	inline virtual void OnUpdate(float /*dt*/) {}
-	inline virtual void OnPostUpdate() {}
-	inline virtual void OnPreRender() {}
-	inline virtual void OnRender() {}
-	inline virtual void OnPostRender() {}
-	inline virtual void OnEntityParentChanged(EntityId /*entityId*/) {}
+	inline virtual void init() {}
+	inline virtual void preUpdate() {}
+	inline virtual void update(float /*dt*/) {}
+	inline virtual void postUpdate() {}
+	inline virtual void preRender() {}
+	inline virtual void render() {}
+	inline virtual void postRender() {}
+	inline virtual void onEntityParentChanged(EntityId /*entityId*/) {}
 
-	inline virtual void OnComponentBeingAdded(EntityId /*id*/) {}
-	inline virtual void OnComponentAdded(EntityId /*id*/) {}
+	inline virtual void onComponentBeingAdded(EntityId /*id*/) {}
+	inline virtual void onComponentAdded(EntityId /*id*/) {}
 
-	inline virtual void OnComponentBeingRemoved(EntityId /*id*/) {}
-	inline virtual void OnComponentRemoved(EntityId /*id*/) {}
+	inline virtual void onComponentBeingRemoved(EntityId /*id*/) {}
+	inline virtual void onComponentRemoved(EntityId /*id*/) {}
 
-	inline virtual void AddComponent(EntityId id) final
+	inline virtual void addComponent(EntityId id) final
 	{
 		mComponentsBitmask[id()] = true;
 	}

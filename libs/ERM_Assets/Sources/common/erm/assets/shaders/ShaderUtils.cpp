@@ -4,15 +4,15 @@
 
 namespace erm::ShaderUtils {
 
-std::string GetShaderFilename(
+std::string getShaderFilename(
 	std::string_view shader,
-	uint32_t index,
+	u32 index,
 	ShaderType type)
 {
-	return std::string(shader) + GetSuffixForShaderIndex(index) + std::string(GetExtensionForShaderType(type));
+	return std::string(shader) + getSuffixForShaderIndex(index) + std::string(getExtensionForShaderType(type));
 }
 
-std::string GetSuffixForShaderIndex(uint32_t index)
+std::string getSuffixForShaderIndex(u32 index)
 {
 	if (index == 0)
 		return "";
@@ -20,7 +20,7 @@ std::string GetSuffixForShaderIndex(uint32_t index)
 		return "_" + std::to_string(index);
 }
 
-std::string_view GetExtensionForShaderType(ShaderType shaderType)
+std::string_view getExtensionForShaderType(ShaderType shaderType)
 {
 	switch (shaderType)
 	{

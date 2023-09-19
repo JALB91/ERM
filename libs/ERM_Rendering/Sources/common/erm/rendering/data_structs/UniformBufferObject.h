@@ -1,8 +1,8 @@
 #pragma once
 
-#include <erm/math/Types.h>
-
 #include <erm/assets/data_structs/Bone.h>
+
+#include <erm/math/Types.h>
 
 namespace erm {
 

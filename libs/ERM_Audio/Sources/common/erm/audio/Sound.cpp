@@ -7,7 +7,7 @@
 namespace erm {
 
 Sound::Sound(
-	const char* path,
+	std::string_view path,
 	FMOD::Sound* sound,
 	bool isStream)
 	: mPath(path)
@@ -18,16 +18,14 @@ Sound::Sound(
 Sound::~Sound()
 {}
 
-const char* Sound::GetName() const
+str256 Sound::getName() const
 {
-	static char name[256];
-
-	strcpy(name, "Unknown");
-	ERM_CHECK_FMOD_RESULT(mSound->getName(name, sizeof(name)));
+	str256 name = "Unknown";
+	ERM_CHECK_FMOD_RESULT(mSound->getName(name.data(), name.capacity()));
 	return name;
 }
 
-unsigned int Sound::GetLenght() const
+unsigned int Sound::getLenght() const
 {
 	unsigned int lenght = 0;
 	ERM_CHECK_FMOD_RESULT(mSound->getLength(&lenght, FMOD_TIMEUNIT_MS));

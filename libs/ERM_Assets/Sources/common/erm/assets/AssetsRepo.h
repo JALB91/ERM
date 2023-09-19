@@ -22,84 +22,124 @@ namespace erm {
 class AssetsRepo : public IService
 {
 public:
-	void LoadDefaultResources();
+	void loadDefaultResources();
 
 	template<typename T>
-	T* RegisterAsset(StringID assetID, T&& asset)
+	T* registerAsset(StringID assetID, T&& asset)
 	{
-		if (!assetID.IsValid())
+		if (!assetID.isValid())
+		{
 			return nullptr;
+		}
 		
-		auto& assets = GetAllAssets<T>();
+		auto& assets = getAllAssets<T>();
 		ERM_ASSERT(assets.find(assetID) == assets.end());
-		auto result = assets.try_emplace(assetID, std::move(asset));
-		return result.second ? &(result.first->second) : nullptr;
+		auto [value, success] = assets.try_emplace(assetID, std::move(asset));
+		return success ? &(value->second) : nullptr;
 	}
 	
 	template<typename T>
-	bool UnregisterAsset(StringID assetID)
+	bool unregisterAsset(StringID assetID)
 	{
-		ERM_ASSERT(assetID.IsValid());
-		auto& assets = GetAllAssets<T>();
+		ERM_ASSERT(assetID.isValid());
+		auto& assets = getAllAssets<T>();
 		return assets.erase(assetID);
 	}
 	
 	template<typename T>
-	T* GetAsset(StringID assetID)
+	T* getAsset(StringID assetID)
 	{
-		if (!assetID.IsValid())
+		if (!assetID.isValid())
+		{
 			return nullptr;
+		}
 		
-		auto& assets = GetAllAssets<T>();
+		auto& assets = getAllAssets<T>();
 		auto it = assets.find(assetID);
 		return it != assets.end() ? &(it->second) : nullptr;
 	}
 	
 	template<typename T>
-	const std::unordered_map<StringID, T>& GetAllAssets() const
+	const std::unordered_map<StringID, T>& getAllAssets() const
 	{
 		if constexpr (std::is_same_v<Mesh, T>)
+		{
 			return mMeshes;
+		}
 		else if constexpr (std::is_same_v<Model, T>)
+		{
 			return mModels;
+		}
 		else if constexpr (std::is_same_v<Texture, T>)
+		{
 			return mTextures;
+		}
 		else if constexpr (std::is_same_v<CubeMap, T>)
+		{
 			return mCubeMaps;
+		}
 		else if constexpr (std::is_same_v<Material, T>)
+		{
 			return mMaterials;
+		}
 		else if constexpr (std::is_same_v<PBMaterial, T>)
+		{
 			return mPBMaterials;
+		}
 		else if constexpr (std::is_same_v<Skeleton, T>)
+		{
 			return mSkeletons;
+		}
 		else if constexpr (std::is_same_v<ShaderProgram, T>)
+		{
 			return mShaderPrograms;
+		}
 		else if constexpr (std::is_same_v<SkeletonAnimation, T>)
+		{
 			return mSkeletonAnimations;
+		}
 	}
 
 private:
 	template<typename T>
-	std::unordered_map<StringID, T>& GetAllAssets()
+	std::unordered_map<StringID, T>& getAllAssets()
 	{
 		if constexpr (std::is_same_v<Mesh, T>)
+		{
 			return mMeshes;
+		}
 		else if constexpr (std::is_same_v<Model, T>)
+		{
 			return mModels;
+		}
 		else if constexpr (std::is_same_v<Texture, T>)
+		{
 			return mTextures;
+		}
 		else if constexpr (std::is_same_v<CubeMap, T>)
+		{
 			return mCubeMaps;
+		}
 		else if constexpr (std::is_same_v<Material, T>)
+		{
 			return mMaterials;
+		}
 		else if constexpr (std::is_same_v<PBMaterial, T>)
+		{
 			return mPBMaterials;
+		}
 		else if constexpr (std::is_same_v<Skeleton, T>)
+		{
 			return mSkeletons;
+		}
 		else if constexpr (std::is_same_v<ShaderProgram, T>)
+		{
 			return mShaderPrograms;
+		}
 		else if constexpr (std::is_same_v<SkeletonAnimation, T>)
+		{
 			return mSkeletonAnimations;
+		}
 		else {
 			static_assert(std::is_same_v<Mesh, T>);
 		}

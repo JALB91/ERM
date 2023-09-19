@@ -21,70 +21,74 @@ ERM_SYSTEM_IMPL(Camera)
 CameraSystem::CameraSystem(ECS& ecs)
 	: ISystem(ecs)
 	, mTransformSystem(nullptr)
-//	, mWindow(mEngine.GetWindow())
+//	, mWindow(mEngine.getWindow())
 {}
 
-void CameraSystem::Init()
+void CameraSystem::init()
 {
-	mTransformSystem = mECS.GetSystem<TransformSystem>();
+	mTransformSystem = mECS.getSystem<TransformSystem>();
 }
 
-void CameraSystem::OnUpdate(float dt)
+void CameraSystem::update(float dt)
 {
 	ERM_PROFILE_FUNCTION();
 
 	for (ID i = 0; i < MAX_ID; ++i)
 	{
-		CameraComponent* camera = GetComponent(i);
+		auto* cameraComp = getComponent(i);
 
-		if (!camera)
+		if (!cameraComp)
+		{
 			continue;
+		}
 
-		TransformComponent* transform = mTransformSystem->RequireComponent(i);
+		TransformComponent* transform = mTransformSystem->requireComponent(i);
 
-		UpdateCameraComponent(*camera, *transform, dt);
+		updateCameraComponent(*cameraComp, *transform, dt);
 	}
 }
 
-void CameraSystem::OnPostUpdate()
+void CameraSystem::postUpdate()
 {
 	ERM_PROFILE_FUNCTION();
 
 	for (ID i = 0; i < MAX_ID; ++i)
 	{
-		CameraComponent* camera = GetComponent(i);
+		auto* cameraComp = getComponent(i);
 
-		if (!camera)
+		if (!cameraComp)
+		{
 			continue;
+		}
 
-//		camera->mProjectionMatrix = glm::perspective(
-//			glm::radians(camera->mFOV),
-//			mWindow.GetAspectRatio(),
-//			camera->mZNear,
-//			camera->mZFar);
+//		cameraComp->mProjectionMatrix = glm::perspective(
+//			glm::radians(cameraComp->mFOV),
+//			mWindow.getAspectRatio(),
+//			cameraComp->mZNear,
+//			cameraComp->mZFar);
 
 #ifdef ERM_FLIP_PROJECTION
-		camera->mProjectionMatrix[1][1] *= -1.0f;
+		cameraComp->mProjectionMatrix[1][1] *= -1.0f;
 #endif
 
-		camera->SetDirty(false);
+		cameraComp->setDirty(false);
 	}
 }
 
-void CameraSystem::UpdateCameraComponent(CameraComponent& camera, TransformComponent& transform, float dt)
+void CameraSystem::updateCameraComponent(CameraComponent& camera, TransformComponent& transform, float dt)
 {
 	(void)camera;
 	(void)transform;
 	(void)dt;
 //	vec3 translation(0.0f);
 //
-//	if (mWindow.IsMouseButtonDown(MOUSE_BUTTON_1))
+//	if (mWindow.isMouseButtonDown(MOUSE_BUTTON_1))
 //	{
 //		vec3 rotation(
-//			(mWindow.GetPreviousMousePosY() - mWindow.GetMousePosY()),
-//			(mWindow.GetPreviousMousePosX() - mWindow.GetMousePosX()),
+//			(mWindow.getPreviousMousePosY() - mWindow.getMousePosY()),
+//			(mWindow.getPreviousMousePosX() - mWindow.getMousePosX()),
 //			0.0f);
-//		rotation = glm::radians(rotation * camera.mMouseSensibility) + transform.GetRotation();
+//		rotation = glm::radians(rotation * camera.mMouseSensibility) + transform.getRotation();
 //
 //		if (rotation.x > camera.mAngleLimit)
 //		{
@@ -95,49 +99,49 @@ void CameraSystem::UpdateCameraComponent(CameraComponent& camera, TransformCompo
 //			rotation.x = -camera.mAngleLimit;
 //		}
 //
-//		transform.SetRotation(rotation);
+//		transform.setRotation(rotation);
 //	}
-//	else if (mWindow.IsMouseButtonDown(MOUSE_BUTTON_2))
+//	else if (mWindow.isMouseButtonDown(MOUSE_BUTTON_2))
 //	{
 //	}
-//	else if (mWindow.IsMouseButtonDown(MOUSE_BUTTON_3))
+//	else if (mWindow.isMouseButtonDown(MOUSE_BUTTON_3))
 //	{
 //	}
 //
 //	float movementSpeed = camera.mMovementSpeed;
 //
-//	if (mWindow.IsKeyDown(KEY_LEFT_SHIFT))
+//	if (mWindow.isKeyDown(KEY_LEFT_SHIFT))
 //	{
 //		movementSpeed *= 2.0f;
 //	}
-//	if (mWindow.IsKeyDown(KEY_W))
+//	if (mWindow.isKeyDown(KEY_W))
 //	{
 //		translation.z -= movementSpeed * dt;
 //	}
-//	if (mWindow.IsKeyDown(KEY_D))
+//	if (mWindow.isKeyDown(KEY_D))
 //	{
 //		translation.x += movementSpeed * dt;
 //	}
-//	if (mWindow.IsKeyDown(KEY_S))
+//	if (mWindow.isKeyDown(KEY_S))
 //	{
 //		translation.z += movementSpeed * dt;
 //	}
-//	if (mWindow.IsKeyDown(KEY_A))
+//	if (mWindow.isKeyDown(KEY_A))
 //	{
 //		translation.x -= movementSpeed * dt;
 //	}
-//	if (mWindow.IsKeyDown(KEY_SPACE))
+//	if (mWindow.isKeyDown(KEY_SPACE))
 //	{
 //		translation.y += movementSpeed * dt;
 //	}
-//	if (mWindow.IsKeyDown(KEY_C))
+//	if (mWindow.isKeyDown(KEY_C))
 //	{
 //		translation.y -= movementSpeed * dt;
 //	}
 //
 //	if (translation.x != 0.0f || translation.z != 0.0f || translation.y != 0.0f)
 //	{
-//		const vec3& rotation = transform.GetRotation();
+//		const auto& rotation = transform.getRotation();
 //		mat4 rotationMatrix(glm::identity<mat4>());
 //		rotationMatrix = glm::rotate(rotationMatrix, rotation.z, vec3(0.0f, 0.0f, 1.0f));
 //		rotationMatrix = glm::rotate(rotationMatrix, rotation.y, vec3(0.0f, 1.0f, 0.0f));
@@ -145,7 +149,7 @@ void CameraSystem::UpdateCameraComponent(CameraComponent& camera, TransformCompo
 //
 //		translation = rotationMatrix * vec4(translation, 1.0f);
 //
-//		transform.SetTranslation(transform.GetTranslation() + translation);
+//		transform.setTranslation(transform.getTranslation() + translation);
 //	}
 }
 

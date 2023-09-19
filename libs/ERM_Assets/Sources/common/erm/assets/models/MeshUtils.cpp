@@ -5,7 +5,7 @@
 
 namespace erm::MeshUtils {
 
-Mesh CreateTriangle(
+Mesh createTriangle(
 	const vec3& a /* = vec3(-1.0f, -1.0f, 0.0f) */,
 	const vec3& b /* = vec3(1.0f, -1.0f, 0.0f) */,
 	const vec3& c /* = vec3(-1.0f, 1.0f, 0.0f) */
@@ -29,7 +29,7 @@ Mesh CreateTriangle(
 	return Mesh(std::move(vertices), std::move(indices));
 }
 
-Mesh CreateSquare(
+Mesh createSquare(
 	float width /* = 1.0f */,
 	float height /* = 1.0f */
 )
@@ -60,7 +60,7 @@ Mesh CreateSquare(
 	return Mesh(std::move(vertices), std::move(indices));
 }
 
-Mesh CreateCube(
+Mesh createCube(
 	float sizeX /* = 1.0f */,
 	float sizeY /* = 1.0f */,
 	float sizeZ /* = 1.0f */
@@ -177,7 +177,7 @@ Mesh CreateCube(
 	return Mesh(std::move(vertices), std::move(indices));
 }
 
-Mesh CreateSpike(
+Mesh createSpike(
 	float sizeX /* = 1.0f */,
 	float sizeY /* = 1.0f */,
 	float sizeZ /* = 1.0f */,
@@ -277,7 +277,7 @@ Mesh CreateSpike(
 	return Mesh(std::move(vertices), std::move(indices));
 }
 
-Mesh CreateSphere(
+Mesh createSphere(
 	float radius /* = 1.0f */,
 	u32 sectors /* = 10 */,
 	u32 rings /* = 10 */
@@ -342,7 +342,7 @@ Mesh CreateSphere(
 	return Mesh(std::move(vertices), std::move(indices));
 }
 
-Mesh CreateGrid(
+Mesh createGrid(
 	u32 sizeX /*= 100*/,
 	u32 sizeY /*= 100*/,
 	float width /*= 1.0f*/,

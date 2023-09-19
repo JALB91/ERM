@@ -7,7 +7,7 @@
 namespace erm {
 
 template<typename T>
-constexpr u32 AllFlags()
+constexpr u32 allFlags()
 {
 	u32 result = 0;
 	for (u32 i = 1; i < static_cast<u32>(T::COUNT); i *= 2)
@@ -123,7 +123,7 @@ public:
 
 	Flags<BitType> operator~() const
 	{
-		return Flags<BitType>(mMask ^ AllFlags<BitType>());
+		return Flags<BitType>(mMask ^ allFlags<BitType>());
 	}
 
 	// assignment operators

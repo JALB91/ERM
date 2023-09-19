@@ -19,11 +19,11 @@ nlohmann::json Program::toJson() const
 	std::stack<nlohmann::json*> jsonStack;
 	jsonStack.push(&json);
 	
-	mTokenTree.ForEachDo([&jsonStack](const auto& entry) {
+	mTokenTree.forEachDo([&jsonStack](const auto& entry) {
 		auto& currJson = *jsonStack.top();
 		auto& jsonToWrite = currJson.is_array() ? currJson.emplace_back() : currJson;
 
-		const auto& token = entry.GetPayload();
+		const auto& token = entry.getPayload();
 		jsonToWrite["type"] = magic_enum::enum_name(token.mType);
 
 		switch (token.mType)
@@ -50,7 +50,7 @@ nlohmann::json Program::toJson() const
 			case TokenType::COLUMN:
 			case TokenType::COMMA:
 			{
-				jsonToWrite["value"] = entry.GetPayload().mValue;
+				jsonToWrite["value"] = entry.getPayload().mValue;
 				break;
 			}
 			default:
@@ -61,7 +61,7 @@ nlohmann::json Program::toJson() const
 		}
 	},
 	[&jsonStack](const auto& entry) {
-		const auto& token = entry.GetPayload();
+		const auto& token = entry.getPayload();
 		if (token.mType == TokenType::PROGRAM || token.mType == TokenType::STATEMENT)
 		{
 			jsonStack.pop();
@@ -75,17 +75,17 @@ void Program::addToken(const Token& token)
 {
 	if (token.mType == TokenType::STATEMENT)
 	{
-		mIndex = &mIndex->AddChild(++mCounter, token);
+		mIndex = &mIndex->addChild(++mCounter, token);
 	}
 	else if (token.mType == TokenType::COLUMN || token.mType == TokenType::SCOPE_END)
 	{
-		mIndex->AddChild(++mCounter, token);
-		mIndex = mIndex->GetParent();
+		mIndex->addChild(++mCounter, token);
+		mIndex = mIndex->getParent();
 		ERM_ASSERT(mIndex != nullptr);
 	}
 	else
 	{
-		mIndex->AddChild(++mCounter, token);
+		mIndex->addChild(++mCounter, token);
 	}
 }
 

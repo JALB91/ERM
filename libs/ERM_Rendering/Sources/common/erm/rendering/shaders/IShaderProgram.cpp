@@ -23,7 +23,7 @@ namespace {
 //		return {};
 //	}
 //
-//	size_t fileSize = static_cast<size_t>(stream.tellg());
+//	u64 fileSize = static_cast<u64>(stream.tellg());
 //	std::vector<char> buffer(fileSize);
 //
 //	stream.seekg(0);
@@ -33,16 +33,16 @@ namespace {
 //	return buffer;
 //}
 //
-//std::vector<uint32_t> LoadSpirvFile(const std::vector<char>& compiledShader)
+//std::vector<u32> LoadSpirvFile(const std::vector<char>& compiledShader)
 //{
-//	std::vector<uint32_t> buffer(compiledShader.size() / sizeof(uint32_t));
+//	std::vector<u32> buffer(compiledShader.size() / sizeof(u32));
 //	memcpy(buffer.data(), compiledShader.data(), compiledShader.size());
 //	return buffer;
 //}
 //
 //erm::UboData GetUboData(const spirv_cross::Compiler& compiler, const spirv_cross::Resource& resource)
 //{
-//	const auto makeUboData = [&compiler, &resource](erm::UboId id, size_t size) -> erm::UboData {
+//	const auto makeUboData = [&compiler, &resource](erm::UboId id, u64 size) -> erm::UboData {
 //		return {
 //			compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding),
 //			compiler.get_decoration(resource.id, spv::Decoration::DecorationDescriptorSet),
@@ -194,9 +194,9 @@ namespace erm {
 //{
 //	for (const auto& [type, sources] : shadersSources)
 //	{
-//		for (size_t i = 0; i < sources.size(); ++i)
+//		for (u64 i = 0; i < sources.size(); ++i)
 //		{
-//			utils::WriteToFile(ShaderUtils::GetShaderFilename(mPath, static_cast<uint32_t>(i), type).c_str(), sources[i]);
+//			utils::WriteToFile(ShaderUtils::GetShaderFilename(mPath, static_cast<u32>(i), type).c_str(), sources[i]);
 //		}
 //
 //		CompileShadersSources(type);
@@ -212,11 +212,11 @@ namespace erm {
 //	if (auto it = mShadersDataMap.find(shaderType); it != mShadersDataMap.cend())
 //		it->second.clear();
 //
-//	size_t index = 0;
+//	u64 index = 0;
 //
 //	while (true)
 //	{
-//		const std::string shaderPath = ShaderUtils::GetShaderFilename(mPath, static_cast<uint32_t>(index), shaderType);
+//		const std::string shaderPath = ShaderUtils::GetShaderFilename(mPath, static_cast<u32>(index), shaderType);
 //
 //		if (!std::filesystem::exists(shaderPath))
 //			break;
@@ -238,9 +238,9 @@ namespace erm {
 //	ERM_ASSERT(mShadersDataMap.find(shaderType) != mShadersDataMap.end());
 //	const std::vector<ShaderData>& data = mShadersDataMap.at(shaderType);
 //
-//	for (size_t i = 0; i < data.size(); ++i)
+//	for (u64 i = 0; i < data.size(); ++i)
 //	{
-//		const std::string shaderPath = ShaderUtils::GetShaderFilename(mPath, static_cast<uint32_t>(i), shaderType);
+//		const std::string shaderPath = ShaderUtils::GetShaderFilename(mPath, static_cast<u32>(i), shaderType);
 //		const std::string compiledShaderPath = shaderPath + ".cmp";
 //#ifdef ERM_SHADERS_COMPILER
 //		std::string compilationCommand = ERM_SHADERS_COMPILER;
@@ -273,7 +273,7 @@ namespace erm {
 //	const auto gatherResourceBindings = [this, &compiler, shaderType](auto& resources, DescriptorType type) {
 //		for (const auto& res : resources)
 //		{
-//			const uint32_t targetSet = compiler.get_decoration(res.id, spv::Decoration::DecorationDescriptorSet);
+//			const u32 targetSet = compiler.get_decoration(res.id, spv::Decoration::DecorationDescriptorSet);
 //			UpdateResourceBindings(compiler, res, targetSet, shaderType, type);
 //		}
 //	};

@@ -1,8 +1,10 @@
 #pragma once
 
+#include <erm/math/Types.h>
+
 namespace erm {
 
-enum class DepthFunction : short
+enum class DepthFunction : u8
 {
 	ALWAYS,
 	NEVER,

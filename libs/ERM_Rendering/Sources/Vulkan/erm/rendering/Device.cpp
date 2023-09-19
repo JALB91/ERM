@@ -8,6 +8,7 @@
 
 #include <GLFW/glfw3.h>
 
+#include <array>
 #include <iostream>
 #include <set>
 
@@ -16,8 +17,7 @@
 */
 namespace {
 
-const std::vector<const char*> kDeviceExtensions
-{
+const std::vector<const char*> kDeviceExtensions {
 	VK_KHR_SWAPCHAIN_EXTENSION_NAME,
 #if defined(ERM_MAC)
 		"VK_KHR_portability_subset",
@@ -35,9 +35,9 @@ const std::vector<const char*> kDeviceExtensions
 };
 
 #ifndef NDEBUG
-const std::vector<const char*> kValidationLayers {"VK_LAYER_KHRONOS_validation"};
+constexpr std::array kValidationLayers {"VK_LAYER_KHRONOS_validation"};
 
-VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(
+VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
 	VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
 	VkDebugUtilsMessageTypeFlagsEXT /*messageType*/,
 	const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
@@ -54,16 +54,16 @@ VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(
 	return VK_FALSE;
 }
 
-void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo)
+void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo)
 {
 	createInfo = {};
 	createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
 	createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
 	createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-	createInfo.pfnUserCallback = DebugCallback;
+	createInfo.pfnUserCallback = debugCallback;
 }
 
-VkResult CreateDebugUtilsMessengerEXT(
+VkResult createDebugUtilsMessengerEXT(
 	VkInstance instance,
 	const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
 	const VkAllocationCallbacks* pAllocator,
@@ -79,7 +79,7 @@ VkResult CreateDebugUtilsMessengerEXT(
 	}
 }
 
-void DestroyDebugUtilsMessengerEXT(
+void destroyDebugUtilsMessengerEXT(
 	VkInstance instance,
 	VkDebugUtilsMessengerEXT debugMessenger,
 	const VkAllocationCallbacks* pAllocator)
@@ -98,14 +98,14 @@ namespace erm {
 Device::Device(GLFWwindow* window)
 	: mWindow(window)
 {
-	ERM_EXPECT(CreateInstance(), "Failed to create Vulkan instance");
-	SetupDebugMessenger();
-	ERM_EXPECT(CreateSurface(), "Failed to create Vulkan surface");
-	ERM_EXPECT(PickPhysicalDevice(), "Failed to find a suitable physical device");
-	CreateLogicalDevice();
-	CreateCommandPool();
+	ERM_EXPECT(createInstance(), "Failed to create Vulkan instance");
+	setupDebugMessenger();
+	ERM_EXPECT(createSurface(), "Failed to create Vulkan surface");
+	ERM_EXPECT(pickPhysicalDevice(), "Failed to find a suitable physical device");
+	createLogicalDevice();
+	createCommandPool();
 #ifdef ERM_RAY_TRACING_ENABLED
-	ERM_EXPECT(InitRayTracing(), "Ray tracing not supported");
+	ERM_EXPECT(initRayTracing(), "Ray tracing not supported");
 #endif
 	load_VK_EXTENSION_SUBSET(
 		mInstance.get(),
@@ -118,7 +118,7 @@ Device::~Device()
 {
 	ERM_VK_CHECK(mDevice->waitIdle());
 #ifndef NDEBUG
-	DestroyDebugUtilsMessengerEXT(VkInstance(mInstance.get()), mDebugMessenger, nullptr);
+	destroyDebugUtilsMessengerEXT(VkInstance(mInstance.get()), mDebugMessenger, nullptr);
 #endif
 }
 
@@ -127,9 +127,9 @@ vk::Device* Device::operator->()
 	return &mDevice.get();
 }
 
-bool Device::CreateInstance()
+bool Device::createInstance()
 {
-	uint32_t glfwExtensionCount = 0;
+	u32 glfwExtensionCount = 0;
 	const char** glfwExtensions;
 	glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
@@ -139,26 +139,29 @@ bool Device::CreateInstance()
 	requiredExtensions.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 #endif
 
+
 	std::vector<vk::ExtensionProperties> extensions;
 	ERM_VK_CHECK_AND_ASSIGN(extensions, vk::enumerateInstanceExtensionProperties());
 
 	std::cout << extensions.size() << " Instance extensions supported" << std::endl;
 
-	for (const vk::ExtensionProperties& extension : extensions)
+	for (const auto& extension : extensions)
 	{
 		std::cout << "\t" << extension.extensionName << std::endl;
 	}
 
 	std::cout << std::endl;
 
-	for (uint32_t i = 0; i < glfwExtensionCount; ++i)
+	for (u32 i = 0; i < glfwExtensionCount; ++i)
 	{
 		bool found = false;
 		for (const vk::ExtensionProperties& extension : extensions)
 		{
 			found = (std::strcmp(glfwExtensions[i], extension.extensionName) == 0);
 			if (found)
+			{
 				break;
+			}
 		}
 
 		if (!found)
@@ -176,7 +179,7 @@ bool Device::CreateInstance()
 
 	vk::InstanceCreateInfo createInfo = {};
 	createInfo.pApplicationInfo = &appInfo;
-	createInfo.enabledExtensionCount = static_cast<uint32_t>(requiredExtensions.size());
+	createInfo.enabledExtensionCount = static_cast<u32>(requiredExtensions.size());
 	createInfo.ppEnabledExtensionNames = requiredExtensions.data();
 
 	/*
@@ -190,7 +193,7 @@ bool Device::CreateInstance()
 
 	std::cout << availableLayers.size() << " Layers supported" << std::endl;
 
-	for (const vk::LayerProperties& layer : availableLayers)
+	for (const auto& layer : availableLayers)
 	{
 		std::cout << "\t" << layer.layerName << std::endl;
 	}
@@ -213,11 +216,11 @@ bool Device::CreateInstance()
 		}
 	}
 
-	createInfo.enabledLayerCount = static_cast<uint32_t>(kValidationLayers.size());
+	createInfo.enabledLayerCount = static_cast<u32>(kValidationLayers.size());
 	createInfo.ppEnabledLayerNames = kValidationLayers.data();
 
 	vk::DebugUtilsMessengerCreateInfoEXT debugCreateInfo = {};
-	PopulateDebugMessengerCreateInfo(debugCreateInfo);
+	populateDebugMessengerCreateInfo(debugCreateInfo);
 	createInfo.pNext = (vk::DebugUtilsMessengerCreateInfoEXT*)&debugCreateInfo;
 #endif // !NDEBUG
 
@@ -226,17 +229,17 @@ bool Device::CreateInstance()
 	return true;
 }
 
-void Device::SetupDebugMessenger()
+void Device::setupDebugMessenger()
 {
-#ifndef NDEBUG
+#ifndef cDEBUG
 	VkDebugUtilsMessengerCreateInfoEXT debugMessengerInfo = {};
-	PopulateDebugMessengerCreateInfo(debugMessengerInfo);
+	populateDebugMessengerCreateInfo(debugMessengerInfo);
 
-	CreateDebugUtilsMessengerEXT(mInstance.get(), &debugMessengerInfo, nullptr, &mDebugMessenger);
+	createDebugUtilsMessengerEXT(mInstance.get(), &debugMessengerInfo, nullptr, &mDebugMessenger);
 #endif
 }
 
-bool Device::CreateSurface()
+bool Device::createSurface()
 {
 	VkSurfaceKHR _surface;
 	if (glfwCreateWindowSurface(VkInstance(mInstance.get()), mWindow, nullptr, &_surface) != VK_SUCCESS)
@@ -249,14 +252,14 @@ bool Device::CreateSurface()
 	return true;
 }
 
-bool Device::PickPhysicalDevice()
+bool Device::pickPhysicalDevice()
 {
 	std::vector<vk::PhysicalDevice> devices;
 	ERM_VK_CHECK_AND_ASSIGN(devices, mInstance->enumeratePhysicalDevices());
 
-	for (const vk::PhysicalDevice& device : devices)
+	for (const auto& device : devices)
 	{
-		if (VkUtils::IsDeviceSuitable(device, mSurface.get(), kDeviceExtensions))
+		if (VkUtils::isDeviceSuitable(device, mSurface.get(), kDeviceExtensions))
 		{
 			mPhysicalDevice = device;
 			break;
@@ -271,15 +274,15 @@ bool Device::PickPhysicalDevice()
 	return true;
 }
 
-void Device::CreateLogicalDevice()
+void Device::createLogicalDevice()
 {
-	QueueFamilyIndices indices = VkUtils::FindQueueFamilies(mPhysicalDevice, mSurface.get());
+	auto indices = VkUtils::findQueueFamilies(mPhysicalDevice, mSurface.get());
 	const float queuePriority = 1.0f;
 
 	std::vector<vk::DeviceQueueCreateInfo> queueCreateInfos;
-	std::set<uint32_t> uniqueQueueFamilies = {indices.mGraphicsFamily.value(), indices.mPresentFamily.value()};
+	std::set<u32> uniqueQueueFamilies = {indices.mGraphicsFamily.value(), indices.mPresentFamily.value()};
 
-	for (uint32_t queueFamily : uniqueQueueFamilies)
+	for (u32 queueFamily : uniqueQueueFamilies)
 	{
 		vk::DeviceQueueCreateInfo queueCreateInfo = {};
 		queueCreateInfo.queueFamilyIndex = queueFamily;
@@ -288,16 +291,18 @@ void Device::CreateLogicalDevice()
 		queueCreateInfos.emplace_back(queueCreateInfo);
 	}
 
-	uint32_t count;
+	u32 count;
 	std::vector<VkExtensionProperties> extensionProperties;
 	vkEnumerateDeviceExtensionProperties(mPhysicalDevice, nullptr, &count, nullptr);
 	extensionProperties.resize(count);
 	vkEnumerateDeviceExtensionProperties(mPhysicalDevice, nullptr, &count, extensionProperties.data());
-	extensionProperties.resize(std::min(extensionProperties.size(), size_t(count)));
+	extensionProperties.resize(std::min(extensionProperties.size(), u64(count)));
 
 	std::cout << count << " Available device extensions" << std::endl;
 	for (const VkExtensionProperties& prop : extensionProperties)
+	{
 		std::cout << "\t" << prop.extensionName << std::endl;
+	}
 
 	vk::PhysicalDeviceFeatures2 features2 = {};
 	features2.features.samplerAnisotropy = VK_TRUE;
@@ -327,13 +332,13 @@ void Device::CreateLogicalDevice()
 
 	vk::DeviceCreateInfo deviceCreateInfo = {};
 	deviceCreateInfo.pQueueCreateInfos = queueCreateInfos.data();
-	deviceCreateInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
-	deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(kDeviceExtensions.size());
+	deviceCreateInfo.queueCreateInfoCount = static_cast<u32>(queueCreateInfos.size());
+	deviceCreateInfo.enabledExtensionCount = static_cast<u32>(kDeviceExtensions.size());
 	deviceCreateInfo.ppEnabledExtensionNames = kDeviceExtensions.data();
 #ifdef NDEBUG
 	deviceCreateInfo.enabledLayerCount = 0;
 #else
-	deviceCreateInfo.enabledLayerCount = static_cast<uint32_t>(kValidationLayers.size());
+	deviceCreateInfo.enabledLayerCount = static_cast<u32>(kValidationLayers.size());
 	deviceCreateInfo.ppEnabledLayerNames = kValidationLayers.data();
 #endif
 	deviceCreateInfo.pNext = &features2;
@@ -344,14 +349,14 @@ void Device::CreateLogicalDevice()
 	mDevice->getQueue(indices.mPresentFamily.value(), 0, &mPresentQueue);
 }
 
-void Device::CreatePipelineCache()
+void Device::createPipelineCache()
 {
 	ERM_VK_CHECK_AND_ASSIGN(mPipelineCache, mDevice->createPipelineCacheUnique({}));
 }
 
-void Device::CreateCommandPool()
+void Device::createCommandPool()
 {
-	QueueFamilyIndices queueFamilyIndices = VkUtils::FindQueueFamilies(mPhysicalDevice, mSurface.get());
+	auto queueFamilyIndices = VkUtils::findQueueFamilies(mPhysicalDevice, mSurface.get());
 
 	vk::CommandPoolCreateInfo poolInfo = {};
 	poolInfo.queueFamilyIndex = queueFamilyIndices.mGraphicsFamily.value();
@@ -361,7 +366,7 @@ void Device::CreateCommandPool()
 }
 
 #ifdef ERM_RAY_TRACING_ENABLED
-bool Device::InitRayTracing()
+bool Device::initRayTracing()
 {
 	auto properties = mPhysicalDevice.getProperties2<vk::PhysicalDeviceProperties2, vk::PhysicalDeviceRayTracingPipelinePropertiesKHR>();
 	mRtProperties = properties.get<vk::PhysicalDeviceRayTracingPipelinePropertiesKHR>();

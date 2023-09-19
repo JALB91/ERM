@@ -57,24 +57,24 @@ public:
 		return *this;
 	}
 
-	Tree Clone() const
+	Tree clone() const
 	{
-		Tree tree(utils::Clone(mId), utils::Clone(mPayload));
+		Tree tree(utils::clone(mId), utils::clone(mPayload));
 
 		Tree* currentNode = &tree;
 
-		ForEachChildDo(
+		forEachChildDo(
 			[&currentNode](const Tree& node) mutable {
-				currentNode = &(currentNode->AddChild(utils::Clone(node.GetId()), utils::Clone(node.GetPayload())));
+				currentNode = &(currentNode->addChild(utils::clone(node.getId()), utils::clone(node.getPayload())));
 			},
 			[&currentNode](const Tree& /*node*/) mutable {
-				currentNode = currentNode->GetParent();
+				currentNode = currentNode->getParent();
 			});
 
 		return tree;
 	}
 
-	const Tree& GetRoot() const
+	const Tree& getRoot() const
 	{
 		const Tree* parent = mParent;
 		while (parent)
@@ -91,9 +91,9 @@ public:
 		return *this;
 	}
 
-	Tree& GetRoot()
+	Tree& getRoot()
 	{
-		Tree* parent = mParent;
+		auto* parent = mParent;
 		while (parent)
 		{
 			if (parent->mParent)
@@ -108,94 +108,113 @@ public:
 		return *this;
 	}
 
-	void AddChild(Child&& node)
+	void addChild(Child&& node)
 	{
 #if !defined(NDEBUG)
-		const Tree& root = GetRoot();
-		node.ForEachDo([&root](const Tree& node) {
-			ERM_ASSERT(root.Find(node.GetId()) == nullptr);
+		const Tree& root = getRoot();
+		node.forEachDo([&root](const Tree& node) {
+			ERM_ASSERT(root.find(node.getId()) == nullptr);
 		});
 #endif
 		Child& child = mChildren.emplace_back(std::move(node));
 		child.mParent = this;
 	}
 
-	Tree& AddChild(ID id, Payload payload)
+	Tree& addChild(ID id, Payload payload)
 	{
-		if (Tree* child = GetRoot().Find(id))
+		if (Tree* child = getRoot().find(id))
 		{
-			child->SetPayload(std::forward<Payload>(payload));
+			child->setPayload(std::forward<Payload>(payload));
 			return *child;
 		}
-		Child& child = mChildren.emplace_back(std::forward<ID>(id), std::forward<Payload>(payload));
+		auto& child = mChildren.emplace_back(std::forward<ID>(id), std::forward<Payload>(payload));
 		child.mParent = this;
 		return child;
 	}
 
-	inline void ForEachDo(
+	inline void forEachDo(
 		const std::function<void(Tree&)>& before,
 		const std::function<void(Tree&)>& after = nullptr)
 	{
 		if (before)
+		{
 			before(*this);
+		}
 		for (Child& child : mChildren)
 		{
-			child.ForEachDo(before, after);
+			child.forEachDo(before, after);
 		}
 		if (after)
+		{
 			after(*this);
+		}
 	}
 
-	inline void ForEachChildDo(
+	inline void forEachChildDo(
 		const std::function<void(Tree&)>& before,
 		const std::function<void(Tree&)>& after = nullptr)
 	{
 		for (Child& child : mChildren)
 		{
 			if (before)
+			{
 				before(*child);
-			child.ForEachChildDo(before, after);
+			}
+			child.forEachChildDo(before, after);
 			if (after)
+			{
 				after(*child);
+			}
 		}
 	}
 
-	inline void ForEachDo(
+	inline void forEachDo(
 		const std::function<void(const Tree&)>& before,
 		const std::function<void(const Tree&)>& after = nullptr) const
 	{
 		if (before)
-			before(*this);
+		{
+			before(*this);	
+		}
 		for (const auto& child : mChildren)
 		{
-			child.ForEachDo(before, after);
+			child.forEachDo(before, after);
 		}
 		if (after)
-			after(*this);
+		{
+			after(*this);	
+		}
 	}
 
-	inline void ForEachChildDo(
+	inline void forEachChildDo(
 		const std::function<void(const Tree&)>& before,
 		const std::function<void(const Tree&)>& after = nullptr) const
 	{
 		for (const auto& child : mChildren)
 		{
 			if (before)
-				before(*child);
-			child.ForEachChildDo(before, after);
+			{
+				before(*child);	
+			}
+			child.forEachChildDo(before, after);
 			if (after)
-				after(*child);
+			{
+				after(*child);	
+			}
 		}
 	}
 
-	inline Tree* Find(const ID& id)
+	inline Tree* find(const ID& id)
 	{
 		if (mId == id)
-			return this;
-
-		for (Child& child : mChildren)
 		{
-			if (Tree* result = child.Find(id))
+			return this;	
+		}
+
+		for (auto& child : mChildren)
+		{
+			auto* result = child.find(id);
+			if (result != nullptr)
 			{
 				return result;
 			}
@@ -204,14 +223,16 @@ public:
 		return nullptr;
 	}
 
-	inline const Tree* Find(const ID& id) const
+	inline const Tree* find(const ID& id) const
 	{
 		if (mId == id)
-			return this;
-
-		for (const Child& child : mChildren)
 		{
-			if (const Tree* result = child.Find(id))
+			return this;
+		}
+
+		for (const auto& child : mChildren)
+		{
+			if (const auto* result = child.find(id))
 			{
 				return result;
 			}
@@ -221,36 +242,44 @@ public:
 	}
 
 	template<typename Func>
-	inline const Tree* FindByPayload(Func function) const
+	inline const Tree* findByPayload(Func function) const
 	{
 		if (function(mPayload))
+		{
 			return this;
+		}
 
-		for (const Child& child : mChildren)
-			if (const Tree* result = child.FindByPayload(function))
+		for (const auto& child : mChildren)
+		{
+			if (const auto* result = child.findByPayload(function))
+			{
 				return result;
+			}
+		}
 
 		return nullptr;
 	}
 
-	inline unsigned int GetSize() const
+	inline u32 getSize() const
 	{
-		unsigned int size = 1;
-		for (const Child& child : mChildren)
-			size += child.GetSize();
+		u32 size = 1;
+		for (const auto& child : mChildren)
+		{
+			size += child.getSize();
+		}
 		return size;
 	}
 
-	inline void SetPayload(Payload payload) { mPayload = std::forward<Payload>(payload); }
-	inline const Payload& GetPayload() const { return mPayload; }
-	inline Payload& GetPayload() { return mPayload; }
+	inline void setPayload(Payload payload) { mPayload = std::forward<Payload>(payload); }
+	inline const Payload& getPayload() const { return mPayload; }
+	inline Payload& getPayload() { return mPayload; }
 	
-	inline void SetId(ID id) { mId = std::forward<ID>(id); }
-	inline const ID& GetId() const { return mId; }
-	inline ID& GetId() { return mId; }
+	inline void setId(ID id) { mId = std::forward<ID>(id); }
+	inline const ID& getId() const { return mId; }
+	inline ID& getId() { return mId; }
 	
-	inline Tree* GetParent() { return mParent; }
-	inline const Children& GetChildren() const { return mChildren; }
+	inline Tree* getParent() { return mParent; }
+	inline const Children& getChildren() const { return mChildren; }
 
 private:
 	ID mId;

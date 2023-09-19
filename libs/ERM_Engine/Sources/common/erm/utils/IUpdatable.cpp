@@ -8,12 +8,12 @@ namespace erm {
 
 IUpdatable::IUpdatable()
 {
-	gEngine->GetUpdateManager().AddUpdatable(this);
+	gEngine->getUpdateManager().addUpdatable(this);
 }
 
 IUpdatable::~IUpdatable()
 {
-	gEngine->GetUpdateManager().RemoveUpdatable(this);
+	gEngine->getUpdateManager().removeUpdatable(this);
 }
 
 } // namespace erm

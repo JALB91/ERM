@@ -18,12 +18,12 @@ public:
 	ModelSystem(ECS& ecs);
 
 	// ISystem
-	void Init() override;
-	void OnPostUpdate() override;
+	void init() override;
+	void postUpdate() override;
 
 private:
 	// ISystem
-	void OnComponentBeingRemoved(EntityId id) override;
+	void onComponentBeingRemoved(EntityId id) override;
 
 	TransformSystem* mTransformSystem;
 	RenderingSystem* mRenderingSystem;

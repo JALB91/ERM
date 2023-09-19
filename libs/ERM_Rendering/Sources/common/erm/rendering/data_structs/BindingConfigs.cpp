@@ -5,32 +5,36 @@
 
 namespace erm {
 
-bool BindingConfigs::IsBindingLevelCompatible(const BindingConfigs& other) const
+bool BindingConfigs::isBindingLevelCompatible(const BindingConfigs& other) const
 {
-	return IsMaterialCompatible(other) && AreTexturesCompatible(other);
+	return isMaterialCompatible(other) && areTexturesCompatible(other);
 }
 
-bool BindingConfigs::IsMaterialCompatible(const BindingConfigs& other) const
+bool BindingConfigs::isMaterialCompatible(const BindingConfigs& other) const
 {
 	return mMaterial == other.mMaterial;
 }
 
-bool BindingConfigs::AreTexturesCompatible(const BindingConfigs& other) const
+bool BindingConfigs::areTexturesCompatible(const BindingConfigs& other) const
 {
 	for (int i = 0; i < static_cast<int>(TextureType::COUNT); ++i)
 	{
-		if (GetTexture(static_cast<TextureType>(i)) != other.GetTexture(static_cast<TextureType>(i)))
+		if (getTexture(static_cast<TextureType>(i)) != other.getTexture(static_cast<TextureType>(i)))
+		{
 			return false;
+		}
 	}
 	
 	return true;
 }
 
-StringID BindingConfigs::GetTexture(TextureType type) const
+StringID BindingConfigs::getTexture(TextureType type) const
 {
 	auto it = mTexturesMaps.find(type);
 	if (it != mTexturesMaps.end())
+	{
 		return it->second;
+	}
 
 	return StringID::INVALID;
 }

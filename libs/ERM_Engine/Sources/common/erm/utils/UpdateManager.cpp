@@ -11,7 +11,7 @@ UpdateManager::UpdateManager()
 UpdateManager::~UpdateManager()
 {}
 
-void UpdateManager::AddUpdatable(IUpdatable* updatable)
+void UpdateManager::addUpdatable(IUpdatable* updatable)
 {
 	if (!updatable || std::find(mUpdatables.begin(), mUpdatables.end(), updatable) != mUpdatables.end())
 	{
@@ -27,7 +27,7 @@ void UpdateManager::AddUpdatable(IUpdatable* updatable)
 	mUpdatables.emplace_back(updatable);
 }
 
-void UpdateManager::RemoveUpdatable(IUpdatable* updatable)
+void UpdateManager::removeUpdatable(IUpdatable* updatable)
 {
 	auto it = std::find(mUpdatables.begin(), mUpdatables.end(), updatable);
 	if (!updatable || it == mUpdatables.end())
@@ -44,10 +44,12 @@ void UpdateManager::RemoveUpdatable(IUpdatable* updatable)
 	mUpdatables.erase(it);
 }
 
-void UpdateManager::Refresh()
+void UpdateManager::refresh()
 {
 	for (auto updatable : mToAdd)
-		AddUpdatable(updatable);
+	{
+		addUpdatable(updatable);
+	}
 
 	mToAdd.clear();
 
@@ -64,37 +66,41 @@ void UpdateManager::Refresh()
 	}
 }
 
-void UpdateManager::ForEach(const std::function<void(IUpdatable*)>& func)
+void UpdateManager::forEach(const std::function<void(IUpdatable*)>& func)
 {
 	mIterating = true;
 	for (auto& updatable : mUpdatables)
+	{
 		if (updatable)
+		{
 			func(updatable);
+		}
+	}
 	mIterating = false;
 }
 
-void UpdateManager::OnPreUpdate()
+void UpdateManager::preUpdate()
 {
 	ERM_PROFILE_FUNCTION();
-	Refresh();
-	ForEach([](IUpdatable* updatable) {
-		updatable->OnPreUpdate();
+	refresh();
+	forEach([](IUpdatable* updatable) {
+		updatable->preUpdate();
 	});
 }
 
-void UpdateManager::Update(float dt)
+void UpdateManager::update(float dt)
 {
 	ERM_PROFILE_FUNCTION();
-	ForEach([dt](IUpdatable* updatable) {
-		updatable->OnUpdate(dt);
+	forEach([dt](IUpdatable* updatable) {
+		updatable->update(dt);
 	});
 }
 
-void UpdateManager::OnPostUpdate()
+void UpdateManager::postUpdate()
 {
 	ERM_PROFILE_FUNCTION();
-	ForEach([](IUpdatable* updatable) {
-		updatable->OnPostUpdate();
+	forEach([](IUpdatable* updatable) {
+		updatable->postUpdate();
 	});
 }
 

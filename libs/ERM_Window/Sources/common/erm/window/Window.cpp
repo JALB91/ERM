@@ -32,28 +32,30 @@
 namespace {
 
 template<typename T>
-void SafeForEach(const std::set<T*>& set, const std::function<void(T* ptr)>& func)
+void safeForEach(const std::set<T*>& set, const std::function<void(T* ptr)>& func)
 {
 	std::set<T*> copy = set;
 	for (T* t : copy)
 	{
 		if (t)
+		{
 			func(t);
+		}
 	}
 }
 
 #if defined(ERM_VULKAN)
-const char* const kTitle = "ERM Vulkan";
+constexpr const char* const kTitle = "ERM Vulkan";
 #elif defined(ERM_OPENGL)
-const char* const kTitle = "ERM OpenGL";
+constexpr const char* const kTitle = "ERM OpenGL";
 #elif defined(ERM_DX12)
-const char* const kTitle = "ERM DX12";
+constexpr const char* const kTitle = "ERM DX12";
 #endif
 
-const float kImGuiSpaceUp = 0.0f;
-const float kImGuiSpaceDown = 0.3f;
-const float kImGuiSpaceLeft = 0.2f;
-const float kImGuiSpaceRight = 0.2f;
+constexpr float kImGuiSpaceUp = 0.0f;
+constexpr float kImGuiSpaceDown = 0.3f;
+constexpr float kImGuiSpaceLeft = 0.2f;
+constexpr float kImGuiSpaceRight = 0.2f;
 
 bool firstRefresh = true;
 
@@ -64,47 +66,47 @@ bool firstRefresh = true;
 */
 namespace erm::internal {
 
-void FocusCallback(GLFWwindow* window, int focused)
+void focusCallback(GLFWwindow* window, int focused)
 {
 	if (focused)
-		static_cast<erm::Window*>(glfwGetWindowUserPointer(window))->OnFocus();
+		static_cast<erm::Window*>(glfwGetWindowUserPointer(window))->onFocus();
 	else
-		static_cast<erm::Window*>(glfwGetWindowUserPointer(window))->OnFocusLost();
+		static_cast<erm::Window*>(glfwGetWindowUserPointer(window))->onFocusLost();
 }
 
-void OnMouseButton(GLFWwindow* window, int button, int action, int mods)
+void onMouseButton(GLFWwindow* window, int button, int action, int mods)
 {
-	static_cast<erm::Window*>(glfwGetWindowUserPointer(window))->OnMouseButton(button, action, mods);
+	static_cast<erm::Window*>(glfwGetWindowUserPointer(window))->onMouseButton(button, action, mods);
 }
 
-void OnMousePos(GLFWwindow* window, double xPos, double yPos)
+void onMousePos(GLFWwindow* window, double xPos, double yPos)
 {
-	static_cast<erm::Window*>(glfwGetWindowUserPointer(window))->OnMousePos(xPos, yPos);
+	static_cast<erm::Window*>(glfwGetWindowUserPointer(window))->onMousePos(xPos, yPos);
 }
 
-void OnKey(GLFWwindow* window, int key, int scanCode, int action, int mods)
+void onKey(GLFWwindow* window, int key, int scanCode, int action, int mods)
 {
-	static_cast<erm::Window*>(glfwGetWindowUserPointer(window))->OnKey(key, scanCode, action, mods);
+	static_cast<erm::Window*>(glfwGetWindowUserPointer(window))->onKey(key, scanCode, action, mods);
 }
 
-void OnFrameBufferResize(GLFWwindow* window, int /*width*/, int /*height*/)
+void onFrameBufferResize(GLFWwindow* window, int /*width*/, int /*height*/)
 {
-	static_cast<erm::Window*>(glfwGetWindowUserPointer(window))->OnSizeChanged();
+	static_cast<erm::Window*>(glfwGetWindowUserPointer(window))->onSizeChanged();
 }
 
-void OnWindowSizeChanged(GLFWwindow* window, int /*width*/, int /*height*/)
+void onWindowSizeChanged(GLFWwindow* window, int /*width*/, int /*height*/)
 {
-	static_cast<erm::Window*>(glfwGetWindowUserPointer(window))->OnSizeChanged();
+	static_cast<erm::Window*>(glfwGetWindowUserPointer(window))->onSizeChanged();
 }
 
-void OnRefresh(GLFWwindow* window)
+void onRefresh(GLFWwindow* window)
 {
 	if (firstRefresh)
 	{
 		firstRefresh = false;
 		int width, height;
 		glfwGetFramebufferSize(window, &width, &height);
-		static_cast<erm::Window*>(glfwGetWindowUserPointer(window))->OnSizeChanged();
+		static_cast<erm::Window*>(glfwGetWindowUserPointer(window))->onSizeChanged();
 	}
 }
 
@@ -127,7 +129,7 @@ Window::~Window()
 	glfwTerminate();
 }
 
-bool Window::Init()
+bool Window::init()
 {
 	if (!glfwInit())
 	{
@@ -173,23 +175,23 @@ bool Window::Init()
 
 	glfwSetWindowUserPointer(mWindow, this);
 
-	glfwSetWindowFocusCallback(mWindow, internal::FocusCallback);
-	glfwSetMouseButtonCallback(mWindow, internal::OnMouseButton);
-	glfwSetCursorPosCallback(mWindow, internal::OnMousePos);
-	glfwSetKeyCallback(mWindow, internal::OnKey);
-	glfwSetWindowRefreshCallback(mWindow, internal::OnRefresh);
-	glfwSetFramebufferSizeCallback(mWindow, internal::OnFrameBufferResize);
-	glfwSetWindowSizeCallback(mWindow, internal::OnWindowSizeChanged);
+	glfwSetWindowFocusCallback(mWindow, internal::focusCallback);
+	glfwSetMouseButtonCallback(mWindow, internal::onMouseButton);
+	glfwSetCursorPosCallback(mWindow, internal::onMousePos);
+	glfwSetKeyCallback(mWindow, internal::onKey);
+	glfwSetWindowRefreshCallback(mWindow, internal::onRefresh);
+	glfwSetFramebufferSizeCallback(mWindow, internal::onFrameBufferResize);
+	glfwSetWindowSizeCallback(mWindow, internal::onWindowSizeChanged);
 
 	return true;
 }
 
-bool Window::ShouldClose()
+bool Window::shouldClose()
 {
-	return glfwWindowShouldClose(mWindow) || IsKeyDown(KEY_ESCAPE);
+	return glfwWindowShouldClose(mWindow) || isKeyDown(KEY_ESCAPE);
 }
 
-void Window::OnUpdate()
+void Window::update()
 {
 	ERM_PROFILE_FUNCTION();
 
@@ -198,29 +200,29 @@ void Window::OnUpdate()
 	glfwGetCursorPos(mWindow, &mMousePosX, &mMousePosY);
 }
 
-void Window::OnRender()
+void Window::render()
 {
 	ERM_PROFILE_FUNCTION();
 
 	glfwSwapBuffers(mWindow);
 }
 
-void Window::OnPostRender()
+void Window::postRender()
 {
 	ERM_PROFILE_FUNCTION();
 
 	glfwPollEvents();
 }
 
-void Window::OnKey(int key, int /*scanCode*/, int action, int /*mods*/)
+void Window::onKey(int key, int /*scanCode*/, int action, int /*mods*/)
 {
 	ERM_PROFILE_FUNCTION();
 
 	if (action == GLFW_PRESS)
 	{
 		mPressedKeys.insert(key);
-		SafeForEach<IWindowListener>(mWindowListeners, [key](IWindowListener* listener) {
-			listener->OnKeyPressed(key);
+		safeForEach<IWindowListener>(mWindowListeners, [key](IWindowListener* listener) {
+			listener->onKeyPressed(key);
 		});
 	}
 	else if (action == GLFW_RELEASE)
@@ -229,22 +231,22 @@ void Window::OnKey(int key, int /*scanCode*/, int action, int /*mods*/)
 		if (it != mPressedKeys.end())
 		{
 			mPressedKeys.erase(it);
-			SafeForEach<IWindowListener>(mWindowListeners, [key](IWindowListener* listener) {
-				listener->OnKeyReleased(key);
+			safeForEach<IWindowListener>(mWindowListeners, [key](IWindowListener* listener) {
+				listener->onKeyReleased(key);
 			});
 		}
 	}
 }
 
-void Window::OnMouseButton(int button, int action, int /*mods*/)
+void Window::onMouseButton(int button, int action, int /*mods*/)
 {
 	ERM_PROFILE_FUNCTION();
 
 	if (action == GLFW_PRESS)
 	{
 		mPressedButtons.insert(button);
-		SafeForEach<IWindowListener>(mWindowListeners, [button](IWindowListener* listener) {
-			listener->OnMouseButtonPressed(button);
+		safeForEach<IWindowListener>(mWindowListeners, [button](IWindowListener* listener) {
+			listener->onMouseButtonPressed(button);
 		});
 	}
 	else if (action == GLFW_RELEASE)
@@ -253,63 +255,63 @@ void Window::OnMouseButton(int button, int action, int /*mods*/)
 		if (it != mPressedButtons.end())
 		{
 			mPressedButtons.erase(it);
-			SafeForEach<IWindowListener>(mWindowListeners, [button](IWindowListener* listener) {
-				listener->OnMouseButtonReleased(button);
+			safeForEach<IWindowListener>(mWindowListeners, [button](IWindowListener* listener) {
+				listener->onMouseButtonReleased(button);
 			});
 		}
 	}
 }
 
-void Window::OnMousePos(double xPos, double yPos)
+void Window::onMousePos(double xPos, double yPos)
 {
 //	if (ImGui::GetIO().WantCaptureMouse)
 //		return;
 
-	SafeForEach<IWindowListener>(mWindowListeners, [xPos, yPos](IWindowListener* listener) {
-		listener->OnMouseMoved(xPos, yPos);
+	safeForEach<IWindowListener>(mWindowListeners, [xPos, yPos](IWindowListener* listener) {
+		listener->onMouseMoved(xPos, yPos);
 	});
 }
 
-void Window::OnSizeChanged()
+void Window::onSizeChanged()
 {
 	ERM_PROFILE_FUNCTION();
 
 	glfwGetWindowSize(mWindow, &mWindowSize.x, &mWindowSize.y);
 	glfwGetFramebufferSize(mWindow, &mFrameBufferSize.x, &mFrameBufferSize.y);
-	UpdateViewport();
-	UpdateAspectRatio();
-	SafeForEach<IWindowListener>(mWindowListeners, [this](IWindowListener* listener) {
-		listener->OnSizeChanged(mWindowSize.x, mWindowSize.y);
+	updateViewport();
+	updateAspectRatio();
+	safeForEach<IWindowListener>(mWindowListeners, [this](IWindowListener* listener) {
+		listener->onSizeChanged(mWindowSize.x, mWindowSize.y);
 	});
 }
 
-void Window::OnMaximised(bool /*wasMaximised*/)
+void Window::onMaximised(bool /*wasMaximised*/)
 {
-	OnSizeChanged();
+	onSizeChanged();
 }
 
-void Window::OnFocusLost()
+void Window::onFocusLost()
 {
-	const bool hadFocus = HasFocus();
-	IWindow::OnFocusLost();
+	const bool hadFocus = hasFocus();
+	IWindow::onFocusLost();
 
 	if (hadFocus)
 	{
-		SafeForEach<IWindowListener>(mWindowListeners, [](IWindowListener* listener) {
-			listener->OnFocusChanged();
+		safeForEach<IWindowListener>(mWindowListeners, [](IWindowListener* listener) {
+			listener->onFocusChanged();
 		});
 	}
 }
 
-void Window::OnFocus()
+void Window::onFocus()
 {
-	const bool hadFocus = HasFocus();
-	IWindow::OnFocus();
+	const bool hadFocus = hasFocus();
+	IWindow::onFocus();
 
 	if (!hadFocus)
 	{
-		SafeForEach<IWindowListener>(mWindowListeners, [](IWindowListener* listener) {
-			listener->OnFocusChanged();
+		safeForEach<IWindowListener>(mWindowListeners, [](IWindowListener* listener) {
+			listener->onFocusChanged();
 		});
 	}
 
@@ -317,17 +319,19 @@ void Window::OnFocus()
 	glfwGetWindowSize(mWindow, &width, &height);
 
 	if (mWindowSize.x == width && mWindowSize.y == height)
+	{
 		return;
+	}
 
-	OnSizeChanged();
+	onSizeChanged();
 }
 
-BoundingBox2D Window::GetNormalizedViewport() const
+BoundingBox2D Window::getNormalizedViewport() const
 {
 	return BoundingBox2D({0.0f, 0.0f}, {1.0f, 1.0f});
 }
 
-void Window::UpdateViewport()
+void Window::updateViewport()
 {
 	mViewport.mMin.x = mWindowSize.x * kImGuiSpaceLeft;
 	mViewport.mMin.y = mWindowSize.y * kImGuiSpaceDown;
@@ -349,9 +353,9 @@ void Window::UpdateViewport()
 #endif
 }
 
-void Window::UpdateAspectRatio()
+void Window::updateAspectRatio()
 {
-	const vec2 size = mViewport.GetSize();
+	const auto& size = mViewport.getSize();
 	if (size.y > 0.0f)
 	{
 		mAspectRatio = size.x / size.y;

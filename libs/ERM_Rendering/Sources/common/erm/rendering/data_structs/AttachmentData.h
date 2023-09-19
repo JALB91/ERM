@@ -5,7 +5,7 @@
 #include "erm/rendering/enums/FrameBufferType.h"
 #include "erm/rendering/enums/ImageLayout.h"
 
-#include "erm/utils/Utils.h"
+#include <erm/utils/Utils.h>
 
 namespace erm {
 

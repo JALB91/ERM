@@ -14,18 +14,18 @@ public:
 	RTAccelerationStructure() = default;
 	virtual ~RTAccelerationStructure() = default;
 
-	inline void Reset()
+	inline void reset()
 	{
 		mBuffer.reset();
 		mAccelerationStructure.reset();
 	}
 
-	inline void SetBuffer(std::unique_ptr<DeviceBuffer>&& buffer) { mBuffer = std::move(buffer); }
-	inline void SetAS(vk::UniqueAccelerationStructureKHR&& as) { mAccelerationStructure = std::move(as); }
+	inline void setBuffer(std::unique_ptr<DeviceBuffer>&& buffer) { mBuffer = std::move(buffer); }
+	inline void setAS(vk::UniqueAccelerationStructureKHR&& as) { mAccelerationStructure = std::move(as); }
 
-	inline bool IsReady() const { return mBuffer && mAccelerationStructure; }
-	inline const DeviceBuffer& GetBuffer() const { return *mBuffer; }
-	inline const vk::AccelerationStructureKHR& GetAS() const { return mAccelerationStructure.get(); }
+	inline bool isReady() const { return mBuffer && mAccelerationStructure; }
+	inline const DeviceBuffer& getBuffer() const { return *mBuffer; }
+	inline const vk::AccelerationStructureKHR& getAS() const { return mAccelerationStructure.get(); }
 
 private:
 	std::unique_ptr<DeviceBuffer> mBuffer;

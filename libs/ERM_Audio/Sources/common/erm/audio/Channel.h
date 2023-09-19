@@ -1,5 +1,7 @@
 #pragma once
 
+#include <erm/utils/StaticString.h>
+
 namespace FMOD {
 class Channel;
 }
@@ -14,8 +16,8 @@ public:
 public:
 	virtual ~Channel();
 
-	bool IsPlaying() const;
-	const char* GetCurrentSoundName() const;
+	bool isPlaying() const;
+	str128 getCurrentSoundName() const;
 
 protected:
 	Channel(FMOD::Channel* channel = nullptr);

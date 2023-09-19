@@ -15,21 +15,21 @@ public:
 public:
 	Timer();
 
-	void Update(double dt = GetCurrentTime());
-	void Restart();
+	void update(double dt = getCurrentTime());
+	void restart();
 	
-	static double ClockToSeconds(clock_t ticks)
+	static double clockToSeconds(clock_t ticks)
 	{
 		return ticks / static_cast<double>(CLOCKS_PER_SEC);
 	}
 	
-	static double GetCurrentTime()
+	static double getCurrentTime()
 	{
-		return ClockToSeconds(clock());
+		return clockToSeconds(clock());
 	}
 	
-	inline double GetElapsedTime() const { return mElapsedTime; }
-	inline double GetUpdateElapsedTime() const { return mUpdateElapsedTime; }
+	inline double getElapsedTime() const { return mElapsedTime; }
+	inline double getUpdateElapsedTime() const { return mUpdateElapsedTime; }
 
 private:
 	double mElapsedTime;

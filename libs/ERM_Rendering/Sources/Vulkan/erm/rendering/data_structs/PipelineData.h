@@ -4,6 +4,8 @@
 #include "erm/rendering/data_structs/IBindingResources.h"
 #include "erm/rendering/renderer/IRenderer.h"
 
+#include <erm/math/Types.h>
+
 #include <vulkan/vulkan.hpp>
 
 #include <memory>
@@ -29,52 +31,58 @@ public:
 		, mUntouchedFrames(other.mUntouchedFrames)
 	{}
 	
-	uint32_t GetUntouchedFrames() const
+	u32 getUntouchedFrames() const
 	{
 		return mUntouchedFrames;
 	}
 
-	bool IsCompatible(const BindingConfigs& other) const
+	bool isCompatible(const BindingConfigs& other) const
 	{
-		return mConfigs.IsBindingLevelCompatible(other);
+		return mConfigs.isBindingLevelCompatible(other);
 	}
 	
-	void Refresh()
+	void refresh()
 	{
 		++mUntouchedFrames;
 	}
 
-	void UpdateResources(vk::CommandBuffer& cmd, IRenderData& renderData)
+	void updateResources(vk::CommandBuffer& cmd, IRenderData& renderData)
 	{
 		for (auto& res : mBindingResources)
-			res->UpdateResources(cmd, renderData);
+		{
+			res->updateResources(cmd, renderData);
+		}
 		
 		mUntouchedFrames = 0;
 	}
 
-	std::vector<vk::DescriptorSet> GetDescriptorSets(vk::DescriptorSet& emptySet)
+	std::vector<vk::DescriptorSet> getDescriptorSets(vk::DescriptorSet& emptySet)
 	{
 		std::vector<vk::DescriptorSet> result(mMaxSet + 1);
-		for (uint32_t i = 0; i < mMaxSet + 1; ++i)
+		for (u32 i = 0; i < mMaxSet + 1; ++i)
 		{
 			auto it = std::find_if(
 				mBindingResources.begin(),
 				mBindingResources.end(),
 				[i](const BindingResources& res) {
-					return res->GetTargetSet() == i;
+					return res->getTargetSet() == i;
 			});
 
 			if (it != mBindingResources.cend())
-				result[i] = (*it)->GetDescriptorSet();
+			{
+				result[i] = (*it)->getDescriptorSet();
+			}
 			else
+			{
 				result[i] = emptySet;
+			}
 		}
 		return result;
 	}
 
-	void AddResources(uint32_t set, BindingResources&& resources)
+	void addResources(u32 set, BindingResources&& resources)
 	{
-		ERM_ASSERT(IsCompatible(resources->GetBindingConfigs()));
+		ERM_ASSERT(isCompatible(resources->getBindingConfigs()));
 		mMaxSet = std::max(mMaxSet, set);
 		mBindingResources.emplace_back(std::move(resources));
 	}
@@ -82,8 +90,8 @@ public:
 private:
 	const BindingConfigs mConfigs;
 	std::vector<BindingResources> mBindingResources;
-	uint32_t mMaxSet;
-	uint32_t mUntouchedFrames;
+	u32 mMaxSet;
+	u32 mUntouchedFrames;
 };
 
 } // namespace erm

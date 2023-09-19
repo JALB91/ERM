@@ -11,7 +11,7 @@ namespace erm {
 //	: IShaderProgram(device, shaderPath)
 //{}
 //
-//std::vector<vk::UniqueShaderModule> GPUShaderProgram::CreateShaderModules(ShaderType shaderType) const
+//std::vector<vk::UniqueShaderModule> GPUShaderProgram::createShaderModules(ShaderType shaderType) const
 //{
 //	const auto it = mShadersDataMap.find(shaderType);
 //	if (it == mShadersDataMap.end())
@@ -21,11 +21,11 @@ namespace erm {
 //
 //	std::vector<vk::UniqueShaderModule> result(data.size());
 //
-//	for (size_t i = 0; i < data.size(); ++i)
+//	for (u64 i = 0; i < data.size(); ++i)
 //	{
 //		vk::ShaderModuleCreateInfo createInfo = {};
 //		createInfo.codeSize = data[i].mShaderByteCode.size();
-//		createInfo.pCode = reinterpret_cast<const uint32_t*>(data[i].mShaderByteCode.data());
+//		createInfo.pCode = reinterpret_cast<const u32*>(data[i].mShaderByteCode.data());
 //
 //		ERM_VK_CHECK_AND_ASSIGN(result[i], mDevice->createShaderModuleUnique(createInfo));
 //	}
@@ -33,7 +33,7 @@ namespace erm {
 //	return result;
 //}
 //
-//vk::VertexInputBindingDescription GPUShaderProgram::GetVertexBindingDescription()
+//vk::VertexInputBindingDescription GPUShaderProgram::getVertexBindingDescription()
 //{
 //	ERM_ASSERT(mShadersDataMap[ShaderType::VERTEX].size() == 1);
 //
@@ -122,7 +122,7 @@ namespace erm {
 //	ShaderType shaderType,
 //	DescriptorType descriptorType)
 //{
-//	const uint32_t binding = compiler.get_decoration(res.id, spv::Decoration::DecorationBinding);
+//	const u32 binding = compiler.get_decoration(res.id, spv::Decoration::DecorationBinding);
 //
 //	for (vk::DescriptorSetLayoutBinding& layoutBinding : mLayoutBindingsMap[targetSet])
 //	{

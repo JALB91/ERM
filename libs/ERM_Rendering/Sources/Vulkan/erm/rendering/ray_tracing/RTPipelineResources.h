@@ -2,6 +2,8 @@
 
 #include "erm/rendering/buffers/HostBuffer.h"
 
+#include <erm/math/Types.h>
+
 #include <vulkan/vulkan.hpp>
 
 #include <vector>
@@ -26,17 +28,17 @@ public:
 		const vk::AccelerationStructureKHR* topLevelAS);
 	~RTPipelineResources();
 
-	void Refresh();
+	void refresh();
 
-	void UpdateCommandBuffer(vk::CommandBuffer& cmd, RTRenderData& renderData);
+	void updateCommandBuffer(vk::CommandBuffer& cmd, RTRenderData& renderData);
 
-	inline const vk::Buffer GetSBTBuffer() const { return mSBTBuffer->GetBuffer(); }
-	inline size_t GetMaxInstancesCount() const { return mMaxInstancesCount; }
+	inline const vk::Buffer getSBTBuffer() const { return mSBTBuffer->getBuffer(); }
+	inline u64 getMaxInstancesCount() const { return mMaxInstancesCount; }
 
 private:
-	void CreatePipeline();
-	void CreateBindingTable();
-	void CreatePipelineData();
+	void createPipeline();
+	void createBindingTable();
+	void createPipelineData();
 
 	Device& mDevice;
 	IRenderer& mRenderer;
@@ -53,7 +55,7 @@ private:
 
 	std::unique_ptr<HostBuffer> mSBTBuffer;
 	std::unique_ptr<PipelineData> mPipelineData;
-	size_t mMaxInstancesCount;
+	u64 mMaxInstancesCount;
 };
 
 } // namespace erm

@@ -24,7 +24,7 @@ void VertexArray::AddBuffer(const VertexBuffer& vb, const VertexBufferLayout& vb
 {
 	Bind();
 	vb.Bind();
-	size_t offset = 0;
+	u64 offset = 0;
 	const std::vector<VertexBufferElement>& elements = vbl.GetElements();
 
 	for (unsigned int i = 0; i < static_cast<unsigned int>(elements.size()); ++i)

@@ -7,6 +7,7 @@
 
 #include <array>
 #include <memory>
+#include <string_view>
 #include <vector>
 
 namespace erm::ecs {
@@ -22,17 +23,17 @@ public:
 	ECS();
 	~ECS();
 	
-	void Init();
+	void init();
 
-	void OnPreUpdate();
-	void OnUpdate(float dt);
-	void OnPostUpdate();
-	void OnPreRender();
-	void OnRender();
-	void OnPostRender();
+	void preUpdate();
+	void update(float dt);
+	void postUpdate();
+	void preRender();
+	void render();
+	void postRender();
 
 	template<typename T>
-	T& AddSystem()
+	T& addSystem()
 	{
 		if (ERM_EXPECT(mSystems.size() <= T::SYSTEM_ID || mSystems[T::SYSTEM_ID] == nullptr, "Trying to add a system twice"))
 		{
@@ -44,29 +45,29 @@ public:
 	}
 
 	template<typename T>
-	T* GetSystem()
+	T* getSystem()
 	{
 		return static_cast<T*>(mSystems[T::SYSTEM_ID].get());
 	}
 
 	template<typename T>
-	T* GetComponent(EntityId id)
+	T* getComponent(EntityId id)
 	{
-		auto* system = GetSystem<typename T::SYSTEM_TYPE>();
-		return system ? system->GetComponent(id) : nullptr;
+		auto* system = getSystem<typename T::SYSTEM_TYPE>();
+		return system ? system->getComponent(id) : nullptr;
 	}
 
-	void RemoveEntity(EntityId id);
-	void OnEntityBeingRemoved(EntityId id);
-	void AddChildToEntity(EntityId parentId, EntityId childId);
+	void removeEntity(EntityId id);
+	void onEntityBeingRemoved(EntityId id);
+	void addChildToEntity(EntityId parentId, EntityId childId);
 
-	Entity* GetRoot();
-	Entity* GetOrCreateEntity(const char* name = "Unknown");
-	Entity* GetEntityById(EntityId id);
+	Entity* getRoot();
+	Entity* getOrCreateEntity(std::string_view name = "Unknown");
+	Entity* getEntityById(EntityId id);
 
 private:
 	template<typename T>
-	void ForEachSystem(const T& function);
+	void forEachSystem(const T& function);
 
 	std::vector<std::unique_ptr<ISystem>> mSystems;
 	std::array<std::unique_ptr<Entity>, MAX_ID> mEntities;

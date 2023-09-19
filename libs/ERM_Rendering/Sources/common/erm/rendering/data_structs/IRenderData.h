@@ -6,6 +6,8 @@
 #include "erm/rendering/data_structs/UniformBufferObject.h"
 #include "erm/rendering/enums/StorageBufferType.h"
 
+#include <erm/math/Types.h>
+
 #include <memory>
 #include <unordered_map>
 #include <vector>
@@ -40,31 +42,35 @@ struct IRenderData
 	IRenderData& operator=(const IRenderData&) = delete;
 
 	template<typename T>
-	inline T& GetUbo()
+	inline T& getUbo()
 	{
 		if (mUbos.find(T::ID) == mUbos.end())
+		{
 			mUbos[T::ID] = std::make_unique<T>();
+		}
 
 		return *static_cast<T*>(mUbos[T::ID].get());
 	}
 
-	inline bool HasUbo(UboId id) const
+	inline bool hasUbo(UboId id) const
 	{
 		return mUbos.find(id) != mUbos.cend();
 	}
 
-	inline void AddSbo(StorageBufferType type, uint32_t id, const DeviceBuffer& buffer)
+	inline void addSbo(StorageBufferType type, u32 id, const DeviceBuffer& buffer)
 	{
-		mSbos[type].AddBuffer(id, buffer);
+		mSbos[type].addBuffer(id, buffer);
 	}
 
-	inline void RemoveSbos(uint32_t id)
+	inline void removeSbos(u32 id)
 	{
 		for (auto& [type, resources] : mSbos)
-			resources.ClearBuffer(id);
+		{
+			resources.clearBuffer(id);
+		}
 	}
 
-	inline bool HasSbos(StorageBufferType type) const
+	inline bool hasSbos(StorageBufferType type) const
 	{
 		return mSbos.find(type) != mSbos.cend();
 	}

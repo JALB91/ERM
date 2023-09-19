@@ -9,10 +9,10 @@ class HostBuffer : public IBuffer
 public:
 	HostBuffer(
 		Device& device,
-		size_t size,
+		u64 size,
 		BufferUsageFlags buf);
 
-	void Update(const void* data, const BufferInfo& info = {}) const override;
+	void update(const void* data, const BufferInfo& info = {}) const override;
 };
 
 } // namespace erm

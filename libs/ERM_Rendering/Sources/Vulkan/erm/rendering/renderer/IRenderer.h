@@ -7,6 +7,8 @@
 #include <erm/assets/enums/TextureType.h>
 #include <erm/assets/textures/Texture.h>
 
+#include <erm/math/Types.h>
+
 #include <vulkan/vulkan.hpp>
 
 #include <array>
@@ -29,43 +31,43 @@ namespace erm {
 class IRenderer
 {
 public:
-	static constexpr uint32_t kMaxFramesInFlight = 3;
+	static constexpr u32 kMaxFramesInFlight = 3;
 
 public:
 	IRenderer(Window& window, Device& device);
 	virtual ~IRenderer();
 
-	virtual void OnPreRender() = 0;
-	virtual void OnRender() = 0;
-	virtual void OnPostRender() = 0;
+	virtual void preRender() = 0;
+	virtual void render() = 0;
+	virtual void postRender() = 0;
 
-	void AddSwapChainListener(ISwapChainListener* listener);
-	void RemoveSwapChainListener(ISwapChainListener* listener);
+	void addSwapChainListener(ISwapChainListener* listener);
+	void removeSwapChainListener(ISwapChainListener* listener);
 	
-	void AddExtCommandBufferUpdater(IExtCommandBufferUpdater* commandBufferUpdater);
-	void RemoveExtCommandBufferUpdater(IExtCommandBufferUpdater* commandBufferUpdater);
+	void addExtCommandBufferUpdater(IExtCommandBufferUpdater* commandBufferUpdater);
+	void removeExtCommandBufferUpdater(IExtCommandBufferUpdater* commandBufferUpdater);
 
-	inline bool IsImageIndexValid() const { return mIsImageIndexValid; }
-	inline size_t GetCurrentFrame() const { return mCurrentFrame; }
-	inline uint32_t GetCurrentImageIndex() const { return mCurrentImageIndex; }
-	inline uint32_t GetMinImageCount() const { return mMinImageCount; }
-	inline uint32_t GetImageCount() const { return mImageCount; }
-	inline const vk::Extent2D& GetSwapChainExtent() const { return mSwapChainExtent; }
-	inline vk::Sampler GetTextureSampler() const { return mTextureSampler; }
-	inline vk::Format GetSwapChainImageFormat() const { return mSwapChainImageFormat; }
+	inline bool isImageIndexValid() const { return mIsImageIndexValid; }
+	inline u64 getCurrentFrame() const { return mCurrentFrame; }
+	inline u32 getCurrentImageIndex() const { return mCurrentImageIndex; }
+	inline u32 getMinImageCount() const { return mMinImageCount; }
+	inline u32 getImageCount() const { return mImageCount; }
+	inline const vk::Extent2D& getSwapChainExtent() const { return mSwapChainExtent; }
+	inline vk::Sampler getTextureSampler() const { return mTextureSampler; }
+	inline vk::Format getSwapChainImageFormat() const { return mSwapChainImageFormat; }
 	
-	const std::vector<GPUTexture*>& GetTargetFrameBuffers(FrameBufferType frameBufferType) const;
-	GPUTexture* GetDefaultTexture(TextureType type) const;
+	const std::vector<GPUTexture*>& getTargetFrameBuffers(FrameBufferType frameBufferType) const;
+	GPUTexture* getDefaultTexture(TextureType type) const;
 
 protected:
-	virtual void RecreateSwapChain();
-	void CleanupSwapChain();
+	virtual void recreateSwapChain();
+	void cleanupSwapChain();
 
-	void CreateSwapChain();
-	void CreateFrameResources();
-	void CreateDepthResources();
-	void CreateTextureSampler();
-	void CreateSyncObjects();
+	void createSwapChain();
+	void createFrameResources();
+	void createDepthResources();
+	void createTextureSampler();
+	void createSyncObjects();
 
 	Window& mWindow;
 	Device& mDevice;
@@ -88,10 +90,10 @@ protected:
 
 	std::set<ISwapChainListener*> mSwapChainListeners;
 	std::set<IExtCommandBufferUpdater*> mCommandBufferUpdaters;
-	uint32_t mCurrentFrame;
-	uint32_t mCurrentImageIndex;
-	uint32_t mMinImageCount;
-	uint32_t mImageCount;
+	u32 mCurrentFrame;
+	u32 mCurrentImageIndex;
+	u32 mMinImageCount;
+	u32 mImageCount;
 	bool mIsImageIndexValid;
 	bool mFramebufferResized;
 };

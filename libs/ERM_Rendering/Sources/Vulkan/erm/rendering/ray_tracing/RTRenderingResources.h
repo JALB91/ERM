@@ -23,18 +23,18 @@ public:
 	RTRenderingResources(Device& device, IRenderer& renderer);
 	~RTRenderingResources();
 
-	void Refresh();
-	void UpdateCommandBuffer(vk::CommandBuffer& cmd, RTRenderData& renderData);
+	void refresh();
+	void updateCommandBuffer(vk::CommandBuffer& cmd, RTRenderData& renderData);
 
 private:
-	void UpdateResources(RTRenderData& renderData);
-	void BuildBlas(RTRenderData& data, vk::BuildAccelerationStructureFlagsKHR flags);
-	void UpdateTopLevelAS(RTRenderData& data, vk::BuildAccelerationStructureFlagsKHR flags);
+	void updateResources(RTRenderData& renderData);
+	void buildBlas(RTRenderData& data, vk::BuildAccelerationStructureFlagsKHR flags);
+	void updateTopLevelAS(RTRenderData& data, vk::BuildAccelerationStructureFlagsKHR flags);
 
-	void Reload();
-	void Cleanup();
+	void reload();
+	void cleanup();
 
-	void CreateDescriptorPool();
+	void createDescriptorPool();
 
 	Device& mDevice;
 	IRenderer& mRenderer;

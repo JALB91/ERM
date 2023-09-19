@@ -2,8 +2,9 @@
 
 #include "erm/audio/AudioUtils.h"
 
-#include "erm/utils/Profiler.h"
-#include "erm/utils/Utils.h"
+#include <erm/utils/Profiler.h>
+#include <erm/utils/StaticString.h>
+#include <erm/utils/Utils.h>
 
 #include <fmod_studio.hpp>
 
@@ -11,7 +12,9 @@
 
 namespace erm {
 
-static FMOD_RESULT SystemCallback(
+namespace internal {
+
+static FMOD_RESULT systemCallback(
 	FMOD_SYSTEM* system,
 	FMOD_SYSTEM_CALLBACK_TYPE type,
 	void* commanddata1,
@@ -23,24 +26,28 @@ static FMOD_RESULT SystemCallback(
 	ERM_UNUSED(commanddata2);
 
 	if (type != FMOD_SYSTEM_CALLBACK_DEVICELISTCHANGED)
+	{
 		return FMOD_OK;
+	}
 
-	AudioManager* manager = static_cast<AudioManager*>(userdata);
-	manager->UpdateDrivers();
+	auto* manager = static_cast<AudioManager*>(userdata);
+	manager->updateDrivers();
 
-	const auto& drivers = manager->GetDrivers();
-	const int currentDriver = manager->GetDriver();
+	const auto& drivers = manager->getDrivers();
+	const int currentDriver = manager->getDriver();
 
 	if (drivers.find(currentDriver) != drivers.end())
 	{
-		manager->SetDriver(currentDriver);
+		manager->setDriver(currentDriver);
 	}
 	else if (!drivers.empty())
 	{
-		manager->SetDriver(drivers.begin()->first);
+		manager->setDriver(drivers.begin()->first);
 	}
 
 	return FMOD_OK;
+}
+
 }
 
 AudioManager::AudioManager()
@@ -53,46 +60,50 @@ AudioManager::AudioManager()
 	ERM_CHECK_FMOD_RESULT(FMOD::Studio::System::create(&mStudioSystem))
 	ERM_CHECK_FMOD_RESULT(mStudioSystem->initialize(MAX_CHANNELS, FMOD_STUDIO_INIT_NORMAL, FMOD_INIT_NORMAL, 0))
 	ERM_CHECK_FMOD_RESULT(mStudioSystem->getCoreSystem(&mCoreSystem))
-	for (int i = 0; i < MAX_CHANNELS; ++i)
+	for (u32 i = 0; i < MAX_CHANNELS; ++i)
 	{
 		ERM_CHECK_FMOD_RESULT(mCoreSystem->getChannel(i, &mChannels[i].mChannel))
 	}
-	UpdateDrivers();
+	updateDrivers();
 	ERM_CHECK_FMOD_RESULT(mCoreSystem->setUserData(this));
-	ERM_CHECK_FMOD_RESULT(mCoreSystem->setCallback(SystemCallback));
+	ERM_CHECK_FMOD_RESULT(mCoreSystem->setCallback(internal::systemCallback));
 }
 
 AudioManager::~AudioManager()
 {
 	for (auto& sound : mSounds)
+	{
 		ERM_CHECK_FMOD_RESULT(sound.mSound->release());
+	}
 
 	ERM_CHECK_FMOD_RESULT(mStudioSystem->release());
 }
 
-void AudioManager::Suspend()
+void AudioManager::suspend()
 {
 	mSuspended = true;
 	for (auto& repro : mReproductions)
 	{
-		if (!repro.IsPaused())
+		if (!repro.isPaused())
 		{
-			repro.Pause();
+			repro.pause();
 			mReproductionsToResume.emplace_back(repro);
 		}
 	}
 }
 
-void AudioManager::Resume()
+void AudioManager::resume()
 {
 	mSuspended = false;
 	for (auto repro : mReproductionsToResume)
-		repro.get().Resume();
+	{
+		repro.get().resume();
+	}
 
 	mReproductionsToResume.clear();
 }
 
-void AudioManager::OnUpdate(float /*dt*/)
+void AudioManager::update(float /*dt*/)
 {
 	ERM_PROFILE_FUNCTION();
 	
@@ -100,7 +111,7 @@ void AudioManager::OnUpdate(float /*dt*/)
 
 	for (auto it = mReproductions.begin(); it != mReproductions.end();)
 	{
-		if (it->IsEnded())
+		if (it->isEnded())
 		{
 			it = mReproductions.erase(it);
 		}
@@ -111,19 +122,19 @@ void AudioManager::OnUpdate(float /*dt*/)
 	}
 }
 
-void AudioManager::UpdateDrivers()
+void AudioManager::updateDrivers()
 {
 	mDrivers.clear();
-	const int numDrivers = GetNumDrivers();
+	const int numDrivers = getNumDrivers();
 
 	for (int i = 0, driverId = 0; i < numDrivers; ++driverId)
 	{
-		static char name[256];
+		static str256 name;
 		AudioDriver driver;
 		auto result = mCoreSystem->getDriverInfo(
 			driverId,
-			name,
-			sizeof(name),
+			name.data(),
+			name.capacity(),
 			&driver.mFmodGuid,
 			&driver.mSystemRate,
 			&driver.mSpeakerMode,
@@ -131,7 +142,9 @@ void AudioManager::UpdateDrivers()
 
 		driver.mName = name;
 		if (driver.mName.empty())
+		{
 			driver.mName = "Unknown";
+		}
 
 		if (result == FMOD_OK)
 		{
@@ -141,42 +154,42 @@ void AudioManager::UpdateDrivers()
 	}
 }
 
-int AudioManager::GetNumDrivers() const
+int AudioManager::getNumDrivers() const
 {
 	int numDrivers = 0;
 	ERM_CHECK_FMOD_RESULT(mCoreSystem->getNumDrivers(&numDrivers));
 	return numDrivers;
 }
 
-void AudioManager::SetDriver(int driver) const
+void AudioManager::setDriver(int driver) const
 {
 	ERM_CHECK_FMOD_RESULT(mCoreSystem->setDriver(driver));
 }
 
-int AudioManager::GetDriver() const
+int AudioManager::getDriver() const
 {
 	int driver = 0;
 	ERM_CHECK_FMOD_RESULT(mCoreSystem->getDriver(&driver));
 	return driver;
 }
 
-void AudioManager::SetPlayInBackground(bool playInBackground)
+void AudioManager::setPlayInBackground(bool playInBackground)
 {
 	mPlayInBackground = playInBackground;
 }
 
-bool AudioManager::ShouldPlayInBackground() const
+bool AudioManager::shouldPlayInBackground() const
 {
 	return mPlayInBackground;
 }
 
-Sound* AudioManager::GetSound(const char* path, bool create /* = false*/)
+Sound* AudioManager::getSound(std::string_view path, bool create /* = false*/)
 {
 	ERM_PROFILE_FUNCTION();
 
-	for (Sound& current : mSounds)
+	for (auto& current : mSounds)
 	{
-		if (current.GetPath() == path)
+		if (current.getPath() == path)
 		{
 			return &current;
 		}
@@ -186,30 +199,27 @@ Sound* AudioManager::GetSound(const char* path, bool create /* = false*/)
 	{
 		FMOD::Sound* sound;
 
-		if (std::string(path).find("musics") != std::string::npos)
+		if (path.find("musics") != std::string::npos)
 		{
-			if (mCoreSystem->createStream(path, FMOD_DEFAULT, 0, &sound) == FMOD_OK)
+			if (mCoreSystem->createStream(path.data(), FMOD_DEFAULT, 0, &sound) == FMOD_OK)
 			{
 				return &mSounds.emplace_back(path, sound, true);
 			}
 		}
-		else
+		else if (mCoreSystem->createSound(path.data(), FMOD_DEFAULT, 0, &sound) == FMOD_OK)
 		{
-			if (mCoreSystem->createSound(path, FMOD_DEFAULT, 0, &sound) == FMOD_OK)
-			{
-				return &mSounds.emplace_back(path, sound, false);
-			}
+			return &mSounds.emplace_back(path, sound, false);
 		}
 	}
 
 	return nullptr;
 }
 
-Channel* AudioManager::GetFreeChannel()
+Channel* AudioManager::getFreeChannel()
 {
 	for (auto& channel : mChannels)
 	{
-		if (!channel.IsPlaying())
+		if (!channel.isPlaying())
 		{
 			return &channel;
 		}
@@ -217,28 +227,32 @@ Channel* AudioManager::GetFreeChannel()
 	return nullptr;
 }
 
-Reproduction* AudioManager::PlaySound(const char* path)
+Reproduction* AudioManager::playSound(std::string_view path)
 {
 	ERM_PROFILE_FUNCTION();
 
-	Sound* sound = GetSound(path, true);
+	auto* sound = getSound(path, true);
 	FMOD::Channel* channel;
 	auto result = mCoreSystem->playSound(sound->mSound, 0, false, &channel);
 	if (result != FMOD_OK)
+	{
 		return nullptr;
+	}
 
 	auto& repro = mReproductions.emplace_back(*sound, Channel(channel));
 	return &repro;
 }
 
-Reproduction* AudioManager::PlaySound(Sound& sound)
+Reproduction* AudioManager::playSound(Sound& sound)
 {
 	ERM_PROFILE_FUNCTION();
 
 	FMOD::Channel* channel;
 	auto result = mCoreSystem->playSound(sound.mSound, 0, false, &channel);
 	if (result != FMOD_OK)
+	{
 		return nullptr;
+	}
 
 	auto& repro = mReproductions.emplace_back(sound, Channel(channel));
 	return &repro;

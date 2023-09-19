@@ -10,7 +10,7 @@ namespace erm {
 HostBindingResources::HostBindingResources(
 	Device& device,
 	IRenderer& renderer,
-	uint32_t targetSet,
+	u32 targetSet,
 	const IShaderProgram& shaderProgram,
 	const BindingConfigs& configs,
 	vk::DescriptorPool descriptorPool,
@@ -29,7 +29,7 @@ HostBindingResources::HostBindingResources(
 
 	// GATHER SHADER DATA
 //	TODO: Damiano
-//	const ShaderBindingData& shaderBindings = mShaderProgram.GetShaderBindingsData(mTargetSet);
+//	const ShaderBindingData& shaderBindings = mShaderProgram.getShaderBindingsData(mTargetSet);
 	ShaderBindingData shaderBindings;
 	const std::vector<UboData>& ubosData = shaderBindings.mUbosData;
 
@@ -41,7 +41,7 @@ HostBindingResources::HostBindingResources(
 #endif
 
 	// UNIFORM BUFFERS
-	CreateUniformBuffers(ubosData);
+	createUniformBuffers(ubosData);
 
 	// UPDATE DESCRIPTOR SETS
 	std::vector<std::vector<vk::DescriptorBufferInfo>> descriptorBuffers;
@@ -50,12 +50,12 @@ HostBindingResources::HostBindingResources(
 	std::vector<vk::WriteDescriptorSet> descriptorWrites;
 	descriptorWrites.reserve(ubosData.size() * IRenderer::kMaxFramesInFlight);
 
-	for (uint32_t i = 0; i < IRenderer::kMaxFramesInFlight; ++i)
+	for (u32 i = 0; i < IRenderer::kMaxFramesInFlight; ++i)
 	{
 		auto& descriptorBuffer = descriptorBuffers.emplace_back();
 		descriptorBuffer.reserve(ubosData.size());
 
-		CreateUniformBuffersDescriptorWritesAndInfos(
+		createUniformBuffersDescriptorWritesAndInfos(
 			descriptorBuffers[i],
 			descriptorWrites,
 			ubosData,
@@ -63,26 +63,26 @@ HostBindingResources::HostBindingResources(
 			mDescriptorSets[i].get());
 	}
 
-	mDevice->updateDescriptorSets(static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+	mDevice->updateDescriptorSets(static_cast<u32>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 }
 
-vk::DescriptorSet HostBindingResources::GetDescriptorSet() const
+vk::DescriptorSet HostBindingResources::getDescriptorSet() const
 {
-	return mDescriptorSets[mRenderer.GetCurrentFrame()].get();
+	return mDescriptorSets[mRenderer.getCurrentFrame()].get();
 }
 
-void HostBindingResources::UpdateResources(vk::CommandBuffer /*cmd*/, IRenderData& data)
+void HostBindingResources::updateResources(vk::CommandBuffer /*cmd*/, IRenderData& data)
 {
-	for (auto& pair : mUniformBuffers[mRenderer.GetCurrentFrame()])
+	for (auto& pair : mUniformBuffers[mRenderer.getCurrentFrame()])
 	{
-		ERM_ASSERT(data.HasUbo(pair.first));
-		pair.second.Update(data.mUbos[pair.first].get());
+		ERM_ASSERT(data.hasUbo(pair.first));
+		pair.second.update(data.mUbos[pair.first].get());
 	}
 }
 
-void HostBindingResources::CreateUniformBuffers(const std::vector<UboData>& ubosData)
+void HostBindingResources::createUniformBuffers(const std::vector<UboData>& ubosData)
 {
-	for (const UboData& data : ubosData)
+	for (const auto& data : ubosData)
 	{
 		for (auto& buffersMap : mUniformBuffers)
 		{

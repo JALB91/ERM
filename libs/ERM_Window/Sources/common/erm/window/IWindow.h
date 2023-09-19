@@ -20,35 +20,35 @@ public:
 	IWindow();
 	virtual ~IWindow() = default;
 
-	void AddListener(IWindowListener& listener);
-	void RemoveListener(IWindowListener& listener);
+	void addListener(IWindowListener& listener);
+	void removeListener(IWindowListener& listener);
 
-	virtual void OnKey(int key, int scanCode, int action, int mods) = 0;
-	virtual void OnMouseButton(int button, int action, int mods) = 0;
-	virtual void OnMousePos(double xPos, double yPos) = 0;
-	virtual void OnSizeChanged() = 0;
-	virtual void OnMaximised(bool wasMaximised) = 0;
-	virtual void OnFocusLost();
-	virtual void OnFocus();
+	virtual void onKey(int key, int scanCode, int action, int mods) = 0;
+	virtual void onMouseButton(int button, int action, int mods) = 0;
+	virtual void onMousePos(double xPos, double yPos) = 0;
+	virtual void onSizeChanged() = 0;
+	virtual void onMaximised(bool wasMaximised) = 0;
+	virtual void onFocusLost();
+	virtual void onFocus();
 
-	inline bool HasFocus() const { return mHasFocus; }
-	inline bool IsKeyDown(Key keyCode) const { return mPressedKeys.find(keyCode) != mPressedKeys.end(); }
+	inline bool hasFocus() const { return mHasFocus; }
+	inline bool isKeyDown(Key keyCode) const { return mPressedKeys.find(keyCode) != mPressedKeys.end(); }
 
-	inline double GetMousePosX() const { return mMousePosX; }
-	inline double GetMousePosY() const { return mMousePosY; }
-	inline double GetPreviousMousePosX() const { return mPrevMousePosX; }
-	inline double GetPreviousMousePosY() const { return mPrevMousePosY; }
-	inline bool IsMouseButtonDown(MouseButton mouseButton) const { return mPressedButtons.find(mouseButton) != mPressedButtons.end(); }
+	inline double getMousePosX() const { return mMousePosX; }
+	inline double getMousePosY() const { return mMousePosY; }
+	inline double getPreviousMousePosX() const { return mPrevMousePosX; }
+	inline double getPreviousMousePosY() const { return mPrevMousePosY; }
+	inline bool isMouseButtonDown(MouseButton mouseButton) const { return mPressedButtons.find(mouseButton) != mPressedButtons.end(); }
 
-	inline const ivec2& GetFrameBufferSize() const { return mFrameBufferSize; }
-	inline const ivec2& GetWindowSize() const { return mWindowSize; }
-	inline int GetWindowWidth() const { return mWindowSize.x; }
-	inline int GetWindowHeight() const { return mWindowSize.y; }
-	inline float GetAspectRatio() const { return mAspectRatio; }
+	inline const ivec2& getFrameBufferSize() const { return mFrameBufferSize; }
+	inline const ivec2& getWindowSize() const { return mWindowSize; }
+	inline int getWindowWidth() const { return mWindowSize.x; }
+	inline int getWindowHeight() const { return mWindowSize.y; }
+	inline float getAspectRatio() const { return mAspectRatio; }
 
-	virtual BoundingBox2D GetNormalizedViewport() const = 0;
-	inline const BoundingBox2D& GetViewport() const { return mViewport; }
-	inline BoundingBox2D GetViewport() { return mViewport; }
+	virtual BoundingBox2D getNormalizedViewport() const = 0;
+	inline const BoundingBox2D& getViewport() const { return mViewport; }
+	inline BoundingBox2D getViewport() { return mViewport; }
 
 protected:
 	std::set<IWindowListener*> mWindowListeners;

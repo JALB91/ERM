@@ -24,41 +24,45 @@ RTRenderingResources::RTRenderingResources(Device& device, IRenderer& renderer)
 	: mDevice(device)
 	, mRenderer(renderer)
 {
-	CreateDescriptorPool();
+	createDescriptorPool();
 }
 
 RTRenderingResources::~RTRenderingResources() = default;
 
-void RTRenderingResources::Refresh()
+void RTRenderingResources::refresh()
 {
 	if (mPipelineResources)
-		mPipelineResources->Refresh();
+	{
+		mPipelineResources->refresh();
+	}
 }
 
-void RTRenderingResources::UpdateCommandBuffer(vk::CommandBuffer& cmd, RTRenderData& renderData)
+void RTRenderingResources::updateCommandBuffer(vk::CommandBuffer& cmd, RTRenderData& renderData)
 {
 	ERM_PROFILE_FUNCTION();
 
 	ERM_ASSERT(!renderData.mInstancesMap.empty());
 
-	UpdateResources(renderData);
+	updateResources(renderData);
 
-	const vk::Extent2D& extent = mRenderer.GetSwapChainExtent();
+	const vk::Extent2D& extent = mRenderer.getSwapChainExtent();
 
-	mPipelineResources->UpdateCommandBuffer(cmd, renderData);
+	mPipelineResources->updateCommandBuffer(cmd, renderData);
 
-	const vk::PhysicalDeviceRayTracingPipelinePropertiesKHR& rtProps = mDevice.GetRayTracingProperties();
+	const vk::PhysicalDeviceRayTracingPipelinePropertiesKHR& rtProps = mDevice.getRayTracingProperties();
 
 	// Size of a program identifier
-	uint32_t groupSize = math::AlignUp(rtProps.shaderGroupHandleSize, rtProps.shaderGroupBaseAlignment);
-	uint32_t groupStride = groupSize;
-	vk::DeviceAddress sbtAddress = mDevice->getBufferAddress({mPipelineResources->GetSBTBuffer()});
+	u32 groupSize = math::alignUp(rtProps.shaderGroupHandleSize, rtProps.shaderGroupBaseAlignment);
+	u32 groupStride = groupSize;
+	vk::DeviceAddress sbtAddress = mDevice->getBufferAddress({mPipelineResources->getSBTBuffer()});
 
-	const IShaderProgram& shader = *renderData.mPipelineConfigs.mShaderProgram;
-	const auto& shadersData = shader.GetShadersDataMap();
-	const size_t genNum = shadersData.at(ShaderType::RT_RAY_GEN).size();
-	const size_t missNum = shadersData.at(ShaderType::RT_MISS).size();
-	const size_t chHitNum = shadersData.at(ShaderType::RT_CLOSEST_HIT).size();
+	// TODO: DAMIO
+	//const auto& shader = *renderData.mPipelineConfigs.mShaderProgram;
+	//const auto& shadersData = shader.getShadersDataMap();
+	ShadersDataMap shadersData;
+	const u64 genNum = shadersData.at(ShaderType::RT_RAY_GEN).size();
+	const u64 missNum = shadersData.at(ShaderType::RT_MISS).size();
+	const u64 chHitNum = shadersData.at(ShaderType::RT_CLOSEST_HIT).size();
 
 	using Stride = vk::StridedDeviceAddressRegionKHR;
 	std::array<Stride, 4> strideAddresses {
@@ -77,35 +81,43 @@ void RTRenderingResources::UpdateCommandBuffer(vk::CommandBuffer& cmd, RTRenderD
 		1);
 }
 
-void RTRenderingResources::UpdateResources(RTRenderData& renderData)
+void RTRenderingResources::updateResources(RTRenderData& renderData)
 {
 	ERM_PROFILE_FUNCTION();
 
-	const bool forceUpdate = renderData.mForceUpdate || (mPipelineResources && mPipelineResources->GetMaxInstancesCount() != renderData.mInstancesMap.size());
+	const bool forceUpdate = renderData.mForceUpdate || (mPipelineResources && mPipelineResources->getMaxInstancesCount() != renderData.mInstancesMap.size());
 
 	if (forceUpdate)
-		mTopLevelAS.Reset();
+	{
+		mTopLevelAS.reset();
+	}
 
-	BuildBlas(renderData, vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace);
-	UpdateTopLevelAS(renderData, vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace | vk::BuildAccelerationStructureFlagBitsKHR::eAllowUpdate);
+	buildBlas(renderData, vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace);
+	updateTopLevelAS(renderData, vk::BuildAccelerationStructureFlagBitsKHR::ePreferFastTrace | vk::BuildAccelerationStructureFlagBitsKHR::eAllowUpdate);
 
 	if (!mPipelineResources || forceUpdate)
+	{
 		mPipelineResources = std::make_unique<RTPipelineResources>(
 			mDevice,
 			mRenderer,
 			renderData,
 			mDescriptorPool.get(),
-			&mTopLevelAS.GetAS());
+			&mTopLevelAS.getAS());
+	}
 }
 
-void RTRenderingResources::BuildBlas(RTRenderData& data, vk::BuildAccelerationStructureFlagsKHR flags)
+void RTRenderingResources::buildBlas(RTRenderData& data, vk::BuildAccelerationStructureFlagsKHR flags)
 {
 	ERM_PROFILE_FUNCTION();
 
 	std::vector<RTBlas*> toBuild;
 	for (const auto& [id, instanceData] : data.mInstancesMap)
-		if (!instanceData.GetBlas()->IsReady() && std::find(toBuild.begin(), toBuild.end(), instanceData.GetBlas()) == toBuild.end())
-			toBuild.emplace_back(instanceData.GetBlas());
+	{
+		if (!instanceData.getBlas()->isReady() && std::find(toBuild.begin(), toBuild.end(), instanceData.getBlas()) == toBuild.end())
+		{
+			toBuild.emplace_back(instanceData.getBlas());
+		}
+	}
 
 	if (toBuild.empty())
 		return;
@@ -113,16 +125,16 @@ void RTRenderingResources::BuildBlas(RTRenderData& data, vk::BuildAccelerationSt
 	std::vector<vk::AccelerationStructureBuildGeometryInfoKHR> buildInfos(toBuild.size());
 	vk::DeviceSize maxScratch = 0;
 
-	for (size_t i = 0; i < toBuild.size(); ++i)
+	for (u64 i = 0; i < toBuild.size(); ++i)
 	{
-		RTBlas& blas = *toBuild[i];
-		const RTBlasData& blasData = blas.GetBlasData();
+		auto& blas = *toBuild[i];
+		const auto& blasData = blas.getBlasData();
 
-		blas.GetBuildInfo(buildInfos[i]);
+		blas.getBuildInfo(buildInfos[i]);
 		buildInfos[i].flags = flags;
 
 		// Query both the size of the finished acceleration structure and the  amount of scratch memory
-		// needed (both written to sizeInfo). The `vkGetAccelerationStructureBuildSizesKHR` function
+		// needed (both written to sizeInfo). The `vkgetAccelerationStructureBuildSizesKHR` function
 		// computes the worst case memory requirements based on the user-reported max number of
 		// primitives. Later, compaction can fix this potential inefficiency.
 		vk::AccelerationStructureBuildSizesInfoKHR sizeInfo {};
@@ -137,16 +149,16 @@ void RTRenderingResources::BuildBlas(RTRenderData& data, vk::BuildAccelerationSt
 		vk::AccelerationStructureCreateInfoKHR createInfo;
 		createInfo.type = vk::AccelerationStructureTypeKHR::eBottomLevel;
 		createInfo.size = sizeInfo.accelerationStructureSize; // Will be used to allocate memory.
-		createInfo.buffer = buffer->GetBuffer();
+		createInfo.buffer = buffer->getBuffer();
 
 		// Actual allocation of buffer and acceleration structure. Note: This relies on createInfo.offset == 0
 		// and fills in createInfo.buffer with the buffer allocated to store the BLAS. The underlying
 		// vkCreateAccelerationStructureKHR call then consumes the buffer value
 		vk::UniqueAccelerationStructureKHR as;
 		ERM_VK_CHECK_AND_ASSIGN(as, mDevice->createAccelerationStructureKHRUnique(createInfo));
-		blas.SetAS(std::move(as));
-		blas.SetBuffer(std::move(buffer));
-		buildInfos[i].dstAccelerationStructure = blas.GetAS(); // Setting the where the build lands
+		blas.setAS(std::move(as));
+		blas.setBuffer(std::move(buffer));
+		buildInfos[i].dstAccelerationStructure = blas.getAS(); // Setting the where the build lands
 
 		// Keeping info
 		maxScratch = std::max(maxScratch, sizeInfo.buildScratchSize);
@@ -155,7 +167,7 @@ void RTRenderingResources::BuildBlas(RTRenderData& data, vk::BuildAccelerationSt
 	DeviceBuffer scratchBuffer(mDevice, maxScratch, BufferUsage::SHADER_DEVICE_ADDRESS | BufferUsage::STORAGE_BUFFER);
 
 	vk::BufferDeviceAddressInfo bufferInfo;
-	bufferInfo.buffer = scratchBuffer.GetBuffer();
+	bufferInfo.buffer = scratchBuffer.getBuffer();
 	VkDeviceAddress scratchAddress = mDevice->getBufferAddress(&bufferInfo);
 
 	// Is compaction requested?
@@ -163,7 +175,7 @@ void RTRenderingResources::BuildBlas(RTRenderData& data, vk::BuildAccelerationSt
 
 	// Allocate a query pool for storing the needed size for every BLAS compaction.
 	vk::QueryPoolCreateInfo qpci;
-	qpci.queryCount = static_cast<uint32_t>(toBuild.size());
+	qpci.queryCount = static_cast<u32>(toBuild.size());
 	qpci.queryType = vk::QueryType::eAccelerationStructureCompactedSizeKHR;
 	vk::UniqueQueryPool queryPool;
 	ERM_VK_CHECK_AND_ASSIGN(queryPool, mDevice->createQueryPoolUnique(qpci));
@@ -173,17 +185,17 @@ void RTRenderingResources::BuildBlas(RTRenderData& data, vk::BuildAccelerationSt
 	std::vector<vk::CommandBuffer> allCmdBufs(toBuild.size());
 
 	vk::CommandBufferAllocateInfo allocInfo = {};
-	allocInfo.commandPool = mDevice.GetCommandPool();
+	allocInfo.commandPool = mDevice.getCommandPool();
 	allocInfo.level = vk::CommandBufferLevel::ePrimary;
-	allocInfo.commandBufferCount = static_cast<uint32_t>(allCmdBufs.size());
+	allocInfo.commandBufferCount = static_cast<u32>(allCmdBufs.size());
 
 	ERM_VK_CHECK(mDevice->allocateCommandBuffers(&allocInfo, allCmdBufs.data()));
 
 	// Building the acceleration structures
-	for (size_t i = 0; i < toBuild.size(); i++)
+	for (u64 i = 0; i < toBuild.size(); i++)
 	{
-		RTBlas& blas = *toBuild[i];
-		const RTBlasData& data = blas.GetBlasData();
+		auto& blas = *toBuild[i];
+		const auto& data = blas.getBlasData();
 		vk::CommandBuffer& cmdBuf = allCmdBufs[i];
 
 		vk::CommandBufferBeginInfo beginInfo = {};
@@ -224,32 +236,32 @@ void RTRenderingResources::BuildBlas(RTRenderData& data, vk::BuildAccelerationSt
 		{
 			cmdBuf.writeAccelerationStructuresPropertiesKHR(
 				1,
-				&blas.GetAS(),
+				&blas.getAS(),
 				vk::QueryType::eAccelerationStructureCompactedSizeKHR,
 				queryPool.get(),
-				static_cast<uint32_t>(i));
+				static_cast<u32>(i));
 		}
 
 		ERM_VK_CHECK(cmdBuf.end());
 	}
 	vk::SubmitInfo sInfo;
-	sInfo.commandBufferCount = static_cast<uint32_t>(allCmdBufs.size());
+	sInfo.commandBufferCount = static_cast<u32>(allCmdBufs.size());
 	sInfo.pCommandBuffers = allCmdBufs.data();
 
-	ERM_VK_CHECK(mDevice.GetGraphicsQueue().submit(1, &sInfo, {}));
-	ERM_VK_CHECK(mDevice.GetGraphicsQueue().waitIdle());
+	ERM_VK_CHECK(mDevice.getGraphicsQueue().submit(1, &sInfo, {}));
+	ERM_VK_CHECK(mDevice.getGraphicsQueue().waitIdle());
 
 	allCmdBufs.clear();
 
 	// Compacting all BLAS
 	if (doCompaction)
 	{
-		// Get the size result back
+		// get the size result back
 		std::vector<vk::DeviceSize> compactSizes(toBuild.size());
 		ERM_VK_CHECK(mDevice->getQueryPoolResults(
 			queryPool.get(),
 			0,
-			static_cast<uint32_t>(compactSizes.size()),
+			static_cast<u32>(compactSizes.size()),
 			compactSizes.size() * sizeof(vk::DeviceSize),
 			compactSizes.data(),
 			sizeof(vk::DeviceSize),
@@ -257,12 +269,12 @@ void RTRenderingResources::BuildBlas(RTRenderData& data, vk::BuildAccelerationSt
 
 		std::vector<vk::UniqueAccelerationStructureKHR> toReplace(toBuild.size());
 
-		vk::CommandBuffer cmdBuf = VkUtils::BeginSingleTimeCommands(mDevice);
+		vk::CommandBuffer cmdBuf = VkUtils::beginSingleTimeCommands(mDevice);
 
 		// Compacting
-		for (size_t i = 0; i < toBuild.size(); ++i)
+		for (u64 i = 0; i < toBuild.size(); ++i)
 		{
-			RTBlas& blas = *toBuild[i];
+			auto& blas = *toBuild[i];
 			std::unique_ptr<DeviceBuffer> buffer = std::make_unique<DeviceBuffer>(
 				mDevice,
 				compactSizes[i],
@@ -272,54 +284,54 @@ void RTRenderingResources::BuildBlas(RTRenderData& data, vk::BuildAccelerationSt
 			vk::AccelerationStructureCreateInfoKHR asCreateInfo;
 			asCreateInfo.size = compactSizes[i];
 			asCreateInfo.type = vk::AccelerationStructureTypeKHR::eBottomLevel;
-			asCreateInfo.buffer = buffer->GetBuffer();
+			asCreateInfo.buffer = buffer->getBuffer();
 			
 			vk::UniqueAccelerationStructureKHR as;
 			ERM_VK_CHECK_AND_ASSIGN(as, mDevice->createAccelerationStructureKHRUnique(asCreateInfo));
 
 			// Copy the original BLAS to a compact version
 			vk::CopyAccelerationStructureInfoKHR copyInfo;
-			copyInfo.src = blas.GetAS();
+			copyInfo.src = blas.getAS();
 			copyInfo.dst = as.get();
 			copyInfo.mode = vk::CopyAccelerationStructureModeKHR::eCompact;
 
 			cmdBuf.copyAccelerationStructureKHR(copyInfo);
 
 			toReplace[i] = std::move(as);
-			blas.SetBuffer(std::move(buffer));
+			blas.setBuffer(std::move(buffer));
 		}
 
-		VkUtils::EndSingleTimeCommands(mDevice, cmdBuf);
+		VkUtils::endSingleTimeCommands(mDevice, cmdBuf);
 
-		for (size_t i = 0; i < toBuild.size(); ++i)
+		for (u64 i = 0; i < toBuild.size(); ++i)
 		{
-			RTBlas& blas = *toBuild[i];
-			blas.SetAS(std::move(toReplace[i]));
+			auto& blas = *toBuild[i];
+			blas.setAS(std::move(toReplace[i]));
 		}
 	}
 }
 
-void RTRenderingResources::UpdateTopLevelAS(RTRenderData& data, vk::BuildAccelerationStructureFlagsKHR flags)
+void RTRenderingResources::updateTopLevelAS(RTRenderData& data, vk::BuildAccelerationStructureFlagsKHR flags)
 {
 	ERM_PROFILE_FUNCTION();
 
-	const size_t targetGeometries = data.mInstancesMap.size();
+	const u64 targetGeometries = data.mInstancesMap.size();
 	std::vector<vk::AccelerationStructureInstanceKHR> geometryInstances;
 	geometryInstances.reserve(targetGeometries);
 
 	for (const auto& [id, instData] : data.mInstancesMap)
 	{
-		RTBlas& blas = *instData.GetBlas();
+		auto& blas = *instData.getBlas();
 
-		vk::AccelerationStructureInstanceKHR& instance = geometryInstances.emplace_back();
+		auto& instance = geometryInstances.emplace_back();
 
 		vk::AccelerationStructureDeviceAddressInfoKHR addressInfo;
-		addressInfo.accelerationStructure = blas.GetAS();
+		addressInfo.accelerationStructure = blas.getAS();
 		vk::DeviceAddress blasAddress = mDevice->getAccelerationStructureAddressKHR(&addressInfo);
 
 		// The matrices for the instance transforms are row-major, instead of
 		// column-major in the rest of the application
-		math::mat4 transp = glm::transpose(instData.GetTransform());
+		mat4 transp = glm::transpose(instData.getTransform());
 
 		// The gInst.transform value only contains 12 values, corresponding to a 4x3
 		// matrix, hence saving the last row that is anyway always (0,0,0,1). Since
@@ -339,11 +351,11 @@ void RTRenderingResources::UpdateTopLevelAS(RTRenderData& data, vk::BuildAcceler
 	// Allocate the instance buffer and copy its contents from host to device memory
 	DeviceBuffer instancesBuffer(mDevice, instanceDescsSizeInBytes, BufferUsage::SHADER_DEVICE_ADDRESS | BufferUsage::ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY);
 
-	vk::CommandBuffer cmd = VkUtils::BeginSingleTimeCommands(mDevice);
-	instancesBuffer.Update(cmd, geometryInstances.data());
+	vk::CommandBuffer cmd = VkUtils::beginSingleTimeCommands(mDevice);
+	instancesBuffer.update(cmd, geometryInstances.data());
 
 	vk::BufferDeviceAddressInfo bufferInfo;
-	bufferInfo.buffer = instancesBuffer.GetBuffer();
+	bufferInfo.buffer = instancesBuffer.getBuffer();
 	vk::DeviceAddress instanceAddress = mDevice->getBufferAddress(bufferInfo);
 
 	// Make sure the copy of the instance buffer are copied before triggering the
@@ -375,7 +387,7 @@ void RTRenderingResources::UpdateTopLevelAS(RTRenderData& data, vk::BuildAcceler
 	topASGeometry.geometryType = vk::GeometryTypeKHR::eInstances;
 	topASGeometry.geometry.instances = instancesVk;
 
-	const bool shouldUpdate = mTopLevelAS.IsReady();
+	const bool shouldUpdate = mTopLevelAS.isReady();
 
 	// Find sizes
 	vk::AccelerationStructureBuildGeometryInfoKHR buildInfo;
@@ -388,7 +400,7 @@ void RTRenderingResources::UpdateTopLevelAS(RTRenderData& data, vk::BuildAcceler
 	buildInfo.type = vk::AccelerationStructureTypeKHR::eTopLevel;
 	buildInfo.srcAccelerationStructure = nullptr;
 
-	uint32_t count = static_cast<uint32_t>(targetGeometries);
+	u32 count = static_cast<u32>(targetGeometries);
 	vk::AccelerationStructureBuildSizesInfoKHR sizeInfo;
 	mDevice->getAccelerationStructureBuildSizesKHR(vk::AccelerationStructureBuildTypeKHR::eDevice, &buildInfo, &count, &sizeInfo);
 
@@ -403,67 +415,67 @@ void RTRenderingResources::UpdateTopLevelAS(RTRenderData& data, vk::BuildAcceler
 		vk::AccelerationStructureCreateInfoKHR createInfo;
 		createInfo.type = vk::AccelerationStructureTypeKHR::eTopLevel;
 		createInfo.size = sizeInfo.accelerationStructureSize;
-		createInfo.buffer = buffer->GetBuffer();
+		createInfo.buffer = buffer->getBuffer();
 		
 		vk::UniqueAccelerationStructureKHR as;
 		ERM_VK_CHECK_AND_ASSIGN(as, mDevice->createAccelerationStructureKHRUnique(createInfo));
 
-		mTopLevelAS.SetAS(std::move(as));
-		mTopLevelAS.SetBuffer(std::move(buffer));
+		mTopLevelAS.setAS(std::move(as));
+		mTopLevelAS.setBuffer(std::move(buffer));
 	}
 
 	// Allocate the scratch memory
 	DeviceBuffer scratchBuffer(mDevice, sizeInfo.buildScratchSize, BufferUsage::STORAGE_BUFFER | BufferUsage::ACCELERATION_STRUCTURE_STORAGE | BufferUsage::SHADER_DEVICE_ADDRESS);
 
-	bufferInfo.buffer = scratchBuffer.GetBuffer();
+	bufferInfo.buffer = scratchBuffer.getBuffer();
 	vk::DeviceAddress scratchAddress = mDevice->getBufferAddress(bufferInfo);
 
 	// Update build information
-	buildInfo.srcAccelerationStructure = shouldUpdate ? mTopLevelAS.GetAS() : nullptr;
-	buildInfo.dstAccelerationStructure = mTopLevelAS.GetAS();
+	buildInfo.srcAccelerationStructure = shouldUpdate ? mTopLevelAS.getAS() : nullptr;
+	buildInfo.dstAccelerationStructure = mTopLevelAS.getAS();
 	buildInfo.scratchData.deviceAddress = scratchAddress;
 
 	// Build Offsets info: n instances
-	vk::AccelerationStructureBuildRangeInfoKHR buildOffsetInfo {static_cast<uint32_t>(targetGeometries), 0, 0, 0};
+	vk::AccelerationStructureBuildRangeInfoKHR buildOffsetInfo {static_cast<u32>(targetGeometries), 0, 0, 0};
 	const vk::AccelerationStructureBuildRangeInfoKHR* pBuildOffsetInfo = &buildOffsetInfo;
 
 	// Build the TLAS
 	cmd.buildAccelerationStructuresKHR(1, &buildInfo, &pBuildOffsetInfo);
 
-	VkUtils::EndSingleTimeCommands(mDevice, cmd);
+	VkUtils::endSingleTimeCommands(mDevice, cmd);
 }
 
-void RTRenderingResources::Reload()
+void RTRenderingResources::reload()
 {
-	Cleanup();
-	CreateDescriptorPool();
+	cleanup();
+	createDescriptorPool();
 }
 
-void RTRenderingResources::Cleanup()
+void RTRenderingResources::cleanup()
 {
 	mPipelineResources.reset();
 	mDescriptorPool.reset();
-	mTopLevelAS.Reset();
+	mTopLevelAS.reset();
 }
 
-void RTRenderingResources::CreateDescriptorPool()
+void RTRenderingResources::createDescriptorPool()
 {
-	const std::vector<Texture*>& frameBuffers = mRenderer.GetTargetFrameBuffers(FrameBufferType::FRAME_1);
+	auto& frameBuffers = mRenderer.getTargetFrameBuffers(FrameBufferType::FRAME_1);
 
 	std::array<vk::DescriptorPoolSize, 4> poolSizes {};
 	poolSizes[0].type = vk::DescriptorType::eUniformBuffer;
-	poolSizes[0].descriptorCount = static_cast<uint32_t>(frameBuffers.size() * 1000);
+	poolSizes[0].descriptorCount = static_cast<u32>(frameBuffers.size() * 1000);
 	poolSizes[1].type = vk::DescriptorType::eCombinedImageSampler;
-	poolSizes[1].descriptorCount = static_cast<uint32_t>(frameBuffers.size() * 100);
+	poolSizes[1].descriptorCount = static_cast<u32>(frameBuffers.size() * 100);
 	poolSizes[2].type = vk::DescriptorType::eStorageImage;
-	poolSizes[2].descriptorCount = static_cast<uint32_t>(frameBuffers.size() * 100);
+	poolSizes[2].descriptorCount = static_cast<u32>(frameBuffers.size() * 100);
 	poolSizes[3].type = vk::DescriptorType::eAccelerationStructureKHR;
-	poolSizes[3].descriptorCount = static_cast<uint32_t>(frameBuffers.size() * 10);
+	poolSizes[3].descriptorCount = static_cast<u32>(frameBuffers.size() * 10);
 
 	vk::DescriptorPoolCreateInfo poolInfo {};
-	poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
+	poolInfo.poolSizeCount = static_cast<u32>(poolSizes.size());
 	poolInfo.pPoolSizes = poolSizes.data();
-	poolInfo.maxSets = static_cast<uint32_t>(frameBuffers.size() * 100);
+	poolInfo.maxSets = static_cast<u32>(frameBuffers.size() * 100);
 	poolInfo.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
 	
 	ERM_VK_CHECK_AND_ASSIGN(mDescriptorPool, mDevice->createDescriptorPoolUnique(poolInfo));

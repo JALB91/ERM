@@ -24,27 +24,27 @@ IRenderer::IRenderer(
 	, mIsImageIndexValid(false)
 	, mFramebufferResized(true)
 {
-	CreateSwapChain();
-	CreateFrameResources();
-	CreateDepthResources();
-	CreateTextureSampler();
-	CreateSyncObjects();
+	createSwapChain();
+	createFrameResources();
+	createDepthResources();
+	createTextureSampler();
+	createSyncObjects();
 }
 
 IRenderer::~IRenderer()
 {
 	ERM_VK_CHECK(mDevice->waitIdle());
 
-	for (ISwapChainListener* listener : mSwapChainListeners)
+	for (auto* listener : mSwapChainListeners)
 	{
-		listener->SwapChainCleanup();
+		listener->swapChainCleanup();
 	}
 
-	CleanupSwapChain();
+	cleanupSwapChain();
 
 	mDevice->destroySampler(mTextureSampler);
 
-	for (uint32_t i = 0; i < kMaxFramesInFlight; ++i)
+	for (u32 i = 0; i < kMaxFramesInFlight; ++i)
 	{
 		mDevice->destroySemaphore(mRenderFinishedSemaphores[i]);
 		mDevice->destroySemaphore(mImageAvailableSemaphores[i]);
@@ -52,12 +52,12 @@ IRenderer::~IRenderer()
 	}
 }
 
-void IRenderer::AddSwapChainListener(ISwapChainListener* listener)
+void IRenderer::addSwapChainListener(ISwapChainListener* listener)
 {
 	mSwapChainListeners.insert(listener);
 }
 
-void IRenderer::RemoveSwapChainListener(ISwapChainListener* listener)
+void IRenderer::removeSwapChainListener(ISwapChainListener* listener)
 {
 	auto it = mSwapChainListeners.find(listener);
 	if (it != mSwapChainListeners.end())
@@ -66,12 +66,12 @@ void IRenderer::RemoveSwapChainListener(ISwapChainListener* listener)
 	}
 }
 
-void IRenderer::AddExtCommandBufferUpdater(IExtCommandBufferUpdater* commandBufferUpdater)
+void IRenderer::addExtCommandBufferUpdater(IExtCommandBufferUpdater* commandBufferUpdater)
 {
 	mCommandBufferUpdaters.insert(commandBufferUpdater);
 }
 
-void IRenderer::RemoveExtCommandBufferUpdater(IExtCommandBufferUpdater* commandBufferUpdater)
+void IRenderer::removeExtCommandBufferUpdater(IExtCommandBufferUpdater* commandBufferUpdater)
 {
 	auto it = mCommandBufferUpdaters.find(commandBufferUpdater);
 	if (it != mCommandBufferUpdaters.end())
@@ -80,35 +80,35 @@ void IRenderer::RemoveExtCommandBufferUpdater(IExtCommandBufferUpdater* commandB
 	}
 }
 
-void IRenderer::RecreateSwapChain()
+void IRenderer::recreateSwapChain()
 {
 	ERM_VK_CHECK(mDevice->waitIdle());
 
-	for (ISwapChainListener* listener : mSwapChainListeners)
+	for (auto* listener : mSwapChainListeners)
 	{
-		listener->SwapChainCleanup();
+		listener->swapChainCleanup();
 	}
 
-	CleanupSwapChain();
+	cleanupSwapChain();
 
-	CreateSwapChain();
-	CreateFrameResources();
-	CreateDepthResources();
+	createSwapChain();
+	createFrameResources();
+	createDepthResources();
 
-	for (ISwapChainListener* listener : mSwapChainListeners)
+	for (auto* listener : mSwapChainListeners)
 	{
-		listener->SwapChainCreated();
+		listener->swapChainCreated();
 	}
 }
 
-void IRenderer::CleanupSwapChain()
+void IRenderer::cleanupSwapChain()
 {
 	std::for_each(mFrameBuffers.begin(), mFrameBuffers.end(), [this](auto& pair) {
 		std::for_each(pair.second.begin(), pair.second.end(), [this](GPUTexture* texture) {
 			(void)texture;
 			(void)*this;
 //			TODO: Damiano
-//			mResourcesManager.ReleaseTexture(texture);
+//			mResourcesManager.releaseTexture(texture);
 		});
 	});
 
@@ -116,16 +116,16 @@ void IRenderer::CleanupSwapChain()
 	mDevice->destroySwapchainKHR(mSwapChain);
 }
 
-void IRenderer::CreateSwapChain()
+void IRenderer::createSwapChain()
 {
-	const ivec2& frameBufferSize = mWindow.GetFrameBufferSize();
+	const auto& frameBufferSize = mWindow.getFrameBufferSize();
 
-	SwapChainSupportDetails swapChainSupport = VkUtils::QuerySwapChainSupport(mDevice.GetVkPhysicalDevice(), mDevice.GetVkSurface());
-	QueueFamilyIndices indices = VkUtils::FindQueueFamilies(mDevice.GetVkPhysicalDevice(), mDevice.GetVkSurface());
+	auto swapChainSupport = VkUtils::querySwapChainSupport(mDevice.getVkPhysicalDevice(), mDevice.getVkSurface());
+	auto indices = VkUtils::findQueueFamilies(mDevice.getVkPhysicalDevice(), mDevice.getVkSurface());
 
-	vk::SurfaceFormatKHR surfaceFormat = VkUtils::ChooseSwapSurfaceFormat(swapChainSupport.mFormats);
-	vk::PresentModeKHR presentMode = VkUtils::ChooseSwapPresentMode(swapChainSupport.mPresentModes);
-	mSwapChainExtent = VkUtils::ChooseSwapExtent(swapChainSupport.mCapabilities, frameBufferSize.x, frameBufferSize.y);
+	auto surfaceFormat = VkUtils::chooseSwapSurfaceFormat(swapChainSupport.mFormats);
+	auto presentMode = VkUtils::chooseSwapPresentMode(swapChainSupport.mPresentModes);
+	mSwapChainExtent = VkUtils::chooseSwapExtent(swapChainSupport.mCapabilities, frameBufferSize.x, frameBufferSize.y);
 	mSwapChainImageFormat = surfaceFormat.format;
 
 	mMinImageCount = swapChainSupport.mCapabilities.minImageCount;
@@ -136,7 +136,7 @@ void IRenderer::CreateSwapChain()
 	}
 
 	vk::SwapchainCreateInfoKHR swapChainCreateInfo = {};
-	swapChainCreateInfo.surface = mDevice.GetVkSurface();
+	swapChainCreateInfo.surface = mDevice.getVkSurface();
 	swapChainCreateInfo.minImageCount = mImageCount;
 	swapChainCreateInfo.imageFormat = mSwapChainImageFormat;
 	swapChainCreateInfo.imageColorSpace = surfaceFormat.colorSpace;
@@ -150,7 +150,7 @@ void IRenderer::CreateSwapChain()
 
 	if (indices.mGraphicsFamily != indices.mPresentFamily)
 	{
-		uint32_t queueFamilyIndices[] = {indices.mGraphicsFamily.value(), indices.mPresentFamily.value()};
+		u32 queueFamilyIndices[] = {indices.mGraphicsFamily.value(), indices.mPresentFamily.value()};
 
 		swapChainCreateInfo.imageSharingMode = vk::SharingMode::eConcurrent;
 		swapChainCreateInfo.queueFamilyIndexCount = 2;
@@ -175,7 +175,7 @@ void IRenderer::CreateSwapChain()
 	mSwapChainImageViews.resize(mSwapChainImages.size());
 	mFrameBuffers[FrameBufferType::PRESENT].resize(mSwapChainImages.size());
 
-	for (size_t i = 0; i < mSwapChainImages.size(); ++i)
+	for (u64 i = 0; i < mSwapChainImages.size(); ++i)
 	{
 		// Create image view
 		vk::ImageViewCreateInfo viewInfo {};
@@ -188,14 +188,14 @@ void IRenderer::CreateSwapChain()
 		viewInfo.subresourceRange.baseArrayLayer = 0;
 		viewInfo.subresourceRange.layerCount = 1;
 
-		mSwapChainImageViews[i] = VkUtils::CreateImageView(
-			mDevice.GetVkDevice(),
+		mSwapChainImageViews[i] = VkUtils::createImageView(
+			mDevice.getVkDevice(),
 			viewInfo);
 
 		// Create texture associated
 //		TODO: Damiano
-//		Texture* texture = mResourcesManager.CreateEmptyTexture();
-//		texture->InitWithData(
+//		auto* texture = mResourcesManager.createEmptyTexture();
+//		texture->initWithData(
 //			("present_buffer_" + std::to_string(i)).c_str(),
 //			mSwapChainImages[i],
 //			mSwapChainImageViews[i],
@@ -206,20 +206,20 @@ void IRenderer::CreateSwapChain()
 //			mSwapChainExtent.height);
 //
 //		// The present buffer images gets handled internally from the block chain, no need to delete them manually
-//		texture->SetOwnsImage(false);
+//		texture->setOwnsImage(false);
 
 //		mFrameBuffers[FrameBufferType::PRESENT][i] = texture;
 	}
 }
 
-void IRenderer::CreateFrameResources()
+void IRenderer::createFrameResources()
 {
 	static const std::array sBuffersToCreate {FrameBufferType::FRAME_1};
 
-	for (size_t i = 0; i < sBuffersToCreate.size(); ++i)
+	for (u64 i = 0; i < sBuffersToCreate.size(); ++i)
 	{
 		mFrameBuffers[sBuffersToCreate[i]].resize(IRenderer::kMaxFramesInFlight);
-		for (size_t j = 0; j < IRenderer::kMaxFramesInFlight; ++j)
+		for (u64 j = 0; j < IRenderer::kMaxFramesInFlight; ++j)
 		{
 			vk::Format format = vk::Format::eB8G8R8A8Unorm;
 			vk::Image image;
@@ -240,9 +240,9 @@ void IRenderer::CreateFrameResources()
 			imageInfo.samples = vk::SampleCountFlagBits::e1;
 			imageInfo.sharingMode = vk::SharingMode::eExclusive;
 
-			VkUtils::CreateImage(
-				mDevice.GetVkPhysicalDevice(),
-				mDevice.GetVkDevice(),
+			VkUtils::createImage(
+				mDevice.getVkPhysicalDevice(),
+				mDevice.getVkDevice(),
 				imageInfo,
 				image,
 				imageMemory,
@@ -258,13 +258,13 @@ void IRenderer::CreateFrameResources()
 			viewInfo.subresourceRange.baseArrayLayer = 0;
 			viewInfo.subresourceRange.layerCount = 1;
 
-			imageView = VkUtils::CreateImageView(
-				mDevice.GetVkDevice(),
+			imageView = VkUtils::createImageView(
+				mDevice.getVkDevice(),
 				viewInfo);
 
 //			TODO: Damiano
-//			Texture* texture = mResourcesManager.CreateEmptyTexture();
-//			texture->InitWithData(
+//			auto* texture = mResourcesManager.createEmptyTexture();
+//			texture->initWithData(
 //				("frame_buffer_1_" + std::to_string(i)).c_str(),
 //				image,
 //				imageView,
@@ -279,9 +279,9 @@ void IRenderer::CreateFrameResources()
 	}
 }
 
-void IRenderer::CreateDepthResources()
+void IRenderer::createDepthResources()
 {
-	vk::Format depthFormat = VkUtils::FindDepthFormat(mDevice.GetVkPhysicalDevice());
+	vk::Format depthFormat = VkUtils::findDepthFormat(mDevice.getVkPhysicalDevice());
 	vk::Image depthImage;
 	vk::ImageView depthImageView;
 	vk::DeviceMemory depthImageMemory;
@@ -300,9 +300,9 @@ void IRenderer::CreateDepthResources()
 	imageInfo.samples = vk::SampleCountFlagBits::e1;
 	imageInfo.sharingMode = vk::SharingMode::eExclusive;
 
-	VkUtils::CreateImage(
-		mDevice.GetVkPhysicalDevice(),
-		mDevice.GetVkDevice(),
+	VkUtils::createImage(
+		mDevice.getVkPhysicalDevice(),
+		mDevice.getVkDevice(),
 		imageInfo,
 		depthImage,
 		depthImageMemory,
@@ -318,13 +318,13 @@ void IRenderer::CreateDepthResources()
 	viewInfo.subresourceRange.baseArrayLayer = 0;
 	viewInfo.subresourceRange.layerCount = 1;
 
-	depthImageView = VkUtils::CreateImageView(
-		mDevice.GetVkDevice(),
+	depthImageView = VkUtils::createImageView(
+		mDevice.getVkDevice(),
 		viewInfo);
 
 //	TODO: Damiano
-//	Texture* texture = mResourcesManager.CreateEmptyTexture();
-//	texture->InitWithData(
+//	auto* texture = mResourcesManager.createEmptyTexture();
+//	texture->initWithData(
 //		"depth_buffer",
 //		depthImage,
 //		depthImageView,
@@ -337,7 +337,7 @@ void IRenderer::CreateDepthResources()
 //	mFrameBuffers[FrameBufferType::DEPTH].emplace_back(texture);
 }
 
-void IRenderer::CreateTextureSampler()
+void IRenderer::createTextureSampler()
 {
 	// TODO: Create different samplers for different lods?
 	vk::SamplerCreateInfo samplerInfo {};
@@ -360,7 +360,7 @@ void IRenderer::CreateTextureSampler()
 	ERM_VK_CHECK_AND_ASSIGN(mTextureSampler, mDevice->createSampler(samplerInfo));
 }
 
-void IRenderer::CreateSyncObjects()
+void IRenderer::createSyncObjects()
 {
 	mImagesInFlight.resize(mSwapChainImages.size(), nullptr);
 
@@ -369,7 +369,7 @@ void IRenderer::CreateSyncObjects()
 	vk::FenceCreateInfo fenceInfo = {};
 	fenceInfo.flags = vk::FenceCreateFlagBits::eSignaled;
 
-	for (uint32_t i = 0; i < kMaxFramesInFlight; ++i)
+	for (u32 i = 0; i < kMaxFramesInFlight; ++i)
 	{
 		ERM_VK_CHECK_AND_ASSIGN(mImageAvailableSemaphores[i], mDevice->createSemaphore(semaphoreInfo));
 		ERM_VK_CHECK_AND_ASSIGN(mRenderFinishedSemaphores[i], mDevice->createSemaphore(semaphoreInfo));
@@ -377,25 +377,25 @@ void IRenderer::CreateSyncObjects()
 	}
 }
 
-const std::vector<GPUTexture*>& IRenderer::GetTargetFrameBuffers(FrameBufferType frameBufferType) const
+const std::vector<GPUTexture*>& IRenderer::getTargetFrameBuffers(FrameBufferType frameBufferType) const
 {
 	return mFrameBuffers.at(frameBufferType);
 }
 
-GPUTexture* IRenderer::GetDefaultTexture(TextureType type) const
+GPUTexture* IRenderer::getDefaultTexture(TextureType type) const
 {
 	(void)type;
 //	TODO: Damiano
 //	switch (type)
 //	{
 //		case TextureType::DIFFUSE:
-//			return mResourcesManager.GetOrCreateTexture("res/textures/viking_room.png");
+//			return mResourcesManager.getOrCreateTexture("res/textures/viking_room.png");
 //		case TextureType::NORMAL:
-//			return mResourcesManager.GetOrCreateTexture("res/textures/viking_room.png");
+//			return mResourcesManager.getOrCreateTexture("res/textures/viking_room.png");
 //		case TextureType::SPECULAR:
-//			return mResourcesManager.GetOrCreateTexture("res/textures/viking_room.png");
+//			return mResourcesManager.getOrCreateTexture("res/textures/viking_room.png");
 //		case TextureType::CUBE_MAP:
-//			return mResourcesManager.GetOrCreateCubeMap("res/cube_maps/skybox");
+//			return mResourcesManager.getOrCreateCubeMap("res/cube_maps/skybox");
 //		default:
 //			ERM_ASSERT(false);
 //			return {};

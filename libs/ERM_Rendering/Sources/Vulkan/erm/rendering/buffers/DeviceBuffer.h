@@ -2,6 +2,8 @@
 
 #include "erm/rendering/buffers/IBuffer.h"
 
+#include <erm/math/Types.h>
+
 #include <memory>
 
 namespace erm {
@@ -15,7 +17,7 @@ class DeviceBuffer : public IBuffer
 public:
 	DeviceBuffer(
 		Device& device,
-		size_t size,
+		u64 size,
 		BufferUsageFlags buf);
 	~DeviceBuffer();
 
@@ -25,8 +27,8 @@ public:
 	DeviceBuffer& operator=(DeviceBuffer&& other) noexcept;
 	DeviceBuffer& operator=(const DeviceBuffer&) = delete;
 
-	void Update(const void* data, const BufferInfo& info = {}) const override;
-	void Update(vk::CommandBuffer& cmd, const void* data, const BufferInfo& info = {}) const;
+	void update(const void* data, const BufferInfo& info = {}) const override;
+	void update(vk::CommandBuffer& cmd, const void* data, const BufferInfo& info = {}) const;
 
 private:
 	mutable std::unique_ptr<HostBuffer> mStagingBuffer;

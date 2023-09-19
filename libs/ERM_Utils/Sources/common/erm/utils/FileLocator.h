@@ -10,15 +10,15 @@ class FileLocator
 public:
 	FileLocator();
 
-	inline const std::vector<std::string>& GetSounds() const { return mSounds; }
-	inline const std::vector<std::string>& GetModels() const { return mModels; }
-	inline const std::vector<std::string>& GetTextures() const { return mTextures; }
-	inline const std::vector<std::string>& GetMaterials() const { return mMaterials; }
-	inline const std::vector<std::string>& GetShaderPrograms() const { return mShaderPrograms; }
+	inline const std::vector<std::string>& getSounds() const { return mSounds; }
+	inline const std::vector<std::string>& getModels() const { return mModels; }
+	inline const std::vector<std::string>& getTextures() const { return mTextures; }
+	inline const std::vector<std::string>& getMaterials() const { return mMaterials; }
+	inline const std::vector<std::string>& getShaderPrograms() const { return mShaderPrograms; }
 
 private:
-	void Refresh();
-	std::vector<std::string> GetResourcesWithExtension(const char* extension, bool includeExtension = true) const;
+	void refresh();
+	std::vector<std::string> getResourcesWithExtension(const char* extension, bool includeExtension = true) const;
 
 	std::vector<std::string> mSounds;
 	std::vector<std::string> mModels;

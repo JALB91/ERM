@@ -4,6 +4,8 @@
 #include "erm/rendering/data_structs/IBindingResources.h"
 #include "erm/rendering/renderer/IRenderer.h"
 
+#include <erm/math/Types.h>
+
 #include <vector>
 
 namespace erm {
@@ -14,21 +16,21 @@ public:
 	HostBindingResources(
 		Device& device,
 		IRenderer& renderer,
-		uint32_t targetSet,
+		u32 targetSet,
 		const IShaderProgram& shaderProgram,
 		const BindingConfigs& configs,
 		vk::DescriptorPool descriptorPool,
 		vk::DescriptorSetLayout descriptorSetLayout);
 
-	vk::DescriptorSet GetDescriptorSet() const override;
+	vk::DescriptorSet getDescriptorSet() const override;
 
-	void UpdateResources(vk::CommandBuffer cmd, IRenderData& data) override;
+	void updateResources(vk::CommandBuffer cmd, IRenderData& data) override;
 
 private:
 	using SwapChainUniformBuffers = std::array<UniformBuffersMap<HostBuffer>, IRenderer::kMaxFramesInFlight>;
 
 private:
-	void CreateUniformBuffers(const std::vector<UboData>& ubosData);
+	void createUniformBuffers(const std::vector<UboData>& ubosData);
 
 	SwapChainUniformBuffers mUniformBuffers;
 };

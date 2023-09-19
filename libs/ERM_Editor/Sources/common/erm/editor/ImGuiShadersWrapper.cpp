@@ -69,7 +69,7 @@ void ShowShadersDebug(erm::Engine& engine, bool& open)
 					std::forward_as_tuple(data.size()));
 				auto& sources = shaderSources[type];
 
-				for (size_t i = 0; i < data.size(); ++i)
+				for (u64 i = 0; i < data.size(); ++i)
 				{
 					sources[i] = data[i].mShaderSource;
 				}
@@ -85,9 +85,9 @@ void ShowShadersDebug(erm::Engine& engine, bool& open)
 			const auto& dataMap = selected->GetShadersDataMap();
 			for (const auto& [type, data] : dataMap)
 			{
-				for (size_t i = 0; i < data.size(); ++i)
+				for (u64 i = 0; i < data.size(); ++i)
 				{
-					std::string shaderId = erm::ShaderUtils::GetSuffixForShaderIndex(static_cast<uint32_t>(i)).append(erm::ShaderUtils::GetExtensionForShaderType(type));
+					std::string shaderId = erm::ShaderUtils::GetSuffixForShaderIndex(static_cast<u32>(i)).append(erm::ShaderUtils::GetExtensionForShaderType(type));
 
 					if (ImGui::BeginTabItem(shaderId.c_str()))
 					{

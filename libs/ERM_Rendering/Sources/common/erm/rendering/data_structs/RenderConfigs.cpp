@@ -25,7 +25,7 @@ RenderConfigs::RenderConfigs(SubpassData&& subpassData, vec4&& clearColor)
 	, mClearColor(std::move(clearColor))
 {}
 
-bool RenderConfigs::IsRenderPassLevelCompatible(const RenderConfigs& other) const
+bool RenderConfigs::isRenderPassLevelCompatible(const RenderConfigs& other) const
 {
 	return mSubpassData == other.mSubpassData;
 }

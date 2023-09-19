@@ -14,10 +14,10 @@ public:
 
 private:
 	// ISystem
-	void OnPostUpdate() override;
-	void OnEntityParentChanged(EntityId entityId) override;
+	void postUpdate() override;
+	void onEntityParentChanged(EntityId entityId) override;
 
-	void UpdateDirtyRecursive(EntityId id);
+	void updateDirtyRecursive(EntityId id);
 };
 
 } // namespace erm::ecs

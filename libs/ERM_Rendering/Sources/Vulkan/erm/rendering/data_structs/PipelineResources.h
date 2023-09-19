@@ -3,6 +3,8 @@
 #include "erm/rendering/data_structs/PipelineConfigs.h"
 #include "erm/rendering/data_structs/PipelineData.h"
 
+#include <erm/math/Types.h>
+
 #include <vulkan/vulkan.hpp>
 
 #include <unordered_map>
@@ -35,18 +37,18 @@ public:
 	PipelineResources(const PipelineResources&) = delete;
 	PipelineResources& operator=(const PipelineResources&) = delete;
 	
-	inline uint32_t GetUntouchedFrames() const { return mUntouchedFrames; }
+	inline u32 getUntouchedFrames() const { return mUntouchedFrames; }
 
-	void Refresh();
+	void refresh();
 
-	void UpdateResources(vk::CommandBuffer& cmd, RenderData& renderData);
-	void UpdateCommandBuffer(vk::CommandBuffer& cmd, RenderData& renderData);
+	void updateResources(vk::CommandBuffer& cmd, RenderData& renderData);
+	void updateCommandBuffer(vk::CommandBuffer& cmd, RenderData& renderData);
 
-	inline const PipelineConfigs& GetPipelineConfigs() const { return mPipelineConfigs; }
+	inline const PipelineConfigs& getPipelineConfigs() const { return mPipelineConfigs; }
 
 private:
-	void CreatePipeline();
-	PipelineData& GetOrCreatePipelineData(RenderData& renderData);
+	void createPipeline();
+	PipelineData& getOrCreatePipelineData(RenderData& renderData);
 
 	Device& mDevice;
 	IWindow& mWindow;
@@ -61,8 +63,8 @@ private:
 	vk::UniqueDescriptorSetLayout mEmptySetLayout;
 	vk::UniqueDescriptorSet mEmptySet;
 	std::vector<vk::UniqueDescriptorSetLayout> mDescriptorSetLayouts;
-	std::unordered_map<uint32_t, PipelineData> mPipelineData;
-	uint32_t mUntouchedFrames;
+	std::unordered_map<u32, PipelineData> mPipelineData;
+	u32 mUntouchedFrames;
 };
 
 } // namespace erm

@@ -7,12 +7,12 @@ namespace erm {
 
 HostBuffer::HostBuffer(
 	Device& device,
-	size_t size,
+	u64 size,
 	BufferUsageFlags buf)
 	: IBuffer(device, size, buf, MemoryProperty::HOST_VISIBLE | MemoryProperty::HOST_COHERENT)
 {}
 
-void HostBuffer::Update(const void* data, const BufferInfo& info /*= {}*/) const
+void HostBuffer::update(const void* data, const BufferInfo& info /*= {}*/) const
 {
 	void* mappedData;
 	ERM_VK_CHECK_AND_ASSIGN(mappedData, mDevice->mapMemory(mBufferMemory.get(), info.mOffset, info.mStride));

@@ -9,7 +9,7 @@ namespace erm {
 
 IBuffer::IBuffer(
 	Device& device,
-	size_t size,
+	u64 size,
 	BufferUsageFlags buf,
 	MemoryPropertyFlags mpf)
 	: mDevice(device)
@@ -17,9 +17,9 @@ IBuffer::IBuffer(
 	, mBuf(buf)
 	, mMpf(mpf)
 {
-	VkUtils::CreateBufferUnique(
-		device.GetVkPhysicalDevice(),
-		device.GetVkDevice(),
+	VkUtils::createBufferUnique(
+		device.getVkPhysicalDevice(),
+		device.getVkDevice(),
 		size,
 		mBuffer,
 		mBufferMemory,
@@ -36,9 +36,9 @@ IBuffer::IBuffer(const IBuffer& other) noexcept
 	, mBuf(other.mBuf)
 	, mMpf(other.mMpf)
 {
-	VkUtils::CreateBufferUnique(
-		mDevice.GetVkPhysicalDevice(),
-		mDevice.GetVkDevice(),
+	VkUtils::createBufferUnique(
+		mDevice.getVkPhysicalDevice(),
+		mDevice.getVkDevice(),
 		mBufferSize,
 		mBuffer,
 		mBufferMemory,

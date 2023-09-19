@@ -1,6 +1,6 @@
 #pragma once
 
-#include <erm/math/math.h>
+#include <erm/math/Types.h>
 
 namespace erm {
 class RTBlas;
@@ -13,7 +13,7 @@ class RTInstanceData
 public:
 	RTInstanceData(
 		RTBlas* blas,
-		const math::mat4& transform);
+		const mat4& transform);
 	~RTInstanceData();
 
 	RTInstanceData(RTInstanceData&& other);
@@ -22,14 +22,14 @@ public:
 	RTInstanceData& operator=(RTInstanceData&& other);
 	RTInstanceData& operator=(const RTInstanceData&) = delete;
 
-	inline RTBlas* GetBlas() const { return mBlas; }
-	inline const math::mat4& GetTransform() const { return mTransform; }
+	inline RTBlas* getBlas() const { return mBlas; }
+	inline const mat4& getTransform() const { return mTransform; }
 
-	void Update(RTBlas* blas, const math::mat4& transform);
+	void update(RTBlas* blas, const mat4& transform);
 
 private:
 	RTBlas* mBlas;
-	math::mat4 mTransform;
+	mat4 mTransform;
 };
 
 } // namespace erm

@@ -31,16 +31,16 @@ namespace erm {
 //		}
 //	}
 //
-//	for (size_t i = 0; i < kFaces.size(); ++i)
+//	for (u64 i = 0; i < kFaces.size(); ++i)
 //	{
 //		int width, height, bPP;
 //		mBuffers[i] = stbi_load((mPath + "/" + kFaces[i] + targetExt).c_str(), &width, &height, &bPP, STBI_rgb_alpha);
 //		
 //		ERM_ASSERT(mBuffers[i]);
 //
-//		mWidth = static_cast<uint32_t>(width);
-//		mHeight = static_cast<uint32_t>(height);
-//		mBPP = static_cast<uint32_t>(bPP);
+//		mWidth = static_cast<u32>(width);
+//		mHeight = static_cast<u32>(height);
+//		mBPP = static_cast<u32>(bPP);
 //	}
 //}
 

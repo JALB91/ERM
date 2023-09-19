@@ -14,12 +14,12 @@ IWindow::IWindow()
 	, mHasFocus(true)
 {}
 
-void IWindow::AddListener(IWindowListener& listener)
+void IWindow::addListener(IWindowListener& listener)
 {
 	mWindowListeners.insert(&listener);
 }
 
-void IWindow::RemoveListener(IWindowListener& listener)
+void IWindow::removeListener(IWindowListener& listener)
 {
 	auto it = mWindowListeners.find(&listener);
 	if (it != mWindowListeners.end())
@@ -28,12 +28,12 @@ void IWindow::RemoveListener(IWindowListener& listener)
 	}
 }
 
-void IWindow::OnFocusLost()
+void IWindow::onFocusLost()
 {
 	mHasFocus = false;
 }
 
-void IWindow::OnFocus()
+void IWindow::onFocus()
 {
 	mHasFocus = true;
 }

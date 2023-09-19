@@ -2,9 +2,9 @@
 
 namespace erm::utils::internal {
 
-size_t GetNextID()
+u64 GetNextID()
 {
-	static size_t sNext = 0;
+	static u64 sNext = 0;
 	return sNext++;
 }
 
