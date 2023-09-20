@@ -2,8 +2,10 @@ cmake_minimum_required(VERSION 3.21)
 
 # Verify ERM_TARGET_API
 if(NOT DEFINED ERM_TARGET_API)
-	message(FATAL_ERROR "ERM_TARGET_API not specified")
-elseif("${ERM_TARGET_API}" STREQUAL "Vulkan")
+	set(ERM_TARGET_API "Vulkan")
+endif()
+
+if("${ERM_TARGET_API}" STREQUAL "Vulkan")
 	set(ERM_VULKAN ON)
 elseif("${ERM_TARGET_API}" STREQUAL "OpenGL")
 	set(ERM_OPEN_GL ON)
@@ -15,8 +17,14 @@ endif()
 
 # Verify ERM_PLATFORM
 if(NOT DEFINED ERM_PLATFORM)
-	message(FATAL_ERROR "ERM_PLATFORM not specified")
-elseif("${ERM_PLATFORM}" STREQUAL "Windows")
+	if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Windows")
+		set(ERM_PLATFORM "Windows")
+	elseif("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Darwin")
+		set(ERM_PLATFORM "MacOS")
+	endif()
+endif()
+
+if("${ERM_PLATFORM}" STREQUAL "Windows")
 	set(ERM_WINDOWS ON)
 elseif("${ERM_PLATFORM}" STREQUAL "MacOS")
 	set(ERM_MAC ON)

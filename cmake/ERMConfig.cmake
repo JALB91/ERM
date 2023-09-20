@@ -46,12 +46,12 @@ function(erm_setup_pipeline_script)
 endfunction()
 
 function(erm_setup_resources_pipeline)
-	add_custom_command(
-		TARGET "${PROJECT_NAME}"
-		POST_BUILD
-		COMMAND ${Python3_EXECUTABLE} ${ERM_PIPELINE_SCRIPT} ${ERM_PIPELINE_ARGS}
-		COMMENT "Resources Pipeline"
-	)
+	# add_custom_command(
+	# 	TARGET "${PROJECT_NAME}"
+	# 	POST_BUILD
+	# 	COMMAND ${Python3_EXECUTABLE} ${ERM_PIPELINE_SCRIPT} ${ERM_PIPELINE_ARGS}
+	# 	COMMENT "Resources Pipeline"
+	# )
 endfunction()
 
 option(ERM_FLIP_PROJECTION "If ON the projection matrix will be flipped over the Y axis" OFF)

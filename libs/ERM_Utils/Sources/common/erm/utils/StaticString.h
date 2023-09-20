@@ -12,18 +12,37 @@ namespace erm {
 template<u16 SIZE>
 class StaticString
 {
-public:
-    StaticString() noexcept
-		: mStr("\0")
-	{}
-
-	StaticString(const char* str)
+private:
+	static constexpr u64 c_str_size(const char* const str)
 	{
-		strncpy(mStr, str, std::max(static_cast<u64>(SIZE - 1), strlen(str)));
-		mStr[std::min(static_cast<u64>(SIZE - 1), strlen(str))] = '\0';
+		u64 size = 0;
+		while (str[size] != '\0')
+		{
+			++size;
+		}
+		return size;
 	}
 
-    StaticString(std::string_view fmt, ...)
+public:
+    constexpr StaticString() noexcept
+	{
+		mStr[0] = '\0';
+	}
+
+	constexpr StaticString(const char* str) noexcept
+	{
+		const u64 strSize = c_str_size(str);
+		const u64 copySize = std::min(static_cast<u64>(SIZE - 1), strSize);
+		u64 index = 0;
+		while (index < copySize)
+		{
+			mStr[index] = str[index];
+			++index;
+		}
+		mStr[index] = '\0';
+	}
+
+    StaticString(std::string_view fmt, ...) noexcept
 	{
 		va_list args;
 		va_start(args, fmt);
@@ -31,21 +50,46 @@ public:
 		va_end(args);
 	}
 
-	StaticString& operator=(const char* str)
+	template<u16 S>
+	constexpr StaticString(const StaticString<S>& str) noexcept
 	{
-		strncpy(mStr, str, std::max(static_cast<u64>(SIZE - 1), strlen(str)));
-		mStr[std::min(static_cast<u64>(SIZE - 1), strlen(str))] = '\0';
+		static_assert(SIZE >= S);
+		const u16 copySize = std::min(SIZE, S);
+		u16 index = 0;
+		while (index < copySize)
+		{
+			mStr[index] = str[index];
+			++index;
+		}
+	}
+
+	constexpr StaticString& operator=(const char* str) noexcept
+	{
+		const u64 copySize = std::min(static_cast<u64>(SIZE - 1), c_str_size(str));
+		u64 index = 0;
+		while (index < copySize)
+		{
+			mStr[index] = str[index];
+			++index;
+		}
+		mStr[index] = '\0';
 		return *this;
 	}
 	
-    StaticString& operator=(std::string_view str)
+    constexpr StaticString& operator=(std::string_view str) noexcept
 	{
-		strncpy(mStr, str.data(), std::max(static_cast<u64>(SIZE - 1), str.size()));
-		mStr[std::min(static_cast<u64>(SIZE - 1), str.size())] = '\0';
+		const u64 copySize = std::min(static_cast<u64>(SIZE - 1), str.size());
+		u64 index = 0;
+		while (index < copySize)
+		{
+			mStr[index] = str[index];
+			++index;
+		}
+		mStr[index] = '\0';
 		return *this;
 	}
 
-	StaticString& operator=(char c)
+	constexpr StaticString& operator=(char c)
 	{
 		static_assert(SIZE > 1);
 		mStr[0] = c;
@@ -53,13 +97,22 @@ public:
 		return *this;
 	}
 
-	StaticString& operator+=(std::string_view str)
+	constexpr StaticString& operator+=(std::string_view str) noexcept
 	{
-		append(str);
+		const u16 currSize = size();
+		const u64 strSize = str.size();
+		const u64 finalSize = currSize + strSize;
+		u64 index = currSize;
+		while (index < SIZE && index < finalSize)
+		{
+			mStr[index] = str[index - currSize];
+			++index;
+		}
+		mStr[index] = '\0';
 		return *this;
 	}
 
-	StaticString& operator+=(char c)
+	constexpr StaticString& operator+=(char c) noexcept
 	{
 		const u16 currSize = size();
 		if (currSize < SIZE - 1)
@@ -67,61 +120,104 @@ public:
 			mStr[currSize] = c;
 			mStr[currSize + 1] = '\0';
 		}
-
 		return *this;
 	}
 
-    operator std::string_view() const
+    constexpr operator std::string_view() const noexcept
 	{
 		return std::string_view(data(), size());
 	}
 
-	operator std::string_view()
+	constexpr operator std::string_view() noexcept
 	{
 		return std::string_view(data(), size());
 	}
 
-    bool operator==(std::string_view value) const
+    constexpr bool operator==(std::string_view str) const noexcept
 	{
-		if (size() != value.size())
+		if (size() != str.size())
 		{
 			return false;
 		}
 
-		return strncmp(mStr, value.data(), size()) == 0;
+		u16 index = 0;
+		while (index < size())
+		{
+			if (mStr[index] != str[index])
+			{
+				return false;
+			}
+			++index;
+		}
+
+		return true;
 	}
 
-    void append(std::string_view fmt, ...)
+	template<u16 S>
+	constexpr bool operator==(const StaticString<S>& str) const noexcept
 	{
-		if (size() == SIZE)
+		if (size() != str.size())
+		{
+			return false;
+		}
+
+		u16 index = 0;
+		while (index < size())
+		{
+			if (mStr[index] != str[index])
+			{
+				return false;
+			}
+			++index;
+		}
+
+		return true;
+	}
+
+	constexpr char operator[](u16 index) const
+	{
+		return mStr[index];
+	}
+
+    void append(std::string_view fmt, ...) noexcept
+	{
+		const u16 currSize = size();
+		if (currSize == SIZE)
 		{
 			return;
 		}
 
 		va_list args;
 		va_start(args, fmt);
-		vsnprintf(mStr[size()], SIZE - size(), fmt.data(), args);
+		vsnprintf(mStr[currSize], SIZE - currSize, fmt.data(), args);
 		va_end(args);
 	}
 
-	void clear()
+	constexpr void clear() noexcept
 	{
 		mStr[0] = '\0';
 	}
 
-	std::string_view substr(u16 from, u16 count) const
+	constexpr std::string_view substr(u16 from, u16 count) const noexcept
 	{
-		return std::string_view(mStr[from], count);
+		return std::string_view(&mStr[std::min(SIZE, from)], std::min(static_cast<u16>(SIZE - from), count));
 	}
 
-    bool empty() const { return mStr[0] == '\0'; }
-	u16 capacity() const { return SIZE; }
-	u16 size() const { return static_cast<u16>(strlen(data())); }
-    const char* data() const { return mStr; }
-	char* data() { return mStr; }
+	constexpr u16 size() const noexcept 
+	{ 
+		return static_cast<u16>(c_str_size(mStr));
+	}
 
-	Iterator<char> begin() const { return Iterator(&mStr[0]); }
-	Iterator<char> end() const { return Iterator(&mStr[SIZE]); }
+    constexpr bool empty() const noexcept { return mStr[0] == '\0'; }
+	constexpr u16 capacity() const noexcept { return SIZE; }
+	constexpr const char* data() const noexcept { return mStr; }
+	constexpr char* data() noexcept { return mStr; }
+
+	constexpr Iterator<const char> cbegin() const noexcept { return Iterator(&mStr[0]); }
+	constexpr Iterator<const char> cend() const noexcept { return Iterator(&mStr[size()]); }
+
+	constexpr Iterator<char> begin() noexcept { return Iterator(&mStr[0]); }
+	constexpr Iterator<char> end() noexcept { return Iterator(&mStr[size()]); }
 
 private:
     char mStr[SIZE];
