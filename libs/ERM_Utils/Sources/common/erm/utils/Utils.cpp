@@ -19,24 +19,14 @@ bool logCall(bool cond, std::string_view msg, std::string_view function, std::st
 	return cond;
 }
 
-std::vector<std::string> splitString(std::string_view str, char ch)
+void writeToFile(std::string_view path, std::string_view data)
 {
-	std::vector<std::string> res;
-	std::string* curr = str.empty() ? nullptr : &res.emplace_back();
+	std::ofstream stream(path.data());
 
-	for (char c : str)
+	if (ERM_EXPECT(stream.is_open(), "Failed to open file"))
 	{
-		if (c == ch)
-		{
-			curr = &res.emplace_back();
-		}
-		else
-		{
-			*curr += c;
-		}
+		stream.write(data.data(), data.size());
 	}
-
-	return res;
 }
 
 std::string readFromFile(std::string_view path)
@@ -57,51 +47,7 @@ std::string readFromFile(std::string_view path)
 	return result;
 }
 
-void writeToFile(std::string_view path, std::string_view data)
-{
-	std::ofstream stream(path.data());
-
-	if (ERM_EXPECT(stream.is_open(), "Failed to open file"))
-	{
-		stream.write(data.data(), data.size());
-	}
-}
-
-bool compareNoCaseSensitive(std::string_view a, std::string_view b)
-{
-	if (a.size() != b.size())
-		return false;
-	
-	for (u64 i = 0; i < a.size(); ++i)
-	{
-		if (std::tolower(a[i]) != std::tolower(b[i]))
-		{
-			return false;
-		}
-	}
-	
-	return true;
-}
-
-bool endsWith(std::string_view s, std::string_view c)
-{
-	if (c.size() > s.size())
-	{
-		return false;
-	}
-
-	for (int i = static_cast<int>(c.size()); i > 0; --i)
-	{
-		if (s[s.size() - i] != c[c.size() - i])
-		{
-			return false;
-		}
-	}
-
-	return true;
-}
-
-std::string formatTime(u64 seconds)
+std::string formatTime(u64 seconds) noexcept
 {
 	u64 minutes = seconds / 60;
 	u64 hours = minutes / 60;
@@ -124,5 +70,13 @@ std::string formatTime(u64 seconds)
 
 	return result;
 }
+
+static_assert(charToUpper('a') == 'A');
+static_assert(charToUpper('B') == 'B');
+static_assert(charToLower('C') == 'c');
+static_assert(charToLower('c') == 'c');
+static_assert(endsWith("CIAO", "AO"));
+static_assert(compareNoCaseSensitive("CIAO", "ciao"));
+static_assert(splitString("CIAO\nCIAO", '\n').size() == 2);
 
 } // namespace erm::utils

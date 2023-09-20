@@ -1,6 +1,7 @@
 #pragma once
 
 #include "erm/utils/Iterator.h"
+#include "erm/utils/Utils.h"
 
 #include <erm/math/Types.h>
 
@@ -12,17 +13,6 @@ namespace erm {
 template<u16 SIZE>
 class StaticString
 {
-private:
-	static constexpr u64 c_str_size(const char* const str)
-	{
-		u64 size = 0;
-		while (str[size] != '\0')
-		{
-			++size;
-		}
-		return size;
-	}
-
 public:
     constexpr StaticString() noexcept
 	{
@@ -31,7 +21,7 @@ public:
 
 	constexpr StaticString(const char* str) noexcept
 	{
-		const u64 strSize = c_str_size(str);
+		const u64 strSize = utils::c_str_size(str);
 		const u64 copySize = std::min(static_cast<u64>(SIZE - 1), strSize);
 		u64 index = 0;
 		while (index < copySize)
@@ -42,7 +32,7 @@ public:
 		mStr[index] = '\0';
 	}
 
-    StaticString(std::string_view fmt, ...) noexcept
+	StaticString(std::string_view fmt, ...) noexcept
 	{
 		va_list args;
 		va_start(args, fmt);
@@ -50,22 +40,9 @@ public:
 		va_end(args);
 	}
 
-	template<u16 S>
-	constexpr StaticString(const StaticString<S>& str) noexcept
-	{
-		static_assert(SIZE >= S);
-		const u16 copySize = std::min(SIZE, S);
-		u16 index = 0;
-		while (index < copySize)
-		{
-			mStr[index] = str[index];
-			++index;
-		}
-	}
-
 	constexpr StaticString& operator=(const char* str) noexcept
 	{
-		const u64 copySize = std::min(static_cast<u64>(SIZE - 1), c_str_size(str));
+		const u64 copySize = std::min(static_cast<u64>(SIZE - 1), utils::c_str_size(str));
 		u64 index = 0;
 		while (index < copySize)
 		{
@@ -75,8 +52,8 @@ public:
 		mStr[index] = '\0';
 		return *this;
 	}
-	
-    constexpr StaticString& operator=(std::string_view str) noexcept
+
+	constexpr StaticString& operator=(std::string_view str) noexcept
 	{
 		const u64 copySize = std::min(static_cast<u64>(SIZE - 1), str.size());
 		u64 index = 0;
@@ -89,7 +66,7 @@ public:
 		return *this;
 	}
 
-	constexpr StaticString& operator=(char c)
+	constexpr StaticString& operator=(char c) noexcept
 	{
 		static_assert(SIZE > 1);
 		mStr[0] = c;
@@ -123,7 +100,7 @@ public:
 		return *this;
 	}
 
-    constexpr operator std::string_view() const noexcept
+	constexpr operator std::string_view() const noexcept
 	{
 		return std::string_view(data(), size());
 	}
@@ -133,21 +110,19 @@ public:
 		return std::string_view(data(), size());
 	}
 
-    constexpr bool operator==(std::string_view str) const noexcept
+	constexpr bool operator==(std::string_view str) const noexcept
 	{
 		if (size() != str.size())
 		{
 			return false;
 		}
 
-		u16 index = 0;
-		while (index < size())
+		for (u16 index = 0; index < size(); ++index)
 		{
 			if (mStr[index] != str[index])
 			{
 				return false;
 			}
-			++index;
 		}
 
 		return true;
@@ -161,28 +136,31 @@ public:
 			return false;
 		}
 
-		u16 index = 0;
-		while (index < size())
+		for (u16 index = 0; index < size(); ++index)
 		{
 			if (mStr[index] != str[index])
 			{
 				return false;
 			}
-			++index;
 		}
 
 		return true;
 	}
 
-	constexpr char operator[](u16 index) const
+	constexpr char operator[](u16 index) const noexcept
 	{
 		return mStr[index];
 	}
 
-    void append(std::string_view fmt, ...) noexcept
+	constexpr char& operator[](u16 index) noexcept
+	{
+		return mStr[index];
+	}
+
+	void append(std::string_view fmt, ...) noexcept
 	{
 		const u16 currSize = size();
-		if (currSize == SIZE)
+		if (currSize >= SIZE)
 		{
 			return;
 		}
@@ -198,14 +176,30 @@ public:
 		mStr[0] = '\0';
 	}
 
+	constexpr void toLower() noexcept
+	{
+		for (u16 index = 0; index < size(); ++index)
+		{
+			mStr[index] = utils::charToLower(mStr[index]);
+		}
+	}
+
+	constexpr void toUpper() noexcept
+	{
+		for (u16 index = 0; index < size(); ++index)
+		{
+			mStr[index] = utils::charToUpper(mStr[index]);
+		}
+	}
+
 	constexpr std::string_view substr(u16 from, u16 count) const noexcept
 	{
 		return std::string_view(&mStr[std::min(SIZE, from)], std::min(static_cast<u16>(SIZE - from), count));
 	}
 
-	constexpr u16 size() const noexcept 
-	{ 
-		return static_cast<u16>(c_str_size(mStr));
+	constexpr u16 size() const noexcept
+	{
+		return static_cast<u16>(utils::c_str_size(mStr));
 	}
 
     constexpr bool empty() const noexcept { return mStr[0] == '\0'; }

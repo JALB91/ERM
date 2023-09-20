@@ -26,14 +26,87 @@ public:                                                                 \
 namespace erm::utils {
 
 extern bool logCall(bool cond, std::string_view msg, std::string_view function, std::string_view file, int line);
-extern std::vector<std::string> splitString(std::string_view str, char ch);
-extern std::string readFromFile(std::string_view path);
 extern void writeToFile(std::string_view path, std::string_view data);
-extern bool compareNoCaseSensitive(std::string_view a, std::string_view b);
-extern bool endsWith(std::string_view s, std::string_view c);
-extern std::string formatTime(u64 seconds);
+extern std::string readFromFile(std::string_view path);
+extern std::string formatTime(u64 seconds) noexcept;
 
-constexpr std::string_view stripFunctionName(std::string_view fn)
+inline extern constexpr std::vector<std::string> splitString(std::string_view str, char ch) noexcept
+{
+	std::vector<std::string> res;
+	std::string* curr = str.empty() ? nullptr : &res.emplace_back();
+
+	for (char c : str)
+	{
+		if (c == ch)
+		{
+			curr = &res.emplace_back();
+		}
+		else
+		{
+			*curr += c;
+		}
+	}
+
+	return res;
+}
+
+inline extern constexpr char charToLower(char c) noexcept
+{
+	return (c >= 'A' && c <= 'Z') ? c + ('a' - 'A') : c;
+}
+
+inline extern constexpr char charToUpper(char c) noexcept
+{
+	return (c >= 'a' && c <= 'z') ? c - ('a' - 'A') : c;
+}
+
+inline extern constexpr bool compareNoCaseSensitive(std::string_view a, std::string_view b) noexcept
+{
+	if (a.size() != b.size())
+	{
+		return false;
+	}
+
+	for (u64 i = 0; i < a.size(); ++i)
+	{
+		if (charToLower(a[i]) != charToLower(b[i]))
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+inline extern constexpr bool endsWith(std::string_view s, std::string_view c) noexcept
+{
+	if (c.size() > s.size())
+	{
+		return false;
+	}
+
+	for (i64 i = static_cast<i64>(c.size()); i > 0; --i)
+	{
+		if (s[s.size() - i] != c[c.size() - i])
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+inline extern constexpr u64 c_str_size(const char* const str) noexcept
+{
+	u64 size = 0;
+	while (str[size] != '\0')
+	{
+		++size;
+	}
+	return size;
+}
+
+inline constexpr std::string_view stripFunctionName(std::string_view fn) noexcept
 {
 	std::string_view result = fn;
 
