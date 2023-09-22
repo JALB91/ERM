@@ -24,21 +24,31 @@
 #define ERM_EVAL2(...) ERM_EVAL1(ERM_EVAL1(ERM_EVAL1(__VA_ARGS__)))
 #define ERM_EVAL3(...) ERM_EVAL2(ERM_EVAL2(ERM_EVAL2(__VA_ARGS__)))
 #define ERM_EVAL4(...) ERM_EVAL3(ERM_EVAL3(ERM_EVAL3(__VA_ARGS__)))
-#define ERM_EVAL(...)  ERM_EVAL4(ERM_EVAL4(ERM_EVAL4(__VA_ARGS__)))
+#define ERM_EVAL5(...)	   ERM_EVAL4(ERM_EVAL4(ERM_EVAL4(__VA_ARGS__)))
+
+#ifdef _MSC_VER
+// MSVC needs more evaluations
+#	define ERM_EVAL6(...) ERM_EVAL5(ERM_EVAL5(ERM_EVAL5(__VA_ARGS__)))
+#	define ERM_EVAL(...)  ERM_EVAL6(ERM_EVAL6(__VA_ARGS__))
+#else
+#	define ERM_EVAL(...) ERM_EVAL5(__VA_ARGS__)
+#endif
 
 #define ERM_MAP_END(...)
 #define ERM_MAP_OUT
-#define ERM_MAP_COMMA ,
+
+#define ERM_EMPTY()
+#define ERM_DEFER(id) id ERM_EMPTY()
 
 #define ERM_MAP_GET_END2()			   0, ERM_MAP_END
 #define ERM_MAP_GET_END1(...)		   ERM_MAP_GET_END2
 #define ERM_MAP_GET_END(...)		   ERM_MAP_GET_END1
 #define ERM_MAP_NEXT0(test, next, ...) next ERM_MAP_OUT
-#define ERM_MAP_NEXT1(test, next)	   ERM_MAP_NEXT0(test, next, 0)
+#define ERM_MAP_NEXT1(test, next)	   ERM_DEFER(ERM_MAP_NEXT0)(test, next, 0)
 #define ERM_MAP_NEXT(test, next)	   ERM_MAP_NEXT1(ERM_MAP_GET_END test, next)
 
-#define ERM_MAP0(f, x, peek, ...) f(x) ERM_MAP_NEXT(peek, MAP1)(f, peek, __VA_ARGS__)
-#define ERM_MAP1(f, x, peek, ...) f(x) ERM_MAP_NEXT(peek, ERM_MAP0)(f, peek, __VA_ARGS__)
+#define ERM_MAP0(f, x, peek, ...) f(x) ERM_DEFER(ERM_MAP_NEXT(peek, ERM_MAP1))(f, peek, __VA_ARGS__)
+#define ERM_MAP1(f, x, peek, ...) f(x) ERM_DEFER(ERM_MAP_NEXT(peek, ERM_MAP0))(f, peek, __VA_ARGS__)
 
 #define ERM_MAP_LIST_NEXT1(test, next) ERM_MAP_NEXT0(test, ERM_MAP_COMMA next, 0)
 #define ERM_MAP_LIST_NEXT(test, next)  ERM_MAP_LIST_NEXT1(ERM_MAP_GET_END test, next)
