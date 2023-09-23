@@ -11,7 +11,7 @@
 
 #define ERM_UNUSED(x)	   (void)x;
 #define ERM_ASSERT(x)	   assert(x)
-#define ERM_ASSERT_HARD(x) assert(x); if (!x) abort();
+#define ERM_ASSERT_HARD(x) {const bool _result = (x); assert(_result); if (!_result) abort();}
 #define ERM_EXPECT(x, msg) erm::utils::logCall((x), msg, #x, __FILE__, __LINE__)
 
 #define ERM_DECL_SET_GET_OPT_WITH_DEFAULT(NAME, TYPE, DEFAULT)          \
@@ -30,7 +30,7 @@ extern void writeToFile(std::string_view path, std::string_view data);
 extern std::string readFromFile(std::string_view path);
 extern std::string formatTime(u64 seconds) noexcept;
 
-inline extern constexpr std::vector<std::string> splitString(std::string_view str, char ch) noexcept
+inline constexpr std::vector<std::string> splitString(std::string_view str, char ch) noexcept
 {
 	std::vector<std::string> res;
 	std::string* curr = str.empty() ? nullptr : &res.emplace_back();
@@ -50,17 +50,17 @@ inline extern constexpr std::vector<std::string> splitString(std::string_view st
 	return res;
 }
 
-inline extern constexpr char charToLower(char c) noexcept
+inline constexpr char charToLower(char c) noexcept
 {
 	return (c >= 'A' && c <= 'Z') ? c + ('a' - 'A') : c;
 }
 
-inline extern constexpr char charToUpper(char c) noexcept
+inline constexpr char charToUpper(char c) noexcept
 {
 	return (c >= 'a' && c <= 'z') ? c - ('a' - 'A') : c;
 }
 
-inline extern constexpr bool compareNoCaseSensitive(std::string_view a, std::string_view b) noexcept
+inline constexpr bool compareNoCaseSensitive(std::string_view a, std::string_view b) noexcept
 {
 	if (a.size() != b.size())
 	{
@@ -78,7 +78,7 @@ inline extern constexpr bool compareNoCaseSensitive(std::string_view a, std::str
 	return true;
 }
 
-inline extern constexpr bool endsWith(std::string_view s, std::string_view c) noexcept
+inline constexpr bool endsWith(std::string_view s, std::string_view c) noexcept
 {
 	if (c.size() > s.size())
 	{
@@ -96,7 +96,7 @@ inline extern constexpr bool endsWith(std::string_view s, std::string_view c) no
 	return true;
 }
 
-inline extern constexpr u64 c_str_size(const char* const str) noexcept
+inline constexpr u64 c_str_size(const char* const str) noexcept
 {
 	u64 size = 0;
 	while (str[size] != '\0')
