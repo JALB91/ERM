@@ -45,4 +45,12 @@ static_assert(str16("CIAOO").rfind('O') == 4);
 static_assert(str16("CIAOOAAA").rfind('O') == 4);
 static_assert(str16("CIAOOAAA").rfind("OA") == 4);
 
+static_assert(str16("    ").trim() == "");
+static_assert(str16("A    ").trim() == "A");
+static_assert(str16("    A").trim() == "A");
+static_assert(str16("  CIAO ").trim() == "CIAO");
+static_assert(str16("  CIAO").trim() == "CIAO");
+static_assert(str16("CIAO ").trim() == "CIAO");
+static_assert(str16("                  ").trim() == "");
+
 }

@@ -67,7 +67,7 @@ inline constexpr bool compareNoCaseSensitive(std::string_view a, std::string_vie
 		return false;
 	}
 
-	for (u64 i = 0; i < a.size(); ++i)
+	for (size_t i = 0; i < a.size(); ++i)
 	{
 		if (charToLower(a[i]) != charToLower(b[i]))
 		{
@@ -96,9 +96,9 @@ inline constexpr bool endsWith(std::string_view s, std::string_view c) noexcept
 	return true;
 }
 
-inline constexpr u64 c_str_size(const char* const str) noexcept
+inline constexpr size_t c_str_size(const char* const str) noexcept
 {
-	u64 size = 0;
+	size_t size = 0;
 	while (str[size] != '\0')
 	{
 		++size;
