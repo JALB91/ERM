@@ -30,24 +30,37 @@ extern void writeToFile(std::string_view path, std::string_view data);
 extern std::string readFromFile(std::string_view path);
 extern std::string formatTime(u64 seconds) noexcept;
 
-inline constexpr std::vector<std::string> splitString(std::string_view str, char ch) noexcept
+inline constexpr std::vector<std::string_view> splitString(std::string_view str, char ch) noexcept
 {
-	std::vector<std::string> res;
-	std::string* curr = str.empty() ? nullptr : &res.emplace_back();
-
-	for (char c : str)
+	if (str.empty())
 	{
-		if (c == ch)
+		return {};
+	}
+
+	std::vector<std::string_view> result;
+	size_t currStartOffset = 0;
+	size_t currCount = 0;
+
+	for (size_t i = 0; i < str.size(); ++i)
+	{
+		if (str[i] == ch)
 		{
-			curr = &res.emplace_back();
+			auto& entry = result.emplace_back(&str[currStartOffset], currCount);
+			currStartOffset = i + 1;
+			currCount = 0;
 		}
 		else
 		{
-			*curr += c;
+			++currCount;
 		}
 	}
 
-	return res;
+	if (currCount > 0)
+	{
+		result.emplace_back(&str[currStartOffset], currCount);
+	}
+
+	return result;
 }
 
 inline constexpr char charToLower(char c) noexcept

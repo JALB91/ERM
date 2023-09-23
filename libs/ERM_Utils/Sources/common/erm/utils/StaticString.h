@@ -21,16 +21,6 @@ public:
 	
 	static constexpr size_type npos = std::numeric_limits<size_type>::max();
 
-	static StaticString format(const char* const fmt, ...) noexcept
-	{
-		StaticString result;
-		va_list args;
-		va_start(args, fmt);
-		vsnprintf(result.mStr, SIZE, fmt, args);
-		va_end(args);
-		return result;
-	}
-
 public:
 	constexpr StaticString(char ch = '\0') noexcept
 	{
@@ -241,6 +231,26 @@ public:
 	constexpr char& operator[](size_type index) noexcept
 	{
 		return mStr[index];
+	}
+
+	constexpr const char& front() const noexcept
+	{
+		return mStr[0];
+	}
+
+	constexpr const char& back() const noexcept
+	{
+		return mStr[size() - 1];
+	}
+
+	constexpr char& front() noexcept
+	{
+		return mStr[0];
+	}
+
+	constexpr char& back() noexcept
+	{
+		return mStr[size() - 1];
 	}
 
 	constexpr size_type find(char ch) const noexcept
@@ -494,6 +504,14 @@ public:
 		return is;
 	}
 
+	void format(const char* const fmt, ...) noexcept
+	{
+		va_list args;
+		va_start(args, fmt);
+		vsnprintf(&mStr[0], SIZE, fmt, args);
+		va_end(args);
+	}
+
 	void append(const char* const fmt, ...) noexcept
 	{
 		const size_type currSize = size();
@@ -504,7 +522,7 @@ public:
 
 		va_list args;
 		va_start(args, fmt);
-		vsnprintf(mStr[currSize], SIZE - currSize, fmt, args);
+		vsnprintf(&mStr[currSize], SIZE - currSize, fmt, args);
 		va_end(args);
 	}
 
