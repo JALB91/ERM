@@ -296,7 +296,7 @@ void Device::createLogicalDevice()
 	vkEnumerateDeviceExtensionProperties(mPhysicalDevice, nullptr, &count, nullptr);
 	extensionProperties.resize(count);
 	vkEnumerateDeviceExtensionProperties(mPhysicalDevice, nullptr, &count, extensionProperties.data());
-	extensionProperties.resize(std::min(extensionProperties.size(), u64(count)));
+	extensionProperties.resize(std::min(extensionProperties.size(), static_cast<size_t>(count)));
 
 	std::cout << count << " Available device extensions" << std::endl;
 	for (const VkExtensionProperties& prop : extensionProperties)

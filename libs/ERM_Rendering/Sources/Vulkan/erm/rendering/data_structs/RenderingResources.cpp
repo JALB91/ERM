@@ -73,7 +73,7 @@ void RenderingResources::updateCommandBuffer(
 
 	vk::RenderPassBeginInfo renderPassInfo = {};
 	renderPassInfo.renderPass = mRenderPass.get();
-	renderPassInfo.framebuffer = mFrameBuffers[std::min(mFrameBuffers.size() - 1, static_cast<u64>(mRenderer.getCurrentImageIndex()))].get();
+	renderPassInfo.framebuffer = mFrameBuffers[std::min(mFrameBuffers.size() - 1, static_cast<size_t>(mRenderer.getCurrentImageIndex()))].get();
 	renderPassInfo.renderArea.offset = vk::Offset2D {0, 0};
 	renderPassInfo.renderArea.extent = mRenderer.getSwapChainExtent();
 	renderPassInfo.clearValueCount = static_cast<u32>(clearValues.size());

@@ -79,7 +79,7 @@ void IBindingResources::createSamplerDescriptorWritesAndInfos(
 		{
 			const auto type = std::get<FrameBufferType>(sData.mType);
 			const auto& frameBuffers = mRenderer.getTargetFrameBuffers(type);
-			targetTexture = frameBuffers[std::min(frameBuffers.size() - 1, static_cast<u64>(mRenderer.getCurrentImageIndex()))];
+			targetTexture = frameBuffers[std::min(frameBuffers.size() - 1, static_cast<size_t>(mRenderer.getCurrentImageIndex()))];
 		}
 		else if (std::holds_alternative<TextureType>(sData.mType))
 		{
@@ -119,7 +119,7 @@ void IBindingResources::createStorageImagesDescriptorWritesAndInfos(
 	for (const auto& sData : storageImageData)
 	{
 		const auto& frameBuffers = mRenderer.getTargetFrameBuffers(sData.mFrameBufferType);
-		const auto* targetTexture = frameBuffers[std::min(frameBuffers.size() - 1, static_cast<u64>(mRenderer.getCurrentImageIndex()))];
+		const auto* targetTexture = frameBuffers[std::min(frameBuffers.size() - 1, static_cast<size_t>(mRenderer.getCurrentImageIndex()))];
 		
 		auto& imageInfo = infos.emplace_back();
 		imageInfo.imageLayout = targetTexture->getImageLayout();

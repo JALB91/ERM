@@ -45,7 +45,7 @@ inline constexpr std::vector<std::string_view> splitString(std::string_view str,
 	{
 		if (str[i] == ch)
 		{
-			auto& entry = result.emplace_back(&str[currStartOffset], currCount);
+			result.emplace_back(&str[currStartOffset], currCount);
 			currStartOffset = i + 1;
 			currCount = 0;
 		}
