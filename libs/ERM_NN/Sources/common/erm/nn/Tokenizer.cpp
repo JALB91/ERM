@@ -7,8 +7,7 @@
 namespace erm::nn {
 
 Tokenizer::Tokenizer() noexcept
-	: mCursor(0)
-	, mStatements {
+	: mStatements {
 		"enum",
 		"class",
 		"struct",
@@ -19,6 +18,7 @@ Tokenizer::Tokenizer() noexcept
 		"double",
 		"long"
 	}
+	, mCursor(0)
 {}
 
 void Tokenizer::Init(std::string_view str)
