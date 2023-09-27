@@ -1,5 +1,6 @@
 #include "erm/nn/Tokenizer.h"
 
+#include <erm/utils/assert/Assert.h>
 #include <erm/utils/Utils.h>
 
 #include <algorithm>
@@ -30,9 +31,8 @@ void Tokenizer::Init(std::string_view str)
 void Tokenizer::addStatement(std::string_view statement)
 {
 	const auto it = std::find(mStatements.begin(), mStatements.end(), statement);
-	if (it != mStatements.end())
+	if (!ERM_EXPECT(it == mStatements.end()))
 	{
-		ERM_ASSERT(false);
 		return;
 	}
 

@@ -3,7 +3,7 @@
 #include "erm/rendering/enums/BufferUsage.h"
 #include "erm/rendering/enums/MemoryProperty.h"
 
-#include <erm/utils/Utils.h>
+#include <erm/utils/assert/Assert.h>
 
 #include <vulkan/vulkan.hpp>
 
@@ -15,7 +15,7 @@ struct QueueFamilyIndices;
 struct SwapChainSupportDetails;
 } // namespace erm
 
-#ifndef NDEBUG
+#ifdef ERM_DEBUG
 #define ERM_VK_CHECK(OP)                            \
 	{                                               \
 		const auto _result = OP;                     \

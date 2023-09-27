@@ -91,7 +91,7 @@ void IBindingResources::createSamplerDescriptorWritesAndInfos(
 		}
 		else
 		{
-			ERM_ASSERT(false);
+			ERM_LOG_ERROR("Invalid texture type");
 			return;
 		}
 

@@ -1,6 +1,8 @@
 #include "erm/nn/NN.h"
 #include "erm/nn/Parser.h"
 
+#include <erm/utils/Macros.h>
+
 #include <nlohmann/json.hpp>
 
 #include <iostream>

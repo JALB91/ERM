@@ -1,6 +1,7 @@
 #pragma once
 
 #define ERM_EXPAND(x) x
+#define ERM_UNUSED(x) (void)x;
 
 #if defined(ERM_WINDOWS)
 #	define ERM_FUNC_SIG __FUNCSIG__

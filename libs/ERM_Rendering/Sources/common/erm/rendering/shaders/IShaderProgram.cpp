@@ -325,7 +325,7 @@ namespace erm {
 //
 //void IShaderProgram::ValidateShaders() const
 //{
-//#if !defined(NDEBUG)
+//#if !defined(ERM_DEBUG)
 //	static constexpr std::array sRequiredShaderTypes {ShaderType::VERTEX, ShaderType::FRAGMENT};
 //
 //	bool hasRequiredShaders = true;

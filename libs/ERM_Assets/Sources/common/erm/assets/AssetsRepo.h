@@ -12,6 +12,7 @@
 #include "erm/assets/textures/CubeMap.h"
 #include "erm/assets/textures/Texture.h"
 
+#include <erm/utils/assert/Assert.h>
 #include <erm/utils/IService.h>
 
 #include <unordered_map>

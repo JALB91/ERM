@@ -4,6 +4,7 @@
 #include "erm/rendering/extensions/VkExtensions.h"
 #include "erm/rendering/utils/VkUtils.h"
 
+#include <erm/utils/assert/Assert.h>
 #include <erm/utils/Utils.h>
 
 #include <GLFW/glfw3.h>
@@ -34,7 +35,7 @@ const std::vector<const char*> kDeviceExtensions {
 #endif
 };
 
-#ifndef NDEBUG
+#ifdef ERM_DEBUG
 constexpr std::array kValidationLayers {"VK_LAYER_KHRONOS_validation"};
 
 VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
@@ -47,7 +48,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
 	if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT || messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
 	{
 		std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
-#if defined(ERM_WINDOWS) && !defined(NDEBUG)
+#if defined(ERM_WINDOWS) && !defined(ERM_DEBUG)
 		__debugbreak();
 #endif
 	}
@@ -98,14 +99,14 @@ namespace erm {
 Device::Device(GLFWwindow* window)
 	: mWindow(window)
 {
-	ERM_EXPECT(createInstance(), "Failed to create Vulkan instance");
+	ERM_ASSERT_DESCR(createInstance(), "Failed to create Vulkan instance");
 	setupDebugMessenger();
-	ERM_EXPECT(createSurface(), "Failed to create Vulkan surface");
-	ERM_EXPECT(pickPhysicalDevice(), "Failed to find a suitable physical device");
+	ERM_ASSERT_DESCR(createSurface(), "Failed to create Vulkan surface");
+	ERM_ASSERT_DESCR(pickPhysicalDevice(), "Failed to find a suitable physical device");
 	createLogicalDevice();
 	createCommandPool();
 #ifdef ERM_RAY_TRACING_ENABLED
-	ERM_EXPECT(initRayTracing(), "Ray tracing not supported");
+	ERM_ASSERT_DESCR(initRayTracing(), "Ray tracing not supported");
 #endif
 	load_VK_EXTENSION_SUBSET(
 		mInstance.get(),
@@ -117,7 +118,7 @@ Device::Device(GLFWwindow* window)
 Device::~Device()
 {
 	ERM_VK_CHECK(mDevice->waitIdle());
-#ifndef NDEBUG
+#ifdef ERM_DEBUG
 	destroyDebugUtilsMessengerEXT(VkInstance(mInstance.get()), mDebugMessenger, nullptr);
 #endif
 }
@@ -135,7 +136,7 @@ bool Device::createInstance()
 
 	std::vector<const char*> requiredExtensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
 
-#ifndef NDEBUG
+#ifdef ERM_DEBUG
 	requiredExtensions.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 #endif
 
@@ -185,7 +186,7 @@ bool Device::createInstance()
 	/*
 			CONFIGURE VULKAN VALIDATION LAYERS
 		*/
-#ifdef NDEBUG
+#ifndef ERM_DEBUG
 	createInfo.enabledLayerCount = 0;
 #else
 	std::vector<vk::LayerProperties> availableLayers;
@@ -222,7 +223,7 @@ bool Device::createInstance()
 	vk::DebugUtilsMessengerCreateInfoEXT debugCreateInfo = {};
 	populateDebugMessengerCreateInfo(debugCreateInfo);
 	createInfo.pNext = (vk::DebugUtilsMessengerCreateInfoEXT*)&debugCreateInfo;
-#endif // !NDEBUG
+#endif // !ERM_DEBUG
 
 	ERM_VK_CHECK_AND_ASSIGN(mInstance, vk::createInstanceUnique(createInfo));
 	
@@ -335,7 +336,7 @@ void Device::createLogicalDevice()
 	deviceCreateInfo.queueCreateInfoCount = static_cast<u32>(queueCreateInfos.size());
 	deviceCreateInfo.enabledExtensionCount = static_cast<u32>(kDeviceExtensions.size());
 	deviceCreateInfo.ppEnabledExtensionNames = kDeviceExtensions.data();
-#ifdef NDEBUG
+#ifndef ERM_DEBUG
 	deviceCreateInfo.enabledLayerCount = 0;
 #else
 	deviceCreateInfo.enabledLayerCount = static_cast<u32>(kValidationLayers.size());

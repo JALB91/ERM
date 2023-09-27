@@ -6,6 +6,8 @@
 
 #include <erm/math/Types.h>
 
+#include <erm/utils/assert/Assert.h>
+
 #include <vulkan/vulkan.hpp>
 
 #include <memory>
@@ -82,7 +84,7 @@ public:
 
 	void addResources(u32 set, BindingResources&& resources)
 	{
-		ERM_ASSERT(isCompatible(resources->getBindingConfigs()));
+		ERM_ASSERT_HARD(isCompatible(resources->getBindingConfigs()));
 		mMaxSet = std::max(mMaxSet, set);
 		mBindingResources.emplace_back(std::move(resources));
 	}

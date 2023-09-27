@@ -1,5 +1,7 @@
 #include "erm/nn/Program.h"
 
+#include <erm/utils/assert/Assert.h>
+
 #include <magic_enum.hpp>
 
 #include <stack>
@@ -55,7 +57,7 @@ nlohmann::json Program::toJson() const
 			}
 			default:
 			{
-				ERM_ASSERT_HARD("Invalid token");
+				ERM_LOG_ERROR("Invalid token %s", magic_enum::enum_name(token.mType).data());
 				break;
 			}
 		}

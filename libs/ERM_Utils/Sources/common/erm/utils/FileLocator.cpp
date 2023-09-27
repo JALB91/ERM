@@ -1,6 +1,7 @@
 #include "erm/utils/FileLocator.h"
 
 #include "erm/utils/Utils.h"
+#include "erm/utils/assert/Assert.h"
 
 #include <array>
 #include <filesystem>
@@ -88,7 +89,7 @@ FileLocator::FileLocator()
 		}
 		else
 		{
-			ERM_ASSERT(false);
+			ERM_LOG_ERROR("Resources folder 'res' not found");
 		}
 	}
 

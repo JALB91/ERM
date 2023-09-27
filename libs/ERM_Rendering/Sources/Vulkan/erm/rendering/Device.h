@@ -42,7 +42,7 @@ private:
 	vk::Queue mPresentQueue;
 	vk::UniquePipelineCache mPipelineCache;
 	vk::UniqueCommandPool mCommandPool;
-#ifndef NDEBUG
+#ifdef ERM_DEBUG
 	VkDebugUtilsMessengerEXT mDebugMessenger;
 #endif
 

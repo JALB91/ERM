@@ -4,6 +4,7 @@
 #include "erm/rendering/buffers/HostBuffer.h"
 #include "erm/rendering/utils/VkUtils.h"
 
+#include <erm/utils/assert/Assert.h>
 #include <erm/utils/Utils.h>
 
 namespace erm {
@@ -25,7 +26,9 @@ DeviceBuffer::DeviceBuffer(DeviceBuffer&& other) noexcept
 DeviceBuffer& DeviceBuffer::operator=(DeviceBuffer&& other) noexcept
 {
 	if (this == &other)
+	{
 		return *this;
+	}
 
 	IBuffer::operator=(std::move(other));
 	mStagingBuffer = std::move(other.mStagingBuffer);

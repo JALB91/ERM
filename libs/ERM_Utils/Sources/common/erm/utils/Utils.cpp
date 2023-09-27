@@ -1,5 +1,7 @@
 #include "erm/utils/Utils.h"
 
+#include "erm/utils/assert/Assert.h"
+
 #include <algorithm>
 #include <cctype>
 #include <fstream>
@@ -9,21 +11,11 @@
 
 namespace erm::utils {
 
-bool logCall(bool cond, std::string_view msg, std::string_view function, std::string_view file, int line)
-{
-	if (!cond)
-	{
-		std::cout << "[Assert] (" << msg << ") " << function << " " << file << ":" << line << std::endl;
-		ERM_ASSERT(cond);
-	}
-	return cond;
-}
-
 void writeToFile(std::string_view path, std::string_view data)
 {
 	std::ofstream stream(path.data());
 
-	if (ERM_EXPECT(stream.is_open(), "Failed to open file"))
+	if (ERM_EXPECT_DESCR(stream.is_open(), "Failed to open file"))
 	{
 		stream.write(data.data(), data.size());
 	}
@@ -33,8 +25,10 @@ std::string readFromFile(std::string_view path)
 {
 	std::ifstream stream(path.data());
 
-	if (!ERM_EXPECT(stream.is_open(), "Failed to open file"))
+	if (!ERM_EXPECT_DESCR(stream.is_open(), "Failed to open file"))
+	{
 		return "";
+	}
 
 	std::string result;
 	std::string line;

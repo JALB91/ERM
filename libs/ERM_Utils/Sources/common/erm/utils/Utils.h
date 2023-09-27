@@ -2,17 +2,11 @@
 
 #include <erm/math/Types.h>
 
-#include <assert.h>
 #include <memory>
 #include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
-
-#define ERM_UNUSED(x)	   (void)x;
-#define ERM_ASSERT(x)	   assert(x)
-#define ERM_ASSERT_HARD(x) {const bool _result = (x); assert(_result); if (!_result) abort();}
-#define ERM_EXPECT(x, msg) erm::utils::logCall((x), msg, #x, __FILE__, __LINE__)
 
 #define ERM_DECL_SET_GET_OPT_WITH_DEFAULT(NAME, TYPE, DEFAULT)          \
 private:                                                                \
@@ -25,7 +19,6 @@ public:                                                                 \
 
 namespace erm::utils {
 
-extern bool logCall(bool cond, std::string_view msg, std::string_view function, std::string_view file, int line);
 extern void writeToFile(std::string_view path, std::string_view data);
 extern std::string readFromFile(std::string_view path);
 extern std::string formatTime(u64 seconds) noexcept;
@@ -124,7 +117,7 @@ inline constexpr std::string_view stripFunctionName(std::string_view fn) noexcep
 	std::string_view result = fn;
 
 	result = result.substr(result.find("erm::") + 5);
-	result = result.substr(0, result.find("("));
+	result = result.substr(0, result.find('('));
 
 	return result;
 }
@@ -142,8 +135,7 @@ template<
 	typename Enable = std::enable_if_t<std::is_copy_constructible_v<T> && !std::is_pointer_v<T>>>
 std::unique_ptr<T> clone(const std::unique_ptr<T>& value)
 {
-	ERM_ASSERT(value);
-	return std::make_unique<T>(*value.get());
+	return value ? std::make_unique<T>(*value.get()) : nullptr;
 }
 
 template<typename T>

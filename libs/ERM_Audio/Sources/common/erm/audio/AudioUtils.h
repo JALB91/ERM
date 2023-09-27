@@ -1,17 +1,16 @@
 #pragma once
 
-#include <erm/utils/Utils.h>
+#include <erm/utils/assert/Assert.h>
 
-#ifndef NDEBUG
-#define ERM_CHECK_FMOD_RESULT(CALL)    \
-	{                                  \
-		const auto result = CALL;      \
-		ERM_ASSERT(result == FMOD_OK); \
-	}
+#ifdef ERM_DEBUG
+#define ERM_CHECK_FMOD_RESULT(CALL) \
+{                                   \
+	const auto result = CALL;       \
+	ERM_ASSERT(result == FMOD_OK);  \
+}
 #else
-#define ERM_CHECK_FMOD_RESULT(CALL)    \
-	{                                  \
-		const auto result = CALL;      \
-		ERM_UNUSED(result);            \
-	}
+#define ERM_CHECK_FMOD_RESULT(CALL) \
+{                                   \
+	CALL;                           \
+}
 #endif

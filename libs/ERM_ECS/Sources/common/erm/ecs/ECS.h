@@ -3,6 +3,7 @@
 #include "erm/ecs/ECSConfig.h"
 #include "erm/ecs/EntityId.h"
 
+#include <erm/utils/assert/Assert.h>
 #include <erm/utils/Utils.h>
 
 #include <array>
@@ -35,7 +36,7 @@ public:
 	template<typename T>
 	T& addSystem()
 	{
-		if (ERM_EXPECT(mSystems.size() <= T::SYSTEM_ID || mSystems[T::SYSTEM_ID] == nullptr, "Trying to add a system twice"))
+		if (ERM_EXPECT_DESCR(mSystems.size() <= T::SYSTEM_ID || mSystems[T::SYSTEM_ID] == nullptr, "Trying to add a system twice"))
 		{
 			mSystems.resize(std::max(static_cast<int>(mSystems.size()), static_cast<int>(T::SYSTEM_ID + 1)));
 			mSystems[T::SYSTEM_ID] = std::make_unique<T>(*this);

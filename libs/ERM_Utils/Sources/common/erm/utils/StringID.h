@@ -2,7 +2,7 @@
 
 #include <erm/math/Types.h>
 
-#ifndef NDEBUG
+#ifdef ERM_DEBUG
 #include <string>
 #endif
 #include <string_view>
@@ -39,7 +39,7 @@ public:
 		return mHash != INVALID.mHash;
 	}
 	
-#ifndef NDEBUG
+#ifdef ERM_DEBUG
 	inline const std::string& getDebugString() const
 	{
 		return mDebugString;
@@ -48,7 +48,7 @@ public:
 	
 private:
 	u64 mHash;
-#ifndef NDEBUG
+#ifdef ERM_DEBUG
 	std::string mDebugString;
 #endif
 	

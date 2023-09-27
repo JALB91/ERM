@@ -10,5 +10,6 @@ target_link_libraries(
 	"${PROJECT_NAME}"
 	PUBLIC
 		$<$<BOOL:${ERM_TRACY_ENABLED}>:Tracy::TracyClient>
+		magic_enum
 		ERM_Math
 )

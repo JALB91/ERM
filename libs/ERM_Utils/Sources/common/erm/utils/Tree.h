@@ -110,7 +110,7 @@ public:
 
 	void addChild(Child&& node)
 	{
-#if !defined(NDEBUG)
+#if !defined(ERM_DEBUG)
 		const Tree& root = getRoot();
 		node.forEachDo([&root](const Tree& node) {
 			ERM_ASSERT(root.find(node.getId()) == nullptr);
