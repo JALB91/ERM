@@ -18,7 +18,7 @@ class Logger
 public:
 	Logger() noexcept;
 
-	void log(std::string_view str, std::scoped_lock<std::mutex>&& lock);
+	void log(std::string_view str, std::scoped_lock<std::mutex>&& lock, LogLevel logLevel = LogLevel::INFO);
 	
 	void log(std::string_view str)
 	{
@@ -43,17 +43,9 @@ public:
 			return;
 		}
 
-		mLogStr.format(
-			"[%s] - (%s, %s:%d) - ", 
-			magic_enum::enum_name(logLevel).data(), 
-			function, 
-			file, 
-			line
-		);
+		buildLogString(logLevel, function, file, line);
 
-		log(mLogStr, std::move(lock));
-
-		handleLogLevel(logLevel);
+		log(mLogStr, std::move(lock), logLevel);
 	}
 
 	void log(LogLevel logLevel, const char* const function, const char* const file, int line, std::string_view msg)
@@ -64,17 +56,11 @@ public:
 			return;
 		}
 
-		mLogStr.format(
-			"[%s] - (%s, %s:%d) - ",
-			magic_enum::enum_name(logLevel).data(),
-			function,
-			file,
-			line);
+		buildLogString(logLevel, function, file, line);
+		mLogStr += " - ";
 		mLogStr += msg;
 
-		log(mLogStr, std::move(lock));
-
-		handleLogLevel(logLevel);
+		log(mLogStr, std::move(lock), logLevel);
 	}
 
 	void log(LogLevel logLevel, const char* const function, const char* const file, int line, const char* const fmt, auto... args)
@@ -85,35 +71,33 @@ public:
 			return;
 		}
 
-		mLogStr.format(
-			"[%s] - (%s, %s:%d) - ", 
-			magic_enum::enum_name(logLevel).data(), 
-			function, 
-			file, 
-			line
-		);
+		buildLogString(logLevel, function, file, line);
+		mLogStr += " - ";
 		mLogStr.append(fmt, args...);
 
-		log(mLogStr, std::move(lock));
-
-		handleLogLevel(logLevel);
+		log(mLogStr, std::move(lock), logLevel);
 	}
 
 	void addOutStream(std::ostream& stream);
 	void removeOutStream(std::ostream& stream);
-	void setIndentSize(u16 indentSize);
+
+	void addErrStream(std::ostream& stream);
+	void removeErrStream(std::ostream& stream);
 
 	void indent();
 	void unindent();
 
 private:
+	void buildLogString(LogLevel logLevel, const char* const function, const char* const file, int line);
 	void handleLogLevel(LogLevel logLevel) const;
-	void applyIndent() const;
+	void applyIndent(std::vector<std::ostream*>& streams) const;
+
+	std::vector<std::ostream*>& getStreamsForLogLevel(LogLevel logLevel);
 
 	str1024 mLogStr;
 	std::vector<std::ostream*> mOutStreams;
+	std::vector<std::ostream*> mErrStreams;
 	LogLevel mLogLevel;
-	u16 mIndentSize;
 	u16 mIndent;
 	std::mutex mMutex;
 

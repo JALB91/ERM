@@ -20,7 +20,7 @@ public:
 	
 	static double clockToSeconds(clock_t ticks)
 	{
-		return ticks / static_cast<double>(CLOCKS_PER_SEC);
+		return static_cast<double>(ticks) / static_cast<double>(CLOCKS_PER_SEC);
 	}
 	
 	static double getCurrentTime()

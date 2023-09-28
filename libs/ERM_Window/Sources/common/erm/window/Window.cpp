@@ -69,9 +69,13 @@ namespace erm::internal {
 void focusCallback(GLFWwindow* window, int focused)
 {
 	if (focused)
+	{
 		static_cast<erm::Window*>(glfwGetWindowUserPointer(window))->onFocus();
+	}
 	else
+	{
 		static_cast<erm::Window*>(glfwGetWindowUserPointer(window))->onFocusLost();
+	}
 }
 
 void onMouseButton(GLFWwindow* window, int button, int action, int mods)
@@ -167,7 +171,7 @@ bool Window::init()
 #ifdef ERM_OPENGL
 	if (glewInit() != GLEW_OK)
 	{
-		std::cout << "GLEW initialization failed" << std::endl;
+		ERM_LOG_ERROR("GLEW initialization failed");
 		glfwTerminate();
 		return false;
 	}

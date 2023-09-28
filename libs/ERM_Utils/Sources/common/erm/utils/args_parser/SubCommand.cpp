@@ -1,7 +1,6 @@
 #include "erm/utils/args_parser/SubCommand.h"
 
 #include "erm/utils/assert/Assert.h"
-#include "erm/utils/log/Log.h"
 #include "erm/utils/Utils.h"
 
 #include <algorithm>
@@ -18,93 +17,69 @@ SubCommand::SubCommand(std::string_view name)
 	mHelpArg.mDescription = "Print help message";
 }
 
-bool SubCommand::parse(std::span<str128> args)
+SubCommand* SubCommand::parse(std::span<str128> args)
 {
 	const size_t posArgsSize = mPositionalArgs.size();
 
-	if (!verify(args.size() >= posArgsSize, "Invalid number of arguments"))
+	if (!verify(args.size() >= posArgsSize, "Invalid number of positional arguments, expected %d", posArgsSize))
 	{
-		return false;
+		return nullptr;
 	}
 
 	size_t posArgIndex = 0;
 
 	for (size_t index = 0; index < args.size(); ++index)
 	{
-		const str128& arg = args[index];
-		if (arg == "-h" || arg == "--help")
+		const auto& arg = args[index];
+		if (arg.startsWith("-"))
 		{
-			printHelp();
-			return true;
-		}
-		else if (arg.startsWith("-"))
-		{
-			const bool isNamedForm = arg.startsWith("--");
-			const auto argName = arg.substr(isNamedForm + 1, arg.size() - (isNamedForm + 1));
-			const auto it = std::find_if(mOptionalArgs.begin(), mOptionalArgs.end(), [&argName, &isNamedForm](const OptionalArg& opt) {
-				if (isNamedForm)
-				{
-					return opt.mNamedForm.has_value() && opt.mNamedForm.value() == argName;
-				}
-				else
-				{
-					return argName.size() == 1 && opt.mShortForm.has_value() && opt.mShortForm.value() == argName.at(0);
-				}
-			});
-
-			if (!verify(it != mOptionalArgs.end(), "Invalid argument detected"))
+			if (!verify(posArgIndex == 0, "Cannot specify optional argument \"%s\" after a positional one", arg))
 			{
-				return false;
+				return nullptr;
 			}
 
-			auto& optArg = *it;
-
-			switch (optArg.mValueType)
+			if (arg == "-h" || arg == "--help")
 			{
-				case ArgValueType::STRING:
+				printHelp();
+				return nullptr;
+			}
+
+			if (!parseOptArg(args, index))
+			{
+				return nullptr;
+			}
+			continue;
+		}
+		else if (index == 0)
+		{
+			for (auto& cmd : mSubCommands)
+			{
+				if (cmd.getName() == arg)
 				{
-					if (!verify(++index < args.size(), "Expected argument value"))
-					{
-						return false;
-					}
-					optArg.mValue = args[index];
-					break;
-				}
-				case ArgValueType::NUMBER:
-				{
-					if (!verify(++index < args.size(), "Expected argument value"))
-					{
-						return false;
-					}
-					optArg.mValue = static_cast<i64>(std::atoi(args[index].data()));
-					break;
-				}
-				case ArgValueType::BOOL:
-				{
-					optArg.mValue = true;
-					break;
+					return cmd.parse(std::span(args.begin() + 1, args.size() - 1));
 				}
 			}
 		}
-		else if (verify(posArgIndex < posArgsSize, "Unexpected input parameter"))
+		
+		if (verify(posArgIndex < posArgsSize, "Unexpected input parameter: %s", arg))
 		{
 			auto& posArg = mPositionalArgs[posArgIndex++];
 			switch (posArg.mValueType)
 			{
 				case ArgValueType::STRING:
 				{
-					if (!verify(index <= args.size(), "Expected argument value"))
+					if (!verify(index <= args.size(), "Expected value for argument \"%s\"", posArg.mName))
 					{
-						return false;
+						return nullptr;
 					}
 					posArg.mValue = args[index];
 					break;
 				}
 				case ArgValueType::NUMBER:
 				{
-					if (!verify(index <= args.size(), "Expected argument value"))
+					if (!verify(index <= args.size(), "Expected value for argument \"%s\"", posArg.mName))
 					{
-						return false;
+						return nullptr;
 					}
 					posArg.mValue = static_cast<i64>(std::atoi(args[index].data()));
 					break;
@@ -118,9 +93,72 @@ bool SubCommand::parse(std::span<str128> args)
 		}
 	}
 
-	return std::all_of(mPositionalArgs.begin(), mPositionalArgs.end(), [](const PositionalArg& arg) {
-		return arg.mValue.has_value();
+	if (!verify(posArgIndex == posArgsSize, "Invalid number of positional arguments"))
+	{
+		return nullptr;
+	}
+
+	return this;
+}
+
+bool SubCommand::parseOptArg(std::span<str128> args, size_t& index)
+{
+	const auto& arg = args[index];
+	const bool isNamedForm = arg.startsWith("--");
+	const auto argName = arg.substr(isNamedForm + 1, arg.size() - (isNamedForm + 1));
+	const auto it = std::find_if(mOptionalArgs.begin(), mOptionalArgs.end(), [&argName, &isNamedForm](const OptionalArg& opt) {
+		if (isNamedForm)
+		{
+			return opt.mNamedForm.has_value() && opt.mNamedForm.value() == argName;
+		}
+		else if (!isNamedForm)
+		{
+			return argName.size() == 1 && opt.mShortForm.has_value() && opt.mShortForm.value() == argName.at(0);
+		}
+
+		return false;
 	});
+
+	if (!verify(it != mOptionalArgs.end(), "Invalid argument detected: %s", arg))
+	{
+		return false;
+	}
+
+	auto& optArg = *it;
+
+	if (!verify(!optArg.mValue.has_value(), "Optional argument \"%s\" have been called twice", arg))
+	{
+		return false;
+	}
+
+	switch (optArg.mValueType)
+	{
+		case ArgValueType::STRING:
+		{
+			if (!verify(++index < args.size(), "Expected value for argument \"%s\"", arg))
+			{
+				return false;
+			}
+			optArg.mValue = args[index];
+			break;
+		}
+		case ArgValueType::NUMBER:
+		{
+			if (!verify(++index < args.size(), "Expected value for argument \"%s\"", arg))
+			{
+				return false;
+			}
+			optArg.mValue = static_cast<i64>(std::atoi(args[index].data()));
+			break;
+		}
+		case ArgValueType::BOOL:
+		{
+			optArg.mValue = true;
+			break;
+		}
+	}
+
+	return true;
 }
 
 void SubCommand::setDescription(std::string_view description)
@@ -160,6 +198,21 @@ void SubCommand::setCallback(std::function<void(const SubCommand&)> callback)
 	mCallback = callback;
 }
 
+SubCommand& SubCommand::addSubCommand(std::string_view name)
+{
+	ERM_ASSERT(!name.empty());
+	const auto it = std::find_if(mSubCommands.begin(), mSubCommands.end(), [name](const SubCommand& cmd) {
+		return cmd.getName() == name;
+	});
+
+	if (!ERM_EXPECT(it == mSubCommands.end())) 
+	{
+		return *it;
+	}
+
+	return mSubCommands.emplace_back(name);
+}
+
 void SubCommand::callback() const
 {
 	if (mCallback)
@@ -168,24 +221,23 @@ void SubCommand::callback() const
 	}
 }
 
-bool SubCommand::verify(bool condition, std::string_view error) const
-{
-	if (!condition)
-	{
-		printError(error);
-	}
-
-	return condition;
-}
-
 void SubCommand::printHelp() const
 {
-	str256 logStr;
+	str512 logStr;
 	logStr.format("Usage:\n\t%s [options]", mName);
 
 	for (const auto& posArg : mPositionalArgs)
 	{
 		logStr.append(" <%s>", posArg.mName);
+	}
+
+	if (!mSubCommands.empty())
+	{
+		logStr.append("\n\nSub Commands:");
+		for (const auto& cmd : mSubCommands)
+		{
+			logStr.append("\n\t%s %s (-h|--help for more info)", mName, cmd.getName());
+		}
 	}
 	
 	ERM_LOG("%s\n\nDescription:\n\t%s\n\nOptions:", logStr, mDescription.value_or("No description available"));
@@ -221,12 +273,6 @@ void SubCommand::printHelp() const
 
 		ERM_LOG_UNINDENT();
 	}
-}
-
-void SubCommand::printError(std::string_view error) const
-{
-	ERM_LOG(error);
-	printHelp();
 }
 
 }

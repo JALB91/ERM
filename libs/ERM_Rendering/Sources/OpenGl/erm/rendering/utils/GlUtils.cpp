@@ -10,7 +10,7 @@ bool GLLogCall(const char* function, const char* file, int line)
 {
 	while (GLenum error = glGetError())
 	{
-		std::cout << "[OpenGL error] (" << error << ") " << function << " " << file << ":" << line << std::endl;
+		ERM_LOG_ERROR("[OpenGL error] (%d) %s %s:%s", error, function, file, line);
 		return false;
 	}
 	return true;

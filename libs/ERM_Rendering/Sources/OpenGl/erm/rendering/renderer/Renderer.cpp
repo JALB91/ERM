@@ -37,8 +37,8 @@ Renderer::Renderer(Engine& engine)
 
 	mRenderContext.SetClearColor(math::vec4(0.25f, 0.25f, 0.25f, 1.0f));
 
-	std::cout << "OpenGL " << glGetString(GL_VERSION) << std::endl;
-	std::cout << "GLSL " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
+	ERM_LOG_INFO("OpenGL %s", glGetString(GL_VERSION));
+	ERM_LOG_INFO("GLSL %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
 }
 
 void Renderer::OnPreRender()

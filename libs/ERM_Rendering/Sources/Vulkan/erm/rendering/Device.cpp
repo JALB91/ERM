@@ -45,12 +45,13 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
 	void* /*pUserData*/
 )
 {
-	if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT || messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
+	if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
 	{
-		std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
-#if defined(ERM_WINDOWS) && !defined(ERM_DEBUG)
-		__debugbreak();
-#endif
+		ERM_LOG_WARNING("[Vulkan] Validation layer: %s", pCallbackData->pMessage);
+	}
+	else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
+	{
+		ERM_LOG_ERROR("[Vulkan] Validation layer: %s", pCallbackData->pMessage);
 	}
 	return VK_FALSE;
 }
@@ -144,14 +145,14 @@ bool Device::createInstance()
 	std::vector<vk::ExtensionProperties> extensions;
 	ERM_VK_CHECK_AND_ASSIGN(extensions, vk::enumerateInstanceExtensionProperties());
 
-	std::cout << extensions.size() << " Instance extensions supported" << std::endl;
+	ERM_LOG_INFO("%d Instance extensions supported:", extensions.size());
 
+	ERM_LOG_INDENT();
 	for (const auto& extension : extensions)
 	{
-		std::cout << "\t" << extension.extensionName << std::endl;
+		ERM_LOG_INFO(extension.extensionName);
 	}
-
-	std::cout << std::endl;
+	ERM_LOG_UNINDENT();
 
 	for (u32 i = 0; i < glfwExtensionCount; ++i)
 	{
@@ -192,12 +193,14 @@ bool Device::createInstance()
 	std::vector<vk::LayerProperties> availableLayers;
 	ERM_VK_CHECK_AND_ASSIGN(availableLayers, vk::enumerateInstanceLayerProperties());
 
-	std::cout << availableLayers.size() << " Layers supported" << std::endl;
+	ERM_LOG_INFO("\n%d Layers supported:", availableLayers.size());
 
+	ERM_LOG_INDENT();
 	for (const auto& layer : availableLayers)
 	{
-		std::cout << "\t" << layer.layerName << std::endl;
+		ERM_LOG_INFO(layer.layerName);
 	}
+	ERM_LOG_UNINDENT();
 
 	for (const char* layerName : kValidationLayers)
 	{
@@ -232,7 +235,7 @@ bool Device::createInstance()
 
 void Device::setupDebugMessenger()
 {
-#ifndef cDEBUG
+#ifdef ERM_DEBUG
 	VkDebugUtilsMessengerCreateInfoEXT debugMessengerInfo = {};
 	populateDebugMessengerCreateInfo(debugMessengerInfo);
 
@@ -299,11 +302,13 @@ void Device::createLogicalDevice()
 	vkEnumerateDeviceExtensionProperties(mPhysicalDevice, nullptr, &count, extensionProperties.data());
 	extensionProperties.resize(std::min(extensionProperties.size(), static_cast<size_t>(count)));
 
-	std::cout << count << " Available device extensions" << std::endl;
+	ERM_LOG_INFO("%d Available device extensions:", count);
+	ERM_LOG_INDENT();
 	for (const VkExtensionProperties& prop : extensionProperties)
 	{
-		std::cout << "\t" << prop.extensionName << std::endl;
+		ERM_LOG_INFO(prop.extensionName);
 	}
+	ERM_LOG_UNINDENT();
 
 	vk::PhysicalDeviceFeatures2 features2 = {};
 	features2.features.samplerAnisotropy = VK_TRUE;

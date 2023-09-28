@@ -20,15 +20,11 @@ public:
 	SubCommand* parseArgs();
 
 	SubCommand* operator->();
-	SubCommand& addSubCommand(std::string_view name);
-
-	void printHelp() const;
 
 private:
 	std::vector<str128> mArgs;
 
 	std::unique_ptr<SubCommand> mMainCommand;
-	std::vector<SubCommand> mSubCommands;
 
 };
 

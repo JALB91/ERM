@@ -68,8 +68,12 @@ std::string formatTime(u64 seconds) noexcept
 bool hasCommand(const char* const cmd)
 {
 	str128 str(cmd);
-	str += " >> /dev/null";
-	const int result = system(str.data());
+#if defined(ERM_WINDOWS)
+	str += " > NUL 2>&1";
+#else
+	str += " > /dev/null 2>&1";
+#endif
+	const int result = std::system(str.data());
 	return result == EXIT_SUCCESS;
 }
 

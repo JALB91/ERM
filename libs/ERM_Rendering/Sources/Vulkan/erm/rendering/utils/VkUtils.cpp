@@ -550,7 +550,7 @@ bool isDeviceSuitable(vk::PhysicalDevice device, vk::SurfaceKHR surface, const s
 		swapChainAdequate = !swapChainSupport.mFormats.empty() && !swapChainSupport.mPresentModes.empty();
 	}
 
-	std::cout << "Checking compatibility of: " << deviceProperties.deviceName << " -> " << std::boolalpha << (isSuitable && swapChainAdequate) << std::endl;
+	ERM_LOG_INFO("Checking compatibility of: %s -> %s", deviceProperties.deviceName, (isSuitable && swapChainAdequate) ? "true" : "false");
 
 	auto supportedFeatures = device.getFeatures();
 

@@ -30,60 +30,12 @@ ArgsParser::ArgsParser(int argc, char** argv)
 
 SubCommand* ArgsParser::parseArgs()
 {
-	const std::span cmdArgs(mArgs.begin() + 1, mArgs.size() - 1);
-	for (size_t index = 0; index < cmdArgs.size(); ++index)
-	{
-		const auto& arg = cmdArgs[index];
-
-		if (!arg.startsWith('-'))
-		{
-			for (auto& cmd : mSubCommands)
-			{
-				if (cmd.getName() == arg)
-				{
-					return cmd.parse(std::span(cmdArgs.begin() + index + 1, cmdArgs.size() - index - 1)) ? &cmd : nullptr;
-				}
-			}
-		}
-	}
-
-	return mMainCommand->parse(cmdArgs) ? mMainCommand.get() : nullptr;
+	return mMainCommand->parse(std::span(mArgs.begin() + 1, mArgs.size() -1));
 }
 
 SubCommand* ArgsParser::operator->()
 {
 	return mMainCommand.get();
-}
-
-SubCommand& ArgsParser::addSubCommand(std::string_view name)
-{
-	ERM_ASSERT_HARD(!name.empty());
-	return mSubCommands.emplace_back(name);
-}
-
-void ArgsParser::printHelp() const
-{
-	str256 logStr;
-	logStr.format("Usage:\n\t%s", mMainCommand->getName());
-
-	for (size_t i = 0; i < mSubCommands.size(); ++i)
-	{
-		if (i == 0)
-		{
-			logStr += " <";
-		}
-		logStr += mSubCommands[i].getName();
-		if (i == mSubCommands.size() - 1)
-		{
-			logStr += '>';
-		}
-		else
-		{
-			logStr += '|';
-		}
-	}
-
-	ERM_LOG(logStr);
 }
 
 }

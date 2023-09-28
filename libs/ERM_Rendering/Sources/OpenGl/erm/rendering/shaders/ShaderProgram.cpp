@@ -183,7 +183,7 @@ unsigned int ShaderProgram::CompileShader(unsigned int type, const std::string& 
 		char* infoLog = (char*)alloca(lenght * sizeof(char));
 		GL_CALL(glGetShaderInfoLog(id, lenght, &lenght, infoLog));
 
-		std::cout << infoLog << std::endl;
+		ERM_LOG_INFO(infoLog);
 
 		GL_CALL(glDeleteShader(id));
 
@@ -234,7 +234,7 @@ int ShaderProgram::GetUniformLocation(const std::string& name)
 		}
 	}
 
-	std::cout << "Uniform location not found" << std::endl;
+	ERM_LOG_WARNING("Uniform location not found");
 
 	return -1;
 }

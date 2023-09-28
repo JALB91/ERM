@@ -2,6 +2,7 @@
 
 #include "erm/utils/args_parser/OptionalArg.h"
 #include "erm/utils/args_parser/PositionalArg.h"
+#include "erm/utils/log/Log.h"
 
 #include <functional>
 #include <span>
@@ -14,12 +15,13 @@ class SubCommand
 public:
 	SubCommand(std::string_view name);
 
-	bool parse(std::span<str128> args);
+	SubCommand* parse(std::span<str128> args);
 
 	void setDescription(std::string_view description);
 	void addOptionalArg(OptionalArg&& arg);
 	void addPositionalArg(std::string_view name, ArgValueType type, std::optional<std::string>&& description = std::nullopt);
 	void setCallback(std::function<void(const SubCommand&)> callback);
+	SubCommand& addSubCommand(std::string_view name);
 
 	inline const std::vector<PositionalArg>& getPositionalArgs() const
 	{
@@ -37,8 +39,17 @@ public:
 	void printHelp() const;
 
 private:
-	bool verify(bool condition, std::string_view error) const;
-	void printError(std::string_view error) const;
+	bool parseOptArg(std::span<str128> args, size_t& index);
+	bool verify(bool condition, const char* const fmt, auto... args) const
+	{
+		if (!condition)
+		{
+			ERM_LOG(fmt, args...);
+			printHelp();
+		}
+
+		return condition;
+	}
 
 	str128 mName;
 	OptionalArg mHelpArg;
@@ -46,6 +57,8 @@ private:
 	std::vector<OptionalArg> mOptionalArgs;
 	std::vector<PositionalArg> mPositionalArgs;
 	std::function<void(const SubCommand&)> mCallback;
+
+	std::vector<SubCommand> mSubCommands;
 
 };
 
