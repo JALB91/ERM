@@ -53,9 +53,10 @@ void Renderer::preRender()
 		recreateSwapChain();
 		return;
 	}
-	else if (result != vk::Result::eSuccess && result != vk::Result::eSuboptimalKHR)
+	else if (!ERM_EXPECT(result == vk::Result::eSuccess || result == vk::Result::eSuboptimalKHR))
 	{
-		ERM_ASSERT_HARD(false);
+		ERM_LOG_ERROR("[Vulkan] vk::Device::acquireNextImageKHR failed with result: %s", magic_enum::enum_name(result).data());
+		return;
 	}
 
 	// Check if a previous frame is using this image (i.e. there is its fence to wait on)
@@ -150,9 +151,10 @@ void Renderer::postRender()
 		mFramebufferResized = false;
 		recreateSwapChain();
 	}
-	else if (result != vk::Result::eSuccess)
+	else if (!ERM_EXPECT(result == vk::Result::eSuccess))
 	{
-		ERM_ASSERT_HARD(false);
+		ERM_LOG_ERROR("[Vulkan] vk::Queue::presentKHR failed with result: %s", magic_enum::enum_name(result).data());
+		return;
 	}
 
 	mCurrentFrame = (mCurrentFrame + 1) % kMaxFramesInFlight;
