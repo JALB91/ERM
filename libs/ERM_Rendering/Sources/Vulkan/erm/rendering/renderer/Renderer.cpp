@@ -17,6 +17,7 @@
 
 #include <erm/window/Window.h>
 
+#include <erm/utils/log/Log.h>
 #include <erm/utils/Profiler.h>
 #include <erm/utils/Utils.h>
 
