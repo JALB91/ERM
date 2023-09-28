@@ -90,11 +90,11 @@ void Logger::handleLogLevel(LogLevel logLevel) const
 
 void Logger::applyIndent() const
 {
-	for (auto* outStream : mOutStreams)
+	for (u16 indent = 0; indent < mIndent; ++indent)
 	{
-		for (u16 indent = 0; indent < mIndent * mIndentSize; ++indent)
+		for (auto* outStream : mOutStreams)
 		{
-			*outStream << ' ';
+			*outStream << '\t';
 		}
 	}
 }
