@@ -22,6 +22,7 @@ namespace erm::utils {
 extern void writeToFile(std::string_view path, std::string_view data);
 extern std::string readFromFile(std::string_view path);
 extern std::string formatTime(u64 seconds) noexcept;
+extern bool hasCommand(const char* const cmd);
 
 inline constexpr std::vector<std::string_view> splitString(std::string_view str, char ch) noexcept
 {

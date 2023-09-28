@@ -65,6 +65,14 @@ std::string formatTime(u64 seconds) noexcept
 	return result;
 }
 
+bool hasCommand(const char* const cmd)
+{
+	str128 str(cmd);
+	str += " >> /dev/null";
+	const int result = system(str.data());
+	return result == EXIT_SUCCESS;
+}
+
 static_assert(charToUpper('a') == 'A');
 static_assert(charToUpper('B') == 'B');
 static_assert(charToLower('C') == 'c');
