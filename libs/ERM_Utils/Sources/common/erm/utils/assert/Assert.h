@@ -4,24 +4,15 @@
 
 #include <assert.h>
 
-#define ERM_ASSERT(x)                                                                 \
+#define ERM_EXPECT(x, ...) erm::internal::_logCall(erm::LogLevel::WARNING, (x), #x, __FILE__, __LINE__ __VA_OPT__(, ) __VA_ARGS__)
+#define ERM_ASSERT(x, ...)                                                                 \
 	{                                                                                 \
-		erm::internal::_logCall(erm::LogLevel::ERROR, (x), #x, __FILE__, __LINE__); \
+		erm::internal::_logCall(erm::LogLevel::ERROR, (x), #x, __FILE__, __LINE__ __VA_OPT__(, ) __VA_ARGS__); \
 	}
-#define ERM_ASSERT_DESCR(x, fmt, ...)                                                                 \
+#define ERM_ASSERT_HARD(x, ...)                                                             \
 	{                                                                                                 \
-		erm::internal::_logCall(erm::LogLevel::ERROR, (x), #x, __FILE__, __LINE__, fmt, __VA_ARGS__); \
+		erm::internal::_logCall(erm::LogLevel::CRITICAL, (x), #x, __FILE__, __LINE__ __VA_OPT__(, ) __VA_ARGS__); \
 	}
-#define ERM_ASSERT_HARD(x)                                                          \
-	{                                                                               \
-		erm::internal::_logCall(erm::LogLevel::CRITICAL, (x), #x, __FILE__, __LINE__); \
-	}
-#define ERM_ASSERT_HARD_DESCR(x, fmt, ...)                                                             \
-	{                                                                                                 \
-		erm::internal::_logCall(erm::LogLevel::CRITICAL, (x), #x, __FILE__, __LINE__, fmt, __VA_ARGS__); \
-	}
-#define ERM_EXPECT(x)				  erm::internal::_logCall(erm::LogLevel::WARNING, (x), #x, __FILE__, __LINE__)
-#define ERM_EXPECT_DESCR(x, fmt, ...) erm::internal::_logCall(erm::LogLevel::WARNING, (x), #x, __FILE__, __LINE__, fmt, __VA_ARGS__)
 
 namespace erm::internal {
 

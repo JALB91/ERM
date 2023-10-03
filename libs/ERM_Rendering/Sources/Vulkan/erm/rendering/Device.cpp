@@ -100,14 +100,14 @@ namespace erm {
 Device::Device(GLFWwindow* window)
 	: mWindow(window)
 {
-	ERM_ASSERT_DESCR(createInstance(), "Failed to create Vulkan instance");
+	ERM_ASSERT(createInstance(), "Failed to create Vulkan instance");
 	setupDebugMessenger();
-	ERM_ASSERT_DESCR(createSurface(), "Failed to create Vulkan surface");
-	ERM_ASSERT_DESCR(pickPhysicalDevice(), "Failed to find a suitable physical device");
+	ERM_ASSERT(createSurface(), "Failed to create Vulkan surface");
+	ERM_ASSERT(pickPhysicalDevice(), "Failed to find a suitable physical device");
 	createLogicalDevice();
 	createCommandPool();
 #ifdef ERM_RAY_TRACING_ENABLED
-	ERM_ASSERT_DESCR(initRayTracing(), "Ray tracing not supported");
+	ERM_ASSERT(initRayTracing(), "Ray tracing not supported");
 #endif
 	load_VK_EXTENSION_SUBSET(
 		mInstance.get(),
