@@ -8,21 +8,24 @@
 namespace erm {
 
 PositionalArg::PositionalArg(
-	u32 index,
 	std::string_view name,
 	ArgValueType valueType,
-	std::optional<std::string>&& description /* = std::nullopt */) noexcept
-	: mIndex(index)
-	, mName(name)
+	std::string_view description /* = "No description provided" */)
+	: mName(name)
 	, mValueType(valueType)
-	, mDescription(std::move(description))
+	, mDescription(description)
 {
 	ERM_ASSERT_HARD(!mName.empty());
 }
 
 void PositionalArg::print() const
 {
-	ERM_LOG("<%s>: %s", mName, mDescription.value_or("No description provided").data());
+	ERM_LOG("<%s>: %s", mName, mDescription.data());
+}
+
+void PositionalArg::setValue(ArgValue&& value)
+{
+	mValue = std::move(value);
 }
 
 }

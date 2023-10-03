@@ -13,13 +13,15 @@ namespace erm {
 class SubCommand
 {
 public:
+	SubCommand();
 	SubCommand(std::string_view name);
 
 	SubCommand* parse(std::span<str128> args);
 
+	void setName(std::string_view name);
 	void setDescription(std::string_view description);
 	void addOptionalArg(OptionalArg&& arg);
-	void addPositionalArg(std::string_view name, ArgValueType type, std::optional<std::string>&& description = std::nullopt);
+	void addPositionalArg(PositionalArg&& arg);
 	void setCallback(std::function<void(const SubCommand&)> callback);
 	SubCommand& addSubCommand(std::string_view name);
 

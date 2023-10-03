@@ -3,27 +3,61 @@
 #include "erm/utils/args_parser/ArgValue.h"
 #include "erm/utils/args_parser/ArgValueType.h"
 
+#include <optional>
+
 namespace erm {
 
-struct OptionalArg
+class OptionalArg
 {
-	OptionalArg(ArgValueType valueType, char shortForm) noexcept;
-	OptionalArg(ArgValueType valueType, str128 namedForm) noexcept;
-	OptionalArg(ArgValueType valueType, char shortForm, str128 namedForm) noexcept;
+public:
+	OptionalArg(ArgValueType valueType, char shortForm, str64 namedForm, ArgValue defaultValue);
+	OptionalArg(ArgValueType valueType, str64 namedForm, ArgValue defaultValue);
+	OptionalArg(ArgValueType valueType, char shortForm, ArgValue defaultValue);
 
-	bool operator==(const OptionalArg& other) const noexcept;
+	bool operator==(const OptionalArg& other) const;
+	bool operator==(std::string_view str) const;
+	bool operator==(char ch) const;
+
+	inline ArgValueType getValueType() const
+	{
+		return mValueType;
+	}
+
+	inline const std::optional<ArgValue>& getValue() const
+	{
+		return mValue;
+	}
+
+	inline const ArgValue& getDefaultValue() const
+	{
+		return mDefaultValue;
+	}
+
+	inline const std::optional<char>& getShortForm() const
+	{
+		return mShortForm;
+	}
+
+	inline const std::optional<str64> getNamedForm() const
+	{
+		return mNamedForm;
+	}
+	
+	void setValue(ArgValue&& value);
+	void setDescription(std::string_view description);
 
 	void print(u16 maxNamedFormLength) const;
 
+private:
 	const ArgValueType mValueType;
 
 	const std::optional<char> mShortForm;
-	const std::optional<str128> mNamedForm;
+	const std::optional<str64> mNamedForm;
 
-	ArgValue mValue;
-	ArgValue mDefaultValue;
+	std::optional<ArgValue> mValue;
+	const ArgValue mDefaultValue;
 
-	std::optional<std::string> mDescription;
+	std::string mDescription;
 };
 
 }

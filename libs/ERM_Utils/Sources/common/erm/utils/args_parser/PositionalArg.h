@@ -10,21 +10,38 @@
 
 namespace erm {
 
-struct PositionalArg
+class PositionalArg
 {
+public:
 	PositionalArg(
-		u32 index,
 		std::string_view name,
 		ArgValueType valueType,
-		std::optional<std::string>&& description = std::nullopt) noexcept;
+		std::string_view description = "No description provided");
 
 	void print() const;
 
-	u32 mIndex;
-	str128 mName;
-	ArgValueType mValueType;
+	inline ArgValueType getValueType() const
+	{
+		return mValueType;
+	}
+
+	inline const ArgValue& getValue() const
+	{
+		return mValue;
+	}
+
+	inline const str128& getName() const
+	{
+		return mName;
+	}
+
+	void setValue(ArgValue&& value);
+
+private:
+	const str128 mName;
+	const ArgValueType mValueType;
+	const std::string mDescription;
 	ArgValue mValue;
-	std::optional<std::string> mDescription;
 };
 
 }
