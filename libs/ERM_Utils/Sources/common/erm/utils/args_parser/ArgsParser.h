@@ -16,7 +16,7 @@ public:
 	SubCommand* operator->();
 
 private:
-	std::vector<str128> mArgs;
+	std::vector<str64> mArgs;
 	SubCommand mMainCommand;
 
 };

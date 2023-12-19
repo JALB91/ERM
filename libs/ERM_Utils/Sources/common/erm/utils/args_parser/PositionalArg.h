@@ -30,7 +30,7 @@ public:
 		return mValue;
 	}
 
-	inline const str128& getName() const
+	inline const str32& getName() const
 	{
 		return mName;
 	}
@@ -38,7 +38,7 @@ public:
 	void setValue(ArgValue&& value);
 
 private:
-	const str128 mName;
+	const str32 mName;
 	const ArgValueType mValueType;
 	const std::string mDescription;
 	ArgValue mValue;

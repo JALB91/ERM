@@ -9,21 +9,19 @@
 namespace erm {
 
 SubCommand::SubCommand()
-	: mHelpArg(ArgValueType::BOOL, 'h', "help", false)
-{
-	mHelpArg.setDescription("Print help message");
-}
+	: mDescription("No description provided")
+	, mHelpArg('h', "help", false, "Print help message")
+{}
 
-SubCommand::SubCommand(std::string_view name)
+SubCommand::SubCommand(std::string_view name, std::string_view description)
 	: mName(name)
-	, mHelpArg(ArgValueType::BOOL, 'h', "help", false)
+	, mDescription(description)
+	, mHelpArg('h', "help", false, "Print help message")
 {
-	ERM_ASSERT(!mName.empty());
-
-	mHelpArg.setDescription("Print help message");
+	ERM_ASSERT(!mName.empty() && !mDescription.empty());
 }
 
-SubCommand* SubCommand::parse(std::span<str128> args)
+SubCommand* SubCommand::parse(std::span<str64> args)
 {
 	const size_t posArgsSize = mPositionalArgs.size();
 
@@ -106,7 +104,7 @@ SubCommand* SubCommand::parse(std::span<str128> args)
 	return this;
 }
 
-bool SubCommand::parseOptArg(std::span<str128> args, size_t& index)
+bool SubCommand::parseOptArg(std::span<str64> args, size_t& index)
 {
 	const auto& arg = args[index];
 	const bool isNamedForm = arg.startsWith("--");
@@ -218,7 +216,7 @@ void SubCommand::setCallback(std::function<void(const SubCommand&)> callback)
 	mCallback = callback;
 }
 
-SubCommand& SubCommand::addSubCommand(std::string_view name)
+SubCommand& SubCommand::addSubCommand(std::string_view name, std::string_view description /* = "No description provided" */)
 {
 	ERM_ASSERT(!name.empty());
 	const auto it = std::find_if(mSubCommands.begin(), mSubCommands.end(), [name](const SubCommand& cmd) {
@@ -230,7 +228,7 @@ SubCommand& SubCommand::addSubCommand(std::string_view name)
 		return *it;
 	}
 
-	return mSubCommands.emplace_back(name);
+	return mSubCommands.emplace_back(name, description);
 }
 
 void SubCommand::callback() const
@@ -264,7 +262,7 @@ void SubCommand::printHelp() const
 		}
 	}
 
-	ERM_LOG("%s\n\nDescription:\n\t%s\n\nOptions:", logStr, mDescription.value_or("No description available"));
+	ERM_LOG("%s\n\nDescription:\n\t%s\n\nOptions:", logStr, mDescription);
 
 	{
 		ERM_LOG_INDENT();

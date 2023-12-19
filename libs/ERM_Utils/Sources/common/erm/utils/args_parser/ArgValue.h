@@ -8,6 +8,6 @@
 
 namespace erm {
 
-using ArgValue = std::variant<str128, i64, bool>;
+using ArgValue = std::variant<str64, i64, bool>;
 
 }

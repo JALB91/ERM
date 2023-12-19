@@ -7,32 +7,37 @@
 
 namespace erm {
 
-OptionalArg::OptionalArg(ArgValueType valueType, char shortForm, str64 namedForm, ArgValue defaultValue)
-	: mValueType(valueType)
-	, mShortForm(shortForm)
-	, mNamedForm(namedForm)
-	, mDefaultValue(defaultValue)
-	, mDescription("No description provided")
+static ArgValueType getArgValueTypeForArgValue(const ArgValue& argValue)
 {
-	ERM_ASSERT_HARD(std::isalpha(shortForm) && !mNamedForm->empty());
+	if (std::holds_alternative<str64>(argValue))
+	{
+		return ArgValueType::STRING;
+	}
+	else if (std::holds_alternative<i64>(argValue))
+	{
+		return ArgValueType::NUMBER;
+	}
+	else if (std::holds_alternative<bool>(argValue))
+	{
+		return ArgValueType::BOOL;
+	}
+
+	ERM_ASSERT_HARD(false, "Invalid default value for optional argument");
+	return ArgValueType::STRING;
 }
 
-OptionalArg::OptionalArg(ArgValueType valueType, str64 namedForm, ArgValue defaultValue)
-	: mValueType(valueType)
-	, mNamedForm(namedForm)
-	, mDefaultValue(defaultValue)
-	, mDescription("No description provided")
-{
-	ERM_ASSERT_HARD(!mNamedForm->empty());
-}
-
-OptionalArg::OptionalArg(ArgValueType valueType, char shortForm, ArgValue defaultValue)
-	: mValueType(valueType)
+OptionalArg::OptionalArg(
+	std::optional<char> shortForm,
+	std::optional<std::string_view> namedForm, 
+	ArgValue&& defaultValue, 
+	std::string_view description /* = "No description provided" */)
+	: mValueType(getArgValueTypeForArgValue(defaultValue))
 	, mShortForm(shortForm)
-	, mDefaultValue(defaultValue)
-	, mDescription("No description provided")
+	, mNamedForm(namedForm)
+	, mDefaultValue(std::move(defaultValue))
+	, mDescription(description)
 {
-	ERM_ASSERT_HARD(std::isalpha(shortForm));
+	ERM_ASSERT(((shortForm.has_value() && isalpha(shortForm.value())) || (namedForm.has_value() && !namedForm->empty())) && !description.empty());
 }
 
 bool OptionalArg::operator==(const OptionalArg& other) const
@@ -72,12 +77,6 @@ void OptionalArg::setValue(ArgValue&& value)
 	mValue = std::move(value);
 }
 
-void OptionalArg::setDescription(std::string_view description)
-{
-	ERM_ASSERT(!description.empty());
-	mDescription = description;
-}
-
 void OptionalArg::print(u16 maxNamedFormLength) const
 {
 	const u16 numberOfSpaces = maxNamedFormLength - (mNamedForm.has_value() ? mNamedForm->size() : 0);
@@ -94,7 +93,7 @@ void OptionalArg::print(u16 maxNamedFormLength) const
 	switch (mValueType)
 	{
 		case ArgValueType::STRING:
-			logStr.append("%s)", std::get<str128>(mDefaultValue));
+			logStr.append("%s)", std::get<str64>(mDefaultValue));
 			break;
 		case ArgValueType::NUMBER:
 			logStr.append("%d)", std::get<i64>(mDefaultValue));
