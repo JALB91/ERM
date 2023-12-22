@@ -2,6 +2,7 @@
 
 #include <erm/math/Types.h>
 
+#include <charconv>
 #include <memory>
 #include <optional>
 #include <string>
@@ -23,6 +24,22 @@ extern void writeToFile(std::string_view path, std::string_view data);
 extern std::string readFromFile(std::string_view path);
 extern std::string formatTime(u64 seconds) noexcept;
 extern bool hasCommand(const char* const cmd);
+
+template<typename T>
+inline std::optional<T> parseNumber(std::string_view data)
+{
+	T value;
+	const auto result = std::from_chars(data.data(), data.data() + data.size(), value);
+	return result.ec == std::errc() ? std::make_optional(value) : std::nullopt;
+}
+
+#if defined(ERM_MAC)
+template<>
+inline std::optional<float> parseNumber(std::string_view data)
+{
+	return atof(data.data());
+}
+#endif
 
 inline constexpr std::vector<std::string_view> splitString(std::string_view str, char ch) noexcept
 {

@@ -33,12 +33,16 @@ function(erm_gather_sources DIR)
 	set(NN_DATA "")
 	set(ALL_SOURCES "")
 
-	# Gather header and source files
+	# Gather source files
 	file(GLOB_RECURSE CPP_SOURCES
-		"${DIR}/Sources/common/*.h"
-		"${DIR}/Sources/${ERM_TARGET_API}/*.h"
 		"${DIR}/Sources/common/*.cpp"
 		"${DIR}/Sources/${ERM_TARGET_API}/*.cpp"
+	)
+
+	# Gather header files
+	file(GLOB_RECURSE CPP_HEADERS
+		"${DIR}/Sources/common/*.h"
+		"${DIR}/Sources/${ERM_TARGET_API}/*.h"
 	)
 
 	# Gather nn data files
@@ -56,6 +60,7 @@ function(erm_gather_sources DIR)
 	# Remove raytracing files if not enabled
 	if(NOT ERM_RAY_TRACING_ENABLED)
 		list(FILTER CPP_SOURCES EXCLUDE REGEX ".*/ray_tracing/.*")
+		list(FILTER CPP_HEADERS EXCLUDE REGEX ".*/ray_tracing/.*")
 		list(FILTER NN_DATA EXCLUDE REGEX ".*/ray_tracing/.*")
 		list(FILTER NN_STATEMENTS EXCLUDE REGEX ".*/ray_tracing/.*")
 	endif()
@@ -65,14 +70,17 @@ function(erm_gather_sources DIR)
 		string(REGEX REPLACE ".*/${PROJECT_NAME}/" "${ERM_GENERATED_DIR}/${PROJECT_NAME}/" FILE "${FILE}")
 		string(REPLACE "/NN_Data" "" FILE "${FILE}")
 		string(REPLACE ".nn" ".h" NN_GEN_HEADER "${FILE}")
-		string(REPLACE ".nn" ".cpp" NN_GEN_SOURCE "${FILE}")
+		string(REPLACE ".nn" ".cpp" FILES "${FILE}")
 
+		list(APPEND CPP_HEADERS ${NN_GEN_HEADER})
+		list(APPEND CPP_SOURCES ${NN_GEN_SOURCE})
 		list(APPEND NN_GEN_FILES ${NN_GEN_HEADER} ${NN_GEN_SOURCE})
 	endforeach()
 
-	list(APPEND ALL_SOURCES ${CPP_SOURCES} ${NN_DATA} ${NN_STATEMENTS} ${NN_GEN_FILES})
+	list(APPEND ALL_SOURCES ${CPP_SOURCES} ${CPP_HEADERS} ${NN_DATA} ${NN_STATEMENTS} ${NN_GEN_FILES})
 	
 	set(CPP_SOURCES ${CPP_SOURCES} PARENT_SCOPE)
+	set(CPP_HEADERS ${CPP_HEADERS} PARENT_SCOPE)
 	set(NN_DATA ${NN_DATA} PARENT_SCOPE)
 	set(NN_GEN_FILES ${NN_GEN_FILES} PARENT_SCOPE)
 	set(NN_STATEMENTS ${NN_STATEMENTS} PARENT_SCOPE)
@@ -107,7 +115,21 @@ function(erm_setup_custom_commands)
 endfunction()
 
 function(erm_add_library)
-	add_library("${PROJECT_NAME}" ${ALL_SOURCES})
+	if(NOT CPP_SOURCES)
+		add_library("${PROJECT_NAME}" INTERFACE ${ALL_SOURCES})
+		set_target_properties(
+			"${PROJECT_NAME}" 
+			PROPERTIES
+				IS_INTERFACE ON
+		)
+	else()
+		add_library("${PROJECT_NAME}" ${ALL_SOURCES})
+		set_target_properties(
+			"${PROJECT_NAME}" 
+			PROPERTIES
+				IS_INTERFACE OFF
+		)
+	endif()
 endfunction()
 
 function(erm_add_executable)
@@ -115,34 +137,65 @@ function(erm_add_executable)
 endfunction()
 
 function(erm_target_setup_common_defaults)
-	target_include_directories(
-		"${PROJECT_NAME}"
-		PRIVATE
-			${ERM_TARGET_API_INCLUDE_DIR}
-		PUBLIC
-			"${ERM_GENERATED_DIR}/${PROJECT_NAME}"
-			"${CMAKE_CURRENT_SOURCE_DIR}/Sources/common"
-			"${CMAKE_CURRENT_SOURCE_DIR}/Sources/${ERM_TARGET_API}"
-	)
+	get_target_property(IS_INTERFACE "${PROJECT_NAME}" IS_INTERFACE)
+	if(IS_INTERFACE)
+		target_include_directories(
+			"${PROJECT_NAME}"
+			INTERFACE
+				${ERM_TARGET_API_INCLUDE_DIR}
+				"${ERM_GENERATED_DIR}/${PROJECT_NAME}"
+				"${CMAKE_CURRENT_SOURCE_DIR}/Sources/common"
+				"${CMAKE_CURRENT_SOURCE_DIR}/Sources/${ERM_TARGET_API}"
+		)
 
-	target_compile_definitions(
-		"${PROJECT_NAME}"
-		PRIVATE
-			$<$<BOOL:${ERM_VULKAN}>:GLM_FORCE_DEPTH_ZERO_TO_ONE>
-			$<$<BOOL:${ERM_VULKAN}>:IMGUI_DISABLE_OBSOLETE_FUNCTIONS>
-			$<$<BOOL:${ERM_FLIP_PROJECTION}>:ERM_FLIP_PROJECTION>
-			$<$<BOOL:${ERM_FLIP_VIEWPORT}>:ERM_FLIP_VIEWPORT>
-			$<$<BOOL:${ERM_ASSIMP_ENABLED}>:ERM_ASSIMP_ENABLED>
-			$<$<BOOL:${ERM_RAY_TRACING_ENABLED}>:ERM_RAY_TRACING_ENABLED>
-			$<$<BOOL:${ERM_TRACY_ENABLED}>:TRACY_ENABLE>
-			$<$<BOOL:${ERM_OPEN_GL}>:GLEW_STATIC>
-			$<$<BOOL:${ERM_VULKAN}>:ERM_SHADERS_COMPILER="${ERM_SHADERS_COMPILER}">
-			$<$<BOOL:${ERM_VULKAN}>:VULKAN_HPP_NO_EXCEPTIONS>
-			$<$<CONFIG:Debug>:ERM_DEBUG>
-   			$<$<CONFIG:Release>:ERM_RELEASE>
-			SPIRV_CROSS_EXCEPTIONS_TO_ASSERTIONS
-			${ERM_TARGET_API_COMPILE_DEF}
-	)
+		target_compile_definitions(
+			"${PROJECT_NAME}"
+			INTERFACE
+				$<$<BOOL:${ERM_VULKAN}>:GLM_FORCE_DEPTH_ZERO_TO_ONE>
+				$<$<BOOL:${ERM_VULKAN}>:IMGUI_DISABLE_OBSOLETE_FUNCTIONS>
+				$<$<BOOL:${ERM_FLIP_PROJECTION}>:ERM_FLIP_PROJECTION>
+				$<$<BOOL:${ERM_FLIP_VIEWPORT}>:ERM_FLIP_VIEWPORT>
+				$<$<BOOL:${ERM_ASSIMP_ENABLED}>:ERM_ASSIMP_ENABLED>
+				$<$<BOOL:${ERM_RAY_TRACING_ENABLED}>:ERM_RAY_TRACING_ENABLED>
+				$<$<BOOL:${ERM_TRACY_ENABLED}>:TRACY_ENABLE>
+				$<$<BOOL:${ERM_OPEN_GL}>:GLEW_STATIC>
+				$<$<BOOL:${ERM_VULKAN}>:ERM_SHADERS_COMPILER="${ERM_SHADERS_COMPILER}">
+				$<$<BOOL:${ERM_VULKAN}>:VULKAN_HPP_NO_EXCEPTIONS>
+				$<$<CONFIG:Debug>:ERM_DEBUG>
+				$<$<CONFIG:Release>:ERM_RELEASE>
+				SPIRV_CROSS_EXCEPTIONS_TO_ASSERTIONS
+				${ERM_TARGET_API_COMPILE_DEF}
+		)
+	else()
+		target_include_directories(
+			"${PROJECT_NAME}"
+			PRIVATE
+				${ERM_TARGET_API_INCLUDE_DIR}
+			PUBLIC
+				"${ERM_GENERATED_DIR}/${PROJECT_NAME}"
+				"${CMAKE_CURRENT_SOURCE_DIR}/Sources/common"
+				"${CMAKE_CURRENT_SOURCE_DIR}/Sources/${ERM_TARGET_API}"
+		)
+
+		target_compile_definitions(
+			"${PROJECT_NAME}"
+			PRIVATE
+				$<$<BOOL:${ERM_VULKAN}>:GLM_FORCE_DEPTH_ZERO_TO_ONE>
+				$<$<BOOL:${ERM_VULKAN}>:IMGUI_DISABLE_OBSOLETE_FUNCTIONS>
+				$<$<BOOL:${ERM_FLIP_PROJECTION}>:ERM_FLIP_PROJECTION>
+				$<$<BOOL:${ERM_FLIP_VIEWPORT}>:ERM_FLIP_VIEWPORT>
+				$<$<BOOL:${ERM_ASSIMP_ENABLED}>:ERM_ASSIMP_ENABLED>
+				$<$<BOOL:${ERM_RAY_TRACING_ENABLED}>:ERM_RAY_TRACING_ENABLED>
+				$<$<BOOL:${ERM_TRACY_ENABLED}>:TRACY_ENABLE>
+				$<$<BOOL:${ERM_OPEN_GL}>:GLEW_STATIC>
+				$<$<BOOL:${ERM_VULKAN}>:ERM_SHADERS_COMPILER="${ERM_SHADERS_COMPILER}">
+				$<$<BOOL:${ERM_VULKAN}>:VULKAN_HPP_NO_EXCEPTIONS>
+				$<$<CONFIG:Debug>:ERM_DEBUG>
+				$<$<CONFIG:Release>:ERM_RELEASE>
+				SPIRV_CROSS_EXCEPTIONS_TO_ASSERTIONS
+				${ERM_TARGET_API_COMPILE_DEF}
+		)
+	endif()
 
 	set_target_properties(
 		"${PROJECT_NAME}"
@@ -174,8 +227,7 @@ function(erm_setup_executable)
 	erm_target_setup_common_defaults()
 endfunction()
 
-# Using a macro in order to inherit the PROJECT_NAME variable
-# from the calling site
+# Using macros in order to inherit the PROJECT_NAME variable from the calling site
 macro(erm_library_project VERSION DESCRIPTION)
 	get_filename_component(DIR_NAME "${CMAKE_CURRENT_SOURCE_DIR}" NAME)
 	project(
@@ -187,8 +239,6 @@ macro(erm_library_project VERSION DESCRIPTION)
 	erm_setup_library()
 endmacro()
 
-# Using a macro in order to inherit the PROJECT_NAME variable
-# from the calling site
 macro(erm_executable_project VERSION DESCRIPTION)
 	get_filename_component(DIR_NAME "${CMAKE_CURRENT_SOURCE_DIR}" NAME)
 	project(

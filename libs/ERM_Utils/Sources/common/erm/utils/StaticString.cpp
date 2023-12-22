@@ -53,4 +53,7 @@ static_assert(str16("  CIAO").trim() == "CIAO");
 static_assert(str16("CIAO ").trim() == "CIAO");
 static_assert(str16("                  ").trim() == "");
 
+static_assert(str16("IoNonSo").toUpper() == "IONONSO", "");
+static_assert(str16("IoNonSo").toLower() == "iononso", "");
+
 }

@@ -16,22 +16,26 @@ class StaticString
 public:
 	using size_type = decltype(SIZE);
 	
-	static_assert(SIZE > 0);
+	static_assert(SIZE > 1);
 	static_assert(sizeof(size_type) <= sizeof(size_t));
 	
 	static constexpr size_type npos = std::numeric_limits<size_type>::max();
 
 public:
-	constexpr StaticString(char ch = '\0') noexcept
+	constexpr StaticString(char ch = '\0', u16 count = 1) noexcept
+		: mStr{'\0'}
 	{
-		mStr[0] = ch;
+		for (u16 i = 0; i < count; ++i)
+		{
+			mStr[i] = ch;
+		}
 	}
 
 	constexpr StaticString(const char* const str) noexcept
+		: mStr{'\0'}
 	{
 		if (str == nullptr)
 		{
-			clear();
 			return;
 		}
 
@@ -43,10 +47,10 @@ public:
 			mStr[index] = str[index];
 			++index;
 		}
-		mStr[index] = '\0';
 	}
 
 	constexpr StaticString(std::string_view str) noexcept
+		: mStr{'\0'}
 	{
 		const size_t strSize = str.size();
 		const size_t copySize = std::min(static_cast<size_t>(SIZE - 1), strSize);
@@ -56,22 +60,21 @@ public:
 			mStr[index] = str[index];
 			++index;
 		}
-		mStr[index] = '\0';
 	}
 
 	constexpr StaticString& operator=(char c) noexcept
 	{
-		static_assert(SIZE > 1);
+		clear();
 		mStr[0] = c;
-		mStr[1] = '\0';
 		return *this;
 	}
 
 	constexpr StaticString& operator=(const char* const str) noexcept
 	{
+		clear();
+		
 		if (str == nullptr)
 		{
-			clear();
 			return *this;
 		}
 
@@ -82,12 +85,13 @@ public:
 			mStr[index] = str[index];
 			++index;
 		}
-		mStr[index] = '\0';
 		return *this;
 	}
 
 	constexpr StaticString& operator=(std::string_view str) noexcept
 	{
+		clear();
+		
 		const size_t copySize = std::min(static_cast<size_t>(SIZE - 1), str.size());
 		size_t index = 0;
 		while (index < copySize)
@@ -95,7 +99,6 @@ public:
 			mStr[index] = str[index];
 			++index;
 		}
-		mStr[index] = '\0';
 		return *this;
 	}
 
@@ -418,10 +421,10 @@ public:
 
 	constexpr StaticString& clear() noexcept
 	{
-		mStr[0] = '\0';
+		memset(mStr, '\0', SIZE - 1);
 		return *this;
 	}
-
+	
 	constexpr StaticString& toLower() noexcept
 	{
 		for (size_type index = 0; index < size(); ++index)
@@ -431,6 +434,16 @@ public:
 		return *this;
 	}
 
+	constexpr StaticString toLower() const noexcept
+	{
+		StaticString result;
+		for (size_type index = 0; index < size(); ++index)
+		{
+			result.mStr[index] = utils::charToLower(mStr[index]);
+		}
+		return result;
+	}
+	
 	constexpr StaticString& toUpper() noexcept
 	{
 		for (size_type index = 0; index < size(); ++index)
@@ -440,7 +453,17 @@ public:
 		return *this;
 	}
 
-	constexpr StaticString& trim() noexcept 
+	constexpr StaticString toUpper() const noexcept
+	{
+		StaticString result;
+		for (size_type index = 0; index < size(); ++index)
+		{
+			result.mStr[index] = utils::charToUpper(mStr[index]);
+		}
+		return result;
+	}
+	
+	constexpr StaticString& trim() noexcept
 	{
 		if (empty())
 		{
@@ -469,6 +492,38 @@ public:
 		}
 
 		return *this;
+	}
+
+	constexpr StaticString trim() const noexcept
+	{
+		StaticString result = data();
+		if (result.empty())
+		{
+			return result;
+		}
+
+		size_type currSize = result.size();
+		while (currSize > 0 && result.mStr[--currSize] == ' ')
+		{
+			result.mStr[currSize] = '\0';
+		}
+
+		size_type nStartSpaces = 0;
+		while (result.mStr[nStartSpaces] == ' ')
+		{
+			++nStartSpaces;
+		}
+
+		if (nStartSpaces > 0)
+		{
+			for (size_type i = nStartSpaces; i <= currSize; ++i)
+			{
+				result.mStr[i - nStartSpaces] = result.mStr[i];
+			}
+			result.mStr[(currSize + 1) - nStartSpaces] = '\0';
+		}
+
+		return result;
 	}
 
 	constexpr std::string_view substr(size_type from, size_type count) const noexcept
@@ -510,6 +565,18 @@ public:
 		va_start(args, fmt);
 		vsnprintf(&mStr[0], SIZE, fmt, args);
 		va_end(args);
+	}
+	
+	constexpr void append(char c) noexcept
+	{
+		const size_type currSize = size();
+		if (currSize >= SIZE)
+		{
+			return;
+		}
+		
+		mStr[currSize] = c;
+		mStr[currSize + 1] = '\0';
 	}
 
 	void append(const char* const fmt, ...) noexcept

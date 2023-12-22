@@ -22,7 +22,7 @@ Tokenizer::Tokenizer() noexcept
 	, mCursor(0)
 {}
 
-void Tokenizer::Init(std::string_view str)
+void Tokenizer::init(std::string_view str)
 {
 	mString = str;
 	mCursor = 0;
@@ -39,43 +39,43 @@ void Tokenizer::addStatement(std::string_view statement)
 	mStatements.emplace_back(statement);
 }
 
-void Tokenizer::UpdateCursor()
+void Tokenizer::updateCursor()
 {
-	while (HasMoreTokens() && (mString[mCursor] == ' ' || mString[mCursor] == '\n'))
+	while (hasMoreTokens() && (mString[mCursor] == ' ' || mString[mCursor] == '\n'))
 	{
 		++mCursor;
 	}
 
 	if (mString[mCursor] == '/' && mString.size() > mCursor + 1 && mString[mCursor + 1] == '/')
 	{
-		while (HasMoreTokens() && mString[mCursor] != '\n')
+		while (hasMoreTokens() && mString[mCursor] != '\n')
 		{
 			++mCursor;
 		}
 
 		++mCursor;
-		UpdateCursor();
+		updateCursor();
 	}
 
 	if (mString[mCursor] == '/' && mString.size() > mCursor + 1 && mString[mCursor + 1] == '*')
 	{
 		mCursor += 2;
 
-		while (HasMoreTokens() && mString[mCursor] != '*' && mString.size() > mCursor + 1 && mString[mCursor + 1] != '/')
+		while (hasMoreTokens() && mString[mCursor] != '*' && mString.size() > mCursor + 1 && mString[mCursor + 1] != '/')
 		{
 			++mCursor;
 		}
 
 		mCursor += 2;
-		UpdateCursor();
+		updateCursor();
 	}
 }
 
-std::optional<Token> Tokenizer::GetNextToken()
+std::optional<Token> Tokenizer::getNextToken()
 {
-	UpdateCursor();
+	updateCursor();
 
-	if (!HasMoreTokens())
+	if (!hasMoreTokens())
 	{
 		return std::nullopt;
 	}
@@ -150,7 +150,7 @@ std::optional<Token> Tokenizer::GetNextToken()
 	return token;
 }
 
-bool Tokenizer::HasMoreTokens() const
+bool Tokenizer::hasMoreTokens() const
 {
 	return mCursor < mString.size();
 }

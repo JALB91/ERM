@@ -9,10 +9,10 @@ namespace erm {
 
 PositionalArg::PositionalArg(
 	std::string_view name,
-	ArgValueType valueType,
+	ArgValue defaultValue,
 	std::string_view description /* = "No description provided" */)
-	: mName(name)
-	, mValueType(valueType)
+	: IArgument(std::move(defaultValue))
+	, mName(name)
 	, mDescription(description)
 {
 	ERM_ASSERT_HARD(!mName.empty());
@@ -21,11 +21,6 @@ PositionalArg::PositionalArg(
 void PositionalArg::print() const
 {
 	ERM_LOG("<%s>: %s", mName, mDescription.data());
-}
-
-void PositionalArg::setValue(ArgValue&& value)
-{
-	mValue = std::move(value);
 }
 
 }

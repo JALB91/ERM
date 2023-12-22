@@ -5,8 +5,9 @@ namespace erm {
 enum class ArgValueType
 {
 	STRING,
-	NUMBER,
-	BOOL
+	INTEGER,
+	FLOAT,
+	BOOLEAN
 };
 
 }

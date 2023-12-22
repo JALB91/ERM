@@ -8,9 +8,8 @@ target_compile_definitions(
 
 target_link_libraries(
 	"${PROJECT_NAME}"
-	PUBLIC 
-        nlohmann_json
-		magic_enum
+	PRIVATE
+		ERM_FileSystem
+	PUBLIC
 		ERM_Utils
-		ERM_Math
 )

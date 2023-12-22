@@ -19,6 +19,8 @@ SubCommand::SubCommand(std::string_view name, std::string_view description)
 	, mHelpArg('h', "help", false, "Print help message")
 {
 	ERM_ASSERT(!mName.empty() && !mDescription.empty());
+	mOptionalArgs.reserve(50);
+	mPositionalArgs.reserve(50);
 }
 
 SubCommand* SubCommand::parse(std::span<str64> args)
@@ -72,24 +74,39 @@ SubCommand* SubCommand::parse(std::span<str64> args)
 			{
 				case ArgValueType::STRING:
 				{
-					posArg.setValue(args[index]);
+					posArg.setValue(arg);
 					break;
 				}
-				case ArgValueType::NUMBER:
+				case ArgValueType::INTEGER:
 				{
-					const bool allDigits = std::all_of(arg.cbegin(), arg.cend(), [](char c) {
-						return isdigit(c);
-					});
-					if (!verify(allDigits, "Expected integer value for positional argument \"%s\"", posArg.getName()))
+					const auto result = utils::parseNumber<int>(arg.data());
+					if (!verify(result.has_value(), "Expected integer value for positional argument \"%s\"", posArg.getName()))
 					{
 						return nullptr;
 					}
-					posArg.setValue(static_cast<i64>(std::atoi(args[index].data())));
+					posArg.setValue(result.value());
 					break;
 				}
-				case ArgValueType::BOOL:
+				case ArgValueType::FLOAT:
 				{
-					posArg.setValue(true);
+					const auto result = utils::parseNumber<float>(arg.data());
+					if (!verify(result.has_value(), "Expected floating point value for positional argument \"%s\"", posArg.getName()))
+					{
+						return nullptr;
+					}
+					posArg.setValue(result.value());
+					break;
+				}
+				case ArgValueType::BOOLEAN:
+				{
+					const bool isTrue = arg == "true";
+					const bool isFalse = !isTrue && arg == "false";
+					
+					if (!verify(isTrue || isFalse, "Expected [true|false] value for positional argument \"%s\"", posArg.getName()))
+					{
+						return nullptr;
+					}
+					posArg.setValue(isTrue);
 					break;
 				}
 			}
@@ -122,14 +139,14 @@ bool SubCommand::parseOptArg(std::span<str64> args, size_t& index)
 		return false;
 	});
 
-	if (!verify(it != mOptionalArgs.end(), "Invalid argument detected: %s", arg))
+	if (!verify(it != mOptionalArgs.end(), "Invalid optional argument detected: %s", arg))
 	{
 		return false;
 	}
 
 	auto& optArg = *it;
 
-	if (!verify(!optArg.getValue().has_value(), "Optional argument \"%s\" have been called twice", arg))
+	if (!verify(!optArg.getValue().has_value(), "Optional argument \"%s\" have been defined twice", arg))
 	{
 		return false;
 	}
@@ -138,7 +155,7 @@ bool SubCommand::parseOptArg(std::span<str64> args, size_t& index)
 	{
 		case ArgValueType::STRING:
 		{
-			if (!verify(++index < args.size(), "Expected value for argument \"%s\"", arg))
+			if (!verify(++index < args.size(), "Expected value for optional argument \"%s\"", arg))
 			{
 				return false;
 			}
@@ -146,26 +163,40 @@ bool SubCommand::parseOptArg(std::span<str64> args, size_t& index)
 			optArg.setValue(value);
 			break;
 		}
-		case ArgValueType::NUMBER:
+		case ArgValueType::INTEGER:
 		{
-			if (!verify(++index < args.size(), "Expected value for argument \"%s\"", arg))
+			if (!verify(++index < args.size(), "Expected value for optional argument \"%s\"", arg))
 			{
 				return false;
 			}
 			const auto& value = args[index];
-			const bool allDigits = std::all_of(value.cbegin(), value.cend(), [](char c) {
-				return isdigit(c);
-			});
-			if (!verify(allDigits, "Expected integer value for positional argument \"%s\"", arg))
+			const auto result = utils::parseNumber<int>(value.data());
+			if (!verify(result.has_value(), "Expected integer value for optional argument \"%s\"", arg))
 			{
 				return false;
 			}
-			optArg.setValue(static_cast<i64>(std::atoi(value.data())));
+			optArg.setValue(result.value());
 			break;
 		}
-		case ArgValueType::BOOL:
+		case ArgValueType::FLOAT:
 		{
-			optArg.setValue(true);
+			if (!verify(++index < args.size(), "Expected value for optional argument \"%s\"", arg))
+			{
+				return false;
+			}
+			const auto& value = args[index];
+			const auto result = utils::parseNumber<float>(value.data());
+			if (!verify(result.has_value(), "Expected float value for optional argument \"%s\"", arg))
+			{
+				return false;
+			}
+			
+			optArg.setValue(result.value());
+			break;
+		}
+		case ArgValueType::BOOLEAN:
+		{
+			optArg.setValue(!optArg.get<bool>());
 			break;
 		}
 	}
@@ -184,39 +215,12 @@ void SubCommand::setDescription(std::string_view description)
 	mDescription = description;
 }
 
-void SubCommand::addOptionalArg(OptionalArg&& arg)
-{
-	if (arg.getShortForm().has_value() && !ERM_EXPECT(arg.getShortForm().value() != 'h', "'h' Short form is reserved for the help argument which you can set from the `setHelpArgument` function"))
-	{
-		return;
-	}
-
-	if (arg.getNamedForm().has_value() && !ERM_EXPECT(arg.getNamedForm().value() != "help", "'help' Named form is reserved for the help argument which you can set from the `setHelpArgument` function"))
-	{
-		return;
-	}
-
-	const auto it = std::find(mOptionalArgs.begin(), mOptionalArgs.end(), arg);
-
-	if (!ERM_EXPECT(it == mOptionalArgs.end(), "Argument with the given name has already been registered"))
-	{
-		return;
-	}
-
-	mOptionalArgs.emplace_back(std::move(arg));
-}
-
-void SubCommand::addPositionalArg(PositionalArg&& arg)
-{
-	mPositionalArgs.emplace_back(std::move(arg));
-}
-
-void SubCommand::setCallback(std::function<void(const SubCommand&)> callback)
+void SubCommand::setCallback(std::function<int(const SubCommand&)> callback)
 {
 	mCallback = callback;
 }
 
-SubCommand& SubCommand::addSubCommand(std::string_view name, std::string_view description /* = "No description provided" */)
+SubCommandHandle SubCommand::addSubCommand(std::string_view name, std::string_view description /* = "No description provided" */)
 {
 	ERM_ASSERT(!name.empty());
 	const auto it = std::find_if(mSubCommands.begin(), mSubCommands.end(), [name](const SubCommand& cmd) {
@@ -225,18 +229,22 @@ SubCommand& SubCommand::addSubCommand(std::string_view name, std::string_view de
 
 	if (!ERM_EXPECT(it == mSubCommands.end()))
 	{
-		return *it;
+		return SubCommandHandle(mSubCommands, mSubCommands.size() - 1);
 	}
 
-	return mSubCommands.emplace_back(name, description);
+	mSubCommands.emplace_back(name, description);
+	
+	return SubCommandHandle(mSubCommands, mSubCommands.size() - 1);
 }
 
-void SubCommand::callback() const
+int SubCommand::callback() const
 {
 	if (mCallback)
 	{
-		mCallback(*this);
+		return mCallback(*this);
 	}
+	
+	return EXIT_FAILURE;
 }
 
 void SubCommand::printHelp() const
@@ -267,9 +275,9 @@ void SubCommand::printHelp() const
 	{
 		ERM_LOG_INDENT();
 
-		u16 maxNamedFormLength = mHelpArg.getNamedForm()->size();
+		u16 maxNamedFormLength = mHelpArg.getTextLengthUntilDescription();
 		std::for_each(mOptionalArgs.begin(), mOptionalArgs.end(), [&maxNamedFormLength](const OptionalArg& optArg) {
-			maxNamedFormLength = std::max(maxNamedFormLength, (optArg.getNamedForm().has_value() ? optArg.getNamedForm()->size() : u16(0)));
+			maxNamedFormLength = std::max(maxNamedFormLength, optArg.getTextLengthUntilDescription());
 		});
 
 		mHelpArg.print(maxNamedFormLength);

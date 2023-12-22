@@ -18,14 +18,14 @@ class Tokenizer
 public:
 	Tokenizer() noexcept;
 
-	void Init(std::string_view str);
+	void init(std::string_view str);
 	void addStatement(std::string_view statement);
 
-	std::optional<Token> GetNextToken();
+	std::optional<Token> getNextToken();
 
 private:
-	void UpdateCursor();
-	bool HasMoreTokens() const;
+	void updateCursor();
+	bool hasMoreTokens() const;
 
 	std::vector<str128> mStatements;
 	std::string mString;

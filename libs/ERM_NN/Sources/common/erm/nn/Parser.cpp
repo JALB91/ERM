@@ -36,9 +36,9 @@ void Parser::parseStatements(std::string_view str)
 
 Program Parser::parseProgram(std::string_view name, std::string_view str)
 {
-    mTokenizer.Init(str);
+    mTokenizer.init(str);
 
-    auto lookahead = mTokenizer.GetNextToken();
+    auto lookahead = mTokenizer.getNextToken();
 
     Program prog(name);
 
@@ -47,7 +47,7 @@ Program Parser::parseProgram(std::string_view name, std::string_view str)
 		ERM_ASSERT(lookahead.value().mType != TokenType::INVALID);
 
 		prog.addToken(lookahead.value());
-		lookahead = mTokenizer.GetNextToken();
+		lookahead = mTokenizer.getNextToken();
     }
 
     return prog;

@@ -2,6 +2,7 @@
 
 #include "erm/utils/args_parser/ArgValue.h"
 #include "erm/utils/args_parser/ArgValueType.h"
+#include "erm/utils/args_parser/IArgument.h"
 
 #include <erm/math/Types.h>
 
@@ -10,38 +11,24 @@
 
 namespace erm {
 
-class PositionalArg
+class PositionalArg : public IArgument
 {
 public:
 	PositionalArg(
 		std::string_view name,
-		ArgValueType valueType,
+		ArgValue defaultValue,
 		std::string_view description = "No description provided");
-
-	void print() const;
-
-	inline ArgValueType getValueType() const
-	{
-		return mValueType;
-	}
-
-	inline const ArgValue& getValue() const
-	{
-		return mValue;
-	}
-
+	
 	inline const str32& getName() const
 	{
 		return mName;
 	}
 
-	void setValue(ArgValue&& value);
+	void print() const;
 
 private:
 	const str32 mName;
-	const ArgValueType mValueType;
 	const std::string mDescription;
-	ArgValue mValue;
 };
 
 }

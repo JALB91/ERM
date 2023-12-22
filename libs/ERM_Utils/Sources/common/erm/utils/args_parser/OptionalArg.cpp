@@ -7,34 +7,14 @@
 
 namespace erm {
 
-static ArgValueType getArgValueTypeForArgValue(const ArgValue& argValue)
-{
-	if (std::holds_alternative<str64>(argValue))
-	{
-		return ArgValueType::STRING;
-	}
-	else if (std::holds_alternative<i64>(argValue))
-	{
-		return ArgValueType::NUMBER;
-	}
-	else if (std::holds_alternative<bool>(argValue))
-	{
-		return ArgValueType::BOOL;
-	}
-
-	ERM_ASSERT_HARD(false, "Invalid default value for optional argument");
-	return ArgValueType::STRING;
-}
-
 OptionalArg::OptionalArg(
 	std::optional<char> shortForm,
 	std::optional<std::string_view> namedForm, 
-	ArgValue&& defaultValue, 
+	ArgValue defaultValue, 
 	std::string_view description /* = "No description provided" */)
-	: mValueType(getArgValueTypeForArgValue(defaultValue))
+	: IArgument(defaultValue)
 	, mShortForm(shortForm)
 	, mNamedForm(namedForm)
-	, mDefaultValue(std::move(defaultValue))
 	, mDescription(description)
 {
 	ERM_ASSERT(((shortForm.has_value() && isalpha(shortForm.value())) || (namedForm.has_value() && !namedForm->empty())) && !description.empty());
@@ -72,35 +52,88 @@ bool OptionalArg::operator==(char ch) const
 	return mShortForm.has_value() && mShortForm.value() == ch;
 }
 
-void OptionalArg::setValue(ArgValue&& value)
+u16 OptionalArg::getTextLengthUntilDescription() const
 {
-	mValue = std::move(value);
+	u16 result = mShortForm.has_value() * 3;
+	result += mNamedForm.has_value() ? mNamedForm->size() + 3 : 0;
+	result += doesArgValueTypeExpectsInput() * sValueText.size();
+	return result;
+}
+
+bool OptionalArg::doesArgValueTypeExpectsInput() const
+{
+	switch (mValueType)
+	{
+		case ArgValueType::STRING:
+		case ArgValueType::INTEGER:
+		case ArgValueType::FLOAT:
+			return true;
+		case ArgValueType::BOOLEAN:
+			return false;
+			break;
+	}
 }
 
 void OptionalArg::print(u16 maxNamedFormLength) const
 {
-	const u16 numberOfSpaces = maxNamedFormLength - (mNamedForm.has_value() ? mNamedForm->size() : 0);
+	const u16 textLengthUntilDescription = getTextLengthUntilDescription();
+	ERM_ASSERT(textLengthUntilDescription <= maxNamedFormLength);
+	const u16 numberOfSpaces = maxNamedFormLength - textLengthUntilDescription;
 	str256 logStr;
-	logStr.format(
-		"%c%c  %s%s:%s %s (Default: ",
-		mShortForm.has_value() ? '-' : ' ',
-		mShortForm.value_or(' '),
-		mNamedForm.has_value() ? "--" : "  ",
-		mNamedForm.value_or("").data(),
-		std::string("             ", numberOfSpaces).data(),
-		mDescription.data());
+	
+	if (mShortForm.has_value())
+	{
+		logStr.append("-%c", mShortForm.value());
+	}
+	
+	if (mNamedForm.has_value())
+	{
+		if (mShortForm.has_value())
+		{
+			logStr.append(' ');
+		}
+		logStr.append("--%s", mNamedForm.value().data());
+		
+		if (doesArgValueTypeExpectsInput())
+		{
+			logStr.append(" <value>", mNamedForm.value().data());
+		}
+	}
+	
+	logStr.append(
+		"%s %s (Default: ",
+		str32(' ', numberOfSpaces).data(),
+		mDescription.data()
+	);
 
 	switch (mValueType)
 	{
 		case ArgValueType::STRING:
 			logStr.append("%s)", std::get<str64>(mDefaultValue));
 			break;
-		case ArgValueType::NUMBER:
-			logStr.append("%d)", std::get<i64>(mDefaultValue));
+		case ArgValueType::INTEGER:
+			logStr.append("%d)", std::get<int>(mDefaultValue));
 			break;
-		case ArgValueType::BOOL:
+		case ArgValueType::FLOAT:
+			logStr.append("%f)", std::get<float>(mDefaultValue));
+			break;
+		case ArgValueType::BOOLEAN:
 			logStr.append("%s)", std::get<bool>(mDefaultValue) ? "true" : "false");
 			break;
+	}
+	
+	if (!mOptions.empty())
+	{
+		logStr.append(" Options: [");
+		for (size_t i = 0; i < mOptions.size(); ++i)
+		{
+			if (i > 0)
+			{
+				logStr.append(", ");
+			}
+			logStr.append(mOptions[i].data());
+		}
+		logStr.append(']');
 	}
 
 	ERM_LOG(logStr);
