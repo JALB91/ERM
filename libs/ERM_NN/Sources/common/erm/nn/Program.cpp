@@ -9,11 +9,84 @@
 namespace erm::nn {
 
 Program::Program(std::string_view name) noexcept
-	: mTokenTree(0, {.mValue = name, .mType = TokenType::PROGRAM})
+	: mTokens({Token{.mValue = name, .mType = TokenType::PROGRAM}})
+	, mTokenTree(0, {mTokens, 0})
 	, mIndex(&mTokenTree)
-	, mCounter(0)
 	, mName(name)
 {}
+
+bool Program::addToken(const Token& token)
+{
+	ERM_ASSERT_HARD(token.mType != TokenType::INVALID);
+	
+	if (token.mType == TokenType::SCOPE_BEGIN)
+	{
+		mIndex = &mIndex->addChild(mTokens.size(), {mTokens, mTokens.size()});
+	}
+	else if (token.mType == TokenType::SCOPE_END)
+	{
+		mIndex = mIndex->getParent();
+		if (mIndex == nullptr)
+		{
+			ERM_LOG_ERROR("Invalid scope end");
+			return false;
+		}
+		mIndex->addChild(mTokens.size(), {mTokens, mTokens.size()});
+	}
+	else
+	{
+		mIndex->addChild(mTokens.size(), {mTokens, mTokens.size()});
+	}
+	
+	mTokens.emplace_back(token);
+	
+	return true;
+}
+
+bool Program::validateTree() const
+{
+	std::vector<const Token*> scopeBegins;
+	
+	for (const auto& token : mTokens)
+	{
+		switch (token.mType)
+		{
+			case TokenType::SCOPE_BEGIN:
+				scopeBegins.emplace_back(&token);
+				break;
+			case TokenType::SCOPE_END:
+				if (scopeBegins.empty())
+				{
+					ERM_LOG_ERROR(
+						"Unexpected token \"%s\" at line %d, %d",
+						token.mValue.data(),
+						token.mLine,
+						token.mLineOffset);
+					return false;
+				}
+				else
+				{
+					scopeBegins.pop_back();
+				}
+				break;
+			default:
+				break;
+		}
+	}
+	
+	if (!scopeBegins.empty())
+	{
+		const auto* token = scopeBegins.back();
+		ERM_LOG_ERROR(
+			"Expected closing token for \"%s\" at line %d, %d",
+			token->mValue.data(),
+			token->mLine,
+			token->mLineOffset);
+		return false;
+	}
+	
+	return true;
+}
 
 nlohmann::json Program::toJson() const
 {
@@ -26,9 +99,9 @@ nlohmann::json Program::toJson() const
 		auto& jsonToWrite = currJson.is_array() ? currJson.emplace_back() : currJson;
 
 		const auto& token = entry.getPayload();
-		jsonToWrite["type"] = magic_enum::enum_name(token.mType);
+		jsonToWrite["type"] = magic_enum::enum_name(token->mType);
 
-		switch (token.mType)
+		switch (token->mType)
 		{
 			case TokenType::PROGRAM:
 			{
@@ -36,59 +109,41 @@ nlohmann::json Program::toJson() const
 				jsonStack.push(&(jsonToWrite["body"]));
 				break;
 			}
-			case TokenType::STATEMENT:
+			case TokenType::SCOPE_BEGIN:
 			{
-				jsonToWrite["value"] = token.mValue;
+				jsonToWrite["value"] = token->mValue;
 				jsonToWrite["body"] = nlohmann::json::array();
 				jsonStack.push(&(jsonToWrite["body"]));
 				break;
 			}
 			case TokenType::NUMERIC_LITERAL:
 			case TokenType::STRING_LITERAL:
-			case TokenType::SCOPE_BEGIN:
 			case TokenType::IDENTIFIER:
 			case TokenType::SCOPE_END:
+			case TokenType::STATEMENT:
 			case TokenType::OPERATOR:
-			case TokenType::COLUMN:
+			case TokenType::SEMI_COLON:
+			case TokenType::COLON:
 			case TokenType::COMMA:
 			{
-				jsonToWrite["value"] = entry.getPayload().mValue;
+				jsonToWrite["value"] = token->mValue;
 				break;
 			}
-			default:
+			case TokenType::INVALID:
 			{
-				ERM_LOG_ERROR("Invalid token %s", magic_enum::enum_name(token.mType).data());
 				break;
 			}
 		}
 	},
 	[&jsonStack](const auto& entry) {
 		const auto& token = entry.getPayload();
-		if (token.mType == TokenType::PROGRAM || token.mType == TokenType::STATEMENT)
+		if (token->mType == TokenType::PROGRAM || token->mType == TokenType::SCOPE_BEGIN)
 		{
 			jsonStack.pop();
 		}
 	});
 
 	return json;
-}
-
-void Program::addToken(const Token& token)
-{
-	if (token.mType == TokenType::STATEMENT)
-	{
-		mIndex = &mIndex->addChild(++mCounter, token);
-	}
-	else if (token.mType == TokenType::COLUMN || token.mType == TokenType::SCOPE_END)
-	{
-		mIndex->addChild(++mCounter, token);
-		mIndex = mIndex->getParent();
-		ERM_ASSERT(mIndex != nullptr);
-	}
-	else
-	{
-		mIndex->addChild(++mCounter, token);
-	}
 }
 
 }

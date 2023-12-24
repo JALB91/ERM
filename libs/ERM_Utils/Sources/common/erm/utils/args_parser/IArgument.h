@@ -6,6 +6,7 @@
 #include <magic_enum.hpp>
 
 #include <optional>
+#include <string>
 #include <vector>
 
 namespace erm {
@@ -34,7 +35,7 @@ public:
 	template<typename T, typename Enable = std::enable_if_t<!std::is_enum_v<T>>>
 	const T& get() const
 	{
-		if constexpr (std::is_same_v<T, str64>)
+		if constexpr (std::is_same_v<T, std::string>)
 		{
 			ERM_ASSERT_HARD(mValueType == ArgValueType::STRING, "Arg value is not a string");
 		}
@@ -63,13 +64,13 @@ public:
 	{
 		ERM_ASSERT_HARD(mValueType == ArgValueType::STRING, "Only string arguments can be converted to enums");
 		const auto& value = mValue.value_or(mDefaultValue);
-		return magic_enum::enum_cast<T>(std::get<str64>(value).toUpper().data());
+		return magic_enum::enum_cast<T>(std::get<std::string>(value));
 	}
 	
 	template<typename T, typename Enable = std::enable_if_t<std::is_enum_v<T>>>
 	void setOptions()
 	{
-		mOptions = std::vector<str32>(magic_enum::enum_names<T>().begin(), magic_enum::enum_names<T>().end());
+		mOptions = std::vector<std::string>(magic_enum::enum_names<T>().begin(), magic_enum::enum_names<T>().end());
 	}
 	
 	void setValue(ArgValue value);
@@ -78,7 +79,7 @@ protected:
 	const ArgValueType mValueType;
 	const ArgValue mDefaultValue;
 	std::optional<ArgValue> mValue;
-	std::vector<str32> mOptions;
+	std::vector<std::string> mOptions;
 	
 };
 

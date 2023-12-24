@@ -9,7 +9,9 @@ namespace erm::nn {
 struct Token 
 {
 	str128 mValue;
-    TokenType mType = TokenType::INVALID;
+	TokenType mType = TokenType::INVALID;
+	u16 mLine = 0;
+	u16 mLineOffset = 0;
 };
 
 }

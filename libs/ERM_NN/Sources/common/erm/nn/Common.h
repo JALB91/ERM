@@ -4,19 +4,17 @@
 
 namespace erm::nn {
 
-constexpr std::array kStatements {
-    "import",
-    "struct",
-    "enum"
-};
-
-constexpr std::array kTypes {
-    "int",
-    "float",
-    "double",
-    "long",
-    "uint",
-    "string"
+constexpr static std::array kStatements {
+	"enum",
+	"class",
+	"struct",
+	"import",
+	"int",
+	"uint",
+	"float",
+	"double",
+	"long",
+	"string"
 };
 
 }

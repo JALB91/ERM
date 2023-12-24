@@ -7,34 +7,36 @@
 
 namespace erm::nn {
 
-void Parser::parseStatements(std::string_view str)
+bool Parser::parseStatements(std::string_view str)
 {
     str128 statement;
 	for (const auto ch : str)
     {
-        if (ch == ' ')
-        {
-            continue;
-        }
-        else if (ch == '\n' && !statement.empty())
-        {
-            mTokenizer.addStatement(statement);
-            statement.clear();
-            continue;
-        }
-        else if (!isalpha(ch) && !isdigit(ch))
-        {
-            ERM_ASSERT_HARD(false);
-            return;
-        }
-        else
-        {
-            statement += ch;
-        }
+		if (
+			isalpha(ch) != 0 ||
+			(isdigit(ch) != 0 && !statement.empty()))
+		{
+			statement += ch;
+		}
+		else if (ch == '\n')
+		{
+			if (!statement.empty())
+			{
+				mTokenizer.addStatement(statement);
+				statement.clear();
+			}
+		}
+		else
+		{
+			ERM_LOG_ERROR("Invalid character detected while parsing statements");
+			return false;
+		}
     }
+	
+	return true;
 }
 
-Program Parser::parseProgram(std::string_view name, std::string_view str)
+std::optional<Program> Parser::parseProgram(std::string_view name, std::string_view str)
 {
     mTokenizer.init(str);
 
@@ -44,9 +46,17 @@ Program Parser::parseProgram(std::string_view name, std::string_view str)
 
     while (lookahead.has_value())
     {
-		ERM_ASSERT(lookahead.value().mType != TokenType::INVALID);
-
-		prog.addToken(lookahead.value());
+		if (lookahead->mType == TokenType::INVALID || !prog.addToken(lookahead.value()))
+		{
+			ERM_LOG_ERROR(
+				"Invalid token \"%s\", while parsing \"%s\" at line %d, %d",
+				lookahead->mValue.data(),
+				name.data(),
+				lookahead->mLine,
+				lookahead->mLineOffset);
+			return std::nullopt;
+		}
+		
 		lookahead = mTokenizer.getNextToken();
     }
 

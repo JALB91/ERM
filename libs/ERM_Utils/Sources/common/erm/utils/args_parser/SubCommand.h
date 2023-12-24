@@ -13,9 +13,9 @@ namespace erm {
 
 class SubCommand;
 
-using OptionalArgHandle = ContainerItemHandle<std::vector<OptionalArg>, size_t>;
-using PositionalArgHandle = ContainerItemHandle<std::vector<PositionalArg>, size_t>;
-using SubCommandHandle = ContainerItemHandle<std::vector<SubCommand>, size_t>;
+using OptionalArgHandle = VectorItemHandle<OptionalArg>;
+using PositionalArgHandle = VectorItemHandle<PositionalArg>;
+using SubCommandHandle = VectorItemHandle<SubCommand>;
 
 class SubCommand
 {
@@ -23,29 +23,22 @@ public:
 	SubCommand();
 	SubCommand(std::string_view name, std::string_view description);
 
-	SubCommand* parse(std::span<str64> args);
+	SubCommand* parse(std::span<std::string> args);
 
 	void setName(std::string_view name);
 	void setDescription(std::string_view description);
 	void setCallback(std::function<int(const SubCommand&)> callback);
 	
-	template<typename ...Args>
-	OptionalArgHandle addOptionalArg(Args&& ...args)
-	{
-		OptionalArg arg (std::forward<Args>(args)...);
-		const auto it = std::find(mOptionalArgs.begin(), mOptionalArgs.end(), arg);
-		ERM_ASSERT_HARD(it == mOptionalArgs.end(), "Argument with the given name has already been registered");
-		mOptionalArgs.emplace_back(std::move(arg));
-		return OptionalArgHandle(mOptionalArgs, mOptionalArgs.size() - 1);
-	}
+	OptionalArgHandle addOptionalArg(
+		std::optional<char> shortForm,
+		std::optional<std::string_view> namedForm,
+		ArgValue defaultValue,
+		std::string_view description = "No description provided");
 	
-	template<typename ...Args>
-	PositionalArgHandle addPositionalArg(Args&& ...args)
-	{
-		PositionalArg arg (std::forward<Args>(args)...);
-		mPositionalArgs.emplace_back(std::move(arg));
-		return PositionalArgHandle(mPositionalArgs, mPositionalArgs.size() - 1);
-	}
+	PositionalArgHandle addPositionalArg(
+		std::string_view name,
+		ArgValue defaultValue,
+		std::string_view description = "No description provided");
 	
 	SubCommandHandle addSubCommand(std::string_view name, std::string_view description = "No description provided");
 
@@ -65,7 +58,7 @@ public:
 	void printHelp() const;
 
 private:
-	bool parseOptArg(std::span<str64> args, size_t& index);
+	bool parseOptArg(std::span<std::string> args, size_t& index);
 	bool verify(bool condition, const char* const fmt, auto... args) const
 	{
 		if (!condition)
@@ -78,7 +71,7 @@ private:
 	}
 
 	str32 mName;
-	str128 mDescription;
+	std::string mDescription;
 	OptionalArg mHelpArg;
 	std::vector<OptionalArg> mOptionalArgs;
 	std::vector<PositionalArg> mPositionalArgs;

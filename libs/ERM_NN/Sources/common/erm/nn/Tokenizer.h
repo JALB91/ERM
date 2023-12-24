@@ -1,5 +1,6 @@
 #pragma once
 
+#include "erm/nn/Cursor.h"
 #include "erm/nn/Token.h"
 
 #include <erm/math/Types.h>
@@ -18,18 +19,21 @@ class Tokenizer
 public:
 	Tokenizer() noexcept;
 
-	void init(std::string_view str);
 	void addStatement(std::string_view statement);
+	void init(std::string_view text);
 
 	std::optional<Token> getNextToken();
+	
+	inline const Cursor& getCursor() const
+	{
+		return mCursor;
+	}
 
 private:
 	void updateCursor();
-	bool hasMoreTokens() const;
 
 	std::vector<str128> mStatements;
-	std::string mString;
-	u64 mCursor;
+	Cursor mCursor;
 
 };
 

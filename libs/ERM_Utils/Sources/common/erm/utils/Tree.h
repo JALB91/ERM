@@ -278,6 +278,7 @@ public:
 	inline const ID& getId() const { return mId; }
 	inline ID& getId() { return mId; }
 	
+	inline bool hasParent() const { return mParent != nullptr; }
 	inline Tree* getParent() { return mParent; }
 	inline const Children& getChildren() const { return mChildren; }
 

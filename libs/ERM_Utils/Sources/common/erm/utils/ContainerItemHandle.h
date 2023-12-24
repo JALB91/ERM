@@ -1,5 +1,7 @@
 #pragma once
 
+#include "erm/utils/assert/Assert.h"
+
 #include <optional>
 
 namespace erm {
@@ -44,6 +46,9 @@ private:
 	std::optional<Key> mKey;
 	
 };
+
+template<typename T>
+using VectorItemHandle = ContainerItemHandle<std::vector<T>, size_t>;
 
 }
 

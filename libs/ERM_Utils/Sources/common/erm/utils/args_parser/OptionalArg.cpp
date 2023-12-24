@@ -109,7 +109,7 @@ void OptionalArg::print(u16 maxNamedFormLength) const
 	switch (mValueType)
 	{
 		case ArgValueType::STRING:
-			logStr.append("%s)", std::get<str64>(mDefaultValue));
+			logStr.append("%s)", std::get<std::string>(mDefaultValue).data());
 			break;
 		case ArgValueType::INTEGER:
 			logStr.append("%d)", std::get<int>(mDefaultValue));

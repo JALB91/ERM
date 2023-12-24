@@ -9,14 +9,14 @@ class Setup
 public:
 	Setup();
 	
-	int exec(const SubCommand& command) const;
-	
-	inline ArgsParser& getArgsParser() 
+	inline ArgsParser& getArgsParser()
 	{
 		return mArgsParser;
 	}
 
 private:
+	int exec(const SubCommand& command) const;
+	
 	ArgsParser mArgsParser;
 	OptionalArgHandle mTargetAPI;
 	OptionalArgHandle mVerbose;

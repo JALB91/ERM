@@ -10,7 +10,7 @@
 namespace erm {
 
 Setup::Setup()
-	: mTargetAPI(mArgsParser->addOptionalArg('t', "target-api", "Vulkan", "Set target API"))
+	: mTargetAPI(mArgsParser->addOptionalArg('t', "target-api", "VULKAN", "Set target API"))
 	, mVerbose(mArgsParser->addOptionalArg('v', "verbose", false, "Enable a more verbose output"))
 	, mOpen(mArgsParser->addOptionalArg('o', "open", false, "Open the project after generating"))
 	, mCompile(mArgsParser->addOptionalArg('c', "compile", false, "Compile the project after generating"))

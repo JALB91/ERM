@@ -70,7 +70,7 @@ function(erm_gather_sources DIR)
 		string(REGEX REPLACE ".*/${PROJECT_NAME}/" "${ERM_GENERATED_DIR}/${PROJECT_NAME}/" FILE "${FILE}")
 		string(REPLACE "/NN_Data" "" FILE "${FILE}")
 		string(REPLACE ".nn" ".h" NN_GEN_HEADER "${FILE}")
-		string(REPLACE ".nn" ".cpp" FILES "${FILE}")
+		string(REPLACE ".nn" ".cpp" NN_GEN_SOURCE "${FILE}")
 
 		list(APPEND CPP_HEADERS ${NN_GEN_HEADER})
 		list(APPEND CPP_SOURCES ${NN_GEN_SOURCE})
@@ -103,7 +103,7 @@ function(erm_setup_custom_commands)
 				list(APPEND NN_GENERATE_ARGS --statements ${NN_ALL_STATEMENTS})
 			endif()
 			
-			list(APPEND NN_GENERATE_ARGS --data ${FILE} --output ${NN_OUTPUT_DIR})
+			list(APPEND NN_GENERATE_ARGS ${FILE} ${NN_OUTPUT_DIR})
 
 			add_custom_command(
 				OUTPUT ${NN_OUTPUT_HEADER} ${NN_OUTPUT_SOURCE}

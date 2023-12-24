@@ -2,17 +2,17 @@
 
 #include "erm/utils/assert/Assert.h"
 #include "erm/utils/args_parser/ArgValueType.h"
-#include "erm/utils/StaticString.h"
 
+#include <string>
 #include <variant>
 
 namespace erm {
 
-using ArgValue = std::variant<str64, int, float, bool>;
+using ArgValue = std::variant<std::string, int, float, bool>;
 
 static inline ArgValueType getArgValueTypeForArgValue(const ArgValue& argValue)
 {
-	if (std::holds_alternative<str64>(argValue))
+	if (std::holds_alternative<std::string>(argValue))
 	{
 		return ArgValueType::STRING;
 	}

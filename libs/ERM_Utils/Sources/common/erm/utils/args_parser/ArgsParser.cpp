@@ -12,7 +12,12 @@ namespace erm {
 ArgsParser::ArgsParser()
 {}
 
-SubCommand* ArgsParser::parseArgs(int argc, char** argv)
+SubCommand* ArgsParser::operator->()
+{
+	return &mMainCommand;
+}
+
+const SubCommand* ArgsParser::parseArgs(int argc, char** argv)
 {
 	ERM_ASSERT_HARD(argc > 0);
 	mArgs.reserve(argc);
@@ -31,11 +36,6 @@ SubCommand* ArgsParser::parseArgs(int argc, char** argv)
 	mMainCommand.setName(mArgs[0]);
 
 	return mMainCommand.parse(std::span(mArgs.begin() + 1, mArgs.size() - 1));
-}
-
-SubCommand* ArgsParser::operator->()
-{
-	return &mMainCommand;
 }
 
 }

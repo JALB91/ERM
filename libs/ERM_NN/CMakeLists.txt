@@ -14,4 +14,5 @@ target_link_libraries(
 		magic_enum
 		ERM_Utils
 		ERM_Math
+		ERM_FileSystem
 )
