@@ -19,6 +19,12 @@ class Program
 {
 public:
 	Program(std::string_view name) noexcept;
+	
+	Program(const Program&) noexcept = delete;
+	Program& operator=(const Program&) noexcept = delete;
+	
+	Program(Program&& other) noexcept;
+	Program& operator=(Program&& other) noexcept;
 
 	bool addToken(const Token& token);
 	

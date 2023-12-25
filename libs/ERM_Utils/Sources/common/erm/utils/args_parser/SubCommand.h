@@ -32,15 +32,18 @@ public:
 	OptionalArgHandle addOptionalArg(
 		std::optional<char> shortForm,
 		std::optional<std::string_view> namedForm,
-		ArgValue defaultValue,
+		ArgValueType valueType,
+		std::string_view defaultValue,
 		std::string_view description = "No description provided");
 	
 	PositionalArgHandle addPositionalArg(
 		std::string_view name,
-		ArgValue defaultValue,
+		ArgValueType valueType,
 		std::string_view description = "No description provided");
 	
-	SubCommandHandle addSubCommand(std::string_view name, std::string_view description = "No description provided");
+	SubCommandHandle addSubCommand(
+		std::string_view name,
+		std::string_view description = "No description provided");
 
 	inline const std::vector<OptionalArg>& getOptionslArgs() const
 	{

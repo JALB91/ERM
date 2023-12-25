@@ -1,6 +1,5 @@
 #pragma once
 
-#include "erm/utils/args_parser/ArgValue.h"
 #include "erm/utils/args_parser/ArgValueType.h"
 #include "erm/utils/args_parser/IArgument.h"
 
@@ -16,7 +15,7 @@ class PositionalArg : public IArgument
 public:
 	PositionalArg(
 		std::string_view name,
-		ArgValue defaultValue,
+		ArgValueType valueType,
 		std::string_view description = "No description provided");
 	
 	inline const str32& getName() const

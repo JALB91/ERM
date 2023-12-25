@@ -194,12 +194,12 @@ public:
 		{
 			if (before)
 			{
-				before(*child);	
+				before(child);
 			}
 			child.forEachChildDo(before, after);
 			if (after)
 			{
-				after(*child);	
+				after(child);	
 			}
 		}
 	}

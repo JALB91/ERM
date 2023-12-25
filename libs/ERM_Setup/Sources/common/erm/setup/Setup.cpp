@@ -10,14 +10,54 @@
 namespace erm {
 
 Setup::Setup()
-	: mTargetAPI(mArgsParser->addOptionalArg('t', "target-api", "VULKAN", "Set target API"))
-	, mVerbose(mArgsParser->addOptionalArg('v', "verbose", false, "Enable a more verbose output"))
-	, mOpen(mArgsParser->addOptionalArg('o', "open", false, "Open the project after generating"))
-	, mCompile(mArgsParser->addOptionalArg('c', "compile", false, "Compile the project after generating"))
-	, mRTX(mArgsParser->addOptionalArg(std::nullopt, "rtx", false, "Enable ray tracing"))
-	, mInteractive(mArgsParser->addOptionalArg('i', "interactive", false, "Run cmake in interactive mode"))
-	, mTracy(mArgsParser->addOptionalArg(std::nullopt, "tracy", false, "Enable tracy"))
-	, mTrace(mArgsParser->addOptionalArg(std::nullopt, "trace", false, "Trace cmake output"))
+	: mTargetAPI(mArgsParser->addOptionalArg(
+		't',
+		"target-api",
+		ArgValueType::STRING,
+		"VULKAN",
+		"Set target API"))
+	, mVerbose(mArgsParser->addOptionalArg(
+		'v',
+		"verbose",
+		ArgValueType::BOOLEAN,
+		"false",
+		"Enable a more verbose output"))
+	, mOpen(mArgsParser->addOptionalArg(
+		'o',
+		"open",
+		ArgValueType::BOOLEAN,
+		"false",
+		"Open the project after generating"))
+	, mCompile(mArgsParser->addOptionalArg(
+		'c', 
+		"compile",
+		ArgValueType::STRING,
+		"false",
+		"Compile the project after generating"))
+	, mRTX(mArgsParser->addOptionalArg(
+		std::nullopt,
+		"rtx",
+		ArgValueType::STRING,
+		"false",
+		"Enable ray tracing"))
+	, mInteractive(mArgsParser->addOptionalArg(
+		'i',
+		"interactive",
+		ArgValueType::STRING,
+		"false",
+		"Run cmake in interactive mode"))
+	, mTracy(mArgsParser->addOptionalArg(
+		std::nullopt,
+		"tracy",
+		ArgValueType::STRING,
+		"false",
+		"Enable tracy"))
+	, mTrace(mArgsParser->addOptionalArg(
+		std::nullopt,
+		"trace",
+		ArgValueType::STRING,
+		"false",
+		"Trace cmake output"))
 {
 	mTargetAPI->setOptions<TargetAPI>();
 	mArgsParser->setDescription("Setup ERM engine for development");
@@ -30,7 +70,7 @@ int Setup::exec(const SubCommand& /*command*/) const
 {
 	ERM_ASSERT_HARD(erm::utils::hasCommand("cmake"), "cmake required for setup");
 	
-	const auto targetAPI = mTargetAPI->get<TargetAPI>();
+	const auto targetAPI = mTargetAPI->get<std::string>();
 	const auto verbose = mVerbose->get<bool>();
 	const auto open = mOpen->get<bool>();
 	const auto compile = mCompile->get<bool>();
@@ -39,12 +79,12 @@ int Setup::exec(const SubCommand& /*command*/) const
 	const auto tracy = mTracy->get<bool>();
 	const auto trace = mTrace->get<bool>();
 	
-	ERM_ASSERT_HARD(targetAPI == TargetAPI::VULKAN, "Only Vulkan supported");
+	ERM_ASSERT_HARD(magic_enum::enum_cast<TargetAPI>(targetAPI) == TargetAPI::VULKAN, "Only Vulkan supported");
 	
 #if defined(ERM_WINDOWS)
-	const std::string buildFolderName = std::string("ERM_VS_") + mTargetAPI->get<str64>().data();
+	const std::string buildFolderName = std::string("ERM_VS_") + targetAPI.data();
 #elif defined(ERM_MAC)
-	const std::string buildFolderName = std::string("ERM_Xcode_") + mTargetAPI->get<str64>().data();
+	const std::string buildFolderName = std::string("ERM_Xcode_") + targetAPI.data();
 #endif
 	const fs::path targetBuildPath = fs::getERMRoot() / "builds" / buildFolderName.data();
 	
@@ -61,7 +101,7 @@ int Setup::exec(const SubCommand& /*command*/) const
 	
 	std::string cmakeCommand = interactive ? "ccmake" : "cmake";
 	cmakeCommand += " -DERM_TARGET_API=";
-	cmakeCommand += mTargetAPI->get<str64>().data();
+	cmakeCommand += targetAPI.data();
 	cmakeCommand += " -DERM_PLATFORM=";
 #if defined(ERM_WINDOWS)
 	cmakeCommand += "Windows";

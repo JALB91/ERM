@@ -12,6 +12,12 @@ class ArgsParser
 public:
 	ArgsParser();
 	
+	ArgsParser(const ArgsParser&) = delete;
+	ArgsParser(ArgsParser&&) = delete;
+	
+	ArgsParser& operator=(const ArgsParser&) = delete;
+	ArgsParser& operator=(ArgsParser&&) = delete;
+	
 	SubCommand* operator->();
 	const SubCommand* parseArgs(int argc, char** argv);
 

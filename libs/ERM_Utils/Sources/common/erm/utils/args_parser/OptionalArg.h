@@ -1,6 +1,5 @@
 #pragma once
 
-#include "erm/utils/args_parser/ArgValue.h"
 #include "erm/utils/args_parser/ArgValueType.h"
 #include "erm/utils/args_parser/IArgument.h"
 
@@ -14,8 +13,9 @@ private:
 public:
 	OptionalArg(
 		std::optional<char> shortForm, 
-		std::optional<std::string_view> namedForm, 
-		ArgValue defaultValue, 
+		std::optional<std::string_view> namedForm,
+		ArgValueType valueType,
+		std::string_view defaultValue,
 		std::string_view description = "No description provided");
 
 	bool operator==(const OptionalArg& other) const;

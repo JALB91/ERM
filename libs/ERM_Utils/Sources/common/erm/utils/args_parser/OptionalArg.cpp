@@ -10,9 +10,10 @@ namespace erm {
 OptionalArg::OptionalArg(
 	std::optional<char> shortForm,
 	std::optional<std::string_view> namedForm, 
-	ArgValue defaultValue, 
+	ArgValueType valueType,
+	std::string_view defaultValue,
 	std::string_view description /* = "No description provided" */)
-	: IArgument(defaultValue)
+	: IArgument(valueType, defaultValue)
 	, mShortForm(shortForm)
 	, mNamedForm(namedForm)
 	, mDescription(description)
@@ -100,28 +101,28 @@ void OptionalArg::print(u16 maxNamedFormLength) const
 		}
 	}
 	
-	logStr.append(
-		"%s %s (Default: ",
-		str32(' ', numberOfSpaces).data(),
-		mDescription.data()
-	);
-
 	switch (mValueType)
 	{
 		case ArgValueType::STRING:
-			logStr.append("%s)", std::get<std::string>(mDefaultValue).data());
+			logStr.append(
+				"%s %s (Default: \"%s\")",
+				str32(' ', numberOfSpaces).data(),
+				mDescription.data(),
+				mDefaultValue.data()
+			);
 			break;
 		case ArgValueType::INTEGER:
-			logStr.append("%d)", std::get<int>(mDefaultValue));
-			break;
 		case ArgValueType::FLOAT:
-			logStr.append("%f)", std::get<float>(mDefaultValue));
-			break;
 		case ArgValueType::BOOLEAN:
-			logStr.append("%s)", std::get<bool>(mDefaultValue) ? "true" : "false");
+			logStr.append(
+				"%s %s (Default: %s)",
+				str32(' ', numberOfSpaces).data(),
+				mDescription.data(),
+				mDefaultValue.data()
+			);
 			break;
 	}
-	
+
 	if (!mOptions.empty())
 	{
 		logStr.append(" Options: [");

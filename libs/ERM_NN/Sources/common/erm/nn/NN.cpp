@@ -5,9 +5,20 @@
 namespace erm::nn {
 
 NN::NN()
-	: mStatementFiles(mArgsParser->addOptionalArg(std::nullopt, "statements", "", "List of the .nns files separated by ';'"))
-	, mDataFile(mArgsParser->addPositionalArg("data", "", "Path to the .nn file"))
-	, mOutputDir(mArgsParser->addPositionalArg("output", "", "Path to the output directory for the generated files"))
+	: mStatementFiles(mArgsParser->addOptionalArg(
+		std::nullopt,
+		"statements",
+		ArgValueType::STRING,
+		"",
+		"List of the .nns files separated by ';'"))
+	, mDataFile(mArgsParser->addPositionalArg(
+		"data",
+		ArgValueType::STRING,
+		"Path to the .nn file"))
+	, mOutputDir(mArgsParser->addPositionalArg(
+		"output",
+		ArgValueType::STRING,
+		"Path to the output directory for the generated files"))
 {
 	mArgsParser->setDescription("NN is a tool for code generation");
 	mArgsParser->setCallback([this](const SubCommand& command) {
@@ -30,8 +41,14 @@ int NN::exec(const SubCommand& /*command*/)
 		}
 	}
 	
-	ERM_ASSERT_HARD(fs::exists(outputDir) && fs::is_directory(outputDir), "Invalid output directory \"%s\"", outputDir.data());
-	ERM_ASSERT_HARD(fs::exists(dataFile) && fs::is_regular_file(dataFile), "Invalid input file \"%s\"", dataFile.data());
+	ERM_ASSERT_HARD(
+		fs::exists(outputDir) && fs::is_directory(outputDir),
+		"Invalid output directory \"%s\"",
+		outputDir.data());
+	ERM_ASSERT_HARD(
+		fs::exists(dataFile) && fs::is_regular_file(dataFile),
+		"Invalid input file \"%s\"",
+		dataFile.data());
 	
 	const auto program = mNNParser.parseProgram(dataFile, utils::readFromFile(dataFile));
 	

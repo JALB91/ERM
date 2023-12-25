@@ -2,15 +2,14 @@
 
 namespace erm {
 
-IArgument::IArgument(ArgValue defaultValue)
-	: mValueType(getArgValueTypeForArgValue(defaultValue))
-	, mDefaultValue(std::move(defaultValue))
+IArgument::IArgument(ArgValueType valueType, std::string_view defaultValue /* = ""*/)
+	: mValueType(valueType)
+	, mDefaultValue(defaultValue)
 {}
 
-void IArgument::setValue(ArgValue value)
+void IArgument::setValue(std::string_view value)
 {
-	ERM_ASSERT_HARD(getArgValueTypeForArgValue(value) == mValueType, "Argument value type doesn't match");
-	mValue = std::move(value);
+	mValue = value;
 }
 
 }

@@ -10,10 +10,6 @@ template<typename Container, typename Key>
 class ContainerItemHandle
 {
 public:
-	ContainerItemHandle()
-		: mContainer(nullptr)
-	{}
-	
 	ContainerItemHandle(Container& container, Key key)
 		: mContainer(&container)
 		, mKey(key)
@@ -27,13 +23,13 @@ public:
 	
 	const Container::value_type* operator->() const
 	{
+		ERM_ASSERT(isValid());
 		return &mContainer->at(mKey.value());
 	}
 	
-	void reset()
+	void setContainer(Container& container)
 	{
-		mKey.reset();
-		mContainer = nullptr;
+		mContainer = &container;
 	}
 	
 	bool isValid() const

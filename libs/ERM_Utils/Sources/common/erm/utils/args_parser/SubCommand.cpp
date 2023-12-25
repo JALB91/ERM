@@ -10,13 +10,13 @@ namespace erm {
 
 SubCommand::SubCommand()
 	: mDescription("No description provided")
-	, mHelpArg('h', "help", false, "Print help message")
+	, mHelpArg('h', "help", ArgValueType::BOOLEAN, "false", "Print help message")
 {}
 
 SubCommand::SubCommand(std::string_view name, std::string_view description)
 	: mName(name)
 	, mDescription(description)
-	, mHelpArg('h', "help", false, "Print help message")
+	, mHelpArg('h', "help", ArgValueType::STRING, "false", "Print help message")
 {
 	ERM_ASSERT(!mName.empty() && !mDescription.empty());
 }
@@ -63,46 +63,7 @@ SubCommand* SubCommand::parse(std::span<std::string> args)
 		if (verify(posArgIndex < posArgsSize, "Unexpected input parameter: %s", arg.data()))
 		{
 			auto& posArg = mPositionalArgs[posArgIndex++];
-			switch (posArg.getValueType())
-			{
-				case ArgValueType::STRING:
-				{
-					posArg.setValue(arg.data());
-					break;
-				}
-				case ArgValueType::INTEGER:
-				{
-					const auto result = utils::parseNumber<int>(arg.data());
-					if (!verify(result.has_value(), "Expected integer value for positional argument \"%s\"", posArg.getName()))
-					{
-						return nullptr;
-					}
-					posArg.setValue(result.value());
-					break;
-				}
-				case ArgValueType::FLOAT:
-				{
-					const auto result = utils::parseNumber<float>(arg.data());
-					if (!verify(result.has_value(), "Expected floating point value for positional argument \"%s\"", posArg.getName()))
-					{
-						return nullptr;
-					}
-					posArg.setValue(result.value());
-					break;
-				}
-				case ArgValueType::BOOLEAN:
-				{
-					const bool isTrue = arg == "true";
-					const bool isFalse = !isTrue && arg == "false";
-					
-					if (!verify(isTrue || isFalse, "Expected [true|false] value for positional argument \"%s\"", posArg.getName()))
-					{
-						return nullptr;
-					}
-					posArg.setValue(isTrue);
-					break;
-				}
-			}
+			posArg.setValue(arg);
 		}
 	}
 
@@ -143,55 +104,22 @@ bool SubCommand::parseOptArg(std::span<std::string> args, size_t& index)
 	{
 		return false;
 	}
+	
+	const bool isBoolean = optArg.getValueType() == ArgValueType::BOOLEAN;
 
-	switch (optArg.getValueType())
+	if (!verify(isBoolean || ++index < args.size(), "Expected value for optional argument \"%s\"", arg.data()))
 	{
-		case ArgValueType::STRING:
-		{
-			if (!verify(++index < args.size(), "Expected value for optional argument \"%s\"", arg.data()))
-			{
-				return false;
-			}
-			const auto& value = args[index];
-			optArg.setValue(value.data());
-			break;
-		}
-		case ArgValueType::INTEGER:
-		{
-			if (!verify(++index < args.size(), "Expected value for optional argument \"%s\"", arg.data()))
-			{
-				return false;
-			}
-			const auto& value = args[index];
-			const auto result = utils::parseNumber<int>(value.data());
-			if (!verify(result.has_value(), "Expected integer value for optional argument \"%s\"", arg.data()))
-			{
-				return false;
-			}
-			optArg.setValue(result.value());
-			break;
-		}
-		case ArgValueType::FLOAT:
-		{
-			if (!verify(++index < args.size(), "Expected value for optional argument \"%s\"", arg.data()))
-			{
-				return false;
-			}
-			const auto& value = args[index];
-			const auto result = utils::parseNumber<float>(value.data());
-			if (!verify(result.has_value(), "Expected float value for optional argument \"%s\"", arg.data()))
-			{
-				return false;
-			}
-			
-			optArg.setValue(result.value());
-			break;
-		}
-		case ArgValueType::BOOLEAN:
-		{
-			optArg.setValue(!optArg.get<bool>());
-			break;
-		}
+		return false;
+	}
+	
+	if (isBoolean)
+	{
+		optArg.setValue(optArg.getDefaultValue() == "true" ? "false" : "true");
+	}
+	else
+	{
+		const auto& value = args[index];
+		optArg.setValue(value);
 	}
 
 	return true;
@@ -216,10 +144,11 @@ void SubCommand::setCallback(std::function<int(const SubCommand&)> callback)
 OptionalArgHandle SubCommand::addOptionalArg(
 	std::optional<char> shortForm,
 	std::optional<std::string_view> namedForm,
-	ArgValue defaultValue,
+	ArgValueType valueType,
+	std::string_view defaultValue,
 	std::string_view description)
 {
-	OptionalArg arg (std::move(shortForm), std::move(namedForm), std::move(defaultValue), description);
+	OptionalArg arg (std::move(shortForm), std::move(namedForm), valueType, defaultValue, description);
 	const auto it = std::find(mOptionalArgs.begin(), mOptionalArgs.end(), arg);
 	ERM_ASSERT_HARD(it == mOptionalArgs.end(), "Argument with the given name has already been registered");
 	mOptionalArgs.emplace_back(std::move(arg));
@@ -228,10 +157,10 @@ OptionalArgHandle SubCommand::addOptionalArg(
 
 PositionalArgHandle SubCommand::addPositionalArg(
 	std::string_view name,
-	ArgValue defaultValue,
+	ArgValueType valueType,
 	std::string_view description)
 {
-	mPositionalArgs.emplace_back(name, std::move(defaultValue), description);
+	mPositionalArgs.emplace_back(name, valueType, description);
 	return PositionalArgHandle(mPositionalArgs, mPositionalArgs.size() - 1);
 }
 

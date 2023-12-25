@@ -15,6 +15,31 @@ Program::Program(std::string_view name) noexcept
 	, mName(name)
 {}
 
+Program::Program(Program&& other) noexcept
+	: mTokens(std::move(other.mTokens))
+	, mTokenTree(std::move(other.mTokenTree))
+	, mIndex(&mTokenTree)
+	, mName(std::move(other.mName))
+{
+	mTokenTree.forEachDo([this](TokenTree& entry) {
+		entry.getPayload().setContainer(mTokens);
+	});
+}
+
+Program& Program::operator=(Program&& other) noexcept
+{
+	mTokens = std::move(other.mTokens);
+	mTokenTree = std::move(other.mTokenTree);
+	mIndex = &mTokenTree;
+	mName = std::move(other.mName);
+	
+	mTokenTree.forEachDo([this](TokenTree& entry) {
+		entry.getPayload().setContainer(mTokens);
+	});
+	
+	return *this;
+}
+
 bool Program::addToken(const Token& token)
 {
 	ERM_ASSERT_HARD(token.mType != TokenType::INVALID);

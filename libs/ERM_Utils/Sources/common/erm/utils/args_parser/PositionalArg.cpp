@@ -9,9 +9,9 @@ namespace erm {
 
 PositionalArg::PositionalArg(
 	std::string_view name,
-	ArgValue defaultValue,
+	ArgValueType valueType,
 	std::string_view description /* = "No description provided" */)
-	: IArgument(std::move(defaultValue))
+	: IArgument(valueType)
 	, mName(name)
 	, mDescription(description)
 {
