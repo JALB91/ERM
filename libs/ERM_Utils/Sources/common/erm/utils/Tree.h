@@ -42,7 +42,9 @@ public:
 	Tree& operator=(Tree&& other) noexcept
 	{
 		if (&other == this)
+		{
 			return *this;
+		}
 		
 		mId = std::move(other.mId);
 		mPayload = std::move(other.mPayload);
