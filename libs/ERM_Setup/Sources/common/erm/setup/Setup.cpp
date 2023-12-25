@@ -31,31 +31,31 @@ Setup::Setup()
 	, mCompile(mArgsParser->addOptionalArg(
 		'c', 
 		"compile",
-		ArgValueType::STRING,
+		ArgValueType::BOOLEAN,
 		"false",
 		"Compile the project after generating"))
 	, mRTX(mArgsParser->addOptionalArg(
 		std::nullopt,
 		"rtx",
-		ArgValueType::STRING,
+		ArgValueType::BOOLEAN,
 		"false",
 		"Enable ray tracing"))
 	, mInteractive(mArgsParser->addOptionalArg(
 		'i',
 		"interactive",
-		ArgValueType::STRING,
+		ArgValueType::BOOLEAN,
 		"false",
 		"Run cmake in interactive mode"))
 	, mTracy(mArgsParser->addOptionalArg(
 		std::nullopt,
 		"tracy",
-		ArgValueType::STRING,
+		ArgValueType::BOOLEAN,
 		"false",
 		"Enable tracy"))
 	, mTrace(mArgsParser->addOptionalArg(
 		std::nullopt,
 		"trace",
-		ArgValueType::STRING,
+		ArgValueType::BOOLEAN,
 		"false",
 		"Trace cmake output"))
 {
