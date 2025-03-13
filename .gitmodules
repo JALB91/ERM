@@ -28,3 +28,6 @@
 [submodule "externals/magic_enum"]
 	path = externals/magic_enum
 	url = https://github.com/Neargye/magic_enum.git
+[submodule "externals/refl-cpp"]
+	path = externals/refl-cpp
+	url = https://github.com/veselink1/refl-cpp.git
