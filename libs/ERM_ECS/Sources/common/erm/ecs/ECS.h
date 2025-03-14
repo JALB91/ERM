@@ -2,6 +2,7 @@
 
 #include "erm/ecs/ECSConfig.h"
 #include "erm/ecs/EntityId.h"
+#include "erm/ecs/ISystem.h"
 
 #include <erm/utils/assert/Assert.h>
 #include <erm/utils/Utils.h>
@@ -13,7 +14,6 @@
 
 namespace erm::ecs {
 struct Entity;
-class ISystem;
 } // namespace erm::ecs
 
 namespace erm::ecs {
