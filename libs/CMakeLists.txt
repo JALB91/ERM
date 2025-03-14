@@ -4,22 +4,17 @@ project(
 	DESCRIPTION "ERM Libraries"
 )
 
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+include(ERMLibs)
+
 set(ERM_GENERATED_DIR "${CMAKE_INSTALL_PREFIX}/generated")
 
-file(GLOB ERM_LIBS_DIRECTORIES LIST_DIRECTORIES true *)
+erm_gather_libs(ERM_LIBS_DIRECTORIES)
 
 foreach(ERM_LIB_DIRECTORY ${ERM_LIBS_DIRECTORIES})
-    if(IS_DIRECTORY "${ERM_LIB_DIRECTORY}")
-        erm_gather_sources("${ERM_LIB_DIRECTORY}")
-        if(NN_STATEMENTS)
-            list(APPEND NN_ALL_STATEMENTS ${NN_STATEMENTS})
-        endif()
-        set(NN_ALL_STATEMENTS ${NN_ALL_STATEMENTS})
-    endif()
+    erm_gather_sources("${ERM_LIB_DIRECTORY}")
 endforeach()
 
 foreach(ERM_LIB_DIRECTORY ${ERM_LIBS_DIRECTORIES})
-    if(IS_DIRECTORY "${ERM_LIB_DIRECTORY}")
-        add_subdirectory("${ERM_LIB_DIRECTORY}")
-    endif()
+    add_subdirectory("${ERM_LIB_DIRECTORY}")
 endforeach()

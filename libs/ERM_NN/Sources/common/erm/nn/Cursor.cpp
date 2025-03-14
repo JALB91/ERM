@@ -1,9 +1,25 @@
 #include "erm/nn/Cursor.h"
 
+#include <array>
+
+namespace {
+
+constexpr std::array kSymbolsChars {
+	'{', '[', '(', '<',
+	'}', ']', ')', '>',
+	'=', '+', '-', '*', 
+	'/', '&', '|', '^',
+	'~', '!', ',', ';',
+	':'
+};
+
+}
+
 namespace erm::nn {
 
-Cursor::Cursor()
-	: mCursorOffset(0)
+Cursor::Cursor(std::string_view text)
+	: mText(text)
+	, mCursorOffset(0)
 	, mCursorLine(0)
 	, mCursorLineOffset(0)
 {}
@@ -64,51 +80,29 @@ bool Cursor::isOneLineComment() const
 	return getCharAtCursor() == '/' && getCharAfterCursor() == '/';
 }
 
-bool Cursor::isScopeBegin() const
-{
-	const auto currChar = getCharAtCursor();
-	return 
-		currChar == '{' ||
-		currChar == '[' ||
-		currChar == '(' ||
-		currChar == '<';
-}
-
-bool Cursor::isScopeEnd() const
-{
-	const auto currChar = getCharAtCursor();
-	return 
-		currChar == '}' ||
-		currChar == ']' ||
-		currChar == ')' ||
-		currChar == '>';
-}
-
 bool Cursor::isSpaceOrTab() const
 {
 	const auto currChar = getCharAtCursor();
 	return currChar == ' ' || currChar == '\t';
 }
 
-bool Cursor::isOperator() const
-{
-	const auto currChar = getCharAtCursor();
-	return 
-		currChar == '=' ||
-		currChar == '+' ||
-		currChar == '-' ||
-		currChar == '*' ||
-		currChar == '/' ||
-		currChar == '&' ||
-		currChar == '|' ||
-		currChar == '^' ||
-		currChar == '~' ||
-		currChar == '!';
-}
-
 bool Cursor::isNewLine() const
 {
 	return getCharAtCursor() == '\n';
+}
+
+bool Cursor::isSymbol() const
+{
+	const auto currChar = getCharAtCursor();
+	
+	if (!currChar.has_value())
+	{
+		return false;
+	}
+	
+	const auto currCharValue = currChar.value();
+	
+	return std::find(kSymbolsChars.begin(), kSymbolsChars.end(), currCharValue) != kSymbolsChars.end();
 }
 
 bool Cursor::isDigit() const

@@ -1,7 +1,5 @@
 #include "erm/nn/Tokenizer.h"
 
-#include "erm/nn/Common.h"
-
 #include <erm/utils/assert/Assert.h>
 #include <erm/utils/Utils.h>
 
@@ -9,27 +7,9 @@
 
 namespace erm::nn {
 
-Tokenizer::Tokenizer() noexcept
-	: mStatements {
-		kStatements.begin(),
-		kStatements.end()
-	}
+Tokenizer::Tokenizer(std::string_view text) noexcept
+	: mCursor(text)
 {}
-
-void Tokenizer::addStatement(std::string_view statement)
-{
-	const auto it = std::find(mStatements.begin(), mStatements.end(), statement);
-	if (it != mStatements.end())
-	{
-		return;
-	}
-	mStatements.emplace_back(statement);
-}
-
-void Tokenizer::init(std::string_view text)
-{
-	mCursor.init(text);
-}
 
 void Tokenizer::updateCursor()
 {
@@ -97,6 +77,7 @@ std::optional<Token> Tokenizer::getNextToken()
 	}
 	else if (mCursor.is('"'))
 	{
+		token.mValue += *mCursor.getCharAtCursor();
 		do
 		{
 			if (!mCursor.tryAdvance())
@@ -112,71 +93,28 @@ std::optional<Token> Tokenizer::getNextToken()
 		}
 		while (!mCursor.is('"'));
 		
+		token.mValue += *mCursor.getCharAtCursor();
 		token.mType = TokenType::STRING_LITERAL;
 		mCursor.tryAdvance();
 	}
-	else if (mCursor.is(';'))
+	else if (mCursor.isSymbol())
 	{
-		token.mType = TokenType::SEMI_COLON;
+		token.mType = TokenType::SYMBOL;
 		token.mValue = *mCursor.getCharAtCursor();
 		mCursor.tryAdvance();
 	}
-	else if (mCursor.is(':'))
+	else if (mCursor.isAlpha() || mCursor.is('_'))
 	{
-		token.mType = TokenType::COLON;
-		token.mValue = *mCursor.getCharAtCursor();
-		mCursor.tryAdvance();
-	}
-	else if (mCursor.is(','))
-	{
-		token.mType = TokenType::COMMA;
-		token.mValue = *mCursor.getCharAtCursor();
-		mCursor.tryAdvance();
-	}
-	else if (mCursor.isScopeBegin())
-	{
-		token.mType = TokenType::SCOPE_BEGIN;
-		token.mValue = *mCursor.getCharAtCursor();
-		mCursor.tryAdvance();
-	}
-	else if (mCursor.isScopeEnd())
-	{
-		token.mType = TokenType::SCOPE_END;
-		token.mValue = *mCursor.getCharAtCursor();
-		mCursor.tryAdvance();
-	}
-	else
-	{
-		const auto statementIt = std::find_if(mStatements.begin(), mStatements.end(), [&](const auto& statement) {
-			return mCursor.is(statement);
-		});
-
-		if (statementIt != mStatements.end())
+		token.mType = TokenType::IDENTIFIER;
+		do
 		{
-			const auto& statement = *statementIt;
-			token.mType = TokenType::STATEMENT;
-			token.mValue = statement;
-			mCursor.tryAdvance(statement.size());
-		}
-		else if (mCursor.isOperator())
-		{
-			token.mType = TokenType::OPERATOR;
-			token.mValue = *mCursor.getCharAtCursor();
-			mCursor.tryAdvance();
-		}
-		else if (mCursor.isAlpha() || mCursor.is('_'))
-		{
-			token.mType = TokenType::IDENTIFIER;
-			do
+			token.mValue += *mCursor.getCharAtCursor();
+			if (!mCursor.tryAdvance())
 			{
-				token.mValue += *mCursor.getCharAtCursor();
-				if (!mCursor.tryAdvance())
-				{
-					break;
-				}
+				break;
 			}
-			while (mCursor.isAlpha() || mCursor.isDigit() || mCursor.is('_'));
 		}
+		while (mCursor.isAlpha() || mCursor.isDigit() || mCursor.is('_'));
 	}
 
 	return token;

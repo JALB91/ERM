@@ -6,8 +6,8 @@
 int main(int argc, char** argv)
 {
 	erm::Setup setup;
-	auto* command = setup.getArgsParser().parseArgs(argc, argv);
-	if (command != nullptr)
+	
+	if (auto* command = setup.getArgsParser().parseArgs(argc, argv); command != nullptr)
 	{
 		return command->callback();
 	}

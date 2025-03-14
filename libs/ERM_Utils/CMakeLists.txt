@@ -12,4 +12,5 @@ target_link_libraries(
 		$<$<BOOL:${ERM_TRACY_ENABLED}>:Tracy::TracyClient>
 		magic_enum
 		ERM_Math
+		ERM_FileSystem
 )

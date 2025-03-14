@@ -4,6 +4,7 @@
 #include "erm/utils/Utils.h"
 
 #include <algorithm>
+#include <format>
 #include <iostream>
 
 namespace erm {
@@ -64,6 +65,10 @@ SubCommand* SubCommand::parse(std::span<std::string> args)
 		{
 			auto& posArg = mPositionalArgs[posArgIndex++];
 			posArg.setValue(arg);
+		}
+		else
+		{
+			return nullptr;
 		}
 	}
 
@@ -193,12 +198,11 @@ int SubCommand::callback() const
 
 void SubCommand::printHelp() const
 {
-	str512 logStr;
-	logStr.format("Usage:\n\t%s [options]", mName);
+	std::string logStr = std::format("Usage:\n\t{} [options]", mName);
 
 	for (const auto& posArg : mPositionalArgs)
 	{
-		logStr.append(" <%s>", posArg.getName());
+		logStr += std::format(" <{}>", posArg.getName());
 	}
 
 	if (!mSubCommands.empty())
@@ -206,15 +210,15 @@ void SubCommand::printHelp() const
 		logStr.append("\n\nSub Commands:");
 		for (const auto& cmd : mSubCommands)
 		{
-			logStr.append("\n\t%s %s [options]", mName, cmd.getName());
+			logStr += std::format("\n\t{} {} [options]", mName, cmd.getName());
 			for (const auto& posArg : cmd.getPositionalArgs())
 			{
-				logStr.append(" <%s>", posArg.getName());
+				logStr += std::format(" <{}>", posArg.getName());
 			}
 		}
 	}
 
-	ERM_LOG("%s\n\nDescription:\n\t%s\n\nOptions:", logStr, mDescription.data());
+	ERM_LOG("%s\n\nDescription:\n\t%s\n\nOptions:", logStr.c_str(), mDescription.c_str());
 
 	{
 		ERM_LOG_INDENT();

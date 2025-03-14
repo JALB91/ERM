@@ -20,7 +20,7 @@ PositionalArg::PositionalArg(
 
 void PositionalArg::print() const
 {
-	ERM_LOG("<%s>: %s", mName, mDescription.data());
+	ERM_LOG("<%s>: %s", mName.c_str(), mDescription.c_str());
 }
 
 }

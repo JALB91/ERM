@@ -1,16 +1,14 @@
 #pragma once
 
+#include "erm/nn/IStatementHandler.h"
 #include "erm/nn/Token.h"
 
 #include <erm/math/Types.h>
 
-#include <erm/utils/ContainerItemHandle.h>
-#include <erm/utils/StaticString.h>
-#include <erm/utils/Tree.h>
-
-#include <nlohmann/json.hpp>
-
+#include <memory>
+#include <string>
 #include <string_view>
+#include <unordered_map>
 #include <vector>
 
 namespace erm::nn {
@@ -23,22 +21,25 @@ public:
 	Program(const Program&) noexcept = delete;
 	Program& operator=(const Program&) noexcept = delete;
 	
-	Program(Program&& other) noexcept;
-	Program& operator=(Program&& other) noexcept;
-
-	bool addToken(const Token& token);
+	Program(Program&& other) = delete;
+	Program& operator=(Program&& other) = delete;
 	
-	bool validateTree() const;
-	nlohmann::json toJson() const;
-
-	inline const str64& getName() const { return mName; }
+	inline const std::unordered_map<std::string, std::unique_ptr<IStatementHandler>>& getStatementHandlers() const
+	{
+		return mStatementHandlers;
+	}
+	
+	inline const std::vector<Token>& getTokens() const { return mTokens; }
+	
+	inline const std::string& getName() const { return mName; }
+	
+	bool parse(std::string_view text);
+	void debugPrint() const;
 
 private:
-	using TokenTree = Tree<u64, VectorItemHandle<Token>>;
+	std::unordered_map<std::string, std::unique_ptr<IStatementHandler>> mStatementHandlers;
 	std::vector<Token> mTokens;
-	TokenTree mTokenTree;
-	TokenTree* mIndex;
-	str64 mName;
+	std::string mName;
 
 };
 

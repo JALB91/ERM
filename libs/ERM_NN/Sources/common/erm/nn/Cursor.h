@@ -11,7 +11,7 @@ namespace erm::nn {
 class Cursor
 {
 public:
-	Cursor();
+	Cursor(std::string_view text);
 	
 	void init(std::string_view text);
 	
@@ -22,11 +22,9 @@ public:
 	bool isMultilineCommentBegin() const;
 	bool isMultilineCommentEnd() const;
 	bool isOneLineComment() const;
-	bool isScopeBegin() const;
-	bool isScopeEnd() const;
 	bool isSpaceOrTab() const;
-	bool isOperator() const;
 	bool isNewLine() const;
+	bool isSymbol() const;
 	bool isDigit() const;
 	bool isAlpha() const;
 	bool isValid() const;

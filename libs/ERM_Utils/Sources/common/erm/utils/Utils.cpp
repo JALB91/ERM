@@ -15,7 +15,7 @@ void writeToFile(std::string_view path, std::string_view data)
 {
 	std::ofstream stream(path.data());
 
-	if (ERM_EXPECT(stream.is_open(), "Failed to open file"))
+	if (ERM_EXPECT(stream.is_open(), "Failed to open file: %s", path.data()))
 	{
 		stream.write(data.data(), data.size());
 	}
@@ -25,7 +25,7 @@ std::string readFromFile(std::string_view path)
 {
 	std::ifstream stream(path.data());
 
-	if (!ERM_EXPECT(stream.is_open(), "Failed to open file"))
+	if (!ERM_EXPECT(stream.is_open(), "Failed to open file: %s", path.data()))
 	{
 		return "";
 	}

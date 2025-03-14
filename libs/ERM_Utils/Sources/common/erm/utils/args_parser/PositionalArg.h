@@ -7,6 +7,7 @@
 
 #include <optional>
 #include <string>
+#include <string_view>
 
 namespace erm {
 
@@ -18,7 +19,7 @@ public:
 		ArgValueType valueType,
 		std::string_view description = "No description provided");
 	
-	inline const str32& getName() const
+	inline const std::string& getName() const
 	{
 		return mName;
 	}
@@ -26,7 +27,7 @@ public:
 	void print() const;
 
 private:
-	const str32 mName;
+	const std::string mName;
 	const std::string mDescription;
 };
 

@@ -55,7 +55,7 @@ public:
 		return mPositionalArgs;
 	}
 	
-	inline const str32& getName() const { return mName; }
+	inline const std::string& getName() const { return mName; }
 
 	int callback() const;
 	void printHelp() const;
@@ -73,7 +73,7 @@ private:
 		return condition;
 	}
 
-	str32 mName;
+	std::string mName;
 	std::string mDescription;
 	OptionalArg mHelpArg;
 	std::vector<OptionalArg> mOptionalArgs;

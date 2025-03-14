@@ -12,7 +12,7 @@ namespace internal {
 u64 getNextID();
 
 template<typename T>
-u64 getIDImpl()
+inline u64 getIDImpl()
 {
 	static const u64 sID = getNextID();
 	return sID;
@@ -21,7 +21,7 @@ u64 getIDImpl()
 }
 
 template<typename T>
-u64 getID()
+inline constexpr u64 getID()
 {
 	return internal::getIDImpl<utils::remove_all_t<T>>();
 }

@@ -3,12 +3,14 @@
 #include "erm/utils/args_parser/ArgValueType.h"
 #include "erm/utils/args_parser/IArgument.h"
 
+#include <string_view>
+
 namespace erm {
 
 class OptionalArg : public IArgument
 {
 private:
-	static constexpr str16 sValueText = str16(" <value>");
+	static constexpr std::string_view sValueText = " <value>";
 	
 public:
 	OptionalArg(
@@ -27,7 +29,7 @@ public:
 		return mShortForm;
 	}
 
-	inline const std::optional<str32> getNamedForm() const
+	inline const std::optional<std::string> getNamedForm() const
 	{
 		return mNamedForm;
 	}
@@ -40,7 +42,7 @@ private:
 	bool doesArgValueTypeExpectsInput() const;
 	
 	const std::optional<char> mShortForm;
-	const std::optional<str32> mNamedForm;
+	const std::optional<std::string> mNamedForm;
 	const std::string mDescription;
 	
 };

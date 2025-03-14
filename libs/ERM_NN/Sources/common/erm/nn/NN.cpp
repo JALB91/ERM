@@ -1,17 +1,13 @@
 #include "erm/nn/NN.h"
 
+#include "erm/nn/Program.h"
+
 #include <erm/fs/fs.h>
 
 namespace erm::nn {
 
 NN::NN()
-	: mStatementFiles(mArgsParser->addOptionalArg(
-		std::nullopt,
-		"statements",
-		ArgValueType::STRING,
-		"",
-		"List of the .nns files separated by ';'"))
-	, mDataFile(mArgsParser->addPositionalArg(
+	: mDataFile(mArgsParser->addPositionalArg(
 		"data",
 		ArgValueType::STRING,
 		"Path to the .nn file"))
@@ -31,14 +27,10 @@ int NN::exec(const SubCommand& /*command*/)
 	const auto dataFile = mDataFile->get<std::string>();
 	const auto outputDir = mOutputDir->get<std::string>();
 	
-	const auto& statementFilesStr = mStatementFiles->get<std::string>();
-	const auto statementFiles = utils::splitString(statementFilesStr, ';');
-	for (const auto& statementFile : statementFiles)
+	if (!fs::exists(outputDir) && !fs::create_directories(outputDir))
 	{
-		if (!mNNParser.parseStatements(utils::readFromFile(statementFile)))
-		{
-			ERM_LOG_ERROR("Error while parsing statements from \"%s\"", statementFile);
-		}
+		ERM_LOG_ERROR("Failed to create output directory %s", outputDir.c_str());
+		return EXIT_FAILURE;
 	}
 	
 	ERM_ASSERT_HARD(
@@ -50,14 +42,14 @@ int NN::exec(const SubCommand& /*command*/)
 		"Invalid input file \"%s\"",
 		dataFile.data());
 	
-	const auto program = mNNParser.parseProgram(dataFile, utils::readFromFile(dataFile));
+	auto program = Program(dataFile);
 	
-	if (!program.has_value() || !program->validateTree())
+	if (!program.parse(utils::readFromFile(dataFile)))
 	{
 		return EXIT_FAILURE;
 	}
 	
-	ERM_LOG(program->toJson().dump(4));
+	program.debugPrint();
 	
 	return EXIT_SUCCESS;
 }

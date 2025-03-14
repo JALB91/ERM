@@ -80,32 +80,32 @@ void OptionalArg::print(u16 maxNamedFormLength) const
 	const u16 textLengthUntilDescription = getTextLengthUntilDescription();
 	ERM_ASSERT(textLengthUntilDescription <= maxNamedFormLength);
 	const u16 numberOfSpaces = maxNamedFormLength - textLengthUntilDescription;
-	str256 logStr;
+	std::string logStr;
 	
 	if (mShortForm.has_value())
 	{
-		logStr.append("-%c", mShortForm.value());
+		logStr += std::format("-{}", mShortForm.value());
 	}
 	
 	if (mNamedForm.has_value())
 	{
 		if (mShortForm.has_value())
 		{
-			logStr.append(' ');
+			logStr.append(" ");
 		}
-		logStr.append("--%s", mNamedForm.value().data());
+		logStr += std::format("--{}", mNamedForm.value());
 		
 		if (doesArgValueTypeExpectsInput())
 		{
-			logStr.append(" <value>", mNamedForm.value().data());
+			logStr.append(" <value>");
 		}
 	}
 	
 	switch (mValueType)
 	{
 		case ArgValueType::STRING:
-			logStr.append(
-				"%s %s (Default: \"%s\")",
+			logStr += std::format(
+				"{} {} (Default: \"{}\")",
 				str32(' ', numberOfSpaces).data(),
 				mDescription.data(),
 				mDefaultValue.data()
@@ -114,8 +114,8 @@ void OptionalArg::print(u16 maxNamedFormLength) const
 		case ArgValueType::INTEGER:
 		case ArgValueType::FLOAT:
 		case ArgValueType::BOOLEAN:
-			logStr.append(
-				"%s %s (Default: %s)",
+			logStr += std::format(
+				"{} {} (Default: {})",
 				str32(' ', numberOfSpaces).data(),
 				mDescription.data(),
 				mDefaultValue.data()
@@ -132,9 +132,9 @@ void OptionalArg::print(u16 maxNamedFormLength) const
 			{
 				logStr.append(", ");
 			}
-			logStr.append(mOptions[i].data());
+			logStr.append(mOptions[i]);
 		}
-		logStr.append(']');
+		logStr.append("]");
 	}
 
 	ERM_LOG(logStr);

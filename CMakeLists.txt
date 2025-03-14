@@ -1,27 +1,10 @@
 cmake_minimum_required(VERSION 3.21)
 
-# Verify ERM_TARGET_API
-if(NOT DEFINED ERM_TARGET_API)
-	set(ERM_TARGET_API "Vulkan")
-endif()
-
-if("${ERM_TARGET_API}" STREQUAL "VULKAN")
-	set(ERM_VULKAN ON)
-elseif("${ERM_TARGET_API}" STREQUAL "OPEN_GL")
-	set(ERM_OPEN_GL ON)
-elseif("${ERM_TARGET_API}" STREQUAL "DX12")
-	set(ERM_DX12 ON)
-else()
-	message(FATAL_ERROR "Invalid target api: ${ERM_TARGET_API}")
-endif()
-
-# Verify ERM_PLATFORM
-if(NOT DEFINED ERM_PLATFORM)
-	if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Windows")
-		set(ERM_PLATFORM "Windows")
-	elseif("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Darwin")
-		set(ERM_PLATFORM "MacOS")
-	endif()
+# Setup ERM_PLATFORM
+if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Windows")
+	set(ERM_PLATFORM "Windows")
+elseif("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Darwin")
+	set(ERM_PLATFORM "MacOS")
 endif()
 
 if("${ERM_PLATFORM}" STREQUAL "Windows")
@@ -32,6 +15,21 @@ else()
 	message(FATAL_ERROR "Invalid platform: ${ERM_PLATFORM}")
 endif()
 
+# Verify ERM_TARGET_API
+if(NOT DEFINED ERM_TARGET_API)
+	set(ERM_TARGET_API "VULKAN")
+endif()
+
+if("${ERM_TARGET_API}" STREQUAL "VULKAN")
+	set(ERM_VULKAN ON)
+elseif("${ERM_TARGET_API}" STREQUAL "OPEN_GL")
+	set(ERM_OPEN_GL ON)
+elseif("${ERM_TARGET_API}" STREQUAL "DX12" AND ERM_WINDOWS)
+	set(ERM_DX12 ON)
+else()
+	message(FATAL_ERROR "Invalid target api: ${ERM_TARGET_API}")
+endif()
+
 # Project declaration
 project(
 	"ERM_${ERM_PLATFORM}_${ERM_TARGET_API}"
@@ -39,9 +37,6 @@ project(
 	DESCRIPTION "C++ Game Engine"
 	LANGUAGES CXX
 )
-
-# Setup libs path
-set(ERM_LIBS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs")
 
 # Setup configuration types
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE)
@@ -56,7 +51,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE "${CMAKE_INSTALL_PREFIX}/lib/Release"
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_INSTALL_PREFIX}/bin/Release" CACHE STRING "" FORCE)
 
 # C++ Options
-set(CMAKE_CXX_STANDARD 20 CACHE STRING "" FORCE)
+set(CMAKE_CXX_STANDARD 23 CACHE STRING "" FORCE)
 set(CMAKE_CXX_EXTENSIONS OFF CACHE BOOL "" FORCE)
 set(CMAKE_CXX_STANDARD_REQUIRED ON CACHE BOOL "" FORCE)
 set(CMAKE_CXX_FLAGS "${GCC_COVERAGE_COMPILE_FLAGS}" CACHE STRING "" FORCE)
@@ -84,9 +79,7 @@ endif()
 # Setup CMAKE_MODULE_PATH
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(ERMConfig)
-include(ERMLibs)
-include(SPIRVConfig)
-include(AssimpConfig)
+include(ERMUtils)
 
 # Setup ERM_TARGET_API
 erm_setup_api()
@@ -106,28 +99,10 @@ elseif(ERM_MAC)
 	include(OSXConfig)
 endif()
 
-# Include configuration files for dependencies
-include(TracyConfig)
-include(GLMConfig)
-include(GLFWConfig)
-include(TinyXmlConfig)
+# Setup externals
+set(ERM_EXTERNALS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/externals")
+add_subdirectory("${ERM_EXTERNALS_DIR}")
 
-# Adds common externals dependencies
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/tracy")
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/glm")
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/glfw")
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/imgui")
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/tinyxml")
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/stb_image")
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/SPIRV-Cross")
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/fmod")
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/fbx")
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/json")
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/magic_enum")
-
-if(ERM_ASSIMP_ENABLED)
-	add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/assimp")
-endif()
-
-# Add libs
+# Setup libs
+set(ERM_LIBS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs")
 add_subdirectory("${ERM_LIBS_DIR}")

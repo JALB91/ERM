@@ -41,14 +41,14 @@ inline std::optional<float> parseNumber(std::string_view data)
 }
 #endif
 
-inline constexpr std::vector<std::string_view> splitString(std::string_view str, char ch) noexcept
+inline constexpr std::vector<std::string> splitString(std::string_view str, char ch) noexcept
 {
 	if (str.empty())
 	{
 		return {};
 	}
 
-	std::vector<std::string_view> result;
+	std::vector<std::string> result;
 	size_t currStartOffset = 0;
 	size_t currCount = 0;
 
@@ -164,5 +164,24 @@ struct remove_all
 
 template<typename T>
 using remove_all_t = typename remove_all<T>::type;
+
+namespace internal {
+
+template<std::size_t N>
+struct num { static const constexpr auto value = N; };
+
+template <class F, std::size_t OFFSET, std::size_t... IS>
+void for_(F func, std::index_sequence<IS...>)
+{
+	(func(num<IS + OFFSET>{}), ...);
+}
+
+}
+
+template <std::size_t OFFSET, std::size_t N, typename F>
+void for_constexpr(F func)
+{
+	internal::for_<F, OFFSET>(func, std::make_index_sequence<N>());
+}
 
 } // namespace erm::Utils

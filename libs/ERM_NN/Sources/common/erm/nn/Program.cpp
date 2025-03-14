@@ -1,6 +1,10 @@
 #include "erm/nn/Program.h"
 
+#include "erm/nn/NNAllStatementHandlers.h"
+#include "erm/nn/Tokenizer.h"
+
 #include <erm/utils/assert/Assert.h>
+#include <erm/utils/Utils.h>
 
 #include <magic_enum.hpp>
 
@@ -9,166 +13,75 @@
 namespace erm::nn {
 
 Program::Program(std::string_view name) noexcept
-	: mTokens({Token{.mValue = name, .mType = TokenType::PROGRAM}})
-	, mTokenTree(0, {mTokens, 0})
-	, mIndex(&mTokenTree)
-	, mName(name)
-{}
-
-Program::Program(Program&& other) noexcept
-	: mTokens(std::move(other.mTokens))
-	, mTokenTree(std::move(other.mTokenTree))
-	, mIndex(&mTokenTree)
-	, mName(std::move(other.mName))
+	: mName(name)
 {
-	mTokenTree.forEachDo([this](TokenTree& entry) {
-		entry.getPayload().setContainer(mTokens);
-	});
+	REGISTER_STATEMENT_HANDLERS(mStatementHandlers);
 }
 
-Program& Program::operator=(Program&& other) noexcept
+bool Program::parse(std::string_view text)
 {
-	mTokens = std::move(other.mTokens);
-	mTokenTree = std::move(other.mTokenTree);
-	mIndex = &mTokenTree;
-	mName = std::move(other.mName);
-	
-	mTokenTree.forEachDo([this](TokenTree& entry) {
-		entry.getPayload().setContainer(mTokens);
-	});
-	
-	return *this;
-}
+	Tokenizer tokenizer(text);
 
-bool Program::addToken(const Token& token)
-{
-	ERM_ASSERT_HARD(token.mType != TokenType::INVALID);
+	auto lookahead = tokenizer.getNextToken();
 	
-	if (token.mType == TokenType::SCOPE_BEGIN)
+	while (lookahead.has_value())
 	{
-		mIndex = &mIndex->addChild(mTokens.size(), {mTokens, mTokens.size()});
-	}
-	else if (token.mType == TokenType::SCOPE_END)
-	{
-		mIndex = mIndex->getParent();
-		if (mIndex == nullptr)
+		if (lookahead->mType == TokenType::INVALID)
 		{
-			ERM_LOG_ERROR("Invalid scope end");
+			ERM_LOG_ERROR(
+				"Invalid token found \"%s\", while parsing \"%s\" at line %d, %d",
+				lookahead->mValue.data(),
+				mName.data(),
+				lookahead->mLine,
+				lookahead->mLineOffset);
+			mTokens.clear();
+			
 			return false;
 		}
-		mIndex->addChild(mTokens.size(), {mTokens, mTokens.size()});
+		
+		mTokens.emplace_back(std::move(*lookahead));
+		
+		lookahead = tokenizer.getNextToken();
 	}
-	else
+	
+	for (size_t i = 0; i < mTokens.size();)
 	{
-		mIndex->addChild(mTokens.size(), {mTokens, mTokens.size()});
-	}
-	
-	mTokens.emplace_back(token);
-	
-	return true;
-}
-
-bool Program::validateTree() const
-{
-	std::vector<const Token*> scopeBegins;
-	
-	for (const auto& token : mTokens)
-	{
-		switch (token.mType)
+		const auto& token = mTokens[i];
+		
+		if (token.mType == TokenType::INVALID)
 		{
-			case TokenType::SCOPE_BEGIN:
-				scopeBegins.emplace_back(&token);
-				break;
-			case TokenType::SCOPE_END:
-				if (scopeBegins.empty())
-				{
-					ERM_LOG_ERROR(
-						"Unexpected token \"%s\" at line %d, %d",
-						token.mValue.data(),
-						token.mLine,
-						token.mLineOffset);
-					return false;
-				}
-				else
-				{
-					scopeBegins.pop_back();
-				}
-				break;
-			default:
-				break;
+			ERM_LOG_ERROR(
+				"Invalid token found \"%s\" (%s), while parsing \"%s\" at line %d, %d",
+				token.mValue.data(),
+				magic_enum::enum_name(token.mType).data(),
+				mName.data(),
+				token.mLine,
+				token.mLineOffset);
+			return false;
 		}
-	}
-	
-	if (!scopeBegins.empty())
-	{
-		const auto* token = scopeBegins.back();
-		ERM_LOG_ERROR(
-			"Expected closing token for \"%s\" at line %d, %d",
-			token->mValue.data(),
-			token->mLine,
-			token->mLineOffset);
-		return false;
+		
+		const auto it = mStatementHandlers.find(token.mValue.data());
+		ERM_ASSERT_HARD(it != mStatementHandlers.end());
+
+		const auto& [_, handler] = *it;
+		
+		const auto statement = handler->parse(*this, i);
+
+		if (!statement)
+		{
+			ERM_LOG_ERROR("Error while parsing \"%s\"", mName.data());
+			return false;
+		}
+		
+		statement->print();
 	}
 	
 	return true;
 }
 
-nlohmann::json Program::toJson() const
+void Program::debugPrint() const
 {
-	nlohmann::json json;
-	std::stack<nlohmann::json*> jsonStack;
-	jsonStack.push(&json);
 	
-	mTokenTree.forEachDo([&jsonStack](const auto& entry) {
-		auto& currJson = *jsonStack.top();
-		auto& jsonToWrite = currJson.is_array() ? currJson.emplace_back() : currJson;
-
-		const auto& token = entry.getPayload();
-		jsonToWrite["type"] = magic_enum::enum_name(token->mType);
-
-		switch (token->mType)
-		{
-			case TokenType::PROGRAM:
-			{
-				jsonToWrite["body"] = nlohmann::json::array();
-				jsonStack.push(&(jsonToWrite["body"]));
-				break;
-			}
-			case TokenType::SCOPE_BEGIN:
-			{
-				jsonToWrite["value"] = token->mValue;
-				jsonToWrite["body"] = nlohmann::json::array();
-				jsonStack.push(&(jsonToWrite["body"]));
-				break;
-			}
-			case TokenType::NUMERIC_LITERAL:
-			case TokenType::STRING_LITERAL:
-			case TokenType::IDENTIFIER:
-			case TokenType::SCOPE_END:
-			case TokenType::STATEMENT:
-			case TokenType::OPERATOR:
-			case TokenType::SEMI_COLON:
-			case TokenType::COLON:
-			case TokenType::COMMA:
-			{
-				jsonToWrite["value"] = token->mValue;
-				break;
-			}
-			case TokenType::INVALID:
-			{
-				break;
-			}
-		}
-	},
-	[&jsonStack](const auto& entry) {
-		const auto& token = entry.getPayload();
-		if (token->mType == TokenType::PROGRAM || token->mType == TokenType::SCOPE_BEGIN)
-		{
-			jsonStack.pop();
-		}
-	});
-
-	return json;
 }
 
 }

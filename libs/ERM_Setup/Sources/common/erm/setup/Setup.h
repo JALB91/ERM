@@ -26,6 +26,7 @@ private:
 	OptionalArgHandle mInteractive;
 	OptionalArgHandle mTracy;
 	OptionalArgHandle mTrace;
+	OptionalArgHandle mUseGenerator;
 
 };
 
