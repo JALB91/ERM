@@ -36,11 +36,11 @@ int NN::exec(const SubCommand& /*command*/)
 	ERM_ASSERT_HARD(
 		fs::exists(outputDir) && fs::is_directory(outputDir),
 		"Invalid output directory \"%s\"",
-		outputDir.data());
+		outputDir.c_str());
 	ERM_ASSERT_HARD(
 		fs::exists(dataFile) && fs::is_regular_file(dataFile),
 		"Invalid input file \"%s\"",
-		dataFile.data());
+		dataFile.c_str());
 	
 	auto program = Program(dataFile);
 	
@@ -50,6 +50,11 @@ int NN::exec(const SubCommand& /*command*/)
 	}
 	
 	program.debugPrint();
+	
+	std::system(std::format(
+		"touch {}/{}.cpp",
+		outputDir,
+		fs::path(dataFile).filename().replace_extension().c_str()).c_str());
 	
 	return EXIT_SUCCESS;
 }
