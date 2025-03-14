@@ -6,7 +6,7 @@ class Stacce
 
 enum Test 
 {
-    TEST = 1,x
+    TEST = 1,
 	TEST_2 = 2
 }
 
