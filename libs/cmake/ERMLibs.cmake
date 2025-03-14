@@ -130,11 +130,23 @@ function(erm_setup_custom_commands)
 endfunction()
 
 function(erm_setup_executable_custom_commands)
-	list(APPEND NN_EXECUTABLE_COMMAND 
+	list(APPEND NN_COPY_EXECUTABLE_COMMAND
+		"mkdir"
+		"-p"
+		"${CMAKE_CURRENT_SOURCE_DIR}/bin/${ERM_PLATFORM}/$<CONFIG>"
+		"&&"
 		"cp"
 		"$<TARGET_FILE:${PROJECT_NAME}>"
 		"${CMAKE_CURRENT_SOURCE_DIR}/bin/${ERM_PLATFORM}/$<CONFIG>/${PROJECT_NAME}")
-	add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${NN_EXECUTABLE_COMMAND})
+	add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${NN_COPY_EXECUTABLE_COMMAND})
+
+	if(ERM_WINDOWS)
+		# Copy DLLs
+		add_custom_command(TARGET "${PROJECT_NAME}" POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}> $<TARGET_FILE_DIR:${PROJECT_NAME}>
+			COMMAND_EXPAND_LISTS
+		)
+	endif()
 endfunction()
 
 function(erm_add_library)
