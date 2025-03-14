@@ -45,7 +45,7 @@ utils::for_constexpr<erm::nn::internal::kERMNNCounterStart + 1, erm::nn::interna
 
 ")
 
-file(MAKE_DIRECTORY "${ERM_GENERATED_DIR}/ERM_NN/erm/nn")
+file(MAKE_DIRECTORY "${ERM_GENERATED_DIR}/ERM_NN/common/erm/nn")
 file(WRITE "${ERM_GENERATED_DIR}/ERM_NN/common/erm/nn/NNAllStatementHandlers.h" "${ALL_NN_SOURCES_HEADER}")
 list(APPEND ERM_NN_NN_GEN_FILES "${ERM_GENERATED_DIR}/ERM_NN/common/erm/nn/NNAllStatementHandlers.h")
 list(APPEND ERM_NN_ALL_SOURCES "${ERM_GENERATED_DIR}/ERM_NN/common/erm/nn/NNAllStatementHandlers.h")
