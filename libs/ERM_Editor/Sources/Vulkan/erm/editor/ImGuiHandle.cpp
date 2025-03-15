@@ -61,22 +61,22 @@ ImGuiHandle::~ImGuiHandle()
 
 void ImGuiHandle::onUpdate()
 {
-	ERM_PROFILE_FUNCTION();
-	
 	ImGui_ImplVulkan_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
-
+	
 	ImGui::ShowEngineDebug(mEngine);
-
-	ImGui::Render();
 }
 
 void ImGuiHandle::onPreRender()
 {}
 
 void ImGuiHandle::onRender()
-{}
+{
+	ERM_PROFILE_FUNCTION();
+
+	ImGui::Render();
+}
 
 void ImGuiHandle::onPostRender()
 {}
