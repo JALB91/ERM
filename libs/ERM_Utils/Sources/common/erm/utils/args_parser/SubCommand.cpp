@@ -186,7 +186,7 @@ SubCommandHandle SubCommand::addSubCommand(std::string_view name, std::string_vi
 	return SubCommandHandle(mSubCommands, mSubCommands.size() - 1);
 }
 
-int SubCommand::callback() const
+int SubCommand::execute() const
 {
 	if (mCallback)
 	{

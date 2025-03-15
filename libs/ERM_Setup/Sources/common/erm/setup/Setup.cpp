@@ -114,7 +114,7 @@ int Setup::exec(const SubCommand& /*command*/) const
 	{
 #if defined(ERM_WINDOWS)
 		cmakeCommand += "Windows";
-		cmakeCommand += " -G Visual Studio 17 2022";
+		cmakeCommand += " -G \"Visual Studio 17 2022\"";
 #elif defined(ERM_MAC)
 		cmakeCommand += "MacOS";
 		cmakeCommand += " -G Xcode";

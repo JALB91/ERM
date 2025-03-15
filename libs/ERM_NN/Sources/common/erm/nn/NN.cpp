@@ -4,6 +4,8 @@
 
 #include <erm/fs/fs.h>
 
+#include <format>
+
 namespace erm::nn {
 
 NN::NN()
@@ -51,10 +53,13 @@ int NN::exec(const SubCommand& /*command*/)
 	
 	program.debugPrint();
 	
+	const std::string targetOutputFile = std::format("{}/{}", outputDir, fs::path(dataFile).filename().replace_extension().string());
 	std::system(std::format(
-		"touch {}/{}.cpp",
-		outputDir,
-		fs::path(dataFile).filename().replace_extension().c_str()).c_str());
+		"touch {}.h",
+		targetOutputFile).c_str());
+	std::system(std::format(
+		"touch {}.cpp",
+		targetOutputFile).c_str());
 	
 	return EXIT_SUCCESS;
 }

@@ -15,13 +15,13 @@ public:
 		, mKey(key)
 	{}
 	
-	Container::value_type* operator->()
+	typename Container::value_type* operator->()
 	{
 		ERM_ASSERT(isValid());
 		return &mContainer->at(mKey.value());
 	}
 	
-	const Container::value_type* operator->() const
+	const typename Container::value_type* operator->() const
 	{
 		ERM_ASSERT(isValid());
 		return &mContainer->at(mKey.value());

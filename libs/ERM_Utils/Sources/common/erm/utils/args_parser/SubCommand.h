@@ -57,7 +57,7 @@ public:
 	
 	inline const std::string& getName() const { return mName; }
 
-	int callback() const;
+	int execute() const;
 	void printHelp() const;
 
 private:

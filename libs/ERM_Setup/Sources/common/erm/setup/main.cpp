@@ -7,10 +7,10 @@ int main(int argc, char** argv)
 {
 	erm::Setup setup;
 	
-	if (auto* command = setup.getArgsParser().parseArgs(argc, argv); command != nullptr)
+	if (const auto* command = setup.getArgsParser().parseArgs(argc, argv); command != nullptr)
 	{
-		return command->callback();
+		return command->execute();
 	}
 	
-	return EXIT_SUCCESS;
+	return EXIT_FAILURE;
 }

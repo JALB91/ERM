@@ -13,6 +13,10 @@
 	{                                                                                                 \
 		erm::internal::_logCall(erm::LogLevel::CRITICAL, (x), #x, __FILE__, __LINE__ __VA_OPT__(, ) __VA_ARGS__); \
 	}
+#define ERM_FAIL(...) \
+	{ \
+		ERM_LOG_ERROR(__VA_ARGS__); \
+	}
 
 namespace erm::internal {
 

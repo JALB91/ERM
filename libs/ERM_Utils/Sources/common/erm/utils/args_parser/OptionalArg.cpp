@@ -56,8 +56,8 @@ bool OptionalArg::operator==(char ch) const
 u16 OptionalArg::getTextLengthUntilDescription() const
 {
 	u16 result = mShortForm.has_value() * 3;
-	result += mNamedForm.has_value() ? mNamedForm->size() + 3 : 0;
-	result += doesArgValueTypeExpectsInput() * sValueText.size();
+	result += mNamedForm.has_value() ? static_cast<u16>(mNamedForm->size()) + 3 : 0;
+	result += doesArgValueTypeExpectsInput() * static_cast<u16>(sValueText.size());
 	return result;
 }
 
@@ -72,6 +72,9 @@ bool OptionalArg::doesArgValueTypeExpectsInput() const
 		case ArgValueType::BOOLEAN:
 			return false;
 			break;
+		default:
+			ERM_FAIL("Invalid argument value type: %s(%d)", magic_enum::enum_name(mValueType).data(), static_cast<int>(mValueType));
+			return false;
 	}
 }
 

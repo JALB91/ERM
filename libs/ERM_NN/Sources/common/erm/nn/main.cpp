@@ -5,12 +5,11 @@ using namespace erm;
 int main(int argc, char** argv)
 {
 	erm::nn::NN nn;
-	const auto* command = nn.getArgsParser().parseArgs(argc, argv);
 	
-	if (command != nullptr)
+	if (const auto* command = nn.getArgsParser().parseArgs(argc, argv); command != nullptr)
 	{
-		command->callback();
+		return command->execute();
 	}
 
-	return EXIT_SUCCESS;
+	return EXIT_FAILURE;
 }
