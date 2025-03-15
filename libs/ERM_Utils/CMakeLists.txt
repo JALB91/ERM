@@ -8,6 +8,8 @@ target_compile_definitions(
 
 target_link_libraries(
 	"${PROJECT_NAME}"
+	PRIVATE
+		xxHash
 	PUBLIC
 		$<$<BOOL:${ERM_TRACY_ENABLED}>:Tracy::TracyClient>
 		magic_enum

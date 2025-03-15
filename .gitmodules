@@ -31,3 +31,6 @@
 [submodule "externals/refl-cpp"]
 	path = externals/refl-cpp
 	url = https://github.com/veselink1/refl-cpp.git
+[submodule "externals/xxHash/xxHash"]
+	path = externals/xxHash/xxHash
+	url = https://github.com/Cyan4973/xxHash.git

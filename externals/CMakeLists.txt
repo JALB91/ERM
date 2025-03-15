@@ -25,6 +25,7 @@ add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/fbx")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/json")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/magic_enum")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/refl-cpp")
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/xxHash")
 
 if(ERM_ASSIMP_ENABLED)
 	add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/assimp")

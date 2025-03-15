@@ -1,7 +1,5 @@
 #include "erm/nn/NN.h"
 
-using namespace erm;
-
 int main(int argc, char** argv)
 {
 	erm::nn::NN nn;

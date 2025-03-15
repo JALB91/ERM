@@ -16,7 +16,6 @@ public:
 	
 public:
 	StringID(std::string_view str = "");
-	
 	StringID operator=(std::string_view str);
 	
 	inline bool operator==(const StringID other) const
