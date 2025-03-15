@@ -2,14 +2,14 @@
 
 #include <xxhash.h>
 
+namespace erm {
+
 namespace internal {
 
 constexpr auto kInvalidStrIdStr = "<INVALID_STR_ID>";
 constexpr erm::u64 kInvalidStrIdValue = 0;
 
-}
-
-namespace erm {
+} // namespace internal
 
 StringID StringID::INVALID = {};
 
@@ -30,5 +30,5 @@ StringID StringID::operator=(std::string_view str)
 	return *this;
 }
 
-}
+} // namespace erm
 
