@@ -21,7 +21,7 @@ namespace {
 const std::vector<const char*> kDeviceExtensions {
 	VK_KHR_SWAPCHAIN_EXTENSION_NAME,
 #if defined(ERM_MAC)
-		"VK_KHR_portability_subset",
+	"VK_KHR_portability_subset",
 #endif
 #if defined(ERM_FLIP_VIEWPORT) && !defined(ERM_RAY_TRACING_ENABLED)
 		VK_KHR_MAINTENANCE1_EXTENSION_NAME,
@@ -140,7 +140,10 @@ bool Device::createInstance()
 #ifdef ERM_DEBUG
 	requiredExtensions.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 #endif
-
+	
+#ifdef ERM_MAC
+	requiredExtensions.emplace_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+#endif
 
 	std::vector<vk::ExtensionProperties> extensions;
 	ERM_VK_CHECK_AND_ASSIGN(extensions, vk::enumerateInstanceExtensionProperties());
@@ -177,23 +180,27 @@ bool Device::createInstance()
 	appInfo.applicationVersion = VK_MAKE_VERSION(0, 0, 1);
 	appInfo.pEngineName = "ERM";
 	appInfo.engineVersion = VK_MAKE_VERSION(0, 0, 1);
-	appInfo.apiVersion = VK_API_VERSION_1_2;
+	appInfo.apiVersion = VK_API_VERSION_1_4;
 
 	vk::InstanceCreateInfo createInfo = {};
 	createInfo.pApplicationInfo = &appInfo;
 	createInfo.enabledExtensionCount = static_cast<u32>(requiredExtensions.size());
 	createInfo.ppEnabledExtensionNames = requiredExtensions.data();
+	
+#ifdef ERM_MAC
+	createInfo.flags = vk::InstanceCreateFlagBits::eEnumeratePortabilityKHR;
+#endif
 
 	/*
-			CONFIGURE VULKAN VALIDATION LAYERS
-		*/
+		CONFIGURE VULKAN VALIDATION LAYERS
+	*/
 #ifndef ERM_DEBUG
 	createInfo.enabledLayerCount = 0;
 #else
 	std::vector<vk::LayerProperties> availableLayers;
 	ERM_VK_CHECK_AND_ASSIGN(availableLayers, vk::enumerateInstanceLayerProperties());
 
-	ERM_LOG_INFO("\n%d Layers supported:", availableLayers.size());
+	ERM_LOG_INFO("%d Layers supported:", availableLayers.size());
 
 	ERM_LOG_INDENT();
 	for (const auto& layer : availableLayers)
@@ -250,7 +257,7 @@ bool Device::createSurface()
 	{
 		return false;
 	}
-	vk::ObjectDestroy<vk::Instance, VULKAN_HPP_DEFAULT_DISPATCHER_TYPE> _deleter(mInstance.get());
+	vk::detail::ObjectDestroy<vk::Instance, VULKAN_HPP_DEFAULT_DISPATCHER_TYPE> _deleter(mInstance.get());
 	mSurface = vk::UniqueSurfaceKHR(vk::SurfaceKHR(_surface), _deleter);
 	
 	return true;
@@ -320,7 +327,9 @@ void Device::createLogicalDevice()
 	features12.runtimeDescriptorArray = VK_TRUE;
 
 	vk::PhysicalDeviceRobustness2FeaturesEXT robustness2Features = {};
+#ifndef ERM_MAC
 	robustness2Features.nullDescriptor = VK_TRUE;
+#endif
 
 	features2.pNext = &robustness2Features;
 	robustness2Features.pNext = &features12;

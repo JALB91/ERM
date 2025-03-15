@@ -4,6 +4,8 @@
 #include "erm/utils/log/Log.h"
 #include "erm/utils/Utils.h"
 
+#include <erm/fs/fs.h>
+
 #include <algorithm>
 
 namespace erm {
@@ -33,10 +35,6 @@ void Logger::log(std::string_view str, std::scoped_lock<std::mutex>&& lock, LogL
 
 	for (const auto& line : lines)
 	{
-		if (!line.empty())
-		{
-			applyIndent(streams);
-		}
 		for (auto* stream : streams)
 		{
 			*stream << line << std::endl;
@@ -108,7 +106,7 @@ void Logger::buildLogString(LogLevel logLevel, const char* const function, const
 		"[%s] - (%s, %s:%d)",
 		magic_enum::enum_name(logLevel).data(),
 		function,
-		file,
+		fs::path(file).filename().c_str(),
 		line);
 }
 
@@ -130,17 +128,6 @@ void Logger::handleLogLevel(LogLevel logLevel) const
 			break;
 		default:
 			break;
-	}
-}
-
-void Logger::applyIndent(std::vector<std::ostream*>& streams) const
-{
-	for (u16 indent = 0; indent < mIndent; ++indent)
-	{
-		for (auto* stream : streams)
-		{
-			*stream << '\t';
-		}
 	}
 }
 

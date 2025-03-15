@@ -58,6 +58,10 @@ public:
 
 		buildLogString(logLevel, function, file, line);
 		mLogStr += " - ";
+		for (u16 indent = 0; indent < mIndent; ++indent)
+		{
+			mLogStr += '\t';
+		}
 		mLogStr += msg;
 
 		log(mLogStr, std::move(lock), logLevel);
@@ -73,6 +77,10 @@ public:
 
 		buildLogString(logLevel, function, file, line);
 		mLogStr += " - ";
+		for (u16 indent = 0; indent < mIndent; ++indent)
+		{
+			mLogStr += '\t';
+		}
 		mLogStr.append(fmt, args...);
 
 		log(mLogStr, std::move(lock), logLevel);
@@ -90,7 +98,6 @@ public:
 private:
 	void buildLogString(LogLevel logLevel, const char* const function, const char* const file, int line);
 	void handleLogLevel(LogLevel logLevel) const;
-	void applyIndent(std::vector<std::ostream*>& streams) const;
 
 	std::vector<std::ostream*>& getStreamsForLogLevel(LogLevel logLevel);
 
