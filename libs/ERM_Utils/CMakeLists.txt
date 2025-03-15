@@ -4,6 +4,8 @@ target_compile_definitions(
 	"${PROJECT_NAME}"
 	PRIVATE
 		ERM_ZONE_COLOR=0x111111
+	PUBLIC
+		ERM_DEBUG_STRING_IDS=$<CONFIG:Debug>
 )
 
 target_link_libraries(

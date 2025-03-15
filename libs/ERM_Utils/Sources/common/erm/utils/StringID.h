@@ -2,7 +2,7 @@
 
 #include <erm/math/Types.h>
 
-#ifdef ERM_DEBUG
+#ifdef ERM_DEBUG_STRING_IDS
 #include <string>
 #endif
 #include <string_view>
@@ -38,16 +38,18 @@ public:
 		return mHash != INVALID.mHash;
 	}
 	
-#ifdef ERM_DEBUG
-	inline const std::string& getDebugString() const
+
+	inline std::string_view getDebugString() const
 	{
+#ifdef ERM_DEBUG_STRING_IDS
 		return mDebugString;
-	}
 #endif
+		return "<UNKNOWN_STR_ID>";
+	}
 	
 private:
 	u64 mHash;
-#ifdef ERM_DEBUG
+#ifdef ERM_DEBUG_STRING_IDS
 	std::string mDebugString;
 #endif
 	
