@@ -2,13 +2,14 @@
 
 #include "erm/editor/ImGuiWrapper.h"
 
-#include "erm/engine/Engine.h"
+#include <erm/engine/Engine.h>
 
 #include <erm/rendering/Device.h>
 #include <erm/rendering/data_structs/QueueFamilyIndices.h>
 #include <erm/rendering/renderer/Renderer.h>
-#include <erm/rendering/window/Window.h>
 #include <erm/rendering/utils/VkUtils.h>
+
+#include <erm/window/Window.h>
 
 #include <erm/utils/Profiler.h>
 #include <erm/utils/Utils.h>
@@ -21,7 +22,7 @@ namespace {
 
 static bool gFirst = true;
 
-void CheckVKResult(VkResult result)
+void checkVKResult(VkResult result)
 {
 	ERM_UNUSED(result);
 	ERM_ASSERT(result == VkResult::VK_SUCCESS);
@@ -33,8 +34,8 @@ namespace erm {
 
 ImGuiHandle::ImGuiHandle(Engine& engine)
 	: mEngine(engine)
-	, mDevice(engine.GetDevice())
-	, mRenderer(engine.GetRenderer())
+	, mDevice(engine.getDevice())
+	, mRenderer(engine.getRenderer())
 {
 	ImGui::CreateContext();
 	ImGui::StyleColorsDark();
@@ -42,23 +43,23 @@ ImGuiHandle::ImGuiHandle(Engine& engine)
 
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
-	SwapChainCreated();
+	swapChainCreated();
 
-	mRenderer.AddSwapChainListener(this);
-	mRenderer.AddExtCommandBufferUpdater(this);
+	mRenderer.addSwapChainListener(this);
+	mRenderer.addExtCommandBufferUpdater(this);
 }
 
 ImGuiHandle::~ImGuiHandle()
 {
-	mRenderer.RemoveExtCommandBufferUpdater(this);
-	mRenderer.RemoveSwapChainListener(this);
+	mRenderer.removeExtCommandBufferUpdater(this);
+	mRenderer.removeSwapChainListener(this);
 
-	Cleanup();
+	cleanup();
 
 	ImGui::DestroyContext();
 }
 
-void ImGuiHandle::OnUpdate()
+void ImGuiHandle::onUpdate()
 {
 	ERM_PROFILE_FUNCTION();
 	
@@ -71,53 +72,53 @@ void ImGuiHandle::OnUpdate()
 	ImGui::Render();
 }
 
-void ImGuiHandle::OnPreRender()
+void ImGuiHandle::onPreRender()
 {}
 
-void ImGuiHandle::OnRender()
+void ImGuiHandle::onRender()
 {}
 
-void ImGuiHandle::OnPostRender()
+void ImGuiHandle::onPostRender()
 {}
 
-void ImGuiHandle::SwapChainCreated()
+void ImGuiHandle::swapChainCreated()
 {
 	if (!gFirst)
 	{
-		Cleanup();
+		cleanup();
 	}
 
 	gFirst = false;
 
-	ImGui_ImplGlfw_InitForVulkan(mEngine.GetWindow().GetWindow(), true);
+	ImGui_ImplGlfw_InitForVulkan(mEngine.getWindow().getWindow(), true);
 
-	CreateRenderPass();
-	CreateFrameBuffers();
-	CreateDescriptorPool();
+	createRenderPass();
+	createFrameBuffers();
+	createDescriptorPool();
 
 	ImGui_ImplVulkan_InitInfo info;
 	info.Allocator = nullptr;
-	info.CheckVkResultFn = CheckVKResult;
+	info.CheckVkResultFn = checkVKResult;
 	info.Subpass = 0;
 	info.DescriptorPool = mDescriptorPool;
-	info.Device = mDevice.GetVkDevice();
-	info.ImageCount = mRenderer.GetImageCount();
-	info.Instance = mDevice.GetVkInstance();
-	info.MinImageCount = mRenderer.GetMinImageCount();
+	info.Device = mDevice.getVkDevice();
+	info.ImageCount = mRenderer.getImageCount();
+	info.Instance = mDevice.getVkInstance();
+	info.MinImageCount = mRenderer.getMinImageCount();
 	info.MSAASamples = VkSampleCountFlagBits::VK_SAMPLE_COUNT_1_BIT;
-	info.PhysicalDevice = mDevice.GetVkPhysicalDevice();
-	info.PipelineCache = mDevice.GetPipelineCache();
-	info.Queue = mDevice.GetGraphicsQueue();
-	info.QueueFamily = VkUtils::FindQueueFamilies(mDevice.GetVkPhysicalDevice(), mDevice.GetVkSurface()).mGraphicsFamily.value();
+	info.PhysicalDevice = mDevice.getVkPhysicalDevice();
+	info.PipelineCache = mDevice.getPipelineCache();
+	info.Queue = mDevice.getGraphicsQueue();
+	info.QueueFamily = VkUtils::findQueueFamilies(mDevice.getVkPhysicalDevice(), mDevice.getVkSurface()).mGraphicsFamily.value();
 
 	ImGui_ImplVulkan_Init(&info, mRenderPass);
 
-	vk::CommandBuffer command_buffer = VkUtils::BeginSingleTimeCommands(mDevice);
+	vk::CommandBuffer command_buffer = VkUtils::beginSingleTimeCommands(mDevice);
 	ImGui_ImplVulkan_CreateFontsTexture(command_buffer);
-	VkUtils::EndSingleTimeCommands(mDevice, command_buffer);
+	VkUtils::endSingleTimeCommands(mDevice, command_buffer);
 }
 
-void ImGuiHandle::UpdateCommandBuffer(vk::CommandBuffer& cmd)
+void ImGuiHandle::updateCommandBuffer(vk::CommandBuffer& cmd)
 {
 	std::array<vk::ClearValue, 1> clearValues {};
 	clearValues[0].color.float32[0] = 0.0f;
@@ -127,8 +128,8 @@ void ImGuiHandle::UpdateCommandBuffer(vk::CommandBuffer& cmd)
 
 	vk::RenderPassBeginInfo info = {};
 	info.renderPass = mRenderPass;
-	info.framebuffer = mFrameBuffers[mRenderer.GetCurrentImageIndex()];
-	info.renderArea.extent = mRenderer.GetSwapChainExtent();
+	info.framebuffer = mFrameBuffers[mRenderer.getCurrentImageIndex()];
+	info.renderArea.extent = mRenderer.getSwapChainExtent();
 	info.renderArea.offset = vk::Offset2D {0, 0};
 	info.clearValueCount = static_cast<u32>(clearValues.size());
 	info.pClearValues = clearValues.data();
@@ -140,7 +141,7 @@ void ImGuiHandle::UpdateCommandBuffer(vk::CommandBuffer& cmd)
 	cmd.endRenderPass();
 }
 
-void ImGuiHandle::Cleanup()
+void ImGuiHandle::cleanup()
 {
 	ImGui_ImplVulkan_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
@@ -154,10 +155,10 @@ void ImGuiHandle::Cleanup()
 	mDevice->destroyRenderPass(mRenderPass);
 }
 
-void ImGuiHandle::CreateRenderPass()
+void ImGuiHandle::createRenderPass()
 {
 	vk::AttachmentDescription attachment = {};
-	attachment.format = mRenderer.GetSwapChainImageFormat();
+	attachment.format = mRenderer.getSwapChainImageFormat();
 	attachment.samples = vk::SampleCountFlagBits::e1;
 	attachment.loadOp = vk::AttachmentLoadOp::eClear;
 	attachment.storeOp = vk::AttachmentStoreOp::eStore;
@@ -195,10 +196,10 @@ void ImGuiHandle::CreateRenderPass()
 	ERM_VK_CHECK_AND_ASSIGN(mRenderPass, mDevice->createRenderPass(info));
 }
 
-void ImGuiHandle::CreateFrameBuffers()
+void ImGuiHandle::createFrameBuffers()
 {
-	const std::vector<Texture*>& swapChainTextures = mRenderer.GetTargetFrameBuffers(FrameBufferType::PRESENT);
-	vk::Extent2D extent = mRenderer.GetSwapChainExtent();
+	const std::vector<GPUTexture*>& swapChainTextures = mRenderer.getTargetFrameBuffers(FrameBufferType::PRESENT);
+	vk::Extent2D extent = mRenderer.getSwapChainExtent();
 
 	mFrameBuffers.resize(swapChainTextures.size());
 	for (u64 i = 0; i < swapChainTextures.size(); i++)
@@ -218,7 +219,7 @@ void ImGuiHandle::CreateFrameBuffers()
 	}
 }
 
-void ImGuiHandle::CreateDescriptorPool()
+void ImGuiHandle::createDescriptorPool()
 {
 	const std::vector<vk::DescriptorPoolSize> pool_sizes = {
 		{vk::DescriptorType::eSampler, 1000},

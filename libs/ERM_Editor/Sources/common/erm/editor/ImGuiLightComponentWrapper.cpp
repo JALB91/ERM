@@ -1,6 +1,6 @@
-#include "erm/debug/ImGuiLightComponentWrapper.h"
+#include "erm/editor/ImGuiLightComponentWrapper.h"
 
-#include "erm/ecs/components/LightComponent.h"
+#include <erm/ecs/components/LightComponent.h>
 
 #include <imgui.h>
 

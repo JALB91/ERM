@@ -1,15 +1,16 @@
-#include "erm/debug/ImGuiRenderingWrapper.h"
-#include "erm/debug/ImGuiUtils.h"
+#include "erm/editor/ImGuiRenderingWrapper.h"
+#include "erm/editor/ImGuiUtils.h"
 
-#include "erm/engine/Engine.h"
+#include <erm/engine/Engine.h>
 
-#include "erm/rendering/enums/BlendFunction.h"
-#include "erm/rendering/enums/CullMode.h"
-#include "erm/rendering/enums/DepthFunction.h"
-#include "erm/rendering/enums/DrawMode.h"
-#include "erm/rendering/enums/FrontFace.h"
-#include "erm/rendering/enums/PolygonMode.h"
-#include "erm/rendering/window/Window.h"
+#include <erm/rendering/enums/BlendFunction.h>
+#include <erm/rendering/enums/CullMode.h>
+#include <erm/rendering/enums/DepthFunction.h>
+#include <erm/rendering/enums/DrawMode.h>
+#include <erm/rendering/enums/FrontFace.h>
+#include <erm/rendering/enums/PolygonMode.h>
+
+#include <erm/window/Window.h>
 
 #include <imgui.h>
 
@@ -62,7 +63,7 @@ namespace ImGui {
 
 void ShowRenderingDebugWindow(erm::Engine& engine)
 {
-	const erm::Window& window = engine.GetWindow();
+	const erm::Window& window = engine.getWindow();
 	//		erm::RenderContext& renderContext = engine.GetRenderContext();
 
 	const int flags = ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoNavInputs;
@@ -117,9 +118,9 @@ void ShowRenderingDebugWindow(erm::Engine& engine)
 		//			renderContext.SetClearColor(clearColor);
 	}
 
-	const erm::math::vec2 winSize(window.GetWindowWidth(), window.GetWindowHeight());
-	const erm::BoundingBox2D& viewport = window.GetViewport();
-	const erm::math::vec2 viewportSize = viewport.GetSize();
+	const erm::vec2 winSize(window.getWindowWidth(), window.getWindowHeight());
+	const erm::BoundingBox2D& viewport = window.getViewport();
+	const erm::vec2 viewportSize = viewport.getSize();
 	ImGui::SetWindowSize(ImVec2(winSize.x, winSize.y - viewportSize.y));
 	ImGui::SetWindowPos(ImVec2(0.0f, winSize.y - viewport.mMin.y));
 	ImGui::End();

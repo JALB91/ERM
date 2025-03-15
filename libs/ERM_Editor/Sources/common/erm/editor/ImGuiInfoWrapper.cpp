@@ -1,13 +1,13 @@
-#include "erm/debug/ImGuiInfoWrapper.h"
-#include "erm/debug/ImGuiUtils.h"
+#include "erm/editor/ImGuiInfoWrapper.h"
+#include "erm/editor/ImGuiUtils.h"
 
-#include "erm/engine/Engine.h"
+#include <erm/engine/Engine.h>
 
-#include "erm/rendering/window/Window.h"
+#include <erm/window/Window.h>
 
-#include "erm/utils/Profiler.h"
-#include "erm/utils/Sampler.h"
-#include "erm/utils/Timer.h"
+#include <erm/utils/Profiler.h>
+#include <erm/utils/Sampler.h>
+#include <erm/utils/Timer.h>
 
 #include <imgui.h>
 
@@ -33,43 +33,43 @@ void ShowProfilingTree(const erm::Profiler::ProfilingTree& node, TREE_OP operati
 
 void ShowInfoWindow(erm::Engine& engine, bool& open)
 {
-	const erm::Timer& timer = engine.GetTimer();
-	const erm::Window& window = engine.GetWindow();
+	const erm::Timer& timer = engine.getTimer();
+	const erm::Window& window = engine.getWindow();
 
 	ImGui::SetNextWindowSize(ImVec2(600, 600), ImGuiCond_FirstUseEver);
-	ImGui::SetNextWindowPos(ImVec2(static_cast<float>(window.GetWindowWidth() / 2), static_cast<float>(window.GetWindowHeight() / 2)), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowPos(ImVec2(static_cast<float>(window.getWindowWidth() / 2), static_cast<float>(window.getWindowHeight() / 2)), ImGuiCond_FirstUseEver);
 
 	if (ImGui::Begin("Info", &open, ImGuiWindowFlags_NoCollapse))
 	{
-		ImGui::Text("Current Time: %f", timer.GetCurrentTime());
-		ImGui::Text("Total Elapsed Time %f", timer.GetElapsedTime());
-		ImGui::Text("Update Elapsed Time: %f", timer.GetUpdateElapsedTime());
+		ImGui::Text("Current Time: %f", timer.getCurrentTime());
+		ImGui::Text("Total Elapsed Time %f", timer.getElapsedTime());
+		ImGui::Text("Update Elapsed Time: %f", timer.getUpdateElapsedTime());
 
 		ImGui::Separator();
 
-		ImGui::Text("FPS: %d", engine.GetFPS());
+		ImGui::Text("FPS: %d", engine.getFPS());
 
 		ImGui::SameLine();
 
-		unsigned int maxFPS = engine.GetMaxFPS();
+		unsigned int maxFPS = engine.getMaxFPS();
 		if (ImGui::ShowComboOf(kFPSOptions, "Max FPS", maxFPS))
-			engine.SetMaxFPS(maxFPS);
+			engine.setMaxFPS(maxFPS);
 
 		ImGui::Separator();
 		
 		ImGui::Text("Avg Sim time:");
 		ImGui::SameLine(ImGui::GetWindowSize().x - 50.0f);
-		ImGui::Text("%.4f", erm::gSimSampler.GetAverage());
+		ImGui::Text("%.4f", erm::gSimSampler.getAverage());
 		
 		ImGui::Separator();
 		
 		ImGui::Text("Avg Render time:");
 		ImGui::SameLine(ImGui::GetWindowSize().x - 50.0f);
-		ImGui::Text("%.4f", erm::gRenderSampler.GetAverage());
+		ImGui::Text("%.4f", erm::gRenderSampler.getAverage());
 		
 		ImGui::Separator();
 
-		if (const auto* profilingTreeRoot = erm::Profiler::GetProfilingTreeRoot())
+		if (const auto* profilingTreeRoot = erm::Profiler::getProfilingTreeRoot())
 		{
 			TREE_OP operation = TREE_OP::NONE;
 
@@ -92,7 +92,7 @@ void ShowProfilingTree(const erm::Profiler::ProfilingTree& node, TREE_OP operati
 {
 	ImGui::Separator();
 
-	const auto& children = node.GetChildren();
+	const auto& children = node.getChildren();
 	ImGuiTreeNodeFlags flags = 0;
 	if (children.empty())
 	{
@@ -111,16 +111,16 @@ void ShowProfilingTree(const erm::Profiler::ProfilingTree& node, TREE_OP operati
 			break;
 	}
 
-	const bool nodeOpen = ImGui::TreeNodeEx(node.GetId().data(), flags);
+	const bool nodeOpen = ImGui::TreeNodeEx(node.getId().data(), flags);
 	ImGui::SameLine(ImGui::GetWindowSize().x - 50.0f);
-	ImGui::Text("%.4f", node.GetPayload().mSampler.GetAverage());
+	ImGui::Text("%.4f", node.getPayload().mSampler.getAverage());
 	if (nodeOpen || operation == TREE_OP::COLLAPSE)
 	{
 		if (operation == TREE_OP::COLLAPSE && !children.empty())
-			TreePush(node.GetId().data());
+			TreePush(node.getId().data());
 		
 		std::for_each(children.cbegin(), children.cend(), [operation](auto& child) {
-			ShowProfilingTree(*child, operation);
+			ShowProfilingTree(child, operation);
 		});
 		
 		ImGui::TreePop();

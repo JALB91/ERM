@@ -1,7 +1,7 @@
-#include "erm/debug/ImGuiEntityWrapper.h"
+#include "erm/editor/ImGuiEntityWrapper.h"
 
-#include "erm/ecs/ECS.h"
-#include "erm/ecs/Entity.h"
+#include <erm/ecs/ECS.h>
+#include <erm/ecs/Entity.h>
 
 #include <imgui.h>
 
@@ -22,7 +22,7 @@ erm::ecs::EntityId ShowEntityDebugWindow(
 {
 	int flags = ImGuiTreeNodeFlags_FramePadding;
 
-	if (ecs.GetEntityById(entity)->GetChildren().empty())
+	if (ecs.getEntityById(entity)->getChildren().empty())
 	{
 		flags |= ImGuiTreeNodeFlags_Leaf;
 	}
@@ -33,7 +33,7 @@ erm::ecs::EntityId ShowEntityDebugWindow(
 	}
 
 	ImGui::PushID(static_cast<int>(entity()));
-	const bool isOpen = ImGui::TreeNodeEx(ecs.GetEntityById(entity())->GetName().c_str(), flags);
+	const bool isOpen = ImGui::TreeNodeEx(ecs.getEntityById(entity())->getName().data(), flags);
 
 	if (ImGui::IsItemClicked(0))
 	{
@@ -59,7 +59,7 @@ erm::ecs::EntityId ShowEntityDebugWindow(
 
 	if (isOpen)
 	{
-		const std::vector<erm::ecs::EntityId> children = ecs.GetEntityById(entity)->GetChildren();
+		const std::vector<erm::ecs::EntityId> children = ecs.getEntityById(entity)->getChildren();
 		std::for_each(children.begin(), children.end(), [&ecs, &active](erm::ecs::EntityId child) {
 			active = ImGui::ShowEntityDebugWindow(ecs, active, child);
 		});
@@ -68,11 +68,11 @@ erm::ecs::EntityId ShowEntityDebugWindow(
 
 	if (shouldAdd)
 	{
-		ecs.GetEntityById(entity)->AddChild(*ecs.GetOrCreateEntity());
+		ecs.getEntityById(entity)->addChild(*ecs.getOrCreateEntity());
 	}
 	else if (shouldRemove)
 	{
-		ecs.RemoveEntity(entity);
+		ecs.removeEntity(entity);
 	}
 
 	return active;
@@ -94,7 +94,7 @@ void ShowEntityPopup(
 
 		if (ImGui::Button("Remove..."))
 		{
-			shouldRemove = entity != ecs.GetRoot()->GetId();
+			shouldRemove = entity != ecs.getRoot()->getId();
 			ImGui::CloseCurrentPopup();
 		}
 
@@ -114,7 +114,7 @@ void ShowEntityPopup(
 			{
 				if (std::strcmp(buffer, "") != 0)
 				{
-					ecs.GetEntityById(entity)->SetName(buffer);
+					ecs.getEntityById(entity)->setName(buffer);
 					std::memset(buffer, 0, 100);
 					ImGui::CloseCurrentPopup();
 				}

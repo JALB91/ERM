@@ -1,7 +1,5 @@
 #include "erm/engine/Engine.h"
 
-//#include <erm/editor/ImGuiHandle.h>
-
 #include <erm/ecs/Entity.h>
 #include <erm/ecs/systems/AnimationSystem.h>
 #include <erm/ecs/systems/CameraSystem.h>
@@ -110,7 +108,6 @@ bool Engine::init()
 	mDevice = std::make_unique<Device>(mWindow->getWindow());
 	gAssetsLib.init();
 	mRenderer = std::make_unique<Renderer>(*mWindow, *mDevice);
-//	mImGuiHandle = std::make_unique<ImGuiHandle>(*this);
 	mECS = std::make_unique<ecs::ECS>();
 	mECS->init();
 
@@ -251,7 +248,6 @@ void Engine::update(float dt)
 {
 	ERM_PROFILE_FUNCTION();
 
-//	mImGuiHandle->update();
 	mECS->update(dt);
 	mWindow->update();
 	gAssetsLib.update(dt);
@@ -274,7 +270,6 @@ void Engine::preRender()
 	gAssetsLib.preRender();
 	mECS->preRender();
 	mRenderer->preRender();
-//	mImGuiHandle->preRender();
 }
 
 void Engine::render()
@@ -283,7 +278,6 @@ void Engine::render()
 
 	mECS->render();
 	mRenderer->render();
-//	mImGuiHandle->render();
 	mWindow->render();
 }
 
@@ -293,7 +287,6 @@ void Engine::postRender()
 
 	mECS->postRender();
 	mRenderer->postRender();
-//	mImGuiHandle->postRender();
 	mWindow->postRender();
 	gAssetsLib.postRender();
 }

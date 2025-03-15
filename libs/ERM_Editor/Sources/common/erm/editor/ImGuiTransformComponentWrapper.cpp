@@ -1,6 +1,6 @@
-#include "erm/debug/ImGuiTransformComponentWrapper.h"
+#include "erm/editor/ImGuiTransformComponentWrapper.h"
 
-#include "erm/ecs/components/TransformComponent.h"
+#include <erm/ecs/components/TransformComponent.h>
 
 #include <imgui.h>
 
@@ -30,9 +30,9 @@ bool ShowTransformComponentDebugWindow(erm::ecs::TransformComponent& transformCo
 
 	if (headerOpen)
 	{
-		erm::math::vec3 translation = transformComponent.GetTranslation();
-		erm::math::vec3 rotation = transformComponent.GetRotation();
-		erm::math::vec3 scale = transformComponent.GetScale();
+		erm::vec3 translation = transformComponent.getTranslation();
+		erm::vec3 rotation = transformComponent.getRotation();
+		erm::vec3 scale = transformComponent.getScale();
 
 		ImGui::Indent();
 		const bool reset = ImGui::Button("Reset");
@@ -43,14 +43,14 @@ bool ShowTransformComponentDebugWindow(erm::ecs::TransformComponent& transformCo
 
 		if (reset)
 		{
-			translation = erm::math::vec3(0.0f);
-			rotation = erm::math::vec3(0.0f);
-			scale = erm::math::vec3(1.0f);
+			translation = erm::vec3(0.0f);
+			rotation = erm::vec3(0.0f);
+			scale = erm::vec3(1.0f);
 		}
 
-		transformComponent.SetTranslation(std::move(translation));
-		transformComponent.SetRotation(std::move(rotation));
-		transformComponent.SetScale(std::move(scale));
+		transformComponent.setTranslation(std::move(translation));
+		transformComponent.setRotation(std::move(rotation));
+		transformComponent.setScale(std::move(scale));
 	}
 
 	return shouldRemove;

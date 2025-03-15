@@ -13,7 +13,6 @@
 namespace erm {
 class AudioManager;
 class Device;
-//class ImGuiHandle;
 class Renderer;
 class UpdateManager;
 class Window;
@@ -60,7 +59,6 @@ public:
 	inline Window& getWindow() const { return *mWindow; }
 	inline Device& getDevice() const { return *mDevice; }
 	inline Renderer& getRenderer() const { return *mRenderer; }
-//	inline ImGuiHandle& getImGuiHandle() const { return *mImGuiHandle; }
 	inline ecs::ECS& getECS() const { return *mECS; }
 	inline UpdateManager& getUpdateManager() const { return *mUpdateManager; }
 
@@ -86,7 +84,6 @@ private:
 	std::unique_ptr<AudioManager> mAudioManager;
 	std::unique_ptr<Device> mDevice;
 	std::unique_ptr<Renderer> mRenderer;
-//	std::unique_ptr<ImGuiHandle> mImGuiHandle;
 	std::unique_ptr<ecs::ECS> mECS;
 };
 

@@ -1,12 +1,11 @@
-#include "erm/debug/ImGuiAnimationComponentWrapper.h"
+#include "erm/editor/ImGuiAnimationComponentWrapper.h"
 
-#include "erm/ecs/systems/AnimationSystem.h"
+#include <erm/ecs/systems/AnimationSystem.h>
 
-#include "erm/resources/ResourcesManager.h"
+#include <erm/assets/animations/SkeletonAnimation.h>
+#include <erm/assets/AssetsManager.h>
 
-#include "erm/engine/Engine.h"
-
-#include "erm/resources/animations/SkeletonAnimation.h"
+#include <erm/engine/Engine.h>
 
 #include <imgui.h>
 
@@ -44,7 +43,7 @@ bool ShowAnimationComponentDebugWindow(erm::Engine& engine, erm::ecs::AnimationC
 
 		if (animationComponent.mSkeletonAnimation)
 		{
-			ImGui::LabelText("Animation Name", "%s", animationComponent.mSkeletonAnimation->mName.c_str());
+			//ImGui::LabelText("Animation Name", "%s", animationComponent.mSkeletonAnimation->mName.c_str());
 			ImGui::Checkbox("Play", &animationComponent.mPlaying);
 			ImGui::DragFloat("Time Scale", &animationComponent.mTimeScale, 0.05f);
 			ImGui::ProgressBar(animationComponent.mCurrentAnimationTime / animationComponent.mSkeletonAnimation->mTotalAnimationTime);
@@ -58,10 +57,10 @@ bool ShowAnimationComponentDebugWindow(erm::Engine& engine, erm::ecs::AnimationC
 
 void ShowPathOptions(erm::Engine& engine, erm::ecs::AnimationComponent& animationComponent)
 {
-	const erm::Animations& all = engine.GetResourcesManager().GetAnimations();
+	// const erm::Animations& all = engine.GetResourcesManager().GetAnimations();
 
 	erm::SkeletonAnimation* skeletonAnimation = animationComponent.mSkeletonAnimation;
-	std::string currentPath = skeletonAnimation ? skeletonAnimation->mName : "";
+	std::string currentPath = "";// skeletonAnimation ? skeletonAnimation->mName : "";
 
 	if (ImGui::BeginCombo("Path", currentPath.c_str()))
 	{
@@ -74,7 +73,7 @@ void ShowPathOptions(erm::Engine& engine, erm::ecs::AnimationComponent& animatio
 		}
 		ImGui::PopID();
 
-		for (unsigned int i = 0; i < all.size(); ++i)
+		/*for (unsigned int i = 0; i < all.size(); ++i)
 		{
 			const std::string& currentName = all[i]->mName;
 			isSelected = currentPath == currentName;
@@ -86,7 +85,7 @@ void ShowPathOptions(erm::Engine& engine, erm::ecs::AnimationComponent& animatio
 					animationComponent.mSkeletonAnimation = engine.GetResourcesManager().GetAnimation(currentPath.c_str());
 				}
 			}
-		}
+		}*/
 		ImGui::EndCombo();
 	}
 }

@@ -1,13 +1,14 @@
-#include "erm/debug/ImGuiGameWindow.h"
+#include "erm/editor/ImGuiGameWindow.h"
 
-#include "erm/math/BoundingBox.h"
-#include "erm/math/vec.h"
+#include <erm/math/BoundingBox.h>
+#include <erm/math/Types.h>
 
-#include "erm/engine/Engine.h"
+#include <erm/engine/Engine.h>
 
-#include "erm/rendering/renderer/ISwapChainListener.h"
-#include "erm/rendering/renderer/Renderer.h"
-#include "erm/rendering/window/Window.h"
+#include <erm/rendering/renderer/ISwapChainListener.h>
+#include <erm/rendering/renderer/Renderer.h>
+
+#include <erm/window/Window.h>
 
 #include <imgui.h>
 #include <imgui_impl_vulkan.h>
@@ -23,21 +24,21 @@ public:
 	SwapChainHelper(erm::Engine& engine)
 		: mEngine(engine)
 	{
-		mEngine.GetRenderer().AddSwapChainListener(this);
+		mEngine.getRenderer().addSwapChainListener(this);
 	}
 
 	~SwapChainHelper()
 	{}
 
-	void SwapChainCleanup() override
+	void swapChainCleanup() override
 	{
 		mSwapChainUpdate = true;
 	}
 
-	void SwapChainCreated() override
+	void swapChainCreated() override
 	{}
 
-	bool Update()
+	bool update()
 	{
 		const bool result = mSwapChainUpdate;
 		mSwapChainUpdate = false;
@@ -45,24 +46,24 @@ public:
 		if (result)
 		{
 			mTextureIDs.clear();
-			CreateTextures();
+			createTextures();
 		}
 
 		return result;
 	}
 
-	void CreateTextures()
+	void createTextures()
 	{
 //		TODO: Damiano
-//		erm::Renderer& renderer = mEngine.GetRenderer();
-//		const std::vector<erm::Texture*>& frameBuffers = renderer.GetTargetFrameBuffers(erm::FrameBufferType::FRAME_1);
+//		erm::Renderer& renderer = mEngine.getRenderer();
+//		const std::vector<erm::Texture*>& frameBuffers = renderer.getTargetFrameBuffers(erm::FrameBufferType::FRAME_1);
 //
 //		for (u64 i = 0; i < frameBuffers.size(); ++i)
 //		{
 //			mTextureIDs.emplace_back(ImGui_ImplVulkan_AddTexture(
-//				renderer.GetTextureSampler(),
-//				frameBuffers[i]->GetImageView(),
-//				(VkImageLayout)frameBuffers[i]->GetImageLayout()));
+//				renderer.getTextureSampler(),
+//				frameBuffers[i]->getImageView(),
+//				(VkImageLayout)frameBuffers[i]->getImageLayout()));
 //		}
 	}
 
@@ -76,13 +77,13 @@ void ShowGameWindow(erm::Engine& engine)
 	static SwapChainHelper sHelper(engine);
 	static bool sFirst = true;
 
-	if (sHelper.Update())
+	if (sHelper.update())
 	{
 		sFirst = true;
 		return;
 	}
 
-	const erm::Window& window = engine.GetWindow();
+	const erm::Window& window = engine.getWindow();
 
 	const int flags =
 		ImGuiWindowFlags_NoFocusOnAppearing |
@@ -97,7 +98,7 @@ void ShowGameWindow(erm::Engine& engine)
 		ImGuiWindowFlags_NoScrollbar |
 		ImGuiWindowFlags_NoScrollWithMouse;
 	
-	const u64 index = engine.GetRenderer().GetCurrentFrame();
+	const erm::u64 index = engine.getRenderer().getCurrentFrame();
 	
 	/*
 		Wait for the first frame to be renderer otherwise
@@ -112,7 +113,7 @@ void ShowGameWindow(erm::Engine& engine)
 
 	if (ImGui::Begin("Game", nullptr, flags) && !shouldSkip)
 	{
-		u64 targetIndex = index;
+		erm::u64 targetIndex = index;
 		
 		if (targetIndex == 0)
 		{
@@ -126,9 +127,9 @@ void ShowGameWindow(erm::Engine& engine)
 		ImGui::Image(sHelper.mTextureIDs[targetIndex], ImGui::GetWindowSize());
 	}
 
-	const erm::math::vec2 winSize(window.GetWindowWidth(), window.GetWindowHeight());
-	const erm::BoundingBox2D& viewport = window.GetViewport();
-	const erm::math::vec2 viewportSize = viewport.GetSize();
+	const erm::vec2 winSize(window.getWindowWidth(), window.getWindowHeight());
+	const erm::BoundingBox2D& viewport = window.getViewport();
+	const erm::vec2 viewportSize = viewport.getSize();
 	ImGui::SetWindowSize(ImVec2(viewportSize.x, viewportSize.y));
 	ImGui::SetWindowPos(ImVec2((winSize.x - viewportSize.x) * 0.5f, 0.0f));
 	ImGui::End();

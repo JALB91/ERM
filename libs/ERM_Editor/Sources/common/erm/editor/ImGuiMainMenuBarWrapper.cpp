@@ -1,10 +1,10 @@
-#include "erm/debug/ImGuiMainMenuBarWrapper.h"
+#include "erm/editor/ImGuiMainMenuBarWrapper.h"
 
-#include "erm/debug/ImGuiAudioWrapper.h"
-#include "erm/debug/ImGuiInfoWrapper.h"
-#include "erm/debug/ImGuiShadersWrapper.h"
+#include "erm/editor/ImGuiAudioWrapper.h"
+#include "erm/editor/ImGuiInfoWrapper.h"
+#include "erm/editor/ImGuiShadersWrapper.h"
 
-#include "erm/input/Keys.h"
+#include <erm/input/Keys.h>
 
 #include <imgui.h>
 

@@ -1,8 +1,8 @@
-#include "erm/debug/ImGuiWrapper.h"
-#include "erm/debug/ImGuiEntitiesWrapper.h"
-#include "erm/debug/ImGuiGameWindow.h"
-#include "erm/debug/ImGuiMainMenuBarWrapper.h"
-#include "erm/debug/ImGuiRenderingWrapper.h"
+#include "erm/editor/ImGuiWrapper.h"
+#include "erm/editor/ImGuiEntitiesWrapper.h"
+#include "erm/editor/ImGuiGameWindow.h"
+#include "erm/editor/ImGuiMainMenuBarWrapper.h"
+#include "erm/editor/ImGuiRenderingWrapper.h"
 
 namespace ImGui {
 

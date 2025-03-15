@@ -23,23 +23,23 @@ public:
 	ImGuiHandle(Engine& engine);
 	~ImGuiHandle();
 
-	void OnUpdate();
-	void OnPreRender();
-	void OnRender();
-	void OnPostRender();
+	void onUpdate();
+	void onPreRender();
+	void onRender();
+	void onPostRender();
 
 private:
 	// ISwapChainListener
-	void SwapChainCleanup() override {}
-	void SwapChainCreated() override;
+	void swapChainCleanup() override {}
+	void swapChainCreated() override;
 	
 	// IExtCommandBufferUpdater
-	void UpdateCommandBuffer(vk::CommandBuffer& cmd) override;
+	void updateCommandBuffer(vk::CommandBuffer& cmd) override;
 
-	void Cleanup();
-	void CreateRenderPass();
-	void CreateFrameBuffers();
-	void CreateDescriptorPool();
+	void cleanup();
+	void createRenderPass();
+	void createFrameBuffers();
+	void createDescriptorPool();
 
 	Engine& mEngine;
 	Device& mDevice;

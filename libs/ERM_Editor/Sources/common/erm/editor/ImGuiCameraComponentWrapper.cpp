@@ -1,6 +1,6 @@
-#include "erm/debug/ImGuiCameraComponentWrapper.h"
+#include "erm/editor/ImGuiCameraComponentWrapper.h"
 
-#include "erm/ecs/components/CameraComponent.h"
+#include <erm/ecs/components/CameraComponent.h>
 
 #include <imgui.h>
 
@@ -32,12 +32,12 @@ bool ShowCameraComponentDebugWindow(erm::ecs::CameraComponent& cameraComponent)
 	{
 		ImGui::Indent();
 
-		float movementSpeed = cameraComponent.GetMovementSpeed();
-		float mouseSensibility = cameraComponent.GetMouseSensibility();
-		float angleLimit = cameraComponent.GetAngleLimit();
-		float fov = cameraComponent.GetFOV();
-		float zNear = cameraComponent.GetZNear();
-		float zFar = cameraComponent.GetZFar();
+		float movementSpeed = cameraComponent.getMovementSpeed();
+		float mouseSensibility = cameraComponent.getMouseSensibility();
+		float angleLimit = cameraComponent.getAngleLimit();
+		float fov = cameraComponent.getFOV();
+		float zNear = cameraComponent.getZNear();
+		float zFar = cameraComponent.getZFar();
 
 		ImGui::InputFloat("Movement Speed", &movementSpeed);
 		ImGui::InputFloat("Mouse Sensibility", &mouseSensibility);
@@ -46,12 +46,12 @@ bool ShowCameraComponentDebugWindow(erm::ecs::CameraComponent& cameraComponent)
 		ImGui::DragFloat("Z-Near", &zNear, 1.0f, 0.1f, zFar);
 		ImGui::DragFloat("Z-Far", &zFar, 1.0f, zNear, 10000.0f);
 
-		cameraComponent.SetMovementSpeed(movementSpeed);
-		cameraComponent.SetMouseSensibility(mouseSensibility);
-		cameraComponent.SetAngleLimit(angleLimit);
-		cameraComponent.SetFOV(fov);
-		cameraComponent.SetZNear(zNear);
-		cameraComponent.SetZFar(zFar);
+		cameraComponent.setMovementSpeed(movementSpeed);
+		cameraComponent.setMouseSensibility(mouseSensibility);
+		cameraComponent.setAngleLimit(angleLimit);
+		cameraComponent.setFOV(fov);
+		cameraComponent.setZNear(zNear);
+		cameraComponent.setZFar(zFar);
 
 		ImGui::Unindent();
 	}

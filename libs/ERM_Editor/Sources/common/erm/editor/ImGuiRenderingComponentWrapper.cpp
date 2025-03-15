@@ -1,6 +1,6 @@
-#include "erm/debug/ImGuiRenderingComponentWrapper.h"
+#include "erm/editor/ImGuiRenderingComponentWrapper.h"
 
-#include "erm/ecs/components/RenderingComponent.h"
+#include <erm/ecs/components/RenderingComponent.h>
 
 #include <imgui.h>
 

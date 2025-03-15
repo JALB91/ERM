@@ -1,14 +1,13 @@
-#include "erm/debug/ImGuiSkeletonComponentWrapper.h"
+#include "erm/editor/ImGuiSkeletonComponentWrapper.h"
 
-#include "erm/debug/ImGuiUtils.h"
+#include "erm/editor/ImGuiUtils.h"
 
-#include "erm/ecs/systems/SkeletonSystem.h"
+#include <erm/ecs/systems/SkeletonSystem.h>
 
-#include "erm/resources/ResourcesManager.h"
+#include <erm/engine/Engine.h>
 
-#include "erm/engine/Engine.h"
-
-#include "erm/resources/data_structs/Skin.h"
+#include <erm/assets/data_structs/Skeleton.h>
+//#include <erm/assets/ResourcesManager.h>
 
 #include <imgui.h>
 
@@ -44,45 +43,45 @@ bool ShowSkeletonComponentDebugWindow(erm::Engine& engine, erm::ecs::SkeletonCom
 
 		ShowPathOptions(engine, skeletonComponent);
 
-		if (erm::Skin* skin = skeletonComponent.GetSkin())
+		/*if (erm::Skeleton* skeleton = skeletonComponent.getSkin())
 		{
-			bool displayBones = skeletonComponent.GetDisplayBones();
+			bool displayBones = skeletonComponent.getDisplayBones();
 			if (ImGui::Checkbox("Display Bones: ", &displayBones))
-				skeletonComponent.SetDisplayBones(displayBones);
+				skeletonComponent.setDisplayBones(displayBones);
 
-			erm::BonesTree* rootBone = skin->mRootBone.get();
+			erm::BonesTree& rootBone = skeleton->mRootBone;
 
 			if (ImGui::Button("Reset"))
 			{
-				rootBone->ForEachDo([](erm::BonesTree& node) {
-					erm::Bone& bone = node.GetPayload();
+				rootBone.forEachDo([](erm::BonesTree& node) {
+					erm::Bone& bone = node.getPayload();
 					bone.mLocalTransform = bone.mBindTransform;
 				});
-				skeletonComponent.SetDirty(true);
+				skeletonComponent.setDirty(true);
 			}
 
 			bool hasChanges = false;
-			rootBone->ForEachDo(
+			rootBone.forEachDo(
 				[&hasChanges](erm::BonesTree& node) {
-					ImGui::PushID(static_cast<int>(node.GetId()));
-					if (node.GetParent())
+					ImGui::PushID(static_cast<int>(node.getId()));
+					if (node.getParent())
 						ImGui::Indent(ImGui::GetStyle().IndentSpacing * 0.75f);
-					if (ImGui::TreeNode(node.GetPayload().mName.c_str()))
+					if (ImGui::TreeNode(node.getPayload().mName.getDebugString().c_str()))
 					{
-						hasChanges |= ImGui::ShowMatrixDebug(node.GetPayload().mLocalTransform);
+						hasChanges |= ImGui::ShowMatrixDebug(node.getPayload().mLocalTransform);
 						ImGui::TreePop();
 					}
 				},
 				[](erm::BonesTree& node) {
-					if (node.GetParent())
+					if (node.getParent())
 						ImGui::Unindent(ImGui::GetStyle().IndentSpacing * 0.75f);
 					ImGui::PopID();
 				});
 			if (hasChanges)
 			{
-				skeletonComponent.SetDirty(true);
+				skeletonComponent.setDirty(true);
 			}
-		}
+		}*/
 
 		ImGui::Unindent();
 	}
@@ -90,12 +89,12 @@ bool ShowSkeletonComponentDebugWindow(erm::Engine& engine, erm::ecs::SkeletonCom
 	return shouldRemove;
 }
 
-void ShowPathOptions(erm::Engine& engine, erm::ecs::SkeletonComponent& skeletonComponent)
+void ShowPathOptions(erm::Engine& /*engine*/, erm::ecs::SkeletonComponent& /*skeletonComponent*/)
 {
-	const erm::Skins& all = engine.GetResourcesManager().GetSkins();
+	/*const erm::Skins& all = engine.GetResourcesManager().GetSkins();
 
-	erm::Skin* skin = skeletonComponent.GetSkin();
-	std::string currentPath = skin ? skin->mPath : "";
+	erm::Skeleton* skeleton = skeletonComponent.getSkin();
+	std::string currentPath = skeleton ? skeleton->mPath : "";
 
 	if (ImGui::BeginCombo("Path", currentPath.c_str()))
 	{
@@ -104,7 +103,7 @@ void ShowPathOptions(erm::Engine& engine, erm::ecs::SkeletonComponent& skeletonC
 		if (ImGui::Selectable("", &isSelected))
 		{
 			currentPath = "";
-			skeletonComponent.SetSkin(nullptr);
+			skeletonComponent.setSkin(nullptr);
 		}
 		ImGui::PopID();
 
@@ -117,12 +116,12 @@ void ShowPathOptions(erm::Engine& engine, erm::ecs::SkeletonComponent& skeletonC
 				if (currentPath != currentName)
 				{
 					currentPath = currentName;
-					skeletonComponent.SetSkin(engine.GetResourcesManager().GetSkin(currentPath.c_str()));
+					skeletonComponent.setSkin(engine.GetResourcesManager().GetSkin(currentPath.c_str()));
 				}
 			}
 		}
 		ImGui::EndCombo();
-	}
+	}*/
 }
 
 } // namespace ImGui

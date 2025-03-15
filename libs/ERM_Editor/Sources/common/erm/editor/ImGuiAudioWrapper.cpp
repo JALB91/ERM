@@ -1,11 +1,11 @@
-#include "erm/debug/ImGuiAudioWrapper.h"
+#include "erm/editor/ImGuiAudioWrapper.h"
 
-#include "erm/audio/AudioManager.h"
-#include "erm/audio/Sound.h"
+#include <erm/audio/AudioManager.h>
+#include <erm/audio/Sound.h>
 
-#include "erm/engine/Engine.h"
+#include <erm/engine/Engine.h>
 
-#include "erm/utils/Utils.h"
+#include <erm/utils/Utils.h>
 
 #include <imgui.h>
 
@@ -15,17 +15,17 @@ void ShowAudioDebugWindow(erm::Engine& engine, bool& open)
 {
 	if (ImGui::Begin("Audio", &open, ImGuiWindowFlags_NoCollapse))
 	{
-		erm::AudioManager& audioManager = engine.GetAudioManager();
-		const auto& sounds = engine.GetFileLocator().GetSounds();
-		const auto& drivers = audioManager.GetDrivers();
-		const auto& currentDriver = drivers.at(audioManager.GetDriver());
+		erm::AudioManager& audioManager = engine.getAudioManager();
+		const auto& sounds = engine.getFileLocator().getSounds();
+		const auto& drivers = audioManager.getDrivers();
+		const auto& currentDriver = drivers.at(audioManager.getDriver());
 
-		bool playInBackground = audioManager.ShouldPlayInBackground();
+		bool playInBackground = audioManager.shouldPlayInBackground();
 		if (ImGui::Checkbox("Play in background", &playInBackground))
-			audioManager.SetPlayInBackground(playInBackground);
+			audioManager.setPlayInBackground(playInBackground);
 
 		if (ImGui::Button("R"))
-			audioManager.UpdateDrivers();
+			audioManager.updateDrivers();
 
 		ImGui::SameLine();
 
@@ -33,10 +33,10 @@ void ShowAudioDebugWindow(erm::Engine& engine, bool& open)
 		{
 			for (const auto& [id, driver] : drivers)
 			{
-				bool selected = id == audioManager.GetDriver();
+				bool selected = id == audioManager.getDriver();
 				if (ImGui::Selectable(driver.mName.data(), &selected))
 				{
-					audioManager.SetDriver(id);
+					audioManager.setDriver(id);
 				}
 			}
 
@@ -64,128 +64,128 @@ void ShowAudioDebugWindow(erm::Engine& engine, bool& open)
 			ImGui::EndCombo();
 		}
 
-		erm::Sound* sound = selectedValue.empty() ? nullptr : audioManager.GetSound(selectedValue.data(), true);
+		erm::Sound* sound = selectedValue.empty() ? nullptr : audioManager.getSound(selectedValue.data(), true);
 		unsigned int duration = 0;
 
 		if (sound)
 		{
-			duration = sound->GetLenght() / 1000;
+			duration = sound->getLenght() / 1000;
 		}
 
-		ImGui::Text("Duration: %s", erm::Utils::FormatTime(duration).data());
+		ImGui::Text("Duration: %s", erm::utils::formatTime(duration).data());
 
 		if (sound && play)
 		{
-			if (auto repro = audioManager.PlaySound(*sound))
-				repro->Pause();
+			if (auto repro = audioManager.playSound(*sound))
+				repro->pause();
 		}
 
 		ImGui::Separator();
 
-		const auto& reproductions = audioManager.GetReproductions();
+		const auto& reproductions = audioManager.getReproductions();
 
 		for (int i = 0; i < static_cast<int>(reproductions.size()); ++i)
 		{
 			const auto& repro = reproductions[i];
-			if (repro.IsPlaying())
+			if (repro.isPlaying())
 			{
 				ImGui::PushID(i);
 
 				ImGui::BeginChild("ChildL", ImVec2(ImGui::GetWindowContentRegionMax().x * 0.5f, 150), true);
-				bool loop = repro.IsLooping();
+				bool loop = repro.isLooping();
 				if (ImGui::Checkbox("Loop", &loop))
 				{
-					repro.SetLoopCount(loop ? erm::LoopCount::FOREVER : erm::LoopCount::NO_LOOP);
-					repro.SetMode(loop ? FMOD_LOOP_NORMAL : FMOD_LOOP_OFF);
+					repro.setLoopCount(loop ? erm::LoopCount::FOREVER : erm::LoopCount::NO_LOOP);
+					repro.setMode(loop ? FMOD_LOOP_NORMAL : FMOD_LOOP_OFF);
 				}
 
 				ImGui::SameLine();
 
-				bool muted = repro.IsMuted();
+				bool muted = repro.isMuted();
 				if (ImGui::Checkbox("Mute", &muted))
 				{
-					repro.SetMuted(muted);
+					repro.setMuted(muted);
 				}
 
-				if (repro.IsPaused())
+				if (repro.isPaused())
 				{
 					if (ImGui::Button(">"))
-						repro.Resume();
+						repro.resume();
 				}
 				else
 				{
 					if (ImGui::Button("||"))
-						repro.Pause();
+						repro.pause();
 				}
 
 				ImGui::SameLine();
 
 				if (ImGui::Button("O"))
 				{
-					repro.Stop();
+					repro.stop();
 					ImGui::EndChild();
 					ImGui::PopID();
 					continue;
 				}
 
 				ImGui::SameLine();
-				ImGui::Text("%s", repro.GetCurrentSoundName());
+				ImGui::Text("%s", repro.getCurrentSoundName());
 
 				static std::array<bool, erm::AudioManager::MAX_CHANNELS> sAutomaticallyPaused {false};
-				const unsigned int lenght = static_cast<unsigned int>(repro.GetDuration());
-				float position = repro.GetPosition();
+				const unsigned int lenght = static_cast<unsigned int>(repro.getDuration());
+				float position = repro.getPosition();
 				const float min = 0.0f;
 				const float max = 1.0f;
 
-				std::string label = erm::Utils::FormatTime(static_cast<unsigned int>(static_cast<float>(lenght) * position));
+				std::string label = erm::utils::formatTime(static_cast<unsigned int>(static_cast<float>(lenght) * position));
 				label += "/";
-				label += erm::Utils::FormatTime(lenght);
+				label += erm::utils::formatTime(lenght);
 
 				if (ImGui::SliderScalar(label.data(), ImGuiDataType_Float, &position, &min, &max))
 				{
-					if (!repro.IsPaused())
+					if (!repro.isPaused())
 					{
 						sAutomaticallyPaused[i] = true;
-						repro.Pause();
+						repro.pause();
 					}
-					repro.SetPosition(position);
+					repro.setPosition(position);
 				}
-				else if (sAutomaticallyPaused[i] && repro.IsPaused())
+				else if (sAutomaticallyPaused[i] && repro.isPaused())
 				{
 					sAutomaticallyPaused[i] = false;
-					repro.Resume();
+					repro.resume();
 				}
 
-				float pitch = repro.GetPitch();
+				float pitch = repro.getPitch();
 				if (ImGui::DragFloat("Pitch", &pitch, 0.05f, 0.0f, 2.0f))
-					repro.SetPitch(pitch);
+					repro.setPitch(pitch);
 
-				float frequency = repro.GetFrequency();
+				float frequency = repro.getFrequency();
 				const bool setFrequency = ImGui::DragFloat(
 					"Frequency",
 					&frequency,
 					100.0f,
-					(repro.IsStream() ? -50000.0f : 0.0f),
+					(repro.isStream() ? -50000.0f : 0.0f),
 					50000.0f);
 
 				bool invertFrequency = false;
-				if (!repro.IsStream())
+				if (!repro.isStream())
 				{
 					ImGui::SameLine();
 					invertFrequency = ImGui::Button("+/-");
 				}
 
 				if (setFrequency || invertFrequency)
-					repro.SetFrequency(frequency * (invertFrequency ? -1.0f : 1.0f));
+					repro.setFrequency(frequency * (invertFrequency ? -1.0f : 1.0f));
 				ImGui::EndChild();
 
 				ImGui::SameLine();
 
 				ImGui::BeginChild("ChildR", ImVec2(100, 150), true);
-				float volume = repro.GetVolume();
+				float volume = repro.getVolume();
 				ImGui::PushID("NO_SELECTABLE");
-				if (ImGui::VSliderFloat("", ImVec2(20, 125), &volume, -10.0f, 10.0f))
-					repro.SetVolume(volume);
+				if (ImGui::VSliderFloat("##", ImVec2(20, 125), &volume, -10.0f, 10.0f))
+					repro.setVolume(volume);
 				ImGui::PopID();
 				ImGui::EndChild();
 

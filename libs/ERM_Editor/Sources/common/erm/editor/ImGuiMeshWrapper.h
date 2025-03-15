@@ -2,7 +2,7 @@
 
 namespace erm {
 class Engine;
-class Mesh;
+struct Mesh;
 } // namespace erm
 
 namespace ImGui {

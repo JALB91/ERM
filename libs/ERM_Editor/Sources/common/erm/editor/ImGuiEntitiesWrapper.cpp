@@ -1,14 +1,16 @@
-#include "erm/debug/ImGuiEntitiesWrapper.h"
-#include "erm/debug/ImGuiComponentWrapper.h"
-#include "erm/debug/ImGuiEntityWrapper.h"
+#include "erm/editor/ImGuiEntitiesWrapper.h"
+#include "erm/editor/ImGuiComponentWrapper.h"
+#include "erm/editor/ImGuiEntityWrapper.h"
 
-#include "erm/engine/Engine.h"
+#include <erm/engine/Engine.h>
 
-#include "erm/rendering/window/Window.h"
+#include <erm/math/Types.h>
 
-#include "erm/ecs/Component.h"
-#include "erm/ecs/ECSConfig.h"
-#include "erm/ecs/EntityId.h"
+#include <erm/window/Window.h>
+
+#include <erm/ecs/Component.h>
+#include <erm/ecs/ECSConfig.h>
+#include <erm/ecs/EntityId.h>
 
 #include <imgui.h>
 
@@ -16,10 +18,10 @@ namespace ImGui {
 
 void ShowEntitiesDebugWindow(erm::Engine& engine)
 {
-	const erm::Window& window = engine.GetWindow();
-	const erm::math::vec2 winSize(window.GetWindowWidth(), window.GetWindowHeight());
-	const erm::BoundingBox2D& viewport = window.GetViewport();
-	const erm::math::vec2 viewportSize = viewport.GetSize();
+	const erm::Window& window = engine.getWindow();
+	const erm::vec2 winSize(window.getWindowWidth(), window.getWindowHeight());
+	const erm::BoundingBox2D& viewport = window.getViewport();
+	const erm::vec2 viewportSize = viewport.getSize();
 
 	static erm::ecs::EntityId active;
 
@@ -27,13 +29,13 @@ void ShowEntitiesDebugWindow(erm::Engine& engine)
 
 	if (ImGui::Begin("Scene", nullptr, flags))
 	{
-		active = ImGui::ShowEntityDebugWindow(engine.GetECS(), active, erm::ecs::EntityId(erm::ecs::ROOT_ID));
+		active = ImGui::ShowEntityDebugWindow(engine.getECS(), active, erm::ecs::EntityId(erm::ecs::ROOT_ID));
 	}
 	ImGui::SetWindowSize(ImVec2((winSize.x - viewportSize.x) * 0.5f, viewportSize.y - ImGui::GetFrameHeight()));
 	ImGui::SetWindowPos(ImVec2(0.0f, ImGui::GetFrameHeight()));
 	ImGui::End();
 
-	if (ImGui::Begin("Entity", nullptr, flags) && active.IsValid())
+	if (ImGui::Begin("Entity", nullptr, flags) && active.isValid())
 	{
 		ImGui::PushID(static_cast<int>(active()));
 		ImGui::Separator();

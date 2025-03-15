@@ -1,26 +1,26 @@
-#include "erm/debug/ImGuiComponentWrapper.h"
-#include "erm/debug/ImGuiAnimationComponentWrapper.h"
-#include "erm/debug/ImGuiCameraComponentWrapper.h"
-#include "erm/debug/ImGuiLightComponentWrapper.h"
-#include "erm/debug/ImGuiModelComponentWrapper.h"
-#include "erm/debug/ImGuiRenderingComponentWrapper.h"
-#include "erm/debug/ImGuiSkeletonComponentWrapper.h"
-#include "erm/debug/ImGuiTransformComponentWrapper.h"
+#include "erm/editor/ImGuiComponentWrapper.h"
+#include "erm/editor/ImGuiAnimationComponentWrapper.h"
+#include "erm/editor/ImGuiCameraComponentWrapper.h"
+#include "erm/editor/ImGuiLightComponentWrapper.h"
+#include "erm/editor/ImGuiModelComponentWrapper.h"
+#include "erm/editor/ImGuiRenderingComponentWrapper.h"
+#include "erm/editor/ImGuiSkeletonComponentWrapper.h"
+#include "erm/editor/ImGuiTransformComponentWrapper.h"
 
-#include "erm/engine/Engine.h"
+#include <erm/engine/Engine.h>
 
-#include "erm/rendering/window/Window.h"
+#include <erm/window/Window.h>
 
-#include "erm/ecs/ECS.h"
-#include "erm/ecs/Entity.h"
-#include "erm/ecs/EntityId.h"
-#include "erm/ecs/systems/AnimationSystem.h"
-#include "erm/ecs/systems/CameraSystem.h"
-#include "erm/ecs/systems/LightSystem.h"
-#include "erm/ecs/systems/ModelSystem.h"
-#include "erm/ecs/systems/RenderingSystem.h"
-#include "erm/ecs/systems/SkeletonSystem.h"
-#include "erm/ecs/systems/TransformSystem.h"
+#include <erm/ecs/ECS.h>
+#include <erm/ecs/Entity.h>
+#include <erm/ecs/EntityId.h>
+#include <erm/ecs/systems/AnimationSystem.h>
+#include <erm/ecs/systems/CameraSystem.h>
+#include <erm/ecs/systems/LightSystem.h>
+#include <erm/ecs/systems/ModelSystem.h>
+#include <erm/ecs/systems/RenderingSystem.h>
+#include <erm/ecs/systems/SkeletonSystem.h>
+#include <erm/ecs/systems/TransformSystem.h>
 
 #include <imgui.h>
 
@@ -29,12 +29,12 @@ namespace ImGui {
 template<typename T>
 void ShowComponentDebugWindow(erm::Engine& engine, erm::ecs::EntityId entity, const std::function<bool(T&)>& callback, const char* name)
 {
-	if (T* component = engine.GetECS().GetSystem<typename T::SYSTEM_TYPE>()->GetComponent(entity))
+	if (T* component = engine.getECS().getSystem<typename T::SYSTEM_TYPE>()->getComponent(entity))
 	{
 		ImGui::PushID(name);
 		if (callback(*component))
 		{
-			engine.GetECS().GetSystem<typename T::SYSTEM_TYPE>()->RemoveComponent(entity);
+			engine.getECS().getSystem<typename T::SYSTEM_TYPE>()->removeComponent(entity);
 		}
 		ImGui::PopID();
 	}
@@ -42,7 +42,7 @@ void ShowComponentDebugWindow(erm::Engine& engine, erm::ecs::EntityId entity, co
 	{
 		if (ImGui::Button(name))
 		{
-			engine.GetECS().GetEntityById(entity)->AddComponent<T>();
+			engine.getECS().getEntityById(entity)->addComponent<T>();
 			ImGui::CloseCurrentPopup();
 		}
 		ImGui::EndPopup();
@@ -51,7 +51,7 @@ void ShowComponentDebugWindow(erm::Engine& engine, erm::ecs::EntityId entity, co
 
 void ShowComponentDebugWindow(erm::Engine& engine, erm::ecs::EntityId entity)
 {
-	if (!entity.IsValid())
+	if (!entity.isValid())
 		return;
 
 	if (ImGui::Button("Add Component..."))

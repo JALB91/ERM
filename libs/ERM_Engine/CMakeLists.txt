@@ -15,7 +15,6 @@ target_link_libraries(
 		ERM_Audio
 		ERM_Assets
 		ERM_ECS
-		# ERM_Editor
 	PUBLIC
 		ERM_Input
 		ERM_Utils

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "erm/math/mat.h"
+#include <erm/math/Types.h>
 
 #include <imgui.h>
 
@@ -34,6 +34,6 @@ static bool ShowComboOf(
 	return result;
 }
 
-extern bool ShowMatrixDebug(erm::math::mat4& matrix);
+extern bool ShowMatrixDebug(erm::mat4& matrix);
 
 } // namespace ImGui

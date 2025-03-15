@@ -1,11 +1,11 @@
-#include "erm/debug/ImGuiMaterialWrapper.h"
+#include "erm/editor/ImGuiMaterialWrapper.h"
 
-#include "erm/engine/Engine.h"
+#include <erm/engine/Engine.h>
 
-#include <erm/resources/ResourcesManager.h>
-#include <erm/resources/models/Mesh.h>
-#include <erm/resources/materials/Material.h>
-#include <erm/resources/materials/PBMaterial.h>
+#include <erm/assets/AssetsManager.h>
+#include <erm/assets/models/Mesh.h>
+#include <erm/assets/materials/Material.h>
+#include <erm/assets/materials/PBMaterial.h>
 
 #include <erm/rendering/data_structs/BindingConfigs.h>
 
@@ -21,9 +21,9 @@ void ShowLegacyMaterialDebug(erm::Engine& engine, erm::BindingConfigs& configs);
 void ShowPBMaterialDebug(erm::Engine& engine, erm::BindingConfigs& configs);
 
 template<typename T, typename MaterialType>
-void ShowPathOptions(erm::BindingConfigs& configs, const T& all)
+void ShowPathOptions(erm::BindingConfigs& /*configs*/, const T& /*all*/)
 {
-	MaterialType* material = static_cast<MaterialType*>(configs.mMaterial.mData);
+	/*MaterialType* material = static_cast<MaterialType*>(configs.mMaterial.mData);
 
 	std::string currentPath = material->mPath;
 	std::string currentName = material->mName;
@@ -87,7 +87,7 @@ void ShowPathOptions(erm::BindingConfigs& configs, const T& all)
 			}
 		}
 		ImGui::EndCombo();
-	}
+	}*/
 }
 
 void ShowMaterialDebug(erm::Engine& engine, erm::Mesh& mesh)
@@ -99,7 +99,7 @@ void ShowMaterialDebug(erm::Engine& engine, erm::Mesh& mesh)
 
 //		TODO: Damiano
 //		erm::BindingConfigs& configs = mesh.GetPipelineConfigs();
-		erm::BindingConfigs configs;
+		/*erm::BindingConfigs configs;
 		erm::MaterialHandle& material = configs.mMaterial;
 
 		const bool isLegacy = material.mType == erm::MaterialType::LEGACY;
@@ -130,15 +130,15 @@ void ShowMaterialDebug(erm::Engine& engine, erm::Mesh& mesh)
 			case erm::MaterialType::PBR:
 				ShowPBMaterialDebug(engine, configs);
 				break;
-		}
+		}*/
 
 		ImGui::Unindent();
 	}
 }
 
-void ShowLegacyMaterialDebug(erm::Engine& engine, erm::BindingConfigs& configs)
+void ShowLegacyMaterialDebug(erm::Engine& /*engine*/, erm::BindingConfigs& /*configs*/)
 {
-	static erm::Materials& all = engine.GetResourcesManager().GetMaterials();
+	/*static erm::Materials& all = engine.GetResourcesManager().GetMaterials();
 
 	ShowPathOptions<erm::Materials, erm::Material>(configs, all);
 
@@ -147,12 +147,12 @@ void ShowLegacyMaterialDebug(erm::Engine& engine, erm::BindingConfigs& configs)
 	ImGui::SliderFloat3("Ambient", &material->mAmbient.x, 0.0f, 1.0f);
 	ImGui::SliderFloat3("Diffuse", &material->mDiffuse.x, 0.0f, 1.0f);
 	ImGui::SliderFloat3("Specular", &material->mSpecular.x, 0.0f, 1.0f);
-	ImGui::SliderFloat("Shininess", &material->mShininess, 0.0f, 1000.0f);
+	ImGui::SliderFloat("Shininess", &material->mShininess, 0.0f, 1000.0f);*/
 }
 
-void ShowPBMaterialDebug(erm::Engine& engine, erm::BindingConfigs& configs)
+void ShowPBMaterialDebug(erm::Engine& /*engine*/, erm::BindingConfigs& /*configs*/)
 {
-	static erm::PBMaterials& all = engine.GetResourcesManager().GetPBMaterials();
+	/*static erm::PBMaterials& all = engine.GetResourcesManager().GetPBMaterials();
 
 	ShowPathOptions<erm::PBMaterials, erm::PBMaterial>(configs, all);
 
@@ -161,7 +161,7 @@ void ShowPBMaterialDebug(erm::Engine& engine, erm::BindingConfigs& configs)
 	ImGui::SliderFloat3("Albedo", &material->mAlbedo.x, 0.0f, 1.0f);
 	ImGui::SliderFloat("Metallic", &material->mMetallic, 0.0f, 1.0f);
 	ImGui::SliderFloat("Roughness", &material->mRoughness, 0.0f, 1.0f);
-	ImGui::SliderFloat("AO", &material->mAO, 0.0f, 10.0f);
+	ImGui::SliderFloat("AO", &material->mAO, 0.0f, 10.0f);*/
 }
 
 } // namespace ImGui
