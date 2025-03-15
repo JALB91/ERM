@@ -100,6 +100,7 @@ void ImGuiHandle::swapChainCreated()
 	info.Allocator = nullptr;
 	info.CheckVkResultFn = checkVKResult;
 	info.Subpass = 0;
+	info.DescriptorPoolSize = 0;
 	info.DescriptorPool = mDescriptorPool;
 	info.Device = mDevice.getVkDevice();
 	info.ImageCount = mRenderer.getImageCount();
@@ -111,6 +112,9 @@ void ImGuiHandle::swapChainCreated()
 	info.Queue = mDevice.getGraphicsQueue();
 	info.QueueFamily = VkUtils::findQueueFamilies(mDevice.getVkPhysicalDevice(), mDevice.getVkSurface()).mGraphicsFamily.value();
 	info.RenderPass = mRenderPass;
+	info.ApiVersion = VK_API_VERSION_1_4;
+	info.MinAllocationSize = 1024 * 1024;
+	info.UseDynamicRendering = false;
 
 	ImGui_ImplVulkan_Init(&info);
 	ImGui_ImplVulkan_CreateFontsTexture();
