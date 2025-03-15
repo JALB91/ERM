@@ -3,7 +3,7 @@
 #include "erm/utils/assert/Assert.h"
 #include "erm/utils/args_parser/ArgValueType.h"
 
-#include <magic_enum.hpp>
+#include <magic_enum/magic_enum.hpp>
 
 #include <optional>
 #include <string>

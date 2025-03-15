@@ -124,7 +124,7 @@ void ShowGameWindow(erm::Engine& engine)
 			targetIndex -= 1;
 		}
 
-		ImGui::Image(sHelper.mTextureIDs[targetIndex], ImGui::GetWindowSize());
+		ImGui::Image(reinterpret_cast<ImTextureID>(sHelper.mTextureIDs[targetIndex]), ImGui::GetWindowSize());
 	}
 
 	const erm::vec2 winSize(window.getWindowWidth(), window.getWindowHeight());

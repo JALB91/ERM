@@ -110,12 +110,10 @@ void ImGuiHandle::swapChainCreated()
 	info.PipelineCache = mDevice.getPipelineCache();
 	info.Queue = mDevice.getGraphicsQueue();
 	info.QueueFamily = VkUtils::findQueueFamilies(mDevice.getVkPhysicalDevice(), mDevice.getVkSurface()).mGraphicsFamily.value();
+	info.RenderPass = mRenderPass;
 
-	ImGui_ImplVulkan_Init(&info, mRenderPass);
-
-	vk::CommandBuffer command_buffer = VkUtils::beginSingleTimeCommands(mDevice);
-	ImGui_ImplVulkan_CreateFontsTexture(command_buffer);
-	VkUtils::endSingleTimeCommands(mDevice, command_buffer);
+	ImGui_ImplVulkan_Init(&info);
+	ImGui_ImplVulkan_CreateFontsTexture();
 }
 
 void ImGuiHandle::updateCommandBuffer(vk::CommandBuffer& cmd)

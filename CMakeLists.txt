@@ -60,6 +60,9 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}
 # Disable exceptions on windows
 if(ERM_WINDOWS)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:preprocessor /D_WINDOWS /D_WIN32 /D_HAS_EXCEPTIONS=0" CACHE STRING "" FORCE)
+elseif(ERM_MAC)
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -x objective-c" CACHE STRING "" FORCE)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -x objective-c++" CACHE STRING "" FORCE)
 endif()
 
 # Custom properties

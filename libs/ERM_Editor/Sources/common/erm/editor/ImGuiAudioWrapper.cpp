@@ -91,7 +91,7 @@ void ShowAudioDebugWindow(erm::Engine& engine, bool& open)
 			{
 				ImGui::PushID(i);
 
-				ImGui::BeginChild("ChildL", ImVec2(ImGui::GetWindowContentRegionMax().x * 0.5f, 150), true);
+				ImGui::BeginChild("ChildL", ImVec2(ImGui::GetWindowWidth() * 0.5f, 150), true);
 				bool loop = repro.isLooping();
 				if (ImGui::Checkbox("Loop", &loop))
 				{

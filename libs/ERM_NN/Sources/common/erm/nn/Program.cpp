@@ -6,7 +6,7 @@
 #include <erm/utils/assert/Assert.h>
 #include <erm/utils/Utils.h>
 
-#include <magic_enum.hpp>
+#include <magic_enum/magic_enum.hpp>
 
 #include <stack>
 
