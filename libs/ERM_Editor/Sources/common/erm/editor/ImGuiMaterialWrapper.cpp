@@ -90,9 +90,8 @@ void ShowPathOptions(erm::BindingConfigs& /*configs*/, const T& /*all*/)
 	}*/
 }
 
-void ShowMaterialDebug(erm::Engine& engine, erm::Mesh& mesh)
+void ShowMaterialDebug(erm::Engine& /*engine*/, erm::Mesh& /*mesh*/)
 {
-	(void)mesh;
 	if (ImGui::CollapsingHeader("Material"))
 	{
 		ImGui::Indent();

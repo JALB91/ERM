@@ -19,7 +19,7 @@ namespace ImGui {
 
 void ShowShadersDebug(erm::Engine& engine, bool& open)
 {
-	const std::vector<std::string>& shaders = engine.getFileLocator().getShaderPrograms();
+//	const std::vector<std::string>& shaders = engine.getFileLocator().getShaderPrograms();
 	static erm::IShaderProgram* selected = nullptr;
 	const erm::Window& window = engine.getWindow();
 

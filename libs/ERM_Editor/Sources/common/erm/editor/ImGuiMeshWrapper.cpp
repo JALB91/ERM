@@ -85,7 +85,7 @@ void ShowTexturePathOptions(erm::Engine& engine, erm::Texture** texture, const c
 	}
 }
 
-void ShowMeshDebugWindow(erm::Engine& engine, erm::Mesh& mesh, unsigned int meshId)
+void ShowMeshDebugWindow(erm::Engine& /*engine*/, erm::Mesh& /*mesh*/, unsigned int meshId)
 {
 	static const std::string title = "Mesh ";
 

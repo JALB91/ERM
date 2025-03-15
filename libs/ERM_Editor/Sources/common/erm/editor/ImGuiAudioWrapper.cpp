@@ -129,7 +129,7 @@ void ShowAudioDebugWindow(erm::Engine& engine, bool& open)
 				}
 
 				ImGui::SameLine();
-				ImGui::Text("%s", repro.getCurrentSoundName());
+				ImGui::Text("%s", repro.getCurrentSoundName().data());
 
 				static std::array<bool, erm::AudioManager::MAX_CHANNELS> sAutomaticallyPaused {false};
 				const unsigned int lenght = static_cast<unsigned int>(repro.getDuration());

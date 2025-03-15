@@ -55,11 +55,11 @@ bool ShowAnimationComponentDebugWindow(erm::Engine& engine, erm::ecs::AnimationC
 	return shouldRemove;
 }
 
-void ShowPathOptions(erm::Engine& engine, erm::ecs::AnimationComponent& animationComponent)
+void ShowPathOptions(erm::Engine& /*engine*/, erm::ecs::AnimationComponent& animationComponent)
 {
 	// const erm::Animations& all = engine.GetResourcesManager().GetAnimations();
 
-	erm::SkeletonAnimation* skeletonAnimation = animationComponent.mSkeletonAnimation;
+//	erm::SkeletonAnimation* skeletonAnimation = animationComponent.mSkeletonAnimation;
 	std::string currentPath = "";// skeletonAnimation ? skeletonAnimation->mName : "";
 
 	if (ImGui::BeginCombo("Path", currentPath.c_str()))

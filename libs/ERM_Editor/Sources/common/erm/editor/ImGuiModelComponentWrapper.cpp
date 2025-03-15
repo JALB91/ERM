@@ -47,7 +47,7 @@ void ShowPathOptions(erm::Engine& /*engine*/, erm::ecs::ModelComponent& /*modelC
 	}*/
 }
 
-bool ShowModelComponentDebugWindow(erm::Engine& engine, erm::ecs::ModelComponent& modelComponent)
+bool ShowModelComponentDebugWindow(erm::Engine& /*engine*/, erm::ecs::ModelComponent& /*modelComponent*/)
 {
 	const bool headerOpen = ImGui::CollapsingHeader("Model");
 

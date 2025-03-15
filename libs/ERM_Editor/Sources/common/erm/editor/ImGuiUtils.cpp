@@ -1,6 +1,6 @@
 #include "erm/editor/ImGuiUtils.h"
 
-#include <erm/math/math.h>
+#include <erm/math/Math.h>
 
 namespace ImGui {
 
