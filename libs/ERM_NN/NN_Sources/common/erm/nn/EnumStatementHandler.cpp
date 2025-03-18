@@ -90,7 +90,7 @@ std::unique_ptr<IStatement> EnumStatementHandler::parse(const Program& program, 
 	
 	const auto& scopeBegin = tokens[tokenIndex];
 	if (!ERM_EXPECT(
-		scopeBegin.mType == TokenType::SYMBOL && scopeBegin.mValue == '{',
+		scopeBegin.mType == TokenType::SYMBOL && scopeBegin.mValue == "{",
 		"Invalid token after enum's identifier, expected \"{\""))
 	{
 		return nullptr;
@@ -106,15 +106,15 @@ std::unique_ptr<IStatement> EnumStatementHandler::parse(const Program& program, 
 		
 		const bool wasValid = nextToken != nullptr;
 		const bool wasIdentifier = wasValid && nextToken->mType == TokenType::IDENTIFIER;
-		const bool wasComma = wasValid && nextToken->mType == TokenType::SYMBOL && nextToken->mValue == ',';
-		const bool wasEquality = wasValid && nextToken->mType == TokenType::SYMBOL && nextToken->mValue == '=';
+		const bool wasComma = wasValid && nextToken->mType == TokenType::SYMBOL && nextToken->mValue == ",";
+		const bool wasEquality = wasValid && nextToken->mType == TokenType::SYMBOL && nextToken->mValue == "=";
 		const bool wasNumber = wasValid && nextToken->mType == TokenType::NUMERIC_LITERAL;
 		
 		nextToken = &tokens[tokenIndex];
 		
 		const bool isIdentifier = nextToken->mType == TokenType::IDENTIFIER;
-		const bool isComma = nextToken->mType == TokenType::SYMBOL && nextToken->mValue == ',';
-		const bool isEquality = nextToken->mType == TokenType::SYMBOL && nextToken->mValue == '=';
+		const bool isComma = nextToken->mType == TokenType::SYMBOL && nextToken->mValue == ",";
+		const bool isEquality = nextToken->mType == TokenType::SYMBOL && nextToken->mValue == "=";
 		const bool isNumber = nextToken->mType == TokenType::NUMERIC_LITERAL;
 		
 		if (wasValid)
@@ -155,7 +155,7 @@ std::unique_ptr<IStatement> EnumStatementHandler::parse(const Program& program, 
 			enumStm.mEnumValues.back().mValue = nextToken->mValue;
 		}
 	}
-	while (nextToken->mValue != '}');
+	while (nextToken->mValue != "}");
 	
 	return std::make_unique<EnumStatement>(std::move(enumStm));
 }

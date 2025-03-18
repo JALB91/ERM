@@ -21,45 +21,41 @@ struct ClassStatement : public IStatement
 	void print() const override
 	{
 		ERM_LOG("Class\n\tName: %s\n", mName.c_str());
+		ERM_LOG_INDENT();
 		
 		if (!mPublicStatements.empty())
 		{
-			ERM_LOG("\tPublic statements:\n");
-			ERM_LOG_INDENT();
+			ERM_LOG("Public statements:\n");
 			ERM_LOG_INDENT();
 			for (const auto& statement : mPublicStatements)
 			{
 				statement->print();
 			}
 			ERM_LOG_UNINDENT();
-			ERM_LOG_UNINDENT();
 		}
 		
 		if (!mProtectedStatements.empty())
 		{
-			ERM_LOG("\tProtected statements:\n");
-			ERM_LOG_INDENT();
+			ERM_LOG("Protected statements:\n");
 			ERM_LOG_INDENT();
 			for (const auto& statement : mProtectedStatements)
 			{
 				statement->print();
 			}
 			ERM_LOG_UNINDENT();
-			ERM_LOG_UNINDENT();
 		}
 		
 		if (!mPrivateStatements.empty())
 		{
-			ERM_LOG("\tPrivate statements:\n");
-			ERM_LOG_INDENT();
+			ERM_LOG("Private statements:\n");
 			ERM_LOG_INDENT();
 			for (const auto& statement : mPrivateStatements)
 			{
 				statement->print();
 			}
 			ERM_LOG_UNINDENT();
-			ERM_LOG_UNINDENT();
 		}
+		ERM_LOG_UNINDENT();
 		ERM_LOG_LINE();
 	}
 	
@@ -117,7 +113,7 @@ std::unique_ptr<IStatement> ClassStatementHandler::parse(const Program& program,
 	
 	const auto& scopeBegin = tokens[tokenIndex];
 	if (!ERM_EXPECT(
-		scopeBegin.mType == TokenType::SYMBOL && scopeBegin.mValue == '{',
+		scopeBegin.mType == TokenType::SYMBOL && scopeBegin.mValue == "{",
 		"Invalid token after class's identifier, expected \"{\""))
 	{
 		return nullptr;
@@ -162,13 +158,13 @@ std::unique_ptr<IStatement> ClassStatementHandler::parse(const Program& program,
 			
 			currVisibility->emplace_back(std::move(statement));
 		}
-		else if (nextToken->mType != TokenType::SYMBOL || nextToken->mValue != '}')
+		else if (nextToken->mType != TokenType::SYMBOL || nextToken->mValue != "}")
 		{
 			ERM_LOG_ERROR("Invalid token detected, expecting '}'");
 			return nullptr;
 		}
 	}
-	while (nextToken->mType != TokenType::SYMBOL && nextToken->mValue != '}');
+	while (nextToken->mType != TokenType::SYMBOL && nextToken->mValue != "}");
 	
 	return std::make_unique<ClassStatement>(std::move(classStm));
 }

@@ -184,4 +184,17 @@ void for_constexpr(F func)
 	internal::for_<F, OFFSET>(func, std::make_index_sequence<N>());
 }
 
+namespace internal {
+
+template<typename T, typename Enable = void>
+struct is_optional : std::false_type {};
+
+template<typename T>
+struct is_optional<std::optional<T> > : std::true_type {};
+
+}
+
+template<typename T>
+constexpr bool is_optional_v = internal::is_optional<T>::value;
+
 } // namespace erm::Utils

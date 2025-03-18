@@ -2,24 +2,10 @@
 
 #include "erm/nn/Program.h"
 
-#include <erm/utils/StaticString.h>
-
 #include <refl.hpp>
 
 #include <memory>
-
-template<typename T, typename Enable = void>
-struct is_optional : std::false_type {};
-
-template<typename T>
-struct is_optional<std::optional<T> > : std::true_type {};
-
-template<typename T>
-using is_optional_v = is_optional<T>;
-
-namespace erm::nn {
-class Program;
-}
+#include <string>
 
 namespace erm::nn {
 
@@ -29,7 +15,7 @@ struct StatementType : public refl::attr::usage::type
 		: mName(name)
 	{}
 	
-	const str64 mName;
+	const std::string mName;
 };
 
 struct DataContainer : public refl::attr::usage::type
@@ -87,11 +73,12 @@ private:
 		return tokens[tokenIndex];
 	}
 	
+	template<typename T>
 	static std::optional<Token> checkToken(
 		const Program& program,
 		size_t tokenIndex,
-		std::optional<TokenType> tokenType,
-		std::optional<str128> tokenValue)
+		TokenType tokenType,
+		T tokenValue)
 	{
 		const auto token = getToken(program, tokenIndex);
 		
@@ -100,12 +87,19 @@ private:
 			return std::nullopt;
 		}
 		
-		if (tokenType.has_value() && tokenType != token->mType)
+		if (tokenType != token->mType)
 		{
 			return std::nullopt;
 		}
 		
-		if (tokenValue.has_value() && tokenValue != token->mValue)
+		if constexpr (std::is_same_v<T, char>)
+		{
+			if (std::string{tokenValue} != token->mValue)
+			{
+				return std::nullopt;
+			}
+		}
+		else if (tokenValue != token->mValue)
 		{
 			return std::nullopt;
 		}
@@ -114,14 +108,14 @@ private:
 	}
 	
 	template<typename T>
-	static bool tryParse(const Program& program, size_t& tokenIndex, std::vector<T>& field, auto td)
+	static bool tryParse(const Program& program, size_t& tokenIndex, std::vector<T>& field, auto typeDescriptor)
 	{
-		static_assert(refl::descriptor::is_field(td), "");
+		static_assert(refl::descriptor::is_field(typeDescriptor), "");
 		std::optional<char> separator;
 		
-		if constexpr (refl::descriptor::has_attribute<Separated>(td))
+		if constexpr (refl::descriptor::has_attribute<Separated>(typeDescriptor))
 		{
-			constexpr auto& separated = refl::descriptor::get_attribute<Separated>(td);
+			constexpr auto& separated = refl::descriptor::get_attribute<Separated>(typeDescriptor);
 			separator = separated.mSeparator;
 		}
 		
@@ -147,25 +141,25 @@ private:
 	}
 	
 	template<typename T>
-	static bool tryParse(const Program& program, size_t& tokenIndex, T& value, auto td)
+	static bool tryParse(const Program& program, size_t& tokenIndex, T& value, auto typeDescriptor)
 	{
-		if constexpr (refl::descriptor::has_attribute<Initialized>(td))
+		if constexpr (refl::descriptor::has_attribute<Initialized>(typeDescriptor))
 		{
-			constexpr auto initialized = refl::descriptor::get_attribute<Initialized>(td);
+			constexpr auto initialized = refl::descriptor::get_attribute<Initialized>(typeDescriptor);
 			if (!checkToken(program, tokenIndex, TokenType::SYMBOL, initialized.mOperator))
 			{
-				return is_optional_v<T>();
+				return utils::is_optional_v<T>;
 			}
 			++tokenIndex;
 		}
 		
-		if constexpr (refl::descriptor::has_attribute<DataContainer>(td))
+		if constexpr (refl::descriptor::has_attribute<DataContainer>(typeDescriptor))
 		{
-			static_assert(refl::descriptor::is_type(td), "");
-			constexpr auto dataContainer = refl::descriptor::get_attribute<DataContainer>(td);
+			static_assert(refl::descriptor::is_type(typeDescriptor), "");
+			constexpr auto dataContainer = refl::descriptor::get_attribute<DataContainer>(typeDescriptor);
 			bool inScope = false;
 			bool success = true;
-			refl::util::for_each(td.members, [&](auto member) {
+			refl::util::for_each(typeDescriptor.members, [&](auto member) {
 				if (!success)
 				{
 					return;
@@ -233,15 +227,15 @@ private:
 			const auto token = getToken(program, tokenIndex);
 			if (!token.has_value() || token->mType == TokenType::SYMBOL)
 			{
-				return is_optional_v<T>();
+				return utils::is_optional_v<T>;
 			}
 			tokenIndex++;
 			value = token->mValue.data();
 		} 
-		else if constexpr (!refl::descriptor::has_attribute<StatementType>(td))
+		else if constexpr (!refl::descriptor::has_attribute<StatementType>(typeDescriptor))
 		{
 			bool success = true;
-			refl::util::for_each(td.members, [&](auto member) {
+			refl::util::for_each(typeDescriptor.members, [&](auto member) {
 				if (!success)
 				{
 					return;
@@ -271,23 +265,23 @@ public:
 		static_assert(std::is_constructible_v<T>, "");
 		static_assert(refl::is_reflectable<T>(), "");
 		
-		constexpr auto td = refl::reflect<T>();
-		constexpr auto bases = refl::descriptor::get_base_types(td);
+		constexpr auto typeDescriptor = refl::reflect<T>();
+		constexpr auto bases = refl::descriptor::get_base_types(typeDescriptor);
 		
 		static_assert(refl::util::contains<IStatement>(bases), "");
-		static_assert(refl::descriptor::has_attribute<StatementType>(td), "");
+		static_assert(refl::descriptor::has_attribute<StatementType>(typeDescriptor), "");
 		
-		constexpr auto statementType = refl::descriptor::get_attribute<StatementType>(td);
+		constexpr auto statementType = refl::descriptor::get_attribute<StatementType>(typeDescriptor);
 		
-		if (!checkToken(program, tokenIndex, TokenType::IDENTIFIER, statementType.mName.data()))
+		if (!checkToken(program, tokenIndex, TokenType::IDENTIFIER, statementType.mName))
 		{
 			return nullptr;
 		}
-		tokenIndex++;
+		++tokenIndex;
 		
 		T result;
 		
-		if (!tryParse(program, tokenIndex, result, td))
+		if (!tryParse(program, tokenIndex, result, typeDescriptor))
 		{
 			return nullptr;
 		}

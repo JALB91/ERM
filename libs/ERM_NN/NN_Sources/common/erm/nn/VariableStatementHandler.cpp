@@ -63,7 +63,7 @@ std::unique_ptr<IStatement> VariableStatementHandler::parse(const Program& progr
 	}
 	
 	const auto& nextToken = tokens[tokenIndex];
-	if (nextToken.mType == TokenType::SYMBOL && nextToken.mValue == '=')
+	if (nextToken.mType == TokenType::SYMBOL && nextToken.mValue == "=")
 	{
 		if (!ERM_EXPECT(tokens.size() > ++tokenIndex, "Invalid EOF"))
 		{
@@ -89,7 +89,7 @@ std::unique_ptr<IStatement> VariableStatementHandler::parse(const Program& progr
 	}
 	
 	const auto& sc = tokens[tokenIndex];
-	if (!ERM_EXPECT(sc.mType == TokenType::SYMBOL && sc.mValue == ';', "Invalid token after variable declaration, expected ';'"))
+	if (!ERM_EXPECT(sc.mType == TokenType::SYMBOL && sc.mValue == ";", "Invalid token after variable declaration, expected ';'"))
 	{
 		return nullptr;
 	}

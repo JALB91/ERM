@@ -45,7 +45,7 @@ std::unique_ptr<IStatement> ImportStatementHandler::parse(const Program& program
 	}
 	
 	const auto& sc = tokens[tokenIndex];
-	if (!ERM_EXPECT(sc.mType == TokenType::SYMBOL && sc.mValue == ';', "Invalid token after import path, expected \";\""))
+	if (!ERM_EXPECT(sc.mType == TokenType::SYMBOL && sc.mValue == ";", "Invalid token after import path, expected \";\""))
 	{
 		return nullptr;
 	}
