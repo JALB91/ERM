@@ -5,9 +5,9 @@
 #include "erm/ecs/systems/TransformSystem.h"
 
 #include <erm/assets/models/Model.h>
-#include <erm/assets/AssetsLib.h>
 #include <erm/assets/AssetsRepo.h>
 
+#include <erm/utils/ObjectRegistry.h>
 #include <erm/utils/Profiler.h>
 
 namespace erm::ecs {
@@ -29,10 +29,12 @@ void ModelSystem::init()
 void ModelSystem::postUpdate()
 {
 	ERM_PROFILE_FUNCTION();
+	
+	auto assetsRepo = ObjectRegistry::get<AssetsRepo>();
 
-	forEachComponent([this](ModelComponent& component) {
+	forEachComponent([this, &assetsRepo](ModelComponent& component) {
 //		TODO: Damiano
-		auto* model = gAssetsLib.getAssetsRepo().getAsset<Model>(component.getModelID());
+		auto* model = assetsRepo->getAsset<Model>(component.getModelID());
 
 		if (!component.isDirty() && model == nullptr)
 		{

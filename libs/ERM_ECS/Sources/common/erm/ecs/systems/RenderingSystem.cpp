@@ -9,7 +9,6 @@
 #include "erm/ecs/systems/SkeletonSystem.h"
 #include "erm/ecs/systems/TransformSystem.h"
 
-#include <erm/assets/AssetsLib.h>
 #include <erm/assets/AssetsRepo.h>
 #include <erm/assets/models/Mesh.h>
 #include <erm/assets/models/Model.h>

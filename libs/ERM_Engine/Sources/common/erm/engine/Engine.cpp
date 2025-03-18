@@ -18,9 +18,9 @@
 
 #include <erm/assets/models/Model.h>
 #include <erm/assets/data_structs/Bone.h>
-#include <erm/assets/AssetsLib.h>
 #include <erm/assets/AssetsRepo.h>
 
+#include <erm/utils/ObjectRegistry.h>
 #include <erm/utils/Profiler.h>
 #include <erm/utils/UpdateManager.h>
 #include <erm/utils/Utils.h>
@@ -92,8 +92,8 @@ Engine::Engine()
 
 Engine::~Engine()
 {
-	gAssetsLib.deinit();
 	mWindow->removeListener(*this);
+	ObjectRegistry::clear();
 }
 
 bool Engine::init()
@@ -106,12 +106,12 @@ bool Engine::init()
 	mUpdateManager = std::make_unique<UpdateManager>();
 	mAudioManager = std::make_unique<AudioManager>();
 	mDevice = std::make_unique<Device>(mWindow->getWindow());
-	gAssetsLib.init();
+	ObjectRegistry::set(std::make_shared<AssetsRepo>());
 	mRenderer = std::make_unique<Renderer>(*mWindow, *mDevice);
 	mECS = std::make_unique<ecs::ECS>();
 	mECS->init();
 
-	gAssetsLib.getAssetsRepo().loadDefaultResources();
+	ObjectRegistry::get<AssetsRepo>()->loadDefaultResources();
 
 	auto camera = mECS->getOrCreateEntity("Camera");
 	camera->addComponent<ecs::LightComponent>();
@@ -250,7 +250,6 @@ void Engine::update(float dt)
 
 	mECS->update(dt);
 	mWindow->update();
-	gAssetsLib.update(dt);
 	mAudioManager->update(dt);
 	mUpdateManager->update(dt);
 }
@@ -267,7 +266,6 @@ void Engine::preRender()
 {
 	ERM_PROFILE_FUNCTION();
 
-	gAssetsLib.preRender();
 	mECS->preRender();
 	mRenderer->preRender();
 }
@@ -288,7 +286,6 @@ void Engine::postRender()
 	mECS->postRender();
 	mRenderer->postRender();
 	mWindow->postRender();
-	gAssetsLib.postRender();
 }
 
 void Engine::setMaxFPS(unsigned int maxFPS)

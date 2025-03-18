@@ -2,6 +2,8 @@
 
 #include "erm/utils/Utils.h"
 
+#include <erm/math/Types.h>
+
 #include <type_traits>
 #include <cstddef>
 
@@ -14,7 +16,7 @@ u64 getNextID();
 template<typename T>
 inline u64 getIDImpl()
 {
-	static const u64 sID = getNextID();
+	static const auto sID = getNextID();
 	return sID;
 }
 

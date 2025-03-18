@@ -10,12 +10,11 @@ class SkeletonSystem : public ISystem
 	ERM_SYSTEM_DECL(Skeleton)
 
 public:
-	SkeletonSystem(ECS& ecs)
-		: ISystem(ecs)
-	{}
+	SkeletonSystem(ECS& ecs);
 
 	// ISystem
 	void postUpdate() override;
+	
 };
 
 } // namespace erm::ecs

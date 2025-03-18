@@ -33,13 +33,13 @@ public:
 	void render();
 	void postRender();
 
-	template<typename T>
-	T& addSystem()
+	template<typename T, typename ...Args>
+	T& addSystem(Args... args)
 	{
 		if (ERM_EXPECT(mSystems.size() <= T::SYSTEM_ID || mSystems[T::SYSTEM_ID] == nullptr, "Trying to add a system twice"))
 		{
 			mSystems.resize(std::max(static_cast<int>(mSystems.size()), static_cast<int>(T::SYSTEM_ID + 1)));
-			mSystems[T::SYSTEM_ID] = std::make_unique<T>(*this);
+			mSystems[T::SYSTEM_ID] = std::make_unique<T>(*this, std::forward<Args>(args)...);
 		}
 
 		return static_cast<T&>(*mSystems[T::SYSTEM_ID]);

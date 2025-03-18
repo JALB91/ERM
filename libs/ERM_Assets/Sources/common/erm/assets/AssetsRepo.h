@@ -13,14 +13,13 @@
 #include "erm/assets/textures/Texture.h"
 
 #include <erm/utils/assert/Assert.h>
-#include <erm/utils/IService.h>
 
 #include <unordered_map>
 #include <utility>
 
 namespace erm {
 
-class AssetsRepo : public IService
+class AssetsRepo
 {
 public:
 	void loadDefaultResources();

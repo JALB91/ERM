@@ -3,11 +3,11 @@
 #include "erm/ecs/ECS.h"
 #include "erm/ecs/systems/SkeletonSystem.h"
 
-#include <erm/assets/AssetsLib.h>
 #include <erm/assets/AssetsRepo.h>
 #include <erm/assets/animations/SkeletonAnimation.h>
 #include <erm/assets/data_structs/Skeleton.h>
 
+#include <erm/utils/ObjectRegistry.h>
 #include <erm/utils/Profiler.h>
 
 #include <cmath>
@@ -29,6 +29,8 @@ void AnimationSystem::update(float dt)
 void AnimationSystem::postUpdate()
 {
 	ERM_PROFILE_FUNCTION();
+	
+	auto assetsRepo = ObjectRegistry::get<AssetsRepo>();
 
 	for (ID i = ROOT_ID; i < MAX_ID; ++i)
 	{
@@ -48,7 +50,7 @@ void AnimationSystem::postUpdate()
 			continue;
 		}
 
-		auto* skeleton = gAssetsLib.getAssetsRepo().getAsset<Skeleton>(skeletonID);
+		auto* skeleton = assetsRepo->getAsset<Skeleton>(skeletonID);
 		
 		if (skeleton == nullptr)
 		{

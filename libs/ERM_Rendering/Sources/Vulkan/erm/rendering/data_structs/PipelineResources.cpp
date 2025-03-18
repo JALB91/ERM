@@ -10,7 +10,6 @@
 #include "erm/rendering/utils/VkUtils.h"
 
 #include <erm/assets/AssetsRepo.h>
-#include <erm/assets/AssetsLib.h>
 
 #include <erm/window/Window.h>
 

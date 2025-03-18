@@ -1,7 +1,5 @@
 #pragma once
 
-#include <erm/assets/AssetsLib.h>
-
 #include <erm/window/IWindowListener.h>
 
 #include <erm/utils/FileLocator.h>
