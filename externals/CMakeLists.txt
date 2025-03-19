@@ -5,12 +5,11 @@ project(
 )
 
 # Include configuration files for dependencies
-include(TracyConfig)
-include(GLMConfig)
-include(GLFWConfig)
-include(TinyXmlConfig)
-include(SPIRVConfig)
-include(AssimpConfig)
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/TracyConfig.cmake")
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/GLMConfig.cmake")
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/GLFWConfig.cmake")
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/TinyXmlConfig.cmake")
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/SPIRVConfig.cmake")
 
 # Adds common externals dependencies
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/tracy")
@@ -27,6 +26,12 @@ add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/magic_enum")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/refl-cpp")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/xxHash")
 
+if(ERM_OPEN_GL)
+	include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/GLEWConfig.cmake")
+	add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/glew-cmake")
+endif()
+
 if(ERM_ASSIMP_ENABLED)
+	include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/AssimpConfig.cmake")
 	add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/assimp")
 endif()

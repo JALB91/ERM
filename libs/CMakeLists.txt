@@ -4,8 +4,7 @@ project(
 	DESCRIPTION "ERM Libraries"
 )
 
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-include(ERMLibs)
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/ERMLibs.cmake")
 
 set(ERM_GENERATED_DIR "${CMAKE_INSTALL_PREFIX}/generated")
 

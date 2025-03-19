@@ -1,25 +1,21 @@
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 3.23)
 
 # Setup ERM_PLATFORM
 if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Windows")
 	set(ERM_PLATFORM "Windows")
+	set(ERM_WINDOWS ON)
 elseif("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Darwin")
 	set(ERM_PLATFORM "MacOS")
-endif()
-
-if("${ERM_PLATFORM}" STREQUAL "Windows")
-	set(ERM_WINDOWS ON)
-elseif("${ERM_PLATFORM}" STREQUAL "MacOS")
 	set(ERM_MAC ON)
 else()
-	message(FATAL_ERROR "Invalid platform: ${ERM_PLATFORM}")
+	message(FATAL_ERROR "Platform not supported: ${CMAKE_HOST_SYSTEM_NAME}")
 endif()
+
+# Common includes
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/ERMConfig.cmake")
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/ERMUtils.cmake")
 
 # Verify ERM_TARGET_API
-if(NOT DEFINED ERM_TARGET_API)
-	set(ERM_TARGET_API "VULKAN")
-endif()
-
 if("${ERM_TARGET_API}" STREQUAL "VULKAN")
 	set(ERM_VULKAN ON)
 elseif("${ERM_TARGET_API}" STREQUAL "OPEN_GL")
@@ -29,6 +25,7 @@ elseif("${ERM_TARGET_API}" STREQUAL "DX12" AND ERM_WINDOWS)
 else()
 	message(FATAL_ERROR "Invalid target api: ${ERM_TARGET_API}")
 endif()
+message(STATUS "Using ${ERM_TARGET_API} APIs")
 
 # Project declaration
 project(
@@ -54,13 +51,14 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_INSTALL_PREFIX}/bin/Release"
 set(CMAKE_CXX_STANDARD 23 CACHE STRING "" FORCE)
 set(CMAKE_CXX_EXTENSIONS OFF CACHE BOOL "" FORCE)
 set(CMAKE_CXX_STANDARD_REQUIRED ON CACHE BOOL "" FORCE)
-set(CMAKE_CXX_FLAGS "${GCC_COVERAGE_COMPILE_FLAGS}" CACHE STRING "" FORCE)
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}" CACHE STRING "" FORCE)
+set(CMAKE_CXX_FLAGS "" CACHE STRING "" FORCE)
+set(CMAKE_EXE_LINKER_FLAGS "" CACHE STRING "" FORCE)
 
-# Disable exceptions on windows
 if(ERM_WINDOWS)
+	# Disable exceptions on Windows
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:preprocessor /D_WINDOWS /D_WIN32 /D_HAS_EXCEPTIONS=0" CACHE STRING "" FORCE)
 elseif(ERM_MAC)
+	# Enable obj-c++ on MacOS
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -x objective-c" CACHE STRING "" FORCE)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -x objective-c++" CACHE STRING "" FORCE)
 endif()
@@ -74,32 +72,17 @@ set(ERM_RES_DEST "${CMAKE_INSTALL_PREFIX}/res")
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # Setup Python
-find_package(Python3)
-if(NOT DEFINED Python3_FOUND OR NOT ${Python3_FOUND})
-	message(FATAL_ERROR "Python3 not found")
-endif()
-
-# Setup CMAKE_MODULE_PATH
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-include(ERMConfig)
-include(ERMUtils)
+find_package(Python3 REQUIRED)
 
 # Setup ERM_TARGET_API
 erm_setup_api()
 erm_setup_pipeline_script()
-message(STATUS "Using ${ERM_TARGET_API} APIs")
-
-# Add dependencies based on ERM_TARGET_API
-if(ERM_OPEN_GL)
-	include(GLEWConfig)
-	add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/externals/glew-cmake")
-endif()
 
 # Add dependencies based on platform
 if(ERM_WINDOWS)
-	include(MSVCConfig)
+	include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/MSVCConfig.cmake")
 elseif(ERM_MAC)
-	include(OSXConfig)
+	include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/OSXConfig.cmake")
 endif()
 
 # Setup externals
