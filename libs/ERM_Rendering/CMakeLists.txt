@@ -1,5 +1,14 @@
 erm_library_project(0.0.1 "ERM Rendering lib")
 
+if(ERM_TARGET_API_INCLUDE_DIR)
+	target_sources(
+		"${PROJECT_NAME}"
+		PUBLIC
+			FILE_SET HEADERS
+			BASE_DIRS "${ERM_TARGET_API_INCLUDE_DIR}"
+	)
+endif()
+
 target_compile_definitions(
 	"${PROJECT_NAME}"
 	PRIVATE
@@ -12,8 +21,9 @@ target_link_libraries(
 		imgui
 		ERM_Window
 	PUBLIC
+		${ERM_TARGET_API_LIB}
 		spirv-cross-cpp
 		ERM_Input
-		ERM_Assets
 		ERM_Utils
+		ERM_Assets
 )

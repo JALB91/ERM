@@ -26,7 +26,7 @@ foreach(ERM_LIB_DIRECTORY ${ERM_LIBS_DIRECTORIES})
 		endforeach()
 		list(APPEND ERM_NN_ALL_SOURCES ${${DIR_NAME}_NN_SOURCES})
         list(APPEND ERM_ALL_NN_DIRS "${ERM_LIB_DIRECTORY}/NN_Sources/common")
-        list(APPEND ERM_ALL_NN_DIRS "${ERM_LIB_DIRECTORY}/NN_Sources/${TARGET_API}")
+        list(APPEND ERM_ALL_NN_DIRS "${ERM_LIB_DIRECTORY}/NN_Sources/${ERM_TARGET_API}")
     endif()
 endforeach()
 
@@ -45,18 +45,26 @@ utils::for_constexpr<erm::nn::internal::kERMNNCounterStart + 1, erm::nn::interna
 
 ")
 
-file(MAKE_DIRECTORY "${ERM_GENERATED_DIR}/ERM_NN/common/erm/nn")
-file(WRITE "${ERM_GENERATED_DIR}/ERM_NN/common/erm/nn/NNAllStatementHandlers.h" "${ALL_NN_SOURCES_HEADER}")
-list(APPEND ERM_NN_NN_GEN_FILES "${ERM_GENERATED_DIR}/ERM_NN/common/erm/nn/NNAllStatementHandlers.h")
-list(APPEND ERM_NN_ALL_SOURCES "${ERM_GENERATED_DIR}/ERM_NN/common/erm/nn/NNAllStatementHandlers.h")
+if(NOT ERM_USE_MODULES)
+	file(MAKE_DIRECTORY "${ERM_GENERATED_DIR}/ERM_NN/common/erm/nn")
+	file(WRITE "${ERM_GENERATED_DIR}/ERM_NN/common/erm/nn/NNAllStatementHandlers.h" "${ALL_NN_SOURCES_HEADER}")
+	list(APPEND ERM_NN_NN_GEN_FILES "${ERM_GENERATED_DIR}/ERM_NN/common/erm/nn/NNAllStatementHandlers.h")
+	list(APPEND ERM_NN_ALL_SOURCES "${ERM_GENERATED_DIR}/ERM_NN/common/erm/nn/NNAllStatementHandlers.h")
+endif()
 
 erm_executable_project(0.0.1 "ERM NN lib")
 
-target_include_directories(
-	"${PROJECT_NAME}"
-	PRIVATE
-		${ERM_ALL_NN_DIRS}	
-)
+if(ERM_USE_MODULES)
+	target_sources(${PROJECT_NAME}
+		PUBLIC
+			FILE_SET CXX_MODULES
+			BASE_DIRS ${ERM_ALL_NN_DIRS})
+else()
+	target_sources(${PROJECT_NAME}
+		PUBLIC
+			FILE_SET HEADERS
+			BASE_DIRS ${ERM_ALL_NN_DIRS})
+endif()
 
 target_compile_definitions(
 	"${PROJECT_NAME}"

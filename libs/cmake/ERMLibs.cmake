@@ -23,10 +23,12 @@ function(erm_get_group_for_file FILE)
 		set(GROUP "Generated/${GROUP}")
 	elseif(IS_NN_SOURCE GREATER_EQUAL 0)
 		set(GROUP "NN_Sources/${GROUP}")
-	elseif(FILE_EXTENSION STREQUAL ".h" OR FILE_EXTENSION STREQUAL ".cpp" OR FILE_EXTENSION STREQUAL ".hpp")
+	elseif(FILE_EXTENSION STREQUAL ".h" OR FILE_EXTENSION STREQUAL ".hpp" OR FILE_EXTENSION STREQUAL ".cpp")
 		set(GROUP "Sources/${GROUP}")
-	else()
+	elseif(FILE_EXTENSION STREQUAL ".nn")
 		set(GROUP "NN_Data/${GROUP}")
+	else()
+		message(WARNING "Unknown file extension ${FILE}")
 	endif()
 
 	set(GROUP "${GROUP}" PARENT_SCOPE)
@@ -43,6 +45,7 @@ function(erm_gather_sources DIR_PATH)
 	erm_get_dir_name_from_path(${DIR_PATH})
 
 	# Clear eventual cached data
+	unset(MAIN_SOURCES)
 	unset(CPP_SOURCES)
 	unset(CPP_HEADERS)
 	unset(NN_DATA)
@@ -53,8 +56,14 @@ function(erm_gather_sources DIR_PATH)
 	# Gather header files
 	file(GLOB_RECURSE CPP_HEADERS
 		"${DIR_PATH}/Sources/common/*.h"
+		"${DIR_PATH}/Sources/common/*.hpp"
 		"${DIR_PATH}/Sources/${ERM_TARGET_API}/*.h"
+		"${DIR_PATH}/Sources/${ERM_TARGET_API}/*.hpp"
 	)
+
+	if(ERM_USE_MODULES AND CPP_HEADERS)
+		message(FATAL_ERROR "Found header files while using modules ${PROJECT_NAME}\n\t${CPP_HEADERS}")
+	endif()
 
 	# Gather source files
 	file(GLOB_RECURSE CPP_SOURCES
@@ -71,8 +80,10 @@ function(erm_gather_sources DIR_PATH)
 	# Gather nn source files
 	file(GLOB_RECURSE NN_SOURCES
 		"${DIR_PATH}/NN_Sources/common/*.h"
+		"${DIR_PATH}/NN_Sources/common/*.hpp"
 		"${DIR_PATH}/NN_Sources/common/*.cpp"
 		"${DIR_PATH}/NN_Sources/${ERM_TARGET_API}/*.h"
+		"${DIR_PATH}/NN_Sources/${ERM_TARGET_API}/*.hpp"
 		"${DIR_PATH}/NN_Sources/${ERM_TARGET_API}/*.cpp"
 	)
 
@@ -84,20 +95,29 @@ function(erm_gather_sources DIR_PATH)
 		list(FILTER NN_SOURCES EXCLUDE REGEX ".*/ray_tracing/.*")
 	endif()
 
+	# Find main sources
+	set(MAIN_SOURCES ${CPP_SOURCES})
+	list(FILTER MAIN_SOURCES INCLUDE REGEX ".*main.cpp")
+	list(FILTER CPP_SOURCES EXCLUDE REGEX ".*main.cpp")
+
 	# Gather generated files
 	foreach(FILE ${NN_DATA})
 		string(REGEX REPLACE ".*/${DIR_NAME}/" "${ERM_GENERATED_DIR}/${DIR_NAME}/" FILE "${FILE}")
 		string(REPLACE "/NN_Data" "" FILE "${FILE}")
-		string(REPLACE ".nn" ".h" NN_GEN_HEADER "${FILE}")
 		string(REPLACE ".nn" ".cpp" NN_GEN_SOURCE "${FILE}")
 
-		list(APPEND CPP_HEADERS ${NN_GEN_HEADER})
+		if(NOT ERM_USE_MODULES)
+			string(REPLACE ".nn" ".h" NN_GEN_HEADER "${FILE}")
+			list(APPEND CPP_HEADERS ${NN_GEN_HEADER})
+			list(APPEND NN_GEN_FILES ${NN_GEN_HEADER})
+		endif()
 		list(APPEND CPP_SOURCES ${NN_GEN_SOURCE})
-		list(APPEND NN_GEN_FILES ${NN_GEN_HEADER} ${NN_GEN_SOURCE})
+		list(APPEND NN_GEN_FILES ${NN_GEN_SOURCE})
 	endforeach()
 
-	list(APPEND ALL_SOURCES ${CPP_HEADERS} ${CPP_SOURCES} ${NN_DATA} ${NN_GEN_FILES})
+	list(APPEND ALL_SOURCES ${MAIN_SOURCES} ${CPP_HEADERS} ${CPP_SOURCES} ${NN_DATA} ${NN_GEN_FILES})
 	
+	set(${DIR_NAME}_MAIN_SOURCES ${MAIN_SOURCES} PARENT_SCOPE)
 	set(${DIR_NAME}_CPP_HEADERS ${CPP_HEADERS} PARENT_SCOPE)
 	set(${DIR_NAME}_CPP_SOURCES ${CPP_SOURCES} PARENT_SCOPE)
 	set(${DIR_NAME}_NN_DATA ${NN_DATA} PARENT_SCOPE)
@@ -144,41 +164,122 @@ function(erm_setup_executable_custom_commands)
 	endif()
 endfunction()
 
+function(erm_target_sources)
+	if(ERM_USE_MODULES)
+		target_sources(
+			"${PROJECT_NAME}"
+			PUBLIC
+				FILE_SET CXX_MODULES
+				BASE_DIRS
+					"${CMAKE_CURRENT_SOURCE_DIR}/Sources/common"
+					"${CMAKE_CURRENT_SOURCE_DIR}/Sources/${ERM_TARGET_API}"
+					"${CMAKE_CURRENT_SOURCE_DIR}/NN_Sources/common"
+					"${CMAKE_CURRENT_SOURCE_DIR}/NN_Sources/${ERM_TARGET_API}"
+					"${CMAKE_CURRENT_SOURCE_DIR}/NN_Data/common"
+					"${CMAKE_CURRENT_SOURCE_DIR}/NN_Data/${ERM_TARGET_API}"
+					"${ERM_GENERATED_DIR}/${PROJECT_NAME}/common"
+					"${ERM_GENERATED_DIR}/${PROJECT_NAME}/${ERM_TARGET_API}"
+				FILES
+					${${PROJECT_NAME}_CPP_SOURCES}
+		)
+	else()
+		if(${PROJECT_NAME}_CPP_SOURCES)
+			target_sources(
+				"${PROJECT_NAME}"
+				PRIVATE
+					${${PROJECT_NAME}_CPP_SOURCES}
+				PUBLIC
+					FILE_SET HEADERS
+					BASE_DIRS
+						"${CMAKE_CURRENT_SOURCE_DIR}/Sources/common"
+						"${CMAKE_CURRENT_SOURCE_DIR}/Sources/${ERM_TARGET_API}"
+						"${CMAKE_CURRENT_SOURCE_DIR}/NN_Sources/common"
+						"${CMAKE_CURRENT_SOURCE_DIR}/NN_Sources/${ERM_TARGET_API}"
+						"${CMAKE_CURRENT_SOURCE_DIR}/NN_Data/common"
+						"${CMAKE_CURRENT_SOURCE_DIR}/NN_Data/${ERM_TARGET_API}"
+						"${ERM_GENERATED_DIR}/${PROJECT_NAME}/common"
+						"${ERM_GENERATED_DIR}/${PROJECT_NAME}/${ERM_TARGET_API}"
+					FILES
+						${${PROJECT_NAME}_CPP_HEADERS}
+			)
+		else()
+			target_sources(
+				"${PROJECT_NAME}"
+				INTERFACE
+					FILE_SET HEADERS
+					BASE_DIRS
+						"${CMAKE_CURRENT_SOURCE_DIR}/Sources/common"
+						"${CMAKE_CURRENT_SOURCE_DIR}/Sources/${ERM_TARGET_API}"
+						"${CMAKE_CURRENT_SOURCE_DIR}/NN_Sources/common"
+						"${CMAKE_CURRENT_SOURCE_DIR}/NN_Sources/${ERM_TARGET_API}"
+						"${CMAKE_CURRENT_SOURCE_DIR}/NN_Data/common"
+						"${CMAKE_CURRENT_SOURCE_DIR}/NN_Data/${ERM_TARGET_API}"
+						"${ERM_GENERATED_DIR}/${PROJECT_NAME}/common"
+						"${ERM_GENERATED_DIR}/${PROJECT_NAME}/${ERM_TARGET_API}"
+					FILES
+						${${PROJECT_NAME}_CPP_HEADERS}
+			)
+		endif()
+	endif()
+
+	if(${PROJECT_NAME}_NN_DATA)
+		target_sources(
+			"${PROJECT_NAME}"
+			PUBLIC
+				${${PROJECT_NAME}_NN_DATA}
+		)
+	endif()
+
+	if(${PROJECT_NAME}_NN_SOURCES)
+		target_sources(
+			"${PROJECT_NAME}"
+			PUBLIC
+				${${PROJECT_NAME}_NN_SOURCES}
+		)
+	endif()
+
+	if(${PROJECT_NAME}_NN_GEN_FILES)
+		target_sources(
+			"${PROJECT_NAME}"
+			PUBLIC
+				${${PROJECT_NAME}_NN_GEN_FILES}
+		)
+	endif()
+endfunction()
+
 function(erm_add_library)
 	if(NOT ${PROJECT_NAME}_CPP_SOURCES)
-		add_library("${PROJECT_NAME}" INTERFACE ${${PROJECT_NAME}_ALL_SOURCES})
+		add_library("${PROJECT_NAME}" INTERFACE)
 		set_target_properties(
 			"${PROJECT_NAME}" 
 			PROPERTIES
 				IS_INTERFACE ON
 		)
 	else()
-		add_library("${PROJECT_NAME}" ${${PROJECT_NAME}_ALL_SOURCES})
+		add_library("${PROJECT_NAME}")
 		set_target_properties(
 			"${PROJECT_NAME}" 
 			PROPERTIES
 				IS_INTERFACE OFF
 		)
 	endif()
+
+	erm_target_sources()
 endfunction()
 
 function(erm_add_executable)
-	add_executable("${PROJECT_NAME}" ${${PROJECT_NAME}_ALL_SOURCES})
+	if(NOT ${PROJECT_NAME}_MAIN_SOURCES)
+		message(FATAL_ERROR "No main.cpp file found for executable ${PROJECT_NAME}")
+	endif()
+	
+	add_executable("${PROJECT_NAME}" ${${PROJECT_NAME}_MAIN_SOURCES})
+
+	erm_target_sources()
 endfunction()
 
 function(erm_target_setup_common_defaults)
 	get_target_property(IS_INTERFACE "${PROJECT_NAME}" IS_INTERFACE)
 	if(IS_INTERFACE)
-		target_include_directories(
-			"${PROJECT_NAME}"
-			INTERFACE
-				${ERM_TARGET_API_INCLUDE_DIR}
-				"${ERM_GENERATED_DIR}/${PROJECT_NAME}/common"
-				"${ERM_GENERATED_DIR}/${PROJECT_NAME}/${ERM_TARGET_API}"
-				"${CMAKE_CURRENT_SOURCE_DIR}/Sources/common"
-				"${CMAKE_CURRENT_SOURCE_DIR}/Sources/${ERM_TARGET_API}"
-		)
-
 		target_compile_definitions(
 			"${PROJECT_NAME}"
 			INTERFACE
@@ -198,17 +299,6 @@ function(erm_target_setup_common_defaults)
 				${ERM_TARGET_API_COMPILE_DEF}
 		)
 	else()
-		target_include_directories(
-			"${PROJECT_NAME}"
-			PRIVATE
-				${ERM_TARGET_API_INCLUDE_DIR}
-			PUBLIC
-				"${ERM_GENERATED_DIR}/${PROJECT_NAME}/common"
-				"${ERM_GENERATED_DIR}/${PROJECT_NAME}/${ERM_TARGET_API}"
-				"${CMAKE_CURRENT_SOURCE_DIR}/Sources/common"
-				"${CMAKE_CURRENT_SOURCE_DIR}/Sources/${ERM_TARGET_API}"
-		)
-
 		target_compile_definitions(
 			"${PROJECT_NAME}"
 			PRIVATE
@@ -273,3 +363,5 @@ macro(erm_executable_project VERSION DESCRIPTION)
 	)
 	erm_setup_executable()
 endmacro()
+
+option(ERM_USE_MODULES "If on it uses cxx modules instead of header files" OFF)
