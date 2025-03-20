@@ -72,7 +72,7 @@ if(ERM_WINDOWS)
 	# Disable exceptions on WIN
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:preprocessor /D_WINDOWS /D_WIN32 /D_HAS_EXCEPTIONS=0" CACHE STRING "" FORCE)
 elseif(ERM_OSX)
-	# Enable obj-c++ on OSX
+	# Enable obj-c on OSX
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -x objective-c" CACHE STRING "" FORCE)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -x objective-c++" CACHE STRING "" FORCE)
 endif()

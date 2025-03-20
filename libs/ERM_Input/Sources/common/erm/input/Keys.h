@@ -4,7 +4,7 @@
 
 namespace erm {
 
-using Key = u64;
+using Key = i64;
 extern const Key KEY_UNKNOWN;
 extern const Key KEY_SPACE;
 extern const Key KEY_APOSTROPHE;

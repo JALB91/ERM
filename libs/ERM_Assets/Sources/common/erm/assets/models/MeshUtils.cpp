@@ -181,7 +181,7 @@ Mesh createSpike(
 	float sizeX /* = 1.0f */,
 	float sizeY /* = 1.0f */,
 	float sizeZ /* = 1.0f */,
-	u32 boneId /* = 0 */
+	u8 boneId /* = 0 */
 )
 {
 	const float halfX = sizeX * 0.5f;
@@ -349,8 +349,8 @@ Mesh createGrid(
 	float height /*= 1.0f*/
 )
 {
-	const i8 halfSizeX = sizeX / 2;
-	const i8 halfSizeY = sizeY / 2;
+	const i8 halfSizeX = static_cast<i8>(sizeX / 2);
+	const i8 halfSizeY = static_cast<i8>(sizeY / 2);
 
 	const u32 verticesCount = (sizeX + 1) * 2 + (sizeY + 1) * 2;
 	std::vector<VertexData> vertices(verticesCount);

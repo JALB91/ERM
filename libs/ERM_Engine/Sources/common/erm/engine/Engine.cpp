@@ -212,7 +212,7 @@ void Engine::run()
 			ERM_RENDER_FRAME_BEGIN();
 			
 			static double elapsedTime = 0.0;
-			static unsigned int framesInSecond = 0;
+			static u16 framesInSecond = 0;
 			
 			elapsedTime += frameElapsedTime;
 			++framesInSecond;
@@ -288,7 +288,7 @@ void Engine::postRender()
 	mWindow->postRender();
 }
 
-void Engine::setMaxFPS(unsigned int maxFPS)
+void Engine::setMaxFPS(u16 maxFPS)
 {
 	mMaxFPS = maxFPS;
 	mTargetFrameTime = 1.0 / static_cast<double>(mMaxFPS);

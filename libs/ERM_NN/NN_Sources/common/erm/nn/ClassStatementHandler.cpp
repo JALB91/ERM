@@ -86,7 +86,7 @@ std::unique_ptr<IStatement> ClassStatementHandler::parse(const Program& program,
 	auto result = ParseHelper::tryParseStatement<ClassStatement>(program, tokenIndex);
 	return result;
 	
-	const auto& tokens = program.getTokens();
+	/*const auto& tokens = program.getTokens();
 	const auto& token = tokens[tokenIndex];
 	
 	ERM_ASSERT_HARD(token.mType == TokenType::IDENTIFIER && token.mValue == mName);
@@ -166,7 +166,7 @@ std::unique_ptr<IStatement> ClassStatementHandler::parse(const Program& program,
 	}
 	while (nextToken->mType != TokenType::SYMBOL && nextToken->mValue != "}");
 	
-	return std::make_unique<ClassStatement>(std::move(classStm));
+	return std::make_unique<ClassStatement>(std::move(classStm));*/
 }
 
 }

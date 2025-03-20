@@ -26,7 +26,7 @@ extern Mesh createSpike(
 	float sizeX = 1.0f,
 	float sizeY = 1.0f,
 	float sizeZ = 1.0f,
-	u32 boneId = 0);
+	u8 boneId = 0);
 
 extern Mesh createSphere(
 	float radius = 1.0f,

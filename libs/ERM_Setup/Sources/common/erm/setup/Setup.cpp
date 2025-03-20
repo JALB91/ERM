@@ -85,6 +85,7 @@ CMakeGenerator Setup::getDefaultGeneratorFor(HostPlatform hostPlatform)
 		case HostPlatform::OSX:
 			return CMakeGenerator::XCODE;
 		case HostPlatform::LINUX:
+		default:
 			return CMakeGenerator::NINJA;
 	}
 }
@@ -123,7 +124,7 @@ int Setup::exec(const SubCommand& /*command*/) const
 	const auto buildFolderName = std::format(
 		"ERM_{}_{}_{}",
 		magic_enum::enum_name(kHostPlatform),
-		generatorData.mName,
+		magic_enum::enum_name(generatorData.mGenerator),
 		renderingAPI);
 	const fs::path targetBuildPath = fs::getERMRoot() / "builds" / buildFolderName.data();
 	

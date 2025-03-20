@@ -64,7 +64,7 @@ std::unique_ptr<IStatement> EnumStatementHandler::parse(const Program& program, 
 	auto result = ParseHelper::tryParseStatement<EnumStatement>(program, tokenIndex);
 	return result;
 	
-	auto& tokens = program.getTokens();
+	/*auto& tokens = program.getTokens();
 	const auto& token = tokens[tokenIndex];
 	
 	ERM_ASSERT_HARD(token.mType == TokenType::IDENTIFIER && token.mValue == mName);
@@ -157,7 +157,7 @@ std::unique_ptr<IStatement> EnumStatementHandler::parse(const Program& program, 
 	}
 	while (nextToken->mValue != "}");
 	
-	return std::make_unique<EnumStatement>(std::move(enumStm));
+	return std::make_unique<EnumStatement>(std::move(enumStm));*/
 }
 
 }

@@ -46,10 +46,10 @@ public:
 	void render();
 	void postRender();
 
-	inline unsigned int getFPS() const { return mFPS; }
-	inline unsigned int getMaxFPS() const { return mMaxFPS; }
+	inline u16 getFPS() const { return mFPS; }
+	inline u16 getMaxFPS() const { return mMaxFPS; }
 
-	void setMaxFPS(unsigned int maxFPS);
+	void setMaxFPS(u16 maxFPS);
 
 	inline const Timer& getTimer() const { return mTimer; }
 	inline const FileLocator& getFileLocator() const { return mFileLocator; }

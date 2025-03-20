@@ -15,7 +15,7 @@ struct StatementType : public refl::attr::usage::type
 		: mName(name)
 	{}
 	
-	const std::string mName;
+	const str64 mName;
 };
 
 struct DataContainer : public refl::attr::usage::type

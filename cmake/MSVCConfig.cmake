@@ -16,10 +16,12 @@ function(erm_target_setup_project)
 	target_compile_options(
 		"${PROJECT_NAME}"
 		PRIVATE 
-			$<$<CONFIG:Debug>:/W3 /WX>
+			$<$<CONFIG:Debug>:/W3 /WX>   # Enables all warnings and treats them as errors
 		PUBLIC
-			$<$<CONFIG:Release>:/Zi>
-			/GR-
+			$<$<CONFIG:Release>:/Zi>     # Include debug info
+			/GR-                         # Disables run-time type information
+			/wd4065                      # Disable warning for no case label
+			/MP                          # Enables multi process builds
 	)
 
 	target_link_options(
