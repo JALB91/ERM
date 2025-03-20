@@ -26,7 +26,7 @@ foreach(ERM_LIB_DIRECTORY ${ERM_LIBS_DIRECTORIES})
 		endforeach()
 		list(APPEND ERM_NN_ALL_SOURCES ${${DIR_NAME}_NN_SOURCES})
         list(APPEND ERM_ALL_NN_DIRS "${ERM_LIB_DIRECTORY}/NN_Sources/common")
-        list(APPEND ERM_ALL_NN_DIRS "${ERM_LIB_DIRECTORY}/NN_Sources/${ERM_TARGET_API}")
+        list(APPEND ERM_ALL_NN_DIRS "${ERM_LIB_DIRECTORY}/NN_Sources/${ERM_RENDERING_API}")
     endif()
 endforeach()
 

@@ -15,7 +15,7 @@ The common structure of an *ERM Lib* is as follow (**!!! NAMING IS IMPORTANT !!!
 │
 └─── Sources
 │   │
-│   └─── <TARGET_API>
+│   └─── <ERM_RENDERING_API>
 │   │   │    <file>.h/.cpp
 │   │   │    ...
 │   │
@@ -25,7 +25,7 @@ The common structure of an *ERM Lib* is as follow (**!!! NAMING IS IMPORTANT !!!
 │
 └─── NN_Data
 │   │
-│   └─── <TARGET_API>
+│   └─── <ERM_RENDERING_API>
 │   │   │    <file>.nn/.nns
 │   │   │    ...
 │   │
@@ -36,7 +36,7 @@ The common structure of an *ERM Lib* is as follow (**!!! NAMING IS IMPORTANT !!!
 
 ## CMakeLists.txt
 
-There are two cmake helper macros available to setup your project, they will will gather sources based on the `ERM_TARGET_API` (see the available options [here](https://github.com/JALB91/ERM/blob/master/README.md)), create a library/executable (based on which method you call), set common C++ options, properties and definitions, they are called respectively:
+There are two cmake helper macros available to setup your project, they will will gather sources based on the `ERM_RENDERING_API` (see the available options [here](https://github.com/JALB91/ERM/blob/master/README.md)), create a library/executable (based on which method you call), set common C++ options, properties and definitions, they are called respectively:
 
 - `erm_library_project(VERSION DESCRIPTION)`
 - `erm_executable_project(VERSION DESCRIPTION)`

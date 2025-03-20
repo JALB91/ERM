@@ -1,6 +1,13 @@
 #pragma once
 
+#include "erm/setup/CMakeGenerator.h"
+#include "erm/setup/HostPlatform.h"
+
 #include <erm/utils/args_parser/ArgsParser.h>
+
+namespace erm {
+struct CMakeGeneratorData;
+}
 
 namespace erm {
 
@@ -15,10 +22,13 @@ public:
 	}
 
 private:
+	static CMakeGenerator getDefaultGeneratorFor(HostPlatform hostPlatform);
+	static const CMakeGeneratorData& getGeneratorDataFor(CMakeGenerator generator);
+	
 	int exec(const SubCommand& command) const;
 	
 	ArgsParser mArgsParser;
-	OptionalArgHandle mTargetAPI;
+	OptionalArgHandle mRenderingAPI;
 	OptionalArgHandle mVerbose;
 	OptionalArgHandle mOpen;
 	OptionalArgHandle mCompile;
@@ -26,7 +36,7 @@ private:
 	OptionalArgHandle mInteractive;
 	OptionalArgHandle mTracy;
 	OptionalArgHandle mTrace;
-	OptionalArgHandle mUseGenerator;
+	OptionalArgHandle mGenerator;
 
 };
 

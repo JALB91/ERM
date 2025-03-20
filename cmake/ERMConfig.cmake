@@ -1,5 +1,27 @@
-option(ERM_TARGET_API "Target rendering API" "VULKAN")
+# ERM properties
+set(ERM_RENDERING_API "VULKAN")
+set_property(
+    GLOBAL PROPERTY ERM_RENDERING_API
+        "VULKAN"
+        "OPEN_GL"
+        "DX12"
+)
+set_property(
+    GLOBAL PROPERTY ERM_HOST_PLATFORM
+        "WIN"
+        "OSX"
+        "LINUX"
+)
+set_property(
+    GLOBAL PROPERTY ERM_CMAKE_GENERATOR
+        "UNIXMK"
+        "NINJA"
+        "XCODE"
+        "VS"
+)
+
+# ERM Options
 option(ERM_FLIP_PROJECTION "If ON the projection matrix will be flipped over the Y axis" OFF)
-option(ERM_FLIP_VIEWPORT "If ON the viewport will be flipped over the Y axis" ${ERM_VULKAN})
+option(ERM_FLIP_VIEWPORT "If ON the viewport will be flipped over the Y axis" ON)
 option(ERM_ASSIMP_ENABLED "If ON assimp library will be used to load models" OFF)
-option(ERM_RAY_TRACING_ENABLED "If ON it will try to enable ray tracing (if supported by the API" ON)
+option(ERM_RAY_TRACING_ENABLED "If ON it will try to enable ray tracing (if supported by the rendering API)" OFF)

@@ -6,7 +6,7 @@ From the root directory execute the `setup.sh` script.
 
 Available parameters:
 - `-h`                  Help
-- `-t` `--target-api`   Target rendering API [*OpenGL*/*DX12*/*Vulkan* (default)]
+- `--rendering-api`     Target rendering API [*OPEN_GL*/*DX12*/*VULKAN* (default)]
 - `-o` `--open`         Open project after generation
 - `--rtx`               Enable ray tracing
 - `--interactive`       Run *CMake* in interactive mode

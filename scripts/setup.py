@@ -116,8 +116,8 @@ def main():
 
     cmake_args = [
         "ccmake" if args.interactive else "cmake", 
-        f"-DERM_TARGET_API={args.target_api}",
-        f"-DERM_PLATFORM={CURRENT_SYSTEM}",
+        f"-DERM_RENDERING_API={args.target_api}",
+        f"-DERM_HOST_PLATFORM={CURRENT_SYSTEM}",
         f"-DERM_RAY_TRACING_ENABLED={('ON' if args.rtx else 'OFF')}",
         f"-DERM_TRACY_ENABLED={('ON' if args.tracy_enabled else 'OFF')}"
     ]

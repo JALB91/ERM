@@ -1,6 +1,6 @@
 #include "erm/rendering/ray_tracing/RTRenderingResources.h"
 
-#include <erm/math/math.h>
+#include <erm/math/Math.h>
 #include <erm/math/BoundingBox.h>
 
 #include "erm/rendering/ray_tracing/RTBlas.h"

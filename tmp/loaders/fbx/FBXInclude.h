@@ -1,4 +1,4 @@
-#if defined(ERM_MAC)
+#if defined(ERM_OSX)
 #	pragma clang diagnostic push
 #	pragma clang diagnostic ignored "-Wall"
 #	pragma clang diagnostic ignored "-Wextra"

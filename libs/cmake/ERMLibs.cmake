@@ -14,7 +14,7 @@ function(erm_get_group_for_file FILE)
 	cmake_path(GET FILE EXTENSION LAST_ONLY FILE_EXTENSION)
 
 	string(REGEX REPLACE ".*/common" "" GROUP "${PARENT_DIR}")
-	string(REGEX REPLACE ".*/${ERM_TARGET_API}" "" GROUP "${GROUP}")
+	string(REGEX REPLACE ".*/${ERM_RENDERING_API}" "" GROUP "${GROUP}")
 
 	string(FIND ${FILE} "generated" IS_GENERATED)
 	string(FIND ${FILE} "NN_Sources" IS_NN_SOURCE)
@@ -57,8 +57,8 @@ function(erm_gather_sources DIR_PATH)
 	file(GLOB_RECURSE CPP_HEADERS
 		"${DIR_PATH}/Sources/common/*.h"
 		"${DIR_PATH}/Sources/common/*.hpp"
-		"${DIR_PATH}/Sources/${ERM_TARGET_API}/*.h"
-		"${DIR_PATH}/Sources/${ERM_TARGET_API}/*.hpp"
+		"${DIR_PATH}/Sources/${ERM_RENDERING_API}/*.h"
+		"${DIR_PATH}/Sources/${ERM_RENDERING_API}/*.hpp"
 	)
 
 	if(ERM_USE_MODULES AND CPP_HEADERS)
@@ -68,13 +68,13 @@ function(erm_gather_sources DIR_PATH)
 	# Gather source files
 	file(GLOB_RECURSE CPP_SOURCES
 		"${DIR_PATH}/Sources/common/*.cpp"
-		"${DIR_PATH}/Sources/${ERM_TARGET_API}/*.cpp"
+		"${DIR_PATH}/Sources/${ERM_RENDERING_API}/*.cpp"
 	)
 
 	# Gather nn data files
 	file(GLOB_RECURSE NN_DATA
 		"${DIR_PATH}/NN_Data/common/*.nn"
-		"${DIR_PATH}/NN_Data/${ERM_TARGET_API}/*.nn"
+		"${DIR_PATH}/NN_Data/${ERM_RENDERING_API}/*.nn"
 	)
 
 	# Gather nn source files
@@ -82,9 +82,9 @@ function(erm_gather_sources DIR_PATH)
 		"${DIR_PATH}/NN_Sources/common/*.h"
 		"${DIR_PATH}/NN_Sources/common/*.hpp"
 		"${DIR_PATH}/NN_Sources/common/*.cpp"
-		"${DIR_PATH}/NN_Sources/${ERM_TARGET_API}/*.h"
-		"${DIR_PATH}/NN_Sources/${ERM_TARGET_API}/*.hpp"
-		"${DIR_PATH}/NN_Sources/${ERM_TARGET_API}/*.cpp"
+		"${DIR_PATH}/NN_Sources/${ERM_RENDERING_API}/*.h"
+		"${DIR_PATH}/NN_Sources/${ERM_RENDERING_API}/*.hpp"
+		"${DIR_PATH}/NN_Sources/${ERM_RENDERING_API}/*.cpp"
 	)
 
 	# Remove raytracing files if not enabled
@@ -152,8 +152,17 @@ endfunction()
 function(erm_setup_executable_custom_commands)
 	add_custom_command(
 		TARGET ${PROJECT_NAME} POST_BUILD 
-		COMMAND "${CMAKE_COMMAND}" -E make_directory "${CMAKE_CURRENT_SOURCE_DIR}/bin/${ERM_PLATFORM}/$<CONFIG>"
-		COMMAND "${CMAKE_COMMAND}" -E copy "$<TARGET_FILE:${PROJECT_NAME}>" "${CMAKE_CURRENT_SOURCE_DIR}/bin/${ERM_PLATFORM}/$<CONFIG>/${PROJECT_NAME}")
+		COMMAND "${CMAKE_COMMAND}" -E make_directory "${CMAKE_CURRENT_SOURCE_DIR}/bin/${ERM_HOST_PLATFORM}/$<CONFIG>"
+		COMMAND "${CMAKE_COMMAND}" -E copy "$<TARGET_FILE:${PROJECT_NAME}>" "${CMAKE_CURRENT_SOURCE_DIR}/bin/${ERM_HOST_PLATFORM}/$<CONFIG>/${PROJECT_NAME}"
+		BYPRODUCTS "${CMAKE_CURRENT_SOURCE_DIR}/bin/${ERM_HOST_PLATFORM}/$<CONFIG>/${PROJECT_NAME}"
+	)
+	
+	if(ERM_OSX)
+		add_custom_command(
+			TARGET ${PROJECT_NAME} POST_BUILD 
+			COMMAND  codesign --force --deep --sign - "${CMAKE_CURRENT_SOURCE_DIR}/bin/${ERM_HOST_PLATFORM}/$<CONFIG>/${PROJECT_NAME}"
+		)
+	endif()
 
 	if(ERM_WINDOWS AND $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}>)
 		# Copy DLLs
@@ -172,13 +181,13 @@ function(erm_target_sources)
 				FILE_SET CXX_MODULES
 				BASE_DIRS
 					"${CMAKE_CURRENT_SOURCE_DIR}/Sources/common"
-					"${CMAKE_CURRENT_SOURCE_DIR}/Sources/${ERM_TARGET_API}"
+					"${CMAKE_CURRENT_SOURCE_DIR}/Sources/${ERM_RENDERING_API}"
 					"${CMAKE_CURRENT_SOURCE_DIR}/NN_Sources/common"
-					"${CMAKE_CURRENT_SOURCE_DIR}/NN_Sources/${ERM_TARGET_API}"
+					"${CMAKE_CURRENT_SOURCE_DIR}/NN_Sources/${ERM_RENDERING_API}"
 					"${CMAKE_CURRENT_SOURCE_DIR}/NN_Data/common"
-					"${CMAKE_CURRENT_SOURCE_DIR}/NN_Data/${ERM_TARGET_API}"
+					"${CMAKE_CURRENT_SOURCE_DIR}/NN_Data/${ERM_RENDERING_API}"
 					"${ERM_GENERATED_DIR}/${PROJECT_NAME}/common"
-					"${ERM_GENERATED_DIR}/${PROJECT_NAME}/${ERM_TARGET_API}"
+					"${ERM_GENERATED_DIR}/${PROJECT_NAME}/${ERM_RENDERING_API}"
 				FILES
 					${${PROJECT_NAME}_CPP_SOURCES}
 		)
@@ -192,13 +201,13 @@ function(erm_target_sources)
 					FILE_SET HEADERS
 					BASE_DIRS
 						"${CMAKE_CURRENT_SOURCE_DIR}/Sources/common"
-						"${CMAKE_CURRENT_SOURCE_DIR}/Sources/${ERM_TARGET_API}"
+						"${CMAKE_CURRENT_SOURCE_DIR}/Sources/${ERM_RENDERING_API}"
 						"${CMAKE_CURRENT_SOURCE_DIR}/NN_Sources/common"
-						"${CMAKE_CURRENT_SOURCE_DIR}/NN_Sources/${ERM_TARGET_API}"
+						"${CMAKE_CURRENT_SOURCE_DIR}/NN_Sources/${ERM_RENDERING_API}"
 						"${CMAKE_CURRENT_SOURCE_DIR}/NN_Data/common"
-						"${CMAKE_CURRENT_SOURCE_DIR}/NN_Data/${ERM_TARGET_API}"
+						"${CMAKE_CURRENT_SOURCE_DIR}/NN_Data/${ERM_RENDERING_API}"
 						"${ERM_GENERATED_DIR}/${PROJECT_NAME}/common"
-						"${ERM_GENERATED_DIR}/${PROJECT_NAME}/${ERM_TARGET_API}"
+						"${ERM_GENERATED_DIR}/${PROJECT_NAME}/${ERM_RENDERING_API}"
 					FILES
 						${${PROJECT_NAME}_CPP_HEADERS}
 			)
@@ -209,13 +218,13 @@ function(erm_target_sources)
 					FILE_SET HEADERS
 					BASE_DIRS
 						"${CMAKE_CURRENT_SOURCE_DIR}/Sources/common"
-						"${CMAKE_CURRENT_SOURCE_DIR}/Sources/${ERM_TARGET_API}"
+						"${CMAKE_CURRENT_SOURCE_DIR}/Sources/${ERM_RENDERING_API}"
 						"${CMAKE_CURRENT_SOURCE_DIR}/NN_Sources/common"
-						"${CMAKE_CURRENT_SOURCE_DIR}/NN_Sources/${ERM_TARGET_API}"
+						"${CMAKE_CURRENT_SOURCE_DIR}/NN_Sources/${ERM_RENDERING_API}"
 						"${CMAKE_CURRENT_SOURCE_DIR}/NN_Data/common"
-						"${CMAKE_CURRENT_SOURCE_DIR}/NN_Data/${ERM_TARGET_API}"
+						"${CMAKE_CURRENT_SOURCE_DIR}/NN_Data/${ERM_RENDERING_API}"
 						"${ERM_GENERATED_DIR}/${PROJECT_NAME}/common"
-						"${ERM_GENERATED_DIR}/${PROJECT_NAME}/${ERM_TARGET_API}"
+						"${ERM_GENERATED_DIR}/${PROJECT_NAME}/${ERM_RENDERING_API}"
 					FILES
 						${${PROJECT_NAME}_CPP_HEADERS}
 			)
@@ -296,7 +305,7 @@ function(erm_target_setup_common_defaults)
 				$<$<CONFIG:Debug>:ERM_DEBUG>
 				$<$<CONFIG:Release>:ERM_RELEASE>
 				SPIRV_CROSS_EXCEPTIONS_TO_ASSERTIONS
-				${ERM_TARGET_API_COMPILE_DEF}
+				${ERM_RENDERING_API_COMPILE_DEF}
 		)
 	else()
 		target_compile_definitions(
@@ -315,7 +324,7 @@ function(erm_target_setup_common_defaults)
 				$<$<CONFIG:Debug>:ERM_DEBUG>
 				$<$<CONFIG:Release>:ERM_RELEASE>
 				SPIRV_CROSS_EXCEPTIONS_TO_ASSERTIONS
-				${ERM_TARGET_API_COMPILE_DEF}
+				${ERM_RENDERING_API_COMPILE_DEF}
 		)
 	endif()
 

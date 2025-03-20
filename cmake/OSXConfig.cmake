@@ -11,7 +11,7 @@ function(erm_target_setup_project)
 		target_compile_definitions(
 			"${PROJECT_NAME}"
 			INTERFACE 
-				ERM_MAC
+				ERM_OSX
 				$<$<BOOL:${ERM_OPEN_GL}>:GL_DO_NOT_WARN_IF_MULTI_GL_VERSION_HEADERS_INCLUDED>
 				$<$<BOOL:${ERM_OPEN_GL}>:GL_SILENCE_DEPRECATION>
 				VULKAN_HPP_NO_SPACESHIP_OPERATOR
@@ -27,7 +27,7 @@ function(erm_target_setup_project)
 		target_compile_definitions(
 			"${PROJECT_NAME}"
 			PRIVATE 
-				ERM_MAC
+				ERM_OSX
 				$<$<BOOL:${ERM_OPEN_GL}>:GL_DO_NOT_WARN_IF_MULTI_GL_VERSION_HEADERS_INCLUDED>
 				$<$<BOOL:${ERM_OPEN_GL}>:GL_SILENCE_DEPRECATION>
 				VULKAN_HPP_NO_SPACESHIP_OPERATOR

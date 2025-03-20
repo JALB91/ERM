@@ -9,7 +9,7 @@
 #include "erm/rendering/renderer/Renderer.h"
 #include "erm/rendering/utils/VkUtils.h"
 
-#include <erm/math/math.h>
+#include <erm/math/Math.h>
 
 #include <erm/utils/Profiler.h>
 #include <erm/utils/Utils.h>

@@ -83,7 +83,7 @@ Engine::Engine()
 	
 #if defined(ERM_WINDOWS)
 	setMaxFPS(144);
-#elif defined(ERM_MAC)
+#elif defined(ERM_OSX)
 	setMaxFPS(60);
 #endif
 	

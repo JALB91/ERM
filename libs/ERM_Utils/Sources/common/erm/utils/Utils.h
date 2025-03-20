@@ -33,7 +33,7 @@ inline std::optional<T> parseNumber(std::string_view data)
 	return result.ec == std::errc() ? std::make_optional(value) : std::nullopt;
 }
 
-#if defined(ERM_MAC)
+#if defined(ERM_OSX)
 template<>
 inline std::optional<float> parseNumber(std::string_view data)
 {
@@ -196,5 +196,11 @@ struct is_optional<std::optional<T> > : std::true_type {};
 
 template<typename T>
 constexpr bool is_optional_v = internal::is_optional<T>::value;
+
+template<typename Container, typename T>
+bool contains(const Container& container, T value)
+{
+	return std::find(container.cbegin(), container.cend(), value) != container.cend();
+}
 
 } // namespace erm::Utils

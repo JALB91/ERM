@@ -20,7 +20,7 @@ namespace {
 
 const std::vector<const char*> kDeviceExtensions {
 	VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-#if defined(ERM_MAC)
+#if defined(ERM_OSX)
 	"VK_KHR_portability_subset",
 #endif
 #if defined(ERM_FLIP_VIEWPORT) && !defined(ERM_RAY_TRACING_ENABLED)
@@ -141,7 +141,7 @@ bool Device::createInstance()
 	requiredExtensions.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 #endif
 	
-#ifdef ERM_MAC
+#ifdef ERM_OSX
 	requiredExtensions.emplace_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
 #endif
 
@@ -187,7 +187,7 @@ bool Device::createInstance()
 	createInfo.enabledExtensionCount = static_cast<u32>(requiredExtensions.size());
 	createInfo.ppEnabledExtensionNames = requiredExtensions.data();
 	
-#ifdef ERM_MAC
+#ifdef ERM_OSX
 	createInfo.flags = vk::InstanceCreateFlagBits::eEnumeratePortabilityKHR;
 #endif
 
@@ -327,7 +327,7 @@ void Device::createLogicalDevice()
 	features12.runtimeDescriptorArray = VK_TRUE;
 
 	vk::PhysicalDeviceRobustness2FeaturesEXT robustness2Features = {};
-#ifndef ERM_MAC
+#ifndef ERM_OSX
 	robustness2Features.nullDescriptor = VK_TRUE;
 #endif
 

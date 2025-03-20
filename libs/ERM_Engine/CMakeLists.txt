@@ -9,7 +9,7 @@ target_compile_definitions(
 target_link_libraries(
 	"${PROJECT_NAME}"
 	PRIVATE 
-		"${ERM_TARGET_API_LIB}"
+		"${ERM_RENDERING_API_LIB}"
 		glfw
 		ERM_Math
 		ERM_Audio

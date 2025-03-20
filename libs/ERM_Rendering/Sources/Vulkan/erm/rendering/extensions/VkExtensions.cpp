@@ -11,7 +11,7 @@ static PFN_vkCmdDebugMarkerBeginEXT pfn_vkCmdDebugMarkerBeginEXT = 0;
 static PFN_vkCmdDebugMarkerEndEXT pfn_vkCmdDebugMarkerEndEXT = 0;
 static PFN_vkCmdDebugMarkerInsertEXT pfn_vkCmdDebugMarkerInsertEXT = 0;
 
-#	if defined(ERM_MAC)
+#	if defined(ERM_OSX)
 #		pragma clang diagnostic push
 #		pragma clang diagnostic ignored "-Wall"
 #		pragma clang diagnostic ignored "-pedantic-errors"
@@ -1739,6 +1739,6 @@ void reset_VK_EXTENSION_SUBSET()
 #endif
 }
 
-#if defined(ERM_MAC)
+#if defined(ERM_OSX)
 #	pragma clang diagnostic pop
 #endif

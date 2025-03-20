@@ -5,7 +5,7 @@
 
 #if defined(ERM_WINDOWS)
 #	define ERM_FUNC_SIG __FUNCSIG__
-#elif defined(ERM_MAC)
+#elif defined(ERM_OSX)
 #	define ERM_FUNC_SIG __PRETTY_FUNCTION__
 #endif
 

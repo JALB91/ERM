@@ -1,35 +1,48 @@
 cmake_minimum_required(VERSION 3.30)
 
-# Setup ERM_PLATFORM
+# Setup ERM_HOST_PLATFORM
 if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Windows")
-	set(ERM_PLATFORM "Windows")
+	set(ERM_HOST_PLATFORM "WIN")
 	set(ERM_WINDOWS ON)
 elseif("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Darwin")
-	set(ERM_PLATFORM "MacOS")
-	set(ERM_MAC ON)
+	set(ERM_HOST_PLATFORM "OSX")
+	set(ERM_OSX ON)
 else()
 	message(FATAL_ERROR "Platform not supported: ${CMAKE_HOST_SYSTEM_NAME}")
+endif()
+
+# Setup ERM_CMAKE_GENERATOR
+if("${CMAKE_GENERATOR}" STREQUAL "Xcode")
+	set(ERM_CMAKE_GENERATOR "XCODE")
+elseif("${CMAKE_GENERATOR}" STREQUAL "Ninja")
+	set(ERM_CMAKE_GENERATOR "NINJA")
+elseif("${CMAKE_GENERATOR}" STREQUAL "Visual Studio 17 2022")
+	set(ERM_CMAKE_GENERATOR "VS")
+elseif("${CMAKE_GENERATOR}" STREQUAL "Unix Makefiles")
+	set(ERM_CMAKE_GENERATOR "UNIXMK")
+else()
+	message(FATAL_ERROR "CMake Generator not supported: ${CMAKE_GENERATOR}")
 endif()
 
 # Common includes
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/ERMConfig.cmake")
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/ERMUtils.cmake")
 
-# Verify ERM_TARGET_API
-if("${ERM_TARGET_API}" STREQUAL "VULKAN")
+# Verify ERM_RENDERING_API
+if("${ERM_RENDERING_API}" STREQUAL "VULKAN")
 	set(ERM_VULKAN ON)
-elseif("${ERM_TARGET_API}" STREQUAL "OPEN_GL")
+elseif("${ERM_RENDERING_API}" STREQUAL "OPEN_GL")
 	set(ERM_OPEN_GL ON)
-elseif("${ERM_TARGET_API}" STREQUAL "DX12" AND ERM_WINDOWS)
+elseif("${ERM_RENDERING_API}" STREQUAL "DX12" AND ERM_WINDOWS)
 	set(ERM_DX12 ON)
 else()
-	message(FATAL_ERROR "Invalid target api: ${ERM_TARGET_API}")
+	message(FATAL_ERROR "Invalid rendering api: ${ERM_RENDERING_API}")
 endif()
-message(STATUS "Using ${ERM_TARGET_API} APIs")
+message(STATUS "Using ${ERM_RENDERING_API} APIs")
 
 # Project declaration
 project(
-	"ERM_${ERM_PLATFORM}_${ERM_TARGET_API}"
+	"ERM_${ERM_HOST_PLATFORM}_${ERM_CMAKE_GENERATOR}_${ERM_RENDERING_API}"
 	VERSION 0.0.1
 	DESCRIPTION "C++ Game Engine"
 	LANGUAGES CXX
@@ -53,12 +66,13 @@ set(CMAKE_CXX_EXTENSIONS OFF CACHE BOOL "" FORCE)
 set(CMAKE_CXX_STANDARD_REQUIRED ON CACHE BOOL "" FORCE)
 set(CMAKE_CXX_FLAGS "" CACHE STRING "" FORCE)
 set(CMAKE_EXE_LINKER_FLAGS "" CACHE STRING "" FORCE)
+set(CMAKE_CXX_SCAN_FOR_MODULES OFF CACHE BOOL "" FORCE)
 
 if(ERM_WINDOWS)
-	# Disable exceptions on Windows
+	# Disable exceptions on WIN
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:preprocessor /D_WINDOWS /D_WIN32 /D_HAS_EXCEPTIONS=0" CACHE STRING "" FORCE)
-elseif(ERM_MAC)
-	# Enable obj-c++ on MacOS
+elseif(ERM_OSX)
+	# Enable obj-c++ on OSX
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -x objective-c" CACHE STRING "" FORCE)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -x objective-c++" CACHE STRING "" FORCE)
 endif()
@@ -74,14 +88,14 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 # Setup Python
 find_package(Python3 REQUIRED)
 
-# Setup ERM_TARGET_API
+# Setup ERM_RENDERING_API
 erm_setup_api()
 erm_setup_pipeline_script()
 
 # Add dependencies based on platform
 if(ERM_WINDOWS)
 	include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/MSVCConfig.cmake")
-elseif(ERM_MAC)
+elseif(ERM_OSX)
 	include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/OSXConfig.cmake")
 endif()
 
