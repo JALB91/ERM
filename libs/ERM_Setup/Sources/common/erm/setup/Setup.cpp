@@ -111,9 +111,22 @@ int Setup::exec(const SubCommand& /*command*/) const
 	const auto interactive = mInteractive->get<bool>();
 	const auto tracy = mTracy->get<bool>();
 	const auto trace = mTrace->get<bool>();
-	const auto generator = mGenerator->get<CMakeGenerator>().value_or(getDefaultGeneratorFor(kHostPlatform));
+	const auto generatorName = mGenerator->get<std::string>();
 	
-	const auto& generatorData = getGeneratorDataFor(generator);
+	auto generatorToUse = getDefaultGeneratorFor(kHostPlatform);
+	
+	if (!generatorName.empty())
+	{
+		const auto generator = magic_enum::enum_cast<CMakeGenerator>(generatorName);
+		if (!generator.has_value())
+		{
+			ERM_LOG("The selected generator \"%s\" is not valid", generatorName.data());
+			return EXIT_FAILURE;
+		}
+		generatorToUse = generator.value();
+	}
+	
+	const auto& generatorData = getGeneratorDataFor(generatorToUse);
 	
 	if (!utils::contains(generatorData.mCompatibleHostPlatforms, kHostPlatform))
 	{
