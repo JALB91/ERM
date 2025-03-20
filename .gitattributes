@@ -4,3 +4,13 @@ externals/fbx/lib/win64/debug/libfbxsdk-mt.lib filter=lfs diff=lfs merge=lfs -te
 externals/fbx/lib/win64/debug/libfbxsdk-md.lib filter=lfs diff=lfs merge=lfs -text
 externals/fbx/lib/win64/release/libfbxsdk-md.lib filter=lfs diff=lfs merge=lfs -text
 externals/fbx/lib/win64/release/libfbxsdk-mt.lib filter=lfs diff=lfs merge=lfs -text
+
+# Force LF endings
+*.txt   eol=lf
+*.md    eol=lf
+*.cpp   eol=lf
+*.h     eol=lf
+*.hpp   eol=lf
+*.cmake eol=lf
+*.sh    eol=lf
+*.py    eol=lf
