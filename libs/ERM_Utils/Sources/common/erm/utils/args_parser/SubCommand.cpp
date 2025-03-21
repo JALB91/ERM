@@ -33,7 +33,7 @@ SubCommand* SubCommand::parse(std::span<std::string> args)
 		const auto& arg = args[index];
 		if (arg.starts_with("-"))
 		{
-			if (!verify(posArgIndex == 0, "Cannot specify optional argument \"%s\" after a positional one", arg.data()))
+			if (!verify(posArgIndex == 0, "Cannot specify optional argument \"%s\" after a positional one", arg.c_str()))
 			{
 				return nullptr;
 			}
@@ -61,10 +61,13 @@ SubCommand* SubCommand::parse(std::span<std::string> args)
 			}
 		}
 		
-		if (verify(posArgIndex < posArgsSize, "Unexpected input parameter: %s", arg.data()))
+		if (verify(posArgIndex < posArgsSize, "Unexpected input parameter: %s", arg.c_str()))
 		{
 			auto& posArg = mPositionalArgs[posArgIndex++];
-			posArg.setValue(arg);
+			if (!verify(posArg.trySetValue(arg), "Invalid value \"%s\" for argument \"%s\"", arg.c_str(), posArg.getName().c_str()))
+			{
+				return nullptr;
+			}
 		}
 		else
 		{
@@ -98,33 +101,36 @@ bool SubCommand::parseOptArg(std::span<std::string> args, size_t& index)
 		return false;
 	});
 
-	if (!verify(it != mOptionalArgs.end(), "Invalid optional argument detected: %s", arg.data()))
+	if (!verify(it != mOptionalArgs.end(), "Invalid optional argument detected: %s", arg.c_str()))
 	{
 		return false;
 	}
 
 	auto& optArg = *it;
 
-	if (!verify(!optArg.getValue().has_value(), "Optional argument \"%s\" have been defined twice", arg.data()))
+	if (!verify(!optArg.getValue().has_value(), "Optional argument \"%s\" have been defined twice", arg.c_str()))
 	{
 		return false;
 	}
 	
 	const bool isBoolean = optArg.getValueType() == ArgValueType::BOOLEAN;
 
-	if (!verify(isBoolean || ++index < args.size(), "Expected value for optional argument \"%s\"", arg.data()))
+	if (!verify(isBoolean || ++index < args.size(), "Expected value for optional argument \"%s\"", arg.c_str()))
 	{
 		return false;
 	}
 	
-	if (isBoolean)
+	if (isBoolean && !verify(optArg.trySetValue(optArg.getDefaultValue() == "true" ? "false" : "true"), "Invalid value for argument \"%s\"", optArg.getName().c_str()))
 	{
-		optArg.setValue(optArg.getDefaultValue() == "true" ? "false" : "true");
+		return false;
 	}
 	else
 	{
 		const auto& value = args[index];
-		optArg.setValue(value);
+		if (!verify(optArg.trySetValue(value), "Invalid value \"%s\" for argument \"%s\"", value.c_str(), optArg.getName().c_str()))
+		{
+			return false;
+		}
 	}
 
 	return true;

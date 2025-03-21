@@ -18,7 +18,7 @@ OptionalArg::OptionalArg(
 	, mNamedForm(namedForm)
 	, mDescription(description)
 {
-	ERM_ASSERT(((shortForm.has_value() && isalpha(shortForm.value())) || (namedForm.has_value() && !namedForm->empty())) && !description.empty());
+	ERM_ASSERT_HARD(((shortForm.has_value() && isalpha(shortForm.value())) || (namedForm.has_value() && !namedForm->empty())) && !description.empty());
 }
 
 bool OptionalArg::operator==(const OptionalArg& other) const

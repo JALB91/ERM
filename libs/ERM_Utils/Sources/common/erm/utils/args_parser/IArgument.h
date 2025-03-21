@@ -2,6 +2,7 @@
 
 #include "erm/utils/assert/Assert.h"
 #include "erm/utils/args_parser/ArgValueType.h"
+#include "erm/utils/Concepts.h"
 
 #include <magic_enum/magic_enum.hpp>
 
@@ -33,7 +34,7 @@ public:
 		return mValue;
 	}
 	
-	template<typename T, typename Enable = std::enable_if_t<!std::is_enum_v<T>>>
+	template<concepts::is_not_enum T>
 	T get() const
 	{
 		const auto& targetValue = mValue.has_value() ? mValue.value() : mDefaultValue;
@@ -64,7 +65,7 @@ public:
 		}
 	}
 	
-	template<typename T, typename Enable = std::enable_if_t<std::is_enum_v<T>>>
+	template<concepts::is_enum T>
 	std::optional<T> get() const
 	{
 		const auto& value = mValue.value_or(mDefaultValue);
@@ -81,13 +82,18 @@ public:
 		return std::nullopt;
 	}
 	
-	template<typename T, typename Enable = std::enable_if_t<std::is_enum_v<T>>>
+	template<concepts::is_enum T>
 	void setOptions()
 	{
 		mOptions = std::vector<std::string>(magic_enum::enum_names<T>().begin(), magic_enum::enum_names<T>().end());
 	}
+
+	void setOptions(std::vector<std::string> options)
+	{
+		mOptions = std::move(options);
+	}
 	
-	void setValue(std::string_view value);
+	bool trySetValue(std::string_view value);
 	
 protected:
 	const ArgValueType mValueType;

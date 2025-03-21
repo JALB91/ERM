@@ -28,6 +28,11 @@ else()
 	message(FATAL_ERROR "CMake Generator not supported: ${CMAKE_GENERATOR}")
 endif()
 
+# Setup VS architecture
+if(ERM_WINDOWS AND ERM_GENERATOR_VS AND NOT CMAKE_GENERATOR_PLATFORM)
+	set(CMAKE_GENERATOR_PLATFORM "x64")
+endif()
+
 # Common includes
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/ERMConfig.cmake")
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/ERMUtils.cmake")

@@ -134,19 +134,15 @@ int Setup::exec(const SubCommand& /*command*/) const
 		return EXIT_FAILURE;
 	}
 	
+	const auto& ermRoot = fs::getERMRoot();
 	const auto buildFolderName = std::format(
 		"ERM_{}_{}_{}",
 		magic_enum::enum_name(kHostPlatform),
 		magic_enum::enum_name(generatorData.mGenerator),
 		renderingAPI);
-	const fs::path targetBuildPath = fs::getERMRoot() / "builds" / buildFolderName.data();
-	
-	if (!fs::exists(targetBuildPath))
-	{
-		fs::create_directory(targetBuildPath);
-	}
-	
-	fs::current_path(targetBuildPath);
+	const auto targetBuildPath = ermRoot / "builds" / buildFolderName.data();
+
+	fs::current_path(ermRoot);
 	
 #if defined(ERM_OSX)
 	ERM_ASSERT_HARD(!rtx, "RTX not supported on Mac");
@@ -170,7 +166,12 @@ int Setup::exec(const SubCommand& /*command*/) const
 	cmakeCommand += " -G \"";
 	cmakeCommand += generatorData.mName;
 	cmakeCommand += "\"";
-	
+
+	// Set build path
+	cmakeCommand += " -B \"";
+	cmakeCommand += targetBuildPath.string();
+	cmakeCommand += "\"";
+
 	if (verbose)
 	{
 		cmakeCommand += " --debug-output";
@@ -181,11 +182,7 @@ int Setup::exec(const SubCommand& /*command*/) const
 		cmakeCommand += " --trace";
 	}
 	
-#if defined(ERM_WINDOWS)
-	cmakeCommand += " -A x64";
-#endif
-	
-	cmakeCommand += " ../../";
+	cmakeCommand += " ./";
 	
 	{
 		const auto result = std::system(cmakeCommand.c_str());
@@ -197,7 +194,13 @@ int Setup::exec(const SubCommand& /*command*/) const
 	
 	if (compile)
 	{
-		cmakeCommand = "cmake --build .";
+		cmakeCommand = "cmake";
+
+		// Set build path
+		cmakeCommand += " -B \"";
+		cmakeCommand += targetBuildPath.string();
+		cmakeCommand += "\"";
+
 		if (verbose)
 		{
 			cmakeCommand += "--debug-output";
@@ -206,6 +209,8 @@ int Setup::exec(const SubCommand& /*command*/) const
 		{
 			cmakeCommand += "--trace";
 		}
+
+		cmakeCommand += " --build .";
 		
 		const auto result = std::system(cmakeCommand.c_str());
 		if (result != EXIT_SUCCESS)
@@ -216,7 +221,13 @@ int Setup::exec(const SubCommand& /*command*/) const
 	
 	if (open)
 	{
-		cmakeCommand = "cmake --open .";
+		cmakeCommand = "cmake";
+
+		// Set build path
+		cmakeCommand += " -B \"";
+		cmakeCommand += targetBuildPath.string();
+		cmakeCommand += "\"";
+
 		if (verbose)
 		{
 			cmakeCommand += "--debug-output";
@@ -225,6 +236,8 @@ int Setup::exec(const SubCommand& /*command*/) const
 		{
 			cmakeCommand += "--trace";
 		}
+
+		cmakeCommand += " --open .";
 		
 		const auto result = std::system(cmakeCommand.c_str());
 		if (result != EXIT_SUCCESS)
