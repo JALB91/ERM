@@ -10,7 +10,7 @@ IArgument::IArgument(ArgValueType valueType, std::string_view defaultValue /* = 
 {
 	if (mValueType == ArgValueType::BOOLEAN)
 	{
-		mOptions = {"true", "false"};
+		mOptions = {"true", "false", ""};
 	}
 }
 

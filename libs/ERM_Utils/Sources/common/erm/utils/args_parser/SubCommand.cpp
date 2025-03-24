@@ -120,20 +120,15 @@ bool SubCommand::parseOptArg(std::span<std::string> args, size_t& index)
 		return false;
 	}
 	
-	if (isBoolean && !verify(optArg.trySetValue(optArg.getDefaultValue() == "true" ? "false" : "true"), "Invalid value for argument \"%s\"", optArg.getName().c_str()))
+	if (isBoolean)
 	{
-		return false;
+		return verify(optArg.trySetValue(optArg.getDefaultValue() == "true" ? "false" : "true"), "Invalid value for argument \"%s\"", optArg.getName().c_str());
 	}
 	else
 	{
 		const auto& value = args[index];
-		if (!verify(optArg.trySetValue(value), "Invalid value \"%s\" for argument \"%s\"", value.c_str(), optArg.getName().c_str()))
-		{
-			return false;
-		}
+		return verify(optArg.trySetValue(value), "Invalid value \"%s\" for argument \"%s\"", value.c_str(), optArg.getName().c_str());
 	}
-
-	return true;
 }
 
 void SubCommand::setName(std::string_view name)

@@ -196,11 +196,6 @@ int Setup::exec(const SubCommand& /*command*/) const
 	{
 		cmakeCommand = "cmake";
 
-		// Set build path
-		cmakeCommand += " -B \"";
-		cmakeCommand += targetBuildPath.string();
-		cmakeCommand += "\"";
-
 		if (verbose)
 		{
 			cmakeCommand += "--debug-output";
@@ -210,7 +205,11 @@ int Setup::exec(const SubCommand& /*command*/) const
 			cmakeCommand += "--trace";
 		}
 
-		cmakeCommand += " --build .";
+		cmakeCommand += " --build";
+
+		cmakeCommand += " \"";
+		cmakeCommand += targetBuildPath.string();
+		cmakeCommand += "\"";
 		
 		const auto result = std::system(cmakeCommand.c_str());
 		if (result != EXIT_SUCCESS)
@@ -223,11 +222,6 @@ int Setup::exec(const SubCommand& /*command*/) const
 	{
 		cmakeCommand = "cmake";
 
-		// Set build path
-		cmakeCommand += " -B \"";
-		cmakeCommand += targetBuildPath.string();
-		cmakeCommand += "\"";
-
 		if (verbose)
 		{
 			cmakeCommand += "--debug-output";
@@ -237,7 +231,11 @@ int Setup::exec(const SubCommand& /*command*/) const
 			cmakeCommand += "--trace";
 		}
 
-		cmakeCommand += " --open .";
+		cmakeCommand += " --open";
+
+		cmakeCommand += " \"";
+		cmakeCommand += targetBuildPath.string();
+		cmakeCommand += "\"";
 		
 		const auto result = std::system(cmakeCommand.c_str());
 		if (result != EXIT_SUCCESS)
