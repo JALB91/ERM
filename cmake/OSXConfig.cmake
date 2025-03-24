@@ -20,8 +20,15 @@ function(erm_target_setup_project)
 		target_compile_options(
 			"${PROJECT_NAME}"
 			INTERFACE
-				$<$<CONFIG:Debug>:-Wall -Werror -Wextra -pedantic-errors -Wno-gnu>
-				-fno-exceptions -fno-rtti
+				$<$<CONFIG:Debug>:
+					-Wall				# Enable all warnings
+					-Werror				# Treat warnings as errors
+					-Wextra				# Enable extra warnings
+					-pedantic-errors	# Error if a feature from a later standard revision is used in an earlier mode.
+					-Wno-gnu			# 
+				>
+				-fno-exceptions			# Disables exceptions
+				-fno-rtti				# Disables rtti
 		)
 	else()
 		target_compile_definitions(
@@ -36,8 +43,15 @@ function(erm_target_setup_project)
 		target_compile_options(
 			"${PROJECT_NAME}"
 			PRIVATE
-				$<$<CONFIG:Debug>:-Wall -Werror -Wextra -pedantic-errors -Wno-gnu>
-				-fno-exceptions -fno-rtti
+				$<$<CONFIG:Debug>:
+					-Wall
+					-Werror
+					-Wextra
+					-pedantic-errors
+					-Wno-gnu
+				>
+				-fno-exceptions
+				-fno-rtti
 		)
 	endif()
 endfunction()

@@ -10,6 +10,7 @@ elseif("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Darwin")
 else()
 	message(FATAL_ERROR "Platform not supported: ${CMAKE_HOST_SYSTEM_NAME}")
 endif()
+message(STATUS "Detected ${CMAKE_HOST_SYSTEM_NAME}")
 
 # Setup ERM_CMAKE_GENERATOR
 if("${CMAKE_GENERATOR}" STREQUAL "Xcode")
@@ -27,6 +28,7 @@ elseif("${CMAKE_GENERATOR}" STREQUAL "Unix Makefiles")
 else()
 	message(FATAL_ERROR "CMake Generator not supported: ${CMAKE_GENERATOR}")
 endif()
+message(STATUS "Using ${CMAKE_GENERATOR} generator")
 
 # Setup VS architecture
 if(ERM_WINDOWS AND ERM_GENERATOR_VS AND NOT CMAKE_GENERATOR_PLATFORM)
@@ -77,7 +79,7 @@ set(CMAKE_CXX_FLAGS "" CACHE STRING "" FORCE)
 set(CMAKE_EXE_LINKER_FLAGS "" CACHE STRING "" FORCE)
 set(CMAKE_CXX_SCAN_FOR_MODULES OFF CACHE BOOL "" FORCE)
 
-if(ERM_WINDOWS)
+if(ERM_WINDOWS AND ERM_GENERATOR_VS)
 	# Disable exceptions on WIN
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:preprocessor /D_WINDOWS /D_WIN32 /D_HAS_EXCEPTIONS=0" CACHE STRING "" FORCE)
 elseif(ERM_OSX AND ERM_GENERATOR_XCODE)
