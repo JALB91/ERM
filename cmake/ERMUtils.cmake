@@ -17,10 +17,10 @@ endfunction()
 
 function(erm_setup_pipeline_script)
 	if(ERM_VULKAN)
-		if(ERM_WINDOWS)
+		if(ERM_HOST_WINDOWS)
 			set(ERM_SHADERS_COMPILER "$ENV{VULKAN_SDK}\\Bin\\glslc.exe")
 			string(REPLACE "\\" "/" ERM_SHADERS_COMPILER "${ERM_SHADERS_COMPILER}")
-		elseif(ERM_OSX)
+		elseif(ERM_HOST_OSX)
 			set(ERM_SHADERS_COMPILER "glslc")
 		endif()
 

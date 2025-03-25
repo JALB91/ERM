@@ -144,7 +144,7 @@ int Setup::exec(const SubCommand& /*command*/) const
 
 	fs::current_path(ermRoot);
 	
-#if defined(ERM_OSX)
+#if defined(ERM_HOST_OSX)
 	ERM_ASSERT_HARD(!rtx, "RTX not supported on Mac");
 #endif
 	

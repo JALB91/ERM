@@ -11,7 +11,7 @@ function(erm_target_setup_project)
 			_CRT_SECURE_NO_WARNINGS
 			_USE_MATH_DEFINES
 			NOMINMAX
-			ERM_WINDOWS
+			ERM_HOST_WINDOWS
 	)
 
 	target_compile_options(

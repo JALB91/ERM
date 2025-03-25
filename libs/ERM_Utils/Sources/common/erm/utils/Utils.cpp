@@ -68,7 +68,7 @@ std::string formatTime(u64 seconds) noexcept
 bool hasCommand(const char* const cmd)
 {
 	str128 str(cmd);
-#if defined(ERM_WINDOWS)
+#if defined(ERM_HOST_WINDOWS)
 	str += " > NUL 2>&1";
 #else
 	str += " > /dev/null 2>&1";

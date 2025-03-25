@@ -1,4 +1,4 @@
-#if defined(ERM_OSX)
+#if defined(ERM_HOST_OSX)
 #	pragma clang diagnostic push
 #	pragma clang diagnostic ignored "-Wall"
 #	pragma clang diagnostic ignored "-Wextra"
@@ -8,6 +8,6 @@
 #	pragma clang diagnostic ignored "-Wextra-semi"
 #	include <fbxsdk.h>
 #	pragma clang diagnostic pop
-#elif defined(ERM_WINDOWS)
+#elif defined(ERM_HOST_WINDOWS)
 #	include <fbxsdk.h>
 #endif

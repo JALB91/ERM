@@ -81,9 +81,9 @@ Engine::Engine()
 	ERM_UNUSED(kDefaultScale);
 	std::srand(static_cast<unsigned int>(time(NULL)));
 	
-#if defined(ERM_WINDOWS)
+#if defined(ERM_HOST_WINDOWS)
 	setMaxFPS(144);
-#elif defined(ERM_OSX)
+#elif defined(ERM_HOST_OSX)
 	setMaxFPS(60);
 #endif
 	

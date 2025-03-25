@@ -115,7 +115,7 @@ void Logger::handleLogLevel(LogLevel logLevel) const
 	switch (logLevel)
 	{
 		case LogLevel::WARNING:
-#if defined(ERM_WINDOWS) && defined(ERM_DEBUG)
+#if defined(ERM_HOST_WINDOWS) && defined(ERM_DEBUG)
 			__debugbreak();
 #endif
 			break;

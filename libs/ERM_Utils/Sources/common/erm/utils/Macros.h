@@ -3,9 +3,9 @@
 #define ERM_EXPAND(x) x
 #define ERM_UNUSED(x) (void)x;
 
-#if defined(ERM_WINDOWS)
+#if defined(ERM_HOST_WINDOWS)
 #	define ERM_FUNC_SIG __FUNCSIG__
-#elif defined(ERM_OSX)
+#elif defined(ERM_HOST_OSX)
 #	define ERM_FUNC_SIG __PRETTY_FUNCTION__
 #endif
 

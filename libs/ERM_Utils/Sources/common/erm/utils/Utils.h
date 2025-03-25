@@ -33,7 +33,7 @@ inline std::optional<T> parseNumber(std::string_view data)
 	return result.ec == std::errc() ? std::make_optional(value) : std::nullopt;
 }
 
-#if defined(ERM_OSX)
+#if defined(ERM_HOST_OSX)
 template<>
 inline std::optional<float> parseNumber(std::string_view data)
 {

@@ -157,14 +157,14 @@ function(erm_setup_executable_custom_commands)
 		BYPRODUCTS "${CMAKE_CURRENT_SOURCE_DIR}/bin/${ERM_HOST_PLATFORM}/$<CONFIG>/${PROJECT_NAME}"
 	)
 	
-	if(ERM_OSX)
+	if(ERM_HOST_OSX)
 		add_custom_command(
 			TARGET ${PROJECT_NAME} POST_BUILD 
 			COMMAND  codesign --force --deep --sign - "${CMAKE_CURRENT_SOURCE_DIR}/bin/${ERM_HOST_PLATFORM}/$<CONFIG>/${PROJECT_NAME}"
 		)
 	endif()
 
-	if(ERM_WINDOWS AND $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}>)
+	if(ERM_HOST_WINDOWS AND $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}>)
 		# Copy DLLs
 		add_custom_command(TARGET "${PROJECT_NAME}" POST_BUILD
 			COMMAND "${CMAKE_COMMAND}" -E copy "$<TARGET_RUNTIME_DLLS:${PROJECT_NAME}>" "$<TARGET_FILE_DIR:${PROJECT_NAME}>"
