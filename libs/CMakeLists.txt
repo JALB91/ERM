@@ -4,9 +4,13 @@ project(
 	DESCRIPTION "ERM Libraries"
 )
 
-include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/ERMLibs.cmake")
+# Updates cmake module path
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-set(ERM_GENERATED_DIR "${CMAKE_INSTALL_PREFIX}/generated")
+# Include erm libs
+include(ERMLibs)
+
+set(ERM_GENERATED_DIR "${CMAKE_INSTALL_PREFIX}/generated" CACHE STRING "" FORCE)
 
 erm_gather_libs(ERM_LIBS_DIRECTORIES)
 

@@ -1,69 +1,7 @@
-cmake_minimum_required(VERSION 3.30)
+cmake_minimum_required(VERSION 3.31)
 
-# Setup ERM_HOST_PLATFORM
-if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Windows")
-	set(ERM_HOST_PLATFORM "WIN")
-	set(ERM_HOST_WINDOWS ON)
-elseif("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Darwin")
-	set(ERM_HOST_PLATFORM "OSX")
-	set(ERM_HOST_OSX ON)
-elseif("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Linux")
-	set(ERM_HOST_PLATFORM "LINUX")
-	set(ERM_HOST_LINUX ON)
-else()
-	message(FATAL_ERROR "Platform not supported: ${CMAKE_HOST_SYSTEM_NAME}")
-endif()
-message(STATUS "Detected ${CMAKE_HOST_SYSTEM_NAME}")
-
-# Setup ERM_CMAKE_GENERATOR
-if("${CMAKE_GENERATOR}" STREQUAL "Xcode")
-	set(ERM_CMAKE_GENERATOR "XCODE")
-	set(ERM_GENERATOR_XCODE ON)
-elseif("${CMAKE_GENERATOR}" STREQUAL "Ninja")
-	set(ERM_CMAKE_GENERATOR "NINJA")
-	set(ERM_GENERATOR_NINJA ON)
-elseif("${CMAKE_GENERATOR}" STREQUAL "Visual Studio 17 2022")
-	set(ERM_CMAKE_GENERATOR "VS")
-	set(ERM_GENERATOR_VS ON)
-elseif("${CMAKE_GENERATOR}" STREQUAL "Unix Makefiles")
-	set(ERM_CMAKE_GENERATOR "UNIXMK")
-	set(ERM_GENERATOR_UNIXMK ON)
-else()
-	message(FATAL_ERROR "CMake Generator not supported: ${CMAKE_GENERATOR}")
-endif()
-message(STATUS "Using ${CMAKE_GENERATOR} generator")
-
-# Setup VS architecture
-if(ERM_HOST_WINDOWS AND ERM_GENERATOR_VS AND NOT CMAKE_GENERATOR_PLATFORM)
-	set(CMAKE_GENERATOR_PLATFORM "x64")
-endif()
-
-# Common includes
-include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/ERMConfig.cmake")
-include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/ERMUtils.cmake")
-
-# Verify ERM_RENDERING_API
-if("${ERM_RENDERING_API}" STREQUAL "VULKAN")
-	set(ERM_VULKAN ON)
-elseif("${ERM_RENDERING_API}" STREQUAL "OPEN_GL")
-	set(ERM_OPEN_GL ON)
-elseif("${ERM_RENDERING_API}" STREQUAL "DX12" AND ERM_HOST_WINDOWS)
-	set(ERM_DX12 ON)
-else()
-	message(FATAL_ERROR "Invalid rendering api: ${ERM_RENDERING_API}")
-endif()
-message(STATUS "Using ${ERM_RENDERING_API} APIs")
-
-# Project declaration
-project(
-	"ERM_${ERM_HOST_PLATFORM}_${ERM_CMAKE_GENERATOR}_${ERM_RENDERING_API}"
-	VERSION 0.0.1
-	DESCRIPTION "C++ Game Engine"
-	LANGUAGES CXX
-)
-
-# Setup configuration types
-set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE)
+# CMake options
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE STRING "" FORCE)
 
 # Install options
 set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/ERM" CACHE STRING "" FORCE)
@@ -74,50 +12,54 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE "${CMAKE_INSTALL_PREFIX}/lib/Release"
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE "${CMAKE_INSTALL_PREFIX}/lib/Release" CACHE STRING "" FORCE)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_INSTALL_PREFIX}/bin/Release" CACHE STRING "" FORCE)
 
-# C++ Options
+# Set default C++ Options
 set(CMAKE_CXX_STANDARD 23 CACHE STRING "" FORCE)
 set(CMAKE_CXX_EXTENSIONS OFF CACHE BOOL "" FORCE)
 set(CMAKE_CXX_STANDARD_REQUIRED ON CACHE BOOL "" FORCE)
 set(CMAKE_CXX_FLAGS "" CACHE STRING "" FORCE)
+set(CMAKE_CXX_FLAGS_DEBUG "" CACHE STRING "" FORCE)
+set(CMAKE_CXX_FLAGS_RELEASE "" CACHE STRING "" FORCE)
 set(CMAKE_EXE_LINKER_FLAGS "" CACHE STRING "" FORCE)
+set(CMAKE_EXE_LINKER_FLAGS_DEBUG "" CACHE STRING "" FORCE)
+set(CMAKE_EXE_LINKER_FLAGS_RELEASE "" CACHE STRING "" FORCE)
 set(CMAKE_CXX_SCAN_FOR_MODULES OFF CACHE BOOL "" FORCE)
 
-if(ERM_HOST_WINDOWS AND ERM_GENERATOR_VS)
-	# Disable exceptions on WIN
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:preprocessor /D_WINDOWS /D_HAS_EXCEPTIONS=0" CACHE STRING "" FORCE)
-elseif(ERM_HOST_OSX AND ERM_GENERATOR_XCODE)
-	# Enable obj-c on OSX
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -x objective-c" CACHE STRING "" FORCE)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -x objective-c++" CACHE STRING "" FORCE)
-endif()
+# Update cmake module path
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-if(ERM_GENERATOR_NINJA OR ERM_GENERATOR_UNIXMK)
-	if(NOT CMAKE_BUILD_TYPE)
-		set(CMAKE_BUILD_TYPE "Release" CACHE STRING "" FORCE)
-	endif()
-endif()
+# Setup ERM_HOST_PLATFORM
+include(ERMHostPlatform)
+
+# Setup ERM_CMAKE_GENERATOR
+include(ERMGenerator)
+
+# Setup ERM_RENDERING_API
+include(ERMRenderingAPI)
+
+# Common includes
+include(ERMConfig)
+include(ERMUtils)
 
 # Custom properties
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE STRING "" FORCE)
-set(ERM_RES_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/res")
-set(ERM_RES_DEST "${CMAKE_INSTALL_PREFIX}/res")
-
-# IDEs friendly
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+set(ERM_RES_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/res" CACHE STRING "" FORCE)
+set(ERM_RES_DEST "${CMAKE_INSTALL_PREFIX}/res" CACHE STRING "" FORCE)
 
 # Setup Python
 find_package(Python3 REQUIRED)
 
-# Setup ERM_RENDERING_API
-erm_setup_api()
-erm_setup_pipeline_script()
+# Project declaration
+project(
+	"ERM_${ERM_HOST_PLATFORM}_${ERM_CMAKE_GENERATOR}_${ERM_RENDERING_API}"
+	VERSION 0.0.1
+	DESCRIPTION "C++ Game Engine"
+	LANGUAGES CXX
+)
 
-# Add dependencies based on platform
-if(ERM_HOST_WINDOWS)
-	include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/MSVCConfig.cmake")
-elseif(ERM_HOST_OSX)
-	include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/OSXConfig.cmake")
-endif()
+# Setup compiler
+include(ERMCompiler)
+
+# Setup pipeline
+erm_setup_pipeline_script()
 
 # Setup externals
 set(ERM_EXTERNALS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/externals")

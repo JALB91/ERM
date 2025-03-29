@@ -1,0 +1,11 @@
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+    include(ERMMSVC)
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    include(ERMClang)
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+    include(ERMAppleClang)
+else()
+    message(FATAL_ERROR "CXX Compiler not supported {CMAKE_CXX_COMPILER_ID}")
+endif()
+
+message(STATUS "Using ${CMAKE_CXX_COMPILER_ID} compiler")

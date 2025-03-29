@@ -4,12 +4,15 @@ project(
 	DESCRIPTION "ERM External libs"
 )
 
+# Update cmake module path
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
 # Include configuration files for dependencies
-include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/TracyConfig.cmake")
-include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/GLMConfig.cmake")
-include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/GLFWConfig.cmake")
-include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/TinyXmlConfig.cmake")
-include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/SPIRVConfig.cmake")
+include(TracyConfig)
+include(GLMConfig)
+include(GLFWConfig)
+include(TinyXmlConfig)
+include(SPIRVConfig)
 
 # Adds common externals dependencies
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/tracy")
@@ -27,11 +30,11 @@ add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/refl-cpp")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/xxHash")
 
 if(ERM_OPEN_GL)
-	include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/GLEWConfig.cmake")
+	include(GLEWConfig)
 	add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/glew-cmake")
 endif()
 
 if(ERM_ASSIMP_ENABLED)
-	include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/AssimpConfig.cmake")
+	include(AssimpConfig)
 	add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/assimp")
 endif()

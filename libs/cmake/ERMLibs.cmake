@@ -61,10 +61,6 @@ function(erm_gather_sources DIR_PATH)
 		"${DIR_PATH}/Sources/${ERM_RENDERING_API}/*.hpp"
 	)
 
-	if(ERM_USE_MODULES AND CPP_HEADERS)
-		message(FATAL_ERROR "Found header files while using modules ${PROJECT_NAME}\n\t${CPP_HEADERS}")
-	endif()
-
 	# Gather source files
 	file(GLOB_RECURSE CPP_SOURCES
 		"${DIR_PATH}/Sources/common/*.cpp"
@@ -337,7 +333,6 @@ function(erm_setup_library)
 	erm_create_groups("${${PROJECT_NAME}_ALL_SOURCES}")
 	erm_setup_custom_commands()
 	erm_add_library()
-	erm_target_setup_project()
 	erm_target_setup_common_defaults()
 endfunction()
 
@@ -345,7 +340,6 @@ function(erm_setup_executable)
 	erm_create_groups("${${PROJECT_NAME}_ALL_SOURCES}")
 	erm_setup_custom_commands()
 	erm_add_executable()
-	erm_target_setup_project()
 	erm_target_setup_common_defaults()
 	erm_setup_executable_custom_commands()
 endfunction()
