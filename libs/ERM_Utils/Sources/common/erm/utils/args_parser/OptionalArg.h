@@ -36,7 +36,14 @@ public:
 
 	inline std::string getName() const
 	{
-		return mNamedForm.value_or(std::string {mShortForm.value()});
+		if (mNamedForm.has_value())
+		{
+			return mNamedForm.value();
+		}
+		else
+		{
+			return std::string{ mShortForm.value() };
+		}
 	}
 	
 	u16 getTextLengthUntilDescription() const;

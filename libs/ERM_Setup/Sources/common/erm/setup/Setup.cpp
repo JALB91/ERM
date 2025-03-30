@@ -198,11 +198,11 @@ int Setup::exec(const SubCommand& /*command*/) const
 
 		if (verbose)
 		{
-			cmakeCommand += "--debug-output";
+			cmakeCommand += " --debug-output";
 		}
 		if (trace)
 		{
-			cmakeCommand += "--trace";
+			cmakeCommand += " --trace";
 		}
 
 		cmakeCommand += " --build";
@@ -224,11 +224,11 @@ int Setup::exec(const SubCommand& /*command*/) const
 
 		if (verbose)
 		{
-			cmakeCommand += "--debug-output";
+			cmakeCommand += " --debug-output";
 		}
 		if (trace)
 		{
-			cmakeCommand += "--trace";
+			cmakeCommand += " --trace";
 		}
 
 		cmakeCommand += " --open";

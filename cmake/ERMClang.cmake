@@ -24,14 +24,20 @@ string(JOIN " " CMAKE_CXX_FLAGS_RELEASE
 if(ERM_HOST_OSX)
 	string(JOIN " " CMAKE_CXX_FLAGS
 		"${CMAKE_CXX_FLAGS}"
-		-xobjective-c++
 		-DERM_HOST_OSX
 	)
 
-	string(JOIN " " CMAKE_C_FLAGS
-		"${CMAKE_C_FLAGS}"
-		-xobjective-c
-	)
+	if(ERM_GENERATOR_XCODE)
+		string(JOIN " " CMAKE_CXX_FLAGS
+			"${CMAKE_CXX_FLAGS}"
+			-xobjective-c++
+		)
+
+		string(JOIN " " CMAKE_C_FLAGS
+			"${CMAKE_C_FLAGS}"
+			-xobjective-c
+		)
+	endif()
 elseif(ERM_HOST_WINDOWS)
 	string(JOIN " " CMAKE_CXX_FLAGS
 		"${CMAKE_CXX_FLAGS}"
