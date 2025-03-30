@@ -21,7 +21,7 @@
 	url = https://github.com/assimp/assimp.git
 [submodule "externals/tracy"]
 	path = externals/tracy
-	url = https://github.com/wolfpld/tracy.git
+	url = https://github.com/JALB91/tracy.git
 [submodule "externals/json"]
 	path = externals/json
 	url = https://github.com/nlohmann/json.git
