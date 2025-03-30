@@ -1,5 +1,13 @@
 cmake_minimum_required(VERSION 3.31)
 
+# Project declaration
+project(
+	"ERM"
+	VERSION 0.0.1
+	DESCRIPTION "C++ Game Engine"
+	LANGUAGES CXX
+)
+
 # CMake options
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE STRING "" FORCE)
 
@@ -16,13 +24,13 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_INSTALL_PREFIX}/bin/Release"
 set(CMAKE_CXX_STANDARD 23 CACHE STRING "" FORCE)
 set(CMAKE_CXX_EXTENSIONS OFF CACHE BOOL "" FORCE)
 set(CMAKE_CXX_STANDARD_REQUIRED ON CACHE BOOL "" FORCE)
+set(CMAKE_CXX_SCAN_FOR_MODULES OFF CACHE BOOL "" FORCE)
 set(CMAKE_CXX_FLAGS "" CACHE STRING "" FORCE)
 set(CMAKE_CXX_FLAGS_DEBUG "" CACHE STRING "" FORCE)
 set(CMAKE_CXX_FLAGS_RELEASE "" CACHE STRING "" FORCE)
 set(CMAKE_EXE_LINKER_FLAGS "" CACHE STRING "" FORCE)
 set(CMAKE_EXE_LINKER_FLAGS_DEBUG "" CACHE STRING "" FORCE)
 set(CMAKE_EXE_LINKER_FLAGS_RELEASE "" CACHE STRING "" FORCE)
-set(CMAKE_CXX_SCAN_FOR_MODULES OFF CACHE BOOL "" FORCE)
 
 # Update cmake module path
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
@@ -36,6 +44,9 @@ include(ERMGenerator)
 # Setup ERM_RENDERING_API
 include(ERMRenderingAPI)
 
+# Setup compiler
+include(ERMCompiler)
+
 # Common includes
 include(ERMConfig)
 include(ERMUtils)
@@ -47,18 +58,7 @@ set(ERM_RES_DEST "${CMAKE_INSTALL_PREFIX}/res" CACHE STRING "" FORCE)
 # Setup Python
 find_package(Python3 REQUIRED)
 
-# Project declaration
-project(
-	"ERM_${ERM_HOST_PLATFORM}_${ERM_CMAKE_GENERATOR}_${ERM_RENDERING_API}"
-	VERSION 0.0.1
-	DESCRIPTION "C++ Game Engine"
-	LANGUAGES CXX
-)
-
-# Setup compiler
-include(ERMCompiler)
-
-# Setup pipeline
+# Setup pipeline script
 erm_setup_pipeline_script()
 
 # Setup externals
