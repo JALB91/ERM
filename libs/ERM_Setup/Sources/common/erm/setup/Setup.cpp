@@ -67,6 +67,12 @@ Setup::Setup()
 		ArgValueType::STRING,
 		magic_enum::enum_name(getDefaultGeneratorFor(kHostPlatform)).data(),
 		"Set the cmake generator to be used (if not specified, VS is used on Windows, XCode on OSX and Ninja on Linux)"))
+	, mCompiler(mArgsParser->addOptionalArg(
+		'C',
+		"compiler",
+		ArgValueType::STRING,
+		magic_enum::enum_name(getDefaultCompilerFor(kHostPlatform)).data(),
+		"Set the compiler to be used (if not specified, MSVC is used on Windows, AppleClang on OSX and GNU on Linux"))
 {
 	mRenderingAPI->setOptions<RenderingAPI>();
 	mGenerator->setOptions<CMakeGenerator>();
@@ -74,6 +80,15 @@ Setup::Setup()
 	mArgsParser->setCallback([this](const erm::SubCommand& command) {
 		return exec(command);
 	});
+}
+
+const CMakeGeneratorData& Setup::getGeneratorDataFor(CMakeGenerator generator)
+{
+	const auto it = std::find_if(kAllGenerators.begin(), kAllGenerators.end(), [generator](const auto& generatorData) {
+		return generatorData.mGenerator == generator;
+	});
+	ERM_ASSERT_HARD(it != kAllGenerators.end());
+	return *it;
 }
 
 CMakeGenerator Setup::getDefaultGeneratorFor(HostPlatform hostPlatform)
@@ -90,13 +105,18 @@ CMakeGenerator Setup::getDefaultGeneratorFor(HostPlatform hostPlatform)
 	}
 }
 
-const CMakeGeneratorData& Setup::getGeneratorDataFor(CMakeGenerator generator)
+Compiler Setup::getDefaultCompilerFor(HostPlatform hostPlatform)
 {
-	const auto it = std::find_if(kAllGenerators.begin(), kAllGenerators.end(), [generator](const auto& generatorData) {
-		return generatorData.mGenerator == generator;
-	});
-	ERM_ASSERT_HARD(it != kAllGenerators.end());
-	return *it;
+	switch (hostPlatform)
+	{
+		case HostPlatform::WINDOWS:
+			return Compiler::MSVC;
+		case HostPlatform::OSX:
+			return Compiler::APPLE_CLANG;
+		case HostPlatform::LINUX:
+		default:
+			return Compiler::GNU;
+	}
 }
 
 int Setup::exec(const SubCommand& /*command*/) const
@@ -112,6 +132,7 @@ int Setup::exec(const SubCommand& /*command*/) const
 	const auto tracy = mTracy->get<bool>();
 	const auto trace = mTrace->get<bool>();
 	const auto generatorName = mGenerator->get<std::string>();
+	const auto compilerName = mCompiler->get<std::string>();
 	
 	auto generatorToUse = getDefaultGeneratorFor(kHostPlatform);
 	
@@ -136,9 +157,10 @@ int Setup::exec(const SubCommand& /*command*/) const
 	
 	const auto& ermRoot = fs::getERMRoot();
 	const auto buildFolderName = std::format(
-		"ERM_{}_{}_{}",
+		"ERM_{}_{}_{}_{}",
 		magic_enum::enum_name(kHostPlatform),
 		magic_enum::enum_name(generatorData.mGenerator),
+		compilerName,
 		renderingAPI);
 	const auto targetBuildPath = ermRoot / "builds" / buildFolderName.data();
 
@@ -150,9 +172,13 @@ int Setup::exec(const SubCommand& /*command*/) const
 	
 	std::string cmakeCommand = interactive ? "ccmake" : "cmake";
 	
+	// Set ERM_COMPILER
+	cmakeCommand += " -DERM_COMPILER=";
+	cmakeCommand += compilerName;
+	
 	// Set ERM_RENDERING_API
 	cmakeCommand += " -DERM_RENDERING_API=";
-	cmakeCommand += renderingAPI.c_str();
+	cmakeCommand += renderingAPI;
 	
 	// Set ERM_RAY_TRACING_ENABLED
 	cmakeCommand += " -DERM_RAY_TRACING_ENABLED=";

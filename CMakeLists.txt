@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.31)
 
+# CMake options
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE STRING "" FORCE)
+
 # Project declaration
 project(
 	"ERM"
@@ -7,9 +10,6 @@ project(
 	DESCRIPTION "C++ Game Engine"
 	LANGUAGES CXX
 )
-
-# CMake options
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE STRING "" FORCE)
 
 # Install options
 set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/ERM" CACHE STRING "" FORCE)

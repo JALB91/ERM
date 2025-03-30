@@ -60,7 +60,7 @@ public:
 	}
 	
 private:
-	ObjectRegistry() = default;
+	ObjectRegistry() = delete;
 	
 	static std::unordered_map<u64, std::shared_ptr<void>> sObjects;
 	static std::mutex sMutex;

@@ -4,6 +4,7 @@ target_compile_definitions(
 	"${PROJECT_NAME}"
 	PRIVATE
 		ERM_ZONE_COLOR=0x110111
+		$<$<BOOL:${ERM_OPEN_GL}>:GLEW_STATIC>
 )
 
 target_link_libraries(

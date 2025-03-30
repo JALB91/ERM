@@ -46,12 +46,20 @@ function(erm_gather_sources DIR_PATH)
 
 	# Clear eventual cached data
 	unset(MAIN_SOURCES)
+	unset(CPP_MODULES)
 	unset(CPP_SOURCES)
 	unset(CPP_HEADERS)
 	unset(NN_DATA)
 	unset(NN_SOURCES)
-	unset(NN_GEN_FILES)
+	unset(GENERATED_SOURCES)
 	unset(ALL_SOURCES)
+
+	if(ERM_USE_MODULES)
+		file(GLOB_RECURSE CPP_MODULES
+			"${DIR_PATH}/Sources/common/*.cppm"
+			"${DIR_PATH}/Sources/${ERM_RENDERING_API}/*.cppm"
+		)
+	endif()
 
 	# Gather header files
 	file(GLOB_RECURSE CPP_HEADERS
@@ -85,6 +93,7 @@ function(erm_gather_sources DIR_PATH)
 
 	# Remove raytracing files if not enabled
 	if(NOT ERM_RAY_TRACING_ENABLED)
+		list(FILTER CPP_MODULES EXCLUDE REGEX ".*/ray_tracing/.*")
 		list(FILTER CPP_HEADERS EXCLUDE REGEX ".*/ray_tracing/.*")
 		list(FILTER CPP_SOURCES EXCLUDE REGEX ".*/ray_tracing/.*")
 		list(FILTER NN_DATA EXCLUDE REGEX ".*/ray_tracing/.*")
@@ -105,20 +114,21 @@ function(erm_gather_sources DIR_PATH)
 		if(NOT ERM_USE_MODULES)
 			string(REPLACE ".nn" ".h" NN_GEN_HEADER "${FILE}")
 			list(APPEND CPP_HEADERS ${NN_GEN_HEADER})
-			list(APPEND NN_GEN_FILES ${NN_GEN_HEADER})
+			list(APPEND GENERATED_SOURCES ${NN_GEN_HEADER})
 		endif()
 		list(APPEND CPP_SOURCES ${NN_GEN_SOURCE})
-		list(APPEND NN_GEN_FILES ${NN_GEN_SOURCE})
+		list(APPEND GENERATED_SOURCES ${NN_GEN_SOURCE})
 	endforeach()
 
-	list(APPEND ALL_SOURCES ${MAIN_SOURCES} ${CPP_HEADERS} ${CPP_SOURCES} ${NN_DATA} ${NN_GEN_FILES})
+	list(APPEND ALL_SOURCES ${MAIN_SOURCES} ${CPP_MODULES} ${CPP_HEADERS} ${CPP_SOURCES} ${NN_DATA} ${GENERATED_SOURCES})
 	
 	set(${DIR_NAME}_MAIN_SOURCES ${MAIN_SOURCES} PARENT_SCOPE)
+	set(${DIR_NAME}_CPP_MODULES ${CPP_MODULES} PARENT_SCOPE)
 	set(${DIR_NAME}_CPP_HEADERS ${CPP_HEADERS} PARENT_SCOPE)
 	set(${DIR_NAME}_CPP_SOURCES ${CPP_SOURCES} PARENT_SCOPE)
 	set(${DIR_NAME}_NN_DATA ${NN_DATA} PARENT_SCOPE)
 	set(${DIR_NAME}_NN_SOURCES ${NN_SOURCES} PARENT_SCOPE)
-	set(${DIR_NAME}_NN_GEN_FILES ${NN_GEN_FILES} PARENT_SCOPE)
+	set(${DIR_NAME}_GENERATED_SOURCES ${GENERATED_SOURCES} PARENT_SCOPE)
 	set(${DIR_NAME}_ALL_SOURCES ${ALL_SOURCES} PARENT_SCOPE)
 endfunction()
 
@@ -178,97 +188,41 @@ function(erm_target_sources)
 				BASE_DIRS
 					"${CMAKE_CURRENT_SOURCE_DIR}/Sources/common"
 					"${CMAKE_CURRENT_SOURCE_DIR}/Sources/${ERM_RENDERING_API}"
-					"${CMAKE_CURRENT_SOURCE_DIR}/NN_Sources/common"
-					"${CMAKE_CURRENT_SOURCE_DIR}/NN_Sources/${ERM_RENDERING_API}"
-					"${CMAKE_CURRENT_SOURCE_DIR}/NN_Data/common"
-					"${CMAKE_CURRENT_SOURCE_DIR}/NN_Data/${ERM_RENDERING_API}"
-					"${ERM_GENERATED_DIR}/${PROJECT_NAME}/common"
-					"${ERM_GENERATED_DIR}/${PROJECT_NAME}/${ERM_RENDERING_API}"
 				FILES
-					${${PROJECT_NAME}_CPP_SOURCES}
-		)
-	else()
-		if(${PROJECT_NAME}_CPP_SOURCES)
-			target_sources(
-				"${PROJECT_NAME}"
-				PRIVATE
-					${${PROJECT_NAME}_CPP_SOURCES}
-				PUBLIC
-					FILE_SET HEADERS
-					BASE_DIRS
-						"${CMAKE_CURRENT_SOURCE_DIR}/Sources/common"
-						"${CMAKE_CURRENT_SOURCE_DIR}/Sources/${ERM_RENDERING_API}"
-						"${CMAKE_CURRENT_SOURCE_DIR}/NN_Sources/common"
-						"${CMAKE_CURRENT_SOURCE_DIR}/NN_Sources/${ERM_RENDERING_API}"
-						"${CMAKE_CURRENT_SOURCE_DIR}/NN_Data/common"
-						"${CMAKE_CURRENT_SOURCE_DIR}/NN_Data/${ERM_RENDERING_API}"
-						"${ERM_GENERATED_DIR}/${PROJECT_NAME}/common"
-						"${ERM_GENERATED_DIR}/${PROJECT_NAME}/${ERM_RENDERING_API}"
-					FILES
-						${${PROJECT_NAME}_CPP_HEADERS}
-			)
-		else()
-			target_sources(
-				"${PROJECT_NAME}"
-				INTERFACE
-					FILE_SET HEADERS
-					BASE_DIRS
-						"${CMAKE_CURRENT_SOURCE_DIR}/Sources/common"
-						"${CMAKE_CURRENT_SOURCE_DIR}/Sources/${ERM_RENDERING_API}"
-						"${CMAKE_CURRENT_SOURCE_DIR}/NN_Sources/common"
-						"${CMAKE_CURRENT_SOURCE_DIR}/NN_Sources/${ERM_RENDERING_API}"
-						"${CMAKE_CURRENT_SOURCE_DIR}/NN_Data/common"
-						"${CMAKE_CURRENT_SOURCE_DIR}/NN_Data/${ERM_RENDERING_API}"
-						"${ERM_GENERATED_DIR}/${PROJECT_NAME}/common"
-						"${ERM_GENERATED_DIR}/${PROJECT_NAME}/${ERM_RENDERING_API}"
-					FILES
-						${${PROJECT_NAME}_CPP_HEADERS}
-			)
-		endif()
-	endif()
-
-	if(${PROJECT_NAME}_NN_DATA)
-		target_sources(
-			"${PROJECT_NAME}"
-			PUBLIC
-				${${PROJECT_NAME}_NN_DATA}
+					${${PROJECT_NAME}_CPP_MODULES}
 		)
 	endif()
 
-	if(${PROJECT_NAME}_NN_SOURCES)
-		target_sources(
-			"${PROJECT_NAME}"
-			PUBLIC
-				${${PROJECT_NAME}_NN_SOURCES}
-		)
-	endif()
+	target_sources(
+		"${PROJECT_NAME}"
+		PRIVATE
+			${${PROJECT_NAME}_CPP_SOURCES}
+		PUBLIC
+			FILE_SET HEADERS
+			BASE_DIRS
+				"${CMAKE_CURRENT_SOURCE_DIR}/Sources/common"
+				"${CMAKE_CURRENT_SOURCE_DIR}/Sources/${ERM_RENDERING_API}"
+				"${CMAKE_CURRENT_SOURCE_DIR}/NN_Sources/common"
+				"${CMAKE_CURRENT_SOURCE_DIR}/NN_Sources/${ERM_RENDERING_API}"
+				"${CMAKE_CURRENT_SOURCE_DIR}/NN_Data/common"
+				"${CMAKE_CURRENT_SOURCE_DIR}/NN_Data/${ERM_RENDERING_API}"
+				"${ERM_GENERATED_DIR}/${PROJECT_NAME}/common"
+				"${ERM_GENERATED_DIR}/${PROJECT_NAME}/${ERM_RENDERING_API}"
+			FILES
+				${${PROJECT_NAME}_CPP_HEADERS}
+	)
 
-	if(${PROJECT_NAME}_NN_GEN_FILES)
-		target_sources(
-			"${PROJECT_NAME}"
-			PUBLIC
-				${${PROJECT_NAME}_NN_GEN_FILES}
-		)
-	endif()
+	target_sources(
+		"${PROJECT_NAME}"
+		PRIVATE
+			${${PROJECT_NAME}_GENERATED_SOURCES}
+			${${PROJECT_NAME}_NN_SOURCES}
+			${${PROJECT_NAME}_NN_DATA}
+	)
 endfunction()
 
 function(erm_add_library)
-	if(NOT ${PROJECT_NAME}_CPP_SOURCES)
-		add_library("${PROJECT_NAME}" INTERFACE)
-		set_target_properties(
-			"${PROJECT_NAME}" 
-			PROPERTIES
-				IS_INTERFACE ON
-		)
-	else()
-		add_library("${PROJECT_NAME}")
-		set_target_properties(
-			"${PROJECT_NAME}" 
-			PROPERTIES
-				IS_INTERFACE OFF
-		)
-	endif()
-
+	add_library("${PROJECT_NAME}")
 	erm_target_sources()
 endfunction()
 
@@ -283,46 +237,13 @@ function(erm_add_executable)
 endfunction()
 
 function(erm_target_setup_common_defaults)
-	get_target_property(IS_INTERFACE "${PROJECT_NAME}" IS_INTERFACE)
-	if(IS_INTERFACE)
-		target_compile_definitions(
-			"${PROJECT_NAME}"
-			INTERFACE
-				$<$<BOOL:${ERM_VULKAN}>:GLM_FORCE_DEPTH_ZERO_TO_ONE>
-				$<$<BOOL:${ERM_VULKAN}>:IMGUI_DISABLE_OBSOLETE_FUNCTIONS>
-				$<$<BOOL:${ERM_FLIP_PROJECTION}>:ERM_FLIP_PROJECTION>
-				$<$<BOOL:${ERM_FLIP_VIEWPORT}>:ERM_FLIP_VIEWPORT>
-				$<$<BOOL:${ERM_ASSIMP_ENABLED}>:ERM_ASSIMP_ENABLED>
-				$<$<BOOL:${ERM_RAY_TRACING_ENABLED}>:ERM_RAY_TRACING_ENABLED>
-				$<$<BOOL:${ERM_TRACY_ENABLED}>:TRACY_ENABLE>
-				$<$<BOOL:${ERM_OPEN_GL}>:GLEW_STATIC>
-				$<$<BOOL:${ERM_VULKAN}>:ERM_SHADERS_COMPILER="${ERM_SHADERS_COMPILER}">
-				$<$<BOOL:${ERM_VULKAN}>:VULKAN_HPP_NO_EXCEPTIONS>
-				$<$<CONFIG:Debug>:ERM_DEBUG>
-				$<$<CONFIG:Release>:ERM_RELEASE>
-				SPIRV_CROSS_EXCEPTIONS_TO_ASSERTIONS
-				${ERM_RENDERING_API_COMPILE_DEF}
-		)
-	else()
-		target_compile_definitions(
-			"${PROJECT_NAME}"
-			PRIVATE
-				$<$<BOOL:${ERM_VULKAN}>:GLM_FORCE_DEPTH_ZERO_TO_ONE>
-				$<$<BOOL:${ERM_VULKAN}>:IMGUI_DISABLE_OBSOLETE_FUNCTIONS>
-				$<$<BOOL:${ERM_FLIP_PROJECTION}>:ERM_FLIP_PROJECTION>
-				$<$<BOOL:${ERM_FLIP_VIEWPORT}>:ERM_FLIP_VIEWPORT>
-				$<$<BOOL:${ERM_ASSIMP_ENABLED}>:ERM_ASSIMP_ENABLED>
-				$<$<BOOL:${ERM_RAY_TRACING_ENABLED}>:ERM_RAY_TRACING_ENABLED>
-				$<$<BOOL:${ERM_TRACY_ENABLED}>:TRACY_ENABLE>
-				$<$<BOOL:${ERM_OPEN_GL}>:GLEW_STATIC>
-				$<$<BOOL:${ERM_VULKAN}>:ERM_SHADERS_COMPILER="${ERM_SHADERS_COMPILER}">
-				$<$<BOOL:${ERM_VULKAN}>:VULKAN_HPP_NO_EXCEPTIONS>
-				$<$<CONFIG:Debug>:ERM_DEBUG>
-				$<$<CONFIG:Release>:ERM_RELEASE>
-				SPIRV_CROSS_EXCEPTIONS_TO_ASSERTIONS
-				${ERM_RENDERING_API_COMPILE_DEF}
-		)
-	endif()
+	target_compile_definitions(
+		"${PROJECT_NAME}"
+		PRIVATE
+			$<$<BOOL:${ERM_ASSIMP_ENABLED}>:ERM_ASSIMP_ENABLED>
+			$<$<BOOL:${ERM_RAY_TRACING_ENABLED}>:ERM_RAY_TRACING_ENABLED>
+			$<$<BOOL:${ERM_TRACY_ENABLED}>:TRACY_ENABLE>
+	)
 
 	if(${PROJECT_NAME}_NN_DATA)
 		add_dependencies("${PROJECT_NAME}" ERM_NN)
