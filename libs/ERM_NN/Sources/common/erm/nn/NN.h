@@ -1,6 +1,6 @@
 #pragma once
 
-#include <erm/utils/args_parser/ArgsParser.h>
+#include <erm/args_parser/ArgsParser.h>
 
 namespace erm::nn {
 

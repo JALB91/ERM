@@ -13,11 +13,12 @@
 #include "erm/rendering/textures/GPUImage.h"
 #include "erm/rendering/utils/VkUtils.h"
 
+#include <erm/log/Log.h>
+
 #include <erm/math/Types.h>
 
 #include <erm/window/Window.h>
 
-#include <erm/utils/log/Log.h>
 #include <erm/utils/Profiler.h>
 #include <erm/utils/Utils.h>
 

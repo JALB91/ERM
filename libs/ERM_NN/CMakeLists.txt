@@ -52,34 +52,30 @@ if(NOT ERM_USE_MODULES)
 	list(APPEND ERM_NN_ALL_SOURCES "${ERM_GENERATED_DIR}/ERM_NN/common/erm/nn/NNAllStatementHandlers.h")
 endif()
 
-erm_executable_project(0.0.1 "ERM NN lib")
+erm_lib_setup(
+	VERSION 0.0.1
+	DESCRIPTION "ERM NN lib"
+	LANGUAGES CXX
+	EXECUTABLES
+	PUBLIC_DEPS
+		glm
+		nlohmann_json
+		magic_enum
+		refl-cpp
+		ERM_Utils_static
+		ERM_Math_static
+		ERM_FileSystem_static
+		ERM_ArgsParser_static
+)
 
 if(ERM_USE_MODULES)
-	target_sources(${PROJECT_NAME}
+	target_sources(${PROJECT_NAME}_exe
 		PUBLIC
 			FILE_SET CXX_MODULES
 			BASE_DIRS ${ERM_ALL_NN_DIRS})
 else()
-	target_sources(${PROJECT_NAME}
-		PUBLIC
+	target_sources(${PROJECT_NAME}_exe
+		PRIVATE
 			FILE_SET HEADERS
 			BASE_DIRS ${ERM_ALL_NN_DIRS})
 endif()
-
-target_compile_definitions(
-	"${PROJECT_NAME}"
-	PRIVATE
-		ERM_ZONE_COLOR=0x000011
-)
-
-target_link_libraries(
-	"${PROJECT_NAME}"
-	PUBLIC 
-        glm
-		nlohmann_json
-		magic_enum
-		ERM_Utils
-		ERM_Math
-		ERM_FileSystem
-		refl-cpp
-)

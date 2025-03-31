@@ -1,7 +1,9 @@
-erm_library_project(0.0.1 "ERM FileSystem lib")
-
-target_link_libraries(
-	"${PROJECT_NAME}"
-	PRIVATE
-		ERM_Utils
+erm_lib_setup(
+	VERSION 0.0.1
+	DESCRIPTION "ERM FileSystem lib"
+	LANGUAGES CXX
+	STATIC
+	PRIVATE_DEPS
+		ERM_Utils_static
 )
+

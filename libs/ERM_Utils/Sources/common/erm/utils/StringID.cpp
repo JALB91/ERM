@@ -6,7 +6,9 @@ namespace erm {
 
 namespace internal {
 
+#ifdef ERM_DEBUG_STRING_IDS
 constexpr auto kInvalidStrIdStr = "<INVALID_STR_ID>";
+#endif
 constexpr erm::u64 kInvalidStrIdValue = 0;
 
 } // namespace internal

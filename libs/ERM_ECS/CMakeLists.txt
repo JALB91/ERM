@@ -1,18 +1,13 @@
-erm_library_project(0.0.1 "ERM Entity Component System")
-
-target_compile_definitions(
-	"${PROJECT_NAME}"
-	PRIVATE
-		ERM_ZONE_COLOR=0x110100
-)
-
-target_link_libraries(
-	"${PROJECT_NAME}"
-	PRIVATE
-		ERM_Input
-		ERM_Utils
-		ERM_Assets
-		ERM_Rendering
-	PUBLIC
-		ERM_Math
+erm_lib_setup(
+	VERSION 0.0.1
+	DESCRIPTION "ERM ECS lib"
+	LANGUAGES CXX
+	STATIC
+	PRIVATE_DEPS
+		ERM_Input_static
+		ERM_Utils_static
+		ERM_Assets_static
+		ERM_Rendering_static
+	PUBLIC_DEPS
+		ERM_Math_static
 )

@@ -4,7 +4,7 @@
 #include "erm/setup/Compiler.h"
 #include "erm/setup/HostPlatform.h"
 
-#include <erm/utils/args_parser/ArgsParser.h>
+#include <erm/args_parser/ArgsParser.h>
 
 namespace erm {
 struct CMakeGeneratorData;

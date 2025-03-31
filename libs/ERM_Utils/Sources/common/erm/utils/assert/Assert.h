@@ -1,6 +1,6 @@
 #pragma once
 
-#include "erm/utils/log/Log.h"
+#include <erm/log/Log.h>
 
 #include <assert.h>
 

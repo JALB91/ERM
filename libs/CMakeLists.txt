@@ -7,7 +7,8 @@ project(
 # Updates cmake module path
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-# Include erm libs
+# Include erm libs and utils
+include(ERMLibsUtils)
 include(ERMLibs)
 
 set(ERM_GENERATED_DIR "${CMAKE_INSTALL_PREFIX}/generated" CACHE STRING "" FORCE)

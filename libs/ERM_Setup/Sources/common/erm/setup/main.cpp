@@ -1,7 +1,8 @@
 #include "erm/setup/Setup.h"
 
-#include <erm/utils/log/Log.h>
-#include <erm/utils/args_parser/ArgsParser.h>
+#include <erm/args_parser/ArgsParser.h>
+
+#include <erm/log/Log.h>
 
 int main(int argc, char** argv)
 {

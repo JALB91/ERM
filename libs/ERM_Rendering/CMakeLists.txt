@@ -1,8 +1,22 @@
-erm_library_project(0.0.1 "ERM Rendering lib")
+erm_lib_setup(
+	VERSION 0.0.1
+	DESCRIPTION "ERM Rendering lib"
+	LANGUAGES CXX
+	STATIC
+	PRIVATE_DEPS
+		imgui
+		ERM_Window_static
+	PUBLIC_DEPS
+		${ERM_RENDERING_API_LIB}
+		spirv-cross-cpp
+		ERM_Input_static
+		ERM_Utils_static
+		ERM_Assets_static
+)
 
 if(ERM_RENDERING_API_INCLUDE_DIR)
 	target_sources(
-		"${PROJECT_NAME}"
+		${PROJECT_NAME}_static
 		PUBLIC
 			FILE_SET HEADERS
 			BASE_DIRS "${ERM_RENDERING_API_INCLUDE_DIR}"
@@ -10,7 +24,7 @@ if(ERM_RENDERING_API_INCLUDE_DIR)
 endif()
 
 target_compile_definitions(
-	"${PROJECT_NAME}"
+	${PROJECT_NAME}_static
 	PRIVATE
 		ERM_ZONE_COLOR=0x111100
 		$<$<BOOL:${ERM_VULKAN}>:GLM_FORCE_DEPTH_ZERO_TO_ONE>
@@ -20,17 +34,4 @@ target_compile_definitions(
 	PUBLIC
 		$<$<BOOL:${ERM_VULKAN}>:VULKAN_HPP_NO_EXCEPTIONS>
 		SPIRV_CROSS_EXCEPTIONS_TO_ASSERTIONS
-)
-
-target_link_libraries(
-	"${PROJECT_NAME}"
-	PRIVATE
-		imgui
-		ERM_Window
-	PUBLIC
-		${ERM_RENDERING_API_LIB}
-		spirv-cross-cpp
-		ERM_Input
-		ERM_Utils
-		ERM_Assets
 )
