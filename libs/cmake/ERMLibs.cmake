@@ -103,8 +103,8 @@ function(_erm_setup_executable)
 	# ===========================================================================
 	# Parse options
 	# ===========================================================================
-	set(EXE_OPTIONS)
-	set(EXE_ONE_VALUE_ARGS TARGET_NAME MAIN_SOURCE)
+	set(EXE_OPTIONS LINK_INTERFACE_LIB)
+	set(EXE_ONE_VALUE_ARGS MAIN_SOURCE)
 	set(EXE_MULTI_VALUE_ARGS SOURCES)
 	
 	cmake_parse_arguments(
@@ -114,6 +114,8 @@ function(_erm_setup_executable)
 		"${EXE_MULTI_VALUE_ARGS}"
 		${ARGN}
 	)
+
+	string(REGEX REPLACE ".*/(.*)main\\.cpp" "${PROJECT_NAME}_\\1exe" EXE_TARGET_NAME "${MAIN_SOURCE}")
 
 	add_executable(${EXE_TARGET_NAME} ${EXE_MAIN_SOURCE} ${EXE_SOURCES})
 	_erm_setup_target(${EXE_TARGET_NAME} PRIVATE)
@@ -140,6 +142,10 @@ function(_erm_setup_executable)
 			COMMAND "${CMAKE_COMMAND}" -E copy "$<TARGET_RUNTIME_DLLS:${EXE_TARGET_NAME}>" "$<TARGET_FILE_DIR:${EXE_TARGET_NAME}>"
 			COMMAND_EXPAND_LISTS
 		)
+	endif()
+
+	if(EXE_LINK_INTERFACE_LIB)
+		target_link_libraries(${EXE_TARGET_NAME} PRIVATE ${PROJECT_NAME}_int)
 	endif()
 endfunction()
 
@@ -256,13 +262,11 @@ macro(erm_lib_setup)
 		
 		if(${PROJECT_NAME}_EXECUTABLES)
 			foreach(MAIN_SOURCE ${${PROJECT_NAME}_MAIN_SOURCES})
-				string(REGEX REPLACE ".*/.*main.cpp" "${PROJECT_NAME}_exe" EXE_TARGET_NAME "${MAIN_SOURCE}")
 				_erm_setup_executable(
-					TARGET_NAME ${EXE_TARGET_NAME}
+					LINK_INTERFACE_LIB
 					MAIN_SOURCE ${MAIN_SOURCE}
 					SOURCES $<TARGET_OBJECTS:${PROJECT_NAME}_obj>
 				)
-				target_link_libraries(${EXE_TARGET_NAME} PRIVATE ${PROJECT_NAME}_int)
 			endforeach()
 		endif()
 	elseif(${PROJECT_NAME}_STATIC)
@@ -273,7 +277,6 @@ macro(erm_lib_setup)
 		_erm_target_source_files(${PROJECT_NAME}_shared)
 	elseif(${PROJECT_NAME}_EXECUTABLES)
 		foreach(MAIN_SOURCE ${${PROJECT_NAME}_MAIN_SOURCES})
-			string(REGEX REPLACE ".*/.*main.cpp" "${PROJECT_NAME}_exe" EXE_TARGET_NAME "${MAIN_SOURCE}")
 			_erm_setup_executable(
 				TARGET_NAME ${EXE_TARGET_NAME}
 				MAIN_SOURCE ${MAIN_SOURCE}
