@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.31)
 
 # CMake options
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE STRING "" FORCE)
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON CACHE BOOL "" FORCE)
 
 # Project declaration
 project(

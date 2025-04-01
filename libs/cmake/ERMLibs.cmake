@@ -176,14 +176,6 @@ macro(erm_lib_setup)
 	)
 
 	# ===========================================================================
-	# Create groups
-	# ===========================================================================
-	foreach(FILE ${${PROJECT_NAME}_ALL_SOURCES})
-		erm_get_group_for_file("${FILE}")
-		source_group("${GROUP}" FILES "${FILE}")
-	endforeach()
-
-	# ===========================================================================
 	# Determine if object lib is needed
 	# ===========================================================================
 	if(${PROJECT_NAME}_STATIC AND ${PROJECT_NAME}_SHARED)
@@ -197,6 +189,14 @@ macro(erm_lib_setup)
 	else()
 		set(${PROJECT_NAME}_OBJECT OFF)
 	endif()
+
+	# ===========================================================================
+	# Create groups
+	# ===========================================================================
+	foreach(FILE ${${PROJECT_NAME}_ALL_SOURCES})
+		erm_get_group_for_file("${FILE}")
+		source_group("${GROUP}" FILES "${FILE}")
+	endforeach()
 
 	# ===========================================================================
 	# Generate lib header
@@ -236,18 +236,21 @@ macro(erm_lib_setup)
 		_erm_setup_interface_lib(${PROJECT_NAME}_int)
 		_erm_setup_object_lib(${PROJECT_NAME}_obj ${${PROJECT_NAME}_ALL_SOURCES})
 
-		set(ERM_DUMMY_DIR "${ERM_GENERATED_DIR}/${PROJECT_NAME}/common/erm/")
+		set(ERM_DUMMY_DIR "${ERM_GENERATED_DIR}/${PROJECT_NAME}/common/erm")
 		set(ERM_DUMMY_FILE "${ERM_DUMMY_DIR}/dummy.cpp")
 		file(MAKE_DIRECTORY "${ERM_DUMMY_DIR}")
 		file(WRITE "${ERM_DUMMY_FILE}" "")
 
+		erm_get_group_for_file("${ERM_DUMMY_FILE}")
+		source_group("${GROUP}" FILES "${ERM_DUMMY_FILE}")
+
 		if(${PROJECT_NAME}_STATIC)
-			_erm_setup_static_lib(${PROJECT_NAME}_static $<TARGET_OBJECTS:${PROJECT_NAME}_obj> ${ERM_DUMMY_FILE})
+			_erm_setup_static_lib(${PROJECT_NAME}_static "$<TARGET_OBJECTS:${PROJECT_NAME}_obj>;${ERM_DUMMY_FILE}")
 			target_link_libraries(${PROJECT_NAME}_static PRIVATE ${PROJECT_NAME}_int)
 		endif()
 
 		if(${PROJECT_NAME}_SHARED)
-			_erm_setup_shared_lib(${PROJECT_NAME}_shared $<TARGET_OBJECTS:${PROJECT_NAME}_obj> ${ERM_DUMMY_FILE})
+			_erm_setup_shared_lib(${PROJECT_NAME}_shared "$<TARGET_OBJECTS:${PROJECT_NAME}_obj>;${ERM_DUMMY_FILE}")
 			target_link_libraries(${PROJECT_NAME}_shared PRIVATE ${PROJECT_NAME}_int)
 		endif()
 		
