@@ -1,8 +1,0 @@
-erm_lib_setup(
-	VERSION 0.0.1
-	DESCRIPTION "ERM Math lib"
-	LANGUAGES CXX
-	STATIC
-	PUBLIC_DEPS
-		glm
-)

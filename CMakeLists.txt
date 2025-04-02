@@ -66,6 +66,6 @@ erm_setup_pipeline_script()
 set(ERM_EXTERNALS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/externals")
 add_subdirectory("${ERM_EXTERNALS_DIR}")
 
-# Setup libs
-set(ERM_LIBS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs")
-add_subdirectory("${ERM_LIBS_DIR}")
+# Setup ERM modules
+set(ERM_MODULES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/modules")
+add_subdirectory("${ERM_MODULES_DIR}")

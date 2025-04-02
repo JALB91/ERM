@@ -1,0 +1,17 @@
+//////
+/*
+class Stacce
+
+*/
+
+enum Test 
+{
+    TEST = 1,
+	TEST_2 = 2
+}
+
+class Testo
+{
+    u8 foo = 8;
+    string ciao = "ciao";
+}

@@ -9,6 +9,7 @@ externals/fbx/lib/win64/release/libfbxsdk-mt.lib filter=lfs diff=lfs merge=lfs -
 *.txt   eol=lf
 *.md    eol=lf
 *.cpp   eol=lf
+*.cppm  eol=lf
 *.h     eol=lf
 *.hpp   eol=lf
 *.cmake eol=lf

@@ -1,0 +1,52 @@
+#include "erm/editor/ImGuiEntitiesWrapper.h"
+#include "erm/editor/ImGuiComponentWrapper.h"
+#include "erm/editor/ImGuiEntityWrapper.h"
+
+#include <erm/engine/Engine.h>
+
+#include <erm/math/Types.h>
+
+#include <erm/window/Window.h>
+
+#include <erm/ecs/Component.h>
+#include <erm/ecs/ECSConfig.h>
+#include <erm/ecs/EntityId.h>
+
+#include <imgui.h>
+
+namespace ImGui {
+
+void ShowEntitiesDebugWindow(erm::Engine& engine)
+{
+	const erm::Window& window = engine.getWindow();
+	const erm::vec2 winSize(window.getWindowWidth(), window.getWindowHeight());
+	const erm::BoundingBox2D& viewport = window.getViewport();
+	const erm::vec2 viewportSize = viewport.getSize();
+
+	static erm::ecs::EntityId active;
+
+	const int flags = ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoNavFocus;
+
+	if (ImGui::Begin("Scene", nullptr, flags))
+	{
+		active = ImGui::ShowEntityDebugWindow(engine.getECS(), active, erm::ecs::EntityId(erm::ecs::ROOT_ID));
+	}
+	ImGui::SetWindowSize(ImVec2((winSize.x - viewportSize.x) * 0.5f, viewportSize.y - ImGui::GetFrameHeight()));
+	ImGui::SetWindowPos(ImVec2(0.0f, ImGui::GetFrameHeight()));
+	ImGui::End();
+
+	if (ImGui::Begin("Entity", nullptr, flags) && active.isValid())
+	{
+		ImGui::PushID(static_cast<int>(active()));
+		ImGui::Separator();
+		ImGui::Text("Components");
+		ImGui::ShowComponentDebugWindow(engine, active);
+		ImGui::Separator();
+		ImGui::PopID();
+	}
+	ImGui::SetWindowSize(ImVec2((winSize.x - viewportSize.x) * 0.5f, viewportSize.y - ImGui::GetFrameHeight()));
+	ImGui::SetWindowPos(ImVec2(viewport.mMax.x, ImGui::GetFrameHeight()));
+	ImGui::End();
+}
+
+} // namespace ImGui
