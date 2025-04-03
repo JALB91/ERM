@@ -6,7 +6,7 @@ erm_module_setup(
 		$<$<BOOL:${ERM_ASSIMP_ENABLED}>:assimp>
 		stb_image
 		tinyxml2
-		fbx_sdk
+		# fbx_sdk
 		ERM_Utils_static
 	LINK_PUBLIC
 		ERM_Math_static
