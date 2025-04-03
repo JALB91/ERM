@@ -2,7 +2,9 @@ erm_module_setup(
 	VERSION 0.0.1
 	DESCRIPTION "ERM Editor lib"
 	LANGUAGES CXX
-	EXECUTABLES
+	PRIVATE_COMPILE_DEF
+		ERM_ZONE_COLOR=0x111000
+		$<$<BOOL:${ERM_VULKAN}>:IMGUI_DISABLE_OBSOLETE_FUNCTIONS>
 	PRIVATE_DEPS
 		imgui
 	PUBLIC_DEPS
@@ -17,11 +19,4 @@ erm_module_setup(
 		ERM_Assets_static
 		ERM_Input_static
 		glfw
-)
-
-target_compile_definitions(
-	${PROJECT_NAME}_exe
-	PRIVATE
-		ERM_ZONE_COLOR=0x111000
-		$<$<BOOL:${ERM_VULKAN}>:IMGUI_DISABLE_OBSOLETE_FUNCTIONS>
 )

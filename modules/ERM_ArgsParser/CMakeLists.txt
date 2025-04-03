@@ -2,7 +2,6 @@ erm_module_setup(
 	VERSION 0.0.1
 	DESCRIPTION "ERM ArgsParser lib"
 	LANGUAGES CXX
-	STATIC
 	PRIVATE_DEPS
 		ERM_FileSystem_static
 	PUBLIC_DEPS

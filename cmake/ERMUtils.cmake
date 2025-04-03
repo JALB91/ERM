@@ -54,3 +54,28 @@ function(erm_get_dir_name_from_path DIR_PATH)
 	cmake_path(GET DIR_PATH STEM DIR_NAME)
 	set(DIR_NAME ${DIR_NAME} PARENT_SCOPE)
 endfunction()
+
+function(erm_call_function)
+	set(OPTIONS)
+	set(ONE_VALUE_ARGS FN_NAME)
+	set(MULTI_VALUE_ARGS FN_ARGS)
+
+	cmake_parse_arguments(
+		CALLBACK
+		"${OPTIONS}"
+		"${ONE_VALUE_ARGS}"
+		"${MULTI_VALUE_ARGS}"
+		${ARGN}
+	)
+
+	# Check that the command exists
+	if(NOT COMMAND ${CALLBACK_FN_NAME})
+		message(FATAL_ERROR "Function '${CALLBACK_FN_NAME}' is not defined!")
+	endif()
+
+	# Call the function with the given arguments
+	cmake_language(
+		CALL ${CALLBACK_FN_NAME} 
+		ARGS ${CALLBACK_FN_ARGS}
+	)
+endfunction()
