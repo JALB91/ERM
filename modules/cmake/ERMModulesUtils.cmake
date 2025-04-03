@@ -46,10 +46,6 @@ function(erm_gather_sources DIR_PATH)
 		list(FILTER CPP_SOURCES EXCLUDE REGEX ".*/ray_tracing/.*")
 	endif()
 
-	# Add module header
-	set(MODULE_HEADER "${ERM_GENERATED_DIR}/${DIR_NAME}/common/erm/${DIR_NAME}.h")
-	list(APPEND GENERATED_CPP_HEADERS "${MODULE_HEADER}")
-
 	# Find main sources
 	set(MAIN_CPP_SOURCES ${CPP_SOURCES})
 	list(FILTER MAIN_CPP_SOURCES INCLUDE REGEX ".*main.cpp")
@@ -91,3 +87,10 @@ function(erm_source_group_for_file FILE)
 
 	source_group("${GROUP}" FILES "${FILE}")
 endfunction()
+
+set(ERM_GENERATED_HEADER_WARNING "/*
+===============================================================
+| 		  This file have been automatically generated  		  |
+|            any local changes will be overridden			  |
+===============================================================
+*/")

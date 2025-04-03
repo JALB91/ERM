@@ -207,8 +207,9 @@ endfunction()
 ## One-value arguments:
 ##   - VERSION: Module version number (<major>.<minor>.<patch>).
 ##   - DESCRIPTION: Description of the module.
-##   - PRE_GENERATE_CALLBACK: [OPTIONAL] Callback to be triggered before generating.
-##   - POST_GENERATE_CALLBACK: [OPTIONAL] Callback to be triggered after generating.
+##   - POST_SETUP_CALLBACK: [OPTIONAL] Callback to be triggered after modules setup.
+##   - PRE_GENERATE_CALLBACK: [OPTIONAL] Callback to be triggered before modules generating.
+##   - POST_GENERATE_CALLBACK: [OPTIONAL] Callback to be triggered after modules generating.
 ##
 ## Multi-value arguments:
 ##   - LANGUAGES: List of languages the module uses.
@@ -263,6 +264,7 @@ function(erm_module_setup)
 	set(ERM_MODULE_ONE_VALUE_ARGS
 		VERSION
 		DESCRIPTION
+		POST_SETUP_CALLBACK
 		PRE_GENERATE_CALLBACK
 		POST_GENERATE_CALLBACK
 	)
@@ -292,6 +294,7 @@ function(erm_module_setup)
 	# ===========================================================================
 	set(${DIR_NAME}_VERSION "${${DIR_NAME}_VERSION}" CACHE STRING "" FORCE)
 	set(${DIR_NAME}_DESCRIPTION "${${DIR_NAME}_DESCRIPTION}" CACHE STRING "" FORCE)
+	set(${DIR_NAME}_POST_SETUP_CALLBACK "${${DIR_NAME}_POST_SETUP_CALLBACK}" CACHE STRING "" FORCE)
 	set(${DIR_NAME}_PRE_GENERATE_CALLBACK "${${DIR_NAME}_PRE_GENERATE_CALLBACK}" CACHE STRING "" FORCE)
 	set(${DIR_NAME}_POST_GENERATE_CALLBACK "${${DIR_NAME}_POST_GENERATE_CALLBACK}" CACHE STRING "" FORCE)
 	set(${DIR_NAME}_LANGUAGES "${${DIR_NAME}_LANGUAGES}" CACHE STRING "" FORCE)
