@@ -1,8 +1,8 @@
 function(modules_post_setup_callback)
 	foreach(ERM_MODULE ${ERM_MODULES})
 		if(NOT "${ERM_MODULE}" STREQUAL "ERM_Modules")
-			list(APPEND ${ERM_MODULE}_PRIVATE_DEPS ERM_Modules_static)
-			set(${ERM_MODULE}_PRIVATE_DEPS "${${ERM_MODULE}_PRIVATE_DEPS}" CACHE STRING "" FORCE)
+			list(APPEND ${ERM_MODULE}_LINK_PRIVATE ERM_Modules_static)
+			set(${ERM_MODULE}_LINK_PRIVATE "${${ERM_MODULE}_LINK_PRIVATE}" CACHE STRING "" FORCE)
 		endif()
 	endforeach()
 endfunction()
@@ -69,6 +69,6 @@ erm_module_setup(
 	POST_SETUP_CALLBACK modules_post_setup_callback
 	PRE_GENERATE_CALLBACK modules_pre_generate_callback
 	LANGUAGES CXX
-	PUBLIC_DEPS
+	LINK_PUBLIC
 		refl-cpp
 )

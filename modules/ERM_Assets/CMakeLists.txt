@@ -2,12 +2,12 @@ erm_module_setup(
 	VERSION 0.0.1
 	DESCRIPTION "ERM Assets lib"
 	LANGUAGES CXX
-	PRIVATE_DEPS
+	LINK_PRIVATE
 		$<$<BOOL:${ERM_ASSIMP_ENABLED}>:assimp>
 		stb_image
 		tinyxml2
 		fbx_sdk
 		ERM_Utils_static
-	PUBLIC_DEPS
+	LINK_PUBLIC
 		ERM_Math_static
 )

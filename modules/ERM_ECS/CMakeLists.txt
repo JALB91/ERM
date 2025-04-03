@@ -2,11 +2,11 @@ erm_module_setup(
 	VERSION 0.0.1
 	DESCRIPTION "ERM ECS lib"
 	LANGUAGES CXX
-	PRIVATE_DEPS
+	LINK_PRIVATE
 		ERM_Input_static
 		ERM_Utils_static
 		ERM_Assets_static
 		ERM_Rendering_static
-	PUBLIC_DEPS
+	LINK_PUBLIC
 		ERM_Math_static
 )

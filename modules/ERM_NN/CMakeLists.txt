@@ -72,9 +72,9 @@ static constexpr auto kERMNNCounterStart = __COUNTER__;
 			)
 		endforeach()
 
-		if(${NN_DATA})
-			list(APPEND ${ERM_MODULE}_PRIVATE_DEPS ERM_NN_exe)
-			set(${ERM_MODULE}_PRIVATE_DEPS ${${ERM_MODULE}_PRIVATE_DEPS} CACHE STRING "" FORCE)
+		if(NN_DATA)
+			list(APPEND ${ERM_MODULE}_DEPENDENCIES ERM_NN_exe)
+			set(${ERM_MODULE}_DEPENDENCIES ${${ERM_MODULE}_DEPENDENCIES} CACHE STRING "" FORCE)
 		endif()
 	endforeach()
 
@@ -104,7 +104,7 @@ erm_module_setup(
 	DESCRIPTION "ERM NN lib"
 	POST_SETUP_CALLBACK nn_post_setup_callback
 	LANGUAGES CXX
-	PUBLIC_DEPS
+	LINK_PUBLIC
 		glm
 		nlohmann_json
 		magic_enum

@@ -6,9 +6,9 @@ erm_module_setup(
 		ERM_ZONE_COLOR=0x111111
 	PUBLIC_COMPILE_DEF
 		ERM_DEBUG_STRING_IDS=$<CONFIG:Debug>
-	PRIVATE_DEPS
+	LINK_PRIVATE
 		xxHash
-	PUBLIC_DEPS
+	LINK_PUBLIC
 		$<$<BOOL:${ERM_TRACY_ENABLED}>:Tracy::TracyClient>
 		magic_enum
 		ERM_Math_static

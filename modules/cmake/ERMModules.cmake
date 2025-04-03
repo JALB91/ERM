@@ -107,18 +107,21 @@ function(_erm_target_link_libraries ERM_MODULE TARGET_NAME)
 	target_link_libraries(
 		${TARGET_NAME}
 		INTERFACE
-			"${${ERM_MODULE}_INTERFACE_DEPS}"
+			"${${ERM_MODULE}_LINK_INTERFACE}"
 		PRIVATE
-			"${${ERM_MODULE}_PRIVATE_DEPS}"
+			"${${ERM_MODULE}_LINK_PRIVATE}"
 			"${ERM_MODULE}"
 		PUBLIC
-			"${${ERM_MODULE}_PUBLIC_DEPS}"
+			"${${ERM_MODULE}_LINK_PUBLIC}"
 	)
 endfunction()
 
 function(_erm_setup_target ERM_MODULE TARGET_NAME SCOPE)
 	_erm_target_header_files(${ERM_MODULE} ${TARGET_NAME} ${SCOPE})
 	_erm_target_common_compile_definitions(${TARGET_NAME} ${SCOPE})
+	if(${ERM_MODULE}_DEPENDENCIES)
+		add_dependencies(${TARGET_NAME} ${${ERM_MODULE}_DEPENDENCIES})
+	endif()
 endfunction()
 
 function(_erm_setup_object_lib ERM_MODULE)
@@ -219,9 +222,10 @@ endfunction()
 ##   - INTERFACE_COMPILE_DEF: List of INTERFACE compile definitions of the module.
 ##   - PRIVATE_COMPILE_DEF: List of PRIVATE compile definitions of the module.
 ##   - PUBLIC_COMPILE_DEF: List of PUBLIC compile definitions of the module.
-##   - INTERFACE_DEPS: List of INTERFACE dependencies of the module.
-##   - PRIVATE_DEPS: List of PRIVATE dependencies of the module.
-##   - PUBLIC_DEPS: List of PUBLIC dependencies of the module.
+##   - LINK_INTERFACE: List of INTERFACE to link to the module.
+##   - LINK_PRIVATE: List of PRIVATE to link to the module.
+##   - LINK_PUBLIC: List of PUBLIC to link to the module.
+##   - DEPENDENCIES: List of dependencies.
 ##
 ## Example usage:
 ##   erm_project_setup_2(
@@ -229,7 +233,7 @@ endfunction()
 ##   	DESCRIPTION "My module description"
 ##   	PRE_GENERATE_CALLBACK my_module_pre_generate_callback
 ##   	LANGUAGES CXX
-##   	PRIVATE_DEPS ModuleA_static ModuleB_shared
+##   	LINK_PRIVATE ModuleA_static ModuleB_shared
 ##   )
 ##   
 function(erm_module_setup)
@@ -253,9 +257,10 @@ function(erm_module_setup)
 	unset("${DIR_NAME}_INTERFACE_COMPILE_DEF" CACHE)
 	unset("${DIR_NAME}_PRIVATE_COMPILE_DEF" CACHE)
 	unset("${DIR_NAME}_PUBLIC_COMPILE_DEF" CACHE)
-	unset("${DIR_NAME}_INTERFACE_DEPS" CACHE)
-	unset("${DIR_NAME}_PRIVATE_DEPS" CACHE)
-	unset("${DIR_NAME}_PUBLIC_DEPS" CACHE)
+	unset("${DIR_NAME}_LINK_INTERFACE" CACHE)
+	unset("${DIR_NAME}_LINK_PRIVATE" CACHE)
+	unset("${DIR_NAME}_LINK_PUBLIC" CACHE)
+	unset("${DIR_NAME}_DEPENDENCIES" CACHE)
 
 	# ===========================================================================
 	# Declare and parse options
@@ -276,9 +281,10 @@ function(erm_module_setup)
 		INTERFACE_COMPILE_DEF
 		PRIVATE_COMPILE_DEF
 		PUBLIC_COMPILE_DEF
-		INTERFACE_DEPS
-		PRIVATE_DEPS
-		PUBLIC_DEPS
+		LINK_INTERFACE
+		LINK_PRIVATE
+		LINK_PUBLIC
+		DEPENDENCIES
 	)
 	
 	cmake_parse_arguments(
@@ -304,9 +310,10 @@ function(erm_module_setup)
 	set(${DIR_NAME}_INTERFACE_COMPILE_DEF "${${DIR_NAME}_INTERFACE_COMPILE_DEF}" CACHE STRING "" FORCE)
 	set(${DIR_NAME}_PRIVATE_COMPILE_DEF "${${DIR_NAME}_PRIVATE_COMPILE_DEF}" CACHE STRING "" FORCE)
 	set(${DIR_NAME}_PUBLIC_COMPILE_DEF "${${DIR_NAME}_PUBLIC_COMPILE_DEF}" CACHE STRING "" FORCE)
-	set(${DIR_NAME}_INTERFACE_DEPS "${${DIR_NAME}_INTERFACE_DEPS}" CACHE STRING "" FORCE)
-	set(${DIR_NAME}_PRIVATE_DEPS "${${DIR_NAME}_PRIVATE_DEPS}" CACHE STRING "" FORCE)
-	set(${DIR_NAME}_PUBLIC_DEPS "${${DIR_NAME}_PUBLIC_DEPS}" CACHE STRING "" FORCE)
+	set(${DIR_NAME}_LINK_INTERFACE "${${DIR_NAME}_LINK_INTERFACE}" CACHE STRING "" FORCE)
+	set(${DIR_NAME}_LINK_PRIVATE "${${DIR_NAME}_LINK_PRIVATE}" CACHE STRING "" FORCE)
+	set(${DIR_NAME}_LINK_PUBLIC "${${DIR_NAME}_LINK_PUBLIC}" CACHE STRING "" FORCE)
+	set(${DIR_NAME}_DEPENDENCIES "${${DIR_NAME}_DEPENDENCIES}" CACHE STRING "" FORCE)
 
 	# ===========================================================================
 	# Setup project

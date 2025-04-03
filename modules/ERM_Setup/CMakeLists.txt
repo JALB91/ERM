@@ -2,10 +2,10 @@ erm_module_setup(
 	VERSION 0.0.1
 	DESCRIPTION "ERM Setup lib"
 	LANGUAGES CXX
-	PRIVATE_DEPS
+	LINK_PRIVATE
 		ERM_FileSystem_static
 		ERM_Log_static
 		ERM_Utils_static
-	PUBLIC_DEPS
+	LINK_PUBLIC
 		ERM_ArgsParser_static
 )
