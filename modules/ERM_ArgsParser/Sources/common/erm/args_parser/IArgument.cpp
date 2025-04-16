@@ -7,12 +7,7 @@ namespace erm {
 IArgument::IArgument(ArgValueType valueType, std::string_view defaultValue /* = ""*/)
 	: mValueType(valueType)
 	, mDefaultValue(defaultValue)
-{
-	if (mValueType == ArgValueType::BOOLEAN)
-	{
-		mOptions = {"true", "false", ""};
-	}
-}
+{}
 
 bool IArgument::trySetValue(std::string_view value)
 {

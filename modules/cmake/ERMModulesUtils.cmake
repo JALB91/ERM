@@ -1,3 +1,10 @@
+function(erm_get_include_path FILE OUT)
+	string(REGEX REPLACE ".*/common/" "" FILE "${FILE}")
+	string(REGEX REPLACE ".*/${ERM_RENDERING_API}/" "" FILE "${FILE}")
+	set(${OUT} ${FILE} PARENT_SCOPE)
+endfunction()
+
+
 function(erm_gather_sources DIR_PATH)
 	erm_get_dir_name_from_path(${DIR_PATH})
 
@@ -88,7 +95,7 @@ function(erm_source_group_for_file FILE)
 	source_group("${GROUP}" FILES "${FILE}")
 endfunction()
 
-set(ERM_GENERATED_HEADER_WARNING "/*
+set(ERM_GENERATED_FILE_WARNING "/*
 ===============================================================
 | 		  This file have been automatically generated  		  |
 |            any local changes will be overridden			  |

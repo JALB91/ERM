@@ -1,65 +1,104 @@
 function(modules_post_setup_callback)
 	foreach(ERM_MODULE ${ERM_MODULES})
-		if(NOT "${ERM_MODULE}" STREQUAL "ERM_Modules")
-			list(APPEND ${ERM_MODULE}_LINK_PRIVATE ERM_Modules_static)
-			set(${ERM_MODULE}_LINK_PRIVATE "${${ERM_MODULE}_LINK_PRIVATE}" CACHE STRING "" FORCE)
+		if("${ERM_MODULE}" STREQUAL "ERM_Modules")
+			continue()
 		endif()
+
+		# Add modules dependency to executables
+		if(${ERM_MODULE}_MAIN_CPP_SOURCES)
+			list(APPEND ${ERM_MODULE}_LINK_PUBLIC ERM_Modules_static)
+		endif()
+		
+		# Add refl-cpp dependency to all modules
+		list(APPEND ${ERM_MODULE}_LINK_PUBLIC refl-cpp)
+		set(${ERM_MODULE}_LINK_PUBLIC "${${ERM_MODULE}_LINK_PUBLIC}" CACHE STRING "" FORCE)
 	endforeach()
 endfunction()
 
 function(modules_pre_generate_callback)
-	# Gather modules' dependencies
+	set(AllModulesIncludes "")
+	set(AllModulesList "")
+
 	foreach(ERM_MODULE ${ERM_MODULES})
+		if("${ERM_MODULE}" STREQUAL "ERM_Modules")
+			continue()
+		endif()
+
+		string(APPEND AllModulesIncludes "#include <erm/${ERM_MODULE}.h>\n")
+		string(APPEND AllModulesList "\n\t${ERM_MODULE},")
+
+		set(ModuleDependenciesForwardDeclarations "")
+		set(ModuleDependenciesList "")
+		set(ModuleName "${ERM_MODULE}")
+
 		foreach(DEP ${${ERM_MODULE}_ALL_DEPS})
-			string(REPLACE "_static" "" DEP DEP)
-			string(REPLACE "_shared" "" DEP DEP)
-			string(REPLACE "_int" "" DEP DEP)
-			string(REPLACE "_obj" "" DEP DEP)
-			string(REPLACE "_exe" "" DEP DEP)
+			string(REPLACE "_static" "" DEP ${DEP})
+			string(REPLACE "_shared" "" DEP ${DEP})
+			string(REPLACE "_int" "" DEP ${DEP})
+			string(REPLACE "_obj" "" DEP ${DEP})
+
+			if("${DEP}" STREQUAL "ERM_Modules")
+				continue()
+			endif()
 
 			list(FIND ERM_MODULES ${DEP} INDEX)
 
 			if(${INDEX} GREATER_EQUAL 0)
-				list(APPEND ${ERM_MODULE}_ALL_DEPS_STR ${DEP})
+				string(APPEND ModuleDependenciesForwardDeclarations "class ${DEP};\n")
+				string(APPEND ModuleDependenciesList "${DEP}, ")
 			endif()
 		endforeach()
-		list(REMOVE_DUPLICATES ${ERM_MODULE}_ALL_DEPS_STR)
-
-		set(MODULE_SOURCE ${ERM_GENERATED_HEADER_WARNING})
-		string(APPEND MODULE_SOURCE "\n\n")
-
-		foreach(DEP ${${ERM_MODULE}_ALL_DEPS_STR})
-			string(APPEND "#include <erm/${DEP}.h>\n")
-		endforeach()
 		
+		if(ModuleDependenciesList)
+			erm_string_substr_end("${ModuleDependenciesList}" 2 ModuleDependenciesList)
+		endif()
 
-		string(APPEND MODULE_SOURCE "
-#include <erm/modules/Modules.h>
+		# Configure ERM_Module.h
+		set(MODULE_HEADER_PATH "${${ERM_MODULE}_GENERATED_DIR}/common/erm/${ERM_MODULE}.h")
+		configure_file(
+			"${ERM_Modules_MODULE_DIR}/Templates/ERM_Module.h.in"
+			"${MODULE_HEADER_PATH}"
+			@ONLY
+		)
+		list(APPEND ${ERM_MODULE}_GENERATED_CPP_HEADERS "${MODULE_HEADER_PATH}")
+		set(${ERM_MODULE}_GENERATED_CPP_HEADERS "${${ERM_MODULE}_GENERATED_CPP_HEADERS}" CACHE STRING "" FORCE)
 
-namespace erm {
+		list(APPEND ERM_Modules_PUBLIC_INCLUDE_DIRS "${${ERM_MODULE}_GENERATED_DIR}/common")
+		set(ERM_Modules_PUBLIC_INCLUDE_DIRS "${ERM_Modules_PUBLIC_INCLUDE_DIRS}" CACHE STRING "" FORCE)
 
-class ${ERM_MODULE} : public ModuleType<
-")
+		list(APPEND ERM_Modules_GENERATED_CPP_HEADERS "${MODULE_HEADER_PATH}")
+		set(ERM_Modules_GENERATED_CPP_HEADERS "${ERM_Modules_GENERATED_CPP_HEADERS}" CACHE STRING "" FORCE)
 
-		foreach(DEP ${${ERM_MODULE}_ALL_DEPS_STR})
-			string(APPEND MODULE_SOURCE "\t${DEP},\n")
-		endforeach()
-
-		string(LENGTH MODULE_SOURCE LEN)
-		math(EXPR LEN "${LEN} - 2")
-		string(SUBSTRING MODULE_SOURCE 0 ${LEN} MODULE_SOURCE)
-		string(APPEND MODULE_SOURCE ">
-{
-public:
-	static void init();
-
-};
-")
-
-		set(${ERM_MODULE}_MODULE_SOURCE "${${ERM_MODULE}_GENERATED_DIR}/common/erm/${ERM_MODULE}.cpp" CACHE FILEPATH "" FORCE)
-		file(WRITE "${${ERM_MODULE}_MODULE_SOURCE}" "${MODULE_SOURCE}")
-		list(APPEND ${ERM_MODULE}_GENERATED_CPP_SOURCES "${${ERM_MODULE}_MODULE_SOURCE}")
+		if(${ERM_MODULE}_MAIN_CPP_SOURCES)
+			# Configure dummy_main.cpp
+			set(DUMMY_MAIN_PATH "${${ERM_MODULE}_GENERATED_DIR}/common/erm/dummy_main.cpp")
+			configure_file(
+				"${ERM_Modules_MODULE_DIR}/Templates/dummy_main.cpp.in"
+				"${DUMMY_MAIN_PATH}"
+				@ONLY
+			)
+			list(APPEND ${ERM_MODULE}_GENERATED_CPP_SOURCES "${DUMMY_MAIN_PATH}")
+			set(${ERM_MODULE}_GENERATED_CPP_SOURCES "${${ERM_MODULE}_GENERATED_CPP_SOURCES}" CACHE STRING "" FORCE)
+		endif()
 	endforeach()
+
+	# Configure AllHeaders.h
+	if(AllModulesList)
+		erm_string_substr_end("${AllModulesList}" 1 AllModulesList)
+	endif()
+
+	if(AllModulesIncludes)
+		erm_string_substr_end("${AllModulesIncludes}" 1 AllModulesIncludes)
+	endif()
+
+	set(ALL_MODULES_PATH "${ERM_Modules_GENERATED_DIR}/common/erm/AllModules.h")
+	configure_file(
+			"${ERM_Modules_MODULE_DIR}/Templates/AllModules.h.in"
+			"${ALL_MODULES_PATH}"
+			@ONLY
+	)
+	list(APPEND ERM_Modules_GENERATED_CPP_HEADERS "${ALL_MODULES_PATH}")
+	set(ERM_Modules_GENERATED_CPP_HEADERS "${ERM_Modules_GENERATED_CPP_HEADERS}" CACHE STRING "" FORCE)
 endfunction()
 
 

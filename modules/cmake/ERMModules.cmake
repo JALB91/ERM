@@ -9,13 +9,13 @@ function(_erm_target_source_files ERM_MODULE TARGET_NAME)
 	if(ERM_USE_CPP_MODULES)
 		target_sources(
 			${TARGET_NAME}
-			PUBLIC
+			PRIVATE
 				FILE_SET CXX_MODULES
 				BASE_DIRS
 					"${${ERM_MODULE}_BASE_DIR}/Sources/common"
 					"${${ERM_MODULE}_BASE_DIR}/Sources/${ERM_RENDERING_API}"
-					"${ERM_GENERATED_DIR}/${ERM_MODULE}/common"
-					"${ERM_GENERATED_DIR}/${ERM_MODULE}/${ERM_RENDERING_API}"
+					"${${ERM_MODULE}_GENERATED_DIR}/common"
+					"${${ERM_MODULE}_GENERATED_DIR}/${ERM_RENDERING_API}"
 				FILES
 					"${${ERM_MODULE}_GENERATED_CPP_MODULES}"
 					"${${ERM_MODULE}_CPP_MODULES}"
@@ -73,6 +73,7 @@ function(_erm_target_sources ERM_MODULE TARGET_NAME)
 				BASE_DIRS "${${ERM_MODULE}_PRIVATE_INCLUDE_DIRS}"
 		)
 	endif()
+
 	if(${ERM_MODULE}_PUBLIC_INCLUDE_DIRS)
 		target_sources(
 			${TARGET_NAME}
@@ -110,39 +111,63 @@ function(_erm_target_link_libraries ERM_MODULE TARGET_NAME)
 			"${${ERM_MODULE}_LINK_INTERFACE}"
 		PRIVATE
 			"${${ERM_MODULE}_LINK_PRIVATE}"
-			"${ERM_MODULE}"
 		PUBLIC
 			"${${ERM_MODULE}_LINK_PUBLIC}"
+			"${ERM_MODULE}"
 	)
+	message(TRACE "\tLinking with:\n\t\t${${ERM_MODULE}_LINK_INTERFACE}\n\t\t${${ERM_MODULE}_LINK_PRIVATE}\n\t\t${${ERM_MODULE}_LINK_PUBLIC}")
 endfunction()
 
-function(_erm_setup_target ERM_MODULE TARGET_NAME SCOPE)
-	_erm_target_header_files(${ERM_MODULE} ${TARGET_NAME} ${SCOPE})
-	_erm_target_common_compile_definitions(${TARGET_NAME} ${SCOPE})
+function(_erm_setup_interface_lib ERM_MODULE)
+	add_library(${ERM_MODULE} INTERFACE)
+	_erm_target_header_files(${ERM_MODULE} ${ERM_MODULE} INTERFACE)
+	_erm_target_common_compile_definitions(${ERM_MODULE} INTERFACE)
+	if(${ERM_MODULE}_INTERFACE_INCLUDE_DIRS)
+		message(TRACE "\tIncluding: ${${ERM_MODULE}_INTERFACE_INCLUDE_DIRS}")
+		target_sources(
+			${ERM_MODULE}
+			INTERFACE
+				FILE_SET HEADERS
+				BASE_DIRS "${${ERM_MODULE}_INTERFACE_INCLUDE_DIRS}"
+		)
+	endif()
+	if(${ERM_MODULE}_PUBLIC_INCLUDE_DIRS)
+		message(TRACE "\tIncluding: ${${ERM_MODULE}_PUBLIC_INCLUDE_DIRS}")
+		target_sources(
+			${ERM_MODULE}
+			INTERFACE
+				FILE_SET HEADERS
+				BASE_DIRS "${${ERM_MODULE}_PUBLIC_INCLUDE_DIRS}"
+		)
+	endif()
+	
+	message(TRACE "\tLinking: ${${ERM_MODULE}_LINK_INTERFACE},${${ERM_MODULE}_LINK_PUBLIC}")
+	target_link_libraries(
+		${ERM_MODULE}
+		INTERFACE
+			"${${ERM_MODULE}_LINK_INTERFACE}"
+			"${${ERM_MODULE}_LINK_PUBLIC}"
+	)
+	
 	if(${ERM_MODULE}_DEPENDENCIES)
-		add_dependencies(${TARGET_NAME} ${${ERM_MODULE}_DEPENDENCIES})
+		add_dependencies(${ERM_MODULE} ${${ERM_MODULE}_DEPENDENCIES})
 	endif()
 endfunction()
 
 function(_erm_setup_object_lib ERM_MODULE)
 	set(TARGET_NAME ${ERM_MODULE}_obj)
 	add_library(${TARGET_NAME} OBJECT "${${ERM_MODULE}_ALL_SOURCES}")
+	_erm_target_header_files(${ERM_MODULE} ${TARGET_NAME} PUBLIC)
 	_erm_target_source_files(${ERM_MODULE} ${TARGET_NAME})
-	_erm_setup_target(${ERM_MODULE} ${TARGET_NAME} PUBLIC)
 	_erm_target_sources(${ERM_MODULE} ${TARGET_NAME})
 	_erm_target_compile_definitions(${ERM_MODULE} ${TARGET_NAME})
 	_erm_target_link_libraries(${ERM_MODULE} ${TARGET_NAME})
 endfunction()
 
-function(_erm_setup_interface_lib ERM_MODULE)
-	add_library(${ERM_MODULE} INTERFACE)
-	_erm_setup_target(${ERM_MODULE} ${ERM_MODULE} INTERFACE)
-endfunction()
-
 function(_erm_setup_static_lib ERM_MODULE SOURCES)
 	set(TARGET_NAME ${ERM_MODULE}_static)
 	add_library(${TARGET_NAME} STATIC ${SOURCES})
-	_erm_setup_target(${ERM_MODULE} ${TARGET_NAME} PUBLIC)
+	_erm_target_header_files(${ERM_MODULE} ${TARGET_NAME} PUBLIC)
 	_erm_target_sources(${ERM_MODULE} ${TARGET_NAME})
 	_erm_target_compile_definitions(${ERM_MODULE} ${TARGET_NAME})
 	_erm_target_link_libraries(${ERM_MODULE} ${TARGET_NAME})
@@ -151,7 +176,7 @@ endfunction()
 function(_erm_setup_shared_lib ERM_MODULE SOURCES)
 	set(TARGET_NAME ${ERM_MODULE}_shared)
 	add_library(${TARGET_NAME} SHARED ${SOURCES})
-	_erm_setup_target(${ERM_MODULE} ${TARGET_NAME} PUBLIC)
+	_erm_target_header_files(${ERM_MODULE} ${TARGET_NAME} PUBLIC)
 	_erm_target_sources(${ERM_MODULE} ${TARGET_NAME})
 	_erm_target_compile_definitions(${ERM_MODULE} ${TARGET_NAME})
 	_erm_target_link_libraries(${ERM_MODULE} ${TARGET_NAME})
@@ -176,7 +201,7 @@ function(_erm_setup_executable)
 	string(REGEX REPLACE ".*/(.*)main\\.cpp" "${EXE_ERM_MODULE}_\\1exe" EXE_TARGET_NAME "${EXE_MAIN_SOURCE}")
 
 	add_executable(${EXE_TARGET_NAME} ${EXE_MAIN_SOURCE} ${EXE_SOURCES})
-	_erm_setup_target(${EXE_ERM_MODULE} ${EXE_TARGET_NAME} PRIVATE)
+	_erm_target_header_files(${EXE_ERM_MODULE} ${EXE_TARGET_NAME} PUBLIC)
 	_erm_target_sources(${EXE_ERM_MODULE} ${EXE_TARGET_NAME})
 	_erm_target_compile_definitions(${EXE_ERM_MODULE} ${EXE_TARGET_NAME})
 	_erm_target_link_libraries(${EXE_ERM_MODULE} ${EXE_TARGET_NAME})

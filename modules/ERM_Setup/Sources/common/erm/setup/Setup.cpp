@@ -55,12 +55,12 @@ Setup::Setup()
 		ArgValueType::BOOLEAN,
 		"false",
 		"Enable tracy"))
-	, mTrace(mArgsParser->addOptionalArg(
+	, mLogTrace(mArgsParser->addOptionalArg(
 		std::nullopt,
-		"trace",
+		"log-trace",
 		ArgValueType::BOOLEAN,
 		"false",
-		"Trace cmake output"))
+		"Set cmake log level to trace"))
 	, mGenerator(mArgsParser->addOptionalArg(
 		'G',
 		"generator",
@@ -130,7 +130,7 @@ int Setup::exec(const SubCommand& /*command*/) const
 	const auto rtx = mRTX->get<bool>();
 	const auto interactive = mInteractive->get<bool>();
 	const auto tracy = mTracy->get<bool>();
-	const auto trace = mTrace->get<bool>();
+	const auto logTrace = mLogTrace->get<bool>();
 	const auto generatorName = mGenerator->get<std::string>();
 	const auto compilerName = mCompiler->get<std::string>();
 	
@@ -203,9 +203,9 @@ int Setup::exec(const SubCommand& /*command*/) const
 		cmakeCommand += " --debug-output";
 	}
 	
-	if (trace)
+	if (logTrace)
 	{
-		cmakeCommand += " --trace";
+		cmakeCommand += " --log-level=TRACE";
 	}
 	
 	cmakeCommand += " ./";
@@ -226,9 +226,9 @@ int Setup::exec(const SubCommand& /*command*/) const
 		{
 			cmakeCommand += " --debug-output";
 		}
-		if (trace)
+		if (logTrace)
 		{
-			cmakeCommand += " --trace";
+			cmakeCommand += " --log-level=TRACE";
 		}
 
 		cmakeCommand += " --build";
@@ -252,9 +252,9 @@ int Setup::exec(const SubCommand& /*command*/) const
 		{
 			cmakeCommand += " --debug-output";
 		}
-		if (trace)
+		if (logTrace)
 		{
-			cmakeCommand += " --trace";
+			cmakeCommand += " --log-level=TRACE";
 		}
 
 		cmakeCommand += " --open";

@@ -1,5 +1,11 @@
 #include "erm/engine/Engine.h"
 
+#include <erm/assets/models/Model.h>
+#include <erm/assets/data_structs/Bone.h>
+#include <erm/assets/AssetsRepo.h>
+
+#include <erm/audio/AudioManager.h>
+
 #include <erm/ecs/Entity.h>
 #include <erm/ecs/systems/AnimationSystem.h>
 #include <erm/ecs/systems/CameraSystem.h>
@@ -9,16 +15,10 @@
 #include <erm/ecs/systems/SkeletonSystem.h>
 #include <erm/ecs/systems/TransformSystem.h>
 
-#include <erm/audio/AudioManager.h>
-
 #include <erm/math/Types.h>
 
 #include <erm/rendering/Device.h>
 #include <erm/rendering/renderer/Renderer.h>
-
-#include <erm/assets/models/Model.h>
-#include <erm/assets/data_structs/Bone.h>
-#include <erm/assets/AssetsRepo.h>
 
 #include <erm/utils/ObjectRegistry.h>
 #include <erm/utils/Profiler.h>
@@ -57,8 +57,6 @@ namespace erm {
 
 #define ERM_TARGET_SIMULATION_TIME 1.0/60.0
 
-Engine* gEngine = nullptr;
-
 Engine::Engine()
 	: mWindow(std::make_unique<Window>())
 {
@@ -93,7 +91,6 @@ Engine::Engine()
 Engine::~Engine()
 {
 	mWindow->removeListener(*this);
-	ObjectRegistry::clear();
 }
 
 bool Engine::init()
@@ -106,7 +103,6 @@ bool Engine::init()
 	mUpdateManager = std::make_unique<UpdateManager>();
 	mAudioManager = std::make_unique<AudioManager>();
 	mDevice = std::make_unique<Device>(mWindow->getWindow());
-	ObjectRegistry::set(std::make_shared<AssetsRepo>());
 	mRenderer = std::make_unique<Renderer>(*mWindow, *mDevice);
 	mECS = std::make_unique<ecs::ECS>();
 	mECS->init();

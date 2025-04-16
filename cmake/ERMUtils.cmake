@@ -79,3 +79,14 @@ function(erm_call_function)
 		ARGS ${CALLBACK_FN_ARGS}
 	)
 endfunction()
+
+# Cut the end of a string by the desired amount of chars
+function(erm_string_substr_end INPUT NUM_CHARS OUTPUT)
+    string(LENGTH "${INPUT}" STR_LEN)
+    math(EXPR END_INDEX "${STR_LEN} - ${NUM_CHARS}")
+    if(END_INDEX LESS 0)
+        set(END_INDEX 0)
+    endif()
+    string(SUBSTRING "${INPUT}" 0 ${END_INDEX} RESULT)
+    set(${OUTPUT} "${RESULT}" PARENT_SCOPE)
+endfunction()

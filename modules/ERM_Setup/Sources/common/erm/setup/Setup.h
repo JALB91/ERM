@@ -38,7 +38,7 @@ private:
 	OptionalArgHandle mRTX;
 	OptionalArgHandle mInteractive;
 	OptionalArgHandle mTracy;
-	OptionalArgHandle mTrace;
+	OptionalArgHandle mLogTrace;
 	OptionalArgHandle mGenerator;
 	OptionalArgHandle mCompiler;
 

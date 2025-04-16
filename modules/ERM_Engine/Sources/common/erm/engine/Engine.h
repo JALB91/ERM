@@ -22,9 +22,6 @@ struct Entity;
 
 namespace erm {
 
-class Engine;
-extern Engine* gEngine;
-
 class Engine : private IWindowListener
 {
 public:

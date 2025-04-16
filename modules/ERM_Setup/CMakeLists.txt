@@ -6,6 +6,7 @@ erm_module_setup(
 		ERM_FileSystem_static
 		ERM_Log_static
 		ERM_Utils_static
+		ERM_System_static
 	LINK_PUBLIC
 		ERM_ArgsParser_static
 )

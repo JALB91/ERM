@@ -7,7 +7,6 @@
 int main()
 {
 	erm::Engine engine;
-	erm::gEngine = &engine;
 
 	erm::ImGuiHandle handle(engine);
 

@@ -1,22 +1,7 @@
 function(nn_post_setup_callback)
 	set(NN_COMMAND "${CMAKE_INSTALL_PREFIX}/bin/$<CONFIG>/$<TARGET_FILE_NAME:ERM_NN_exe>")
-	set(ALL_NN_SOURCES_HEADER ${ERM_GENERATED_HEADER_WARNING})
-	string(APPEND ALL_NN_SOURCES_HEADER "
-
-#if defined(ERM_NN_IMPL)
-#error \"ERM_NN_IMPL already defined, this should not happen, did you include this file twice?\"
-#endif
-
-#define ERM_NN_IMPL
-
-namespace erm::nn::internal {
-
-static constexpr auto kERMNNCounterStart = __COUNTER__;
-
-}
-
-")
-
+	set(NNSourcesIncludes "")
+	
 	foreach(ERM_MODULE ${ERM_MODULES})
 		# Gather nn source files
 		file(GLOB_RECURSE NN_SOURCES
@@ -27,17 +12,26 @@ static constexpr auto kERMNNCounterStart = __COUNTER__;
 			"${${ERM_MODULE}_BASE_DIR}/NN_Sources/${ERM_RENDERING_API}/*.hpp"
 			"${${ERM_MODULE}_BASE_DIR}/NN_Sources/${ERM_RENDERING_API}/*.cpp"
 		)
-		set(${ERM_MODULE}_NN_SOURCES ${NN_SOURCES} CACHE STRING "" FORCE)
-		list(APPEND ${ERM_MODULE}_ALL_SOURCES ${NN_SOURCES})
+
+		if(NN_SOURCES)
+			list(APPEND ERM_NN_PUBLIC_INCLUDE_DIRS
+				"${${ERM_MODULE}_BASE_DIR}/NN_Sources/common"
+				"${${ERM_MODULE}_BASE_DIR}/NN_Sources/${ERM_RENDERING_API}"
+			)
+			set(ERM_NN_PUBLIC_INCLUDE_DIRS ${ERM_NN_PUBLIC_INCLUDE_DIRS} CACHE STRING "" FORCE)
+		endif()
 
 		foreach(NN_SOURCE ${NN_SOURCES})
 			cmake_path(GET NN_SOURCE EXTENSION LAST_ONLY FILE_EXTENSION)
 			if(FILE_EXTENSION STREQUAL ".h" OR FILE_EXTENSION STREQUAL ".hpp")
-				string(APPEND ALL_NN_SOURCES_HEADER "#include \"${NN_SOURCE}\"\n")
+				erm_get_include_path(${NN_SOURCE} INCLUDE_PATH)
+				string(APPEND NNSourcesIncludes "#include \"${INCLUDE_PATH}\"\n")
 				list(APPEND ERM_NN_CPP_HEADERS ${NN_SOURCE})
 			elseif(FILE_EXTENSION STREQUAL ".cpp")
 				list(APPEND ERM_NN_CPP_SOURCES ${NN_SOURCE})
 			endif()
+			set(ERM_NN_CPP_HEADERS ${ERM_NN_CPP_HEADERS} CACHE STRING "" FORCE)
+			set(ERM_NN_CPP_SOURCES ${ERM_NN_CPP_SOURCES} CACHE STRING "" FORCE)
 		endforeach()
 
 		# Gather nn data files
@@ -78,24 +72,13 @@ static constexpr auto kERMNNCounterStart = __COUNTER__;
 		endif()
 	endforeach()
 
-	string(APPEND ALL_NN_SOURCES_HEADER "
-
-namespace erm::nn::internal {
-
-static constexpr auto kERMNNCounterEnd = __COUNTER__;
-
-}
-
-#define REGISTER_STATEMENT_HANDLERS(STATEMENT_HANDLERS_MAP) \\
-utils::for_constexpr<erm::nn::internal::kERMNNCounterStart + 1, erm::nn::internal::kERMNNCounterEnd - (erm::nn::internal::kERMNNCounterStart + 1)>([&] (const auto index) { \\
-	addStatementHandler<index.value>(STATEMENT_HANDLERS_MAP); \\
-});
-
-")
-
-	file(MAKE_DIRECTORY "${ERM_GENERATED_DIR}/ERM_NN/common/erm/nn")
-	file(WRITE "${ERM_GENERATED_DIR}/ERM_NN/common/erm/nn/NNAllStatementHandlers.h" "${ALL_NN_SOURCES_HEADER}")
-	list(APPEND ERM_NN_GENERATED_CPP_HEADERS "${ERM_GENERATED_DIR}/ERM_NN/common/erm/nn/NNAllStatementHandlers.h")
+	set(ERM_NN_ALL_STATEMENT_HANDLERS_FILE "${ERM_NN_GENERATED_DIR}/common/erm/nn/NNAllStatementHandlers.h")
+	configure_file(
+		"${ERM_NN_BASE_DIR}/Templates/NNAllStatementHandlers.h.in"
+		"${ERM_NN_ALL_STATEMENT_HANDLERS_FILE}"
+		@ONLY
+	)
+	list(APPEND ERM_NN_GENERATED_CPP_HEADERS "${ERM_NN_ALL_STATEMENT_HANDLERS_FILE}")
 	set(ERM_NN_GENERATED_CPP_HEADERS ${ERM_NN_GENERATED_CPP_HEADERS} CACHE STRING "" FORCE)
 endfunction()
 
