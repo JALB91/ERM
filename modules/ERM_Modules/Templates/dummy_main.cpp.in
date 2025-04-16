@@ -4,5 +4,4 @@
 
 #include <erm/modules/ModulesRunner.h>
 
-[[gnu::used]]
 erm::ModulesRunner eModulesRunner = erm::ModulesRunner::create<erm::@ModuleName@>();
