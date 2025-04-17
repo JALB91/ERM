@@ -74,7 +74,7 @@ function(nn_post_setup_callback)
 
 	set(ERM_NN_ALL_STATEMENT_HANDLERS_FILE "${ERM_NN_GENERATED_DIR}/common/erm/nn/NNAllStatementHandlers.h")
 	configure_file(
-		"${ERM_NN_BASE_DIR}/Templates/NNAllStatementHandlers.h.in"
+		"${ERM_NN_BASE_DIR}/Templates/NNAllStatementHandlers.h"
 		"${ERM_NN_ALL_STATEMENT_HANDLERS_FILE}"
 		@ONLY
 	)

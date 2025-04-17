@@ -56,7 +56,7 @@ function(modules_pre_generate_callback)
 		# Configure ERM_Module.h
 		set(MODULE_HEADER_PATH "${${ERM_MODULE}_GENERATED_DIR}/common/erm/${ERM_MODULE}.h")
 		configure_file(
-			"${ERM_Modules_MODULE_DIR}/Templates/ERM_Module.h.in"
+			"${ERM_Modules_MODULE_DIR}/Templates/ERM_Module.h"
 			"${MODULE_HEADER_PATH}"
 			@ONLY
 		)
@@ -73,7 +73,7 @@ function(modules_pre_generate_callback)
 			# Configure dummy_main.cpp
 			set(DUMMY_MAIN_PATH "${${ERM_MODULE}_GENERATED_DIR}/common/erm/dummy_main.cpp")
 			configure_file(
-				"${ERM_Modules_MODULE_DIR}/Templates/dummy_main.cpp.in"
+				"${ERM_Modules_MODULE_DIR}/Templates/dummy_main.cpp"
 				"${DUMMY_MAIN_PATH}"
 				@ONLY
 			)
@@ -93,7 +93,7 @@ function(modules_pre_generate_callback)
 
 	set(ALL_MODULES_PATH "${ERM_Modules_GENERATED_DIR}/common/erm/AllModules.h")
 	configure_file(
-			"${ERM_Modules_MODULE_DIR}/Templates/AllModules.h.in"
+			"${ERM_Modules_MODULE_DIR}/Templates/AllModules.h"
 			"${ALL_MODULES_PATH}"
 			@ONLY
 	)
