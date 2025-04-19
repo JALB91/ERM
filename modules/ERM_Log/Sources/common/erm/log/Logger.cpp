@@ -12,20 +12,14 @@
 namespace erm {
 
 Logger::Logger() noexcept
+	: mOutStreams({&std::cout})
+	, mErrStreams({&std::cerr})
+	, mLogLevel(magic_enum::enum_cast<LogLevel>(ERM_LOG_LEVEL).value_or(LogLevel::INFO))
+	, mIndent(0)
+{}
+
+void Logger::log(std::string_view str, LogLevel logLevel /* = LogLevel::INFO */)
 {
-	mOutStreams.emplace_back(&std::cout);
-	mErrStreams.emplace_back(&std::cerr);
-
-	const auto logLevel = magic_enum::enum_cast<LogLevel>(ERM_LOG_LEVEL);
-	mLogLevel = logLevel.value_or(LogLevel::INFO);
-
-	mIndent = 0;
-}
-
-void Logger::log(std::string_view str, std::scoped_lock<std::mutex>&& lock, LogLevel logLevel /* = LogLevel::INFO */)
-{
-	ERM_UNUSED(lock);
-
 	auto& streams = getStreamsForLogLevel(logLevel);
 	const auto lines = utils::splitString(str, '\n');
 
@@ -46,7 +40,6 @@ void Logger::log(std::string_view str, std::scoped_lock<std::mutex>&& lock, LogL
 
 void Logger::addOutStream(std::ostream& stream)
 {
-	auto lock = std::scoped_lock(mMutex);
 	const auto it = std::find(mOutStreams.begin(), mOutStreams.end(), &stream);
 	if (!ERM_EXPECT(it == mOutStreams.end()))
 	{
@@ -57,7 +50,6 @@ void Logger::addOutStream(std::ostream& stream)
 
 void Logger::removeOutStream(std::ostream& stream)
 {
-	auto lock = std::scoped_lock(mMutex);
 	const auto it = std::find(mOutStreams.begin(), mOutStreams.end(), &stream);
 	if (!ERM_EXPECT(it != mOutStreams.end()))
 	{
@@ -68,7 +60,6 @@ void Logger::removeOutStream(std::ostream& stream)
 
 void Logger::addErrStream(std::ostream& stream)
 {
-	auto lock = std::scoped_lock(mMutex);
 	const auto it = std::find(mErrStreams.begin(), mErrStreams.end(), &stream);
 	if (!ERM_EXPECT(it == mErrStreams.end()))
 	{
@@ -79,7 +70,6 @@ void Logger::addErrStream(std::ostream& stream)
 
 void Logger::removeErrStream(std::ostream& stream)
 {
-	auto lock = std::scoped_lock(mMutex);
 	const auto it = std::find(mErrStreams.begin(), mErrStreams.end(), &stream);
 	if (!ERM_EXPECT(it != mErrStreams.end()))
 	{
@@ -90,13 +80,11 @@ void Logger::removeErrStream(std::ostream& stream)
 
 void Logger::indent()
 {
-	auto lock = std::scoped_lock(mMutex);
 	++mIndent;
 }
 
 void Logger::unindent()
 {
-	auto lock = std::scoped_lock(mMutex);
 	ERM_ASSERT(mIndent > 0);
 	mIndent -= std::min(mIndent, u16(1));
 }

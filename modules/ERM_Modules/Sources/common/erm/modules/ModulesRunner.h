@@ -2,6 +2,8 @@
 
 #include <erm/AllModules.h>
 
+#include <erm/modules/Concepts.h>
+
 #include <refl.hpp>
 
 namespace erm {
@@ -9,7 +11,7 @@ namespace erm {
 class ModulesRunner
 {
 public:
-	template<typename T>
+	template<concepts::Module T>
 	static ModulesRunner create()
 	{
 		refl::util::for_each(T::kDependencies, [](const auto base) {
@@ -21,7 +23,9 @@ public:
 	}
 	
 private:
-	template<typename T>
+	ModulesRunner() = default;
+
+	template<concepts::Module T>
 	static void initModules()
 	{
 		if (T::visited())
@@ -48,7 +52,6 @@ private:
 		}
 	}
 	
-	ModulesRunner() = default;
 };
 
 extern ModulesRunner eModulesRunner;

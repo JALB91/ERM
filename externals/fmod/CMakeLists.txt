@@ -1,11 +1,11 @@
-if(MSVC OR WIN)
+if(ERM_HOST_WINDOWS)
     set(FMOD_CORE_IMPLIB "${CMAKE_CURRENT_SOURCE_DIR}/api/core/lib/Win/x64/fmod_vc.lib")
-    set(FMOD_CORE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/api/core/lib/Win/x64/fmod.dll")
+    set(FMOD_CORE_LIBRARY_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/api/core/lib/Win/x64/")
     set(FMOD_STUDIO_IMPLIB "${CMAKE_CURRENT_SOURCE_DIR}/api/studio/lib/Win/x64/fmodstudio_vc.lib")
-    set(FMOD_STUDIO_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/api/studio/lib/Win/x64/fmodstudio.dll")
-elseif(XCODE OR APPLE)
-    set(FMOD_CORE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/api/core/lib/OSX/libfmod.dylib")
-    set(FMOD_STUDIO_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/api/studio/lib/OSX/libfmodstudio.dylib")
+    set(FMOD_STUDIO_LIBRARY_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/api/studio/lib/Win/x64/")
+elseif(ERM_HOST_OSX)
+    set(FMOD_CORE_LIBRARY_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/api/core/lib/OSX/")
+    set(FMOD_STUDIO_LIBRARY_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/api/studio/lib/OSX/")
 else()
     message(FATAL_ERROR "Unsupported Platform")
 endif()
@@ -19,7 +19,7 @@ set_target_properties(
     "${PROJECT_NAME}"
     PROPERTIES
         IMPORTED_IMPLIB "${FMOD_CORE_IMPLIB}"
-        IMPORTED_LOCATION "${FMOD_CORE_LIBRARY}"
+        IMPORTED_LOCATION "${FMOD_CORE_LIBRARY_LOCATION}"
         INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/api/core/inc"
 )
 
@@ -32,6 +32,6 @@ set_target_properties(
     "${PROJECT_NAME}"
     PROPERTIES
         IMPORTED_IMPLIB "${FMOD_STUDIO_IMPLIB}"
-        IMPORTED_LOCATION "${FMOD_STUDIO_LIBRARY}"
+        IMPORTED_LOCATION "${FMOD_STUDIO_LIBRARY_LOCATION}"
         INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/api/studio/inc"
 )

@@ -1,7 +1,7 @@
 #include "erm/utils/FileLocator.h"
 
-#include "erm/utils/Utils.h"
 #include "erm/utils/assert/Assert.h"
+#include "erm/utils/Utils.h"
 
 #include <array>
 #include <filesystem>

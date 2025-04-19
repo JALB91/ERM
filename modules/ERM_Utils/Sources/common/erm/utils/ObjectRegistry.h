@@ -1,6 +1,5 @@
 #pragma once
 
-#include "erm/utils/assert/Assert.h"
 #include "erm/utils/TypeID.h"
 
 #include <erm/math/Types.h>
@@ -21,7 +20,6 @@ public:
 		const auto lock = std::scoped_lock(instance.mMutex);
 		const auto typeID = utils::getID<T>();
 		auto& objects = instance.mObjects;
-		ERM_ASSERT(objects.find(typeID) == objects.end(), "Overriding an object in the registry");
 		objects[typeID] = std::static_pointer_cast<void>(object);
 	}
 	
@@ -32,7 +30,7 @@ public:
 		const auto lock = std::scoped_lock(instance.mMutex);
 		auto& objects = instance.mObjects;
 		const auto it = objects.find(utils::getID<T>());
-		if (!ERM_EXPECT(it != objects.end(), "Attempt to retrieve uninitialized object from the registry"))
+		if (it == objects.end())
 			return nullptr;
 		return std::static_pointer_cast<T>(it->second);
 	}
@@ -44,7 +42,7 @@ public:
 		const auto lock = std::scoped_lock(instance.mMutex);
 		auto& objects = instance.mObjects;
 		const auto it = objects.find(utils::getID<T>());
-		if (!ERM_EXPECT(it != objects.end(), "Attempt to retrieve uninitialized object from the registry"))
+		if (it == objects.end())
 			return nullptr;
 		return std::weak_ptr<T>(std::static_pointer_cast<T>(it->second));
 	}
@@ -56,7 +54,7 @@ public:
 		const auto lock = std::scoped_lock(instance.mMutex);
 		auto& objects = instance.mObjects;
 		const auto it = objects.find(utils::getID<T>());
-		if (ERM_EXPECT(it != objects.end(), "Trying to remove uninitialized object from the registry")) {
+		if (it != objects.end()) {
 			objects.erase(it);
 		}
 	}
