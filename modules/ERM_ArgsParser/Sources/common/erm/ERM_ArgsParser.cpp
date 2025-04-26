@@ -2,7 +2,14 @@
 
 namespace erm {
 
-void ERM_ArgsParser::init()
-{}
+bool ERM_ArgsParser::Impl::init() const
+{
+	return true;
+}
+
+bool ERM_ArgsParser::Impl::deinit() const
+{
+	return true;
+}
 
 }

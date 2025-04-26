@@ -12,51 +12,71 @@ namespace erm {
 
 class @ModuleName@
 {
+private:
+	class Impl
+	{
+	public:
+		bool init() const;
+		bool deinit() const;
+		int run(int argc, char** argv) const;
+	};
+
 public:
 	using DepsT = refl::type_list<@ModuleDependenciesList@>;
-	static constexpr auto kDependencies = refl::util::reflect_types(DepsT{});
+	static constexpr auto kDependencies = DepsT{};
 
-	static void init();
+	static bool initialized()
+	{
+		const auto& instance = getInstance();
+		return instance.mInitialized;
+	}
 
-    static bool visited()
-    {
-        const auto& instance = getInstance();
-        return instance.mVisited;
-    }
+	static bool init()
+	{
+		auto& instance = getInstance();
+		if (!instance.initialized())
+		{
+			instance.mInitialized = instance.mImpl.init();
+		}
+		return instance.initialized();
+	}
 
-    static void markVisited()
-    {
-        auto& instance = getInstance();
-        instance.mVisited = true;
-    }
+	static bool deinit()
+	{
+		auto& instance = getInstance();
+		if (instance.initialized())
+		{
+			instance.mInitialized = !instance.mImpl.deinit();
+		}
+		return !instance.initialized();
+	}
 
-    static bool initialized()
-    {
-        const auto& instance = getInstance();
-        return instance.mInitialized;
-    }
-
-    static void markInitialized()
-    {
-        auto& instance = getInstance();
-        instance.mInitialized = true;
-    }
+	static int run(int argc, char** argv)
+	{
+		const auto& instance = getInstance();
+		if (instance.initialized())
+		{
+			return instance.mImpl.run(argc, argv);
+		}
+		return EXIT_FAILURE;
+	}
 
 private:
-    @ModuleName@() = default;
+	@ModuleName@() = default;
 
-    static @ModuleName@& getInstance()
-    {
-        static @ModuleName@ sInstance;
-        return sInstance;
-    }
+	static @ModuleName@& getInstance()
+	{
+		static @ModuleName@ sInstance;
+		return sInstance;
+	}
 
 	bool mInitialized = false;
-	bool mVisited = false;
+	Impl mImpl;
+
 };
 
 }
 
 REFL_AUTO(
-    type(erm::@ModuleName@)
+	type(erm::@ModuleName@)
 );

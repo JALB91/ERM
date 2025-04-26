@@ -6,9 +6,16 @@
 
 namespace erm {
 
-void ERM_Audio::init()
+bool ERM_Audio::Impl::init() const
 {
 	ObjectRegistry::set<AudioManager>(std::make_shared<AudioManager>());
+	return true;
+}
+
+bool ERM_Audio::Impl::deinit() const
+{
+	ObjectRegistry::remove<AudioManager>();
+	return true;
 }
 
 }

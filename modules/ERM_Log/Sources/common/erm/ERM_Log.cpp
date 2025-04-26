@@ -6,9 +6,16 @@
 
 namespace erm {
 
-void ERM_Log::init()
+bool ERM_Log::Impl::init() const
 {
 	ObjectRegistry::set<Logger>(std::make_shared<Logger>());
+	return true;
+}
+
+bool ERM_Log::Impl::deinit() const
+{
+	ObjectRegistry::remove<Logger>();
+	return true;
 }
 
 }

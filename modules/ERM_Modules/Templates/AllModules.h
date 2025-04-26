@@ -10,6 +10,6 @@ namespace erm {
 
 using AllModulesT = refl::type_list<@AllModulesList@>;
 
-constexpr auto kAllModules = refl::util::reflect_types(AllModulesT{});
+constexpr auto kAllModules = AllModulesT{};
 
 }

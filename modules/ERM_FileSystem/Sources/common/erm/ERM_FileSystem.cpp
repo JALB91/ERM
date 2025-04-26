@@ -2,7 +2,14 @@
 
 namespace erm {
 
-void ERM_FileSystem::init()
-{}
+bool ERM_FileSystem::Impl::init() const
+{
+	return true;
+}
+
+bool ERM_FileSystem::Impl::deinit() const
+{
+	return true;
+}
 
 }

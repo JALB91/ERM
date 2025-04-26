@@ -2,9 +2,14 @@
 
 namespace erm {
 
-void ERM_Utils::init()
+bool ERM_Utils::Impl::init() const
 {
-    
+	return true;
+}
+
+bool ERM_Utils::Impl::deinit() const
+{
+	return true;
 }
 
 }

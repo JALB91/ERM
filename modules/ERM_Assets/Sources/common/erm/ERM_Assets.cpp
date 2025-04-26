@@ -7,10 +7,18 @@
 
 namespace erm {
 
-void ERM_Assets::init()
+bool ERM_Assets::Impl::init() const
 {
-	ObjectRegistry::set(std::make_shared<AssetsManager>());
 	ObjectRegistry::set(std::make_shared<AssetsRepo>());
+	ObjectRegistry::set(std::make_shared<AssetsManager>());
+	return true;
+}
+
+bool ERM_Assets::Impl::deinit() const
+{
+	ObjectRegistry::remove<AssetsManager>();
+	ObjectRegistry::remove<AssetsRepo>();
+	return true;
 }
 
 }

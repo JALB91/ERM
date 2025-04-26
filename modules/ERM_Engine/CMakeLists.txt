@@ -2,6 +2,7 @@ erm_module_setup(
 	VERSION 0.0.1
 	DESCRIPTION "ERM Engine lib"
 	LANGUAGES CXX
+	EXECUTABLE
 	LINK_PRIVATE
 		${ERM_RENDERING_API_LIB}
 		glfw

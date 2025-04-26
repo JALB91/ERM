@@ -6,9 +6,16 @@
 
 namespace erm {
 
-void ERM_Window::init()
+bool ERM_Window::Impl::init() const
 {
 	ObjectRegistry::set<Window>(std::make_shared<Window>());
+	return true;
+}
+
+bool ERM_Window::Impl::deinit() const
+{
+	ObjectRegistry::remove<Window>();
+	return true;
 }
 
 }

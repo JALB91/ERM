@@ -87,6 +87,7 @@ erm_module_setup(
 	DESCRIPTION "ERM NN lib"
 	POST_SETUP_CALLBACK nn_post_setup_callback
 	LANGUAGES CXX
+	EXECUTABLE
 	LINK_PUBLIC
 		glm
 		nlohmann_json

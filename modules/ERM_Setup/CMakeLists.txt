@@ -2,6 +2,7 @@ erm_module_setup(
 	VERSION 0.0.1
 	DESCRIPTION "ERM Setup lib"
 	LANGUAGES CXX
+	EXECUTABLE
 	LINK_PRIVATE
 		ERM_FileSystem_static
 		ERM_Log_static

@@ -2,9 +2,14 @@
 
 namespace erm {
 
-void ERM_Input::init()
+bool ERM_Input::Impl::init() const
 {
-    
+	return true;
+}
+
+bool ERM_Input::Impl::deinit() const
+{
+	return true;
 }
 
 }

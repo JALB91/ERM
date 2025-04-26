@@ -5,8 +5,9 @@ function(modules_post_setup_callback)
 		endif()
 
 		# Add modules dependency to executables
-		if(${ERM_MODULE}_MAIN_CPP_SOURCES)
-			list(APPEND ${ERM_MODULE}_LINK_PUBLIC ERM_Modules_static)
+		if(${ERM_MODULE}_EXECUTABLE)
+			list(APPEND ${ERM_MODULE}_LINK_PRIVATE ERM_Modules_static)
+			set(${ERM_MODULE}_LINK_PRIVATE "${${ERM_MODULE}_LINK_PRIVATE}" CACHE STRING "" FORCE)
 		endif()
 		
 		# Add refl-cpp dependency to all modules
@@ -69,16 +70,15 @@ function(modules_pre_generate_callback)
 		list(APPEND ERM_Modules_GENERATED_CPP_HEADERS "${MODULE_HEADER_PATH}")
 		set(ERM_Modules_GENERATED_CPP_HEADERS "${ERM_Modules_GENERATED_CPP_HEADERS}" CACHE STRING "" FORCE)
 
-		if(${ERM_MODULE}_MAIN_CPP_SOURCES)
+		if(${ERM_MODULE}_EXECUTABLE)
 			# Configure dummy_main.cpp
-			set(DUMMY_MAIN_PATH "${${ERM_MODULE}_GENERATED_DIR}/common/erm/dummy_main.cpp")
+			set(MODULE_MAIN_PATH "${${ERM_MODULE}_GENERATED_DIR}/common/erm/${ERM_MODULE}_main.cpp")
 			configure_file(
-				"${ERM_Modules_MODULE_DIR}/Templates/dummy_main.cpp"
-				"${DUMMY_MAIN_PATH}"
+				"${ERM_Modules_MODULE_DIR}/Templates/module_main.cpp"
+				"${MODULE_MAIN_PATH}"
 				@ONLY
 			)
-			list(APPEND ${ERM_MODULE}_GENERATED_CPP_SOURCES "${DUMMY_MAIN_PATH}")
-			set(${ERM_MODULE}_GENERATED_CPP_SOURCES "${${ERM_MODULE}_GENERATED_CPP_SOURCES}" CACHE STRING "" FORCE)
+			set(${ERM_MODULE}_MODULE_MAIN_PATH "${MODULE_MAIN_PATH}" CACHE PATH "" FORCE)
 		endif()
 	endforeach()
 

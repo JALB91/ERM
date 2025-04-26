@@ -6,9 +6,16 @@
 
 namespace erm {
 
-void ERM_System::init()
+bool ERM_System::Impl::init() const
 {
 	ObjectRegistry::set(std::make_shared<Environment>());
+	return true;
+}
+
+bool ERM_System::Impl::deinit() const
+{
+	ObjectRegistry::remove<Environment>();
+	return true;
 }
 
 }

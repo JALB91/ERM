@@ -2,9 +2,14 @@
 
 namespace erm {
 
-void ERM_Math::init()
+bool ERM_Math::Impl::init() const
 {
-    
+	return true;
+}
+
+bool ERM_Math::Impl::deinit() const
+{
+	return true;
 }
 
 }

@@ -7,10 +7,18 @@
 
 namespace erm {
 
-void ERM_Rendering::init()
+bool ERM_Rendering::Impl::init() const
 {
 //	ObjectRegistry::set<Device>(std::make_shared<Device>());
 //	ObjectRegistry::set<Renderer>(std::make_shared<Renderer>());
+	return true;
+}
+
+bool ERM_Rendering::Impl::deinit() const
+{
+//	ObjectRegistry::remove<Renderer>();
+//	ObjectRegistry::remove<Device>();
+	return true;
 }
 
 }

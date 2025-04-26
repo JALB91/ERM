@@ -187,7 +187,7 @@ function(_erm_setup_executable)
 	# Parse options
 	# ===========================================================================
 	set(EXE_OPTIONS)
-	set(EXE_ONE_VALUE_ARGS ERM_MODULE MAIN_SOURCE)
+	set(EXE_ONE_VALUE_ARGS ERM_MODULE)
 	set(EXE_MULTI_VALUE_ARGS SOURCES)
 	
 	cmake_parse_arguments(
@@ -198,9 +198,9 @@ function(_erm_setup_executable)
 		${ARGN}
 	)
 
-	string(REGEX REPLACE ".*/(.*)main\\.cpp" "${EXE_ERM_MODULE}_\\1exe" EXE_TARGET_NAME "${EXE_MAIN_SOURCE}")
+	set(EXE_TARGET_NAME ${EXE_ERM_MODULE}_exe)
 
-	add_executable(${EXE_TARGET_NAME} ${EXE_MAIN_SOURCE} ${EXE_SOURCES})
+	add_executable(${EXE_TARGET_NAME} ${${EXE_ERM_MODULE}_MODULE_MAIN_PATH} ${EXE_SOURCES})
 	_erm_target_header_files(${EXE_ERM_MODULE} ${EXE_TARGET_NAME} PUBLIC)
 	_erm_target_sources(${EXE_ERM_MODULE} ${EXE_TARGET_NAME})
 	_erm_target_compile_definitions(${EXE_ERM_MODULE} ${EXE_TARGET_NAME})
@@ -231,6 +231,9 @@ function(_erm_setup_executable)
 endfunction()
 
 ## @brief Setup ERM module
+##
+## Option arguments:
+##   - EXECUTABLE: Whether to build an executable for the module.
 ##
 ## One-value arguments:
 ##   - VERSION: Module version number (<major>.<minor>.<patch>).
@@ -290,7 +293,9 @@ function(erm_module_setup)
 	# ===========================================================================
 	# Declare and parse options
 	# ===========================================================================
-	set(ERM_MODULE_OPTIONS)
+	set(ERM_MODULE_OPTIONS
+		EXECUTABLE
+	)
 	set(ERM_MODULE_ONE_VALUE_ARGS
 		VERSION
 		DESCRIPTION
@@ -323,6 +328,7 @@ function(erm_module_setup)
 	# ===========================================================================
 	# Cache variables
 	# ===========================================================================
+	set(${DIR_NAME}_EXECUTABLE "${${DIR_NAME}_EXECUTABLE}" CACHE BOOL "" FORCE)
 	set(${DIR_NAME}_VERSION "${${DIR_NAME}_VERSION}" CACHE STRING "" FORCE)
 	set(${DIR_NAME}_DESCRIPTION "${${DIR_NAME}_DESCRIPTION}" CACHE STRING "" FORCE)
 	set(${DIR_NAME}_POST_SETUP_CALLBACK "${${DIR_NAME}_POST_SETUP_CALLBACK}" CACHE STRING "" FORCE)

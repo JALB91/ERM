@@ -6,9 +6,16 @@
 
 namespace erm {
 
-void ERM_ECS::init()
+bool ERM_ECS::Impl::init() const
 {
 	ObjectRegistry::set<ecs::ECS>(std::make_shared<ecs::ECS>());
+	return true;
+}
+
+bool ERM_ECS::Impl::deinit() const
+{
+	ObjectRegistry::remove<ecs::ECS>();
+	return true;
 }
 
 }

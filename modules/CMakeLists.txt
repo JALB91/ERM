@@ -92,9 +92,9 @@ foreach(ERM_MODULE ${ERM_MODULES})
 		erm_source_group_for_file("${FILE}")
 	endforeach()
 
-	foreach(FILE ${${ERM_MODULE}_MAIN_CPP_SOURCES})
-		erm_source_group_for_file("${FILE}")
-	endforeach()
+	if(${ERM_MODULE}_EXECUTABLE)
+		erm_source_group_for_file("${${ERM_MODULE}_MODULE_MAIN_PATH}")
+	endif()
 	
 	# Determine multi target requirements
 	list(FIND ALL_DEPS "${ERM_MODULE}" INTERFACE)
@@ -126,7 +126,13 @@ foreach(ERM_MODULE ${ERM_MODULES})
 		set(${ERM_MODULE}_SHARED OFF CACHE BOOL "" FORCE)
 	endif()
 
-	if((${ERM_MODULE}_STATIC AND ${ERM_MODULE}_SHARED)) 
+	if(${ERM_MODULE}_STATIC AND ${ERM_MODULE}_SHARED)
+		set(${ERM_MODULE}_MULTI_TARGET ON CACHE BOOL "" FORCE)
+		set(${ERM_MODULE}_OBJECT ON CACHE BOOL "" FORCE)
+	elseif(${ERM_MODULE}_STATIC AND ${ERM_MODULE}_EXECUTABLE)
+		set(${ERM_MODULE}_MULTI_TARGET ON CACHE BOOL "" FORCE)
+		set(${ERM_MODULE}_OBJECT ON CACHE BOOL "" FORCE)
+	elseif(${ERM_MODULE}_SHARED AND ${ERM_MODULE}_EXECUTABLE)
 		set(${ERM_MODULE}_MULTI_TARGET ON CACHE BOOL "" FORCE)
 		set(${ERM_MODULE}_OBJECT ON CACHE BOOL "" FORCE)
 	else()
@@ -168,14 +174,18 @@ foreach(ERM_MODULE ${ERM_MODULES})
 	endif()
 
 	# Create executables
-	if(${ERM_MODULE}_MAIN_CPP_SOURCES)
-		foreach(MAIN_SOURCE ${${ERM_MODULE}_MAIN_CPP_SOURCES})
+	if(${ERM_MODULE}_EXECUTABLE)
+		if(${ERM_MODULE}_OBJECT)
 			_erm_setup_executable(
 				ERM_MODULE ${ERM_MODULE}
-				MAIN_SOURCE "${MAIN_SOURCE}"
+				SOURCES $<TARGET_OBJECTS:${ERM_MODULE}_obj>
+			)
+		else()
+			_erm_setup_executable(
+				ERM_MODULE ${ERM_MODULE}
 				SOURCES ${${ERM_MODULE}_ALL_SOURCES}
 			)
-		endforeach()
+		endif()
 	endif()
 endforeach()
 

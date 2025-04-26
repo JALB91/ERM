@@ -9,12 +9,14 @@
 
 namespace erm::utils {
 
+using TypeID = u64;
+
 namespace internal {
 
-u64 getNextID();
+TypeID getNextID();
 
 template<typename T>
-inline u64 getIDImpl()
+inline TypeID getIDImpl()
 {
 	static const auto sID = getNextID();
 	return sID;
@@ -23,7 +25,7 @@ inline u64 getIDImpl()
 }
 
 template<typename T>
-inline constexpr u64 getID()
+inline constexpr TypeID getID()
 {
 	return internal::getIDImpl<utils::remove_all_t<T>>();
 }
