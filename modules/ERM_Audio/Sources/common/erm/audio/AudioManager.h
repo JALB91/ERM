@@ -5,6 +5,8 @@
 #include "erm/audio/Reproduction.h"
 #include "erm/audio/Sound.h"
 
+#include <refl.hpp>
+
 #include <array>
 #include <string_view>
 #include <unordered_map>
@@ -66,3 +68,5 @@ private:
 };
 
 } // namespace erm
+
+REFL_AUTO(type(erm::AudioManager));

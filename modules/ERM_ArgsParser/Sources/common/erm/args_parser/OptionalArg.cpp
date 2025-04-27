@@ -1,8 +1,7 @@
 #include "erm/args_parser/OptionalArg.h"
 
 #include <erm/log/Log.h>
-
-#include <erm/utils/assert/Assert.h>
+#include <erm/log/Assert.h>
 
 #include <iostream>
 

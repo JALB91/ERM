@@ -2,6 +2,7 @@ erm_module_setup(
 	VERSION 0.0.1
 	DESCRIPTION "ERM Utils lib"
 	LANGUAGES CXX
+	STANDALONE
 	PRIVATE_COMPILE_DEF
 		ERM_ZONE_COLOR=0x111111
 	PUBLIC_COMPILE_DEF
@@ -10,8 +11,6 @@ erm_module_setup(
 		xxHash
 	LINK_PUBLIC
 		$<$<BOOL:${ERM_TRACY_ENABLED}>:Tracy::TracyClient>
-		magic_enum
 		ERM_Math_static
-		ERM_FileSystem_static
 		ERM_Log_static
 )

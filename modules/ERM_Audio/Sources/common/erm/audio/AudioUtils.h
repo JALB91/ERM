@@ -1,8 +1,9 @@
 #pragma once
 
-#include <erm/utils/assert/Assert.h>
-
 #ifdef ERM_DEBUG
+
+#include <erm/log/Assert.h>
+
 #define ERM_CHECK_FMOD_RESULT(CALL) \
 {                                   \
 	const auto result = CALL;       \

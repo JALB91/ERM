@@ -1,86 +1,6 @@
-function(nn_post_setup_callback)
-	set(NN_COMMAND "${CMAKE_INSTALL_PREFIX}/bin/$<CONFIG>/$<TARGET_FILE_NAME:ERM_NN_exe>")
-	set(NNSourcesIncludes "")
-	
-	foreach(ERM_MODULE ${ERM_MODULES})
-		# Gather nn source files
-		file(GLOB_RECURSE NN_SOURCES
-			"${${ERM_MODULE}_BASE_DIR}/NN_Sources/common/*.h"
-			"${${ERM_MODULE}_BASE_DIR}/NN_Sources/common/*.hpp"
-			"${${ERM_MODULE}_BASE_DIR}/NN_Sources/common/*.cpp"
-			"${${ERM_MODULE}_BASE_DIR}/NN_Sources/${ERM_RENDERING_API}/*.h"
-			"${${ERM_MODULE}_BASE_DIR}/NN_Sources/${ERM_RENDERING_API}/*.hpp"
-			"${${ERM_MODULE}_BASE_DIR}/NN_Sources/${ERM_RENDERING_API}/*.cpp"
-		)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-		if(NN_SOURCES)
-			list(APPEND ERM_NN_PUBLIC_INCLUDE_DIRS
-				"${${ERM_MODULE}_BASE_DIR}/NN_Sources/common"
-				"${${ERM_MODULE}_BASE_DIR}/NN_Sources/${ERM_RENDERING_API}"
-			)
-			set(ERM_NN_PUBLIC_INCLUDE_DIRS ${ERM_NN_PUBLIC_INCLUDE_DIRS} CACHE STRING "" FORCE)
-		endif()
-
-		foreach(NN_SOURCE ${NN_SOURCES})
-			cmake_path(GET NN_SOURCE EXTENSION LAST_ONLY FILE_EXTENSION)
-			if(FILE_EXTENSION STREQUAL ".h" OR FILE_EXTENSION STREQUAL ".hpp")
-				erm_get_include_path(${NN_SOURCE} INCLUDE_PATH)
-				string(APPEND NNSourcesIncludes "#include \"${INCLUDE_PATH}\"\n")
-				list(APPEND ERM_NN_CPP_HEADERS ${NN_SOURCE})
-			elseif(FILE_EXTENSION STREQUAL ".cpp")
-				list(APPEND ERM_NN_CPP_SOURCES ${NN_SOURCE})
-			endif()
-			set(ERM_NN_CPP_HEADERS ${ERM_NN_CPP_HEADERS} CACHE STRING "" FORCE)
-			set(ERM_NN_CPP_SOURCES ${ERM_NN_CPP_SOURCES} CACHE STRING "" FORCE)
-		endforeach()
-
-		# Gather nn data files
-		file(GLOB_RECURSE NN_DATA
-			"${${ERM_MODULE}_BASE_DIR}/NN_Data/common/*.nn"
-			"${${ERM_MODULE}_BASE_DIR}/NN_Data/${ERM_RENDERING_API}/*.nn"
-		)
-		set(${ERM_MODULE}_NN_DATA ${NN_DATA} CACHE STRING "" FORCE)
-		list(APPEND ${ERM_MODULE}_ALL_SOURCES ${NN_DATA})
-
-		set(${ERM_MODULE}_ALL_SOURCES ${${ERM_MODULE}_ALL_SOURCES} CACHE STRING "" FORCE)
-
-		foreach(FILE ${NN_DATA})
-			string(REGEX REPLACE ".*/NN_Data/" "${${ERM_MODULE}_GENERATED_DIR}/" NN_OUTPUT_DIR "${FILE}")
-			get_filename_component(NN_OUTPUT_DIR "${NN_OUTPUT_DIR}" DIRECTORY)
-			get_filename_component(NN_OUTPUT_FILE_NAME "${FILE}" NAME_WE)
-			
-			set(NN_OUTPUT_HEADER "${NN_OUTPUT_DIR}/${NN_OUTPUT_FILE_NAME}.h")
-			set(NN_OUTPUT_SOURCE "${NN_OUTPUT_DIR}/${NN_OUTPUT_FILE_NAME}.cpp")
-
-			list(APPEND ${ERM_MODULE}_GENERATED_CPP_HEADERS ${NN_OUTPUT_HEADER})
-			set(${ERM_MODULE}_GENERATED_CPP_HEADERS ${${ERM_MODULE}_GENERATED_CPP_HEADERS} CACHE STRING "" FORCE)
-			list(APPEND ${ERM_MODULE}_GENERATED_CPP_SOURCES ${NN_OUTPUT_SOURCE})
-			set(${ERM_MODULE}_GENERATED_CPP_SOURCES ${${ERM_MODULE}_GENERATED_CPP_SOURCES} CACHE STRING "" FORCE)
-
-			list(APPEND NN_GENERATE_ARGS ${FILE} ${NN_OUTPUT_DIR})
-
-			add_custom_command(
-				OUTPUT ${NN_OUTPUT_HEADER} ${NN_OUTPUT_SOURCE}
-				COMMAND ${NN_COMMAND} ${NN_GENERATE_ARGS}
-				DEPENDS ${FILE}
-			)
-		endforeach()
-
-		if(NN_DATA)
-			list(APPEND ${ERM_MODULE}_DEPENDENCIES ERM_NN_exe)
-			set(${ERM_MODULE}_DEPENDENCIES ${${ERM_MODULE}_DEPENDENCIES} CACHE STRING "" FORCE)
-		endif()
-	endforeach()
-
-	set(ERM_NN_ALL_STATEMENT_HANDLERS_FILE "${ERM_NN_GENERATED_DIR}/common/erm/nn/NNAllStatementHandlers.h")
-	configure_file(
-		"${ERM_NN_BASE_DIR}/Templates/NNAllStatementHandlers.h"
-		"${ERM_NN_ALL_STATEMENT_HANDLERS_FILE}"
-		@ONLY
-	)
-	list(APPEND ERM_NN_GENERATED_CPP_HEADERS "${ERM_NN_ALL_STATEMENT_HANDLERS_FILE}")
-	set(ERM_NN_GENERATED_CPP_HEADERS ${ERM_NN_GENERATED_CPP_HEADERS} CACHE STRING "" FORCE)
-endfunction()
+include(NNPostSetupCallback)
 
 erm_module_setup(
 	VERSION 0.0.1
@@ -91,10 +11,9 @@ erm_module_setup(
 	LINK_PUBLIC
 		glm
 		nlohmann_json
-		magic_enum
-		refl-cpp
 		ERM_Utils_static
 		ERM_Math_static
-		ERM_FileSystem_static
-		ERM_ArgsParser_static
+		ERM_FileSystem_shared
+		ERM_ArgsParser_shared
+		ERM_System_shared
 )

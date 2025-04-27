@@ -2,6 +2,8 @@
 
 #include "erm/window/IWindow.h"
 
+#include <refl.hpp>
+
 struct GLFWwindow;
 
 namespace erm {
@@ -44,3 +46,7 @@ private:
 };
 
 } // namespace erm
+
+REFL_AUTO(
+	type(erm::Window)
+);

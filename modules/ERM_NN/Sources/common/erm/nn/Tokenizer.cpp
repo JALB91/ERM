@@ -1,6 +1,7 @@
 #include "erm/nn/Tokenizer.h"
 
-#include <erm/utils/assert/Assert.h>
+#include <erm/log/Assert.h>
+
 #include <erm/utils/Utils.h>
 
 #include <algorithm>

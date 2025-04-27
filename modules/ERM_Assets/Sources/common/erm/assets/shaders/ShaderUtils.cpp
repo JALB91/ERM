@@ -1,6 +1,7 @@
 #include "erm/assets/shaders/ShaderUtils.h"
 
-#include <erm/utils/assert/Assert.h>
+#include <erm/log/Assert.h>
+
 #include <erm/utils/Utils.h>
 
 namespace erm::ShaderUtils {

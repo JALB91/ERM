@@ -4,8 +4,7 @@ erm_module_setup(
 	LANGUAGES CXX
 	LINK_PRIVATE
 		ERM_Utils_static
-		ERM_FileSystem_static
+		ERM_FileSystem_shared
 	LINK_PUBLIC
-		refl-cpp
 		ERM_Math_static
 )

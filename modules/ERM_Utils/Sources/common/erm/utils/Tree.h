@@ -2,6 +2,8 @@
 
 #include "erm/utils/Utils.h"
 
+#include <erm/log/Assert.h>
+
 #include <functional>
 #include <memory>
 #include <vector>

@@ -1,45 +1,6 @@
 #include "erm/utils/Utils.h"
 
-#include "erm/utils/assert/Assert.h"
-
-#include <algorithm>
-#include <cctype>
-#include <fstream>
-#include <iostream>
-#include <math.h>
-#include <sstream>
-
 namespace erm::utils {
-
-void writeToFile(std::string_view path, std::string_view data)
-{
-	std::ofstream stream(path.data());
-
-	if (ERM_EXPECT(stream.is_open(), "Failed to open file: %s", path.data()))
-	{
-		stream.write(data.data(), data.size());
-	}
-}
-
-std::string readFromFile(std::string_view path)
-{
-	std::ifstream stream(path.data());
-
-	if (!ERM_EXPECT(stream.is_open(), "Failed to open file: %s", path.data()))
-	{
-		return "";
-	}
-
-	std::string result;
-	std::string line;
-
-	while (getline(stream, line))
-	{
-		result += line + "\n";
-	}
-
-	return result;
-}
 
 std::string formatTime(u64 seconds) noexcept
 {
@@ -63,18 +24,6 @@ std::string formatTime(u64 seconds) noexcept
 	result += std::to_string(seconds) + "s";
 
 	return result;
-}
-
-bool hasCommand(const char* const cmd)
-{
-	str128 str(cmd);
-#if defined(ERM_HOST_WINDOWS)
-	str += " > NUL 2>&1";
-#else
-	str += " > /dev/null 2>&1";
-#endif
-	const int result = std::system(str.data());
-	return result == EXIT_SUCCESS;
 }
 
 static_assert(charToUpper('a') == 'A');

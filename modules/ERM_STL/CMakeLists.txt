@@ -1,0 +1,8 @@
+erm_module_setup(
+	VERSION 0.0.1
+	DESCRIPTION "ERM STL lib"
+	LANGUAGES CXX
+	STANDALONE
+	LINK_INTERFACE
+		ERM_Math_static
+)

@@ -9,15 +9,15 @@ erm_module_setup(
 	LINK_PRIVATE
 		imgui
 	LINK_PUBLIC
-		ERM_Engine_static
+		ERM_Engine_shared
 		ERM_Utils_static
 		ERM_Math_static
-		ERM_Rendering_static
-		ERM_ECS_static
-		ERM_FileSystem_static
-		ERM_Window_static
-		ERM_Audio_static
-		ERM_Assets_static
-		ERM_Input_static
+		ERM_Rendering_shared
+		ERM_ECS_shared
+		ERM_FileSystem_shared
+		ERM_Window_shared
+		ERM_Audio_shared
+		ERM_Assets_shared
+		ERM_Input
 		glfw
 )

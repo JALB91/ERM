@@ -22,6 +22,8 @@
 #include <erm/utils/Profiler.h>
 #include <erm/utils/Utils.h>
 
+#include <magic_enum/magic_enum.hpp>
+
 namespace erm {
 
 Renderer::Renderer(Window& window, Device& device)

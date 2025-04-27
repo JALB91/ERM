@@ -2,6 +2,8 @@
 
 #include "erm/nn/Program.h"
 
+#include <erm/stl/type_traits.h>
+
 #include <refl.hpp>
 
 #include <memory>
@@ -148,7 +150,7 @@ private:
 			constexpr auto initialized = refl::descriptor::get_attribute<Initialized>(typeDescriptor);
 			if (!checkToken(program, tokenIndex, TokenType::SYMBOL, initialized.mOperator))
 			{
-				return utils::is_optional_v<T>;
+				return stl::is_optional_v<T>;
 			}
 			++tokenIndex;
 		}
@@ -227,7 +229,7 @@ private:
 			const auto token = getToken(program, tokenIndex);
 			if (!token.has_value() || token->mType == TokenType::SYMBOL)
 			{
-				return utils::is_optional_v<T>;
+				return stl::is_optional_v<T>;
 			}
 			tokenIndex++;
 			value = token->mValue.data();

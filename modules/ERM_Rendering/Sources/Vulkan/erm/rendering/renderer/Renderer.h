@@ -2,6 +2,8 @@
 
 #include "erm/rendering/renderer/IRenderer.h"
 
+#include <refl.hpp>
+
 #include <map>
 #include <memory>
 #include <vector>
@@ -49,3 +51,5 @@ private:
 };
 
 } // namespace erm
+
+REFL_AUTO(type(erm::Renderer));

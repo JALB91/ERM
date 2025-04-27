@@ -7,7 +7,7 @@
 #include <erm/assets/animations/SkeletonAnimation.h>
 #include <erm/assets/data_structs/Skeleton.h>
 
-#include <erm/utils/ObjectRegistry.h>
+#include <erm/modules/ObjectRegistry.h>
 #include <erm/utils/Profiler.h>
 
 #include <cmath>

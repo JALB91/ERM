@@ -2,7 +2,7 @@
 
 #include "erm/audio/AudioManager.h"
 
-#include <erm/utils/ObjectRegistry.h>
+#include <erm/modules/ObjectRegistry.h>
 
 namespace erm {
 

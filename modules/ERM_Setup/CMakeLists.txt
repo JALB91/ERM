@@ -4,10 +4,10 @@ erm_module_setup(
 	LANGUAGES CXX
 	EXECUTABLE
 	LINK_PRIVATE
-		ERM_FileSystem_static
+		ERM_FileSystem_shared
 		ERM_Log_static
 		ERM_Utils_static
-		ERM_System_static
+		ERM_System_shared
 	LINK_PUBLIC
-		ERM_ArgsParser_static
+		ERM_ArgsParser_shared
 )

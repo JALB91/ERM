@@ -2,8 +2,9 @@
 
 #include "erm/args_parser/ArgValueType.h"
 
-#include <erm/utils/assert/Assert.h>
-#include <erm/utils/Concepts.h>
+#include <erm/log/Assert.h>
+
+#include <erm/stl/concepts.h>
 
 #include <magic_enum/magic_enum.hpp>
 
@@ -35,7 +36,7 @@ public:
 		return mValue;
 	}
 	
-	template<concepts::is_not_enum T>
+	template<stl::is_not_enum T>
 	T get() const
 	{
 		const auto& targetValue = mValue.has_value() ? mValue.value() : mDefaultValue;
@@ -66,7 +67,7 @@ public:
 		}
 	}
 	
-	template<concepts::is_enum T>
+	template<stl::is_enum T>
 	std::optional<T> get() const
 	{
 		const auto& value = mValue.value_or(mDefaultValue);
@@ -83,7 +84,7 @@ public:
 		return std::nullopt;
 	}
 	
-	template<concepts::is_enum T>
+	template<stl::is_enum T>
 	void setOptions()
 	{
 		mOptions = std::vector<std::string>(magic_enum::enum_names<T>().begin(), magic_enum::enum_names<T>().end());

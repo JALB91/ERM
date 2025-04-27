@@ -1,6 +1,6 @@
 #include "erm/args_parser/IArgument.h"
 
-#include <erm/utils/Utils.h>
+#include <erm/stl/utils.h>
 
 namespace erm {
 
@@ -11,7 +11,7 @@ IArgument::IArgument(ArgValueType valueType, std::string_view defaultValue /* = 
 
 bool IArgument::trySetValue(std::string_view value)
 {
-	if (!mOptions.empty() && !utils::contains(mOptions, value))
+	if (!mOptions.empty() && !stl::contains(mOptions, value))
 	{
 		return false;
 	}

@@ -4,9 +4,9 @@
 #include "erm/rendering/data_structs/IBindingResources.h"
 #include "erm/rendering/renderer/IRenderer.h"
 
-#include <erm/math/Types.h>
+#include <erm/log/Assert.h>
 
-#include <erm/utils/assert/Assert.h>
+#include <erm/math/Types.h>
 
 #include <vulkan/vulkan.hpp>
 

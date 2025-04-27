@@ -5,7 +5,12 @@
 
 #include <erm/fs/fs.h>
 
-#include <erm/utils/assert/Assert.h>
+#include <erm/log/Assert.h>
+
+#include <erm/stl/utils.h>
+
+#include <erm/system/Utils.h>
+
 #include <erm/utils/Utils.h>
 
 #include <format>
@@ -121,7 +126,7 @@ Compiler Setup::getDefaultCompilerFor(HostPlatform hostPlatform)
 
 int Setup::exec(const SubCommand& /*command*/) const
 {
-	ERM_ASSERT_HARD(erm::utils::hasCommand("cmake"), "cmake required for setup");
+	ERM_ASSERT_HARD(erm::system::hasCommand("cmake"), "cmake required for setup");
 	
 	const auto renderingAPI = mRenderingAPI->get<std::string>();
 	const auto verbose = mVerbose->get<bool>();
@@ -149,7 +154,7 @@ int Setup::exec(const SubCommand& /*command*/) const
 	
 	const auto& generatorData = getGeneratorDataFor(generatorToUse);
 	
-	if (!utils::contains(generatorData.mCompatibleHostPlatforms, kHostPlatform))
+	if (!stl::contains(generatorData.mCompatibleHostPlatforms, kHostPlatform))
 	{
 		ERM_LOG("The selected generator \"%s\" is not available for this host platform", generatorData.mName.c_str());
 		return EXIT_FAILURE;

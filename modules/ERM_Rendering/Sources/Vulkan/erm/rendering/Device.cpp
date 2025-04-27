@@ -4,7 +4,8 @@
 #include "erm/rendering/extensions/VkExtensions.h"
 #include "erm/rendering/utils/VkUtils.h"
 
-#include <erm/utils/assert/Assert.h>
+#include <erm/log/Assert.h>
+
 #include <erm/utils/Utils.h>
 
 #include <GLFW/glfw3.h>

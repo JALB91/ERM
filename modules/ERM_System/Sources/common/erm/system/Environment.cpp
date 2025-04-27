@@ -2,7 +2,7 @@
 
 #include <erm/fs/fs.h>
 
-#include <erm/utils/assert/Assert.h>
+#include <erm/log/Assert.h>
 
 #include <cstdlib>
 

@@ -12,5 +12,5 @@ erm_module_setup(
 		ERM_Utils_static
 	LINK_PUBLIC
 		ERM_Math_static
-		ERM_Input_static
+		ERM_Input
 )

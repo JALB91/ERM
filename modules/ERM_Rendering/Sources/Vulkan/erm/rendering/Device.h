@@ -1,5 +1,7 @@
 #pragma once
 
+#include <refl.hpp>
+
 #include <vulkan/vulkan.hpp>
 
 struct GLFWwindow;
@@ -58,3 +60,5 @@ private:
 };
 
 } // namespace erm
+
+REFL_AUTO(type(erm::Device));

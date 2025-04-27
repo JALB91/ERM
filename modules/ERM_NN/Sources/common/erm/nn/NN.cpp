@@ -3,6 +3,7 @@
 #include "erm/nn/Program.h"
 
 #include <erm/fs/fs.h>
+#include <erm/fs/Utils.h>
 
 #include <format>
 
@@ -46,7 +47,7 @@ int NN::exec(const SubCommand& /*command*/)
 	
 	auto program = Program(dataFile);
 	
-	if (!program.parse(utils::readFromFile(dataFile)))
+	if (!program.parse(fs::readFromFile(dataFile)))
 	{
 		return EXIT_FAILURE;
 	}

@@ -7,12 +7,13 @@ erm_module_setup(
 		${ERM_RENDERING_API_LIB}
 		glfw
 		ERM_Math_static
-		ERM_Audio_static
-		ERM_Assets_static
-		ERM_ECS_static
+		ERM_Audio_shared
+		ERM_Assets_shared
+		ERM_ECS_shared
 	LINK_PUBLIC
-		ERM_Input_static
+		ERM_Input
 		ERM_Utils_static
-		ERM_Rendering_static
-		ERM_Window_static
+		ERM_Rendering_shared
+		ERM_Window_shared
+		ERM_FileSystem_shared
 )

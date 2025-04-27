@@ -3,10 +3,10 @@ erm_module_setup(
 	DESCRIPTION "ERM ECS lib"
 	LANGUAGES CXX
 	LINK_PRIVATE
-		ERM_Input_static
+		ERM_Input
 		ERM_Utils_static
-		ERM_Assets_static
-		ERM_Rendering_static
+		ERM_Assets_shared
+		ERM_Rendering_shared
 	LINK_PUBLIC
 		ERM_Math_static
 )

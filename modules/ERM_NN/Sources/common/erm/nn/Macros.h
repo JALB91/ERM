@@ -2,7 +2,7 @@
 
 #include "erm/nn/IStatementHandler.h"
 
-#include <erm/utils/assert/Assert.h>
+#include <erm/log/Assert.h>
 
 #include <memory>
 #include <string>

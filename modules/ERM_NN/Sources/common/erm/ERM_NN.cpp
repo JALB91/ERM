@@ -2,6 +2,10 @@
 
 #include "erm/nn/NN.h"
 
+#include <erm/system/Environment.h>
+
+#include <erm/modules/ObjectRegistry.h>
+
 namespace erm {
 
 bool ERM_NN::Impl::init() const

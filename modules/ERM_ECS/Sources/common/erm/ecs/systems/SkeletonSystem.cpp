@@ -4,7 +4,7 @@
 #include <erm/assets/data_structs/Skeleton.h>
 #include <erm/assets/AssetsRepo.h>
 
-#include <erm/utils/ObjectRegistry.h>
+#include <erm/modules/ObjectRegistry.h>
 #include <erm/utils/Profiler.h>
 
 namespace erm::ecs {

@@ -4,8 +4,9 @@
 
 #include <erm/modules/Concepts.h>
 
-#include <erm/utils/TypeID.h>
-#include <erm/utils/Utils.h>
+#include <erm/stl/utils.h>
+
+#include <erm/type_id/TypeID.h>
 
 #include <refl.hpp>
 
@@ -41,8 +42,8 @@ private:
 	template<concepts::Module T, typename F>
 	auto visitModuleRecursive(const F& function)
 	{
-		const auto typeID = utils::getID<T>();
-		const bool visited = utils::find_or(mVisitedModules, typeID, false);
+		const auto typeID = getID<T>();
+		const bool visited = stl::find_or(mVisitedModules, typeID, false);
 		
 		if (visited)
 		{
@@ -51,7 +52,7 @@ private:
 
 		mVisitedModules[typeID] = true;
 
-		utils::for_each_type(T::kDependencies, [this, &function]<concepts::Module Dependency>() {
+		stl::for_each_type(T::kDependencies, [this, &function]<concepts::Module Dependency>() {
 			visitModuleRecursive<Dependency>(function);
 		});
 
@@ -78,7 +79,7 @@ private:
 		});
 	}
 
-	std::unordered_map<utils::TypeID, bool> mVisitedModules;
+	std::unordered_map<TypeID, bool> mVisitedModules;
 	
 };
 

@@ -12,7 +12,8 @@ namespace erm {
 class StringID
 {
 public:
-	static StringID INVALID;
+	using HashT = u64;
+	static const StringID INVALID;
 	
 public:
 	StringID(std::string_view str = "");
@@ -28,7 +29,7 @@ public:
 		return mHash != other.mHash;
 	}
 	
-	inline u64 getHash() const
+	inline HashT getHash() const
 	{
 		return mHash;
 	}
@@ -48,7 +49,7 @@ public:
 	}
 	
 private:
-	u64 mHash;
+	HashT mHash;
 #ifdef ERM_DEBUG_STRING_IDS
 	std::string mDebugString;
 #endif
@@ -62,7 +63,7 @@ namespace std {
 template <>
 struct hash<erm::StringID>
 {
-	erm::u64 operator()(const erm::StringID& k) const
+	erm::StringID::HashT operator()(const erm::StringID& k) const
 	{
 		return k.getHash();
 	}

@@ -12,7 +12,9 @@
 #include "erm/assets/textures/CubeMap.h"
 #include "erm/assets/textures/Texture.h"
 
-#include <erm/utils/assert/Assert.h>
+#include <erm/log/Assert.h>
+
+#include <refl.hpp>
 
 #include <unordered_map>
 #include <utility>
@@ -158,3 +160,5 @@ private:
 };
 
 } // namespace erm
+
+REFL_AUTO(type(erm::AssetsRepo));

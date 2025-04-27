@@ -1,11 +1,11 @@
 #include "erm/log/Logger.h"
 
+#include "erm/log/Assert.h"
 #include "erm/log/Log.h"
 
-#include <erm/utils/assert/Assert.h>
 #include <erm/utils/Utils.h>
 
-#include <erm/fs/fs.h>
+#include <magic_enum/magic_enum.hpp>
 
 #include <algorithm>
 
@@ -20,21 +20,11 @@ Logger::Logger() noexcept
 
 void Logger::log(std::string_view str, LogLevel logLevel /* = LogLevel::INFO */)
 {
-	auto& streams = getStreamsForLogLevel(logLevel);
-	const auto lines = utils::splitString(str, '\n');
-
-	if (lines.empty())
+	for (auto* stream : getStreamsForLogLevel(logLevel))
 	{
-		return;
+		*stream << str << std::endl;
 	}
 
-	for (const auto& line : lines)
-	{
-		for (auto* stream : streams)
-		{
-			*stream << line << std::endl;
-		}
-	}
 	handleLogLevel(logLevel);
 }
 
@@ -95,7 +85,7 @@ void Logger::buildLogString(LogLevel logLevel, const char* const function, const
 		"[%s] - (%s, %s:%d)",
 		magic_enum::enum_name(logLevel).data(),
 		function,
-		fs::path(file).filename().c_str(),
+		file,
 		line);
 }
 

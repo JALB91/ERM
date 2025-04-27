@@ -20,7 +20,7 @@
 #include <erm/rendering/Device.h>
 #include <erm/rendering/renderer/Renderer.h>
 
-#include <erm/utils/ObjectRegistry.h>
+#include <erm/modules/ObjectRegistry.h>
 #include <erm/utils/Profiler.h>
 #include <erm/utils/UpdateManager.h>
 #include <erm/utils/Utils.h>

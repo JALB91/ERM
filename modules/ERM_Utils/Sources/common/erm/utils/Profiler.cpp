@@ -1,7 +1,8 @@
 #include "erm/utils/Profiler.h"
 
-#include "erm/utils/assert/Assert.h"
 #include "erm/utils/Utils.h"
+
+#include <erm/log/Assert.h>
 
 namespace erm {
 

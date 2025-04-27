@@ -15,11 +15,11 @@ erm_module_setup(
 		SPIRV_CROSS_EXCEPTIONS_TO_ASSERTIONS
 	LINK_PRIVATE
 		imgui
-		ERM_Window_static
+		ERM_Window_shared
 	LINK_PUBLIC
 		${ERM_RENDERING_API_LIB}
 		spirv-cross-cpp
-		ERM_Input_static
+		ERM_Input
 		ERM_Utils_static
-		ERM_Assets_static
+		ERM_Assets_shared
 )

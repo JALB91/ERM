@@ -2,8 +2,6 @@
 
 #include <erm/math/Types.h>
 
-#include <refl.hpp>
-
 #include <charconv>
 #include <memory>
 #include <optional>
@@ -22,10 +20,7 @@ public:                                                                 \
 
 namespace erm::utils {
 
-extern void writeToFile(std::string_view path, std::string_view data);
-extern std::string readFromFile(std::string_view path);
-extern std::string formatTime(u64 seconds) noexcept;
-extern bool hasCommand(const char* const cmd);
+std::string formatTime(u64 seconds) noexcept;
 
 template<typename T>
 inline std::optional<T> parseNumber(std::string_view data)
@@ -158,15 +153,6 @@ std::unique_ptr<T> clone(const std::unique_ptr<T>& value)
 	return value ? std::make_unique<T>(*value.get()) : nullptr;
 }
 
-template<typename T>
-struct remove_all
-{
-	using type = std::remove_pointer<std::remove_reference_t<std::remove_cv_t<T>>>;
-};
-
-template<typename T>
-using remove_all_t = typename remove_all<T>::type;
-
 namespace internal {
 
 template<std::size_t N>
@@ -184,72 +170,6 @@ template <std::size_t OFFSET, std::size_t N, typename F>
 void for_constexpr(F func)
 {
 	internal::for_<F, OFFSET>(func, std::make_index_sequence<N>());
-}
-
-namespace internal {
-
-template<typename T, typename Enable = void>
-struct is_optional : std::false_type {};
-
-template<typename T>
-struct is_optional<std::optional<T> > : std::true_type {};
-
-}
-
-template<typename T>
-constexpr bool is_optional_v = internal::is_optional<T>::value;
-
-template<typename Container, typename T>
-bool contains(const Container& container, T value)
-{
-	return std::find(container.cbegin(), container.cend(), value) != container.cend();
-}
-
-template<typename Container>
-auto find_or(
-	const Container& container, 
-	typename Container::key_type key, 
-	typename Container::mapped_type fallback)
-{
-	const auto it = container.find(key);
-	return it == container.end() ? std::move(fallback) : it->second;
-}
-
-namespace internal {
-
-template<typename F, typename T>
-constexpr auto invoke_optional_index(F f, size_t idx, int) -> decltype(f.template operator()<T>(idx))
-{
-	return f.template operator()<T>(idx);
-}
-
-template<typename F, typename T>
-constexpr auto invoke_optional_index(F f, size_t, ...) -> decltype(f.template operator()<T>())
-{
-	return f.template operator()<T>();
-}
-
-template<typename F>
-constexpr void eval_in_order(refl::type_list<>, std::index_sequence<>, [[maybe_unused]] F f)
-{
-}
-
-template<typename F, typename T, typename... Ts, size_t I, size_t... Idx>
-constexpr void eval_in_order(refl::type_list<T, Ts...>, std::index_sequence<I, Idx...>, F f)
-{
-	invoke_optional_index<F, T>(f, I, 0);
-	return eval_in_order(
-		refl::type_list<Ts...> {},
-		std::index_sequence<Idx...> {},
-		std::forward<F>(f));
-}
-
-}
-
-template<typename F, typename... Ts>
-constexpr void for_each_type(refl::type_list<Ts...> list, F&& f)
-{
-	internal::eval_in_order(list, std::make_index_sequence<sizeof...(Ts)> {}, std::forward<F>(f));
 }
 
 } // namespace erm::Utils

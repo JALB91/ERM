@@ -2,11 +2,12 @@ erm_module_setup(
 	VERSION 0.0.1
 	DESCRIPTION "ERM ArgsParser lib"
 	LANGUAGES CXX
+	STANDALONE
 	LINK_PRIVATE
-		ERM_FileSystem_static
+		ERM_FileSystem_shared
 	LINK_PUBLIC
+		ERM_STL
 		ERM_Utils_static
 		ERM_Math_static
 		ERM_Log_static
-		magic_enum
 )

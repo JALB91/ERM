@@ -7,7 +7,7 @@ elseif(ERM_HOST_OSX)
     set(FMOD_CORE_LIBRARY_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/api/core/lib/OSX/")
     set(FMOD_STUDIO_LIBRARY_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/api/studio/lib/OSX/")
 else()
-    message(FATAL_ERROR "Unsupported Platform")
+    message(FATAL_ERROR "Unsupported Platform ${ERM_HOST_PLATFORM}")
 endif()
 
 # FMOD_CORE

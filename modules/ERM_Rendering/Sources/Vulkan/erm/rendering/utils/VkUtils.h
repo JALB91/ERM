@@ -3,7 +3,7 @@
 #include "erm/rendering/enums/BufferUsage.h"
 #include "erm/rendering/enums/MemoryProperty.h"
 
-#include <erm/utils/assert/Assert.h>
+#include <erm/log/Assert.h>
 
 #include <vulkan/vulkan.hpp>
 

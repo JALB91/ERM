@@ -4,8 +4,11 @@
 #include "erm/ecs/EntityId.h"
 #include "erm/ecs/ISystem.h"
 
-#include <erm/utils/assert/Assert.h>
+#include <erm/log/Assert.h>
+
 #include <erm/utils/Utils.h>
+
+#include <refl.hpp>
 
 #include <array>
 #include <memory>
@@ -75,3 +78,7 @@ private:
 };
 
 } // namespace erm::ecs
+
+REFL_AUTO(
+	type(erm::ecs::ECS)
+);

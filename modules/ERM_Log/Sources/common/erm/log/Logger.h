@@ -6,8 +6,6 @@
 
 #include <erm/utils/StaticString.h>
 
-#include <magic_enum/magic_enum.hpp>
-
 #include <iostream>
 #include <string_view>
 

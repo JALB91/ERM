@@ -1,9 +1,12 @@
 #pragma once
 
+#include <erm/fs/FileLocator.h>
+
 #include <erm/window/IWindowListener.h>
 
-#include <erm/utils/FileLocator.h>
 #include <erm/utils/Timer.h>
+
+#include <refl.hpp>
 
 #include <memory>
 #include <vector>
@@ -83,3 +86,5 @@ private:
 };
 
 } // namespace erm
+
+REFL_AUTO(type(erm::Engine));

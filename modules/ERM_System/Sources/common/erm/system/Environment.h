@@ -1,5 +1,7 @@
 #pragma once
 
+#include <refl.hpp>
+
 namespace erm {
 
 class Environment
@@ -13,3 +15,5 @@ public:
 };
 
 }
+
+REFL_AUTO(type(erm::Environment));
