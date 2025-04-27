@@ -53,6 +53,7 @@ private:
 		mVisitedModules[typeID] = true;
 
 		stl::for_each_type(T::kDependencies, [this, &function]<concepts::Module Dependency>() {
+			(void)this;
 			visitModuleRecursive<Dependency>(function);
 		});
 
@@ -64,8 +65,8 @@ private:
 	{
 		mVisitedModules.clear();
 
-		return visitModuleRecursive<T>([]<concepts::Module T>() {
-			return T::initialized() || T::init();
+		return visitModuleRecursive<T>([]<concepts::Module Dependency>() {
+			return Dependency::initialized() || Dependency::init();
 		});
 	}
 
@@ -74,8 +75,8 @@ private:
 	{
 		mVisitedModules.clear();
 
-		return visitModuleRecursive<T>([]<concepts::Module T>() {
-			return !T::initialized() || T::deinit();
+		return visitModuleRecursive<T>([]<concepts::Module Dependency>() {
+			return !Dependency::initialized() || Dependency::deinit();
 		});
 	}
 

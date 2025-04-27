@@ -27,8 +27,10 @@ int Environment::set(const char* key, const char* value) const
 		return 1;
 	}
 
-#if defined(ERM_HOST_WINDOWS)
+#ifdef ERM_HOST_WINDOWS
 	return _putenv_s(key, value);
+#elifdef ERM_HOST_OSX
+	return setenv(key, value, 0);
 #endif
 }
 

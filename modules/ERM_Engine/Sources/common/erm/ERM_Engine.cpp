@@ -18,7 +18,7 @@ bool ERM_Engine::Impl::deinit() const
 	return true;
 }
 
-int ERM_Engine::Impl::run(int argc, char** argv) const
+int ERM_Engine::Impl::run(int /*argc*/, char** /*argv*/) const
 {
 	auto engine = ObjectRegistry::get<Engine>();
 

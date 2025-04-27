@@ -20,7 +20,7 @@ bool ERM_Editor::Impl::deinit() const
 	return true;
 }
 
-int ERM_Editor::Impl::run(int argc, char** argv) const
+int ERM_Editor::Impl::run(int /*argc*/, char** /*argv*/) const
 {
 	auto engine = ObjectRegistry::get<Engine>();
 
