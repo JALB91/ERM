@@ -7,6 +7,6 @@ erm_module_setup(
 		ERM_Utils_static
 		ERM_Assets_shared
 		ERM_Rendering_shared
-	LINK_PUBLIC
 		ERM_Math_static
+		ERM_Log_static
 )

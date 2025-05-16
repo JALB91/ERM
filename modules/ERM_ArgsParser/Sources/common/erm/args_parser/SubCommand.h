@@ -47,7 +47,7 @@ public:
 		std::string_view name,
 		std::string_view description = "No description provided");
 
-	inline const std::vector<OptionalArg>& getOptionslArgs() const
+	inline const std::vector<OptionalArg>& getOptionalArgs() const
 	{
 		return mOptionalArgs;
 	}

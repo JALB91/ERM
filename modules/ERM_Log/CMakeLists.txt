@@ -3,7 +3,7 @@ erm_module_setup(
 	DESCRIPTION "ERM Log lib"
 	LANGUAGES CXX
 	STANDALONE
-	LINK_PUBLIC
+	LINK_PRIVATE
 		ERM_Math_static
-        ERM_Utils_static
+		ERM_Utils_static
 )

@@ -138,6 +138,16 @@ function(_erm_target_link_libraries ERM_MODULE TARGET_NAME)
 	message(TRACE "\tLinking with:\n\t\t${MODULE_LINK_INTERFACE}\n\t\t${MODULE_LINK_PRIVATE}\n\t\t${MODULE_LINK_PUBLIC}")
 endfunction()
 
+function(_erm_target_setup_install TARGET_NAME)
+	install(
+		TARGETS ${TARGET_NAME} 
+		COMPONENT ERM
+		RUNTIME DESTINATION "bin/${ERM_HOST_PLATFORM}"
+		LIBRARY DESTINATION "lib/${ERM_HOST_PLATFORM}"
+		CONFIGURATIONS Release
+	)
+endfunction()
+
 function(_erm_setup_interface_lib ERM_MODULE)
 	_erm_target_header_files(${ERM_MODULE} ${ERM_MODULE} INTERFACE)
 	_erm_target_common_compile_definitions(${ERM_MODULE} INTERFACE)
@@ -207,8 +217,7 @@ function(_erm_setup_shared_lib ERM_MODULE SOURCES)
 	_erm_target_sources(${ERM_MODULE} ${TARGET_NAME})
 	_erm_target_compile_definitions(${ERM_MODULE} ${TARGET_NAME})
 	_erm_target_link_libraries(${ERM_MODULE} ${TARGET_NAME})
-
-	install(TARGETS ${TARGET_NAME} RUNTIME)
+	_erm_target_setup_install(${TARGET_NAME})
 endfunction()
 
 function(_erm_setup_executable)
@@ -237,20 +246,19 @@ function(_erm_setup_executable)
 	_erm_target_sources(${EXE_ERM_MODULE} ${EXE_TARGET_NAME})
 	_erm_target_compile_definitions(${EXE_ERM_MODULE} ${EXE_TARGET_NAME})
 	_erm_target_link_libraries(${EXE_ERM_MODULE} ${EXE_TARGET_NAME})
-
-	install(TARGETS ${EXE_TARGET_NAME} RUNTIME)
+	_erm_target_setup_install(${EXE_TARGET_NAME})
 endfunction()
 
 ## @brief Setup ERM module
 ##
 ## Option arguments:
 ##   - EXECUTABLE: Whether to build an executable for the module.
-##   - STANDALONE: Standalone modules do not get automatic generation of module
-##                 header and they don't get linked with ERM_Modules module.
+##   - STANDALONE: Standalone modules do not get de/initialization callbacks or linked with ERM_ModulesLib module.
 ##
 ## One-value arguments:
 ##   - VERSION: Module version number (<major>.<minor>.<patch>).
 ##   - DESCRIPTION: Description of the module.
+##   - FOLDER: Folder to use (for IDEs).
 ##   - POST_SETUP_CALLBACK: [OPTIONAL] Callback to be triggered after modules setup.
 ##   - PRE_GENERATE_CALLBACK: [OPTIONAL] Callback to be triggered before modules generating.
 ##   - POST_GENERATE_CALLBACK: [OPTIONAL] Callback to be triggered after modules generating.
@@ -288,6 +296,7 @@ function(erm_module_setup)
 	set(ERM_MODULE_ONE_VALUE_ARGS
 		VERSION
 		DESCRIPTION
+		FOLDER
 		POST_SETUP_CALLBACK
 		PRE_GENERATE_CALLBACK
 		POST_GENERATE_CALLBACK
@@ -377,7 +386,11 @@ function(erm_module_setup)
 			EXECUTABLE 					"${ERM_MODULE_EXECUTABLE}"
 			STANDALONE 					"${ERM_MODULE_STANDALONE}"
 			VERSION 					"${ERM_MODULE_VERSION}"
+			VERSION_MAJOR				"${CMAKE_PROJECT_VERSION_MAJOR}"
+			VERSION_MINOR				"${CMAKE_PROJECT_VERSION_MINOR}"
+			VERSION_PATCH				"${CMAKE_PROJECT_VERSION_PATCH}"
 			DESCRIPTION 				"${ERM_MODULE_DESCRIPTION}"
+			FOLDER						"${ERM_MODULE_FOLDER}"
 			POST_SETUP_CALLBACK 		"${ERM_MODULE_POST_SETUP_CALLBACK}"
 			PRE_GENERATE_CALLBACK 		"${ERM_MODULE_PRE_GENERATE_CALLBACK}"
 			POST_GENERATE_CALLBACK 		"${ERM_MODULE_POST_GENERATE_CALLBACK}"

@@ -19,19 +19,24 @@ SubCommand* ArgsParser::operator->()
 	return &mMainCommand;
 }
 
+SubCommand& ArgsParser::getMainCommand()
+{
+	return mMainCommand;
+}
+
 const SubCommand* ArgsParser::parseArgs(int argc, char** argv)
 {
 	ERM_ASSERT_HARD(argc > 0);
 	mArgs.reserve(argc);
+	
+	const auto filePath = fs::path(argv[0]);
+	ERM_ASSERT_HARD(filePath.has_filename(), "Expected executable filename as first argument");
+	mMainCommand.setName(filePath.filename().c_str());
 
-	mArgs.emplace_back(fs::path(argv[0]).filename().string());
-
-	for (int i = 1; i < argc; ++i)
+	for (int i = 0; i < argc; ++i)
 	{
 		mArgs.emplace_back(argv[i]);
 	}
-
-	mMainCommand.setName(mArgs[0]);
 
 	return mMainCommand.parse(std::span(mArgs.begin() + 1, mArgs.size() - 1));
 }

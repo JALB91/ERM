@@ -16,10 +16,11 @@ erm_module_setup(
 	LINK_PRIVATE
 		imgui
 		ERM_Window_shared
-	LINK_PUBLIC
-		${ERM_RENDERING_API_LIB}
-		spirv-cross-cpp
 		ERM_Input
 		ERM_Utils_static
 		ERM_Assets_shared
+		ERM_Log_static
+	LINK_PUBLIC
+		${ERM_RENDERING_API_LIB}
+		spirv-cross-cpp
 )

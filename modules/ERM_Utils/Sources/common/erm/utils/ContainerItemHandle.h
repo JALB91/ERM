@@ -15,6 +15,12 @@ public:
 		, mKey(key)
 	{}
 	
+	typename Container::value_type& operator*()
+	{
+		ERM_ASSERT(isValid());
+		return mContainer->at(mKey.value());
+	}
+	
 	typename Container::value_type* operator->()
 	{
 		ERM_ASSERT(isValid());

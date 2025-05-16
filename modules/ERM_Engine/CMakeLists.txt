@@ -10,10 +10,11 @@ erm_module_setup(
 		ERM_Audio_shared
 		ERM_Assets_shared
 		ERM_ECS_shared
-	LINK_PUBLIC
-		ERM_Input
 		ERM_Utils_static
 		ERM_Rendering_shared
 		ERM_Window_shared
 		ERM_FileSystem_shared
+		ERM_Log_static
+		ERM_Input
+		ERM_STL
 )

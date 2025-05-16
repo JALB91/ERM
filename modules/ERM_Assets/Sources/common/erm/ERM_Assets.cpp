@@ -3,7 +3,7 @@
 #include "erm/assets/AssetsManager.h"
 #include "erm/assets/AssetsRepo.h"
 
-#include <erm/modules/ObjectRegistry.h>
+#include <erm/modules_lib/ObjectRegistry.h>
 
 namespace erm {
 

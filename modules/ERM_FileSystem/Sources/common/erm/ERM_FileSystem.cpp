@@ -2,7 +2,7 @@
 
 #include "erm/fs/FileLocator.h"
 
-#include <erm/modules/ObjectRegistry.h>
+#include <erm/modules_lib/ObjectRegistry.h>
 
 namespace erm {
 

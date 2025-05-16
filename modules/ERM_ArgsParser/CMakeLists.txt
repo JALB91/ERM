@@ -5,9 +5,8 @@ erm_module_setup(
 	STANDALONE
 	LINK_PRIVATE
 		ERM_FileSystem_shared
-	LINK_PUBLIC
-		ERM_STL
 		ERM_Utils_static
 		ERM_Math_static
 		ERM_Log_static
+		ERM_STL
 )

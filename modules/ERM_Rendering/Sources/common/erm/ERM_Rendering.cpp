@@ -3,7 +3,7 @@
 #include "erm/rendering/Device.h"
 #include "erm/rendering/renderer/Renderer.h"
 
-#include <erm/modules/ObjectRegistry.h>
+#include <erm/modules_lib/ObjectRegistry.h>
 
 namespace erm {
 

@@ -8,7 +8,7 @@ erm_module_setup(
 	POST_SETUP_CALLBACK nn_post_setup_callback
 	LANGUAGES CXX
 	EXECUTABLE
-	LINK_PUBLIC
+	LINK_PRIVATE
 		glm
 		nlohmann_json
 		ERM_Utils_static
@@ -16,4 +16,6 @@ erm_module_setup(
 		ERM_FileSystem_shared
 		ERM_ArgsParser_shared
 		ERM_System_shared
+		ERM_Log_static
+		ERM_STL
 )

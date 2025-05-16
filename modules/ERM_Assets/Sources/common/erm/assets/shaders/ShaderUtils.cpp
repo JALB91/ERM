@@ -1,8 +1,8 @@
 #include "erm/assets/shaders/ShaderUtils.h"
 
-#include <erm/log/Assert.h>
-
 #include <erm/utils/Utils.h>
+
+#include <utility>
 
 namespace erm::ShaderUtils {
 
@@ -45,8 +45,7 @@ std::string_view getExtensionForShaderType(ShaderType shaderType)
 			return ".rgen";
 #endif
 		default:
-			ERM_ASSERT(false);
-			return "";
+			std::unreachable();
 	}
 }
 

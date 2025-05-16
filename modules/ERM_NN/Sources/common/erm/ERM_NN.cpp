@@ -2,9 +2,8 @@
 
 #include "erm/nn/NN.h"
 
+#include <erm/modules_lib/ObjectRegistry.h>
 #include <erm/system/Environment.h>
-
-#include <erm/modules/ObjectRegistry.h>
 
 namespace erm {
 

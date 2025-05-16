@@ -1,5 +1,7 @@
 #pragma once
 
+#include "erm/fs/fs.h"
+
 #include <string>
 #include <string_view>
 

@@ -5,6 +5,6 @@ erm_module_setup(
 	LINK_PRIVATE
 		ERM_Utils_static
 		ERM_FileSystem_shared
-	LINK_PUBLIC
 		ERM_Math_static
+		ERM_Log_static
 )

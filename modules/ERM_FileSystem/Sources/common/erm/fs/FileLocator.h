@@ -1,8 +1,12 @@
 #pragma once
 
+#include "erm/fs/fs.h"
+
 #include <refl.hpp>
 
+#include <optional>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace erm {
@@ -11,6 +15,11 @@ class FileLocator
 {
 public:
 	FileLocator();
+	
+	bool isERMRoot(const fs::path& path) const;
+	
+	bool setERMRootPath(fs::path ermRootPath);
+	inline const fs::path& getERMRootPath() const { return mERMRootPath; }
 
 	inline const std::vector<std::string>& getSounds() const { return mSounds; }
 	inline const std::vector<std::string>& getModels() const { return mModels; }
@@ -22,6 +31,7 @@ private:
 	void refresh();
 	std::vector<std::string> getResourcesWithExtension(const char* extension, bool includeExtension = true) const;
 
+	fs::path mERMRootPath;
 	std::vector<std::string> mSounds;
 	std::vector<std::string> mModels;
 	std::vector<std::string> mTextures;

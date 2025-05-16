@@ -13,7 +13,7 @@ namespace fs = std::filesystem;
 
 namespace {
 
-const fs::path kResourcesRoot = "res/";
+constexpr auto kResourcesFolderName = "res";
 
 constexpr const char* const kWavSoundExtension = ".wav";
 constexpr const char* const kMp3SoundExtension = ".mp3";
@@ -81,23 +81,30 @@ namespace erm {
 
 FileLocator::FileLocator()
 {
-	auto cwd = fs::current_path();
-
-	while (!fs::exists(cwd / "res/"))
+	auto path = fs::current_path();
+	while (!isERMRoot(path.c_str()) && path.has_parent_path())
 	{
-		if (cwd.has_parent_path())
-		{
-			cwd = cwd.parent_path();
-		}
-		else
-		{
-			ERM_LOG_ERROR("Resources folder 'res' not found");
-		}
+		path = path.parent_path();
 	}
+	setERMRootPath(std::move(path));
+}
 
-	fs::current_path(cwd);
+bool FileLocator::isERMRoot(const fs::path& path) const
+{
+	return fs::exists(path / ".erm_root");
+}
 
+bool FileLocator::setERMRootPath(fs::path ermRootPath)
+{
+	if (!isERMRoot(ermRootPath))
+	{
+		return false;
+	}
+	
+	mERMRootPath = std::move(ermRootPath);
 	refresh();
+	
+	return true;
 }
 
 void FileLocator::refresh()
@@ -162,15 +169,15 @@ std::vector<std::string> FileLocator::getResourcesWithExtension(const char* exte
 
 	if (it != kFilesAssociations.end())
 	{
-		for (const char* dirPath : it->second)
+		for (const char* dirName : it->second)
 		{
-			const fs::path basePath = kResourcesRoot / dirPath;
+			const fs::path basePath = mERMRootPath / kResourcesFolderName / dirName;
 			for (auto file : fs::directory_iterator(basePath))
 			{
-				const std::string path = file.path().string();
-				const std::string fileExtension = file.path().extension().string();
-				if (utils::compareNoCaseSensitive(fileExtension, extension))
+				const auto& filePath = file.path();
+				if (utils::compareNoCaseSensitive(extension, filePath.extension().c_str()))
 				{
+					const auto path = filePath.string();
 					files.emplace_back(includeExtension ? path : path.substr(0, path.find(extension)));
 				}
 			}

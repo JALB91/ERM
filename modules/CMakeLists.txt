@@ -23,23 +23,22 @@ set(ERM_MODULES
 	ERM_Input
 	ERM_Log
 	ERM_Math
-	ERM_Modules
+	ERM_ModulesLib
 	ERM_NN
 	ERM_Rendering
 	ERM_Setup
 	ERM_STL
 	ERM_System
-	ERM_TypeID
 	ERM_Utils
 	ERM_Window
 )
 
 # Add ERM modules subdirectories
-foreach(ERM_MODULE ${ERM_MODULES})
+foreach(ERM_MODULE IN LISTS ERM_MODULES)
 	add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/${ERM_MODULE}")
 endforeach()
 
-foreach(ERM_MODULE ${ERM_MODULES})
+foreach(ERM_MODULE IN LISTS ERM_MODULES)
 	# Add common libraries to link
 	erm_add_to_module_property(
 		TARGET ${ERM_MODULE}
@@ -57,7 +56,7 @@ foreach(ERM_MODULE ${ERM_MODULES})
 	endif()
 endforeach()
 
-foreach(ERM_MODULE ${ERM_MODULES})
+foreach(ERM_MODULE IN LISTS ERM_MODULES)
 	erm_get_module_property(MODULE_LINK_INTERFACE ${ERM_MODULE} LINK_INTERFACE)
 	erm_get_module_property(MODULE_LINK_PRIVATE ${ERM_MODULE} LINK_PRIVATE)
 	erm_get_module_property(MODULE_LINK_PUBLIC ${ERM_MODULE} LINK_PUBLIC)
@@ -79,7 +78,7 @@ foreach(ERM_MODULE ${ERM_MODULES})
 	)
 endforeach()
 
-foreach(ERM_MODULE ${ERM_MODULES})
+foreach(ERM_MODULE IN LISTS ERM_MODULES)
 	# Call pre generate callback if any
 	erm_get_module_property(MODULE_PRE_GENERATE_CALLBACK ${ERM_MODULE} PRE_GENERATE_CALLBACK)
 	if(MODULE_PRE_GENERATE_CALLBACK)
@@ -88,7 +87,7 @@ foreach(ERM_MODULE ${ERM_MODULES})
 	endif()
 endforeach()
 
-foreach(ERM_MODULE ${ERM_MODULES})
+foreach(ERM_MODULE IN LISTS ERM_MODULES)
 	message(TRACE "Generating ${ERM_MODULE}")
 
 	erm_get_module_property(MODULE_GENERATED_DIR ${ERM_MODULE} GENERATED_DIR)
@@ -128,7 +127,7 @@ foreach(ERM_MODULE ${ERM_MODULES})
 	)
 	
 	# Source groups
-	foreach(FILE ${MODULE_ALL_SOURCES})
+	foreach(FILE IN LISTS MODULE_ALL_SOURCES)
 		erm_source_group_for_file("${FILE}")
 	endforeach()
 
@@ -231,17 +230,7 @@ foreach(ERM_MODULE ${ERM_MODULES})
 	endif()
 endforeach()
 
-add_custom_target(
-	ERM_UPDATE_BINARIES
-	# "$<$<CONFIG:Release>:${CMAKE_COMMAND};-E;copy_directory;${CMAKE_BINARY_DIR}/ERM/bin/Release;${ERM_ROOT_DIR}/bin>"
-	COMMAND ${CMAKE_COMMAND} --build ./ --config Release
-	COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_BINARY_DIR}/ERM/bin/Release" "${ERM_ROOT_DIR}/bin/${ERM_HOST_PLATFORM}"
-	COMMAND_EXPAND_LISTS
-	COMMENT "Updates ERM binaries"
-	WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
-)
-
-foreach(ERM_MODULE ${ERM_MODULES})
+foreach(ERM_MODULE IN LISTS ERM_MODULES)
 	# Call post generate callback if any
 	erm_get_module_property(MODULE_POST_GENERATE_CALLBACK ${ERM_MODULE} POST_GENERATE_CALLBACK)
 	if(MODULE_POST_GENERATE_CALLBACK)

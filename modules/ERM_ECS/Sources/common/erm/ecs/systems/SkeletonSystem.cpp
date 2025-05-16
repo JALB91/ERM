@@ -3,8 +3,7 @@
 
 #include <erm/assets/data_structs/Skeleton.h>
 #include <erm/assets/AssetsRepo.h>
-
-#include <erm/modules/ObjectRegistry.h>
+#include <erm/modules_lib/ObjectRegistry.h>
 #include <erm/utils/Profiler.h>
 
 namespace erm::ecs {

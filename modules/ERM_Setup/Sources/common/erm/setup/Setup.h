@@ -1,13 +1,11 @@
 #pragma once
 
-#include "erm/setup/CMakeGenerator.h"
-#include "erm/setup/Compiler.h"
-#include "erm/setup/HostPlatform.h"
-
 #include <erm/args_parser/ArgsParser.h>
 
+#include <memory>
+
 namespace erm {
-struct CMakeGeneratorData;
+class FileLocator;
 }
 
 namespace erm {
@@ -16,6 +14,7 @@ class Setup
 {
 public:
 	Setup();
+	~Setup();
 	
 	inline ArgsParser& getArgsParser()
 	{
@@ -23,24 +22,20 @@ public:
 	}
 
 private:
-	static const CMakeGeneratorData& getGeneratorDataFor(CMakeGenerator generator);
-	static CMakeGenerator getDefaultGeneratorFor(HostPlatform hostPlatform);
-	
-	static Compiler getDefaultCompilerFor(HostPlatform hostPlatform);
-	
 	int exec(const SubCommand& command) const;
 	
+	std::shared_ptr<FileLocator> mFileLocator;
 	ArgsParser mArgsParser;
 	OptionalArgHandle mRenderingAPI;
-	OptionalArgHandle mVerbose;
+	OptionalArgHandle mGenerator;
+	OptionalArgHandle mCompiler;
+	OptionalArgHandle mERMRootPath;
 	OptionalArgHandle mOpen;
 	OptionalArgHandle mCompile;
 	OptionalArgHandle mRTX;
-	OptionalArgHandle mInteractive;
 	OptionalArgHandle mTracy;
-	OptionalArgHandle mLogTrace;
-	OptionalArgHandle mGenerator;
-	OptionalArgHandle mCompiler;
+	OptionalArgHandle mLogLevel;
+	OptionalArgHandle mUpdateBinaries;
 
 };
 

@@ -8,6 +8,6 @@ erm_module_setup(
 		ERM_Log_static
 		ERM_Utils_static
 		ERM_System_shared
-	LINK_PUBLIC
 		ERM_ArgsParser_shared
+		ERM_STL
 )

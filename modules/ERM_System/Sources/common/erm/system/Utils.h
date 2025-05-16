@@ -2,6 +2,6 @@
 
 namespace erm::system {
 
-bool hasCommand(const char* const cmd);
+bool hasCommand(const char* cmd);
 
 }

@@ -61,6 +61,10 @@ public:
 			ERM_ASSERT_HARD(mValueType == ArgValueType::BOOLEAN, "Arg value is not a bool");
 			return targetValue == "true";
 		}
+		else if constexpr (std::is_convertible_v<std::string, T>)
+		{
+			return targetValue;
+		}
 		else
 		{
 			ERM_LOG_CRITICAL("Invalid type");

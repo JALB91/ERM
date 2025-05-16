@@ -2,7 +2,7 @@
 
 #include "erm/engine/Engine.h"
 
-#include <erm/modules/ObjectRegistry.h>
+#include <erm/modules_lib/ObjectRegistry.h>
 
 namespace erm {
 

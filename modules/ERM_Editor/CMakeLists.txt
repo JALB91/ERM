@@ -8,7 +8,6 @@ erm_module_setup(
 		$<$<BOOL:${ERM_VULKAN}>:IMGUI_DISABLE_OBSOLETE_FUNCTIONS>
 	LINK_PRIVATE
 		imgui
-	LINK_PUBLIC
 		ERM_Engine_shared
 		ERM_Utils_static
 		ERM_Math_static
@@ -19,5 +18,8 @@ erm_module_setup(
 		ERM_Audio_shared
 		ERM_Assets_shared
 		ERM_Input
+		ERM_Log_static
+		ERM_STL
+	LINK_PUBLIC
 		glfw
 )

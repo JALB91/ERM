@@ -1,7 +1,7 @@
 function(nn_post_setup_callback)
 	set(NNSourcesIncludes "")
 	
-	foreach(ERM_MODULE ${ERM_MODULES})
+	foreach(ERM_MODULE IN LISTS ERM_MODULES)
 		erm_get_module_property(MODULE_BASE_DIR ${ERM_MODULE} BASE_DIR)
 
 		# Gather nn source files
@@ -27,7 +27,7 @@ function(nn_post_setup_callback)
 		set(NN_CPP_HEADERS "")
 		set(NN_CPP_SOURCES "")
 
-		foreach(NN_SOURCE ${NN_SOURCES})
+		foreach(NN_SOURCE IN LISTS NN_SOURCES)
 			cmake_path(GET NN_SOURCE EXTENSION LAST_ONLY FILE_EXTENSION)
 			if(FILE_EXTENSION STREQUAL ".h" OR FILE_EXTENSION STREQUAL ".hpp")
 				erm_get_include_path(${NN_SOURCE} INCLUDE_PATH)
@@ -69,7 +69,7 @@ function(nn_post_setup_callback)
 
 		erm_get_module_property(MODULE_GENERATED_DIR ${ERM_MODULE} GENERATED_DIR)
 		
-		foreach(FILE ${NN_DATA})
+		foreach(FILE IN LISTS NN_DATA)
 			string(REGEX REPLACE ".*/NN_Data/" "${MODULE_GENERATED_DIR}/" NN_OUTPUT_DIR "${FILE}")
 			get_filename_component(NN_OUTPUT_DIR "${NN_OUTPUT_DIR}" DIRECTORY)
 			get_filename_component(NN_OUTPUT_FILE_NAME "${FILE}" NAME_WE)

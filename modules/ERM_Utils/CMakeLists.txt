@@ -9,8 +9,8 @@ erm_module_setup(
 		ERM_DEBUG_STRING_IDS=$<CONFIG:Debug>
 	LINK_PRIVATE
 		xxHash
-	LINK_PUBLIC
-		$<$<BOOL:${ERM_TRACY_ENABLED}>:Tracy::TracyClient>
 		ERM_Math_static
 		ERM_Log_static
+	LINK_PUBLIC
+		$<$<BOOL:${ERM_TRACY_ENABLED}>:Tracy::TracyClient>
 )

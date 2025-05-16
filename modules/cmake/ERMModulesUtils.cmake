@@ -29,8 +29,12 @@ function(erm_source_group_for_file FILE)
 	source_group("${GROUP}" FILES "${FILE}")
 endfunction()
 
-function(erm_get_module_property OUT_VAR MODULE PROPERTY)
-	get_target_property(VALUE ${MODULE} ${PROPERTY})
+function(erm_get_module_property OUT_VAR TARGET PROPERTY)
+	if (NOT TARGET ${OPTS_TARGET})
+		message(FATAL_ERROR "Invalid target ${OPTS_TARGET}")
+	endif()
+
+	get_target_property(VALUE ${TARGET} ${PROPERTY})
 
 	if("${VALUE}" STREQUAL "VALUE-NOTFOUND")
 		set("${OUT_VAR}" "" PARENT_SCOPE)
@@ -39,6 +43,50 @@ function(erm_get_module_property OUT_VAR MODULE PROPERTY)
 	endif()
 endfunction()
 
+## @brief Retrieves specified module properties, each property is
+## added to the parent scope with the form <PREFIX>_<PROPERTY_NAME>
+##
+## One-value arguments:
+##   - TARGET: Name of the module (must be a valid cmake target).
+##   - PREFIX: The prefix to be used.
+##
+## Multi-value arguments:
+##   - PROPERTIES: List of properties to retrieve.
+##
+function(erm_get_module_properties)
+	set(ERM_TARGET_OPTIONS)
+	set(ERM_TARGET_ONE_VALUE_ARGS TARGET PREFIX)
+	set(ERM_TARGET_MULTI_VALUE_ARGS PROPERTIES)
+
+	cmake_parse_arguments(
+		OPTS
+		"${ERM_TARGET_OPTIONS}"
+		"${ERM_TARGET_ONE_VALUE_ARGS}"
+		"${ERM_TARGET_MULTI_VALUE_ARGS}"
+		${ARGN}
+	)
+
+	list(REMOVE_DUPLICATES OPTS_PROPERTIES)
+
+	foreach(PROPERTY IN LISTS OPTS_PROPERTIES)
+		erm_get_module_property(
+			RESULT
+			${OPTS_TARGET}
+			${PROPERTY}
+		)
+		set(${OPTS_PREFIX}_${PROPERTY} ${RESULT} PARENT_SCOPE)
+	endforeach()
+endfunction()
+
+## @brief Appends a new value to the list of a property for a certain module
+##
+## One-value arguments:
+##   - TARGET: Name of the module (must be a valid cmake target).
+##   - PROPERTY: The property to be modified.
+##
+## Multi-value arguments:
+##   - VALUES: List of values to append.
+##
 function(erm_add_to_module_property)
 	set(ERM_TARGET_OPTIONS)
 	set(ERM_TARGET_ONE_VALUE_ARGS TARGET PROPERTY)
@@ -52,6 +100,10 @@ function(erm_add_to_module_property)
 		${ARGN}
 	)
 
+	if (NOT TARGET ${OPTS_TARGET})
+		message(FATAL_ERROR "Invalid target ${OPTS_TARGET}")
+	endif()
+
 	erm_get_module_property(VALUE ${OPTS_TARGET} ${OPTS_PROPERTY})
 	list(APPEND VALUE ${OPTS_VALUES})
 
@@ -62,10 +114,11 @@ function(erm_add_to_module_property)
 	)
 endfunction()
 
-
 set(ERM_GENERATED_FILE_WARNING "/*
 ===============================================================
-| 		  This file have been automatically generated  		  |
-|            any local changes will be overridden			  |
+|                            ERM                              |
+|-------------------------------------------------------------|
+|        This file have been automatically generated          |
+|            any local changes will be overridden             |
 ===============================================================
 */")

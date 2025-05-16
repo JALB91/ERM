@@ -2,9 +2,9 @@ erm_module_setup(
 	VERSION 0.0.1
 	DESCRIPTION "ERM FileSystem lib"
 	LANGUAGES CXX
-	PRIVATE_COMPILE_DEF
-		"ERM_ROOT_DIR=\"${ERM_ROOT_DIR}\""
 	LINK_PRIVATE
 		ERM_Utils_static
+		ERM_Log_static
+		ERM_Math_static
 )
 

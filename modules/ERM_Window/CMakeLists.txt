@@ -10,7 +10,7 @@ erm_module_setup(
 		glfw
 		imgui
 		ERM_Utils_static
-	LINK_PUBLIC
 		ERM_Math_static
 		ERM_Input
+		ERM_Log_static
 )

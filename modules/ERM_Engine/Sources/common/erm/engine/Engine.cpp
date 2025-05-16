@@ -3,9 +3,7 @@
 #include <erm/assets/models/Model.h>
 #include <erm/assets/data_structs/Bone.h>
 #include <erm/assets/AssetsRepo.h>
-
 #include <erm/audio/AudioManager.h>
-
 #include <erm/ecs/Entity.h>
 #include <erm/ecs/systems/AnimationSystem.h>
 #include <erm/ecs/systems/CameraSystem.h>
@@ -14,17 +12,13 @@
 #include <erm/ecs/systems/RenderingSystem.h>
 #include <erm/ecs/systems/SkeletonSystem.h>
 #include <erm/ecs/systems/TransformSystem.h>
-
 #include <erm/math/Types.h>
-
+#include <erm/modules_lib/ObjectRegistry.h>
 #include <erm/rendering/Device.h>
 #include <erm/rendering/renderer/Renderer.h>
-
-#include <erm/modules/ObjectRegistry.h>
 #include <erm/utils/Profiler.h>
 #include <erm/utils/UpdateManager.h>
 #include <erm/utils/Utils.h>
-
 #include <erm/window/Window.h>
 
 #include <random>

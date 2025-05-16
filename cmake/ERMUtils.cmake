@@ -39,7 +39,7 @@ endfunction()
 
 function(erm_gather_directories OUT_VAR)
 	file(GLOB GLOBBED_FILES LIST_DIRECTORIES true *)
-	foreach(FILE ${GLOBBED_FILES})
+	foreach(FILE IN LISTS GLOBBED_FILES)
 		if(IS_DIRECTORY "${FILE}")
 			list(APPEND DIRECTORIES ${FILE})
 		endif()

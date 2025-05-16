@@ -8,6 +8,6 @@ erm_module_setup(
 		tinyxml2
 		# fbx_sdk
 		ERM_Utils_static
-	LINK_PUBLIC
 		ERM_Math_static
+		ERM_Log_static
 )
