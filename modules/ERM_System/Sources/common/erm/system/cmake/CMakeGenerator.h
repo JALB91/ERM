@@ -12,7 +12,7 @@ enum class CMakeGenerator
 
 #ifdef ERM_HOST_OSX
 constexpr CMakeGenerator kDefaultCMakeGenerator = CMakeGenerator::XCODE;
-#elifdef ERM_HOST_WIN
+#elifdef ERM_HOST_WINDOWS
 constexpr CMakeGenerator kDefaultCMakeGenerator = CMakeGenerator::VS;
 #elifdef ERM_HOST_LINUX
 constexpr CMakeGenerator kDefaultCMakeGenerator = CMakeGenerator::UNIXMK;

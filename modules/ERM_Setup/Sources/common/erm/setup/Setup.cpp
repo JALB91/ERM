@@ -172,8 +172,8 @@ int Setup::exec(const SubCommand& /*command*/) const
 		}
 		
 		result = cmake::install(CMakeInstallArgs{
-			.mComponent = "ERM",
 			.mBuildPath = ermBuildPath,
+			.mComponent = "ERM",
 			.mBuildConfig = CMakeBuildConfig::RELEASE
 		});
 		

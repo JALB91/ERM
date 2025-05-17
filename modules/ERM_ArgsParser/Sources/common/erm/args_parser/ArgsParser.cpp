@@ -31,7 +31,7 @@ const SubCommand* ArgsParser::parseArgs(int argc, char** argv)
 	
 	const auto filePath = fs::path(argv[0]);
 	ERM_ASSERT_HARD(filePath.has_filename(), "Expected executable filename as first argument");
-	mMainCommand.setName(filePath.filename().c_str());
+	mMainCommand.setName(filePath.filename().string());
 
 	for (int i = 0; i < argc; ++i)
 	{

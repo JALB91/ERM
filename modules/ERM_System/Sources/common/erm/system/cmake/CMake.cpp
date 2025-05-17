@@ -41,7 +41,7 @@ int generate(const CMakeGenerateArgs& args)
 		const auto* data = getGeneratorDataFor(*args.mGenerator);
 		if (data != nullptr)
 		{
-			cmakeCommand += std::format(" -G {}", data->mName);
+			cmakeCommand += std::format(" -G \"{}\"", data->mName);
 		}
 	}
 	
@@ -52,17 +52,17 @@ int generate(const CMakeGenerateArgs& args)
 	
 	if (args.mGraphVizFilePath.has_value())
 	{
-		cmakeCommand += std::format(" --graphviz={}", args.mGraphVizFilePath->c_str());
+		cmakeCommand += std::format(" --graphviz={}", args.mGraphVizFilePath->string());
 	}
 	
-	cmakeCommand += std::format(" -B {} -S {}", args.mBuildPath.c_str(), args.mSourcePath.c_str());
+	cmakeCommand += std::format(" -B {} -S {}", args.mBuildPath.string(), args.mSourcePath.string());
 	
 	return std::system(cmakeCommand.c_str());
 }
 
 int install(const CMakeInstallArgs& args)
 {
-	std::string cmakeCommand = std::format("cmake --install {}", args.mBuildPath.c_str());
+	std::string cmakeCommand = std::format("cmake --install {}", args.mBuildPath.string());
 	
 	if (args.mPrefix.has_value())
 	{
@@ -89,7 +89,7 @@ int install(const CMakeInstallArgs& args)
 
 int build(const CMakeBuildArgs& args)
 {
-	std::string cmakeCommand = std::format("cmake --build {}", args.mBuildPath.c_str());
+	std::string cmakeCommand = std::format("cmake --build {}", args.mBuildPath.string());
 	
 	if (args.mTarget.has_value())
 	{
@@ -126,7 +126,7 @@ int build(const CMakeBuildArgs& args)
 
 int open(const CMakeOpenArgs& args)
 {
-	std::string cmakeCommand = std::format("cmake --open {}", args.mBuildPath.c_str());
+	std::string cmakeCommand = std::format("cmake --open {}", args.mBuildPath.string());
 	return std::system(cmakeCommand.c_str());
 }
 

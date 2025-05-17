@@ -175,7 +175,7 @@ std::vector<std::string> FileLocator::getResourcesWithExtension(const char* exte
 			for (auto file : fs::directory_iterator(basePath))
 			{
 				const auto& filePath = file.path();
-				if (utils::compareNoCaseSensitive(extension, filePath.extension().c_str()))
+				if (utils::compareNoCaseSensitive(extension, filePath.extension().string()))
 				{
 					const auto path = filePath.string();
 					files.emplace_back(includeExtension ? path : path.substr(0, path.find(extension)));
