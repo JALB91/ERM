@@ -36,6 +36,14 @@ public:
 		}
 		return static_cast<T*>(it->second);
 	}
+
+	template<typename T>
+	static T& require()
+	{
+		auto* result = get<T>();
+		assert(result != nullptr);
+		return *result;
+	}
 	
 	template<typename T>
 	static void remove()

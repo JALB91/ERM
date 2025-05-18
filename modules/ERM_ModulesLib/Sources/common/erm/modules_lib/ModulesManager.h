@@ -2,31 +2,48 @@
 
 #include <erm/modules_lib/Concepts.h>
 #include <erm/stl/utils.h>
-#include <erm/utils/TypeID.h>
 
 #include <refl.hpp>
-
-#include <unordered_map>
 
 namespace erm {
 
 template<concepts::MainModule M>
 class ModulesManager
 {
+private:
+	template<concepts::Module T>
+	static constexpr auto buildDepsTypeList(auto value);
+
 public:
 	using MainModuleT = M;
+	
+	using DepsListT = decltype(buildDepsTypeList<MainModuleT>(refl::type_list<MainModuleT>{}));
+	static constexpr auto kDepsList = DepsListT {};
+
+	using RevDepsListT = refl::trait::reverse_t<DepsListT>;
+	static constexpr auto kRevDepsList = RevDepsListT {};
 
 public:
 	ModulesManager() = default;
 
 	bool init()
 	{
-		return initModule<MainModuleT>();
+		return stl::accumulate_type(
+			kDepsList,
+			true,
+			[]<concepts::Module Module>(bool value) {
+				return value && Module::init();
+			});
 	}
 
 	bool deinit()
 	{
-		return destroyModule<MainModuleT>();
+		return stl::accumulate_type(
+			kRevDepsList,
+			true,
+			[]<concepts::Module Module>(bool value) {
+				return value && Module::deinit();
+			});
 	}
 
 	int run(int argc, char** argv)
@@ -34,49 +51,38 @@ public:
 		return MainModuleT::run(argc, argv);
 	}
 	
-private:
-	template<concepts::Module T, typename F>
-	auto visitModuleRecursive(const F& function)
-	{
-		const auto typeID = getID<T>();
-		const bool visited = stl::find_or(mVisitedModules, typeID, false);
-		
-		if (visited)
-		{
-			return function.template operator()<T>();
-		}
-
-		mVisitedModules[typeID] = true;
-
-		stl::for_each_type(T::kDependencies, [this, &function]<concepts::Module Dependency>() {
-			visitModuleRecursive<Dependency>(function);
-		});
-
-		return function.template operator()<T>();
-	}
-
-	template<concepts::Module T>
-	bool initModule()
-	{
-		mVisitedModules.clear();
-
-		return visitModuleRecursive<T>([]<concepts::Module Dependency>() {
-			return Dependency::initialized() || Dependency::init();
-		});
-	}
-
-	template<concepts::Module T>
-	bool destroyModule()
-	{
-		mVisitedModules.clear();
-
-		return visitModuleRecursive<T>([]<concepts::Module Dependency>() {
-			return !Dependency::initialized() || Dependency::deinit();
-		});
-	}
-
-	std::unordered_map<TypeID, bool> mVisitedModules;
-	
 };
+
+template<concepts::MainModule MainModule>
+template<concepts::Module T>
+constexpr auto ModulesManager<MainModule>::buildDepsTypeList(auto value)
+{
+	static_assert(refl::util::contains<T>(value));
+
+	if constexpr (T::DepsT::size > 0)
+	{
+		return stl::accumulate_type(
+			T::kDependencies,
+			value,
+			[]<concepts::Module Dependency>(auto value) {
+				if constexpr (!refl::util::contains<Dependency>(value))
+				{
+					return buildDepsTypeList<Dependency>(refl::trait::prepend_t<Dependency, decltype(value)> {});
+				}
+				else
+				{
+					constexpr auto filtered = stl::filter_type(value, []<concepts::Module S>() {
+						return !std::is_same_v<Dependency, S>;
+					});
+					constexpr auto replaced = refl::trait::prepend_t<Dependency, std::remove_const_t<decltype(filtered)>> {};
+					return replaced;
+				}
+			});
+	}
+	else
+	{
+		return value;
+	}
+}
 
 }

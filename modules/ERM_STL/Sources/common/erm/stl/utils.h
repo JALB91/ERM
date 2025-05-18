@@ -103,4 +103,26 @@ constexpr auto filter_type(refl::type_list<Ts...> list, F&& f)
 	return decltype(internal::filter(std::forward<F>(f), list))();
 }
 
+/*
+* Returns the initial_value unchanged.
+*/
+/// \private
+template<typename R, typename F, typename... Ts>
+constexpr R accumulate_type(refl::type_list<>, R&& initial_value, F&&)
+{
+	return std::forward<R>(initial_value);
+}
+
+/*
+* Applies an accumulation function F to each type in the refl::type_list.
+*/
+template<typename R, typename F, typename T, typename... Ts>
+constexpr auto accumulate_type(refl::type_list<T, Ts...> ts, R&& initial_value, F&& f)
+{
+	return accumulate_type(
+		refl::type_list<Ts...> {}, 
+		f.template operator()<T>(std::forward<R>(initial_value)),
+		std::forward<F>(f));
+}
+
 }

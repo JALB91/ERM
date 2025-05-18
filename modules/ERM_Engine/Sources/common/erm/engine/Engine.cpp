@@ -101,8 +101,6 @@ bool Engine::init()
 
 	mECS->init();
 
-	ObjectRegistry::get<AssetsRepo>()->loadDefaultResources();
-
 	auto camera = mECS->getOrCreateEntity("Camera");
 	camera->addComponent<ecs::LightComponent>();
 	camera->requireComponent<ecs::CameraComponent>();
