@@ -247,6 +247,15 @@ function(_erm_setup_executable)
 	_erm_target_compile_definitions(${EXE_ERM_MODULE} ${EXE_TARGET_NAME})
 	_erm_target_link_libraries(${EXE_ERM_MODULE} ${EXE_TARGET_NAME})
 	_erm_target_setup_install(${EXE_TARGET_NAME})
+
+	if(ERM_HOST_WINDOWS)
+		add_custom_command(
+			TARGET ${EXE_TARGET_NAME} POST_BUILD
+			COMMAND "${CMAKE_COMMAND}" -E copy -t "$<TARGET_FILE_DIR:${EXE_TARGET_NAME}>" "$<TARGET_RUNTIME_DLLS:${EXE_TARGET_NAME}>" 
+			USES_TERMINAL 
+			COMMAND_EXPAND_LISTS
+		)
+	endif()
 endfunction()
 
 ## @brief Setup ERM module
