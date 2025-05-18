@@ -4,14 +4,16 @@
 
 #include <vulkan/vulkan.hpp>
 
-struct GLFWwindow;
+namespace erm {
+class Window;
+}
 
 namespace erm {
 
 class Device
 {
 public:
-	Device(GLFWwindow* window);
+	Device();
 	~Device();
 
 	vk::Device* operator->();
@@ -35,7 +37,7 @@ private:
 	void createPipelineCache();
 	void createCommandPool();
 
-	GLFWwindow* mWindow;
+	Window* mWindow;
 	vk::UniqueInstance mInstance;
 	vk::UniqueSurfaceKHR mSurface;
 	vk::PhysicalDevice mPhysicalDevice;

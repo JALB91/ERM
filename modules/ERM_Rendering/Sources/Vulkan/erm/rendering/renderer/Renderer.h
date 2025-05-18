@@ -22,7 +22,7 @@ namespace erm {
 class Renderer : public IRenderer
 {
 public:
-	Renderer(Window& window, Device& device);
+	Renderer();
 	~Renderer();
 
 	void preRender() override;

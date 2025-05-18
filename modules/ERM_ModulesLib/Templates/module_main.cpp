@@ -1,6 +1,6 @@
 @ERM_GENERATED_FILE_WARNING@
 
-#include "erm/@ModuleName@.h"
+@ModuleDependenciesIncludes@
 
 #include <erm/modules_lib/ModulesManager.h>
 

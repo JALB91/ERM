@@ -53,6 +53,16 @@ public:
 		return !instance.initialized();
 	}
 
+	static int run(int argc, char** argv)
+	{
+		auto& instance = getInstance();
+		if (instance.initialized())
+		{
+			return instance.mImpl.run(argc, argv);
+		}
+		return EXIT_FAILURE;
+	}
+
 private:
 	@ModuleName@() = default;
 

@@ -22,12 +22,15 @@ function(modules_lib_pre_generate_callback)
 				VERSION_MINOR
 				VERSION_PATCH
 				ALL_DEPS
+				STANDALONE
+				EXECUTABLE
 		)
 		
 		string(APPEND AllModulesIncludes "#include <erm/${ERM_MODULE}.h>\n")
 		string(APPEND AllModulesList "\n\t${ERM_MODULE},")
 
 		set(ModuleDependenciesForwardDeclarations "")
+		set(ModuleDependenciesIncludes "#include \"erm/${ERM_MODULE}.h\"\n\n")
 		set(ModuleDependenciesList "")
 		set(ModuleName "${ERM_MODULE}")
 
@@ -50,6 +53,7 @@ function(modules_lib_pre_generate_callback)
 
 			if(${INDEX} GREATER_EQUAL 0)
 				string(APPEND ModuleDependenciesForwardDeclarations "class ${DEP};\n")
+				string(APPEND ModuleDependenciesIncludes "#include <erm/${DEP}.h>\n")
 				string(APPEND ModuleDependenciesList "${DEP}, ")
 			endif()
 		endforeach()
@@ -57,15 +61,27 @@ function(modules_lib_pre_generate_callback)
 		if(ModuleDependenciesForwardDeclarations)
 			erm_string_substr_end("${ModuleDependenciesForwardDeclarations}" 1 ModuleDependenciesForwardDeclarations)
 		endif()
+
+		if(ModuleDependenciesIncludes)
+			erm_string_substr_end("${ModuleDependenciesIncludes}" 1 ModuleDependenciesIncludes)
+		endif()
 		
 		if(ModuleDependenciesList)
 			erm_string_substr_end("${ModuleDependenciesList}" 2 ModuleDependenciesList)
 		endif()
 
-		# Configure ERM_<Module>.h
+		# Configure ERM module header
+		if(MODULE_STANDALONE)
+			set(MODULE_HEADER_TEMPLATE "${ERM_MODULES_BASE_DIR}/Templates/ERM_ModuleStandalone.h")
+		elseif(MODULE_EXECUTABLE)
+			set(MODULE_HEADER_TEMPLATE "${ERM_MODULES_BASE_DIR}/Templates/ERM_ModuleExecutable.h")
+		else()
+			set(MODULE_HEADER_TEMPLATE "${ERM_MODULES_BASE_DIR}/Templates/ERM_Module.h")
+		endif()
+
 		set(MODULE_HEADER_PATH "${MODULE_GENERATED_DIR}/common/erm/${ERM_MODULE}.h")
 		configure_file(
-			"${ERM_MODULES_BASE_DIR}/Templates/ERM_Module.h"
+			"${MODULE_HEADER_TEMPLATE}"
 			"${MODULE_HEADER_PATH}"
 			@ONLY
 		)

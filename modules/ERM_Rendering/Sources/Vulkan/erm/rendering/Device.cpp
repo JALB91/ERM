@@ -5,7 +5,8 @@
 #include "erm/rendering/utils/VkUtils.h"
 
 #include <erm/log/Assert.h>
-
+#include <erm/modules_lib/ObjectRegistry.h>
+#include <erm/window/Window.h>
 #include <erm/utils/Utils.h>
 
 #include <GLFW/glfw3.h>
@@ -98,8 +99,8 @@ void destroyDebugUtilsMessengerEXT(
 
 namespace erm {
 
-Device::Device(GLFWwindow* window)
-	: mWindow(window)
+Device::Device()
+	: mWindow(ObjectRegistry::get<Window>())
 {
 	ERM_ASSERT(createInstance(), "Failed to create Vulkan instance");
 	setupDebugMessenger();
@@ -254,7 +255,7 @@ void Device::setupDebugMessenger()
 bool Device::createSurface()
 {
 	VkSurfaceKHR _surface;
-	if (glfwCreateWindowSurface(VkInstance(mInstance.get()), mWindow, nullptr, &_surface) != VK_SUCCESS)
+	if (glfwCreateWindowSurface(VkInstance(mInstance.get()), mWindow->getWindow(), nullptr, &_surface) != VK_SUCCESS)
 	{
 		return false;
 	}

@@ -87,8 +87,6 @@ Setup::Setup()
 	});
 }
 
-Setup::~Setup() = default;
-
 int Setup::exec(const SubCommand& /*command*/) const
 {
 	const auto renderingAPI = mRenderingAPI->get<RenderingAPI>();

@@ -1,24 +1,22 @@
 #include "erm/ERM_Engine.h"
 
-#include "erm/engine/Engine.h"
-
 #include <erm/modules_lib/ObjectRegistry.h>
 
 namespace erm {
 
-bool ERM_Engine::Impl::init() const
+bool ERM_EngineImpl::init()
 {
-	ObjectRegistry::set(std::make_shared<Engine>());
+	ObjectRegistry::set(mEngine);
 	return true;
 }
 
-bool ERM_Engine::Impl::deinit() const
+bool ERM_EngineImpl::deinit()
 {
 	ObjectRegistry::remove<Engine>();
 	return true;
 }
 
-int ERM_Engine::Impl::run(int /*argc*/, char** /*argv*/) const
+int ERM_EngineImpl::run(int /*argc*/, char** /*argv*/)
 {
 	auto engine = ObjectRegistry::get<Engine>();
 

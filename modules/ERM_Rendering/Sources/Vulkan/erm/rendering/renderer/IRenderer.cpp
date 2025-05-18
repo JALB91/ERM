@@ -6,17 +6,15 @@
 #include "erm/rendering/data_structs/SwapChainSupportDetails.h"
 #include "erm/rendering/utils/VkUtils.h"
 
+#include <erm/modules_lib/ObjectRegistry.h>
 #include <erm/window/Window.h>
-
 #include <erm/utils/Utils.h>
 
 namespace erm {
 
-IRenderer::IRenderer(
-	Window& window,
-	Device& device)
-	: mWindow(window)
-	, mDevice(device)
+IRenderer::IRenderer()
+	: mWindow(*ObjectRegistry::get<Window>())
+	, mDevice(*ObjectRegistry::get<Device>())
 	, mCurrentFrame(0)
 	, mCurrentImageIndex(0)
 	, mMinImageCount(0)

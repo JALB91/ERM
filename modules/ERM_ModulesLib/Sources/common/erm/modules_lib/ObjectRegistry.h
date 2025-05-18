@@ -4,7 +4,6 @@
 
 #include <erm/utils/TypeID.h>
 
-#include <memory>
 #include <mutex>
 #include <unordered_map>
 
@@ -14,17 +13,17 @@ class ObjectRegistry
 {
 public:
 	template<typename T>
-	static void set(std::shared_ptr<T> object)
+	static void set(T& object)
 	{
 		auto& instance = getInstance();
 		const auto lock = std::scoped_lock(instance.mMutex);
 		const auto typeID = getID<T>();
 		auto& objects = instance.mObjects;
-		objects[typeID] = std::static_pointer_cast<void>(object);
+		objects[typeID] = static_cast<void*>(&object);
 	}
 	
 	template<typename T>
-	static std::shared_ptr<T> get()
+	static T* get()
 	{
 		auto& instance = getInstance();
 		const auto lock = std::scoped_lock(instance.mMutex);
@@ -35,21 +34,7 @@ public:
 		{
 			return nullptr;
 		}
-		return std::static_pointer_cast<T>(it->second);
-	}
-	
-	template<typename T>
-	static std::weak_ptr<T> getWeak()
-	{
-		auto& instance = getInstance();
-		const auto lock = std::scoped_lock(instance.mMutex);
-		auto& objects = instance.mObjects;
-		const auto it = objects.find(getID<T>());
-		if (it == objects.end())
-		{
-			return nullptr;
-		}
-		return std::weak_ptr<T>(std::static_pointer_cast<T>(it->second));
+		return static_cast<T*>(it->second);
 	}
 	
 	template<typename T>
@@ -84,7 +69,7 @@ private:
 	
 	static ObjectRegistry& getInstance();
 	
-	std::unordered_map<u64, std::shared_ptr<void>> mObjects;
+	std::unordered_map<u64, void*> mObjects;
 	std::mutex mMutex;
 	
 };

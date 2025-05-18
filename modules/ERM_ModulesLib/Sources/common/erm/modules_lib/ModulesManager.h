@@ -1,6 +1,5 @@
 #pragma once
 
-#include <erm/AllModules.h>
 #include <erm/modules_lib/Concepts.h>
 #include <erm/stl/utils.h>
 #include <erm/utils/TypeID.h>
@@ -50,7 +49,6 @@ private:
 		mVisitedModules[typeID] = true;
 
 		stl::for_each_type(T::kDependencies, [this, &function]<concepts::Module Dependency>() {
-			(void)this;
 			visitModuleRecursive<Dependency>(function);
 		});
 

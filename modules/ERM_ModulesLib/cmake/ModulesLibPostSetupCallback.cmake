@@ -1,5 +1,9 @@
 function(modules_lib_post_setup_callback)
 	foreach(ERM_MODULE IN LISTS ERM_MODULES)
+		if("${ERM_MODULE}" STREQUAL "ERM_ModulesLib")
+			continue()
+		endif()
+		
 		erm_get_module_property(MODULE_STANDALONE ${ERM_MODULE} STANDALONE)
 
 		# Add ERM_ModulesLib_shared linking for all modules except standalone ones

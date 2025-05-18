@@ -35,12 +35,12 @@ constexpr auto invoke_optional_index(F f, size_t, ...) -> decltype(f.template op
 }
 
 template<typename F>
-constexpr void eval_in_order(refl::type_list<>, std::index_sequence<>, [[maybe_unused]] F f)
+constexpr auto eval_in_order(refl::type_list<>, std::index_sequence<>, [[maybe_unused]] F f)
 {
 }
 
 template<typename F, typename T, typename... Ts, size_t I, size_t... Idx>
-constexpr void eval_in_order(refl::type_list<T, Ts...>, std::index_sequence<I, Idx...>, F f)
+constexpr auto eval_in_order(refl::type_list<T, Ts...>, std::index_sequence<I, Idx...>, F f)
 {
 	invoke_optional_index<F, T>(f, I, 0);
 	return eval_in_order(
@@ -52,9 +52,55 @@ constexpr void eval_in_order(refl::type_list<T, Ts...>, std::index_sequence<I, I
 }
 
 template<typename F, typename... Ts>
-constexpr void for_each_type(refl::type_list<Ts...> list, F&& f)
+constexpr auto for_each_type(refl::type_list<Ts...> list, F&& f)
 {
-	internal::eval_in_order(list, std::make_index_sequence<sizeof...(Ts)> {}, std::forward<F>(f));
+	return internal::eval_in_order(list, std::make_index_sequence<sizeof...(Ts)> {}, std::forward<F>(f));
+}
+
+namespace internal {
+
+template<typename, bool...>
+struct apply_mask;
+
+template<>
+struct apply_mask<refl::type_list<>>
+{
+	using type = refl::type_list<>;
+};
+
+template<typename T, typename... Ts, bool... Bs>
+struct apply_mask<refl::type_list<T, Ts...>, true, Bs...>
+{
+	using type = refl::trait::prepend_t<T, typename apply_mask<refl::type_list<Ts...>, Bs...>::type>;
+};
+
+template<typename T, typename... Ts, bool... Bs>
+struct apply_mask<refl::type_list<T, Ts...>, false, Bs...> : apply_mask<refl::type_list<Ts...>, Bs...>
+{};
+
+template<typename F, typename... Ts>
+constexpr auto filter([[maybe_unused]] F f, refl::type_list<Ts...>)
+{
+	return typename apply_mask<refl::type_list<Ts...>, f.template operator()<Ts>()...>::type {};
+}
+
+} // namespace internal
+
+/**
+         * Filters the list according to a *constexpr* predicate.
+         * Calling f(Ts{})... should be valid in a constexpr context.
+         *
+         * \code{.cpp}
+         * filter(reflect_types(type_list<int, long, float>{}), [](auto td) {
+         *   return std::is_integral_v<typename decltype(td)::type>;
+         * })
+         *   -> type_list<type_descriptor<int>, type_descriptor<long>>
+         * \endcode
+         */
+template<typename F, typename... Ts>
+constexpr auto filter_type(refl::type_list<Ts...> list, F&& f)
+{
+	return decltype(internal::filter(std::forward<F>(f), list))();
 }
 
 }

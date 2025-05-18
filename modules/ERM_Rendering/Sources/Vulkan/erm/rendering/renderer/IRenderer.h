@@ -34,7 +34,7 @@ public:
 	static constexpr u32 kMaxFramesInFlight = 3;
 
 public:
-	IRenderer(Window& window, Device& device);
+	IRenderer();
 	virtual ~IRenderer();
 
 	virtual void preRender() = 0;

@@ -1,19 +1,17 @@
 #pragma once
 
-#include <erm/fs/FileLocator.h>
-
 #include <erm/window/IWindowListener.h>
-
 #include <erm/utils/Timer.h>
+#include <erm/utils/UpdateManager.h>
 
 #include <refl.hpp>
 
-#include <memory>
 #include <vector>
 
 namespace erm {
 class AudioManager;
 class Device;
+class FileLocator;
 class Renderer;
 class UpdateManager;
 class Window;
@@ -52,13 +50,13 @@ public:
 	void setMaxFPS(u16 maxFPS);
 
 	inline const Timer& getTimer() const { return mTimer; }
-	inline const FileLocator& getFileLocator() const { return mFileLocator; }
+	inline const FileLocator& getFileLocator() const { return *mFileLocator; }
 	inline AudioManager& getAudioManager() const { return *mAudioManager; }
 	inline Window& getWindow() const { return *mWindow; }
 	inline Device& getDevice() const { return *mDevice; }
 	inline Renderer& getRenderer() const { return *mRenderer; }
 	inline ecs::ECS& getECS() const { return *mECS; }
-	inline UpdateManager& getUpdateManager() const { return *mUpdateManager; }
+	inline const UpdateManager& getUpdateManager() const { return mUpdateManager; }
 
 private:
 	// IWindowListener
@@ -70,19 +68,19 @@ private:
 	void onSizeChanged(u32 width, u32 height) override;
 	void onFocusChanged() override;
 
+	UpdateManager mUpdateManager;
 	Timer mTimer;
 	u16 mFPS;
 	u16 mMaxFPS;
 	double mTargetFrameTime;
+	
+	Window* mWindow;
+	AudioManager* mAudioManager;
+	Device* mDevice;
+	Renderer* mRenderer;
+	ecs::ECS* mECS;
+	FileLocator* mFileLocator;
 
-	FileLocator mFileLocator;
-
-	std::unique_ptr<Window> mWindow;
-	std::unique_ptr<UpdateManager> mUpdateManager;
-	std::unique_ptr<AudioManager> mAudioManager;
-	std::unique_ptr<Device> mDevice;
-	std::unique_ptr<Renderer> mRenderer;
-	std::unique_ptr<ecs::ECS> mECS;
 };
 
 } // namespace erm

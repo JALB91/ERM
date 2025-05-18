@@ -1,20 +1,20 @@
-#include "erm/ERM_Setup.h"
+#include "erm/ERM_SetupImpl.h"
 
 #include "erm/setup/Setup.h"
 
 namespace erm {
 
-bool ERM_Setup::Impl::init() const
+bool ERM_SetupImpl::init() const
 {
 	return true;
 }
 
-bool ERM_Setup::Impl::deinit() const
+bool ERM_SetupImpl::deinit() const
 {
 	return true;
 }
 
-int ERM_Setup::Impl::run(int argc, char** argv) const
+int ERM_SetupImpl::run(int argc, char** argv) const
 {
 	erm::Setup setup;
 

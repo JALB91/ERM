@@ -1,12 +1,11 @@
 #include "erm/editor/ImGuiMeshWrapper.h"
 #include "erm/editor/ImGuiMaterialWrapper.h"
 
-#include <erm/engine/Engine.h>
-
 #include <erm/assets/AssetsManager.h>
 #include <erm/assets/models/Mesh.h>
 #include <erm/assets/textures/Texture.h>
-
+#include <erm/engine/Engine.h>
+#include <erm/fs/FileLocator.h>
 #include <erm/rendering/shaders/IShaderProgram.h>
 #include <erm/rendering/data_structs/PipelineConfigs.h>
 

@@ -2,8 +2,6 @@
 
 #include <erm/args_parser/ArgsParser.h>
 
-#include <memory>
-
 namespace erm {
 class FileLocator;
 }
@@ -14,7 +12,6 @@ class Setup
 {
 public:
 	Setup();
-	~Setup();
 	
 	inline ArgsParser& getArgsParser()
 	{
@@ -24,7 +21,7 @@ public:
 private:
 	int exec(const SubCommand& command) const;
 	
-	std::shared_ptr<FileLocator> mFileLocator;
+	FileLocator* mFileLocator;
 	ArgsParser mArgsParser;
 	OptionalArgHandle mRenderingAPI;
 	OptionalArgHandle mGenerator;

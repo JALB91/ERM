@@ -1,4 +1,4 @@
-#include "erm/ERM_Editor.h"
+#include "erm/ERM_EditorImpl.h"
 
 #include "erm/editor/ImGuiHandle.h"
 
@@ -9,17 +9,17 @@
 
 namespace erm {
 
-bool ERM_Editor::Impl::init() const
+bool ERM_EditorImpl::init()
 {
 	return true;
 }
 
-bool ERM_Editor::Impl::deinit() const
+bool ERM_EditorImpl::deinit()
 {
 	return true;
 }
 
-int ERM_Editor::Impl::run(int /*argc*/, char** /*argv*/) const
+int ERM_EditorImpl::run(int /*argc*/, char** /*argv*/)
 {
 	auto engine = ObjectRegistry::get<Engine>();
 

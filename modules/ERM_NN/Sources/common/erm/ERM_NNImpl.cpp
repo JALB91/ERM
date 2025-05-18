@@ -7,17 +7,17 @@
 
 namespace erm {
 
-bool ERM_NN::Impl::init() const
+bool ERM_NNImpl::init()
 {
 	return true;
 }
 
-bool ERM_NN::Impl::deinit() const
+bool ERM_NNImpl::deinit()
 {
 	return true;
 }
 
-int ERM_NN::Impl::run(int argc, char** argv) const
+int ERM_NNImpl::run(int argc, char** argv)
 {
 	erm::nn::NN nn;
 

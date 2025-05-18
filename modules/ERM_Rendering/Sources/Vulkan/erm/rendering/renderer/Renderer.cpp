@@ -26,8 +26,8 @@
 
 namespace erm {
 
-Renderer::Renderer(Window& window, Device& device)
-	: IRenderer(window, device)
+Renderer::Renderer()
+	: IRenderer()
 #ifdef ERM_RAY_TRACING_ENABLED
 	, mRTRenderData(nullptr)
 #endif

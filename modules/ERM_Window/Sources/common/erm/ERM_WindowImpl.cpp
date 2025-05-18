@@ -1,18 +1,16 @@
 #include "erm/ERM_Window.h"
 
-#include "erm/window/Window.h"
-
 #include <erm/modules_lib/ObjectRegistry.h>
 
 namespace erm {
 
-bool ERM_Window::Impl::init() const
+bool ERM_WindowImpl::init()
 {
-	ObjectRegistry::set<Window>(std::make_shared<Window>());
+	ObjectRegistry::set<Window>(mWindow);
 	return true;
 }
 
-bool ERM_Window::Impl::deinit() const
+bool ERM_WindowImpl::deinit()
 {
 	ObjectRegistry::remove<Window>();
 	return true;

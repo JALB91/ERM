@@ -12,12 +12,12 @@
 #include <erm/ecs/systems/RenderingSystem.h>
 #include <erm/ecs/systems/SkeletonSystem.h>
 #include <erm/ecs/systems/TransformSystem.h>
+#include <erm/fs/FileLocator.h>
 #include <erm/math/Types.h>
 #include <erm/modules_lib/ObjectRegistry.h>
 #include <erm/rendering/Device.h>
 #include <erm/rendering/renderer/Renderer.h>
 #include <erm/utils/Profiler.h>
-#include <erm/utils/UpdateManager.h>
 #include <erm/utils/Utils.h>
 #include <erm/window/Window.h>
 
@@ -52,7 +52,12 @@ namespace erm {
 #define ERM_TARGET_SIMULATION_TIME 1.0/60.0
 
 Engine::Engine()
-	: mWindow(std::make_unique<Window>())
+: mWindow(ObjectRegistry::get<Window>())
+, mAudioManager(ObjectRegistry::get<AudioManager>())
+, mDevice(ObjectRegistry::get<Device>())
+, mRenderer(ObjectRegistry::get<Renderer>())
+, mECS(ObjectRegistry::get<ecs::ECS>())
+, mFileLocator(ObjectRegistry::get<FileLocator>())
 {
 	ERM_UNUSED(kRoyalGuardPath);
 	ERM_UNUSED(kTreeModelPath);
@@ -94,11 +99,6 @@ bool Engine::init()
 		return false;
 	}
 
-	mUpdateManager = std::make_unique<UpdateManager>();
-	mAudioManager = std::make_unique<AudioManager>();
-	mDevice = std::make_unique<Device>(mWindow->getWindow());
-	mRenderer = std::make_unique<Renderer>(*mWindow, *mDevice);
-	mECS = std::make_unique<ecs::ECS>();
 	mECS->init();
 
 	ObjectRegistry::get<AssetsRepo>()->loadDefaultResources();
@@ -230,7 +230,7 @@ void Engine::preUpdate()
 {
 	ERM_PROFILE_FUNCTION();
 
-	mUpdateManager->preUpdate();
+	mUpdateManager.preUpdate();
 	mECS->preUpdate();
 }
 
@@ -241,7 +241,7 @@ void Engine::update(float dt)
 	mECS->update(dt);
 	mWindow->update();
 	mAudioManager->update(dt);
-	mUpdateManager->update(dt);
+	mUpdateManager.update(dt);
 }
 
 void Engine::postUpdate()
@@ -249,7 +249,7 @@ void Engine::postUpdate()
 	ERM_PROFILE_FUNCTION();
 
 	mECS->postUpdate();
-	mUpdateManager->postUpdate();
+	mUpdateManager.postUpdate();
 }
 
 void Engine::preRender()
