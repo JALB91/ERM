@@ -117,7 +117,7 @@ constexpr R accumulate_type(refl::type_list<>, R&& initial_value, F&&)
 * Applies an accumulation function F to each type in the refl::type_list.
 */
 template<typename R, typename F, typename T, typename... Ts>
-constexpr auto accumulate_type(refl::type_list<T, Ts...> ts, R&& initial_value, F&& f)
+constexpr auto accumulate_type(refl::type_list<T, Ts...>, R&& initial_value, F&& f)
 {
 	return accumulate_type(
 		refl::type_list<Ts...> {}, 
