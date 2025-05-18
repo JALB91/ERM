@@ -12,17 +12,11 @@ namespace erm {
 
 struct PBMaterial
 {
-	PBMaterial()
-		: mMetallic(0.0f)
-		, mRoughness(0.0f)
-		, mAO(0.0f)
-	{}
-
 	std::unordered_map<TextureType, StringID> mTexturesMap;
-	vec3 mAlbedo;
-	float mMetallic;
-	float mRoughness;
-	float mAO;
+	vec3 mAlbedo = vec3(0.0f);
+	float mMetallic = 0.0f;
+	float mRoughness = 0.0f;
+	float mAO = 0.0f;
 };
 
 } // namespace erm

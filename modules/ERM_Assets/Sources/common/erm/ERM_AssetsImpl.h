@@ -12,8 +12,8 @@ public:
 	bool deinit();
 
 private:
-	AssetsManager mAssetsManager;
 	AssetsRepo mAssetsRepo;
+	AssetsManager mAssetsManager;
 	
 };
 

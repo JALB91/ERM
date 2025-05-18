@@ -8,17 +8,9 @@ namespace erm {
 
 struct Texture
 {
-	Texture()
-		: mTextureType(TextureType::COUNT)
-		, mBuffer(nullptr)
-		, mWidth(0)
-		, mHeight(0)
-		, mBPP(0)
-	{}
-	
-	TextureType mTextureType;
-	unsigned char* mBuffer;
-	u32 mWidth, mHeight, mBPP;
+	TextureType mTextureType = TextureType::COUNT;
+	unsigned char* mBuffer = nullptr;
+	u32 mWidth, mHeight, mBPP = 0;
 
 };
 

@@ -18,17 +18,9 @@ struct CubeMap
 		"front",
 		"back"};
 	
-	CubeMap()
-		: mTextureType(TextureType::CUBE_MAP)
-		, mBuffers{nullptr}
-		, mWidth(0)
-		, mHeight(0)
-		, mBPP(0)
-	{}
-	
-	TextureType mTextureType;
-	std::array<unsigned char*, kFaces.size()> mBuffers;
-	u32 mWidth, mHeight, mBPP;
+	const TextureType mTextureType = TextureType::CUBE_MAP;
+	std::array<unsigned char*, kFaces.size()> mBuffers = {nullptr};
+	u32 mWidth, mHeight, mBPP = 0;
 
 };
 

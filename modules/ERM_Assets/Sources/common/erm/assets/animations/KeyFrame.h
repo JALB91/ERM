@@ -10,8 +10,7 @@ namespace erm {
 struct KeyFrame
 {
 	KeyFrame(float timestamp)
-		: mTransforms()
-		, mTimestamp(timestamp)
+		: mTimestamp(timestamp)
 	{}
 
 	std::array<Pose, MAX_BONES> mTransforms;

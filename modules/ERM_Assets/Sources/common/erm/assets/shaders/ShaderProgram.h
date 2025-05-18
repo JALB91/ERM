@@ -6,11 +6,7 @@ namespace erm {
 
 struct ShaderProgram
 {
-	ShaderProgram()
-		: mShaderType(ShaderType::COUNT)
-	{}
-	
-	ShaderType mShaderType;
+	ShaderType mShaderType = ShaderType::COUNT;
 };
 
 }
