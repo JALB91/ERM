@@ -1,14 +1,11 @@
 #pragma once
 
-namespace erm {
-class Engine;
-namespace ecs {
+namespace erm::ecs {
 struct AnimationComponent;
-}
-} // namespace erm
+} // namespace erm::ecs
 
 namespace ImGui {
 
-extern bool ShowAnimationComponentDebugWindow(erm::Engine& engine, erm::ecs::AnimationComponent& animationComponent);
+extern bool ShowAnimationComponentDebugWindow(erm::ecs::AnimationComponent& animationComponent);
 
 }

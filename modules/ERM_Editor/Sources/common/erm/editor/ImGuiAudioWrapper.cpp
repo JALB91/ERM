@@ -4,18 +4,20 @@
 #include <erm/audio/Sound.h>
 #include <erm/engine/Engine.h>
 #include <erm/fs/FileLocator.h>
+#include <erm/modules_lib/ObjectRegistry.h>
 #include <erm/utils/Utils.h>
 
 #include <imgui.h>
 
 namespace ImGui {
 
-void ShowAudioDebugWindow(erm::Engine& engine, bool& open)
+void ShowAudioDebugWindow(bool& open)
 {
 	if (ImGui::Begin("Audio", &open, ImGuiWindowFlags_NoCollapse))
 	{
-		erm::AudioManager& audioManager = engine.getAudioManager();
-		const auto& sounds = engine.getFileLocator().getSounds();
+		auto& audioManager = *erm::ObjectRegistry::get<erm::AudioManager>();
+		auto& fileLocator = *erm::ObjectRegistry::get<erm::FileLocator>();
+		const auto& sounds = fileLocator.getSounds();
 		const auto& drivers = audioManager.getDrivers();
 		const auto& currentDriver = drivers.at(audioManager.getDriver());
 

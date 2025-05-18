@@ -2,20 +2,19 @@
 
 #include "erm/editor/ImGuiUtils.h"
 
-#include <erm/ecs/systems/SkeletonSystem.h>
-
-#include <erm/engine/Engine.h>
-
 #include <erm/assets/data_structs/Skeleton.h>
 //#include <erm/assets/ResourcesManager.h>
+#include <erm/ecs/systems/SkeletonSystem.h>
+#include <erm/engine/Engine.h>
+#include <erm/modules_lib/ObjectRegistry.h>
 
 #include <imgui.h>
 
 namespace ImGui {
 
-void ShowPathOptions(erm::Engine& engine, erm::ecs::SkeletonComponent& skeletonComponent);
+void ShowPathOptions(erm::ecs::SkeletonComponent& skeletonComponent);
 
-bool ShowSkeletonComponentDebugWindow(erm::Engine& engine, erm::ecs::SkeletonComponent& skeletonComponent)
+bool ShowSkeletonComponentDebugWindow(erm::ecs::SkeletonComponent& skeletonComponent)
 {
 	const bool headerOpen = ImGui::CollapsingHeader("Skeleton");
 
@@ -41,7 +40,7 @@ bool ShowSkeletonComponentDebugWindow(erm::Engine& engine, erm::ecs::SkeletonCom
 	{
 		ImGui::Indent();
 
-		ShowPathOptions(engine, skeletonComponent);
+		ShowPathOptions(skeletonComponent);
 
 		/*if (erm::Skeleton* skeleton = skeletonComponent.getSkin())
 		{
@@ -89,7 +88,7 @@ bool ShowSkeletonComponentDebugWindow(erm::Engine& engine, erm::ecs::SkeletonCom
 	return shouldRemove;
 }
 
-void ShowPathOptions(erm::Engine& /*engine*/, erm::ecs::SkeletonComponent& /*skeletonComponent*/)
+void ShowPathOptions(erm::ecs::SkeletonComponent& /*skeletonComponent*/)
 {
 	/*const erm::Skins& all = engine.GetResourcesManager().GetSkins();
 

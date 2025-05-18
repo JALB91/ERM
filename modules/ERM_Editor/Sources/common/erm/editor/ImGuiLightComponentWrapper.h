@@ -1,10 +1,8 @@
 #pragma once
 
-namespace erm {
-namespace ecs {
+namespace erm::ecs {
 struct LightComponent;
-}
-} // namespace erm
+} // namespace erm::ecs
 
 namespace ImGui {
 

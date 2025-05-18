@@ -23,7 +23,7 @@ int ERM_EditorImpl::run(int /*argc*/, char** /*argv*/)
 {
 	auto engine = ObjectRegistry::get<Engine>();
 
-	erm::ImGuiHandle handle(*engine);
+	erm::ImGuiHandle handle;
 
 	if (engine->init())
 	{

@@ -1,19 +1,18 @@
 #include "erm/editor/ImGuiModelComponentWrapper.h"
 #include "erm/editor/ImGuiMeshWrapper.h"
 
-#include <erm/engine/Engine.h>
-
 #include <erm/assets/models/Mesh.h>
 #include <erm/assets/models/Model.h>
 #include <erm/assets/AssetsManager.h>
-
 #include <erm/ecs/components/ModelComponent.h>
+#include <erm/engine/Engine.h>
+#include <erm/modules_lib/ObjectRegistry.h>
 
 #include <imgui.h>
 
 namespace ImGui {
 
-void ShowPathOptions(erm::Engine& /*engine*/, erm::ecs::ModelComponent& /*modelComponent*/)
+void ShowPathOptions(erm::ecs::ModelComponent& /*modelComponent*/)
 {
 	//const std::vector<std::string>& all = engine.getFileLocator().getModels();
 
@@ -47,7 +46,7 @@ void ShowPathOptions(erm::Engine& /*engine*/, erm::ecs::ModelComponent& /*modelC
 	}*/
 }
 
-bool ShowModelComponentDebugWindow(erm::Engine& /*engine*/, erm::ecs::ModelComponent& /*modelComponent*/)
+bool ShowModelComponentDebugWindow(erm::ecs::ModelComponent& /*modelComponent*/)
 {
 	const bool headerOpen = ImGui::CollapsingHeader("Model");
 

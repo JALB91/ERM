@@ -1,14 +1,11 @@
 #include "erm/editor/ImGuiMaterialWrapper.h"
 
-#include <erm/engine/Engine.h>
-
 #include <erm/assets/AssetsManager.h>
 #include <erm/assets/models/Mesh.h>
 #include <erm/assets/materials/Material.h>
 #include <erm/assets/materials/PBMaterial.h>
-
+#include <erm/engine/Engine.h>
 #include <erm/rendering/data_structs/BindingConfigs.h>
-
 #include <erm/utils/Utils.h>
 
 #include <imgui.h>
@@ -17,8 +14,8 @@
 
 namespace ImGui {
 
-void ShowLegacyMaterialDebug(erm::Engine& engine, erm::BindingConfigs& configs);
-void ShowPBMaterialDebug(erm::Engine& engine, erm::BindingConfigs& configs);
+void ShowLegacyMaterialDebug(erm::BindingConfigs& configs);
+void ShowPBMaterialDebug(erm::BindingConfigs& configs);
 
 template<typename T, typename MaterialType>
 void ShowPathOptions(erm::BindingConfigs& /*configs*/, const T& /*all*/)
@@ -90,7 +87,7 @@ void ShowPathOptions(erm::BindingConfigs& /*configs*/, const T& /*all*/)
 	}*/
 }
 
-void ShowMaterialDebug(erm::Engine& /*engine*/, erm::Mesh& /*mesh*/)
+void ShowMaterialDebug(erm::Mesh& /*mesh*/)
 {
 	if (ImGui::CollapsingHeader("Material"))
 	{
@@ -135,7 +132,7 @@ void ShowMaterialDebug(erm::Engine& /*engine*/, erm::Mesh& /*mesh*/)
 	}
 }
 
-void ShowLegacyMaterialDebug(erm::Engine& /*engine*/, erm::BindingConfigs& /*configs*/)
+void ShowLegacyMaterialDebug(erm::BindingConfigs& /*configs*/)
 {
 	/*static erm::Materials& all = engine.GetResourcesManager().GetMaterials();
 
@@ -149,7 +146,7 @@ void ShowLegacyMaterialDebug(erm::Engine& /*engine*/, erm::BindingConfigs& /*con
 	ImGui::SliderFloat("Shininess", &material->mShininess, 0.0f, 1000.0f);*/
 }
 
-void ShowPBMaterialDebug(erm::Engine& /*engine*/, erm::BindingConfigs& /*configs*/)
+void ShowPBMaterialDebug(erm::BindingConfigs& /*configs*/)
 {
 	/*static erm::PBMaterials& all = engine.GetResourcesManager().GetPBMaterials();
 

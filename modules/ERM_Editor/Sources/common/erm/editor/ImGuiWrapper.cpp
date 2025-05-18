@@ -6,12 +6,12 @@
 
 namespace ImGui {
 
-void ShowEngineDebug(erm::Engine& engine)
+void ShowEngineDebug()
 {
-	ImGui::ShowMainMenuBar(engine);
-	ImGui::ShowEntitiesDebugWindow(engine);
-	ImGui::ShowRenderingDebugWindow(engine);
-	ImGui::ShowGameWindow(engine);
+	ImGui::ShowMainMenuBar();
+	ImGui::ShowEntitiesDebugWindow();
+	ImGui::ShowRenderingDebugWindow();
+	ImGui::ShowGameWindow();
 }
 
 } // namespace ImGui

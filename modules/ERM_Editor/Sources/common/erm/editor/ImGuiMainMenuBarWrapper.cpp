@@ -10,7 +10,7 @@
 
 namespace ImGui {
 
-void ShowMainMenuBar(erm::Engine& engine)
+void ShowMainMenuBar()
 {
 	static bool showDemo = false;
 	static bool showInfos = false;
@@ -32,11 +32,11 @@ void ShowMainMenuBar(erm::Engine& engine)
 	if (showDemo)
 		ImGui::ShowDemoWindow(&showDemo);
 	if (showInfos)
-		ImGui::ShowInfoWindow(engine, showInfos);
+		ImGui::ShowInfoWindow(showInfos);
 	if (showShaders)
-		ImGui::ShowShadersDebug(engine, showShaders);
+		ImGui::ShowShadersDebug(showShaders);
 	if (showAudio)
-		ImGui::ShowAudioDebugWindow(engine, showAudio);
+		ImGui::ShowAudioDebugWindow(showAudio);
 }
 
 } // namespace ImGui

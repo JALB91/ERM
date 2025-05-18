@@ -7,10 +7,6 @@
 #include "erm/editor/ImGuiSkeletonComponentWrapper.h"
 #include "erm/editor/ImGuiTransformComponentWrapper.h"
 
-#include <erm/engine/Engine.h>
-
-#include <erm/window/Window.h>
-
 #include <erm/ecs/ECS.h>
 #include <erm/ecs/Entity.h>
 #include <erm/ecs/EntityId.h>
@@ -21,20 +17,24 @@
 #include <erm/ecs/systems/RenderingSystem.h>
 #include <erm/ecs/systems/SkeletonSystem.h>
 #include <erm/ecs/systems/TransformSystem.h>
+#include <erm/engine/Engine.h>
+#include <erm/modules_lib/ObjectRegistry.h>
+#include <erm/window/Window.h>
 
 #include <imgui.h>
 
 namespace ImGui {
 
 template<typename T>
-void ShowComponentDebugWindow(erm::Engine& engine, erm::ecs::EntityId entity, const std::function<bool(T&)>& callback, const char* name)
+void ShowComponentDebugWindow(erm::ecs::EntityId entity, const std::function<bool(T&)>& callback, const char* name)
 {
-	if (T* component = engine.getECS().getSystem<typename T::SYSTEM_TYPE>()->getComponent(entity))
+	auto ecs = erm::ObjectRegistry::get<erm::ecs::ECS>();
+	if (T* component = ecs->getSystem<typename T::SYSTEM_TYPE>()->getComponent(entity))
 	{
 		ImGui::PushID(name);
 		if (callback(*component))
 		{
-			engine.getECS().getSystem<typename T::SYSTEM_TYPE>()->removeComponent(entity);
+			ecs->getSystem<typename T::SYSTEM_TYPE>()->removeComponent(entity);
 		}
 		ImGui::PopID();
 	}
@@ -42,14 +42,14 @@ void ShowComponentDebugWindow(erm::Engine& engine, erm::ecs::EntityId entity, co
 	{
 		if (ImGui::Button(name))
 		{
-			engine.getECS().getEntityById(entity)->addComponent<T>();
+			ecs->getEntityById(entity)->addComponent<T>();
 			ImGui::CloseCurrentPopup();
 		}
 		ImGui::EndPopup();
 	}
 }
 
-void ShowComponentDebugWindow(erm::Engine& engine, erm::ecs::EntityId entity)
+void ShowComponentDebugWindow(erm::ecs::EntityId entity)
 {
 	if (!entity.isValid())
 		return;
@@ -62,49 +62,42 @@ void ShowComponentDebugWindow(erm::Engine& engine, erm::ecs::EntityId entity)
 	ImGui::Separator();
 
 	ShowComponentDebugWindow<erm::ecs::TransformComponent>(
-		engine,
 		entity,
 		[](erm::ecs::TransformComponent& component) {
 			return ShowTransformComponentDebugWindow(component);
 		},
 		"Transform");
 	ShowComponentDebugWindow<erm::ecs::ModelComponent>(
-		engine,
 		entity,
-		[&engine](erm::ecs::ModelComponent& component) {
-			return ShowModelComponentDebugWindow(engine, component);
+		[](erm::ecs::ModelComponent& component) {
+			return ShowModelComponentDebugWindow(component);
 		},
 		"Model");
 	ShowComponentDebugWindow<erm::ecs::CameraComponent>(
-		engine,
 		entity,
 		[](erm::ecs::CameraComponent& component) {
 			return ShowCameraComponentDebugWindow(component);
 		},
 		"Camera");
 	ShowComponentDebugWindow<erm::ecs::LightComponent>(
-		engine,
 		entity,
 		[](erm::ecs::LightComponent& component) {
 			return ShowLightComponentDebugWindow(component);
 		},
 		"Light");
 	ShowComponentDebugWindow<erm::ecs::SkeletonComponent>(
-		engine,
 		entity,
-		[&engine](erm::ecs::SkeletonComponent& component) {
-			return ShowSkeletonComponentDebugWindow(engine, component);
+		[](erm::ecs::SkeletonComponent& component) {
+			return ShowSkeletonComponentDebugWindow(component);
 		},
 		"Skeleton");
 	ShowComponentDebugWindow<erm::ecs::AnimationComponent>(
-		engine,
 		entity,
-		[&engine](erm::ecs::AnimationComponent& component) {
-			return ShowAnimationComponentDebugWindow(engine, component);
+		[](erm::ecs::AnimationComponent& component) {
+			return ShowAnimationComponentDebugWindow(component);
 		},
 		"Animation");
 	ShowComponentDebugWindow<erm::ecs::RenderingComponent>(
-		engine,
 		entity,
 		[](erm::ecs::RenderingComponent& component) {
 			return ShowRenderingComponentDebug(component);

@@ -2,6 +2,7 @@
 
 #include <erm/ecs/ECS.h>
 #include <erm/ecs/Entity.h>
+#include <erm/modules_lib/ObjectRegistry.h>
 
 #include <imgui.h>
 
@@ -10,16 +11,15 @@
 namespace ImGui {
 
 void ShowEntityPopup(
-	erm::ecs::ECS& ecs,
 	erm::ecs::EntityId entity,
 	bool& shouldAdd,
 	bool& shouldRemove);
 
 erm::ecs::EntityId ShowEntityDebugWindow(
-	erm::ecs::ECS& ecs,
 	erm::ecs::EntityId active,
 	erm::ecs::EntityId entity)
 {
+	auto& ecs = *erm::ObjectRegistry::get<erm::ecs::ECS>();
 	int flags = ImGuiTreeNodeFlags_FramePadding;
 
 	if (ecs.getEntityById(entity)->getChildren().empty())
@@ -55,13 +55,13 @@ erm::ecs::EntityId ShowEntityDebugWindow(
 	ImGui::PopStyleColor();
 	ImGui::PopID();
 
-	ShowEntityPopup(ecs, entity, shouldAdd, shouldRemove);
+	ShowEntityPopup(entity, shouldAdd, shouldRemove);
 
 	if (isOpen)
 	{
 		const std::vector<erm::ecs::EntityId> children = ecs.getEntityById(entity)->getChildren();
-		std::for_each(children.begin(), children.end(), [&ecs, &active](erm::ecs::EntityId child) {
-			active = ImGui::ShowEntityDebugWindow(ecs, active, child);
+		std::for_each(children.begin(), children.end(), [&active](erm::ecs::EntityId child) {
+			active = ImGui::ShowEntityDebugWindow(active, child);
 		});
 		ImGui::TreePop();
 	}
@@ -79,11 +79,12 @@ erm::ecs::EntityId ShowEntityDebugWindow(
 }
 
 void ShowEntityPopup(
-	erm::ecs::ECS& ecs,
 	erm::ecs::EntityId entity,
 	bool& shouldAdd,
 	bool& shouldRemove)
 {
+	auto& ecs = *erm::ObjectRegistry::get<erm::ecs::ECS>();
+
 	if (ImGui::BeginPopup("Entity"))
 	{
 		if (ImGui::Button("Add..."))

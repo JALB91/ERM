@@ -1,19 +1,17 @@
 #include "erm/editor/ImGuiAnimationComponentWrapper.h"
 
-#include <erm/ecs/systems/AnimationSystem.h>
-
 #include <erm/assets/animations/SkeletonAnimation.h>
 #include <erm/assets/AssetsManager.h>
-
+#include <erm/ecs/systems/AnimationSystem.h>
 #include <erm/engine/Engine.h>
 
 #include <imgui.h>
 
 namespace ImGui {
 
-void ShowPathOptions(erm::Engine& engine, erm::ecs::AnimationComponent& animationComponent);
+void ShowPathOptions(erm::ecs::AnimationComponent& animationComponent);
 
-bool ShowAnimationComponentDebugWindow(erm::Engine& engine, erm::ecs::AnimationComponent& animationComponent)
+bool ShowAnimationComponentDebugWindow(erm::ecs::AnimationComponent& animationComponent)
 {
 	const bool headerOpen = ImGui::CollapsingHeader("Animation");
 
@@ -39,7 +37,7 @@ bool ShowAnimationComponentDebugWindow(erm::Engine& engine, erm::ecs::AnimationC
 	{
 		ImGui::Indent();
 
-		ShowPathOptions(engine, animationComponent);
+		ShowPathOptions(animationComponent);
 
 		if (animationComponent.mSkeletonAnimation)
 		{
@@ -55,7 +53,7 @@ bool ShowAnimationComponentDebugWindow(erm::Engine& engine, erm::ecs::AnimationC
 	return shouldRemove;
 }
 
-void ShowPathOptions(erm::Engine& /*engine*/, erm::ecs::AnimationComponent& animationComponent)
+void ShowPathOptions(erm::ecs::AnimationComponent& animationComponent)
 {
 	// const erm::Animations& all = engine.GetResourcesManager().GetAnimations();
 

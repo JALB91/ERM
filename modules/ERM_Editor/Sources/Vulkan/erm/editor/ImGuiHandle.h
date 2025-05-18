@@ -13,6 +13,7 @@ class Engine;
 class Device;
 class Renderer;
 class RenderingResources;
+class Window;
 } // namespace erm
 
 namespace erm {
@@ -20,7 +21,7 @@ namespace erm {
 class ImGuiHandle : private ISwapChainListener, private IExtCommandBufferUpdater
 {
 public:
-	ImGuiHandle(Engine& engine);
+	ImGuiHandle();
 	~ImGuiHandle();
 
 	void onUpdate();
@@ -44,6 +45,7 @@ private:
 	Engine& mEngine;
 	Device& mDevice;
 	Renderer& mRenderer;
+	Window& mWindow;
 
 	vk::RenderPass mRenderPass;
 	std::vector<vk::Framebuffer> mFrameBuffers;

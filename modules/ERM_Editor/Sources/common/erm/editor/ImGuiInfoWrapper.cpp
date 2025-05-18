@@ -2,12 +2,11 @@
 #include "erm/editor/ImGuiUtils.h"
 
 #include <erm/engine/Engine.h>
-
-#include <erm/window/Window.h>
-
+#include <erm/modules_lib/ObjectRegistry.h>
 #include <erm/utils/Profiler.h>
 #include <erm/utils/Sampler.h>
 #include <erm/utils/Timer.h>
+#include <erm/window/Window.h>
 
 #include <imgui.h>
 
@@ -31,10 +30,11 @@ static const std::vector<std::pair<const char*, unsigned int>> kFPSOptions {
 
 void ShowProfilingTree(const erm::Profiler::ProfilingTree& node, TREE_OP operation);
 
-void ShowInfoWindow(erm::Engine& engine, bool& open)
+void ShowInfoWindow(bool& open)
 {
+	auto& engine = *erm::ObjectRegistry::get<erm::Engine>();
 	const erm::Timer& timer = engine.getTimer();
-	const erm::Window& window = engine.getWindow();
+	const erm::Window& window = *erm::ObjectRegistry::get<erm::Window>();
 
 	ImGui::SetNextWindowSize(ImVec2(600, 600), ImGuiCond_FirstUseEver);
 	ImGui::SetNextWindowPos(ImVec2(static_cast<float>(window.getWindowWidth() / 2), static_cast<float>(window.getWindowHeight() / 2)), ImGuiCond_FirstUseEver);

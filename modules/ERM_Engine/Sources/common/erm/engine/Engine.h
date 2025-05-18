@@ -13,7 +13,6 @@ class AudioManager;
 class Device;
 class FileLocator;
 class Renderer;
-class UpdateManager;
 class Window;
 namespace ecs {
 class ECS;
@@ -50,12 +49,6 @@ public:
 	void setMaxFPS(u16 maxFPS);
 
 	inline const Timer& getTimer() const { return mTimer; }
-	inline const FileLocator& getFileLocator() const { return *mFileLocator; }
-	inline AudioManager& getAudioManager() const { return *mAudioManager; }
-	inline Window& getWindow() const { return *mWindow; }
-	inline Device& getDevice() const { return *mDevice; }
-	inline Renderer& getRenderer() const { return *mRenderer; }
-	inline ecs::ECS& getECS() const { return *mECS; }
 	inline const UpdateManager& getUpdateManager() const { return mUpdateManager; }
 
 private:

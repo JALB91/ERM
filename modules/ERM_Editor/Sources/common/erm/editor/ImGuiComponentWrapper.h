@@ -1,14 +1,11 @@
 #pragma once
 
-namespace erm {
-class Engine;
-namespace ecs {
+namespace erm::ecs {
 struct EntityId;
-}
-} // namespace erm
+} // namespace erm::ecs
 
 namespace ImGui {
 
-extern void ShowComponentDebugWindow(erm::Engine& engine, erm::ecs::EntityId entity);
+extern void ShowComponentDebugWindow(erm::ecs::EntityId entity);
 
 }

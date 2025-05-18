@@ -1,14 +1,11 @@
 #include "erm/editor/ImGuiShadersWrapper.h"
 
-#include <erm/engine/Engine.h>
-
 //#include <erm/assets/ResourcesManager.h>
 #include <erm/assets/shaders/ShaderUtils.h>
-
+#include <erm/engine/Engine.h>
+#include <erm/modules_lib/ObjectRegistry.h>
 #include <erm/rendering/shaders/IShaderProgram.h>
-
 #include <erm/window/Window.h>
-
 #include <erm/utils/Utils.h>
 
 #include <imgui.h>
@@ -17,14 +14,14 @@
 
 namespace ImGui {
 
-void ShowShadersDebug(erm::Engine& engine, bool& open)
+void ShowShadersDebug(bool& open)
 {
 //	const std::vector<std::string>& shaders = engine.getFileLocator().getShaderPrograms();
 	static erm::IShaderProgram* selected = nullptr;
-	const erm::Window& window = engine.getWindow();
+	const auto window = erm::ObjectRegistry::get<erm::Window>();
 
 	ImGui::SetNextWindowSize(ImVec2(600, 600), ImGuiCond_FirstUseEver);
-	ImGui::SetNextWindowPos(ImVec2(static_cast<float>(window.getWindowWidth() / 2), static_cast<float>(window.getWindowHeight() / 2)), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowPos(ImVec2(static_cast<float>(window->getWindowWidth() / 2), static_cast<float>(window->getWindowHeight() / 2)), ImGuiCond_FirstUseEver);
 
 	if (ImGui::Begin("Shaders", &open, ImGuiWindowFlags_NoCollapse))
 	{

@@ -3,16 +3,14 @@
 #include "erm/editor/ImGuiWrapper.h"
 
 #include <erm/engine/Engine.h>
-
+#include <erm/modules_lib/ObjectRegistry.h>
 #include <erm/rendering/Device.h>
 #include <erm/rendering/data_structs/QueueFamilyIndices.h>
 #include <erm/rendering/renderer/Renderer.h>
 #include <erm/rendering/utils/VkUtils.h>
-
-#include <erm/window/Window.h>
-
 #include <erm/utils/Profiler.h>
 #include <erm/utils/Utils.h>
+#include <erm/window/Window.h>
 
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
@@ -32,10 +30,11 @@ void checkVKResult(VkResult result)
 
 namespace erm {
 
-ImGuiHandle::ImGuiHandle(Engine& engine)
-	: mEngine(engine)
-	, mDevice(engine.getDevice())
-	, mRenderer(engine.getRenderer())
+ImGuiHandle::ImGuiHandle()
+: mEngine(*ObjectRegistry::get<Engine>())
+, mDevice(*ObjectRegistry::get<Device>())
+, mRenderer(*ObjectRegistry::get<Renderer>())
+, mWindow(*ObjectRegistry::get<Window>())
 {
 	ImGui::CreateContext();
 	ImGui::StyleColorsDark();
@@ -65,7 +64,7 @@ void ImGuiHandle::onUpdate()
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 	
-	ImGui::ShowEngineDebug(mEngine);
+	ImGui::ShowEngineDebug();
 }
 
 void ImGuiHandle::onPreRender()
@@ -90,7 +89,7 @@ void ImGuiHandle::swapChainCreated()
 
 	gFirst = false;
 
-	ImGui_ImplGlfw_InitForVulkan(mEngine.getWindow().getWindow(), true);
+	ImGui_ImplGlfw_InitForVulkan(mWindow.getWindow(), true);
 
 	createRenderPass();
 	createFrameBuffers();

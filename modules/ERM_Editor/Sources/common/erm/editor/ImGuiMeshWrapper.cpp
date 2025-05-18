@@ -6,6 +6,7 @@
 #include <erm/assets/textures/Texture.h>
 #include <erm/engine/Engine.h>
 #include <erm/fs/FileLocator.h>
+#include <erm/modules_lib/ObjectRegistry.h>
 #include <erm/rendering/shaders/IShaderProgram.h>
 #include <erm/rendering/data_structs/PipelineConfigs.h>
 
@@ -13,7 +14,7 @@
 
 namespace ImGui {
 
-void ShowShaderPathOptions(erm::Engine& /*engine*/, erm::Mesh& /*mesh*/)
+void ShowShaderPathOptions(erm::Mesh& /*mesh*/)
 {
 	//const std::vector<std::string>& all = engine.getFileLocator().getShaderPrograms();
 
@@ -51,9 +52,9 @@ void ShowShaderPathOptions(erm::Engine& /*engine*/, erm::Mesh& /*mesh*/)
 //	}
 }
 
-void ShowTexturePathOptions(erm::Engine& engine, erm::Texture** texture, const char* name)
+void ShowTexturePathOptions(erm::Texture** texture, const char* name)
 {
-	const std::vector<std::string>& all = engine.getFileLocator().getTextures();
+	const std::vector<std::string>& all = erm::ObjectRegistry::get<erm::FileLocator>()->getTextures();
 
 	std::string currentPath = "";// * texture ? (*texture)->mPath : "";
 

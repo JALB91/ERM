@@ -1,13 +1,11 @@
 #include "erm/editor/ImGuiGameWindow.h"
 
+#include <erm/engine/Engine.h>
 #include <erm/math/BoundingBox.h>
 #include <erm/math/Types.h>
-
-#include <erm/engine/Engine.h>
-
+#include <erm/modules_lib/ObjectRegistry.h>
 #include <erm/rendering/renderer/ISwapChainListener.h>
 #include <erm/rendering/renderer/Renderer.h>
-
 #include <erm/window/Window.h>
 
 #include <imgui.h>
@@ -21,10 +19,11 @@ namespace ImGui {
 class SwapChainHelper : public erm::ISwapChainListener
 {
 public:
-	SwapChainHelper(erm::Engine& engine)
-		: mEngine(engine)
+	SwapChainHelper()
+	: mEngine(*erm::ObjectRegistry::get<erm::Engine>())
+	, mRenderer(*erm::ObjectRegistry::get<erm::Renderer>())
 	{
-		mEngine.getRenderer().addSwapChainListener(this);
+		mRenderer.addSwapChainListener(this);
 	}
 
 	~SwapChainHelper()
@@ -68,13 +67,15 @@ public:
 	}
 
 	erm::Engine& mEngine;
-	bool mSwapChainUpdate = true;
+	erm::Renderer& mRenderer;
+
 	std::vector<VkDescriptorSet> mTextureIDs;
+	bool mSwapChainUpdate = true;
 };
 
-void ShowGameWindow(erm::Engine& engine)
+void ShowGameWindow()
 {
-	static SwapChainHelper sHelper(engine);
+	static SwapChainHelper sHelper;
 	static bool sFirst = true;
 
 	if (sHelper.update())
@@ -83,7 +84,8 @@ void ShowGameWindow(erm::Engine& engine)
 		return;
 	}
 
-	const erm::Window& window = engine.getWindow();
+	const auto& renderer = *erm::ObjectRegistry::get<erm::Renderer>();
+	const erm::Window& window = *erm::ObjectRegistry::get<erm::Window>();
 
 	const int flags =
 		ImGuiWindowFlags_NoFocusOnAppearing |
@@ -98,7 +100,7 @@ void ShowGameWindow(erm::Engine& engine)
 		ImGuiWindowFlags_NoScrollbar |
 		ImGuiWindowFlags_NoScrollWithMouse;
 	
-	const erm::u64 index = engine.getRenderer().getCurrentFrame();
+	const erm::u64 index = renderer.getCurrentFrame();
 	
 	/*
 		Wait for the first frame to be renderer otherwise
