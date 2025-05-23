@@ -7,4 +7,5 @@ erm_module_setup(
 		ERM_FileSystem_shared
 		ERM_Math_static
 		ERM_Log_static
+		ERM_STL
 )

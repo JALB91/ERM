@@ -2,6 +2,7 @@
 
 #include "erm/audio/AudioUtils.h"
 
+#include <erm/modules_lib/ObjectRegistry.h>
 #include <erm/utils/Profiler.h>
 #include <erm/utils/StaticString.h>
 #include <erm/utils/Utils.h>
@@ -50,10 +51,10 @@ static FMOD_RESULT systemCallback(
 
 }
 
-AudioManager::AudioManager()
+AudioManager::AudioManager() noexcept
 	: mStudioSystem(nullptr)
 	, mCoreSystem(nullptr)
-	, mChannels({})
+	, mChannels({nullptr})
 	, mPlayInBackground(true)
 	, mSuspended(false)
 {
@@ -75,8 +76,19 @@ AudioManager::~AudioManager()
 	{
 		ERM_CHECK_FMOD_RESULT(sound.mSound->release());
 	}
+	mSounds.clear();
+	
+	if (mCoreSystem)
+	{
+		ERM_CHECK_FMOD_RESULT(mCoreSystem->release());
+		mCoreSystem = nullptr;
+	}
 
-	ERM_CHECK_FMOD_RESULT(mStudioSystem->release());
+	if (mStudioSystem)
+	{
+		ERM_CHECK_FMOD_RESULT(mStudioSystem->release());
+		mStudioSystem = nullptr;
+	}
 }
 
 void AudioManager::suspend()

@@ -15,7 +15,7 @@
 namespace erm {
 
 Setup::Setup()
-: mFileLocator(ObjectRegistry::get<FileLocator>())
+: mFileLocator(ObjectRegistry::require<FileLocator>())
 , mRenderingAPI(mArgsParser->addOptionalArg(
 	std::nullopt,
 	"rendering-api",
@@ -101,14 +101,14 @@ int Setup::exec(const SubCommand& /*command*/) const
 	
 	if (const auto rootPath = mERMRootPath->get<fs::path>(); !rootPath.empty())
 	{
-		if (!mFileLocator->setERMRootPath(rootPath))
+		if (!mFileLocator.setERMRootPath(rootPath))
 		{
 			ERM_LOG_ERROR("Invalid path to ERM root: \"%s\"", rootPath.c_str());
 			return EXIT_FAILURE;
 		}
 	}
 	
-	const auto ermRootPath = mFileLocator->getERMRootPath();
+	const auto ermRootPath = mFileLocator.getERMRootPath();
 	
 	const auto buildFolderName = std::format(
 		"ERM_{}_{}_{}_{}",
@@ -116,7 +116,7 @@ int Setup::exec(const SubCommand& /*command*/) const
 		magic_enum::enum_name(*generator),
 		magic_enum::enum_name(*compiler),
 		magic_enum::enum_name(*renderingAPI));
-	const auto ermBuildPath = mFileLocator->getERMRootPath() / "builds" / buildFolderName.c_str();
+	const auto ermBuildPath = mFileLocator.getERMRootPath() / "builds" / buildFolderName.c_str();
 	
 	CMakeGenerateArgs generateArgs;
 	generateArgs.mDefinitions.emplace_back("ERM_COMPILER", magic_enum::enum_name(*compiler));

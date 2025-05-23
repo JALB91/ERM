@@ -3,14 +3,11 @@
 #include "erm/ecs/ECS.h"
 #include "erm/ecs/systems/TransformSystem.h"
 
-//#include "erm/rendering/window/Window.h"
-
 #include <erm/input/Keys.h>
 #include <erm/input/Mouse.h>
-
 #include <erm/math/Types.h>
-
 #include <erm/utils/Profiler.h>
+//#include <erm/window/Window.h>
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -21,7 +18,7 @@ ERM_SYSTEM_IMPL(Camera)
 CameraSystem::CameraSystem(ECS& ecs)
 	: ISystem(ecs)
 	, mTransformSystem(nullptr)
-//	, mWindow(mEngine.getWindow())
+//	, mWindow(mEngine.getGLFWWindow())
 {}
 
 void CameraSystem::init()

@@ -2,7 +2,7 @@
 
 namespace erm {
 
-IWindow::IWindow()
+IWindow::IWindow() noexcept
 	: mMousePosX(0.0)
 	, mPrevMousePosX(0.0)
 	, mMousePosY(0.0)

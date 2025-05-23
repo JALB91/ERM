@@ -4,6 +4,7 @@
 
 #include "erm/@MODULE_NAME@Impl.h"
 
+#include <erm/stl/utils.h>
 #include <erm/utils/Version.h>
 
 #include <refl.hpp>
@@ -24,56 +25,25 @@ public:
 	static constexpr Version kModuleVersion{ @MODULE_VERSION_MAJOR@, @MODULE_VERSION_MINOR@, @MODULE_VERSION_PATCH@ };
 
 public:
-	using DepsT = refl::type_list<@ModuleDependenciesList@>;
-	static constexpr auto kDependencies = DepsT{};
+	using DepsTypeListT = refl::type_list<@ModuleDependenciesList@>;
+	static constexpr DepsTypeListT kDependenciesTypeList;
 
-	static bool initialized()
-	{
-		const auto& instance = getInstance();
-		return instance.mInitialized;
-	}
+	using ObjectsTypeListT = @MODULE_NAME@ObjectsTypeListT;
+	using ObjectsTupleT = stl::tuple_from_type_list_t<ObjectsTypeListT>;
 
-	static bool init()
-	{
-		auto& instance = getInstance();
-		if (!instance.initialized())
-		{
-			instance.mInitialized = instance.mImpl.init();
-		}
-		return instance.initialized();
-	}
-
-	static bool deinit()
-	{
-		auto& instance = getInstance();
-		if (instance.initialized())
-		{
-			instance.mInitialized = !instance.mImpl.deinit();
-		}
-		return !instance.initialized();
-	}
-
-	static int run(int argc, char** argv)
-	{
-		auto& instance = getInstance();
-		if (instance.initialized())
-		{
-			return instance.mImpl.run(argc, argv);
-		}
-		return EXIT_FAILURE;
-	}
-
-private:
+public:
 	@ModuleName@() = default;
+	~@ModuleName@() = default;
 
-	static @ModuleName@& getInstance()
-	{
-		static @ModuleName@ sInstance;
-		return sInstance;
-	}
+	@ModuleName@(const @ModuleName@&) = delete;
+	@ModuleName@(@ModuleName@&&) = delete;
 
-	@MODULE_NAME@Impl mImpl;
-	bool mInitialized = false;
+	@ModuleName@& operator=(const @ModuleName@&) = delete;
+	@ModuleName@& operator=(@ModuleName@&&) = delete;
+
+	int run(int argc, char** argv);
+
+	ObjectsTupleT mObjects;
 
 };
 

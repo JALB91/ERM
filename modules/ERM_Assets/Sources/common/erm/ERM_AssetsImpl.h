@@ -3,18 +3,13 @@
 #include "erm/assets/AssetsManager.h"
 #include "erm/assets/AssetsRepo.h"
 
+#include <refl.hpp>
+
 namespace erm {
 
-class ERM_AssetsImpl
-{
-public:
-	bool init();
-	bool deinit();
-
-private:
-	AssetsRepo mAssetsRepo;
-	AssetsManager mAssetsManager;
-	
-};
+using ERM_AssetsObjectsTypeListT = refl::type_list<
+	AssetsRepo,
+	AssetsManager
+>;
 
 }

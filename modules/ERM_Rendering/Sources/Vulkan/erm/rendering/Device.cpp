@@ -6,10 +6,12 @@
 
 #include <erm/log/Assert.h>
 #include <erm/modules_lib/ObjectRegistry.h>
-#include <erm/window/Window.h>
 #include <erm/utils/Utils.h>
+#include <erm/window/Window.h>
 
 #include <GLFW/glfw3.h>
+
+#include <magic_enum/magic_enum.hpp>
 
 #include <array>
 #include <iostream>
@@ -99,18 +101,41 @@ void destroyDebugUtilsMessengerEXT(
 
 namespace erm {
 
-Device::Device()
-	: mWindow(ObjectRegistry::get<Window>())
+Device::Device() noexcept
+: mWindow(ObjectRegistry::require<Window>())
+, mDebugMessenger(nullptr)
 {
-	ERM_ASSERT(createInstance(), "Failed to create Vulkan instance");
+	if (!createInstance())
+	{
+		ERM_LOG_CRITICAL("Failed to create Vulkan instance");
+		return;
+	}
+	
 	setupDebugMessenger();
-	ERM_ASSERT(createSurface(), "Failed to create Vulkan surface");
-	ERM_ASSERT(pickPhysicalDevice(), "Failed to find a suitable physical device");
+	
+	if (!createSurface())
+	{
+		ERM_LOG_CRITICAL("Failed to create Vulkan surface");
+		return;
+	}
+	
+	if (!pickPhysicalDevice())
+	{
+		ERM_LOG_CRITICAL("Failed to find a suitable physical device");
+		return;
+	}
+	
 	createLogicalDevice();
 	createCommandPool();
+	
 #ifdef ERM_RAY_TRACING_ENABLED
-	ERM_ASSERT(initRayTracing(), "Ray tracing not supported");
+	if (!initRayTracing())
+	{
+		ERM_LOG_CRITICAL("Failed to initialize ray tracing");
+		return;
+	}
 #endif
+	
 	load_VK_EXTENSION_SUBSET(
 		mInstance.get(),
 		(PFN_vkGetInstanceProcAddr)vkGetInstanceProcAddr(mInstance.get(), "vkGetInstanceProcAddr"),
@@ -120,9 +145,16 @@ Device::Device()
 
 Device::~Device()
 {
-	ERM_VK_CHECK(mDevice->waitIdle());
+	if (mDevice)
+	{
+		ERM_VK_CHECK(mDevice->waitIdle());
+	}
+	
 #ifdef ERM_DEBUG
-	destroyDebugUtilsMessengerEXT(VkInstance(mInstance.get()), mDebugMessenger, nullptr);
+	if (mInstance && mDebugMessenger)
+	{
+		destroyDebugUtilsMessengerEXT(VkInstance(mInstance.get()), mDebugMessenger, nullptr);
+	}
 #endif
 }
 
@@ -255,7 +287,7 @@ void Device::setupDebugMessenger()
 bool Device::createSurface()
 {
 	VkSurfaceKHR _surface;
-	if (glfwCreateWindowSurface(VkInstance(mInstance.get()), mWindow->getWindow(), nullptr, &_surface) != VK_SUCCESS)
+	if (glfwCreateWindowSurface(VkInstance(mInstance.get()), mWindow.getGLFWWindow(), nullptr, &_surface) != VK_SUCCESS)
 	{
 		return false;
 	}

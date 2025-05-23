@@ -1,5 +1,7 @@
 #pragma once
 
+#include <erm/modules_lib/IModuleObject.h>
+
 #include <refl.hpp>
 
 #include <vulkan/vulkan.hpp>
@@ -10,12 +12,12 @@ class Window;
 
 namespace erm {
 
-class Device
+class Device : public IModuleObject<Device>
 {
 public:
-	Device();
-	~Device();
-
+	Device() noexcept;
+	~Device() override;
+	
 	vk::Device* operator->();
 
 	inline vk::Instance getVkInstance() const { return mInstance.get(); }
@@ -37,7 +39,7 @@ private:
 	void createPipelineCache();
 	void createCommandPool();
 
-	Window* mWindow;
+	Window& mWindow;
 	vk::UniqueInstance mInstance;
 	vk::UniqueSurfaceKHR mSurface;
 	vk::PhysicalDevice mPhysicalDevice;
@@ -59,6 +61,7 @@ private:
 	bool initRayTracing();
 	vk::PhysicalDeviceRayTracingPipelinePropertiesKHR mRtProperties;
 #endif
+	
 };
 
 } // namespace erm

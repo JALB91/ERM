@@ -24,7 +24,7 @@ public:
 	ERM_SENSIBLE_MEMBER(ZNear, float, 0.1f)
 	ERM_SENSIBLE_MEMBER(ZFar, float, 10000.0f)
 
-	inline const mat4& GetProjectionMatrix() const { return mProjectionMatrix; }
+	inline const mat4& getProjectionMatrix() const { return mProjectionMatrix; }
 
 private:
 	mat4 mProjectionMatrix = glm::identity<mat4>();

@@ -2,7 +2,6 @@
 
 #include "erm/rendering/data_structs/BindingConfigs.h"
 #include "erm/rendering/data_structs/IBindingResources.h"
-#include "erm/rendering/renderer/IRenderer.h"
 
 #include <erm/log/Assert.h>
 

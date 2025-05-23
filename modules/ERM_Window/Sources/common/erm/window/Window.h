@@ -2,27 +2,22 @@
 
 #include "erm/window/IWindow.h"
 
+#include <erm/modules_lib/IModuleObject.h>
+
 #include <refl.hpp>
 
 struct GLFWwindow;
 
 namespace erm {
 
-class Window : public IWindow
+class Window : public IWindow, public IModuleObject<Window>
 {
 public:
-	Window();
-	~Window();
+	Window() noexcept;
+	~Window() override;
 
-	Window(const Window&) = delete;
-	Window(Window&&) = delete;
-
-	Window& operator=(const Window&) = delete;
-	Window& operator=(Window&&) = delete;
-
-	inline GLFWwindow* getWindow() const { return mWindow; }
-
-	bool init();
+	inline GLFWwindow* getGLFWWindow() const { return mGLFWWindow; }
+	
 	bool shouldClose();
 	void update();
 	void render();
@@ -42,7 +37,8 @@ private:
 	void updateViewport();
 	void updateAspectRatio();
 
-	GLFWwindow* mWindow;
+	GLFWwindow* mGLFWWindow;
+	
 };
 
 } // namespace erm

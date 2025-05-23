@@ -21,7 +21,7 @@ public:
 private:
 	int exec(const SubCommand& command) const;
 	
-	FileLocator* mFileLocator;
+	FileLocator& mFileLocator;
 	ArgsParser mArgsParser;
 	OptionalArgHandle mRenderingAPI;
 	OptionalArgHandle mGenerator;

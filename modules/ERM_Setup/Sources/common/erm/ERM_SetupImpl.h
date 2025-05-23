@@ -1,14 +1,9 @@
 #pragma once
 
+#include <refl.hpp>
+
 namespace erm {
 
-class ERM_SetupImpl
-{
-public:
-	bool init() const;
-	bool deinit() const;
-	int run(int argc, char** argv) const;
-
-};
+using ERM_SetupObjectsTypeListT = refl::type_list<>;
 
 }

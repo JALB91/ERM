@@ -42,7 +42,7 @@ void ShowComponentDebugWindow(erm::ecs::EntityId entity, const std::function<boo
 	{
 		if (ImGui::Button(name))
 		{
-			ecs->getEntityById(entity)->addComponent<T>();
+			ecs->addComponent<T>(entity);
 			ImGui::CloseCurrentPopup();
 		}
 		ImGui::EndPopup();

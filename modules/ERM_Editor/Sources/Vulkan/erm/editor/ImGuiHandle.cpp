@@ -31,10 +31,10 @@ void checkVKResult(VkResult result)
 namespace erm {
 
 ImGuiHandle::ImGuiHandle()
-: mEngine(*ObjectRegistry::get<Engine>())
-, mDevice(*ObjectRegistry::get<Device>())
-, mRenderer(*ObjectRegistry::get<Renderer>())
-, mWindow(*ObjectRegistry::get<Window>())
+: mEngine(ObjectRegistry::require<Engine>())
+, mDevice(ObjectRegistry::require<Device>())
+, mRenderer(ObjectRegistry::require<Renderer>())
+, mWindow(ObjectRegistry::require<Window>())
 {
 	ImGui::CreateContext();
 	ImGui::StyleColorsDark();
@@ -89,7 +89,7 @@ void ImGuiHandle::swapChainCreated()
 
 	gFirst = false;
 
-	ImGui_ImplGlfw_InitForVulkan(mWindow.getWindow(), true);
+	ImGui_ImplGlfw_InitForVulkan(mWindow.getGLFWWindow(), true);
 
 	createRenderPass();
 	createFrameBuffers();
@@ -205,8 +205,7 @@ void ImGuiHandle::createFrameBuffers()
 	mFrameBuffers.resize(swapChainTextures.size());
 	for (u64 i = 0; i < swapChainTextures.size(); i++)
 	{
-//		TODO: Damiano
-		std::vector<vk::ImageView> attachments;// = {swapChainTextures[i]->GetImageView()};
+		std::vector<vk::ImageView> attachments = {swapChainTextures[i]->getImageView()};
 
 		vk::FramebufferCreateInfo framebufferInfo = {};
 		framebufferInfo.renderPass = mRenderPass;

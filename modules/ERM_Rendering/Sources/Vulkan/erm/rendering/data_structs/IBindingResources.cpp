@@ -1,14 +1,14 @@
 #include "erm/rendering/data_structs/IBindingResources.h"
 
 #include "erm/rendering/data_structs/RenderingResources.h"
-#include "erm/rendering/renderer/IRenderer.h"
+#include "erm/rendering/renderer/Renderer.h"
 #include "erm/rendering/textures/GPUImage.h"
 
 namespace erm {
 
 IBindingResources::IBindingResources(
 	Device& device,
-	IRenderer& renderer,
+	Renderer& renderer,
 	u32 targetSet,
 	const IShaderProgram& shaderProgram,
 	const BindingConfigs& configs,

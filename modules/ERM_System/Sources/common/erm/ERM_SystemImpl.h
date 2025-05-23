@@ -2,17 +2,12 @@
 
 #include "erm/system/Environment.h"
 
+#include <refl.hpp>
+
 namespace erm {
 
-class ERM_SystemImpl
-{
-public:
-	bool init();
-	bool deinit();
-
-private:
-	Environment mEnvironment;
-
-};
+using ERM_SystemObjectsTypeListT = refl::type_list<
+	Environment
+>;
 
 } // namespace erm

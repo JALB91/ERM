@@ -7,82 +7,42 @@
 
 namespace erm {
 
-template<concepts::MainModule M>
+template<concepts::MainModuleC MainModuleT>
 class ModulesManager
 {
 private:
-	template<concepts::Module T>
+	template<concepts::ModuleC T>
 	static constexpr auto buildDepsTypeList(auto value);
 
 public:
-	using MainModuleT = M;
-	
-	using DepsListT = decltype(buildDepsTypeList<MainModuleT>(refl::type_list<MainModuleT>{}));
-	static constexpr auto kDepsList = DepsListT {};
-
-	using RevDepsListT = refl::trait::reverse_t<DepsListT>;
-	static constexpr auto kRevDepsList = RevDepsListT {};
+	using ModulesListT = refl::trait::unique_t<decltype(buildDepsTypeList<MainModuleT>(refl::type_list<MainModuleT>{}))>;
+	using ModulesTupleT = stl::tuple_from_type_list_t<ModulesListT>;
 
 public:
 	ModulesManager() = default;
 
-	bool init()
-	{
-		return stl::accumulate_type(
-			kDepsList,
-			true,
-			[]<concepts::Module Module>(bool value) {
-				return value && Module::init();
-			});
-	}
-
-	bool deinit()
-	{
-		return stl::accumulate_type(
-			kRevDepsList,
-			true,
-			[]<concepts::Module Module>(bool value) {
-				return value && Module::deinit();
-			});
-	}
-
 	int run(int argc, char** argv)
 	{
-		return MainModuleT::run(argc, argv);
+		return std::get<MainModuleT>(mModules).run(argc, argv);
 	}
+	
+private:
+	ModulesTupleT mModules;
 	
 };
 
-template<concepts::MainModule MainModule>
-template<concepts::Module T>
-constexpr auto ModulesManager<MainModule>::buildDepsTypeList(auto value)
+template<concepts::MainModuleC MainModuleT>
+template<concepts::ModuleC T>
+constexpr auto ModulesManager<MainModuleT>::buildDepsTypeList(auto value)
 {
-	static_assert(refl::util::contains<T>(value));
-
-	if constexpr (T::DepsT::size > 0)
-	{
-		return stl::accumulate_type(
-			T::kDependencies,
-			value,
-			[]<concepts::Module Dependency>(auto value) {
-				if constexpr (!refl::util::contains<Dependency>(value))
-				{
-					return buildDepsTypeList<Dependency>(refl::trait::prepend_t<Dependency, decltype(value)> {});
-				}
-				else
-				{
-					constexpr auto filtered = stl::filter_type(value, []<concepts::Module S>() {
-						return !std::is_same_v<Dependency, S>;
-					});
-					constexpr auto replaced = refl::trait::prepend_t<Dependency, std::remove_const_t<decltype(filtered)>> {};
-					return replaced;
-				}
-			});
-	}
-	else
-	{
-		return value;
-	}
+	return stl::accumulate_type(
+		T::kDependenciesTypeList,
+		value,
+		[]<concepts::ModuleC M>(auto value) {
+			using MT = refl::trait::prepend_t<M, decltype(value)>;
+			return buildDepsTypeList<M>(MT{});
+		}
+	);
 }
 
 }

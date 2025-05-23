@@ -6,6 +6,9 @@
 #include <erm/math/Types.h>
 
 namespace erm {
+class AssetsManager;
+class AssetsRepo;
+class Renderer;
 struct Model;
 namespace ecs {
 class TransformSystem;
@@ -58,6 +61,10 @@ private:
 	template<typename T>
 	void updateComponentID(ID& componentId, typename T::SYSTEM_TYPE& system);
 
+	AssetsRepo& mAssetsRepo;
+	AssetsManager& mAssetsManager;
+	Renderer& mRenderer;
+	
 	TransformSystem* mTransformSystem;
 	SkeletonSystem* mSkeletonSystem;
 	ModelSystem* mModelSystem;

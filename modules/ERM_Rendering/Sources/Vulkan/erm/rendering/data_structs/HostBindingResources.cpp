@@ -9,7 +9,7 @@ namespace erm {
 
 HostBindingResources::HostBindingResources(
 	Device& device,
-	IRenderer& renderer,
+	Renderer& renderer,
 	u32 targetSet,
 	const IShaderProgram& shaderProgram,
 	const BindingConfigs& configs,
@@ -18,11 +18,11 @@ HostBindingResources::HostBindingResources(
 	: IBindingResources(device, renderer, targetSet, shaderProgram, configs, descriptorPool)
 {
 	// CREATE DESCRIPTOR SETS
-	const std::vector<vk::DescriptorSetLayout> layouts(IRenderer::kMaxFramesInFlight, descriptorSetLayout);
+	const std::vector<vk::DescriptorSetLayout> layouts(Renderer::kMaxFramesInFlight, descriptorSetLayout);
 
 	vk::DescriptorSetAllocateInfo info {};
 	info.setDescriptorPool(mDescriptorPool);
-	info.setDescriptorSetCount(IRenderer::kMaxFramesInFlight);
+	info.setDescriptorSetCount(Renderer::kMaxFramesInFlight);
 	info.setPSetLayouts(layouts.data());
 
 	ERM_VK_CHECK_AND_ASSIGN(mDescriptorSets, mDevice->allocateDescriptorSetsUnique(info));
@@ -45,12 +45,12 @@ HostBindingResources::HostBindingResources(
 
 	// UPDATE DESCRIPTOR SETS
 	std::vector<std::vector<vk::DescriptorBufferInfo>> descriptorBuffers;
-	descriptorBuffers.reserve(IRenderer::kMaxFramesInFlight);
+	descriptorBuffers.reserve(Renderer::kMaxFramesInFlight);
 	
 	std::vector<vk::WriteDescriptorSet> descriptorWrites;
-	descriptorWrites.reserve(ubosData.size() * IRenderer::kMaxFramesInFlight);
+	descriptorWrites.reserve(ubosData.size() * Renderer::kMaxFramesInFlight);
 
-	for (u32 i = 0; i < IRenderer::kMaxFramesInFlight; ++i)
+	for (u32 i = 0; i < Renderer::kMaxFramesInFlight; ++i)
 	{
 		auto& descriptorBuffer = descriptorBuffers.emplace_back();
 		descriptorBuffer.reserve(ubosData.size());

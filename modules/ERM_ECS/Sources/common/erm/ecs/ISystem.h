@@ -4,7 +4,7 @@
 #include "erm/ecs/EntityId.h"
 
 #include <erm/log/Assert.h>
-
+#include <erm/modules_lib/ObjectRegistry.h>
 #include <erm/utils/Utils.h>
 
 #include <array>
@@ -110,7 +110,7 @@ public:
 public:
 	ISystem(ECS& ecs)
 		: mECS(ecs)
-		, mComponentsBitmask {false}
+		, mComponentsBitmask{false}
 	{}
 	virtual ~ISystem() = default;
 

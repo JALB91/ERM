@@ -12,6 +12,7 @@
 #include "erm/assets/textures/Texture.h"
 
 #include <erm/log/Assert.h>
+#include <erm/modules_lib/IModuleObject.h>
 #include <erm/utils/StringID.h>
 
 #include <refl.hpp>
@@ -21,11 +22,9 @@
 
 namespace erm {
 
-class AssetsRepo
+class AssetsRepo : public IModuleObject<AssetsRepo>
 {
 public:
-	~AssetsRepo();
-
 	void clearAll();
 
 	template<typename T>

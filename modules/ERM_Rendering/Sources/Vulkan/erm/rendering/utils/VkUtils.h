@@ -26,21 +26,17 @@ struct SwapChainSupportDetails;
 	{                                                      \
 		auto _result = OP;                            \
 		ERM_ASSERT(_result.result == vk::Result::eSuccess); \
-		return std::forward<decltype(_result.value)>(_result.value); \
+		return std::move(_result.value); \
 	}
 
 #define ERM_VK_CHECK_AND_ASSIGN(DEST, OP)                  \
 	{                                                      \
 		auto _result = OP;                            \
 		ERM_ASSERT(_result.result == vk::Result::eSuccess); \
-		DEST = std::forward<decltype(_result.value)>(_result.value);                               \
+		DEST = std::move(_result.value);                               \
 	}
 #else
-#define ERM_VK_CHECK(OP)        \
-	{                           \
-		const auto _result = OP; \
-		ERM_UNUSED(_result);     \
-	}
+#define ERM_VK_CHECK(OP) OP
 
 #define ERM_VK_CHECK_AND_RETURN(OP) return OP.value;
 

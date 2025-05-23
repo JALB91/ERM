@@ -2,8 +2,6 @@
 
 namespace erm {
 
-AssetsRepo::~AssetsRepo() = default;
-
 void AssetsRepo::clearAll()
 {
 	forEachAssets([](auto& assets) {

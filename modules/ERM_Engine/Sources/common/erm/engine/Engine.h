@@ -1,5 +1,6 @@
 #pragma once
 
+#include <erm/modules_lib/IModuleObject.h>
 #include <erm/window/IWindowListener.h>
 #include <erm/utils/Timer.h>
 #include <erm/utils/UpdateManager.h>
@@ -22,18 +23,15 @@ struct Entity;
 
 namespace erm {
 
-class Engine : private IWindowListener
+class Engine :
+	public IModuleObject<Engine>,
+	private IWindowListener
 {
 public:
-	Engine();
-	~Engine();
+	Engine() noexcept;
+	~Engine() override;
 
-	Engine& operator=(const Engine&) = delete;
-	Engine& operator=(Engine&&) = delete;
-	Engine(const Engine&) = delete;
-	Engine(Engine&&) = delete;
-
-	bool init();
+	void init();
 	void run();
 
 	void preUpdate();
@@ -67,12 +65,12 @@ private:
 	u16 mMaxFPS;
 	double mTargetFrameTime;
 	
-	Window* mWindow;
-	AudioManager* mAudioManager;
-	Device* mDevice;
-	Renderer* mRenderer;
-	ecs::ECS* mECS;
-	FileLocator* mFileLocator;
+	Window& mWindow;
+	AudioManager& mAudioManager;
+	Device& mDevice;
+	Renderer& mRenderer;
+	ecs::ECS& mECS;
+	FileLocator& mFileLocator;
 
 };
 

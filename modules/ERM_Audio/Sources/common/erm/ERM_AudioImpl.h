@@ -2,17 +2,12 @@
 
 #include "erm/audio/AudioManager.h"
 
+#include <refl.hpp>
+
 namespace erm {
 
-class ERM_AudioImpl
-{
-public:
-	bool init();
-	bool deinit();
-
-private:
-	AudioManager mAudioManager;
-	
-};
+using ERM_AudioObjectsTypeListT = refl::type_list<
+	AudioManager
+>;
 
 }

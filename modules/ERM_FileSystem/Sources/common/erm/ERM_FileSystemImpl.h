@@ -2,17 +2,12 @@
 
 #include "erm/fs/FileLocator.h"
 
+#include <refl.hpp>
+
 namespace erm {
 
-class ERM_FileSystemImpl
-{
-public:
-	bool init();
-	bool deinit();
-
-private:
-	FileLocator mFileLocator;
-
-};
+using ERM_FileSystemObjectsTypeListT = refl::type_list<
+	FileLocator
+>;
 
 } // namespace erm

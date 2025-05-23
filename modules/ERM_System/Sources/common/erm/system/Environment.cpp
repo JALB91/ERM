@@ -1,14 +1,10 @@
 #include "erm/system/Environment.h"
 
-#include <erm/fs/fs.h>
-
 #include <erm/log/Assert.h>
 
 #include <cstdlib>
 
 namespace erm {
-
-Environment::Environment() = default;
 
 const char* Environment::get(const char* key) const
 {

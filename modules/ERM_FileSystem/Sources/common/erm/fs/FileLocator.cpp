@@ -1,15 +1,10 @@
 #include "erm/fs/FileLocator.h"
 
-
 #include <erm/log/Assert.h>
-
 #include <erm/utils/Utils.h>
 
 #include <array>
-#include <filesystem>
 #include <unordered_map>
-
-namespace fs = std::filesystem;
 
 namespace {
 
@@ -56,37 +51,36 @@ constexpr std::array kSupportedTexturesExtensions {kPngTextureExtension, kJpgTex
 std::unordered_map<std::string, std::vector<const char*>> kFilesAssociations
 {
 	{kWavSoundExtension, {kMusicsDir, kEffectsDir}},
-		{kMp3SoundExtension, {kMusicsDir, kEffectsDir}},
-		{kObjModelExtension, {kModelsDir}},
-		{kColladaModelExtension, {kModelsDir}},
-		{kFbxModelExtension, {kModelsDir}},
-		{kObjMaterialExtension, {kModelsDir}},
-		{kVertexShaderExtension, {kShadersDir}},
+	{kMp3SoundExtension, {kMusicsDir, kEffectsDir}},
+	{kObjModelExtension, {kModelsDir}},
+	{kColladaModelExtension, {kModelsDir}},
+	{kFbxModelExtension, {kModelsDir}},
+	{kObjMaterialExtension, {kModelsDir}},
+	{kVertexShaderExtension, {kShadersDir}},
 #ifdef ERM_RAY_TRACING_ENABLED
-		{kRayGenShaderExtension, {kRTShadersDir}},
+	{kRayGenShaderExtension, {kRTShadersDir}},
 #endif
-		{kPngTextureExtension, {kTexturesDir}},
-		{kJpegTextureExtension, {kTexturesDir}},
-	{
-		kJpgTextureExtension,
-		{
-			kTexturesDir
-		}
-	}
+	{kPngTextureExtension, {kTexturesDir}},
+	{kJpegTextureExtension, {kTexturesDir}},
+	{kJpgTextureExtension, {kTexturesDir}}
 };
 
 } // namespace
 
 namespace erm {
 
-FileLocator::FileLocator()
+FileLocator::FileLocator() noexcept
 {
 	auto path = fs::current_path();
 	while (!isERMRoot(path.c_str()) && path.has_parent_path())
 	{
 		path = path.parent_path();
 	}
-	setERMRootPath(std::move(path));
+	
+	if (!setERMRootPath(std::move(path)))
+	{
+		ERM_LOG_CRITICAL("Could not find ERM root path");
+	}
 }
 
 bool FileLocator::isERMRoot(const fs::path& path) const

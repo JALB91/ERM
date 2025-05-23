@@ -24,13 +24,13 @@ PipelineResources::PipelineResources(
 	const vk::RenderPass* renderPass,
 	const vk::DescriptorPool* descriptorPool,
 	const PipelineConfigs& pipelineConfigs)
-	: mDevice(device)
-	, mWindow(window)
-	, mRenderer(renderer)
-	, mRenderPass(renderPass)
-	, mDescriptorPool(descriptorPool)
-	, mPipelineConfigs(pipelineConfigs)
-	, mUntouchedFrames(0)
+: mDevice(device)
+, mWindow(window)
+, mRenderer(renderer)
+, mRenderPass(renderPass)
+, mDescriptorPool(descriptorPool)
+, mPipelineConfigs(pipelineConfigs)
+, mUntouchedFrames(0)
 {
 	createPipeline();
 }
@@ -71,7 +71,7 @@ void PipelineResources::refresh()
 	{
 		auto& [id, data] = *it;
 		
-		if (data.getUntouchedFrames() > IRenderer::kMaxFramesInFlight)
+		if (data.getUntouchedFrames() > Renderer::kMaxFramesInFlight)
 		{
 			it = mPipelineData.erase(it);
 		}
@@ -88,7 +88,9 @@ void PipelineResources::refresh()
 void PipelineResources::updateResources(vk::CommandBuffer& cmd, RenderData& renderData)
 {
 	if (mDescriptorSetLayouts.empty())
+	{
 		return;
+	}
 	
 	mUntouchedFrames = 0;
 

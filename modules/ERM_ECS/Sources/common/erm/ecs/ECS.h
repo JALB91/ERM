@@ -1,17 +1,19 @@
 #pragma once
 
 #include "erm/ecs/ECSConfig.h"
+#include "erm/ecs/Entity.h"
 #include "erm/ecs/EntityId.h"
 #include "erm/ecs/ISystem.h"
 
 #include <erm/log/Assert.h>
-
+#include <erm/modules_lib/IModuleObject.h>
 #include <erm/utils/Utils.h>
 
 #include <refl.hpp>
 
 #include <array>
 #include <memory>
+#include <optional>
 #include <string_view>
 #include <vector>
 
@@ -21,13 +23,11 @@ struct Entity;
 
 namespace erm::ecs {
 
-class ECS
+class ECS : public IModuleObject<ECS>
 {
 public:
-	ECS();
-	~ECS();
-	
-	void init();
+	ECS() noexcept;
+	~ECS() override;
 
 	void preUpdate();
 	void update(float dt);
@@ -53,12 +53,29 @@ public:
 	{
 		return static_cast<T*>(mSystems[T::SYSTEM_ID].get());
 	}
+	
+	template<typename T>
+	bool hasComponent(EntityId id)
+	{
+		return getSystem<typename T::SYSTEM_TYPE>()->hasComponent(id);
+	}
 
 	template<typename T>
 	T* getComponent(EntityId id)
 	{
-		auto* system = getSystem<typename T::SYSTEM_TYPE>();
-		return system ? system->getComponent(id) : nullptr;
+		return getSystem<typename T::SYSTEM_TYPE>()->getComponent(id);
+	}
+	
+	template<typename T, typename... Args>
+	T* addComponent(EntityId id, Args&&... args)
+	{
+		return getSystem<typename T::SYSTEM_TYPE>()->addComponent(id, std::forward<Args>(args)...);
+	}
+	
+	template<typename T, typename... Args>
+	T* requireComponent(EntityId id, Args&&... args)
+	{
+		return getSystem<typename T::SYSTEM_TYPE>()->requireComponent(id, std::forward<Args>(args)...);
 	}
 
 	void removeEntity(EntityId id);
@@ -73,8 +90,9 @@ private:
 	template<typename T>
 	void forEachSystem(const T& function);
 
+	std::array<std::optional<Entity>, MAX_ID> mEntities;
 	std::vector<std::unique_ptr<ISystem>> mSystems;
-	std::array<std::unique_ptr<Entity>, MAX_ID> mEntities;
+	
 };
 
 } // namespace erm::ecs

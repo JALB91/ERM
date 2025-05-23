@@ -2,17 +2,12 @@
 
 #include "erm/ecs/ECS.h"
 
+#include <refl.hpp>
+
 namespace erm {
 
-class ERM_ECSImpl
-{
-public:
-	bool init();
-	bool deinit();
-
-private:
-	ecs::ECS mECS;
-	
-};
+using ERM_ECSObjectsTypeListT = refl::type_list<
+	ecs::ECS
+>;
 
 }

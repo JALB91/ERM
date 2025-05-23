@@ -10,4 +10,5 @@ erm_module_setup(
 		ERM_Utils_static
 		ERM_Math_static
 		ERM_Log_static
+		ERM_STL
 )

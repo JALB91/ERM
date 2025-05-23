@@ -2,7 +2,7 @@
 
 #include "erm/rendering/buffers/UniformBuffer.h"
 #include "erm/rendering/data_structs/IBindingResources.h"
-#include "erm/rendering/renderer/IRenderer.h"
+#include "erm/rendering/renderer/Renderer.h"
 
 #include <erm/math/Types.h>
 
@@ -15,7 +15,7 @@ class HostBindingResources : public IBindingResources
 public:
 	HostBindingResources(
 		Device& device,
-		IRenderer& renderer,
+		Renderer& renderer,
 		u32 targetSet,
 		const IShaderProgram& shaderProgram,
 		const BindingConfigs& configs,
@@ -27,7 +27,7 @@ public:
 	void updateResources(vk::CommandBuffer cmd, IRenderData& data) override;
 
 private:
-	using SwapChainUniformBuffers = std::array<UniformBuffersMap<HostBuffer>, IRenderer::kMaxFramesInFlight>;
+	using SwapChainUniformBuffers = std::array<UniformBuffersMap<HostBuffer>, Renderer::kMaxFramesInFlight>;
 
 private:
 	void createUniformBuffers(const std::vector<UboData>& ubosData);

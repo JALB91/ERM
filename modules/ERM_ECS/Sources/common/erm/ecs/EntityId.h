@@ -7,7 +7,7 @@ namespace erm::ecs {
 struct EntityId
 {
 public:
-	EntityId(ID id = INVALID_ID)
+	EntityId(ID id = INVALID_ID) noexcept
 		: mId(id)
 	{}
 
@@ -27,6 +27,7 @@ public:
 
 private:
 	ID mId;
+	
 };
 
 } // namespace erm::ecs

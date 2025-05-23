@@ -2,22 +2,9 @@
 
 #include "erm/nn/NN.h"
 
-#include <erm/modules_lib/ObjectRegistry.h>
-#include <erm/system/Environment.h>
-
 namespace erm {
 
-bool ERM_NNImpl::init()
-{
-	return true;
-}
-
-bool ERM_NNImpl::deinit()
-{
-	return true;
-}
-
-int ERM_NNImpl::run(int argc, char** argv)
+int ERM_NN::run(int argc, char** argv)
 {
 	erm::nn::NN nn;
 

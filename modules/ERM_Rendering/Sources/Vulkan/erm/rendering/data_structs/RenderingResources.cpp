@@ -17,13 +17,12 @@ RenderingResources::RenderingResources(
 	Device& device,
 	IWindow& window,
 	Renderer& renderer,
-	const RenderConfigs& renderConfigs
-)
-	: mDevice(device)
-	, mWindow(window)
-	, mRenderer(renderer)
-	, mRenderConfigs(renderConfigs)
-	, mUntouchedFrames(0)
+	const RenderConfigs& renderConfigs)
+: mDevice(device)
+, mWindow(window)
+, mRenderer(renderer)
+, mRenderConfigs(renderConfigs)
+, mUntouchedFrames(0)
 {
 	reload();
 }
@@ -34,7 +33,7 @@ void RenderingResources::refresh()
 	{
 		auto& resources = *it;
 		
-		if (resources.getUntouchedFrames() > IRenderer::kMaxFramesInFlight)
+		if (resources.getUntouchedFrames() > Renderer::kMaxFramesInFlight)
 		{
 			it = mPipelineResources.erase(it);
 		}

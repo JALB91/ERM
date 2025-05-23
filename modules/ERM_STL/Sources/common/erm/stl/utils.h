@@ -2,6 +2,8 @@
 
 #include <refl.hpp>
 
+#include <tuple>
+
 namespace erm::stl {
 
 template<typename Container, typename T>
@@ -124,5 +126,17 @@ constexpr auto accumulate_type(refl::type_list<T, Ts...>, R&& initial_value, F&&
 		f.template operator()<T>(std::forward<R>(initial_value)),
 		std::forward<F>(f));
 }
+
+template<typename T>
+struct tuple_from_type_list;
+
+template<typename... Ts>
+struct tuple_from_type_list<refl::type_list<Ts...>>
+{
+	using type = std::tuple<Ts...>;
+};
+
+template<typename... Ts>
+using tuple_from_type_list_t = tuple_from_type_list<Ts...>::type;
 
 }

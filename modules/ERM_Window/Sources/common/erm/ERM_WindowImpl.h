@@ -2,17 +2,12 @@
 
 #include "erm/window/Window.h"
 
+#include <refl.hpp>
+
 namespace erm {
 
-class ERM_WindowImpl
-{
-public:
-	bool init();
-	bool deinit();
-	
-private:
-	Window mWindow;
-
-};
+using ERM_WindowObjectsTypeListT = refl::type_list<
+	Window
+>;
 
 }

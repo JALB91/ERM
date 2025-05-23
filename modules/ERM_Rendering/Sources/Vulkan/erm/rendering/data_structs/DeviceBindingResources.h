@@ -13,7 +13,7 @@ class DeviceBindingResources : public IBindingResources
 public:
 	DeviceBindingResources(
 		Device& device,
-		IRenderer& renderer,
+		Renderer& renderer,
 		u32 targetSet,
 		const IShaderProgram& shaderProgram,
 		const BindingConfigs& configs,

@@ -5,6 +5,8 @@
 #include "erm/audio/Reproduction.h"
 #include "erm/audio/Sound.h"
 
+#include <erm/modules_lib/IModuleObject.h>
+
 #include <refl.hpp>
 
 #include <array>
@@ -21,14 +23,14 @@ class System;
 
 namespace erm {
 
-class AudioManager
+class AudioManager : public IModuleObject<AudioManager>
 {
 public:
 	static constexpr int MAX_CHANNELS = 512;
-
+	
 public:
-	AudioManager();
-	~AudioManager();
+	AudioManager() noexcept;
+	~AudioManager() override;
 
 	void suspend();
 	void resume();

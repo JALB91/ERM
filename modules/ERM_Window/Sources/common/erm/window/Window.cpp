@@ -19,16 +19,9 @@
 #include <GLFW/glfw3.h>
 
 #include <algorithm>
-#include <array>
-#include <fstream>
 #include <functional>
-#include <iostream>
-#include <optional>
 #include <string>
 
-/*
-	WINDOW STUFF
-*/
 namespace {
 
 template<typename T>
@@ -46,7 +39,7 @@ void safeForEach(const std::set<T*>& set, const std::function<void(T* ptr)>& fun
 
 #if defined(ERM_VULKAN)
 constexpr const char* const kTitle = "ERM Vulkan";
-#elif defined(ERM_OPENGL)
+#elif defined(ERM_OPEN_GL)
 constexpr const char* const kTitle = "ERM OpenGL";
 #elif defined(ERM_DX12)
 constexpr const char* const kTitle = "ERM DX12";
@@ -116,28 +109,15 @@ void onRefresh(GLFWwindow* window)
 
 } // namespace internal
 
-/*
-	WINDOW IMPL
-*/
 namespace erm {
 
-Window::Window()
-	: IWindow()
-	, mWindow(nullptr)
-{}
-
-Window::~Window()
+Window::Window() noexcept
+: mGLFWWindow(nullptr)
 {
-	mWindowListeners.clear();
-
-	glfwTerminate();
-}
-
-bool Window::init()
-{
-	if (!glfwInit())
+	if (glfwInit() != GLFW_TRUE)
 	{
-		return false;
+		ERM_LOG_CRITICAL("Failed to initialize GLFW");
+		return;
 	}
 
 	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
@@ -158,41 +138,48 @@ bool Window::init()
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-	mWindow = glfwCreateWindow(mode->width, mode->height, kTitle, nullptr, nullptr);
+	mGLFWWindow = glfwCreateWindow(mode->width, mode->height, kTitle, nullptr, nullptr);
 
-	if (!mWindow)
+	if (!mGLFWWindow)
 	{
-		return false;
+		ERM_LOG_CRITICAL("Failed to create GLFW window");
+		return;
 	}
-
-	glfwMakeContextCurrent(mWindow);
-	glfwSwapInterval(1);
 
 #ifdef ERM_OPENGL
 	if (glewInit() != GLEW_OK)
 	{
-		ERM_LOG_ERROR("GLEW initialization failed");
-		glfwTerminate();
-		return false;
+		ERM_LOG_CRITICAL("Failed to initialize GLEW");
+		return;
 	}
 #endif
+	
+	glfwSetWindowUserPointer(mGLFWWindow, this);
+	glfwMakeContextCurrent(mGLFWWindow);
+	glfwSwapInterval(1);
 
-	glfwSetWindowUserPointer(mWindow, this);
+	glfwSetWindowFocusCallback(mGLFWWindow, internal::focusCallback);
+	glfwSetMouseButtonCallback(mGLFWWindow, internal::onMouseButton);
+	glfwSetCursorPosCallback(mGLFWWindow, internal::onMousePos);
+	glfwSetKeyCallback(mGLFWWindow, internal::onKey);
+	glfwSetWindowRefreshCallback(mGLFWWindow, internal::onRefresh);
+	glfwSetFramebufferSizeCallback(mGLFWWindow, internal::onFrameBufferResize);
+	glfwSetWindowSizeCallback(mGLFWWindow, internal::onWindowSizeChanged);
+}
 
-	glfwSetWindowFocusCallback(mWindow, internal::focusCallback);
-	glfwSetMouseButtonCallback(mWindow, internal::onMouseButton);
-	glfwSetCursorPosCallback(mWindow, internal::onMousePos);
-	glfwSetKeyCallback(mWindow, internal::onKey);
-	glfwSetWindowRefreshCallback(mWindow, internal::onRefresh);
-	glfwSetFramebufferSizeCallback(mWindow, internal::onFrameBufferResize);
-	glfwSetWindowSizeCallback(mWindow, internal::onWindowSizeChanged);
-
-	return true;
+Window::~Window()
+{
+	mWindowListeners.clear();
+	
+	if (mGLFWWindow)
+	{
+		glfwTerminate();
+	}
 }
 
 bool Window::shouldClose()
 {
-	return glfwWindowShouldClose(mWindow) || isKeyDown(KEY_ESCAPE);
+	return glfwWindowShouldClose(mGLFWWindow) || isKeyDown(KEY_ESCAPE);
 }
 
 void Window::update()
@@ -201,14 +188,14 @@ void Window::update()
 
 	mPrevMousePosX = mMousePosX;
 	mPrevMousePosY = mMousePosY;
-	glfwGetCursorPos(mWindow, &mMousePosX, &mMousePosY);
+	glfwGetCursorPos(mGLFWWindow, &mMousePosX, &mMousePosY);
 }
 
 void Window::render()
 {
 	ERM_PROFILE_FUNCTION();
 
-	glfwSwapBuffers(mWindow);
+	glfwSwapBuffers(mGLFWWindow);
 }
 
 void Window::postRender()
@@ -280,8 +267,8 @@ void Window::onSizeChanged()
 {
 	ERM_PROFILE_FUNCTION();
 
-	glfwGetWindowSize(mWindow, &mWindowSize.x, &mWindowSize.y);
-	glfwGetFramebufferSize(mWindow, &mFrameBufferSize.x, &mFrameBufferSize.y);
+	glfwGetWindowSize(mGLFWWindow, &mWindowSize.x, &mWindowSize.y);
+	glfwGetFramebufferSize(mGLFWWindow, &mFrameBufferSize.x, &mFrameBufferSize.y);
 	updateViewport();
 	updateAspectRatio();
 	safeForEach<IWindowListener>(mWindowListeners, [this](IWindowListener* listener) {
@@ -320,7 +307,7 @@ void Window::onFocus()
 	}
 
 	int width, height;
-	glfwGetWindowSize(mWindow, &width, &height);
+	glfwGetWindowSize(mGLFWWindow, &width, &height);
 
 	if (mWindowSize.x == width && mWindowSize.y == height)
 	{

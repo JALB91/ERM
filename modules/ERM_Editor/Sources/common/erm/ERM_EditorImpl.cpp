@@ -1,5 +1,6 @@
 #include "erm/ERM_EditorImpl.h"
 
+#include "erm/ERM_Editor.h"
 #include "erm/editor/ImGuiHandle.h"
 
 #include <erm/engine/Engine.h>
@@ -9,30 +10,13 @@
 
 namespace erm {
 
-bool ERM_EditorImpl::init()
+int ERM_Editor::run(int /*argc*/, char** /*argv*/)
 {
-	return true;
-}
-
-bool ERM_EditorImpl::deinit()
-{
-	return true;
-}
-
-int ERM_EditorImpl::run(int /*argc*/, char** /*argv*/)
-{
-	auto engine = ObjectRegistry::get<Engine>();
+	auto& engine = ObjectRegistry::require<Engine>();
 
 	erm::ImGuiHandle handle;
 
-	if (engine->init())
-	{
-		engine->run();
-	}
-	else
-	{
-		return EXIT_FAILURE;
-	}
+	engine.run();
 
 	return EXIT_SUCCESS;
 }

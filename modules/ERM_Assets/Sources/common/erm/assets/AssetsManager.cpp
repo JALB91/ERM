@@ -18,9 +18,11 @@
 
 namespace erm {
 
-AssetsManager::AssetsManager()
+AssetsManager::AssetsManager() noexcept
 : mAssetsRepo(ObjectRegistry::require<AssetsRepo>())
-{}
+{
+	loadDefaultAssets();
+}
 
 void AssetsManager::loadDefaultAssets()
 {

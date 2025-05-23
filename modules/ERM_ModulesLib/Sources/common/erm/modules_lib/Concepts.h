@@ -1,17 +1,18 @@
 #pragma once
 
+#include <expected>
+#include <string>
+
 namespace erm::concepts {
 
 template<typename T>
-concept Module = requires(T type) {
-	T::kDependencies;
-	{ type.init() } -> std::same_as<bool>;
-	{ type.deinit() } -> std::same_as<bool>;
-	{ type.initialized() } -> std::same_as<bool>;
+concept ModuleC = requires(T type) {
+	T::kDependenciesTypeList;
 };
 
 template<typename T>
-concept MainModule = requires(T type, int argc, char** argv) {
+concept MainModuleC = requires(T type, int argc, char** argv) {
+	T::kDependenciesTypeList;
 	{ type.run(argc, argv) } -> std::same_as<int>;
 };
 

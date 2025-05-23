@@ -17,7 +17,14 @@ namespace erm {
 class IWindow
 {
 public:
-	IWindow();
+	IWindow() noexcept;
+	
+	IWindow(const IWindow&) = delete;
+	IWindow(IWindow&&) = delete;
+	
+	IWindow& operator=(const IWindow&) = delete;
+	IWindow& operator=(IWindow&&) = delete;
+	
 	virtual ~IWindow() = default;
 
 	void addListener(IWindowListener& listener);

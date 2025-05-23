@@ -2,19 +2,20 @@
 
 #include "erm/fs/fs.h"
 
+#include <erm/modules_lib/IModuleObject.h>
+
 #include <refl.hpp>
 
-#include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
 
 namespace erm {
 
-class FileLocator
+class FileLocator : public IModuleObject<FileLocator>
 {
 public:
-	FileLocator();
+	FileLocator() noexcept;
 	
 	bool isERMRoot(const fs::path& path) const;
 	

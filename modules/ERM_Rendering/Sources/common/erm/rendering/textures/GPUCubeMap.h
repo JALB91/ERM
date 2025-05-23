@@ -1,11 +1,10 @@
 #pragma once
 
+#include "erm/rendering/textures/GPUImage.h"
+
+#include <erm/assets/textures/CubeMap.h>
+
 namespace erm {
-
-struct CubeMap;
-
-template<typename T>
-class GPUImage;
 
 using GPUCubeMap = GPUImage<CubeMap>;
 

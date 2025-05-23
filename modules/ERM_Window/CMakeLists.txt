@@ -9,6 +9,7 @@ erm_module_setup(
 		$<$<BOOL:${ERM_OPEN_GL}>:libglew_static>
 		glfw
 		imgui
+		ERM_STL
 		ERM_Utils_static
 		ERM_Math_static
 		ERM_Input

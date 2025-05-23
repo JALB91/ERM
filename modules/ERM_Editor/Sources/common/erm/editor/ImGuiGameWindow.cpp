@@ -119,7 +119,7 @@ void ShowGameWindow()
 		
 		if (targetIndex == 0)
 		{
-			targetIndex = erm::IRenderer::kMaxFramesInFlight - 1;
+			targetIndex = erm::Renderer::kMaxFramesInFlight - 1;
 		}
 		else
 		{

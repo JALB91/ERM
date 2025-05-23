@@ -4,30 +4,10 @@
 
 namespace erm {
 
-bool ERM_EngineImpl::init()
+int ERM_Engine::run(int /*argc*/, char** /*argv*/)
 {
-	ObjectRegistry::set(mEngine);
-	return true;
-}
-
-bool ERM_EngineImpl::deinit()
-{
-	ObjectRegistry::remove<Engine>();
-	return true;
-}
-
-int ERM_EngineImpl::run(int /*argc*/, char** /*argv*/)
-{
-	auto engine = ObjectRegistry::get<Engine>();
-
-	if (engine->init())
-	{
-		engine->run();
-	}
-	else
-	{
-		return EXIT_FAILURE;
-	}
+	auto& engine = ObjectRegistry::require<Engine>();
+	engine.run();
 
 	return EXIT_SUCCESS;
 }

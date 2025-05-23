@@ -14,7 +14,7 @@
 
 namespace erm {
 class Device;
-class IRenderer;
+class Renderer;
 class IShaderProgram;
 struct IRenderData;
 } // namespace erm
@@ -26,7 +26,7 @@ class IBindingResources
 public:
 	IBindingResources(
 		Device& device,
-		IRenderer& renderer,
+		Renderer& renderer,
 		u32 targetSet,
 		const IShaderProgram& shaderProgram,
 		const BindingConfigs& configs,
@@ -107,7 +107,7 @@ protected:
 #endif
 
 	Device& mDevice;
-	IRenderer& mRenderer;
+	Renderer& mRenderer;
 	const u32 mTargetSet;
 	const IShaderProgram& mShaderProgram;
 	const BindingConfigs mConfigs;

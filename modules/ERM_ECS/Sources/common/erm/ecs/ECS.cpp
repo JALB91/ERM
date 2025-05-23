@@ -1,6 +1,5 @@
 #include "erm/ecs/ECS.h"
 
-#include "erm/ecs/Entity.h"
 #include "erm/ecs/systems/AnimationSystem.h"
 #include "erm/ecs/systems/CameraSystem.h"
 #include "erm/ecs/systems/LightSystem.h"
@@ -13,10 +12,7 @@
 
 namespace erm::ecs {
 
-ECS::ECS() = default;
-ECS::~ECS() = default;
-
-void ECS::init()
+ECS::ECS() noexcept
 {
 	addSystem<TransformSystem>();
 	addSystem<CameraSystem>();
@@ -30,9 +26,11 @@ void ECS::init()
 		system.init();
 	});
 
-	mEntities[ROOT_ID].reset(new Entity(*this, ROOT_ID, "Root"));
-	mEntities[ROOT_ID]->addComponent<TransformComponent>();
+	mEntities[ROOT_ID].emplace(Entity(*this, ROOT_ID, "Root"));
+	getSystem<TransformSystem>()->ISystem::addComponent(ROOT_ID);
 }
+
+ECS::~ECS() = default;
 
 void ECS::preUpdate()
 {
@@ -126,9 +124,9 @@ Entity* ECS::getOrCreateEntity(std::string_view name /*= "Unknown"*/)
 	{
 		if (!mEntities[i] || !mEntities[i]->isValid())
 		{
-			mEntities[i].reset(new Entity(*this, i, name));
-			mEntities[i]->addComponent<TransformComponent>();
-			return mEntities[i].get();
+			auto& entity = mEntities[i].emplace(Entity(*this, i, name));
+			getSystem<TransformSystem>()->addComponent(i);
+			return &entity;
 		}
 	}
 
@@ -137,7 +135,7 @@ Entity* ECS::getOrCreateEntity(std::string_view name /*= "Unknown"*/)
 
 Entity* ECS::getEntityById(EntityId id)
 {
-	return ((id.isValid() && mEntities[id()]) ? mEntities[id()].get() : nullptr);
+	return ((id.isValid() && mEntities[id()]) ? &mEntities[id()].value() : nullptr);
 }
 
 void ECS::addChildToEntity(EntityId parentId, EntityId childId)

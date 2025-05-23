@@ -1,14 +1,9 @@
 #pragma once
 
+#include <refl.hpp>
+
 namespace erm {
 
-class ERM_NNImpl
-{
-public:
-	bool init();
-	bool deinit();
-	int run(int argc, char** argv);
-
-};
+using ERM_NNObjectsTypeListT = refl::type_list<>;
 
 }

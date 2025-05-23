@@ -1,12 +1,16 @@
 #pragma once
 
-#include "erm/ecs/ECS.h"
 #include "erm/ecs/ECSConfig.h"
+#include "erm/ecs/EntityId.h"
 
 #include <erm/utils/StaticString.h>
 
+#include <functional>
 #include <string_view>
-#include <utility>
+
+namespace erm::ecs {
+class ECS;
+}
 
 namespace erm::ecs {
 
@@ -16,16 +20,13 @@ public:
 	friend class ECS;
 
 public:
-	~Entity()
-	{
-		mECS.onEntityBeingRemoved(mId);
-	}
-
-	Entity(Entity&&) = delete;
 	Entity(const Entity&) = delete;
-
-	Entity& operator=(Entity&&) = delete;
+	Entity(Entity&&) noexcept = default;
+	
 	Entity& operator=(const Entity&) = delete;
+	Entity& operator=(Entity&&) = delete;
+	
+	~Entity();
 
 	bool operator==(const Entity& other) const
 	{
@@ -40,38 +41,14 @@ public:
 	inline const str128& getName() const { return mName; }
 	inline void setName(std::string_view name) { mName = name; }
 
-	template<typename T>
-	inline bool hasComponent() const
-	{
-		return mECS.getSystem<typename T::SYSTEM_TYPE>()->hasComponent(mId);
-	}
-
-	template<typename T>
-	inline T* getComponent() const
-	{
-		return mECS.getSystem<typename T::SYSTEM_TYPE>()->getComponent(mId);
-	}
-
-	template<typename T, typename... Args>
-	inline T* addComponent(Args&&... args) const
-	{
-		return mECS.getSystem<typename T::SYSTEM_TYPE>()->addComponent(mId, std::forward<Args>(args)...);
-	}
-
-	template<typename T, typename... Args>
-	inline T* requireComponent(Args&&... args) const
-	{
-		return mECS.getSystem<typename T::SYSTEM_TYPE>()->requireComponent(mId, std::forward<Args>(args)...);
-	}
-
 	inline EntityId getParent() const { return mParent; }
 	inline const std::vector<EntityId>& getChildren() const { return mChildren; }
 
-	inline void addChild(EntityId childId) { mECS.addChildToEntity(mId, childId); }
-	inline void addChild(Entity& child) { mECS.addChildToEntity(mId, child.getId()); }
+	void addChild(EntityId childId);
+	void addChild(Entity& child);
 
 private:
-	inline Entity(ECS& ecs, EntityId id, std::string_view name)
+	inline Entity(ECS& ecs, EntityId id, std::string_view name) noexcept
 		: mECS(ecs)
 		, mId(id)
 		, mName(name)

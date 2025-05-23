@@ -2,18 +2,12 @@
 
 #include "erm/engine/Engine.h"
 
+#include <refl.hpp>
+
 namespace erm {
 
-class ERM_EngineImpl
-{
-public:
-	bool init();
-	bool deinit();
-	int run(int argc, char** argv);
-
-private:
-	Engine mEngine;
-
-};
+using ERM_EngineObjectsTypeListT = refl::type_list<
+	Engine
+>;
 
 }

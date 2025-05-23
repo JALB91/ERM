@@ -10,7 +10,7 @@ namespace erm {
 
 DeviceBindingResources::DeviceBindingResources(
 	Device& device,
-	IRenderer& renderer,
+	Renderer& renderer,
 	u32 targetSet,
 	const IShaderProgram& shaderProgram,
 	const BindingConfigs& configs,
