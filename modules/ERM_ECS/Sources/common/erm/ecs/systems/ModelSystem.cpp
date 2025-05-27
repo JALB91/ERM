@@ -33,7 +33,7 @@ void ModelSystem::postUpdate()
 
 	forEachComponent([this, &assetsRepo](ModelComponent& component) {
 //		TODO: Damiano
-		auto* model = assetsRepo->getAsset<Model>(component.getModelID());
+		auto* model = assetsRepo->get<Model>(component.getModel());
 
 		if (!component.isDirty() && model == nullptr)
 		{

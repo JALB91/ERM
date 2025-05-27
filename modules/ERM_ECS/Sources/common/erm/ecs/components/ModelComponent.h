@@ -2,9 +2,12 @@
 
 #include "erm/ecs/Component.h"
 
+#include <erm/assets/AssetHandle.h>
 #include <erm/math/BoundingBox.h>
 
-#include <erm/utils/StringID.h>
+namespace erm {
+struct Model;
+}
 
 namespace erm::ecs {
 class ModelSystem;
@@ -17,11 +20,7 @@ struct ModelComponent
 	ERM_COMPONENT_DECL(Model)
 
 public:
-	ModelComponent(StringID modelID = {})
-		: mModelID(modelID)
-	{}
-
-	ERM_SENSIBLE_MEMBER(ModelID, StringID)
+	ERM_SENSIBLE_MEMBER(Model, AssetHandle<Model>)
 	ERM_SENSIBLE_MEMBER(ShouldShowBoundingBox, bool, false)
 
 	inline BoundingBox3D GetWorldBounds() { return mWorldBounds; }

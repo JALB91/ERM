@@ -372,12 +372,12 @@ void RenderingSystem::preRender()
 #endif
 
 	mModelSystem->forEachComponent([&](ModelComponent& component) {
-		if (!component.getModelID().isValid() || mAssetsManager.isStillLoading<Model>(component.getModelID()))
+		if (!component.getModel().isValid() || mAssetsManager.isStillLoading<Model>(component.getModel()))
 		{
 			return;
 		}
 		
-		auto* model = mAssetsRepo.getAsset<Model>(component.getModelID());
+		auto* model = mAssetsRepo.get<Model>(component.getModel());
 		
 		RenderingComponent* renderingComponent = requireComponent(component.getComponentId());
 		SkeletonComponent* skeletonComponent = mSkeletonSystem->getComponent(component.getComponentId());

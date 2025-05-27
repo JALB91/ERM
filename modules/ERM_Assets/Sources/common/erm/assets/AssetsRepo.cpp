@@ -2,11 +2,12 @@
 
 namespace erm {
 
-void AssetsRepo::clearAll()
+void AssetsRepo::clear()
 {
-	forEachAssets([](auto& assets) {
-		assets.clear();
-	});
+	for (auto& [id, pool] : mAssetsPoolMap)
+	{
+		pool->clear();
+	}
 }
 
 } // namespace erm

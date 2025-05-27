@@ -114,7 +114,7 @@ Engine::Engine() noexcept
 	{
 		auto entity = mECS.getOrCreateEntity();
 //		TODO: Damiano
-		mECS.requireComponent<ecs::ModelComponent>(entity->getId(), StringID("Defaults/Triangle"));
+		mECS.requireComponent<ecs::ModelComponent>(entity->getId());
 		auto transform = mECS.requireComponent<ecs::TransformComponent>(entity->getId());
 		transform->setTranslationX(-2.5f);
 		root->addChild(*entity);
@@ -123,7 +123,7 @@ Engine::Engine() noexcept
 	{
 		auto entity = mECS.getOrCreateEntity();
 //		Model* model = mResourcesManager->getOrCreateModel("res/models/untitled.fbx");
-		mECS.requireComponent<ecs::ModelComponent>(entity->getId(), StringID::INVALID);
+		mECS.requireComponent<ecs::ModelComponent>(entity->getId());
 		auto transform = mECS.requireComponent<ecs::TransformComponent>(entity->getId());
 		transform->setTranslationX(2.5f);
 		root->addChild(*entity);
@@ -135,7 +135,7 @@ Engine::Engine() noexcept
 //		const auto rnd = rand() % mFileLocator.getModels().size();
 //		Model* model = mResourcesManager->getOrCreateModel(mFileLocator.getModels()[rnd].c_str());
 
-		mECS.requireComponent<ecs::ModelComponent>(entity->getId(), StringID::INVALID);
+		mECS.requireComponent<ecs::ModelComponent>(entity->getId());
 		auto tComp = mECS.requireComponent<ecs::TransformComponent>(entity->getId());
 
 		static const int dist = 400;

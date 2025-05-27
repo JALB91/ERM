@@ -3,6 +3,7 @@
 #include "erm/ecs/ECS.h"
 #include "erm/ecs/systems/SkeletonSystem.h"
 
+#include <erm/assets/data_structs/Skeleton.h>
 #include <erm/assets/AssetsRepo.h>
 #include <erm/assets/animations/SkeletonAnimation.h>
 #include <erm/assets/data_structs/Skeleton.h>
@@ -42,14 +43,14 @@ void AnimationSystem::postUpdate()
 		}
 
 		auto* currentAnimation = animationComponent->mSkeletonAnimation;
-		const auto skeletonID = skeletonComponent->getSkeletonID();
+		const auto skeletonHandle = skeletonComponent->getSkeleton();
 
-		if (!currentAnimation || !skeletonID.isValid() || currentAnimation->mTotalAnimationTime <= 0.01f || currentAnimation->mKeyFrames.empty())
+		if (!currentAnimation || !skeletonHandle.isValid() || currentAnimation->mTotalAnimationTime <= 0.01f || currentAnimation->mKeyFrames.empty())
 		{
 			continue;
 		}
 
-		auto* skeleton = assetsRepo->getAsset<Skeleton>(skeletonID);
+		auto* skeleton = assetsRepo->get<Skeleton>(skeletonHandle);
 		
 		if (skeleton == nullptr)
 		{

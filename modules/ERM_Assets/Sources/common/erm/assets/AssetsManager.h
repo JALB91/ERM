@@ -1,5 +1,7 @@
 #pragma once
 
+#include "erm/assets/AssetHandle.h"
+
 #include <erm/modules_lib/IModuleObject.h>
 #include <erm/utils/StringID.h>
 
@@ -16,10 +18,8 @@ class AssetsManager : public IModuleObject<AssetsManager>
 public:
 	AssetsManager() noexcept;
 
-	void loadDefaultAssets();
-	
 	template<typename T>
-	bool isStillLoading(StringID /*assetID*/) const
+	bool isStillLoading(AssetHandle<T> /*assetID*/) const
 	{
 		return false;
 	}

@@ -22,10 +22,6 @@
 #include <vector>
 
 namespace erm {
-
-} // namespace erm
-
-namespace erm {
 class Device;
 class IExtCommandBufferUpdater;
 class ISwapChainListener;

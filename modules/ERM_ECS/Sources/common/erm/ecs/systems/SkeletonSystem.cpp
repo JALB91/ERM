@@ -28,8 +28,8 @@ void SkeletonSystem::postUpdate()
 			continue;
 		}
 
-		auto skeletonID = skeletonComponent->getSkeletonID();
-		auto* skeleton = assetsRepo->getAsset<Skeleton>(skeletonID);
+		auto skeletonHandle = skeletonComponent->getSkeleton();
+		auto* skeleton = assetsRepo->get<Skeleton>(skeletonHandle);
 
 		if (skeleton == nullptr)
 		{
