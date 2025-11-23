@@ -25,7 +25,7 @@ static const auto kUnixMKCMakeGeneratorData = CMakeGeneratorData {
 static const auto kVSCMakeGeneratorData = CMakeGeneratorData {
 	.mCompatibleHostPlatforms = { HostPlatform::WINDOWS },
 	.mGenerator = CMakeGenerator::VS,
-	.mName = "Visual Studio 17 2022",
+	.mName = "Visual Studio 18 2026",
 };
 
 static const auto kXcodeCMakeGeneratorData = CMakeGeneratorData {

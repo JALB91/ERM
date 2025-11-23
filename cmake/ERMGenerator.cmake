@@ -1,6 +1,6 @@
 if("${CMAKE_GENERATOR}" STREQUAL "Xcode")
     include(cmake/generators/ERMGeneratorXcode.cmake)
-elseif("${CMAKE_GENERATOR}" STREQUAL "Visual Studio 17 2022")
+elseif("${CMAKE_GENERATOR}" STREQUAL "Visual Studio 18 2026")
     include(cmake/generators/ERMGeneratorVS.cmake)
 elseif("${CMAKE_GENERATOR}" STREQUAL "Ninja")
     include(cmake/generators/ERMGeneratorNinja.cmake)
