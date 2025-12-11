@@ -16,18 +16,18 @@ private:
 
 public:
 	using ModulesListT = refl::trait::unique_t<decltype(buildDepsTypeList<MainModuleT>(refl::type_list<MainModuleT>{}))>;
-	using ModulesTupleT = stl::tuple_from_type_list_t<ModulesListT>;
+	using ModulesPackT = stl::pack_from_type_list_t<ModulesListT>;
 
 public:
-	ModulesManager() = default;
+	ModulesManager() noexcept = default;
 
 	int run(int argc, char** argv)
 	{
-		return std::get<MainModuleT>(mModules).run(argc, argv);
+		return mModules.require<MainModuleT>().run(argc, argv);
 	}
 	
 private:
-	ModulesTupleT mModules;
+	ModulesPackT mModules;
 	
 };
 

@@ -76,18 +76,10 @@ AudioManager::~AudioManager()
 	{
 		ERM_CHECK_FMOD_RESULT(sound.mSound->release());
 	}
-	mSounds.clear();
-	
-	if (mCoreSystem)
-	{
-		ERM_CHECK_FMOD_RESULT(mCoreSystem->release());
-		mCoreSystem = nullptr;
-	}
 
 	if (mStudioSystem)
 	{
 		ERM_CHECK_FMOD_RESULT(mStudioSystem->release());
-		mStudioSystem = nullptr;
 	}
 }
 

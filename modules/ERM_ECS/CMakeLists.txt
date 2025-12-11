@@ -7,6 +7,8 @@ erm_module_setup(
 		ERM_Utils_static
 		ERM_Assets_shared
 		ERM_Rendering_shared
+		ERM_FileSystem_shared
 		ERM_Math_static
 		ERM_Log_static
+		ERM_STL
 )

@@ -29,10 +29,10 @@ public:
 	static constexpr DepsTypeListT kDependenciesTypeList;
 
 	using ObjectsTypeListT = @MODULE_NAME@ObjectsTypeListT;
-	using ObjectsTupleT = stl::tuple_from_type_list_t<ObjectsTypeListT>;
+	using ObjectsPackT = stl::pack_from_type_list_t<ObjectsTypeListT>;
 
 public:
-	@ModuleName@() = default;
+	@ModuleName@() noexcept;
 	~@ModuleName@() = default;
 
 	@ModuleName@(const @ModuleName@&) = delete;
@@ -43,7 +43,7 @@ public:
 
 	int run(int argc, char** argv);
 
-	ObjectsTupleT mObjects;
+	ObjectsPackT mObjects;
 
 };
 

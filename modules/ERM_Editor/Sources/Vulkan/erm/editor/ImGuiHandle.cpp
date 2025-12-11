@@ -199,7 +199,7 @@ void ImGuiHandle::createRenderPass()
 
 void ImGuiHandle::createFrameBuffers()
 {
-	const std::vector<GPUTexture*>& swapChainTextures = mRenderer.getTargetFrameBuffers(FrameBufferType::PRESENT);
+	const auto& swapChainTextures = mRenderer.getTargetFrameBuffers(FrameBufferType::PRESENT);
 	vk::Extent2D extent = mRenderer.getSwapChainExtent();
 
 	mFrameBuffers.resize(swapChainTextures.size());

@@ -2,6 +2,7 @@
 
 #include <erm/utils/Utils.h>
 
+#include <format>
 #include <utility>
 
 namespace erm::ShaderUtils {
@@ -11,15 +12,7 @@ std::string getShaderFilename(
 	u32 index,
 	ShaderType type)
 {
-	return std::string(shader) + getSuffixForShaderIndex(index) + std::string(getExtensionForShaderType(type));
-}
-
-std::string getSuffixForShaderIndex(u32 index)
-{
-	if (index == 0)
-		return "";
-	else
-		return "_" + std::to_string(index);
+	return std::format("{}{}.{}", shader, index == 0 ? "" : "_", getExtensionForShaderType(type));
 }
 
 std::string_view getExtensionForShaderType(ShaderType shaderType)
@@ -27,22 +20,22 @@ std::string_view getExtensionForShaderType(ShaderType shaderType)
 	switch (shaderType)
 	{
 		case ShaderType::VERTEX:
-			return ".vert";
+			return "vert";
 		case ShaderType::FRAGMENT:
-			return ".frag";
+			return "frag";
 #ifdef ERM_RAY_TRACING_ENABLED
 		case ShaderType::RT_ANY_HIT:
-			return ".rahit";
+			return "rahit";
 		case ShaderType::RT_CALLABLE:
-			return ".rcall";
+			return "rcall";
 		case ShaderType::RT_CLOSEST_HIT:
-			return ".rchit";
+			return "rchit";
 		case ShaderType::RT_INTERSECTION:
-			return ".rint";
+			return "rint";
 		case ShaderType::RT_MISS:
-			return ".rmiss";
+			return "rmiss";
 		case ShaderType::RT_RAY_GEN:
-			return ".rgen";
+			return "rgen";
 #endif
 		default:
 			std::unreachable();

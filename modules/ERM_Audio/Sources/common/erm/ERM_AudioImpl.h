@@ -4,10 +4,12 @@
 
 #include <refl.hpp>
 
+#include <memory>
+
 namespace erm {
 
 using ERM_AudioObjectsTypeListT = refl::type_list<
-	AudioManager
+	std::unique_ptr<AudioManager>
 >;
 
 }

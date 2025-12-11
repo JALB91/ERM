@@ -6,6 +6,7 @@ erm_module_setup(
 		ERM_Utils_static
 		ERM_Math_static
 		ERM_Log_static
+		ERM_STL
 	LINK_PUBLIC
 		fmod_core
 		fmod_studio

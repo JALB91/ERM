@@ -6,6 +6,8 @@
 
 namespace erm {
 
+ERM_Setup::ERM_Setup() noexcept = default;
+
 int ERM_Setup::run(int argc, char** argv)
 {
 	erm::Setup setup;

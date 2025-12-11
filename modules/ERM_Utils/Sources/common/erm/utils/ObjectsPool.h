@@ -7,6 +7,7 @@
 
 #include <refl.hpp>
 
+#include <expected>
 #include <memory>
 #include <vector>
 
@@ -15,18 +16,28 @@ namespace erm {
 template<typename T>
 class ObjectsPool : public IObjectsPool
 {
+public:
+	enum class GetErrorType
+	{
+		INVALID_INDEX,
+		INVALID_GENERATION,
+		INVALID_VERSION,
+		NULL_OBJECT
+	};
+
 private:
 	struct ObjectEntry
 	{
 		std::unique_ptr<T> mObject = nullptr;
-		u32 mGeneration = 0;
+		u16 mVersion = 0;
+		u16 mGeneration = 0;
 	};
 	
 public:
 	ObjectHandle<T> load(std::unique_ptr<T> asset)
 	{
 		u32 index;
-		u32 generation;
+		u16 generation;
 
 		if (!mFreeList.empty())
 		{
@@ -35,6 +46,8 @@ public:
 
 			auto& entry = mEntries[index];
 			entry.mObject = std::move(asset);
+
+			generation = entry.mGeneration;
 		}
 		else
 		{
@@ -42,27 +55,39 @@ public:
 			generation = 1;
 			mEntries.emplace_back(
 				std::move(asset),
+				1,
 				generation
 			);
 		}
 
-		return ObjectHandle<T>{
+		return ObjectHandle<T>(
 			index,
+			1,
 			generation
-		};
+		);
 	}
 
-	T* get(ObjectHandle<T> handle)
+	std::expected<T*, GetErrorType> get(ObjectHandle<T> handle)
 	{
 		if (handle->mIndex >= mEntries.size())
 		{
-			return nullptr;
+			return std::unexpected(GetErrorType::INVALID_INDEX);
 		}
 
 		auto& entry = mEntries[handle->mIndex];
 		if (entry.mGeneration != handle->mGeneration)
 		{
-			return nullptr;
+			return std::unexpected(GetErrorType::INVALID_GENERATION);
+		}
+
+		if (entry.mVersion != handle->mVersion)
+		{
+			return std::unexpected(GetErrorType::INVALID_VERSION);
+		}
+
+		if (!entry.mObject)
+		{
+			return std::unexpected(GetErrorType::NULL_OBJECT);
 		}
 
 		return entry.mObject.get();

@@ -5,11 +5,13 @@
 
 #include <refl.hpp>
 
+#include <memory>
+
 namespace erm {
 
 using ERM_AssetsObjectsTypeListT = refl::type_list<
-	AssetsRepo,
-	AssetsManager
+	std::unique_ptr<AssetsRepo>,
+	std::unique_ptr<AssetsManager>
 >;
 
 }

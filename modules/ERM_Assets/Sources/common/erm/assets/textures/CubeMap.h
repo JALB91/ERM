@@ -18,10 +18,9 @@ struct CubeMap
 		"front",
 		"back"};
 	
-	const TextureType mTextureType = TextureType::CUBE_MAP;
-	std::array<unsigned char*, kFaces.size()> mBuffers = {nullptr};
+	std::array<u8*, kFaces.size()> mBuffers = {nullptr};
 	u32 mWidth, mHeight, mBPP = 0;
-
+	const TextureType mTextureType = TextureType::CUBE_MAP;
 };
 
 } // namespace erm

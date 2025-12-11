@@ -277,15 +277,6 @@ void Renderer::cleanupSwapChain()
 	{
 		listener->swapChainCleanup();
 	}
-	
-	std::for_each(mFrameBuffers.begin(), mFrameBuffers.end(), [this](auto& pair) {
-		std::for_each(pair.second.begin(), pair.second.end(), [this](GPUTexture* texture) {
-			(void)texture;
-			(void)*this;
-//			TODO: Damiano
-//			mResourcesManager.releaseTexture(texture);
-		});
-	});
 
 	mFrameBuffers.clear();
 	
@@ -373,28 +364,31 @@ void Renderer::createSwapChain()
 			viewInfo);
 
 		// Create texture associated
-//		TODO: Damiano
-//		auto* texture = mResourcesManager.createEmptyTexture();
-//		texture->initWithData(
-//			("present_buffer_" + std::to_string(i)).c_str(),
-//			mSwapChainImages[i],
-//			mSwapChainImageViews[i],
-//			nullptr,
-//			vk::ImageLayout::ePresentSrcKHR,
-//			mSwapChainImageFormat,
-//			mSwapChainExtent.width,
-//			mSwapChainExtent.height);
-//
-//		// The present buffer images gets handled internally from the block chain, no need to delete them manually
-//		texture->setOwnsImage(false);
+		auto texture = std::make_unique<GPUTexture>(
+			mDevice,
+			Texture {
+				.mBuffer = nullptr,
+				.mWidth = mSwapChainExtent.width,
+				.mHeight = mSwapChainExtent.height,
+				.mBPP = 4
+			},
+			0,
+			0,
+			mSwapChainImages[i],
+			mSwapChainImageViews[i],
+			nullptr,
+			vk::ImageLayout::ePresentSrcKHR,
+			mSwapChainImageFormat,
+			false
+		);
 
-//		mFrameBuffers[FrameBufferType::PRESENT][i] = texture;
+		mFrameBuffers[FrameBufferType::PRESENT][i] = std::move(texture);
 	}
 }
 
 void Renderer::createFrameResources()
 {
-	static const std::array sBuffersToCreate {FrameBufferType::FRAME_1};
+	static constexpr std::array sBuffersToCreate {FrameBufferType::FRAME_1};
 
 	for (u64 i = 0; i < sBuffersToCreate.size(); ++i)
 	{
@@ -442,19 +436,25 @@ void Renderer::createFrameResources()
 				mDevice.getVkDevice(),
 				viewInfo);
 
-//			TODO: Damiano
-//			auto* texture = mResourcesManager.createEmptyTexture();
-//			texture->initWithData(
-//				("frame_buffer_1_" + std::to_string(i)).c_str(),
-//				image,
-//				imageView,
-//				imageMemory,
-//				vk::ImageLayout::eGeneral,
-//				format,
-//				mSwapChainExtent.width,
-//				mSwapChainExtent.height);
-//
-//			mFrameBuffers[sBuffersToCreate[i]][j] = texture;
+			// Create texture associated
+			auto texture = std::make_unique<GPUTexture>(
+				mDevice,
+				Texture {
+					.mBuffer = nullptr,
+					.mWidth = mSwapChainExtent.width,
+					.mHeight = mSwapChainExtent.height,
+					.mBPP = 4},
+				0,
+				0,
+				image,
+				imageView,
+				imageMemory,
+				vk::ImageLayout::eGeneral,
+				format,
+				true
+			);
+
+			mFrameBuffers[sBuffersToCreate[i]][j] = std::move(texture);
 		}
 	}
 }
@@ -502,19 +502,24 @@ void Renderer::createDepthResources()
 		mDevice.getVkDevice(),
 		viewInfo);
 
-//	TODO: Damiano
-//	auto* texture = mResourcesManager.createEmptyTexture();
-//	texture->initWithData(
-//		"depth_buffer",
-//		depthImage,
-//		depthImageView,
-//		depthImageMemory,
-//		vk::ImageLayout::eGeneral,
-//		depthFormat,
-//		mSwapChainExtent.width,
-//		mSwapChainExtent.height);
-//
-//	mFrameBuffers[FrameBufferType::DEPTH].emplace_back(texture);
+	auto texture = std::make_unique<GPUTexture>(
+		mDevice,
+		Texture {
+			.mBuffer = nullptr,
+			.mWidth = mSwapChainExtent.width,
+			.mHeight = mSwapChainExtent.height,
+			.mBPP = 4},
+		0,
+		0,
+		depthImage,
+		depthImageView,
+		depthImageMemory,
+		vk::ImageLayout::eGeneral,
+		depthFormat,
+		true
+	);
+
+	mFrameBuffers[FrameBufferType::DEPTH].emplace_back(std::move(texture));
 }
 
 void Renderer::createTextureSampler()
@@ -557,7 +562,7 @@ void Renderer::createSyncObjects()
 	}
 }
 
-const std::vector<GPUTexture*>& Renderer::getTargetFrameBuffers(FrameBufferType frameBufferType) const
+const std::vector<std::unique_ptr<GPUTexture>>& Renderer::getTargetFrameBuffers(FrameBufferType frameBufferType) const
 {
 	return mFrameBuffers.at(frameBufferType);
 }

@@ -13,24 +13,24 @@ class GPUShaderProgram : public IShaderProgram
 {
 public:
 	GPUShaderProgram(Device& device, const char* shaderPath);
-	virtual ~GPUShaderProgram() = default;
 
 	inline const LayoutBindingsMap& getLayoutBindingsMap() const { return mLayoutBindingsMap; }
 
 //	TODO:Damiano
-	std::vector<vk::UniqueShaderModule> createShaderModules(ShaderType /*shaderType*/) const { return {}; }
+	std::vector<vk::UniqueShaderModule> createShaderModules(ShaderType shaderType) const;
 
-	vk::VertexInputBindingDescription getVertexBindingDescription() { return {}; }
-	std::vector<vk::VertexInputAttributeDescription> getVertexAttributeDescriptions() { return {}; }
+	vk::VertexInputBindingDescription getVertexBindingDescription();
+	std::vector<vk::VertexInputAttributeDescription> getVertexAttributeDescriptions();
 
 protected:
 	// IShaderProgram
-//	void updateBindingData() override;
-//		const spirv_cross::Compiler& compiler,
-//		const spirv_cross::Resource& res,
-//		SetIdx targetSet,
-//		ShaderType shaderType,
-//		DescriptorType descriptorType) override;
+	void updateBindingData() override;
+	void updateResourceBindings(
+		const spirv_cross::Compiler& compiler,
+		const spirv_cross::Resource& res,
+		SetIdx targetSet,
+		ShaderType shaderType,
+		DescriptorType descriptorType) override;
 
 	LayoutBindingsMap mLayoutBindingsMap;
 };

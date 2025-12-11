@@ -29,14 +29,15 @@ void SkeletonSystem::postUpdate()
 		}
 
 		auto skeletonHandle = skeletonComponent->getSkeleton();
-		auto* skeleton = assetsRepo->get<Skeleton>(skeletonHandle);
+		auto skeletonResult = assetsRepo->get<Skeleton>(skeletonHandle);
 
-		if (skeleton == nullptr)
+		if (!skeletonResult.has_value())
 		{
 			skeletonComponent->setDirty(false);
 			continue;
 		}
 
+		auto* skeleton = skeletonResult.value();
 		skeleton->mRootBone.forEachDo(
 			[](BonesTree& node) {
 				auto* parent = node.getParent();

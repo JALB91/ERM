@@ -174,7 +174,7 @@ void RenderingResources::createRenderPass()
 
 	if (data.mDepthAttachment.has_value())
 	{
-		const std::vector<GPUTexture*>& depthFrameBuffers = mRenderer.getTargetFrameBuffers(data.mDepthAttachment.value().mFrameBufferType);
+		const auto& depthFrameBuffers = mRenderer.getTargetFrameBuffers(data.mDepthAttachment.value().mFrameBufferType);
 		ERM_ASSERT(!depthFrameBuffers.empty());
 
 		attachments.emplace_back(createAttachmentDescription(data.mDepthAttachment.value(), depthFrameBuffers[0]->getImageFormat()));

@@ -14,7 +14,8 @@ namespace internal {
 struct ObjectHandleData
 {
 	u32 mIndex = 0;
-	u32 mGeneration = 0;
+	u16 mVersion = 0;
+	u16 mGeneration = 0;
 };
 
 union ObjectHandleBits
@@ -32,24 +33,24 @@ public:
 	friend class ObjectsPool<T>;
 	
 public:
-	ObjectHandle() noexcept
-	: mBits(internal::ObjectHandleData(0, 0))
+	constexpr ObjectHandle() noexcept
+	: mBits(internal::ObjectHandleData(0, 0, 0))
 	{}
 	
-	bool operator==(const ObjectHandle&) const noexcept = default;
+	constexpr bool operator==(const ObjectHandle&) const noexcept = default;
 	
-	const internal::ObjectHandleData* operator->() const
+	constexpr const internal::ObjectHandleData* operator->() const
 	{
 		return &mBits.mData;
 	}
 	
-	bool isValid() const
+	constexpr bool isValid() const
 	{
 		return mBits.mRaw != 0;
 	}
 	
 private:
-	ObjectHandle(u32 index, u32 generation) noexcept
+	constexpr ObjectHandle(u32 index, u16 version, u16 generation) noexcept
 	: mBits(internal::ObjectHandleData(index, generation))
 	{}
 	

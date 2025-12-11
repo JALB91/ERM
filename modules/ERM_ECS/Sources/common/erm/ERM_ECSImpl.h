@@ -4,10 +4,12 @@
 
 #include <refl.hpp>
 
+#include <memory>
+
 namespace erm {
 
 using ERM_ECSObjectsTypeListT = refl::type_list<
-	ecs::ECS
+	std::unique_ptr<ecs::ECS>
 >;
 
 }

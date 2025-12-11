@@ -8,10 +8,9 @@ namespace erm {
 
 struct Texture
 {
-	TextureType mTextureType = TextureType::COUNT;
-	unsigned char* mBuffer = nullptr;
+	u8* mBuffer = nullptr;
 	u32 mWidth, mHeight, mBPP = 0;
-
+	TextureType mTextureType = TextureType::COUNT;
 };
 
 } // namespace erm

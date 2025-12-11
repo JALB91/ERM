@@ -20,6 +20,8 @@ erm_module_setup(
 		ERM_Utils_static
 		ERM_Assets_shared
 		ERM_Log_static
+		ERM_FileSystem_shared
+		ERM_STL
 	LINK_PUBLIC
 		${ERM_RENDERING_API_LIB}
 		spirv-cross-cpp

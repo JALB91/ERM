@@ -4,10 +4,12 @@
 
 #include <refl.hpp>
 
+#include <memory>
+
 namespace erm {
 
 using ERM_EngineObjectsTypeListT = refl::type_list<
-	Engine
+	std::unique_ptr<Engine>
 >;
 
 }

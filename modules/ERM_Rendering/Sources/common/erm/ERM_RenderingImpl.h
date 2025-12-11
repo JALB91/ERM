@@ -5,11 +5,13 @@
 
 #include <refl.hpp>
 
+#include <memory>
+
 namespace erm {
 
 using ERM_RenderingObjectsTypeListT = refl::type_list<
-	Device,
-	Renderer
+	std::unique_ptr<Device>,
+	std::unique_ptr<Renderer>
 >;
 
 }

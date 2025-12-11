@@ -4,10 +4,12 @@
 
 #include <refl.hpp>
 
+#include <memory>
+
 namespace erm {
 
 using ERM_WindowObjectsTypeListT = refl::type_list<
-	Window
+	std::unique_ptr<Window>
 >;
 
 }

@@ -127,6 +127,82 @@ constexpr auto accumulate_type(refl::type_list<T, Ts...>, R&& initial_value, F&&
 		std::forward<F>(f));
 }
 
+/*
+* Tuple that respects template parameters' initialization order
+*/
+
+template<typename... Ts>
+struct pack;
+
+template<>
+struct pack<>
+{
+	pack() noexcept = default;
+
+	template<typename D>
+	D* get() noexcept
+	{
+		return nullptr;
+	}
+};
+
+template<typename T, typename... Ts>
+struct pack<T, Ts...>
+{
+	T mHead;
+	pack<Ts...> mTail;
+
+	pack() noexcept = default;
+
+	pack(T head, Ts&&... tail)
+		: mHead(std::move(head))
+		, mTail(std::forward<Ts>(tail)...)
+	{}
+
+	template<typename D>
+	constexpr void set(D value) noexcept
+	{
+		if constexpr (std::is_same_v<T, D>)
+		{
+			mHead = std::move(value);
+		}
+		else
+		{
+			mTail.set<D>(std::move(value));
+		}
+	}
+
+	template<typename D>
+	constexpr D* get() noexcept
+	{
+		if constexpr (std::is_same_v<T, D>)
+		{
+			return &mHead;
+		}
+		else
+		{
+			return mTail.get<D>();
+		}
+	}
+
+	template<typename D>
+	constexpr D& require() noexcept
+	{
+		if constexpr (std::is_same_v<T, D>)
+		{
+			return mHead;
+		}
+		else
+		{
+			return mTail.require<D>();
+		}
+	}
+};
+
+/*
+* Create a tuple from a type list
+*/
+
 template<typename T>
 struct tuple_from_type_list;
 
@@ -139,4 +215,22 @@ struct tuple_from_type_list<refl::type_list<Ts...>>
 template<typename... Ts>
 using tuple_from_type_list_t = tuple_from_type_list<Ts...>::type;
 
+/*
+* Create a pack from a type list
+*/
+
+template<typename T>
+struct pack_from_type_list;
+
+template<typename... Ts>
+struct pack_from_type_list<refl::type_list<Ts...>>
+{
+	using type = pack<Ts...>;
+};
+
+template<typename... Ts>
+using pack_from_type_list_t = pack_from_type_list<Ts...>::type;
+
 }
+
+

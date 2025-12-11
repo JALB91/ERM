@@ -15,7 +15,6 @@ struct QueueFamilyIndices;
 struct SwapChainSupportDetails;
 } // namespace erm
 
-#ifdef ERM_DEBUG
 #define ERM_VK_CHECK(OP)                            \
 	{                                               \
 		const auto _result = OP;                     \
@@ -35,13 +34,6 @@ struct SwapChainSupportDetails;
 		ERM_ASSERT(_result.result == vk::Result::eSuccess); \
 		DEST = std::move(_result.value);                               \
 	}
-#else
-#define ERM_VK_CHECK(OP) OP
-
-#define ERM_VK_CHECK_AND_RETURN(OP) return OP.value;
-
-#define ERM_VK_CHECK_AND_ASSIGN(DEST, OP) DEST = OP.value;
-#endif
 
 namespace erm::VkUtils {
 

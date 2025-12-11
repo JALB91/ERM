@@ -10,6 +10,8 @@
 
 namespace erm {
 
+ERM_Editor::ERM_Editor() noexcept = default;
+
 int ERM_Editor::run(int /*argc*/, char** /*argv*/)
 {
 	auto& engine = ObjectRegistry::require<Engine>();

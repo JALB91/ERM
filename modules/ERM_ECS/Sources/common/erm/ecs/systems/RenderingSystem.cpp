@@ -377,8 +377,14 @@ void RenderingSystem::preRender()
 			return;
 		}
 		
-		auto* model = mAssetsRepo.get<Model>(component.getModel());
+		auto modelResult = mAssetsRepo.get<Model>(component.getModel());
+
+		if (!modelResult.has_value())
+		{
+			return;
+		}
 		
+		auto* model = modelResult.value();
 		RenderingComponent* renderingComponent = requireComponent(component.getComponentId());
 		SkeletonComponent* skeletonComponent = mSkeletonSystem->getComponent(component.getComponentId());
 

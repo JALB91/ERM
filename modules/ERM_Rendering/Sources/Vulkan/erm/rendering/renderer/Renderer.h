@@ -71,7 +71,7 @@ public:
 	inline vk::Sampler getTextureSampler() const { return mTextureSampler; }
 	inline vk::Format getSwapChainImageFormat() const { return mSwapChainImageFormat; }
 	
-	const std::vector<GPUTexture*>& getTargetFrameBuffers(FrameBufferType frameBufferType) const;
+	const std::vector<std::unique_ptr<GPUTexture>>& getTargetFrameBuffers(FrameBufferType frameBufferType) const;
 	GPUTexture* getDefaultTexture(TextureType type) const;
 
 private:
@@ -105,7 +105,7 @@ private:
 	std::vector<vk::ImageView> mSwapChainImageViews;
 	std::vector<vk::UniqueCommandBuffer> mCommandBuffers;
 
-	std::unordered_map<FrameBufferType, std::vector<GPUTexture*>> mFrameBuffers;
+	std::unordered_map<FrameBufferType, std::vector<std::unique_ptr<GPUTexture>>> mFrameBuffers;
 
 	vk::Sampler mTextureSampler;
 

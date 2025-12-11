@@ -50,13 +50,14 @@ void AnimationSystem::postUpdate()
 			continue;
 		}
 
-		auto* skeleton = assetsRepo->get<Skeleton>(skeletonHandle);
+		auto skeletonResult = assetsRepo->get<Skeleton>(skeletonHandle);
 		
-		if (skeleton == nullptr)
+		if (!skeletonResult.has_value())
 		{
 			return;
 		}
 		
+		auto* skeleton = skeletonResult.value();
 		auto& rootBone = skeleton->mRootBone;
 
 		float& currentAnimationTime = animationComponent->mCurrentAnimationTime;

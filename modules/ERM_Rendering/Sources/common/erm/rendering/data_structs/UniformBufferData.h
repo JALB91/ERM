@@ -18,7 +18,6 @@ struct IBindingData
 		: mBinding(binding)
 		, mSet(set)
 	{}
-	virtual ~IBindingData() = default;
 
 	u32 mBinding;
 	u32 mSet;
@@ -28,14 +27,14 @@ struct UboData : IBindingData
 {
 	UboData(u32 binding, u32 set, UboId uboId, u64 size, u32 offset)
 		: IBindingData(binding, set)
-		, mUboId(uboId)
 		, mStride(size)
 		, mOffset(offset)
+		, mUboId(uboId)
 	{}
 
-	UboId mUboId;
 	u64 mStride;
 	u32 mOffset;
+	UboId mUboId;
 };
 
 struct SamplerData : IBindingData

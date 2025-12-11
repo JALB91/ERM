@@ -27,7 +27,7 @@ public:
 	}
 	
 	template<typename T>
-	T* get(AssetHandle<T> handle)
+	auto get(AssetHandle<T> handle)
 	{
 		return getAssetsPool<T>().get(handle);
 	}

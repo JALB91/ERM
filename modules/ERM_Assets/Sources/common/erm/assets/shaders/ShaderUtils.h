@@ -9,11 +9,10 @@
 
 namespace erm::ShaderUtils {
 
-extern std::string getShaderFilename(
+std::string getShaderFilename(
 	std::string_view shader,
 	u32 index,
 	ShaderType type);
-extern std::string getSuffixForShaderIndex(u32 index);
-extern std::string_view getExtensionForShaderType(ShaderType shaderType);
+std::string_view getExtensionForShaderType(ShaderType shaderType);
 
 } // namespace erm::ShaderUtils

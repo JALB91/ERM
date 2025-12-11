@@ -32,14 +32,20 @@ void ModelSystem::postUpdate()
 	auto assetsRepo = ObjectRegistry::get<AssetsRepo>();
 
 	forEachComponent([this, &assetsRepo](ModelComponent& component) {
-//		TODO: Damiano
-		auto* model = assetsRepo->get<Model>(component.getModel());
-
-		if (!component.isDirty() && model == nullptr)
+		if (!component.isDirty())
 		{
 			return;
 		}
 
+		//		TODO: Damiano
+		auto modelResult = assetsRepo->get<Model>(component.getModel());
+
+		if (!modelResult.has_value())
+		{
+			return;
+		}
+
+		auto* model = modelResult.value();
 		if (model)
 		{
 //			auto* transformComponent = mTransformSystem->requireComponent(component.getComponentId());

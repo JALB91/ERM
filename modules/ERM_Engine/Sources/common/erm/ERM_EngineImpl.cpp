@@ -4,11 +4,14 @@
 
 namespace erm {
 
+ERM_Engine::ERM_Engine() noexcept
+	: mObjects(std::make_unique<Engine>())
+{}
+
 int ERM_Engine::run(int /*argc*/, char** /*argv*/)
 {
 	auto& engine = ObjectRegistry::require<Engine>();
-	(void)engine;
-//	engine.run();
+	//engine.run();
 
 	return EXIT_SUCCESS;
 }

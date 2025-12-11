@@ -9,8 +9,6 @@
 #include <erm/utils/Utils.h>
 #include <erm/window/Window.h>
 
-#include <GLFW/glfw3.h>
-
 #include <magic_enum/magic_enum.hpp>
 
 #include <array>
@@ -49,7 +47,11 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
 	void* /*pUserData*/
 )
 {
-	if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
+	if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT)
+	{
+		ERM_LOG_INFO("[Vulkan] Validation layer: %s", pCallbackData->pMessage);
+	}
+	else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
 	{
 		ERM_LOG_WARNING("[Vulkan] Validation layer: %s", pCallbackData->pMessage);
 	}
@@ -103,7 +105,9 @@ namespace erm {
 
 Device::Device() noexcept
 : mWindow(ObjectRegistry::require<Window>())
+#ifdef ERM_DEBUG
 , mDebugMessenger(nullptr)
+#endif
 {
 	if (!createInstance())
 	{
@@ -287,7 +291,7 @@ void Device::setupDebugMessenger()
 bool Device::createSurface()
 {
 	VkSurfaceKHR _surface;
-	if (glfwCreateWindowSurface(VkInstance(mInstance.get()), mWindow.getGLFWWindow(), nullptr, &_surface) != VK_SUCCESS)
+	if (const auto result = glfwCreateWindowSurface(VkInstance(mInstance.get()), mWindow.getGLFWWindow(), nullptr, &_surface); result != VK_SUCCESS)
 	{
 		return false;
 	}

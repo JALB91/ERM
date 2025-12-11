@@ -4,6 +4,8 @@
 
 namespace erm {
 
+ERM_NN::ERM_NN() noexcept = default;
+
 int ERM_NN::run(int argc, char** argv)
 {
 	erm::nn::NN nn;

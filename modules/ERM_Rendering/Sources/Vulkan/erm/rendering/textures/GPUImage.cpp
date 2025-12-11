@@ -1,6 +1,5 @@
 #include "erm/rendering/textures/GPUImage.h"
 
-#include "erm/rendering/Device.h"
 #include "erm/rendering/buffers/HostBuffer.h"
 #include "erm/rendering/utils/VkUtils.h"
 
@@ -14,22 +13,9 @@
 namespace erm {
 
 template<typename T>
-constexpr vk::ImageViewType ToImageViewType()
-{
-	if constexpr (std::is_same_v<T, Texture>)
-	{
-		return vk::ImageViewType::e2D;
-	}
-	else if constexpr (std::is_same_v<T, CubeMap>)
-	{
-		return vk::ImageViewType::eCube;
-	}
-}
-
-template<typename T>
-GPUImage<T>::GPUImage(Device& device, T& texture)
+GPUImage<T>::GPUImage(Device& device, T texture)
 	: mDevice(device)
-	, mTexture(texture)
+	, mTexture(std::move(texture))
 	, mMipLevels(0)
 	, mArrayLayers(0)
 	, mImage(nullptr)
@@ -45,51 +31,10 @@ GPUImage<T>::GPUImage(Device& device, T& texture)
 	createTextureImageView();
 }
 
-template<typename T>
-GPUImage<T>::GPUImage(
-	Device& device,
-	T& texture,
-	u32 mipLevels,
-	u32 arrayLayers,
-	vk::Image image,
-	vk::ImageView imageView,
-	vk::DeviceMemory imageMemory,
-	vk::ImageLayout imageLayout,
-	vk::Format format)
-	: mDevice(device)
-	, mTexture(texture)
-	, mMipLevels(mipLevels)
-	, mArrayLayers(arrayLayers)
-	, mImage(image)
-	, mImageView(imageView)
-	, mImageMemory(imageMemory)
-	, mImageLayout(imageLayout)
-	, mFormat(format)
-	, mImageViewType(ToImageViewType<T>())
-	, mOwnsImage(false)
-{}
-
-template<typename T>
-GPUImage<T>::~GPUImage()
-{
-	if (mOwnsImage && mImage)
-	{
-		mDevice->destroyImage(mImage);
-	}
-	if (mImageView)
-	{
-		mDevice->destroyImageView(mImageView);
-	}
-	if (mImageMemory)
-	{
-		mDevice->freeMemory(mImageMemory);
-	}
-}
-
 template<>
 void GPUImage<Texture>::createTextureImage()
 {
-	const vk::DeviceSize imageSize = mTexture.mWidth * mTexture.mHeight * 4;
+	const vk::DeviceSize imageSize = mTexture.mWidth * mTexture.mHeight * mTexture.mBPP;
 
 	HostBuffer stagingBuffer(mDevice, imageSize, BufferUsage::TRANSFER_SRC);
 	stagingBuffer.update(mTexture.mBuffer);
@@ -101,9 +46,9 @@ void GPUImage<Texture>::createTextureImage()
 	imageInfo.extent.depth = 1;
 	imageInfo.mipLevels = mMipLevels;
 	imageInfo.arrayLayers = mArrayLayers;
-	imageInfo.format = getImageFormat();
+	imageInfo.format = mFormat;
 	imageInfo.tiling = vk::ImageTiling::eOptimal;
-	imageInfo.initialLayout = getImageLayout();
+	imageInfo.initialLayout = mImageLayout;
 	imageInfo.usage = vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eSampled;
 	imageInfo.samples = vk::SampleCountFlagBits::e1;
 	imageInfo.sharingMode = vk::SharingMode::eExclusive;
@@ -121,7 +66,7 @@ void GPUImage<Texture>::createTextureImage()
 	VkUtils::copyBufferToImage(
 		mDevice,
 		stagingBuffer.getBuffer(),
-		getImage(),
+		mImage,
 		static_cast<u32>(mTexture.mWidth),
 		static_cast<u32>(mTexture.mHeight));
 }
@@ -144,9 +89,9 @@ void GPUImage<CubeMap>::createTextureImage()
 	imageInfo.extent.depth = 1;
 	imageInfo.mipLevels = mMipLevels;
 	imageInfo.arrayLayers = mArrayLayers;
-	imageInfo.format = getImageFormat();
+	imageInfo.format = mFormat;
 	imageInfo.tiling = vk::ImageTiling::eOptimal;
-	imageInfo.initialLayout = getImageLayout();
+	imageInfo.initialLayout = mImageLayout;
 	imageInfo.usage = vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled;
 	imageInfo.samples = vk::SampleCountFlagBits::e1;
 	imageInfo.sharingMode = vk::SharingMode::eExclusive;
@@ -165,7 +110,7 @@ void GPUImage<CubeMap>::createTextureImage()
 	VkUtils::copyBufferToImage(
 		mDevice,
 		stagingBuffer.getBuffer(),
-		getImage(),
+		mImage,
 		static_cast<u32>(mTexture.mWidth),
 		static_cast<u32>(mTexture.mHeight),
 		mArrayLayers);
@@ -176,8 +121,8 @@ void GPUImage<T>::transitionImageLayout(vk::ImageLayout newLayout)
 {
 	VkUtils::transitionImageLayout(
 		mDevice,
-		getImage(),
-		getImageLayout(),
+		mImage,
+		mImageLayout,
 		newLayout,
 		mMipLevels,
 		mArrayLayers);
@@ -188,7 +133,7 @@ void GPUImage<T>::transitionImageLayout(vk::ImageLayout newLayout)
 template<typename T>
 void GPUImage<T>::generateMipmaps()
 {
-	vk::FormatProperties properties = mDevice.getVkPhysicalDevice().getFormatProperties(getImageFormat());
+	vk::FormatProperties properties = mDevice.getVkPhysicalDevice().getFormatProperties(mFormat);
 
 	if (!(properties.optimalTilingFeatures & vk::FormatFeatureFlagBits::eSampledImageFilterLinear) || mTexture.getMipLevels() <= 1)
 	{
@@ -200,7 +145,7 @@ void GPUImage<T>::generateMipmaps()
 	vk::CommandBuffer commandBuffer = VkUtils::beginSingleTimeCommands(mDevice);
 
 	vk::ImageMemoryBarrier barrier {};
-	barrier.image = getImage();
+	barrier.image = mImage;
 	barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 	barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 	barrier.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
@@ -245,9 +190,9 @@ void GPUImage<T>::generateMipmaps()
 		blit.dstSubresource.layerCount = 1;
 
 		commandBuffer.blitImage(
-			getImage(),
+			mImage,
 			vk::ImageLayout::eTransferSrcOptimal,
-			getImage(),
+			mImage,
 			vk::ImageLayout::eTransferDstOptimal,
 			1,
 			&blit,
@@ -273,6 +218,7 @@ void GPUImage<T>::generateMipmaps()
 		{
 			mipWidth /= 2;
 		}
+
 		if (mipHeight > 1)
 		{
 			mipHeight /= 2;
@@ -305,9 +251,9 @@ template<typename T>
 void GPUImage<T>::createTextureImageView()
 {
 	vk::ImageViewCreateInfo viewInfo {};
-	viewInfo.image = getImage();
-	viewInfo.viewType = getImageViewType();
-	viewInfo.format = getImageFormat();
+	viewInfo.image = mImage;
+	viewInfo.viewType = mImageViewType;
+	viewInfo.format = mFormat;
 	viewInfo.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
 	viewInfo.subresourceRange.baseMipLevel = 0;
 	viewInfo.subresourceRange.levelCount = mMipLevels;
